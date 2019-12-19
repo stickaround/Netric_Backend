@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Create UUIDs from IDs for every object
  */
+
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
@@ -19,6 +21,7 @@ $numNullObjects = 0;
 // Page through 100,000 objects at once and update
 do {
     // First create all UUIDs in the gid field
+    $db->query("SET statement_timeout=0");
     $sql = "SELECT 
                 o.id, o.guid, t.name as obj_type FROM objects o, app_object_types t
             WHERE 
@@ -50,6 +53,5 @@ do {
             ['field_data' => json_encode($entity->toArray())],
             ['guid' => $row['guid']]
         );
-        echo "Updated " . $row['guid'] . " with " . count($entity->toArray()) . " fields set\n";
     }
 } while ($numNullObjects > 0);

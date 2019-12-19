@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Controller;
 
 use Netric;
@@ -71,7 +72,7 @@ class FilesControllerTest extends TestCase
     const TEST_USER_PASS = "testpass";
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $loader = $sl->get(EntityLoader::class);
@@ -106,7 +107,7 @@ class FilesControllerTest extends TestCase
      * Cleanup after a test runs
      */
     protected function tearDown(): void
-{
+    {
         // Clean-up test files
         foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file);
@@ -126,8 +127,8 @@ class FilesControllerTest extends TestCase
     }
 
     /**
- * Try uploading a file into the FileSystem through the controller
- */
+     * Try uploading a file into the FileSystem through the controller
+     */
     public function testUpload()
     {
         /*

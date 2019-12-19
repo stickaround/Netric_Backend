@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Permissions;
 
 use PHPUnit\Framework\TestCase;
@@ -34,7 +35,7 @@ class DaclTest extends TestCase
     private $testEntities = [];
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
@@ -47,7 +48,7 @@ class DaclTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         $serviceLocator = $this->account->getServiceManager();
 
         // Delete any test entities
@@ -63,7 +64,7 @@ class DaclTest extends TestCase
 
         // First pass will fail since users was not given access
         $this->assertFalse($dacl->isAllowed($this->user));
-        
+
         // Add USERS group and then test again
         $dacl->allowUser($this->user->getId());
 
@@ -176,6 +177,9 @@ class DaclTest extends TestCase
 
         // Make sure anonymous access is not allowed if only authenticated users were given access
         $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW));
+
+        // Make sure users group is allowed
+        $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_USERS, Dacl::PERM_VIEW));
 
         // Now give everyone view only access and test
         $dacl->allowGroup(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW);

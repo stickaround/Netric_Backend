@@ -23,6 +23,6 @@ os.chdir("../docker")
 #subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "build"])
 
 # Run docker compose daemon
-subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "up", "-d"])
+subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "up"])
 
 print("Done. The netric service is now running. To use the UI, clone netric.client.web and follow the instructions in the README.")

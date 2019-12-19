@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
@@ -9,6 +10,7 @@ use Netric\EntityDefinition\Field;
 use DateTime;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Permissions\DaclLoaderFactory;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -165,7 +167,7 @@ class Entity implements EntityInterface
         if (count($valueNames)) {
             return implode(',', $valueNames);
         }
-        
+
         // No names could be found
         return '';
     }
@@ -247,7 +249,7 @@ class Entity implements EntityInterface
             if (is_array($valueName)) {
                 $this->fkeysValues[$strName] = $valueName;
             } elseif (is_string($value) || is_numeric($value)) {
-                $this->fkeysValues[$strName] = array((string)$value => $valueName);
+                $this->fkeysValues[$strName] = array((string) $value => $valueName);
             } else {
                 throw new \InvalidArgumentException(
                     "Invalid value name for object or fkey: " .
@@ -283,7 +285,7 @@ class Entity implements EntityInterface
 
                 // Update valueName just in case it has changed
                 if ($valueName) {
-                    $valueKeyName = (string)$value;
+                    $valueKeyName = (string) $value;
                     $this->fkeysValues[$strName][$value] = $valueName;
                 }
 
@@ -296,7 +298,7 @@ class Entity implements EntityInterface
         $this->values[$strName][] = $value;
 
         if ($valueName) {
-            $valueKeyName = (string)$value;
+            $valueKeyName = (string) $value;
 
             // Make sure we initialize the arrays
             if (!isset($this->fkeysValues[$strName])) {
@@ -612,6 +614,16 @@ class Entity implements EntityInterface
         // Process any temp files or attachments associated with this entity
         $this->processTempFiles($sm->get(FileSystemFactory::class));
 
+        // Set permissions for entity folder (if we have attachments)
+        $folderPath = '/System/Entity/' . $this->getValue('guid');
+        $entityFolder = $sm->get(FileSystemFactory::class)->openFolder($folderPath);
+        if ($entityFolder && $entityFolder->getValue('guid')) {
+            $dacl = $sm->get(DaclLoaderFactory::class)->getForEntity($this);
+            if ($dacl) {
+                $sm->get(FileSystemFactory::class)->setFileDacl($folderPath, $dacl);
+            }
+        }
+
         // Call derived extensions
         $this->onAfterSave($sm);
     }
@@ -759,10 +771,12 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if ($field->type == FIELD::TYPE_TEXT) {
-                if ($field->name == "description"
+                if (
+                    $field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
-                    || $field->name == "comment") {
+                    || $field->name == "comment"
+                ) {
                     return $this->getValue($field->name);
                 }
             }
@@ -989,7 +1003,8 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if (($field->type == FIELD::TYPE_OBJECT || $field->type === FIELD::TYPE_OBJECT_MULTI) &&
-                $field->subtype === "file") {
+                $field->subtype === ObjectTypes::FILE
+            ) {
                 // Only process if the value has changed since last time
                 if ($this->fieldValueChanged($field->name)) {
                     // Make a files array - if it's an object than an array of one
@@ -1005,9 +1020,9 @@ class Entity implements EntityInterface
                             if ($file) {
                                 if ($fileSystem->fileIsTemp($file)) {
                                     // Move file to a permanent directory
-                                    $objDir = "/System/objects/" . $this->def->getObjType() . "/" . $this->getId();
+                                    $objDir = "/System/Entity/" . $this->getValue('guid');
                                     $fldr = $fileSystem->openFolder($objDir, true);
-                                    if ($fldr->getId()) {
+                                    if ($fldr && $fldr->getId()) {
                                         $fileSystem->moveFile($file, $fldr);
                                     }
                                 }
@@ -1051,7 +1066,7 @@ class Entity implements EntityInterface
 
         // We used to store a flag in cache, but now we put comment counts in the actual object
         if ($numComments == null) {
-            $cur = ($this->getValue('num_comments')) ? (int)$this->getValue('num_comments') : 0;
+            $cur = ($this->getValue('num_comments')) ? (int) $this->getValue('num_comments') : 0;
             if ($added) {
                 $cur++;
             } elseif ($cur > 0) {
@@ -1075,12 +1090,14 @@ class Entity implements EntityInterface
         foreach ($fields as $field) {
             switch ($field->type) {
                 case FIELD::TYPE_TEXT:
-                // Check if any text fields are tagging users
+                    // Check if any text fields are tagging users
                     $tagged = self::getTaggedObjRef($this->getValue($field->name));
                     foreach ($tagged as $objRef) {
-                    // We need to have a valid uid, before we add it as follower
-                        if ($objRef['obj_type'] === 'user' && $objRef['id'] &&
-                            is_numeric($objRef['id']) && $objRef['id'] > 0) {
+                        // We need to have a valid uid, before we add it as follower
+                        if (
+                            $objRef['obj_type'] === 'user' && $objRef['id'] &&
+                            is_numeric($objRef['id']) && $objRef['id'] > 0
+                        ) {
                             $this->addMultiValue("followers", $objRef['id'], $objRef['name']);
                         }
                     }
@@ -1088,7 +1105,7 @@ class Entity implements EntityInterface
 
                 case FIELD::TYPE_OBJECT:
                 case FIELD::TYPE_OBJECT_MULTI:
-                // Check if any fields are referencing users
+                    // Check if any fields are referencing users
                     if ($field->subtype === "user") {
                         $value = $this->getValue($field->name);
 

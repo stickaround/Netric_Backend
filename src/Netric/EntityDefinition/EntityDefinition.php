@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityDefinition;
 
 use Netric\Permissions\Dacl;
@@ -310,7 +311,7 @@ class EntityDefinition
         if (isset($this->fields[$fname])) {
             return $this->fields[$fname];
         }
-        
+
         return null;
     }
 
@@ -422,6 +423,7 @@ class EntityDefinition
             "application_id" => $this->applicationId,
             "fields" => array(),
             "aggregates" => array(),
+            "dacl" => '',
             "store_revisions" => $this->storeRevisions,
             "parent_field" => $this->parentField,
         );
@@ -447,6 +449,10 @@ class EntityDefinition
                 'obj_field_to_update' => $agg->refField,
                 'ref_obj_update' => $agg->field,
             );
+        }
+
+        if ($this->getDacl()) {
+            $ret['dacl'] = $this->getDacl()->toArray();
         }
 
         return $ret;
@@ -552,6 +558,11 @@ class EntityDefinition
 
         if (isset($data['store_revisions'])) {
             $this->storeRevisions = $data['store_revisions'];
+        }
+
+        // Check if dacl is not empty
+        if (isset($data['dacl']) && is_array($data['dacl'])) {
+            $this->setDacl(new Dacl($data['dacl']));
         }
 
         return true;

@@ -1,14 +1,17 @@
 <?php
+
 /**
  * FileSystem service
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem;
 
 use Netric\Error;
 use Netric\EntityQuery;
+use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\FolderEntity;
 use Netric\Entity\ObjType\FileEntity;
@@ -421,6 +424,19 @@ class FileSystem implements Error\ErrorAwareInterface
         $this->entityDataMapper->save($file);
 
         return $file;
+    }
+
+    /**
+     * Set dacl permissions for a file and save the changes
+     *
+     * @param FileEntity $file
+     * @param Dacl $dacl
+     * @return void
+     */
+    public function setFileDacl(FileEntity $file, Dacl $dacl)
+    {
+        $file->setValue('dacl', json_encode($dacl->toArray()));
+        $this->entityLoader->save($file);
     }
 
     /**

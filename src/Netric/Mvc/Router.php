@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Interfaces RPC requests via query url variable function=functionName to functions in a class
  *
@@ -28,6 +29,7 @@
  * @package   RpcSvr
  * @copyright Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\Mvc;
 
 use Netric\Application\Response\ResponseInterface;
@@ -111,6 +113,11 @@ class Router
             throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
         }
 
+        // If this is an OPTIONS request for CORS, return an empty body
+        if ($request->getParam('REQUEST_METHOD') == 'OPTIONS') {
+            return new HttpResponse($request);
+        }
+
         // If a factory does not exist for the controller, call the legacy Controller caller
         if (!class_exists($this->className . "Factory")) {
             return $this->runLegacyWithoutFactory($request, $fName);
@@ -126,11 +133,6 @@ class Router
             throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
         }
 
-        // If this is an OPTIONS request for CORS, return an empty body
-        if ($request->getParam('REQUEST_METHOD') == 'OPTIONS') {
-            return new HttpResponse($request);
-        }
-        
         // Check permissions to make sure the current user has access to the controller
         $hasPermission = $this->currentUserHasPermission($request);
 
@@ -142,7 +144,7 @@ class Router
             if (!$this->testMode) {
                 $response->printOutput();
             }
-            
+
             return $response;
         }
 
@@ -180,7 +182,7 @@ class Router
         }
 
         $requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
-        if (method_exists($this->controllerClass, $fName) && $requestMethod!='OPTIONS') {
+        if (method_exists($this->controllerClass, $fName) && $requestMethod != 'OPTIONS') {
             /*
              * TODO: $params are no longer needed for action functions
              * since every controller now has a $this->request object
@@ -273,7 +275,7 @@ class Router
         $functionName = strtolower($request->getMethod()) . $functionName . "Action";
 
         // Set controller class to load
-        $this->setClass("Netric\\Controller\\".$controller."Controller");
+        $this->setClass("Netric\\Controller\\" . $controller . "Controller");
 
         return $functionName;
     }

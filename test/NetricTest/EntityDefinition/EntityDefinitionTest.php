@@ -1,9 +1,12 @@
 <?php
+
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
  */
+
 namespace NetricTest\EntityDefinition;
 
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use PHPUnit\Framework\TestCase;
 use Netric\Permissions\Dacl;
@@ -23,7 +26,7 @@ class EntityDefinitionTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
     }
 
@@ -33,7 +36,7 @@ class EntityDefinitionTest extends TestCase
     public function testGetObjType()
     {
         $entDef = new EntityDefinition(ObjectTypes::CONTACT);
-        
+
         $this->assertEquals(ObjectTypes::CONTACT, $entDef->getObjType());
     }
 
@@ -57,17 +60,21 @@ class EntityDefinitionTest extends TestCase
     public function testFromArray()
     {
         $entDef = new EntityDefinition(ObjectTypes::CONTACT);
-        
+
+        // Dacl
+        $dacl = new Dacl();
+        $dacl->allowGroup(UserEntity::GROUP_USERS);
+
         $data = array(
             "revision" => 10,
             "default_activity_level" => 7,
             "is_private" => true,
             "recur_rules" => array(
-                "field_time_start"=>"ts_start",
-                "field_time_end"=>"ts_end",
-                "field_date_start"=>"ts_start",
-                "field_date_end"=>"ts_end",
-                "field_recur_id"=>"recurrence_pattern"
+                "field_time_start" => "ts_start",
+                "field_time_end" => "ts_end",
+                "field_date_start" => "ts_start",
+                "field_date_end" => "ts_end",
+                "field_recur_id" => "recurrence_pattern"
             ),
             "inherit_dacl_ref" => "project",
             "parent_field" => "parent",
@@ -80,6 +87,7 @@ class EntityDefinitionTest extends TestCase
                     "type" => "text",
                 ),
             ),
+            "dacl" => $dacl->toArray(),
         );
 
         $entDef->fromArray($data);
@@ -97,7 +105,7 @@ class EntityDefinitionTest extends TestCase
         // Test recur array
         $this->assertEquals($entDef->recurRules['field_time_start'], $data['recur_rules']['field_time_start']);
         // The rest of recur should be an array match
-        
+
         // Test field
         $field = $entDef->getField("subject");
         $this->assertEquals("subject", $field->name);
@@ -106,6 +114,11 @@ class EntityDefinitionTest extends TestCase
 
         // Test default for store revisions
         $this->assertEquals(true, $entDef->storeRevisions);
+
+        // Make sure the dacl was instantiated from the data
+        $this->assertTrue(
+            $entDef->getDacl()->groupIsAllowed(UserEntity::GROUP_USERS, Dacl::PERM_VIEW)
+        );
     }
 
     /**
@@ -130,7 +143,7 @@ class EntityDefinitionTest extends TestCase
         $this->assertEquals($title, $definition->getTitle());
     }
 
-    public function testSEtAndGetDacl()
+    public function testSetAndGetDacl()
     {
         $dacl = new Dacl();
         $definition = new EntityDefinition(ObjectTypes::CONTACT);
