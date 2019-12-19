@@ -239,12 +239,14 @@ foreach ($groupingTables as $details) {
 
         // If we are dealing with fkey_multi field, then we need to replace the referenced field values which are stored as JSON encoded text.
         if ($field->type === $field::TYPE_GROUPING_MULTI) {
-            $updateQuery = "UPDATE {$def->object_table}
+            if ($db->columnExists($def->object_table, $fieldName)) {
+                $updateQuery = "UPDATE {$def->object_table}
                                 SET {$fieldName} = REPLACE({$fieldName}, '\"$oldFkeyId\"', '\"{$group->id}\"'),
                                     {$fieldName}_fval = REPLACE({$fieldName}_fval, '\"$oldFkeyId\"', '\"{$group->id}\"')";
 
-            // Update the table reference
-            $db->query($updateQuery);
+                // Update the table reference
+                $db->query($updateQuery);
+            }
         } else {
             $updateData = [];
             $updateData[$fieldName] = $group->id;

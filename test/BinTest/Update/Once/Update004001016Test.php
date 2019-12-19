@@ -139,12 +139,13 @@ class Update004001016Test extends TestCase
          */
         $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $customerDefinition = $definitionLoader->get(ObjectTypes::CONTACT);
-        $data = ['groups' => '[ ' . $groupsGrp->id . ']'];
-        $this->db->update(
-            $customerDefinition->object_table,
-            ['groups' => "[" . $groupsGrp->id . "]"],
-            ['id' => $contactId]
-        );
+        
+        $customer->addMultiValue("groups", $groupsGrp->id);
+        $sql = "UPDATE {$customerDefinition->object_table} SET field_data = :field_data WHERE field_data->>'id' = :id";
+        $this->db->query($sql, [
+            "field_data" => json_encode($customer->toArray()),
+            "id" => $contactId
+        ]);
 
         // Run the update script
         $binScript = new BinScript($this->account->getApplication(), $this->account);

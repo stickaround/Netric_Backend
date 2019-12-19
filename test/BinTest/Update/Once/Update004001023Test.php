@@ -139,7 +139,12 @@ class Update004001023Test extends TestCase
          * We need to manually update the task entity to set the old user id
          * because entityDataMapper is checking the foreign tables before setting a referenced entity
          */
-        $db->update('objects_task', ["user_id" => $oldUserId], ["id" => $taskOldUserRefId]);
+        $taskOldUserRef->setValue("user_id", $oldUserId);
+        $sql = "UPDATE objects_task SET field_data = :field_data WHERE field_data->>'id' = :id";
+        $db->query($sql, [
+            "field_data" => json_encode($taskOldUserRef->toArray()),
+            "id" => $taskOldUserRefId
+        ]);
 
         /*
          * Manually add the moved user in objects_moved table so it will not execute the updateOldReferences() function

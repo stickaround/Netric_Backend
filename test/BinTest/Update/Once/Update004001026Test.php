@@ -64,11 +64,11 @@ class Update004001026Test extends TestCase
         $db = $serviceManager->get(RelationalDbFactory::class);
 
         // Change the guid of the system user to some random UUID
-        $db->update(
-            'objects_user',
-            ['guid'=>'bf82ad1b-2c39-4751-8890-a9f06579f840', 'uname'=>'system-notvalid'],
-            ['name'=>'system']
-        );
+        $sql = "UPDATE objects_user SET guid=:guid WHERE field_data->>'name' = :name";
+        $db->query($sql, [
+            "guid" => "bf82ad1b-2c39-4751-8890-a9f06579f840",
+            "name" => "system"
+        ]);
 
         // Run the 026.php update once script to scan the objects_moved table and update the referenced entities
         $binScript = new BinScript($this->account->getApplication(), $this->account);
@@ -77,6 +77,5 @@ class Update004001026Test extends TestCase
         // Make sure we can load the system user by the correct GUID
         $systemUser = $entityLoader->getByGuid(UserEntity::USER_SYSTEM);
         $this->assertNotNull($systemUser);
-        $this->assertEquals('system', $systemUser->getValue('uname'));
     }
 }
