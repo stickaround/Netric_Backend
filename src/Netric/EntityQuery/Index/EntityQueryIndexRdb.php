@@ -12,6 +12,7 @@ use Netric\Entity\Entity;
 use Netric\EntityQuery\Aggregation\AggregationInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Relational Database implementation of indexer for querying objects
@@ -33,6 +34,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     protected function setUp(Account $account)
     {
         $this->database = $account->getServiceManager()->get(RelationalDbFactory::class);
+        $this->log = $account->getServiceManager()->get(LogFactory::class);
     }
 
     /**
@@ -255,6 +257,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $ofields = $entityDefinition->getFields();
 
         foreach ($entitiesRawDataArray as $rawData) {
+            $this->log->info("EntityQueryIndexRdb - field_data" . $rawData['field_data']);
+
             $entityData = json_decode($rawData['field_data'], true);
 
             // If field_data->>id is empty, then we need to retrieve it from the actual field id column.
@@ -289,6 +293,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $entity = $this->entityFactory->create($entityDefinition->getObjType());
             $entity->fromArray($entityData);
             $entity->resetIsDirty();
+
+            $this->log->info("EntityQueryIndexRdb - to array" . json_encode($entity->toArray()));
             $results->addEntity($entity);
         }
     }
