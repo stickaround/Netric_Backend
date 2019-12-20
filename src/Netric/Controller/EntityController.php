@@ -19,7 +19,6 @@ use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionData
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityGroupings\LoaderFactory;
 use Netric\EntityGroupings\Loader as GroupingsLoader;
-use Netric\WorkFlow\DataMapper\DataMapperFactory as WFDataMapperFactory;
 
 /**
  * Controller for interacting with entities
@@ -33,10 +32,7 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function getTestAction()
     {
-        $wfLoader = $this->account->getServiceManager()->get(WFDataMapperFactory::class);
-        $wfLoader = $wfLoader->getWorkFlows();
-
-        return $this->sendOutput(1);
+        return $this->sendOutput("test");
     }
 
     /**
