@@ -6,7 +6,6 @@ use Netric\WorkFlow\Action\ActionFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Log\LogFactory;
 
 /**
  * Base DataMapper class
@@ -25,7 +24,6 @@ class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
         $database = $sl->get(RelationalDbFactory::class);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         $entityIndex = $sl->get(IndexFactory::class);
-        $log = $sl->get(LogFactory::class);
-        return new WorkFlowRdbDataMapper($database, $entityLoader, $entityIndex, $actionFactory, $log);
+        return new WorkFlowRdbDataMapper($database, $entityLoader, $entityIndex, $actionFactory);
     }
 }

@@ -174,7 +174,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Start constructing query
-        $sql = "SELECT field_data FROM $objectTable";
+        $sql = "SELECT id, field_data FROM $objectTable";
 
         // Set the query condition string if it is available
         if (!empty($conditionString)) {
@@ -256,6 +256,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         foreach ($entitiesRawDataArray as $rawData) {
             $entityData = json_decode($rawData['field_data'], true);
+
+            // If field_data->>id is empty, then we need to retrieve it from the actual field id column.
+            if (empty($entityData['id'])) {
+                $entityData['id'] = $rawData['id'];
+            }
 
             // Decode multival fields into arrays of values
             foreach ($ofields as $fname => $fdef) {

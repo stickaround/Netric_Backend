@@ -12,7 +12,6 @@ use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\Log\Log;
 use DateTime;
 
 /**
@@ -60,14 +59,12 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         RelationalDbInterface $database,
         EntityLoader $entityLoader,
         IndexInterface $entityIndex,
-        ActionFactory $actionFactory,
-        Log $log
+        ActionFactory $actionFactory
     ) {
         $this->database = $database;
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
         $this->actionFactory = $actionFactory;
-        $this->log = $log;
     }
 
     /**
@@ -192,12 +189,6 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      */
     public function getWorkFlows($objType = null, $onlyActive = true, $filterEvent = null)
     {
-        if ($this->database->columnExists("objects_workflow", "f_active")) {
-            $sql = "SELECT id, field_data FROM objects_workflow WHERE f_active = 't'";
-            $result = $this->database->query($sql);
-            $this->log->info("WorkFlowRdbDataMapper - RowData: " . json_encode($result->fetch(0)));
-        }
-
         // Query all actions
         $query = new EntityQuery(ObjectTypes::WORKFLOW);
 
@@ -260,7 +251,6 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
                 break;
         }
 
-        $this->log->info("WorkFlowRdbDataMapper - Query Data: " . json_encode($query->toArray()));
         $result = $this->entityIndex->executeQuery($query);
         if (!$result) {
             throw new \RuntimeException("Could not get actions: " . $this->entityIndex->getLastError());
@@ -270,7 +260,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         $num = $result->getNum();
         for ($i = 0; $i < $num; $i++) {
             $entityWorkflow = $result->getEntity($i);
-            $this->log->info("WorkFlowRdbDataMapper - Workflows: " . json_encode($entityWorkflow->toArray()));
+
             $workFlows[] = $this->constructWorkFlowFromRow($entityWorkflow->toArray());
         }
 
@@ -418,7 +408,6 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      */
     private function getActionsArray($workflowId, $parentActionId = null, $circularCheck = array())
     {
-        $this->log->info("WorkFlowRdbDataMapper - workflowId: $workflowId; parentActionId: $parentActionId;");
         if (!is_numeric($workflowId) && !is_numeric($parentActionId)) {
             throw new \InvalidArgumentException("A valid workflow id or parent action id must be passed");
         }
