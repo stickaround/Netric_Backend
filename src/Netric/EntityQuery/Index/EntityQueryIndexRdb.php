@@ -12,6 +12,7 @@ use Netric\Entity\Entity;
 use Netric\EntityQuery\Aggregation\AggregationInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Relational Database implementation of indexer for querying objects
@@ -33,6 +34,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     protected function setUp(Account $account)
     {
         $this->database = $account->getServiceManager()->get(RelationalDbFactory::class);
+        $this->log = $account->getServiceManager()->get(LogFactory::class);
     }
 
     /**
@@ -174,7 +176,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Start constructing query
-        $sql = "SELECT field_data FROM $objectTable";
+        $sql = "SELECT * FROM $objectTable";
 
         // Set the query condition string if it is available
         if (!empty($conditionString)) {
@@ -257,6 +259,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         foreach ($entitiesRawDataArray as $rawData) {
             $entityData = json_decode($rawData['field_data'], true);
 
+            // If field_data->>id is empty, then we need to retrieve it from the actual field id column.
+            if (empty($entityData['id'])) {
+                $entityData['id'] = $rawData['id'];
+            }
+
             // Decode multival fields into arrays of values
             foreach ($ofields as $fname => $fdef) {
                 if ($fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI) {
@@ -285,6 +292,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $entity->fromArray($entityData);
             $entity->resetIsDirty();
             $results->addEntity($entity);
+
+            if ($entityDefinition->getObjType() == 'status_update') {
+                $this->log->info("EntityQueryIndexRdb_entity_data: " . json_encode($entityData));
+                $this->log->info("EntityQueryIndexRdb_entity_array: " . json_encode($entity->toArray()));
+            }
         }
     }
 
