@@ -257,10 +257,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $ofields = $entityDefinition->getFields();
 
         foreach ($entitiesRawDataArray as $rawData) {
-            if ($entityDefinition->getObjType() == 'status_update') {
-                $this->log->info("EntityQueryIndexRdb - query data" . json_encode($rawData));
-            }
-
             $entityData = json_decode($rawData['field_data'], true);
 
             // If field_data->>id is empty, then we need to retrieve it from the actual field id column.
@@ -296,6 +292,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $entity->fromArray($entityData);
             $entity->resetIsDirty();
             $results->addEntity($entity);
+
+            if ($entityDefinition->getObjType() == 'status_update') {
+                $this->log->info("EntityQueryIndexRdb_entity_data: " . json_encode($entityData));
+                $this->log->info("EntityQueryIndexRdb_entity_array: " . json_encode($entity->toArray()));
+            }
         }
     }
 
