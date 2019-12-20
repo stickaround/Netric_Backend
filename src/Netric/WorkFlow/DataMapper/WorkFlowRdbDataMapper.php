@@ -192,7 +192,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      */
     public function getWorkFlows($objType = null, $onlyActive = true, $filterEvent = null)
     {
-        if ($db->columnExists("objects_workflow", "f_active")) {
+        if ($this->database->columnExists("objects_workflow", "f_active")) {
             $sql = "SELECT id, field_data FROM objects_workflow WHERE f_active = 't'";
             $result = $this->database->query($sql);
             $this->log->info("WorkFlowRdbDataMapper - RowData: " . json_encode($result->fetch(0)));
