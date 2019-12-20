@@ -254,7 +254,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
                 break;
         }
 
-        $this->log->info("WorkFlowRdbDataMapper - Query Data: {$query->toArray()}");
+        $this->log->info("WorkFlowRdbDataMapper - Query Data: " . json_encode($query->toArray()));
         $result = $this->entityIndex->executeQuery($query);
         if (!$result) {
             throw new \RuntimeException("Could not get actions: " . $this->entityIndex->getLastError());
@@ -264,7 +264,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         $num = $result->getNum();
         for ($i = 0; $i < $num; $i++) {
             $entityWorkflow = $result->getEntity($i);
-            $this->log->info("WorkFlowRdbDataMapper - Workflows: {$entityWorkflow->toArray()}");
+            $this->log->info("WorkFlowRdbDataMapper - Workflows: " . json_encode($entityWorkflow->toArray()));
             $workFlows[] = $this->constructWorkFlowFromRow($entityWorkflow->toArray());
         }
 
