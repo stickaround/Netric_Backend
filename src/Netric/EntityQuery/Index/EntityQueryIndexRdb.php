@@ -176,7 +176,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Start constructing query
-        $sql = "SELECT id, field_data FROM $objectTable";
+        $sql = "SELECT * FROM $objectTable";
 
         // Set the query condition string if it is available
         if (!empty($conditionString)) {
@@ -257,7 +257,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $ofields = $entityDefinition->getFields();
 
         foreach ($entitiesRawDataArray as $rawData) {
-            $this->log->info("EntityQueryIndexRdb - field_data" . $rawData['field_data']);
+            if ($entityDefinition->getObjType() == 'status_update') {
+                $this->log->info("EntityQueryIndexRdb - query data" . json_encode($rawData));
+            }
 
             $entityData = json_decode($rawData['field_data'], true);
 
@@ -293,8 +295,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $entity = $this->entityFactory->create($entityDefinition->getObjType());
             $entity->fromArray($entityData);
             $entity->resetIsDirty();
-
-            $this->log->info("EntityQueryIndexRdb - to array" . json_encode($entity->toArray()));
             $results->addEntity($entity);
         }
     }
