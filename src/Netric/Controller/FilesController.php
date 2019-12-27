@@ -185,6 +185,23 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              */
             $folderEntity = $this->fileSystem->openFolder($folderPath);
             if ($folderEntity) {
+                $daclData = array(
+                    "entries" => array(
+                        array(
+                            "name" => Dacl::PERM_VIEW,
+                            "groups" => [UserEntity::GROUP_EVERYONE]
+                        ),
+                        array(
+                            "name" => Dacl::PERM_EDIT,
+                            "groups" => [UserEntity::GROUP_EVERYONE]
+                        ),
+                        array(
+                            "name" => Dacl::PERM_DELETE,
+                            "groups" => [UserEntity::GROUP_EVERYONE]
+                        ),
+                    ),
+                );
+                $folderEntity->setValue("dacl", json_encode($daclData));
                 $dacl = $daclLoader->getForEntity($folderEntity);
                 if (!$dacl->isAllowed($user)) {
                     // Log a warning to flag repeat offenders
@@ -269,8 +286,18 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Make sure the current user has access
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+
+        $daclData = array(
+            "entries" => array(
+                array(
+                    "name" => Dacl::PERM_VIEW,
+                    "groups" => [UserEntity::GROUP_EVERYONE]
+                ),
+            ),
+        );
+        $fileEntity->setValue("dacl", json_encode($daclData));
         $dacl = $daclLoader->getForEntity($fileEntity);
-        if (!$dacl->isAllowed($user)) {
+        if (!$dacl->isAllowed($user, Dacl::PERM_VIEW)) {
             $log->warning(
                 "FilesController->getDownloadAction: User " . $user->getName() .
                     " does not have permissions to " .
