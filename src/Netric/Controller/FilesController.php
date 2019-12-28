@@ -49,6 +49,13 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
      */
     private $dataPath = null;
 
+    private $allowedGroups = [
+        UserEntity::GROUP_ADMINISTRATORS,
+        UserEntity::GROUP_CREATOROWNER,
+        UserEntity::GROUP_USERS,
+        UserEntity::GROUP_EVERYONE
+    ];
+
     /**
      * Override initialization
      */
@@ -184,23 +191,25 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              * that the user has permission to the parent folder before creating a child folder
              */
             $folderEntity = $this->fileSystem->openFolder($folderPath);
+            
             if ($folderEntity) {
                 $daclData = array(
                     "entries" => array(
                         array(
                             "name" => Dacl::PERM_VIEW,
-                            "groups" => [UserEntity::GROUP_EVERYONE]
+                            "groups" => $this->allowedGroups
                         ),
                         array(
                             "name" => Dacl::PERM_EDIT,
-                            "groups" => [UserEntity::GROUP_EVERYONE]
+                            "groups" => $this->allowedGroups
                         ),
                         array(
                             "name" => Dacl::PERM_DELETE,
-                            "groups" => [UserEntity::GROUP_EVERYONE]
+                            "groups" => $this->allowedGroups
                         ),
                     ),
                 );
+
                 $folderEntity->setValue("dacl", json_encode($daclData));
                 $dacl = $daclLoader->getForEntity($folderEntity);
                 if (!$dacl->isAllowed($user)) {
@@ -291,7 +300,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             "entries" => array(
                 array(
                     "name" => Dacl::PERM_VIEW,
-                    "groups" => [UserEntity::GROUP_EVERYONE]
+                    "groups" => $this->allowedGroups
                 ),
             ),
         );

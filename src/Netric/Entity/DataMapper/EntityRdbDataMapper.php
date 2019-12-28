@@ -49,9 +49,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     {
         $def = $entity->getDefinition();
 
-        $sql = "SELECT field_data FROM {$def->getTable()} WHERE field_data->>'id' = :id";
+        $sql = "SELECT guid, field_data FROM {$def->getTable()} WHERE field_data->>'id' = :id";
         $result = $this->database->query($sql, ["id" => $id]);
-
         // The object was not found
         if ($result->rowCount() === 0) {
             return false;
@@ -60,6 +59,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // Load rows and set values in the entity
         $row = $result->fetch();
         $entityData = json_decode($row['field_data'], true);
+        $entityData['guid'] = $row['guid'];
         $allFields = $def->getFields();
         foreach ($allFields as $fieldDefinition) {
             $this->setEntityFieldValueFromRow($entity, $fieldDefinition, $entityData);
@@ -76,7 +76,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchDataByGuid(string $guid):? array
     {
-        $sql = "SELECT field_data FROM objects where guid = :guid";
+        $sql = "SELECT guid, field_data FROM objects where guid = :guid";
         $result = $this->database->query($sql, ['guid' => $guid]);
 
         // The object was not found
@@ -94,6 +94,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * changed after the entity was exported and saved to the column
          */
         $entityData['id'] = $entityData['id'];
+        $entityData['guid'] = $row['guid'];
         $entityData['ts_entered'] = $entityData['ts_entered'];
         $entityData['ts_updated'] = $entityData['ts_updated'];
         return $entityData;
