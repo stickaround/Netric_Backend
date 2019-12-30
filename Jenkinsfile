@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     sh 'env'
-                    sh 'docker system prune -af —volumes'
+                    sh 'docker system prune -af --volumes'
                     checkout scm
                     dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", ".");
                 }
