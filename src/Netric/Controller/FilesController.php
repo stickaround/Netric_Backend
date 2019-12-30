@@ -49,6 +49,11 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
      */
     private $dataPath = null;
 
+    /**
+     * Get Allowed Groups
+     *
+     * @var int[]
+     */
     private $allowedGroups = [
         UserEntity::GROUP_ADMINISTRATORS,
         UserEntity::GROUP_CREATOROWNER,
