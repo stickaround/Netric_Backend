@@ -101,6 +101,7 @@ class NotificationEntity extends Entity implements EntityInterface
         // Get the referenced entity
         $objReference = Entity::decodeObjRef($this->getValue("obj_reference"));
         $entity = $sm->get(EntityLoaderFactory::class)->get($objReference['obj_type'], $objReference['id']);
+        $log = $sm->get(LogFactory::class);
 
         // Set the body
         $body = $creator->getName() . " " . $this->getValue('name') . " on ";
@@ -127,6 +128,7 @@ class NotificationEntity extends Entity implements EntityInterface
         }
 
         try {
+            $log->info("NotificationEntity:: Trying to send notification to users");
             // Create a new message and send it
             $from = new Address($fromEmail, $creator->getName());
             $message = new Mail\Message();
@@ -136,13 +138,13 @@ class NotificationEntity extends Entity implements EntityInterface
             $message->setEncoding('UTF-8');
             $message->setSubject($this->getValue("name"));
             $this->mailTransport->send($message);
+            $log->info("NotificationEntity:: Notification successfully sent.");
         } catch (\Exception $ex) {
             /*
              * This should never happen, but in case we cannot send the email for
              * reason we should log it as an error and continue working.
              */
-            $log = $sm->get(LogFactory::class);
-            $log->error("Could not send notification: " . $ex->getMessage(), var_export($config, true));
+            $log->error("NotificationEntity:: Could not send notification: " . $ex->getMessage(), var_export($config, true));
         }
     }
 
