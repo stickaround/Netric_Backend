@@ -128,7 +128,10 @@ class NotificationEntity extends Entity implements EntityInterface
         }
 
         try {
-            $log->info("NotificationEntity:: Trying to send notification to users");
+            $from = $config->email['noreply'];
+            $to = $user->getValue("email");
+            $subject = $this->getValue("name");
+            $log->info("NotificationEntity:: From: $from; To: $to; Subject: $subject;");
             // Create a new message and send it
             $from = new Address($fromEmail, $creator->getName());
             $message = new Mail\Message();
