@@ -240,10 +240,8 @@ class Smtp implements TransportInterface
         $recipients = $this->prepareRecipients($message);
         $headers    = $this->prepareHeaders($message);
         $body       = $this->prepareBody($message);
-        $this->log->info("TransportSmtp:: From: $from; Recipients: $recipients; Headers: " . json_decode($headers));
-
+        
         if ((count($recipients) == 0) && (!empty($headers) || !empty($body))) {
-            $this->log->error("TransportSmtp:: Transport expects at least one recipient if the message has at least one header or body");
             // Per RFC 2821 3.3 (page 18)
             throw new Exception\RuntimeException(
                 sprintf(
@@ -254,12 +252,7 @@ class Smtp implements TransportInterface
         }
 
         // Set sender email address
-        try {
-            $connection->mail($from);
-            $this->log->info("TransportSmtp:: Email Successfully Sent.");
-        } catch (Exception\RuntimeException $ex) {
-            $this->log->error("TransportSmtp:: Sending email error message - " . $ex->getMessage());
-        }
+        $connection->mail($from);
 
         // Set recipient forward paths
         foreach ($recipients as $recipient) {
@@ -267,12 +260,7 @@ class Smtp implements TransportInterface
         }
 
         // Issue DATA command to client
-        try {
-            $connection->data($headers . Headers::EOL . $body);
-            $this->log->info("TransportSmtp:: Issue DATA command to client - Done.");
-        } catch (Exception\RuntimeException $ex) {
-            $this->log->error("TransportSmtp:: Issue data error message - " . $ex->getMessage());
-        }
+        $connection->data($headers . Headers::EOL . $body);
     }
 
     /**
