@@ -57,7 +57,6 @@ class SmtpFactory implements AccountServiceFactoryInterface
         $username = $settings->get("email/smtp_user");
         $password = $settings->get("email/smtp_password");
         $port = $settings->get("email/smtp_port");
-        $log->info("SmtpFactory:: Email Settings - Host - $host; Password: $password Port: $port");
         if ($host) {
             $options['host'] = $host;
 
@@ -84,7 +83,8 @@ class SmtpFactory implements AccountServiceFactoryInterface
 
         // Set log for SMTP
         $log = $serviceManager->get(LogFactory::class);
-        $log->info("SmtpFactory:: Options - " . json_encode($options));
+        $log->info("SmtpFactory:: Email Settings - Host - $host; Password: $password Port: $port");
+        $log->info("SmtpFactory:: SMTP Options - " . json_encode($options));
         $transport->setLog($log);
 
         return $transport;
