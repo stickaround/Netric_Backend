@@ -11,6 +11,7 @@ use Netric\Mail\Headers;
 use Netric\Mail\Message;
 use Netric\Mail\Protocol;
 use Netric\Mail\Protocol\Exception as ProtocolException;
+use Netric\Log\Log;
 
 /**
  * SMTP connection object
@@ -43,6 +44,11 @@ class Smtp implements TransportInterface
      * @var Protocol\SmtpPluginManager
      */
     protected $plugins;
+
+    /**
+     * @var log
+     */
+    protected $log;
 
     /**
      * Constructor.
@@ -234,8 +240,10 @@ class Smtp implements TransportInterface
         $recipients = $this->prepareRecipients($message);
         $headers    = $this->prepareHeaders($message);
         $body       = $this->prepareBody($message);
+        $this->log->info("TransportSmtp:: From: $from; Recipients: $recipients; Headers: " . json_decode($headers));
 
         if ((count($recipients) == 0) && (!empty($headers) || !empty($body))) {
+            $this->log->error("TransportSmtp:: Transport expects at least one recipient if the message has at least one header or body");
             // Per RFC 2821 3.3 (page 18)
             throw new Exception\RuntimeException(
                 sprintf(
@@ -246,7 +254,12 @@ class Smtp implements TransportInterface
         }
 
         // Set sender email address
-        $connection->mail($from);
+        try {
+            $connection->mail($from);
+            $this->log->info("TransportSmtp:: Email Successfully Sent.");
+        } catch (Exception\RuntimeException $ex) {
+            $this->log->error("TransportSmtp:: Sending email error message - " . $ex->getMessage());
+        }
 
         // Set recipient forward paths
         foreach ($recipients as $recipient) {
@@ -254,7 +267,12 @@ class Smtp implements TransportInterface
         }
 
         // Issue DATA command to client
-        $connection->data($headers . Headers::EOL . $body);
+        try {
+            $connection->data($headers . Headers::EOL . $body);
+            $this->log->info("TransportSmtp:: Issue DATA command to client - Done.");
+        } catch (Exception\RuntimeException $ex) {
+            $this->log->error("TransportSmtp:: Issue data error message - " . $ex->getMessage());
+        }
     }
 
     /**
@@ -352,6 +370,7 @@ class Smtp implements TransportInterface
         $config           = $options->getConnectionConfig();
         $config['host']   = $options->getHost();
         $config['port']   = $options->getPort();
+        $this->log->info("TransportSmtp:: config - " . json_encode($config));
         $connection       = $this->plugin($options->getConnectionClass(), $config);
         $this->connection = $connection;
 
@@ -373,5 +392,10 @@ class Smtp implements TransportInterface
         $this->connection->helo($this->getOptions()->getName());
 
         return $this->connection;
+    }
+
+    public function setLog(Log $log)
+    {
+        $this->log = $log;
     }
 }

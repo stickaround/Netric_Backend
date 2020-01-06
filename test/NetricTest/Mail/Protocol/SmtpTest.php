@@ -14,6 +14,8 @@ use Netric\Mail\Message;
 use Netric\Mail\Transport\Smtp;
 use NetricTest\Mail\Fixture\SmtpProtocolSpy;
 use PHPUnit\Framework\TestCase;
+use Netric\Log\LogFactory;
+use NetricTest\Bootstrap;
 
 /**
  * @group      Netric_Mail
@@ -30,6 +32,10 @@ class SmtpTest extends TestCase
         $this->transport  = new Smtp();
         $this->connection = new SmtpProtocolSpy();
         $this->transport->setConnection($this->connection);
+
+        $account = Bootstrap::getAccount();
+        $log = $account->getServiceManager()->get(LogFactory::class);
+        $this->transport->setLog($log);
     }
 
     public function testSendMinimalMail()
