@@ -11,7 +11,6 @@ use Netric\Mail\Headers;
 use Netric\Mail\Message;
 use Netric\Mail\Protocol;
 use Netric\Mail\Protocol\Exception as ProtocolException;
-use Netric\Log\Log;
 
 /**
  * SMTP connection object
@@ -44,11 +43,6 @@ class Smtp implements TransportInterface
      * @var Protocol\SmtpPluginManager
      */
     protected $plugins;
-
-    /**
-     * @var log
-     */
-    protected $log;
 
     /**
      * Constructor.
@@ -358,7 +352,6 @@ class Smtp implements TransportInterface
         $config           = $options->getConnectionConfig();
         $config['host']   = $options->getHost();
         $config['port']   = $options->getPort();
-        $this->log->info("TransportSmtp:: config - " . json_encode($config));
         $connection       = $this->plugin($options->getConnectionClass(), $config);
         $this->connection = $connection;
 
@@ -380,10 +373,5 @@ class Smtp implements TransportInterface
         $this->connection->helo($this->getOptions()->getName());
 
         return $this->connection;
-    }
-
-    public function setLog(Log $log)
-    {
-        $this->log = $log;
     }
 }
