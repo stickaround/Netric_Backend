@@ -101,6 +101,8 @@ class NotificationEntity extends Entity implements EntityInterface
         // Get the referenced entity
         $objReference = Entity::decodeObjRef($this->getValue("obj_reference"));
         $entity = $sm->get(EntityLoaderFactory::class)->get($objReference['obj_type'], $objReference['id']);
+
+        $config = $sm->get(ConfigFactory::class);
         $log = $sm->get(LogFactory::class);
 
         // Set the body
@@ -111,13 +113,12 @@ class NotificationEntity extends Entity implements EntityInterface
         $body .= "---------------------------------------\r\n\r\n";
 
         // Add link to body
-        $body .= $sm->getAccount()->getAccountUrl() . "/obj/";
-        $body .= $objReference['obj_type'] . "/" . $objReference['id'];
+        $protocol = ($config->use_https) ? "https://" : "http://";
+        $body .= $protocol . $config->application_url . "/browse/" . $entity->getValue("guid");
         $body .= "\n\n";
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
 
         // Set from
-        $config = $sm->get(ConfigFactory::class);
         $fromEmail = $config->email['noreply'];
 
         // Add special dropbox that enables users to comment by just replying to an email
@@ -131,7 +132,6 @@ class NotificationEntity extends Entity implements EntityInterface
             $from = $config->email['noreply'];
             $to = $user->getValue("email");
             $subject = $this->getValue("name");
-            $log->info("NotificationEntity:: From: $from; To: $to; Subject: $subject;");
             // Create a new message and send it
             $from = new Address($fromEmail, $creator->getName());
             $message = new Mail\Message();
@@ -141,7 +141,6 @@ class NotificationEntity extends Entity implements EntityInterface
             $message->setEncoding('UTF-8');
             $message->setSubject($this->getValue("name"));
             $this->mailTransport->send($message);
-            $log->info("NotificationEntity:: Notification successfully sent.");
         } catch (\Exception $ex) {
             /*
              * This should never happen, but in case we cannot send the email for
