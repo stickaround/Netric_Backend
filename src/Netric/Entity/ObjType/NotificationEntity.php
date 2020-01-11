@@ -114,9 +114,10 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // Add link to body
         $protocol = ($config->use_https) ? "https://" : "http://";
-        $body .= $protocol . $config->application_url . "/browse//" . $entity->getValue("guid");
+        $body .= $protocol . $config->application_url . "/browse/" . $entity->getValue("guid");
         $body .= "\n\n";
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
+        $log->info("NotificationEntity:: Body: $body;");
 
         // Set from
         $fromEmail = $config->email['noreply'];
@@ -132,6 +133,8 @@ class NotificationEntity extends Entity implements EntityInterface
             $from = $config->email['noreply'];
             $to = $user->getValue("email");
             $subject = $this->getValue("name");
+            $log->info("NotificationEntity:: From: $from; To: $to; Subject: $subject;");
+
             // Create a new message and send it
             $from = new Address($fromEmail, $creator->getName());
             $message = new Mail\Message();
@@ -141,6 +144,7 @@ class NotificationEntity extends Entity implements EntityInterface
             $message->setEncoding('UTF-8');
             $message->setSubject($this->getValue("name"));
             $this->mailTransport->send($message);
+            $log->info("NotificationEntity:: Notification successfully sent.");
         } catch (\Exception $ex) {
             /*
              * This should never happen, but in case we cannot send the email for

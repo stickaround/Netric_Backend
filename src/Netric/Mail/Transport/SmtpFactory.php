@@ -82,7 +82,7 @@ class SmtpFactory implements AccountServiceFactoryInterface
 
         // Log the Smtp settings
         $log = $serviceManager->get(LogFactory::class);
-        $log->info("SmtpFactory:: Email Settings - Host - $host; Port: $port");
+        $log->info("SmtpFactory:: Email Options - " . json_encode($options));
 
         return $transport;
     }
