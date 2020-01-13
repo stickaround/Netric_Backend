@@ -1338,6 +1338,7 @@ return array(
 
     "object_groupings" => array(
         "PROPERTIES" => array(
+            'guid' => array('type' => SchemaProperty::TYPE_UUID),
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
             'name' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'object_type_id' => array('type' => SchemaProperty::TYPE_INT),
@@ -1351,6 +1352,7 @@ return array(
             'f_closed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
             'filter_values' => array('type' => SchemaProperty::TYPE_CHAR_256),
+            'path' => array('type' => SchemaProperty::TYPE_CHAR_256),
         ),
         'PRIMARY_KEY' => array('id'),
         "INDEXES" => array(
@@ -1358,6 +1360,7 @@ return array(
             array('properties' => array("field_id")),
             array('properties' => array("parent_id")),
             array('properties' => array("user_id")),
+            array('properties' => array("path")),
         )
     ),
 
