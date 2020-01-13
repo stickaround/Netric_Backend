@@ -7,7 +7,7 @@ use Netric\ServiceManager;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Config\ConfigFactory;
 use Netric\EntitySync\EntitySyncFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Log\LogFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
@@ -28,7 +28,7 @@ class ReceiverServiceFactory implements ServiceManager\AccountServiceFactoryInte
         $collectionFactory = new CollectionFactory($sl);
         $entitySyncServer = $sl->get(EntitySyncFactory::class);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $groupingsLoader = $sl->get(LoaderFactory::class);
+        $groupingsLoader = $sl->get(GroupingLoaderFactory::class);
         $log = $sl->get(LogFactory::class);
         $index = $sl->get(IndexFactory::class);
         $vaultService = $sl->get(VaultServiceFactory::class);

@@ -2,7 +2,7 @@
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 
@@ -21,7 +21,7 @@ $log = $account->getApplication()->getLog();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $dm = $serviceManager->get(EntityGroupingDataMapperFactory::class);
-$groupingsLoader = $serviceManager->get(LoaderFactory::class);
+$groupingsLoader = $serviceManager->get(GroupingLoaderFactory::class);
 $entityDefinitionDataMapper = $account->getServiceManager()->get(DataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 

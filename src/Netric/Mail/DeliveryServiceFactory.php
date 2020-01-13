@@ -6,7 +6,7 @@
 namespace Netric\Mail;
 
 use Netric\ServiceManager;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\FileSystem\FileSystemFactory;
@@ -27,7 +27,7 @@ class DeliveryServiceFactory implements ServiceManager\AccountServiceFactoryInte
     {
         $user = $sl->getAccount()->getUser();
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $groupingsLoader = $sl->get(LoaderFactory::class);
+        $groupingsLoader = $sl->get(GroupingLoaderFactory::class);
         $log = $sl->get(LogFactory::class);
         $index = $sl->get(IndexFactory::class);
         $fileSystem = $sl->get(FileSystemFactory::class);

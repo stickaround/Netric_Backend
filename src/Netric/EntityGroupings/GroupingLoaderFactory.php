@@ -14,21 +14,21 @@ use Netric\ServiceManager;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
- * Create a Entity Loader service
+ * Create a Grouping Loader service
  */
-class LoaderFactory implements ServiceManager\AccountServiceFactoryInterface
+class GroupingLoaderFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
      * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return Loader
+     * @return GroupingLoader
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
         $dm = $sl->get(EntityGroupingDataMapperFactory::class);
         $cache = $sl->get(CacheFactory::class);
 
-        return new Loader($dm, $cache);
+        return new GroupingLoader($dm, $cache);
     }
 }

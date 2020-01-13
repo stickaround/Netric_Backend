@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Identity mapper for entity groupings
  */
@@ -11,7 +10,7 @@ use Netric\Cache\CacheInterface;
 /**
  * Class to handle to loading of object definitions
  */
-class Loader
+class GroupingLoader
 {
     /**
      * The current data mapper we are using for this object

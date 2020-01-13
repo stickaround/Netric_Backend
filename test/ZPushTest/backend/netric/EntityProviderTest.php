@@ -11,7 +11,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\FileSystem\FileSystemFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Log\LogFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery;
@@ -114,7 +114,7 @@ class EntityProviderTest extends TestCase
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create inbox mailbox for testing
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$user->getId()));
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
@@ -226,7 +226,7 @@ class EntityProviderTest extends TestCase
     {
         // Add a mail folder for the user
         $sm = $this->account->getServiceManager();
-        $entityGroupingsLoader = $sm->get(LoaderFactory::class);
+        $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
         $groupings = $entityGroupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
 
         /*
@@ -524,7 +524,7 @@ class EntityProviderTest extends TestCase
     {
         // Add a grouping to use
         $sm = $this->account->getServiceManager();
-        $entityGroupingsLoader = $sm->get(LoaderFactory::class);
+        $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
         $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE, "groups", array("user_id"=>$this->user->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
@@ -570,7 +570,7 @@ class EntityProviderTest extends TestCase
     public function testMoveEntity_Email()
     {
         // Create drafts mailbox for testing - Inbox is already added in $this->setUp
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
         if (!$groupings->getByName("Drafts")) {
             $inbox = $groupings->create("Drafts");
@@ -725,7 +725,7 @@ class EntityProviderTest extends TestCase
     public function testDeleteFolder()
     {
         // Create a grouping to delete
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
         $group = $groupings->getByName("Test");
         if (!$group) {

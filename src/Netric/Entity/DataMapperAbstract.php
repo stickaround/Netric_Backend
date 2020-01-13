@@ -15,7 +15,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\Validator\EntityValidatorFactory;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\Field;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
@@ -547,7 +547,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     private function updateForeignKeyNames(Entity $entity)
     {
         $serviceManager = $this->getAccount()->getServiceManager();
-        $groupingsLoader = $serviceManager->get(EntityGroupingLoaderFactory::class);
+        $groupingsLoader = $serviceManager->get(GroupingLoaderFactory::class);
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Setup filters for groupings if this is a private object

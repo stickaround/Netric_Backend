@@ -14,6 +14,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\EntityGroupings;
 use Netric\EntityGroupings\Group;
+use Netric\EntityGroupings\GroupingLoader;
 use Netric\Log\LogInterface;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -39,9 +40,9 @@ class ActivityLog
     /**
      * Loader to get and save entity groupings
      *
-     * @var EntityGroupings\Loader|null
+     * @var GroupingLoader|null
      */
-    private $groupingsLoader = null;
+    private $groupingLoader = null;
 
     /**
      * Log in case we have errors
@@ -55,18 +56,18 @@ class ActivityLog
      *
      * @param LogInterface $log
      * @param EntityLoader $entityLoader Loader for getting referenced entities
-     * @param EntityGroupings\Loader $groupingsLoader Loader for getting/setting groupings
+     * @param GroupingLoader $groupingLoader Loader for getting/setting groupings
      * @param ObjType\UserEntity $currentUser
      */
     public function __construct(
         LogInterface $log,
         EntityLoader $entityLoader,
-        EntityGroupings\Loader $groupingsLoader,
+        GroupingLoader $groupingLoader,
         ObjType\UserEntity $currentUser
     ) {
         $this->log = $log;
         $this->entityLoader = $entityLoader;
-        $this->groupingsLoader = $groupingsLoader;
+        $this->groupingLoader = $groupingLoader;
         $this->currentUser = $currentUser;
     }
 
@@ -251,7 +252,7 @@ class ActivityLog
      */
     private function getActivityTypeGroup(EntityDefinition $objDef, $createIfMissing = true)
     {
-        $groupings = $this->groupingsLoader->get(ObjectTypes::ACTIVITY, "type_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ACTIVITY, "type_id");
 
         $existing = $groupings->getByName($objDef->title);
         if ($existing) {
@@ -266,7 +267,7 @@ class ActivityLog
         $group = new Group();
         $group->name = $objDef->title;
         $groupings->add($group);
-        $this->groupingsLoader->save($groupings);
+        $this->groupingLoader->save($groupings);
 
         // Return the newly created group id
         return $group;

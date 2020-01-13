@@ -12,7 +12,7 @@ use Netric\EntityGroupings\Group;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Mail\ReceiverServiceFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
@@ -77,7 +77,7 @@ class ReceiverServiceTest extends TestCase
         $this->account->setCurrentUser($this->user);
 
         // If it does not exist, create an inbox for the user
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
@@ -120,7 +120,7 @@ class ReceiverServiceTest extends TestCase
 {
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
-        $groupingsLoader = $serviceLocator->get(LoaderFactory::class);
+        $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",

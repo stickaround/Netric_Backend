@@ -8,7 +8,7 @@ namespace NetricTest\EntityGroupings;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -45,7 +45,7 @@ class EntityGroupingStateManagerTest extends TestCase
 
         
         // Load through loader
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $loader->clearCache(ObjectTypes::CONTACT, "groups");
         
         // Use the loader to get the object
@@ -91,7 +91,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $dm->saveGroupings($groupings);
 
         // Load through loader
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         // Use the loader to get private groups
         $groupings = $loader->get(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));

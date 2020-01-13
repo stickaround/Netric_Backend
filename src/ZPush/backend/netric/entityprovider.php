@@ -34,7 +34,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**
@@ -372,7 +372,7 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_EMAIL:
-                $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+                $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
                 $groupings = $groupingsLoader->get(
                     ObjectTypes::EMAIL_MESSAGE,
                     "mailbox_id",
@@ -511,7 +511,7 @@ class EntityProvider
          * the names are different like - groupings.user_id=email_message.owner_id
          */
         $serviceManager = $this->account->getServiceManager();
-        $gloader = $serviceManager->get(LoaderFactory::class);
+        $gloader = $serviceManager->get(GroupingLoaderFactory::class);
         $groupings = $gloader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
@@ -613,7 +613,7 @@ class EntityProvider
 
         // Get note groupings
         $serviceManager = $this->account->getServiceManager();
-        $gloader = $serviceManager->get(LoaderFactory::class);
+        $gloader = $serviceManager->get(GroupingLoaderFactory::class);
         $groupings = $gloader->get(
             ObjectTypes::NOTE,
             "groups",
@@ -1217,7 +1217,7 @@ class EntityProvider
         if (isset($syncNote->categories)) {
 
             $sm = $this->account->getServiceManager();
-            $entityGroupingsLoader = $sm->get(LoaderFactory::class);
+            $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
             $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE, "groups", array("user_id" => $this->user->getId()));
 
             foreach ($syncNote->categories as $catName) {

@@ -12,7 +12,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\FileSystem\FileSystemFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Log\LogFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery;
@@ -292,7 +292,7 @@ class BackendNetricTest extends TestCase
     public function testChangesSink()
     {
         // Get inbox - it was created in $this->setUp
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
         $group = $groupings->create('test-' . rand());
         $group->user_id = $this->user->getId();

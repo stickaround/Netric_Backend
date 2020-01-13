@@ -17,8 +17,8 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
-use Netric\EntityGroupings\LoaderFactory;
-use Netric\EntityGroupings\Loader as GroupingsLoader;
+use Netric\EntityGroupings\GroupingLoaderFactory;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Controller for interacting with entities
@@ -372,7 +372,7 @@ class EntityController extends Mvc\AbstractAccountController
         $filterArray = ($filterString) ? json_decode($filterString) : array();
 
         // Get the entity loader that will be used to get the groupings model
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         // Get the groupings for this $objType and $fieldName
         try {
@@ -834,7 +834,7 @@ class EntityController extends Mvc\AbstractAccountController
         $groupFilter = isset($objData['filter']) ? $objData['filter'] : array();
 
         // Get the entity loader that will be used to get the groupings model
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         // Get the groupings for this obj_type and field_name
         $groupings = $this->getGroupings($loader, $objData['obj_type'], $objData['field_name'], $groupFilter);
@@ -890,13 +890,13 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Get the groupings model
      *
-     * @param {GroupingsLoader} $loader The entity loader that we will be using to get the entity definition
+     * @param {GroupingLoader} $loader The entity loader that we will be using to get the entity definition
      * @param {string} $objType The object type where we will be getting the groups
      * @param {string} $fieldName The name of the field we are working with
      * @param {array} $groupFilter This will be used to filter the groups and return only the groups that mached the filter
      * @return EntityGroupings Returns the instance of EntityGroupings Model
      */
-    private function getGroupings(GroupingsLoader $loader, $objType, $fieldName, &$groupFilter = array())
+    private function getGroupings(GroupingLoader $loader, $objType, $fieldName, &$groupFilter = array())
     {
         try {
             // Get the entity defintion of the $objType
