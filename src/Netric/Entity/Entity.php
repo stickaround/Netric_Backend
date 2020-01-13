@@ -745,6 +745,9 @@ class Entity implements EntityInterface
         if ($this->def->getField("first_name")) {
             return $this->getValue("first_name");
         }
+        if ($this->def->getField("comment")) {
+            return $this->getValue("comment");
+        }
 
         return $this->getId();
     }
