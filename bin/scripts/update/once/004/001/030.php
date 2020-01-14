@@ -25,6 +25,9 @@ $updateGroupingsPath = function ($sql, $database) {
     $database->commitTransaction();
 };
 
+// Make sure that all groupings have guid
+$updateGroupingsPath("UPDATE $tableName SET guid = CAST(LPAD(TO_HEX(id), 32, '0') AS UUID) WHERE guid IS NULL", $db);
+
 // Sql statement for updating the groupings path for private entities (where user guidid is set)
 $sql = "UPDATE $tableName AS groupings
     SET path = CONCAT(obj_types.name, '/', obj_fields.name, '/', users.guid)

@@ -111,6 +111,6 @@ class Update004001030Test extends TestCase
         $row = $result->fetch();
 
         // Make sure that we have path value (object type / field name / user id)
-        $this->assertEquals($row["path"], ObjectTypes::ISSUE . "/status_id/" . UserEntity::USER_CURRENT);
+        $this->assertEquals($row["path"], ObjectTypes::ISSUE . "/status_id/" . $currentUser->getValue("guid"));
     }
 }
