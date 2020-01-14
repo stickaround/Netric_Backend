@@ -1,6 +1,6 @@
 <?php
 /**
- * Make sure the bin/scripts/update/once/004/001/028.php script works
+ * Make sure the bin/scripts/update/once/004/001/029.php script works
  */
 namespace BinTest\Update\Once;
 
@@ -11,7 +11,7 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\LoaderFactory;
 
-class Update004001028Test extends TestCase
+class Update004001029Test extends TestCase
 {
     /**
      * Handle to account
@@ -40,7 +40,7 @@ class Update004001028Test extends TestCase
     protected function setUp(): void
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/028.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/029.php";
         $this->loader = $this->account->getServiceManager()->get(LoaderFactory::class);
     }
 
@@ -84,12 +84,12 @@ class Update004001028Test extends TestCase
 
         // Create a new instance of group and add it in the groupings
         $group = new Group();
-        $group->setValue("name", "UnitTestOnce 028 group");
+        $group->setValue("name", "UnitTestOnce 029 group");
         $groupings->add($group);
 
         // Create a new instance of group with user id
         $groupWithUserId = new Group();
-        $groupWithUserId->setValue("name", "UnitTestOnce 028 group with user id");
+        $groupWithUserId->setValue("name", "UnitTestOnce 029 group with user id");
         $groupWithUserId->setValue("user_id", 123);
         $groupings->add($groupWithUserId);
 
@@ -102,7 +102,7 @@ class Update004001028Test extends TestCase
         $row = $result->fetch();
 
         // Make sure that we have null guid and path
-        $this->assertEquals($row["name"], "UnitTestOnce 028 group");
+        $this->assertEquals($row["name"], "UnitTestOnce 029 group");
         $this->assertNull($row["guid"]);
         $this->assertNull($row["path"]);
 
