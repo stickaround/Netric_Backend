@@ -37,6 +37,13 @@ class EntityGroupings
     private $fieldName = "";
 
     /**
+     * UserId is set if this grouping is private
+     * 
+     * @var int
+     */
+    private $userId = 0;
+
+    /**
      * Optional datamapper to call this->save through the Loader class
      *
      * @var EntityGroupingDataMapperInterface
@@ -44,27 +51,20 @@ class EntityGroupings
     private $dataMapper = null;
 
     /**
-     * Default filters that should be applied to all groups within this groupings container
-     *
-     * @var array
-     */
-    private $filters = array();
-
-    /**
      * Initialize groupings
      *
      * @param string $objType Set object type
      * @param string $fieldName The name of the field we are working with
-     * @param array $filters Key/Value filter conditions for each group
+     * @param int $userId Optional. Used to load a private grouping
      */
-    public function __construct($objType, $fieldName = "", $filters = array())
+    public function __construct($objType, $fieldName = "", $userId = null)
     {
         $this->objType = $objType;
         if ($fieldName) {
             $this->fieldName = $fieldName;
         }
 
-        $this->filters = $filters;
+        $this->userId = $userId;
     }
 
     /**
@@ -109,16 +109,6 @@ class EntityGroupings
     public function getFieldName()
     {
         return $this->fieldName;
-    }
-
-    /**
-     * Get array of filters
-     *
-     * @return array
-     */
-    public function getFilters()
-    {
-        return $this->filters;
     }
 
     /**
@@ -315,16 +305,8 @@ class EntityGroupings
             // TODO: check for circular reference in the chain
         }
 
-        // Make sure we have filters before we evaluate the group
-        if ($this->filters) {
-            // Set filters to match the defaults set in this container
-            foreach ($this->filters as $name => $value) {
-                if ($value && !$group->getFilteredVal($name)) {
-                    $group->setValue($name, $value);
-                }
-            }
-        }
-
+        // Inherit the user id of this grouping
+        $group->userId = $this->userId;
         $this->groups[] = $group;
 
         return true;
@@ -389,6 +371,8 @@ class EntityGroupings
     }
 
     /**
+     * Deprecated - Marl Tumulak 01/14/2020
+     * 
      * Get unique filters hash
      */
     public static function getFiltersHash($filters = array())

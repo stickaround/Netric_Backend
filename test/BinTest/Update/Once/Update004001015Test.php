@@ -310,7 +310,6 @@ class Update004001015Test extends TestCase
 
         $fieldName = "groups";
         $objType = ObjectTypes::CONTACT_PERSONAL;
-        $filters = ["user_id" => $userEntity->getId()];
 
         // Add a test group
         $groupName1 = "$objType Group Test Unit Test 1";

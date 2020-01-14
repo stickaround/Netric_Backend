@@ -163,31 +163,20 @@ foreach ($groupingTables as $details) {
 
     // Loop thru each entry in the old fkey object table
     foreach ($result->fetchAll() as $row) {
-        $filters = [];
+        $userId = null;
 
-        // Copy over any filters
-        if (isset($field->fkeyTable['filter'])) {
-            foreach ($field->fkeyTable['filter'] as $key => $filterField) {
-                if (empty($row[$filterField]) != true) {
-                    $filters[$key] = $row[$filterField];
-                }
-            }
-        } elseif ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
-            /*
-             * Make sure that the filter has been set for private entities
-             * object_groupings handles this automatically in the datamapper so fkeyTable['filter']
-             * might be null
-             */
-            $filters['user_id'] = isset($row["user_id"]) ? $row['user_id'] : $row["owner_id"];
+        // Make sure that private groupings always have user_id set
+        if ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
+            // All entities have owner_id, but some old entities use user_id
+            $userId = isset($row["owner_id"]) ? $row['owner_id'] : $row["user_id"];
         }
 
-        // Filter results to this user of the object is private
-        if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"])) {
+        if ($def->isPrivate && !$userId) {
             echo "No user_id found for private groupings" . var_export($row, true) . "\n";
             $log->error("Private entity type called but grouping has no filter defined - $objType");
         }
 
-        $groupings = $groupingsLoader->get($objType, $fieldName, $filters);
+        $groupings = $groupingsLoader->get($objType, $fieldName, $userId);
 
         /*
          * We cannot continue if we do not have a groupings set, so we will

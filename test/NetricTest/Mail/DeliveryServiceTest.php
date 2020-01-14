@@ -86,7 +86,7 @@ class DeliveryServiceTest extends TestCase
         $groupings = $groupingsLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            ["user_id" => $this->user->getId()]
+            $this->user->getId()
         );
         $inbox = new Group();
         $inbox->name = "Inbox";
@@ -117,7 +117,7 @@ class DeliveryServiceTest extends TestCase
         $groupings = $groupingsLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            ["user_id" => $this->user->getId()]
+            $this->user->getId()
         );
         $groupings->delete($this->inbox->id);
         $groupingsLoader->save($groupings);

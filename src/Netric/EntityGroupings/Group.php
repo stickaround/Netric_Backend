@@ -16,6 +16,13 @@ class Group
     public $id = "";
 
     /**
+     * The global unique identifier of this group
+     * 
+     * @var uuid
+     */
+    public $guid = "";
+
+    /**
      * The title of this grouping
      *
      * @var string
@@ -72,9 +79,11 @@ class Group
     public $children = array();
 
     /**
-     * Add filtered data
+     * UserId is set if this group is private
+     * 
+     * @var int
      */
-    public $filterFields = array();
+    public $userId = 0;
 
     /**
      * Dirty flag set when changes are made
@@ -92,6 +101,7 @@ class Group
     {
         $data = array(
             "id" => $this->id,
+            "guid" => $this->guid,
             "name" => $this->name,
             "is_heiarch" => $this->isHeiarch,
             "is_system" => $this->isSystem,
@@ -99,7 +109,7 @@ class Group
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
             "commit_id" => $this->commitId,
-            "filter_fields" => $this->filterFields,
+            "user_id" => $this->userId,
             "children" => array(),
         );
 
@@ -119,6 +129,14 @@ class Group
     {
         if (isset($data['id'])) {
             $this->id = $data['id'];
+        }
+
+        if (isset($data['guid'])) {
+            $this->guid = $data['guid'];
+        }
+
+        if (isset($data['user_id'])) {
+            $this->userId = $data['user_id'];
         }
 
         if (isset($data['name'])) {
@@ -176,8 +194,8 @@ class Group
             case "commitId":
                 $this->commitId = $fval;
                 break;
-            default:
-                $this->filterFields[$fname] = $fval;
+            case "userId":
+                $this->userId = $fval;
                 break;
         }
 
@@ -209,10 +227,8 @@ class Group
             case "commit_id":
             case "commitId":
                 return $this->commitId;
-            default:
-                if (isset($this->filterFields[$fname])) {
-                    return $this->filterFields[$fname];
-                }
+            case "userId":
+                return $this->userId;
         }
 
         return "";
@@ -256,6 +272,7 @@ class Group
     }
 
     /**
+     * @Deprecated - Marl 01/14/2020
      * Get filtered value
      *
      * @param string $name

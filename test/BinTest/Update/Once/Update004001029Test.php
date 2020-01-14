@@ -9,7 +9,7 @@ use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\Group;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 class Update004001029Test extends TestCase
 {
@@ -41,7 +41,7 @@ class Update004001029Test extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/029.php";
-        $this->loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $this->groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
     }
 
     /**
@@ -50,7 +50,7 @@ class Update004001029Test extends TestCase
     protected function tearDown(): void
     {
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->loader->get(ObjectTypes::ISSUE, "status_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id");
 
         // Delete the added groups
         foreach ($this->testGroups as $group) {
@@ -58,7 +58,7 @@ class Update004001029Test extends TestCase
         }
 
         // Save the changes in groupings
-        $this->loader->save($groupings);
+        $this->groupingLoader->save($groupings);
     } 
 
     /**
@@ -80,7 +80,7 @@ class Update004001029Test extends TestCase
         $db = $this->account->getServiceManager()->get(RelationalDbFactory::class);
 
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->loader->get(ObjectTypes::ISSUE, "status_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id");
 
         // Create a new instance of group and add it in the groupings
         $group = new Group();
@@ -90,21 +90,18 @@ class Update004001029Test extends TestCase
         // Create a new instance of group with user id
         $groupWithUserId = new Group();
         $groupWithUserId->setValue("name", "UnitTestOnce 029 group with user id");
-        $groupWithUserId->setValue("user_id", 123);
-        $groupings->add($groupWithUserId);
+        $groupingsWithUserId = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id", 123);
+        $groupingsWithUserId->add($groupWithUserId);
 
         // Save the changes in groupings
-        $this->loader->save($groupings);
+        $this->groupingLoader->save($groupings);
+        $this->groupingLoader->save($groupingsWithUserId);
         $this->testGroups[] = $group;
         $this->testGroups[] = $groupWithUserId;
       
         $result = $db->query("SELECT * FROM object_groupings WHERE id = {$group->id}");
         $row = $result->fetch();
-
-        // Make sure that we have null guid and path
         $this->assertEquals($row["name"], "UnitTestOnce 029 group");
-        $this->assertNull($row["guid"]);
-        $this->assertNull($row["path"]);
 
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));

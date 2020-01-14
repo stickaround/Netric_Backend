@@ -45,62 +45,33 @@ class EntityGroupingStateManagerTest extends TestCase
 
         
         // Load through loader
-        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $loader->clearCache(ObjectTypes::CONTACT, "groups");
+        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $groupingLoader->clearCache(ObjectTypes::CONTACT, "groups");
         
         // Use the loader to get the object
-        $grp = $loader->get(ObjectTypes::CONTACT, "groups")->getByName($newGroup->name);
+        $grp = $groupingLoader->get(ObjectTypes::CONTACT, "groups")->getByName($newGroup->name);
         $this->assertNotNull($grp);
         $this->assertEquals($newGroup->name, $grp->name);
 
         // Test to see if the isLoaded function indicates the entity has been loaded and cached locally
-        $refIm = new \ReflectionObject($loader);
+        $refIm = new \ReflectionObject($groupingLoader);
         $isLoaded = $refIm->getMethod("isLoaded");
         $isLoaded->setAccessible(true);
-        $this->assertTrue($isLoaded->invoke($loader, ObjectTypes::CONTACT, "groups"));
+        $this->assertTrue($isLoaded->invoke($groupingLoader, ObjectTypes::CONTACT, "groups"));
 
         // TODO: Test to see if it is cached
         /*
-        $refIm = new \ReflectionObject($loader);
+        $refIm = new \ReflectionObject($groupingLoader);
         $getCached = $refIm->getMethod("getCached");
         $getCached->setAccessible(true);
-        $this->assertTrue(is_array($getCached->invoke($loader, ObjectTypes::CONTACT, $cid)));
+        $this->assertTrue(is_array($getCached->invoke($groupingLoader, ObjectTypes::CONTACT, $cid)));
          * *
          */
 
         // Cleanup
-        $groups = $loader->get(ObjectTypes::CONTACT, "groups");
+        $groups = $groupingLoader->get(ObjectTypes::CONTACT, "groups");
         $grp = $groups->getByName($newGroup->name);
         $groups->delete($grp->id);
         $groups->save();
-    }
-
-    /**
-     * Test loading an object definition
-     */
-    public function testGetFiltered()
-    {
-        // Create test group manually
-        $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
-        $systemUser = $this->account->getUser(UserEntity::USER_SYSTEM);
-        $groupings = $dm->getGroupings(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));
-        $newGroup = $groupings->create();
-        $newGroup->name = "utttest";
-        $newGroup->user_id = $systemUser->getId();
-        $groupings->add($newGroup);
-        $dm->saveGroupings($groupings);
-
-        // Load through loader
-        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-
-        // Use the loader to get private groups
-        $groupings = $loader->get(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));
-        $grp = $groupings->getByName($newGroup->name);
-        $this->assertNotNull($grp->id);
-        $this->assertNotNull($grp->user_id);
-
-        // Cleanup
-        $groupings->delete($grp->id);
-        $groupings->save();
     }
 }

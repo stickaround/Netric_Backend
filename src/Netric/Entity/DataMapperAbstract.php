@@ -550,16 +550,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $groupingsLoader = $serviceManager->get(GroupingLoaderFactory::class);
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
-        // Setup filters for groupings if this is a private object
-        $groupingFilter = array();
-
-        // Make sure that private objects always have either owner_id or user_id set
+        // Make sure that private groupings always have user_id set
+        $userId = null;
         if ($entity->getDefinition()->isPrivate()) {
             if ($entity->getValue("owner_id")) {
-                $groupingFilter['owner_id'] = $entity->getValue("owner_id");
+                $userId = $entity->getValue("owner_id");
             } elseif ($entity->getValue("user_id")) {
                 // All entities have owner_id, but some old entities use user_id
-                $groupingFilter['user_id'] = $entity->getValue("user_id");
+                $userId = $entity->getValue("user_id");
             }
         }
 
@@ -624,7 +622,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
+                    $groups = $groupingsLoader->get($objType, $field->name, $userId);
 
                     // Clear the value in preparation for an update - or to remove it if group was deleted
                     $entity->setValue($field->name, null);
@@ -638,7 +636,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
+                    $groups = $groupingsLoader->get($objType, $field->name, $userId);
                     if (is_array($value)) {
                         foreach ($value as $valPart) {
                             // Clear the value in preparation for an update - or to remove it if group was deleted
