@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\LoaderFactory;
-use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
 
 class Update004001030Test extends TestCase

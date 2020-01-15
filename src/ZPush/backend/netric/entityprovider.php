@@ -376,7 +376,7 @@ class EntityProvider
                 $groupings = $groupingsLoader->get(
                     ObjectTypes::EMAIL_MESSAGE,
                     "mailbox_id",
-                    $this->user->getId()
+                    $this->user->getValue("guid")
                 );
 
                 $group = $groupings->getById($folder['id']);

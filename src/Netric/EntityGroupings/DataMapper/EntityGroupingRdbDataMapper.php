@@ -52,6 +52,13 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     private $entityDefinitionLoader = null;
 
     /**
+     * Handle to current account we are mapping data for
+     *
+     * @var Account
+     */
+    protected $account = "";
+
+    /**
      * Class constructor
      *
      * @param Account $account Current netric account loaded
@@ -64,6 +71,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $this->commitManager = $account->getServiceManager()->get(CommitManagerFactory::class);
         $this->entitySync = $account->getServiceManager()->get(EntitySyncFactory::class);
         $this->entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $this->account = $account;
     }
 
     /**
@@ -115,7 +123,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             // Set the new commit id
             $grp->setValue("commitId", $nextCommit);
 
-            if ($this->saveGroup($def, $field, $grp)) {
+            if ($this->saveGroup($def, $field, $grp, $groupings->getUserGuid())) {
                 $grp->setDirty(false);
                 // Log here
                 $ret['changed'][$grp->id] = $lastCommitId;
@@ -147,10 +155,10 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      *
      * @param string $objType The object type name
      * @param string $fieldName The field name to get grouping data for
-     * @param int $userId Optional. Used to load a private grouping
+     * @param string $userGuid Optional. Used to load a private groupings
      * @return EntityGroupings
      */
-    public function getGroupings(string $objType, string $fieldName, int $userId = null) : EntityGroupings
+    public function getGroupings(string $objType, string $fieldName, string $userGuid = "") : EntityGroupings
     {
         $def = $this->entityDefinitionLoader->get($objType);
         if (!$def) {
@@ -169,8 +177,8 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $whereSql = "path = :path";
             
             $path = $def->getObjType() . "/" . $field->name;
-            if ($userId) {
-                $path .= "/$userId";
+            if ($userGuid) {
+                $path .= "/$userGuid";
             }
             $whereConditions["path"] = $path;
         }
@@ -192,7 +200,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         // Technically, the limit of groupings is 1000 per field, but just to be safe
         $sql .= " LIMIT 10000";
 
-        $groupings = new EntityGroupings($objType, $fieldName, $userId);
+        $groupings = new EntityGroupings($objType, $fieldName, $userGuid);
 
         $result = $this->database->query($sql, $whereConditions);
         foreach ($result->fetchAll() as $row) {
@@ -229,9 +237,10 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * @param EntityDefinition $def Entity type definition
      * @param Field $field The field we are saving a grouping for
      * @param Group $grp The grouping to save
+     * @param String $userGuid Optional. userGuid is set if this grouping is private
      * @return bool true on success, false on failure
      */
-    private function saveGroup($def, $field, Group $grp)
+    private function saveGroup($def, $field, Group $grp, string $userGuid = "")
     {
         if (!$field) {
             return false;
@@ -295,22 +304,26 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $tableData['id'] = strval($grp->id);
         }
 
-        // Set the guid and path if we are saving a new group
-        $uuid4 = Uuid::uuid4();
-        $tableData["guid"] = $uuid4->toString();
+        if ($field->subtype == "object_groupings") {
+            // Set the guid and path if we are saving a new group
+            $uuid4 = Uuid::uuid4();
+            $tableData["guid"] = $uuid4->toString();
 
-        $path = $def->getObjType() . "/" . $field->name;
-        if ($grp->userId) {
-            $path .= "/$grp->userId";
-            $tableData["user_id"] = $grp->userId;
+            $path = $def->getObjType() . "/" . $field->name;
+            if ($userGuid) {
+                $path .= "/$userGuid";
+                $tableData["user_id"] = $userGuid = $this->account->getUser($userGuid)->getId();
+            }
+
+            $tableData["path"] = $path;
         }
-        $tableData["path"] = $path;
 
         // Default to inserting
         $returnedId = $this->database->insert($field->subtype, $tableData);
         if (empty($grp->id)) {
             $grp->id = $returnedId;
         }
+
         return true;
     }
 }

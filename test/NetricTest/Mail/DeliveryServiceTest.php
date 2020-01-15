@@ -86,7 +86,7 @@ class DeliveryServiceTest extends TestCase
         $groupings = $groupingsLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            $this->user->getId()
+            $this->user->getValue("guid")
         );
         $inbox = new Group();
         $inbox->name = "Inbox";

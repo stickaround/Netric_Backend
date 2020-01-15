@@ -171,7 +171,7 @@ class ReceiverService extends AbstractHasErrors
         $mailboxGroupings = $this->groupingLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            ["user_id"=>$this->user->getId()]
+            $this->user->getValue("guid")
         );
         $mailboxPath = $mailboxGroupings->getpath($mailboxId);
 
@@ -600,7 +600,7 @@ class ReceiverService extends AbstractHasErrors
         $maiboxes = $this->groupingLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            ["user_id"=>$user->getId()]
+            $user->getValue("guid")
         );
 
         $junk = $maiboxes->getByPath("Junk Mail");

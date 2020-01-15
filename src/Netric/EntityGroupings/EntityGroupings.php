@@ -37,11 +37,11 @@ class EntityGroupings
     private $fieldName = "";
 
     /**
-     * UserId is set if this grouping is private
+     * Optional. userGuid is set if this grouping is private
      * 
-     * @var int
+     * @var string
      */
-    private $userId = 0;
+    private $userGuid = "";
 
     /**
      * Optional datamapper to call this->save through the Loader class
@@ -55,16 +55,16 @@ class EntityGroupings
      *
      * @param string $objType Set object type
      * @param string $fieldName The name of the field we are working with
-     * @param int $userId Optional. Used to load a private grouping
+     * @param string $userGuid Optional. Used to load a private grouping
      */
-    public function __construct($objType, $fieldName = "", $userId = null)
+    public function __construct(string $objType, string $fieldName = "", string $userGuid = "")
     {
         $this->objType = $objType;
         if ($fieldName) {
             $this->fieldName = $fieldName;
         }
 
-        $this->userId = $userId;
+        $this->userGuid = $userGuid;
     }
 
     /**
@@ -109,6 +109,14 @@ class EntityGroupings
     public function getFieldName()
     {
         return $this->fieldName;
+    }
+
+    /**
+     * Get the user guid of this groupings if it is a private grouping
+     */
+    public function getUserGuid()
+    {
+        return $this->userGuid;
     }
 
     /**
@@ -305,10 +313,7 @@ class EntityGroupings
             // TODO: check for circular reference in the chain
         }
 
-        // Inherit the user id of this grouping
-        $group->userId = $this->userId;
         $this->groups[] = $group;
-
         return true;
     }
 

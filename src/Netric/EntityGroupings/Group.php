@@ -79,13 +79,6 @@ class Group
     public $children = array();
 
     /**
-     * UserId is set if this group is private
-     * 
-     * @var int
-     */
-    public $userId = 0;
-
-    /**
      * Dirty flag set when changes are made
      *
      * @var bool
@@ -109,7 +102,6 @@ class Group
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
             "commit_id" => $this->commitId,
-            "user_id" => $this->userId,
             "children" => array(),
         );
 
@@ -133,10 +125,6 @@ class Group
 
         if (isset($data['guid'])) {
             $this->guid = $data['guid'];
-        }
-
-        if (isset($data['user_id'])) {
-            $this->userId = $data['user_id'];
         }
 
         if (isset($data['name'])) {
@@ -194,9 +182,6 @@ class Group
             case "commitId":
                 $this->commitId = $fval;
                 break;
-            case "userId":
-                $this->userId = $fval;
-                break;
         }
 
         // Inicate this group has been changed
@@ -227,8 +212,6 @@ class Group
             case "commit_id":
             case "commitId":
                 return $this->commitId;
-            case "userId":
-                return $this->userId;
         }
 
         return "";

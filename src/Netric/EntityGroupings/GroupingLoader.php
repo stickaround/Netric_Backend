@@ -53,17 +53,17 @@ class GroupingLoader
      * @param string $objType
      * @return Entity
      */
-    public function get($objType, $fieldName, int $userId = null)
+    public function get($objType, $fieldName, $userGuid = "")
     {
         if (!$objType || !$fieldName) {
             throw new Exception('$objType and $fieldName are required params');
         }
 
-        if ($this->isLoaded($objType, $fieldNam, $userId)) {
-            return $this->loadedGroupings[$objType][$fieldName][$userId];
+        if ($this->isLoaded($objType, $fieldNam, $userGuid)) {
+            return $this->loadedGroupings[$objType][$fieldName][$userGuid];
         }
 
-        return $this->loadGroupings($objType, $fieldName, $userId);
+        return $this->loadGroupings($objType, $fieldName, $userGuid);
     }
 
     /**
@@ -95,12 +95,12 @@ class GroupingLoader
      *
      * @param string $objType
      */
-    private function loadGroupings($objType, $fieldName, $userId = null)
+    private function loadGroupings($objType, $fieldName, $userGuid = "")
     {
-        $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $userId);
+        $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $userGuid);
         $groupings->setDataMapper($this->dataMapper);
         // Cache the loaded definition for future requests
-        $this->loadedGroupings[$objType][$fieldName][$userId] = $groupings;
+        $this->loadedGroupings[$objType][$fieldName][$userGuid] = $groupings;
         //$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/" . $objType, $def->toArray());
         return $groupings;
     }
@@ -112,9 +112,9 @@ class GroupingLoader
      * @param string $key The unique key of the loaded object
      * @return boolean
      */
-    private function isLoaded($objType, $fieldName, $userId = null)
+    private function isLoaded($objType, $fieldName, $userGuid = "")
     {
-        return isset($this->loadedGroupings[$objType][$fieldName][$userId]);
+        return isset($this->loadedGroupings[$objType][$fieldName][$userGuid]);
     }
 
     /**
@@ -122,9 +122,9 @@ class GroupingLoader
      *
      * @param string $objType The object type name
      */
-    public function clearCache($objType, $fieldName, $userId = null)
+    public function clearCache($objType, $fieldName, $userGuid = "")
     {
-        $this->loadedGroupings[$objType][$fieldName][$userId] = null;
+        $this->loadedGroupings[$objType][$fieldName][$userGuid] = null;
         return;
     }
 }

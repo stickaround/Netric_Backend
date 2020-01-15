@@ -163,20 +163,21 @@ foreach ($groupingTables as $details) {
 
     // Loop thru each entry in the old fkey object table
     foreach ($result->fetchAll() as $row) {
-        $userId = null;
+        $userGuid = "";
 
         // Make sure that private groupings always have user_id set
         if ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
             // All entities have owner_id, but some old entities use user_id
             $userId = isset($row["owner_id"]) ? $row['owner_id'] : $row["user_id"];
+            $userGuid = $acount->getUser($userId)->getValue("guid");
         }
 
-        if ($def->isPrivate && !$userId) {
+        if ($def->isPrivate && !$userGuid) {
             echo "No user_id found for private groupings" . var_export($row, true) . "\n";
             $log->error("Private entity type called but grouping has no filter defined - $objType");
         }
 
-        $groupings = $groupingsLoader->get($objType, $fieldName, $userId);
+        $groupings = $groupingsLoader->get($objType, $fieldName, $userGuid);
 
         /*
          * We cannot continue if we do not have a groupings set, so we will

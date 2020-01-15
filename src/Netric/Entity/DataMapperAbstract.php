@@ -550,16 +550,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $groupingsLoader = $serviceManager->get(GroupingLoaderFactory::class);
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
-        // Make sure that private groupings always have user_id set
-        $userId = null;
+        // Make sure that private groupings always have user_guid set
+        $userGuid = "";
         if ($entity->getDefinition()->isPrivate()) {
-            if ($entity->getValue("owner_id")) {
-                $userId = $entity->getValue("owner_id");
-            } elseif ($entity->getValue("user_id")) {
-                // All entities have owner_id, but some old entities use user_id
-                $userId = $entity->getValue("user_id");
-            }
+            // All entities have owner_id, but some old entities use user_id
+            $userId = $entity->getValue("owner_id") !== null ? $entity->getValue("owner_id") : $entity->getValue("user_id");
+            $userGuid = $this->getAccount()->getUser($userId)->getValue("guid");
         }
+
 
         $fields = $entity->getDefinition()->getFields();
         foreach ($fields as $field) {
@@ -622,7 +620,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name, $userId);
+                    $groups = $groupingsLoader->get($objType, $field->name, $userGuid);
 
                     // Clear the value in preparation for an update - or to remove it if group was deleted
                     $entity->setValue($field->name, null);
@@ -636,7 +634,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name, $userId);
+                    $groups = $groupingsLoader->get($objType, $field->name, $userGuid);
                     if (is_array($value)) {
                         foreach ($value as $valPart) {
                             // Clear the value in preparation for an update - or to remove it if group was deleted
