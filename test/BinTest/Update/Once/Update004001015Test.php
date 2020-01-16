@@ -342,7 +342,7 @@ class Update004001015Test extends TestCase
         $entityGroupNames = $entityLoaded->getValueNames($fieldName);
 
         // Get the object groupings
-        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName, $filters);
+        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
         $group1 = $groupings->getByName($groupName1);
         $group2 = $groupings->getByName($groupName2);
 

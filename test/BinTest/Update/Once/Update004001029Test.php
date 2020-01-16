@@ -87,17 +87,9 @@ class Update004001029Test extends TestCase
         $group->setValue("name", "UnitTestOnce 029 group");
         $groupings->add($group);
 
-        // Create a new instance of group with user id
-        $groupWithUserId = new Group();
-        $groupWithUserId->setValue("name", "UnitTestOnce 029 group with user id");
-        $groupingsWithUserId = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id", 123);
-        $groupingsWithUserId->add($groupWithUserId);
-
         // Save the changes in groupings
         $this->groupingLoader->save($groupings);
-        $this->groupingLoader->save($groupingsWithUserId);
         $this->testGroups[] = $group;
-        $this->testGroups[] = $groupWithUserId;
       
         $result = $db->query("SELECT * FROM object_groupings WHERE id = {$group->id}");
         $row = $result->fetch();
@@ -113,12 +105,5 @@ class Update004001029Test extends TestCase
         // Make sure that we have null guid and path (object type / field name)
         $this->assertNotNull($row["guid"]);
         $this->assertEquals($row["path"], ObjectTypes::ISSUE . "/status_id");
-
-        // Query again the group with user id and this time it should have a path and guid
-        $result = $db->query("SELECT * FROM object_groupings WHERE id = {$groupWithUserId->id}");
-        $row = $result->fetch();
-
-        // Make sure that we have path value (object type / field name / user id)
-        $this->assertEquals($row["path"], ObjectTypes::ISSUE . "/status_id/123");
     }
 }

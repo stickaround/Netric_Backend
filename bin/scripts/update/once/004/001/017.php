@@ -70,7 +70,7 @@ foreach ($groupingTables as $details) {
         if ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
             // All entities have owner_id, but some old entities use user_id
             $userId = isset($row["owner_id"]) ? $row['owner_id'] : $row["user_id"];
-            $userGuid = $acount->getUser($userId)->getValue("guid");
+            $userGuid = $account->getUser($userId)->getValue("guid");
         }
 
         if ($def->isPrivate && !$userGuid) {
