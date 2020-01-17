@@ -15,7 +15,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\Validator\EntityValidatorFactory;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\Field;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
@@ -547,21 +547,17 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     private function updateForeignKeyNames(Entity $entity)
     {
         $serviceManager = $this->getAccount()->getServiceManager();
-        $groupingsLoader = $serviceManager->get(EntityGroupingLoaderFactory::class);
+        $groupingsLoader = $serviceManager->get(GroupingLoaderFactory::class);
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
-        // Setup filters for groupings if this is a private object
-        $groupingFilter = array();
-
-        // Make sure that private objects always have either owner_id or user_id set
+        // Make sure that private groupings always have user_guid set
+        $userGuid = "";
         if ($entity->getDefinition()->isPrivate()) {
-            if ($entity->getValue("owner_id")) {
-                $groupingFilter['owner_id'] = $entity->getValue("owner_id");
-            } elseif ($entity->getValue("user_id")) {
-                // All entities have owner_id, but some old entities use user_id
-                $groupingFilter['user_id'] = $entity->getValue("user_id");
-            }
+            // All entities have owner_id, but some old entities use user_id
+            $userId = $entity->getValue("owner_id") !== null ? $entity->getValue("owner_id") : $entity->getValue("user_id");
+            $userGuid = $this->getAccount()->getUser($userId)->getValue("guid");
         }
+
 
         $fields = $entity->getDefinition()->getFields();
         foreach ($fields as $field) {
@@ -624,7 +620,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
+                    $groups = $groupingsLoader->get($objType, $field->name, $userGuid);
 
                     // Clear the value in preparation for an update - or to remove it if group was deleted
                     $entity->setValue($field->name, null);
@@ -638,7 +634,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
+                    $groups = $groupingsLoader->get($objType, $field->name, $userGuid);
                     if (is_array($value)) {
                         foreach ($value as $valPart) {
                             // Clear the value in preparation for an update - or to remove it if group was deleted

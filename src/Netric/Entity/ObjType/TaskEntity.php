@@ -10,7 +10,6 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\EntityGroupings\Loader;
 
 /**
  * Task represents a single task entity

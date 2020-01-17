@@ -11,7 +11,7 @@ use Netric\Account\Account;
 use Netric\EntityGroupings\Group;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Mail\DeliveryServiceFactory;
 
@@ -82,11 +82,11 @@ class DeliveryServiceTest extends TestCase
         $this->account->setCurrentUser($this->user);
 
         // If it does not exist, create an inbox for the user
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            ["user_id" => $this->user->getId()]
+            $this->user->getValue("guid")
         );
         $inbox = new Group();
         $inbox->name = "Inbox";
@@ -113,11 +113,11 @@ class DeliveryServiceTest extends TestCase
     {
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
-        $groupingsLoader = $serviceLocator->get(LoaderFactory::class);
+        $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            ["user_id" => $this->user->getId()]
+            $this->user->getId()
         );
         $groupings->delete($this->inbox->id);
         $groupingsLoader->save($groupings);

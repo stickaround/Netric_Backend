@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Identity mapper for entity groupings
  */
@@ -11,7 +10,7 @@ use Netric\Cache\CacheInterface;
 /**
  * Class to handle to loading of object definitions
  */
-class Loader
+class GroupingLoader
 {
     /**
      * The current data mapper we are using for this object
@@ -54,17 +53,17 @@ class Loader
      * @param string $objType
      * @return Entity
      */
-    public function get($objType, $fieldName, $filters = array())
+    public function get($objType, $fieldName, $userGuid = "")
     {
         if (!$objType || !$fieldName) {
             throw new Exception('$objType and $fieldName are required params');
         }
 
-        if ($this->isLoaded($objType, $fieldName, $filters)) {
-            return $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
+        if ($this->isLoaded($objType, $fieldNam, $userGuid)) {
+            return $this->loadedGroupings[$objType][$fieldName][$userGuid];
         }
 
-        return $this->loadGroupings($objType, $fieldName, $filters);
+        return $this->loadGroupings($objType, $fieldName, $userGuid);
     }
 
     /**
@@ -96,12 +95,12 @@ class Loader
      *
      * @param string $objType
      */
-    private function loadGroupings($objType, $fieldName, $filters = array())
+    private function loadGroupings($objType, $fieldName, $userGuid = "")
     {
-        $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $filters);
+        $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $userGuid);
         $groupings->setDataMapper($this->dataMapper);
         // Cache the loaded definition for future requests
-        $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = $groupings;
+        $this->loadedGroupings[$objType][$fieldName][$userGuid] = $groupings;
         //$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/" . $objType, $def->toArray());
         return $groupings;
     }
@@ -113,9 +112,9 @@ class Loader
      * @param string $key The unique key of the loaded object
      * @return boolean
      */
-    private function isLoaded($objType, $fieldName, $filters = array())
+    private function isLoaded($objType, $fieldName, $userGuid = "")
     {
-        return isset($this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)]);
+        return isset($this->loadedGroupings[$objType][$fieldName][$userGuid]);
     }
 
     /**
@@ -123,9 +122,9 @@ class Loader
      *
      * @param string $objType The object type name
      */
-    public function clearCache($objType, $fieldName, $filters = array())
+    public function clearCache($objType, $fieldName, $userGuid = "")
     {
-        $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = null;
+        $this->loadedGroupings[$objType][$fieldName][$userGuid] = null;
         return;
     }
 }

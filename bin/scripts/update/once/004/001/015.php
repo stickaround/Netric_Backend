@@ -3,7 +3,7 @@
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 
@@ -12,7 +12,7 @@ $log = $account->getApplication()->getLog();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $dm = $serviceManager->get(EntityGroupingDataMapperFactory::class);
-$groupingsLoader = $serviceManager->get(LoaderFactory::class);
+$groupingsLoader = $serviceManager->get(GroupingLoaderFactory::class);
 $entityDefinitionDataMapper = $account->getServiceManager()->get(DataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
@@ -163,31 +163,21 @@ foreach ($groupingTables as $details) {
 
     // Loop thru each entry in the old fkey object table
     foreach ($result->fetchAll() as $row) {
-        $filters = [];
+        $userGuid = "";
 
-        // Copy over any filters
-        if (isset($field->fkeyTable['filter'])) {
-            foreach ($field->fkeyTable['filter'] as $key => $filterField) {
-                if (empty($row[$filterField]) != true) {
-                    $filters[$key] = $row[$filterField];
-                }
-            }
-        } elseif ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
-            /*
-             * Make sure that the filter has been set for private entities
-             * object_groupings handles this automatically in the datamapper so fkeyTable['filter']
-             * might be null
-             */
-            $filters['user_id'] = isset($row["user_id"]) ? $row['user_id'] : $row["owner_id"];
+        // Make sure that private groupings always have user_id set
+        if ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
+            // All entities have owner_id, but some old entities use user_id
+            $userId = isset($row["owner_id"]) ? $row['owner_id'] : $row["user_id"];
+            $userGuid = $account->getUser($userId)->getValue("guid");
         }
 
-        // Filter results to this user of the object is private
-        if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"])) {
+        if ($def->isPrivate && !$userGuid) {
             echo "No user_id found for private groupings" . var_export($row, true) . "\n";
             $log->error("Private entity type called but grouping has no filter defined - $objType");
         }
 
-        $groupings = $groupingsLoader->get($objType, $fieldName, $filters);
+        $groupings = $groupingsLoader->get($objType, $fieldName, $userGuid);
 
         /*
          * We cannot continue if we do not have a groupings set, so we will

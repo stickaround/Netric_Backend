@@ -12,7 +12,7 @@ use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\FileSystem\FileSystem;
 use Netric\Log\Log;
-use Netric\EntityGroupings\Loader as GroupingsLoader;
+use Netric\EntityGroupings\GroupingLoader;
 use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Mail\Exception\AddressNotFoundException;
 use Netric\Mail;
@@ -40,9 +40,9 @@ class DeliveryService extends AbstractHasErrors
     /**
      * Entity groupings loader
      *
-     * @var GroupingsLoader
+     * @var GroupingLoader
      */
-    private $groupingsLoader = null;
+    private $groupingLoader = null;
 
     /**
      * Entity loader
@@ -79,20 +79,20 @@ class DeliveryService extends AbstractHasErrors
      *
      * @param Log $log
      * @param EntityLoader $entityLoader Loader to get and save messages
-     * @param GroupingsLoader $groupingsLoader For loading mailbox groupings
+     * @param GroupingLoader $groupingLoader For loading mailbox groupings
      * @param IndexInterface $entityIndex The index for querying entities,
      * @param FileSystem $fileSystem For saving attachments
      */
     public function __construct(
         Log $log,
         EntityLoader $entityLoader,
-        GroupingsLoader $groupingsLoader,
+        GroupingLoader $groupingLoader,
         IndexInterface $entityIndex,
         FileSystem $fileSystem
     ) {
         $this->log = $log;
         $this->entityLoader = $entityLoader;
-        $this->groupingsLoader = $groupingsLoader;
+        $this->groupingLoader = $groupingLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
 
@@ -190,10 +190,10 @@ class DeliveryService extends AbstractHasErrors
         $user = $this->entityLoader->get(ObjectTypes::USER, $emailAccount->getOwnerId());
 
         // Get Inbox for user
-        $mailboxGroups = $this->groupingsLoader->get(
+        $mailboxGroups = $this->groupingLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             'mailbox_id',
-            ['user_id' => $user->getId()]
+            $user->getValue("guid")
         );
         $inboxGroup = $mailboxGroups->getByPath('Inbox');
         if (!$inboxGroup) {
@@ -581,10 +581,13 @@ class DeliveryService extends AbstractHasErrors
      */
     private function createInbox(EmailAccountEntity $emailAccount): Group
     {
-        $groupings = $this->groupingsLoader->get(
+        // Get user entity from email account
+        $user = $this->entityLoader->get(ObjectTypes::USER, $emailAccount->getOwnerId());
+
+        $groupings = $this->groupingLoader->get(
             ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
-            ["user_id" => $emailAccount->getOwnerId()]
+            $user->getValue("guid")
         );
 
         $inbox = new Group();
@@ -592,7 +595,7 @@ class DeliveryService extends AbstractHasErrors
         $inbox->isSystem = true;
         $inbox->user_id = $emailAccount->getOwnerId();
         $groupings->add($inbox);
-        $this->groupingsLoader->save($groupings);
+        $this->groupingLoader->save($groupings);
         return $groupings->getByPath("Inbox");
     }
 }

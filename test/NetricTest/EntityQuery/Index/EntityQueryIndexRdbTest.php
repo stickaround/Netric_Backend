@@ -12,7 +12,7 @@ namespace NetricTest\EntityQuery\Index;
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\EntityQuery\Index\EntityQueryIndexRdb;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
@@ -39,7 +39,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     public function testbuildConditionStringForFkey()
     {
         $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         
         // Get all groupings for this object type
         $groupings = $loader->get(ObjectTypes::PROJECT_STORY, "status_id");

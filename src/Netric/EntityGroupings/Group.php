@@ -16,6 +16,13 @@ class Group
     public $id = "";
 
     /**
+     * The global unique identifier of this group
+     * 
+     * @var uuid
+     */
+    public $guid = "";
+
+    /**
      * The title of this grouping
      *
      * @var string
@@ -72,11 +79,6 @@ class Group
     public $children = array();
 
     /**
-     * Add filtered data
-     */
-    public $filterFields = array();
-
-    /**
      * Dirty flag set when changes are made
      *
      * @var bool
@@ -92,6 +94,7 @@ class Group
     {
         $data = array(
             "id" => $this->id,
+            "guid" => $this->guid,
             "name" => $this->name,
             "is_heiarch" => $this->isHeiarch,
             "is_system" => $this->isSystem,
@@ -99,7 +102,6 @@ class Group
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
             "commit_id" => $this->commitId,
-            "filter_fields" => $this->filterFields,
             "children" => array(),
         );
 
@@ -119,6 +121,10 @@ class Group
     {
         if (isset($data['id'])) {
             $this->id = $data['id'];
+        }
+
+        if (isset($data['guid'])) {
+            $this->guid = $data['guid'];
         }
 
         if (isset($data['name'])) {
@@ -176,9 +182,6 @@ class Group
             case "commitId":
                 $this->commitId = $fval;
                 break;
-            default:
-                $this->filterFields[$fname] = $fval;
-                break;
         }
 
         // Inicate this group has been changed
@@ -209,10 +212,6 @@ class Group
             case "commit_id":
             case "commitId":
                 return $this->commitId;
-            default:
-                if (isset($this->filterFields[$fname])) {
-                    return $this->filterFields[$fname];
-                }
         }
 
         return "";
@@ -256,6 +255,7 @@ class Group
     }
 
     /**
+     * @Deprecated - Marl 01/14/2020
      * Get filtered value
      *
      * @param string $name

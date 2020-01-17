@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
 use NetricTest\Bootstrap;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
 class LoaderTest extends TestCase
@@ -46,7 +46,7 @@ class LoaderTest extends TestCase
 
         
         // Load through loader
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $loader->clearCache(ObjectTypes::CONTACT, "groups");
         
         // Use the loader to get the object
@@ -74,35 +74,5 @@ class LoaderTest extends TestCase
         $grp = $groups->getByName($newGroup->name);
         $groups->delete($grp->id);
         $groups->save();
-    }
-
-    /**
-     * Test loading an object definition
-     */
-    public function testGetFiltered()
-    {
-        $systemUser = $this->account->getUser(UserEntity::USER_SYSTEM);
-
-        // Create test group manually
-        $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
-        $groupings = $dm->getGroupings(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));
-        $newGroup = $groupings->create();
-        $newGroup->name = "utttest";
-        $newGroup->user_id = $systemUser->getId();
-        $groupings->add($newGroup);
-        $dm->saveGroupings($groupings);
-        
-        // Load through loader
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
-        
-        // Use the loader to get private groups
-        $groupings = $loader->get(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));
-        $grp = $groupings->getByName($newGroup->name);
-        $this->assertNotNull($grp->id);
-        $this->assertNotNull($grp->user_id);
-
-        // Cleanup
-        $groupings->delete($grp->id);
-        $groupings->save();
-    }
+    }    
 }

@@ -9,7 +9,7 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityGroupings\Loader as GroupingsLoader;
+use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityDefinition\ObjectTypes;
 
 /**
@@ -29,9 +29,9 @@ class AssignAction extends AbstractAction implements ActionInterface
     /**
      * Loader for entity groupings
      *
-     * @var GroupingsLoader
+     * @var GroupingLoader
      */
-    private $groupngsLoader = null;
+    private $groupingsLoader = null;
 
     /**
      * EnityQuery index for querying entities
@@ -45,16 +45,16 @@ class AssignAction extends AbstractAction implements ActionInterface
      *
      * @param EntityLoader $entityLoader
      * @param ActionFactory $actionFactory
-     * @param GroupingsLoader $groupingsLoader
+     * @param GroupingLoader $groupingsLoader
      * @param IndexInterface $queryIndex
      */
     public function __construct(
         EntityLoader $entityLoader,
         ActionFactory $actionFactory,
-        GroupingsLoader $groupingsLoader,
+        GroupingLoader $groupingsLoader,
         IndexInterface $queryIndex
     ) {
-        $this->groupngsLoader = $groupingsLoader;
+        $this->groupingsLoader = $groupingsLoader;
         $this->queryIndex = $queryIndex;
         parent::__construct($entityLoader, $actionFactory);
     }

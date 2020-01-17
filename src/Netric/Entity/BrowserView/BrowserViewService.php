@@ -13,7 +13,7 @@ use Netric\Settings\Settings;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\EntityGroupings\Loader as EntityGroupingLoader;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Class for managing entity forms
@@ -60,11 +60,11 @@ class BrowserViewService
     private $settings = null;
 
     /**
-     * EntityGroupingLoader to get the groupings data to sanitize the condition values
+     * GroupingLoader to get the groupings data to sanitize the condition values
      *
-     * @var EntityGroupingLoader
+     * @var GroupingLoader
      */
-    private $entityGroupingLoader = null;
+    private $groupingLoader = null;
 
     /**
      * Class constructor to set up dependencies
@@ -73,15 +73,15 @@ class BrowserViewService
      * @param Config $config The configuration object
      * @param EntityDefinitionLoader $defLoader To get definitions of entities by $objType
      * @param Settings $settings Account or user settings service
-     * @param EntityGroupingLoader $entityGroupingLoader To get the groupings data to sanitize the condition values
+     * @param GroupingLoader $groupingLoader To get the groupings data to sanitize the condition values
      */
-    public function __construct(RelationalDbInterface $rdb, Config $config, EntityDefinitionLoader $defLoader, Settings $settings, EntityGroupingLoader $entityGroupingLoader)
+    public function __construct(RelationalDbInterface $rdb, Config $config, EntityDefinitionLoader $defLoader, Settings $settings, GroupingLoader $groupingLoader)
     {
         $this->database = $rdb;
         $this->config = $config;
         $this->definitionLoader = $defLoader;
         $this->settings = $settings;
-        $this->entityGroupingLoader = $entityGroupingLoader;
+        $this->groupingLoader = $groupingLoader;
     }
 
     /**
@@ -518,7 +518,7 @@ class BrowserViewService
             // We need to check if we have a numeric value for the grouping referenced field
             if ($field && $field->isGroupingReference() && !is_numeric($condValue)) {
                 // If not, then we need to sanitize its value by loading the grouping data and get the value's id
-                $groupings = $this->entityGroupingLoader->get($objType, $fieldName);
+                $groupings = $this->groupingLoader->get($objType, $fieldName);
 
                 $group = $groupings->getByName($condValue);
 

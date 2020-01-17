@@ -173,16 +173,4 @@ class EntityGroupingsTest extends TestCase
         $this->assertEquals($group2->id, $ret[0]->id);
         $this->assertEquals($group3->id, $ret[0]->children[0]->id);
     }
-
-    /**
-     * Test standardized hash for filters
-     */
-    public function testGetFiltersHash()
-    {
-        // Make sure no filters results in default none hash
-        $this->assertEquals(null, EntityGroupings::getFiltersHash(array()));
-
-        // Make sure filters are sorted right
-        $this->assertEquals("test=2user_id=1", EntityGroupings::getFiltersHash(array("user_id" => 1, "test" => 2)));
-    }
 }

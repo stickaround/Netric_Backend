@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery;
 use NetricTest\Bootstrap;
@@ -119,8 +119,8 @@ class EntitySearchProviderTest extends TestCase
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create inbox mailbox for testing
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id" => $user->getId()));
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", $user->getValue("guid"));
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
             $inbox->user_id = $user->getId();

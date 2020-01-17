@@ -65,22 +65,3 @@ $sql = "UPDATE $tableName AS groupings
 
 $updateGroupingsPath($sql, $db);
 
-// Sql statement for updating the groupings path for private entities (where user id is set)
-$sql = "UPDATE $tableName AS groupings
-    SET path = CONCAT(obj_types.name, '/', obj_fields.name, '/', groupings.user_id)
-
-    FROM $tableName AS obj_groupings 
-    INNER JOIN app_object_types AS obj_types
-    ON obj_types.id = obj_groupings.object_type_id
-
-    INNER JOIN app_object_type_fields AS obj_fields
-    ON obj_fields.id = obj_groupings.field_id
-
-    WHERE groupings.guid = obj_groupings.guid 
-    AND groupings.guid IS NOT NULL
-    AND groupings.path IS NULL
-    AND groupings.user_id IS NOT NULL
-    ";
-
-$updateGroupingsPath($sql, $db);
-

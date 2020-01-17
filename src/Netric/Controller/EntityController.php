@@ -17,8 +17,9 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
-use Netric\EntityGroupings\LoaderFactory;
-use Netric\EntityGroupings\Loader as GroupingsLoader;
+use Netric\EntityGroupings\GroupingLoaderFactory;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityGroupings\Group;
 
 /**
  * Controller for interacting with entities
@@ -149,7 +150,7 @@ class EntityController extends Mvc\AbstractAccountController
     public function getGetAction()
     {
         $params = $this->getRequest()->getParams();
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
         // Check if the parameters are posted via Post.
@@ -169,13 +170,13 @@ class EntityController extends Mvc\AbstractAccountController
         try {
             if (!empty($params['guid'])) {
                 // Retrieve the entity by guid
-                $entity = $loader->getByGuid($params['guid']);
+                $entity = $entityLoader->getByGuid($params['guid']);
             } elseif (isset($params['id']) && isset($params['obj_type'])) {
                 // Retrieve the entity by obj_type and id
-                $entity = $loader->get($params['obj_type'], $params['id']);
+                $entity = $entityLoader->get($params['obj_type'], $params['id']);
             } elseif (!empty($params['uname'])) {
                 // Retrieve the entity by a unique name and optional condition
-                $entity = $loader->getByUniqueName(
+                $entity = $entityLoader->getByUniqueName(
                     $params['obj_type'],
                     $params['uname'],
                     $params['uname_conditions']
@@ -234,14 +235,14 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         try {
             // Create a new entity to save
-            $entity = $loader->create($objData['obj_type']);
+            $entity = $entityLoader->create($objData['obj_type']);
 
             // If editing an existing etity, then load it rather than using the new entity
             if (isset($objData['id']) && !empty($objData['id'])) {
-                $entity = $loader->get($objData['obj_type'], $objData['id']);
+                $entity = $entityLoader->get($objData['obj_type'], $objData['id']);
             }
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
@@ -314,14 +315,14 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper to delete
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         
         try {
             foreach ($ids as $did) {
-                $entity = $loader->get($objType, $did);
+                $entity = $entityLoader->get($objType, $did);
     
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
@@ -362,21 +363,17 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $objType = $this->request->getParam("obj_type");
         $fieldName = $this->request->getParam("field_name");
-        $filterString = $this->request->getParam("filter");
 
         if (!$objType || !$fieldName) {
             return $this->sendOutput(array("error" => "obj_type & field_name are required params"));
         }
 
-        // If filter was passed then decode it as an array
-        $filterArray = ($filterString) ? json_decode($filterString) : array();
-
-        // Get the entity loader that will be used to get the groupings model
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        // Get the groupingLoader that will be used to get the groupings model
+        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         // Get the groupings for this $objType and $fieldName
         try {
-            $groupings = $this->getGroupings($loader, $objType, $fieldName, $filterArray);
+            $groupings = $this->getGroupings($groupingLoader, $objType, $fieldName);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -388,7 +385,6 @@ class EntityController extends Mvc\AbstractAccountController
         return $this->sendOutput(array(
             "obj_type" => $objType,
             "field_name" => $fieldName,
-            "filter" => $filterArray,
             "groups" => $groupings->toArray()
         ));
     }
@@ -403,8 +399,8 @@ class EntityController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $loader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $definitions = $loader->getAll();
+        $definitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+        $definitions = $definitionLoader->getAll();
 
         $ret = array();
         foreach ($definitions as $def) {
@@ -464,7 +460,7 @@ class EntityController extends Mvc\AbstractAccountController
      */
     private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
     {
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $fields = $entity->getDefinition()->getFields();
 
@@ -487,7 +483,7 @@ class EntityController extends Mvc\AbstractAccountController
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {
-                            $waitingObjectEntity = $loader->create($field->subtype);
+                            $waitingObjectEntity = $entityLoader->create($field->subtype);
 
                             // Specify the object reference for the awaiting entity to be saved
                             $data['obj_reference'] = $entity->getObjType() . ":" . $entity->getId();
@@ -671,7 +667,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
@@ -679,7 +675,7 @@ class EntityController extends Mvc\AbstractAccountController
         try {
             foreach ($ids as $id) {
                 // Load the entity that we are going to update
-                $entity = $loader->get($objData['obj_type'], $id);
+                $entity = $entityLoader->get($objData['obj_type'], $id);
     
                 // Update the fields with the data. Make sure we only update the provided fields.
                 $entity->fromArray($entityData, true);
@@ -735,13 +731,13 @@ class EntityController extends Mvc\AbstractAccountController
         $mergeData = $requestData['merge_data'];
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Create the new entity where we merge all field values
-        $mergedEntity = $loader->create($requestData['obj_type']);
+        $mergedEntity = $entityLoader->create($requestData['obj_type']);
 
         try {
             /*
@@ -766,7 +762,7 @@ class EntityController extends Mvc\AbstractAccountController
             * )
             */
             foreach ($mergeData as $entityId => $fields) {
-                $entity = $loader->get($requestData['obj_type'], $entityId);
+                $entity = $entityLoader->get($requestData['obj_type'], $entityId);
 
                 // Build the entity data and get the field values from the entity we want to merge
                 foreach ($fields as $field) {
@@ -830,20 +826,17 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(array("error" => "action is a required param"));
         }
 
-        // This is the filter for groups. Group filter is used to query only the groups matching the filter
-        $groupFilter = isset($objData['filter']) ? $objData['filter'] : array();
-
         // Get the entity loader that will be used to get the groupings model
-        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->getGroupings($loader, $objData['obj_type'], $objData['field_name'], $groupFilter);
+        $groupings = $this->getGroupings($groupingLoader, $objData['obj_type'], $objData['field_name']);
 
         // $objData['action'] will determine what type of action we will execute
         switch ($objData['action']) {
             case 'add':
                 // Create a new instance of group and add it in the groupings
-                $group = new \Netric\EntityGroupings\Group();
+                $group = new Group();
                 $groupings->add($group);
 
                 // Set the group data
@@ -879,7 +872,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             // Save the changes made to the groupings
-            $loader->save($groupings);    
+            $groupingLoader->save($groupings);    
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -890,26 +883,26 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Get the groupings model
      *
-     * @param {GroupingsLoader} $loader The entity loader that we will be using to get the entity definition
+     * @param {GroupingLoader} $groupingLoader The entity loader that we will be using to get the entity definition
      * @param {string} $objType The object type where we will be getting the groups
      * @param {string} $fieldName The name of the field we are working with
-     * @param {array} $groupFilter This will be used to filter the groups and return only the groups that mached the filter
      * @return EntityGroupings Returns the instance of EntityGroupings Model
      */
-    private function getGroupings(GroupingsLoader $loader, $objType, $fieldName, &$groupFilter = array())
+    private function getGroupings(GroupingLoader $groupingLoader, $objType, $fieldName)
     {
         try {
             // Get the entity defintion of the $objType
             $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
             $def = $defLoader->get($objType);
 
-            // If this is a private object then send the current user as a filter
-            if ($def->isPrivate && !count($groupFilter)) {
-                $groupFilter['user_id'] = $this->account->getUser()->getId();
+            // If this is a private object then set the user guid of the current user
+            $userGuid = "";
+            if ($def->isPrivate) {
+                $userGuid = $this->account->getUser()->getValue("guid");
             }
             
             // Get all groupings for this object type
-            $groupings = $loader->get($objType, $fieldName, $groupFilter);
+            $groupings = $groupingLoader->get($objType, $fieldName, $userGuid);
 
             // Return the groupings object
             return $groupings;   
