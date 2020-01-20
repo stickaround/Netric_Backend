@@ -185,7 +185,7 @@ class Update004001015Test extends TestCase
         $entityGroupName = $entityLoaded->getValueName($fieldName);
 
         // Get new object groupings (which should have a new entry for the added group)
-        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
+        $groupings = $this->entityGroupingDataMapper->getGroupings("$objType/$fieldName");
         $group = $groupings->getByName($groupName);
         $this->assertEquals($entityGroup, $group->id);
         $this->assertEquals($entityGroupName, $group->name);
@@ -258,7 +258,7 @@ class Update004001015Test extends TestCase
         $entityGroupNames = $entityLoaded->getValueNames($fieldName);
 
         // Get the object groupings
-        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
+        $groupings = $this->entityGroupingDataMapper->getGroupings("$objType/$fieldName");
         $group1 = $groupings->getByName($groupName1);
         $group2 = $groupings->getByName($groupName2);
 
@@ -342,7 +342,7 @@ class Update004001015Test extends TestCase
         $entityGroupNames = $entityLoaded->getValueNames($fieldName);
 
         // Get the object groupings
-        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
+        $groupings = $this->entityGroupingDataMapper->getGroupings("$objType/$fieldName");
         $group1 = $groupings->getByName($groupName1);
         $group2 = $groupings->getByName($groupName2);
 

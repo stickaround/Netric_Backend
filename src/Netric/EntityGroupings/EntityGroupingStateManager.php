@@ -70,21 +70,19 @@ class EntityGroupingStateManager
     /**
      * Get groupings for an entity field
      *
-     * @param string $objType
-     * @param string $fieldName A grouping (fkey|fkey_multi) field
-     * @param array $filters Optional key-value array of filters to match
+     * @param string $path The path of the grouping that we are going to load
      * @return EntityGroupings
      */
-    public function get(string $objType, string $fieldName, array $filters = [])
+    public function get(string $path)
     {
-        if (!$objType || !$fieldName) {
-            throw new InvalidArgumentException("$objType and $fieldName are required params");
+        if (!$path) {
+            throw new InvalidArgumentException("$path is a required param.");
         }
 
-        if ($this->isLoaded($objType, $fieldName, $filters)) {
-            $ret = $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
+        if ($this->isLoaded($path)) {
+            $ret = $this->loadedGroupings[$path];
         } else {
-            $ret = $this->loadGroupings($objType, $fieldName, $filters);
+            $ret = $this->loadGroupings($path);
         }
 
         return $ret;
@@ -99,9 +97,7 @@ class EntityGroupingStateManager
     public function save(EntityGroupings $groupings)
     {
         // Increment head commit for groupings which triggers all collections to sync
-        $commitHeadId = "groupings/" . $groupings->getObjType() . "/";
-        $commitHeadId .= $groupings->getFieldName() . "/";
-        $commitHeadId .= $groupings::getFiltersHash($groupings->getFilters());
+        $commitHeadId = "groupings/" . $groupings->path;
 
         // Groupings are all saved as a single collection, but only updated
         // groupings will share a new commit id.
@@ -126,52 +122,40 @@ class EntityGroupingStateManager
     }
 
     /**
-     * Get unique filters hash
+     * Load the entity groupings using a path
      *
-     * @param array $filters Key-value filters to use
-     * @return string Unique hash of filters
-     */
-    private function getFiltersHash(array $filters = [])
-    {
-        return EntityGroupings::getFiltersHash($filters);
-    }
-
-    /**
-     * Construct the definition class
-     *
-     * @param string $objType
-     * @param string $fieldName
-     * @param array $filters
+     * @param string $path The path of the grouping that we are going to load
      * @return EntityGroupings
      */
-    private function loadGroupings(string $objType, string $fieldName, array $filters = [])
+    private function loadGroupings(string $path)
     {
-        $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $filters);
+        $groupings = $this->dataMapper->getGroupings($path);
+        
         // Cache the loaded definition for future requests
-        $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = $groupings;
+        $this->loadedGroupings[$path] = $groupings;
         return $groupings;
     }
 
 
     /**
-     * Check to see if the entity has already been loaded
+     * Check to see if the entity grouping has already been loaded
      *
-     * @param string $key The unique key of the loaded object
+     * @param string $path The path of the grouping that we are going to check if it is already cached
      * @return boolean
      */
-    private function isLoaded($objType, $fieldName, $filters = array())
+    private function isLoaded($path)
     {
-        return isset($this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)]);
+        return isset($this->loadedGroupings[$path]);
     }
 
     /**
      * Clear cache
      *
-     * @param string $objType The object type name
+     * @param string $path The path of the grouping
      */
-    public function clearCache($objType, $fieldName, $filters = array())
+    public function clearCache($path)
     {
-        $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = null;
+        $this->loadedGroupings[$path] = null;
         return;
     }
 }

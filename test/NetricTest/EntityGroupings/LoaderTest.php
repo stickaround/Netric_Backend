@@ -38,7 +38,7 @@ class LoaderTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
         
         // Create test group
-        $groupings = $dm->getGroupings(ObjectTypes::CONTACT, "groups");
+        $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
         $newGroup = $groupings->create();
         $newGroup->name = "uttest-eg-loader-get";
         $groupings->add($newGroup);
@@ -46,31 +46,31 @@ class LoaderTest extends TestCase
 
         
         // Load through loader
-        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $loader->clearCache(ObjectTypes::CONTACT, "groups");
+        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $groupingLoader->clearCache(ObjectTypes::CONTACT . "/groups");
         
         // Use the loader to get the object
-        $grp = $loader->get(ObjectTypes::CONTACT, "groups")->getByName($newGroup->name);
+        $grp = $groupingLoader->get(ObjectTypes::CONTACT . "/groups")->getByName($newGroup->name);
         $this->assertNotNull($grp);
         $this->assertEquals($newGroup->name, $grp->name);
 
         // Test to see if the isLoaded function indicates the entity has been loaded and cached locally
-        $refIm = new \ReflectionObject($loader);
+        $refIm = new \ReflectionObject($groupingLoader);
         $isLoaded = $refIm->getMethod("isLoaded");
         $isLoaded->setAccessible(true);
-        $this->assertTrue($isLoaded->invoke($loader, ObjectTypes::CONTACT, "groups"));
+        $this->assertTrue($isLoaded->invoke($groupingLoader, ObjectTypes::CONTACT . "/groups"));
 
         // TODO: Test to see if it is cached
         /*
-        $refIm = new \ReflectionObject($loader);
+        $refIm = new \ReflectionObject($groupingLoader);
         $getCached = $refIm->getMethod("getCached");
         $getCached->setAccessible(true);
-        $this->assertTrue(is_array($getCached->invoke($loader, ObjectTypes::CONTACT, $cid)));
+        $this->assertTrue(is_array($getCached->invoke($groupingLoader, ObjectTypes::CONTACT, $cid)));
          * *
          */
 
         // Cleanup
-        $groups = $loader->get(ObjectTypes::CONTACT, "groups");
+        $groups = $groupingLoader->get(ObjectTypes::CONTACT . "/groups");
         $grp = $groups->getByName($newGroup->name);
         $groups->delete($grp->id);
         $groups->save();

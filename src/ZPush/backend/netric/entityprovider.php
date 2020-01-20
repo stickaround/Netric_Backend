@@ -373,11 +373,7 @@ class EntityProvider
         switch ($folder['type']) {
             case self::FOLDER_TYPE_EMAIL:
                 $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-                $groupings = $groupingsLoader->get(
-                    ObjectTypes::EMAIL_MESSAGE,
-                    "mailbox_id",
-                    $this->user->getValue("guid")
-                );
+                $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
 
                 $group = $groupings->getById($folder['id']);
 
@@ -1218,7 +1214,7 @@ class EntityProvider
 
             $sm = $this->account->getServiceManager();
             $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
-            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE, "groups", $this->user->getId());
+            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getValue("guid"));
 
             foreach ($syncNote->categories as $catName) {
                 // See if there is a grouping with this category name

@@ -8,7 +8,7 @@ use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Cache\CacheInterface;
 
 /**
- * Class to handle to loading of object definitions
+ * Class to handle to loading of entity groupings
  */
 class GroupingLoader
 {
@@ -48,22 +48,22 @@ class GroupingLoader
     }
 
     /**
-     * Get an entity
+     * Get the entity grouping using a unique path
      *
-     * @param string $objType
+     * @param string $path The path of the grouping that we are going to load
      * @return Entity
      */
-    public function get($objType, $fieldName, $userGuid = "")
+    public function get(string $path)
     {
-        if (!$objType || !$fieldName) {
-            throw new Exception('$objType and $fieldName are required params');
+        if (!$path) {
+            throw new Exception('$path is a required param');
         }
 
-        if ($this->isLoaded($objType, $fieldNam, $userGuid)) {
-            return $this->loadedGroupings[$objType][$fieldName][$userGuid];
+        if ($this->isLoaded($path)) {
+            return $this->loadedGroupings[$path];
         }
 
-        return $this->loadGroupings($objType, $fieldName, $userGuid);
+        return $this->loadGroupings($path);
     }
 
     /**
@@ -83,48 +83,40 @@ class GroupingLoader
     }
 
     /**
-     * Get unique filters hash
-     */
-    private function getFiltersHash($filters = array())
-    {
-        return EntityGroupings::getFiltersHash($filters);
-    }
-
-    /**
-     * Construct the definition class
+     * Load the entity groupings using a path
      *
-     * @param string $objType
+     * @param string $path The path of the grouping that we are going to load
      */
-    private function loadGroupings($objType, $fieldName, $userGuid = "")
+    private function loadGroupings(string $path)
     {
-        $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $userGuid);
+        $groupings = $this->dataMapper->getGroupings($path);
         $groupings->setDataMapper($this->dataMapper);
+
         // Cache the loaded definition for future requests
-        $this->loadedGroupings[$objType][$fieldName][$userGuid] = $groupings;
-        //$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/" . $objType, $def->toArray());
+        $this->loadedGroupings[$path] = $groupings;
+
         return $groupings;
     }
 
-
     /**
-     * Check to see if the entity has already been loaded
+     * Check to see if the entity grouping has already been loaded
      *
-     * @param string $key The unique key of the loaded object
+     * @param string $path The path of the grouping that we are going to check if it is already cached
      * @return boolean
      */
-    private function isLoaded($objType, $fieldName, $userGuid = "")
+    private function isLoaded(string $path)
     {
-        return isset($this->loadedGroupings[$objType][$fieldName][$userGuid]);
+        return isset($this->loadedGroupings[$path]);
     }
 
     /**
      * Clear cache
      *
-     * @param string $objType The object type name
+     * @param string $path The path of the grouping
      */
-    public function clearCache($objType, $fieldName, $userGuid = "")
+    public function clearCache(string $path)
     {
-        $this->loadedGroupings[$objType][$fieldName][$userGuid] = null;
+        $this->loadedGroupings[$path] = null;
         return;
     }
 }

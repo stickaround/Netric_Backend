@@ -51,20 +51,35 @@ class EntityGroupings
     private $dataMapper = null;
 
     /**
+     * Unique path of the entity groupings
+     * 
+     * @var string
+     */
+    public $path = "";
+
+    /**
      * Initialize groupings
      *
-     * @param string $objType Set object type
-     * @param string $fieldName The name of the field we are working with
-     * @param string $userGuid Optional. Used to load a private grouping
+     * @param string $path The path of the object groupings. This consists 2 or 3 parts: obj_type/field_name/user_guid. User guid is optional.
      */
-    public function __construct(string $objType, string $fieldName = "", string $userGuid = "")
+    public function __construct($path)
     {
-        $this->objType = $objType;
-        if ($fieldName) {
-            $this->fieldName = $fieldName;
+        $this->path = $path;
+        $parts = explode("/", $path);
+
+        if (sizeof($parts) <= 1) {
+            throw new \Exception("Entity groupings should at least have 2 parts obj_type/field_name.");
         }
 
-        $this->userGuid = $userGuid;
+        $this->objType = $parts[0];
+        $this->fieldName = $parts[1];
+        $path = "{$this->objType}/{$this->fieldName}";
+
+        // If we have 3 parts of path, then we set it as our user guid
+        if (isset($parts[2])) {
+            $this->userGuid = $parts[2];
+            $path .= "/{$this->userGuid}" ;
+        }
     }
 
     /**
@@ -179,7 +194,7 @@ class EntityGroupings
     public function getByName($nameValue, $parent = null)
     {
         foreach ($this->groups as $grp) {
-            if ($grp->name == $nameValue && $grp->parentId == $parent) {
+            if ($grp->name == $nameValue) {
                 return $grp;
             }
         }

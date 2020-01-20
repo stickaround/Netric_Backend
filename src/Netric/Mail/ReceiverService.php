@@ -168,11 +168,7 @@ class ReceiverService extends AbstractHasErrors
         }
 
         // Get the mailbox path
-        $mailboxGroupings = $this->groupingLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            $this->user->getValue("guid")
-        );
+        $mailboxGroupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
         $mailboxPath = $mailboxGroupings->getpath($mailboxId);
 
         // Right now we only want to synchronize the Inbox - Sky
@@ -597,11 +593,7 @@ class ReceiverService extends AbstractHasErrors
      */
     private function getJunkMailboxForUser(UserEntity $user)
     {
-        $maiboxes = $this->groupingLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            $user->getValue("guid")
-        );
+        $maiboxes = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getValue("guid"));
 
         $junk = $maiboxes->getByPath("Junk Mail");
         if (!$junk) {

@@ -70,7 +70,7 @@ class PermissionController extends Mvc\AbstractAccountController
             }
         }
 
-        $userGroups = $groupingLoader->get(ObjectTypes::USER, "groups");
+        $userGroups = $groupingLoader->get(ObjectTypes::USER . "/groups");
         $groups = $userGroups->toArray();
 
         // Get the group details

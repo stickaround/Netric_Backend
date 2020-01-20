@@ -177,7 +177,7 @@ foreach ($groupingTables as $details) {
             $log->error("Private entity type called but grouping has no filter defined - $objType");
         }
 
-        $groupings = $groupingsLoader->get($objType, $fieldName, $userGuid);
+        $groupings = $groupingsLoader->get("$objType/$fieldName/$userGuid");
 
         /*
          * We cannot continue if we do not have a groupings set, so we will

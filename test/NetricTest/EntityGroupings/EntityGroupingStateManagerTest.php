@@ -37,7 +37,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
         
         // Create test group
-        $groupings = $dm->getGroupings(ObjectTypes::CONTACT, "groups");
+        $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
         $newGroup = $groupings->create();
         $newGroup->name = "uttest-eg-loader-get";
         $groupings->add($newGroup);
@@ -49,7 +49,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $groupingLoader->clearCache(ObjectTypes::CONTACT, "groups");
         
         // Use the loader to get the object
-        $grp = $groupingLoader->get(ObjectTypes::CONTACT, "groups")->getByName($newGroup->name);
+        $grp = $groupingLoader->get(ObjectTypes::CONTACT . "/groups")->getByName($newGroup->name);
         $this->assertNotNull($grp);
         $this->assertEquals($newGroup->name, $grp->name);
 
@@ -57,7 +57,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $refIm = new \ReflectionObject($groupingLoader);
         $isLoaded = $refIm->getMethod("isLoaded");
         $isLoaded->setAccessible(true);
-        $this->assertTrue($isLoaded->invoke($groupingLoader, ObjectTypes::CONTACT, "groups"));
+        $this->assertTrue($isLoaded->invoke($groupingLoader, ObjectTypes::CONTACT . "/groups"));
 
         // TODO: Test to see if it is cached
         /*
@@ -69,7 +69,7 @@ class EntityGroupingStateManagerTest extends TestCase
          */
 
         // Cleanup
-        $groups = $groupingLoader->get(ObjectTypes::CONTACT, "groups");
+        $groups = $groupingLoader->get(ObjectTypes::CONTACT . "/groups");
         $grp = $groups->getByName($newGroup->name);
         $groups->delete($grp->id);
         $groups->save();

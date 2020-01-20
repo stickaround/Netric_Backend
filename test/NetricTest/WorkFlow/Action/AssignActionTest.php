@@ -112,7 +112,7 @@ class AssignActionTest extends AbstractActionTests
     {
         // Create a test team_id
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::USER, "team_id");
+        $groupings = $groupingsLoader->get(ObjectTypes::USER . "/team_id");
         $group = $groupings->getByName("Test");
         if ($group) {
             $groupings->delete($group->id);
@@ -191,7 +191,7 @@ class AssignActionTest extends AbstractActionTests
     {
         // Create a test team_id
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::USER, "groups");
+        $groupings = $groupingsLoader->get(ObjectTypes::USER . "/groups");
         $group = $groupings->getByName("Test");
         if ($group) {
             $groupings->delete($group->id);

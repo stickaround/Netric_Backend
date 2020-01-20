@@ -518,7 +518,7 @@ class BrowserViewService
             // We need to check if we have a numeric value for the grouping referenced field
             if ($field && $field->isGroupingReference() && !is_numeric($condValue)) {
                 // If not, then we need to sanitize its value by loading the grouping data and get the value's id
-                $groupings = $this->groupingLoader->get($objType, $fieldName);
+                $groupings = $this->groupingLoader->get("$objType/$fieldName");
 
                 $group = $groupings->getByName($condValue);
 

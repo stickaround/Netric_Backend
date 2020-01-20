@@ -116,7 +116,7 @@ abstract class DmTestsAbstract extends TestCase
         }
 
         // Create a few test groups
-        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "status_id");
+        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
         $statGrp = $groupingsStat->getByName("Unit Test Status");
         if (!$statGrp) {
             $statGrp = $groupingsStat->create("Unit Test Status");
@@ -124,7 +124,7 @@ abstract class DmTestsAbstract extends TestCase
         $groupingsStat->add($statGrp);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
 
-        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "groups");
+        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
         $groupsGrp = $groupingsGroups->getByName("Unit Test Group");
         if (!$groupsGrp) {
             $groupsGrp = $groupingsGroups->create("Unit Test Group");
@@ -200,12 +200,12 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a few test groups
-        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "status_id");
+        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
         $statGrp = $groupingsStat->create("Unit Test Status");
         $groupingsStat->add($statGrp);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
 
-        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "groups");
+        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
         $groupsGrp = $groupingsGroups->create("Unit Test Group");
         $groupingsGroups->add($groupsGrp);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
@@ -292,12 +292,12 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a few test groups
-        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "status_id");
+        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
         $statGrp = $groupingsStat->create("Unit Test Status");
         $groupingsStat->add($statGrp);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
 
-        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "groups");
+        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
         $groupsGrp = $groupingsGroups->create("Unit Test Group");
         $groupingsGroups->add($groupsGrp);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
@@ -603,7 +603,7 @@ abstract class DmTestsAbstract extends TestCase
     /**
      * Test entity has moved functionalty
      */
-    public function testCommitImcrement()
+    public function testCommitIncrement()
     {
         $dm = $this->getDataMapper();
 
@@ -611,14 +611,14 @@ abstract class DmTestsAbstract extends TestCase
         $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
 
         // Set saveRevisions to false
-        $customer->setValue("name", "testCommitImcrement First");
+        $customer->setValue("name", "testCommitIncrement First");
         $cid = $dm->save($customer, $this->user);
         $firstCommitId = $customer->getValue("commit_id");
         $this->testEntities[] = $customer;
         $this->assertNotEmpty($firstCommitId);
 
         // Save again which should change the comit id to the new head
-        $customer->setValue("name", "testCommitImcrement Second");
+        $customer->setValue("name", "testCommitIncrement Second");
         $dm->save($customer, $this->user);
         $secondCommitId = $customer->getValue("commit_id");
         $this->assertNotEmpty($secondCommitId);
@@ -751,12 +751,12 @@ abstract class DmTestsAbstract extends TestCase
         }
 
         // Create a few test groups
-        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "status_id");
+        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
         $statGrp = $groupingsStat->create("Unit Test Status");
         $groupingsStat->add($statGrp);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
 
-        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "groups");
+        $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
         $groupsGrp = $groupingsGroups->create("Unit Test Group");
         $groupingsGroups->add($groupsGrp);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
@@ -973,7 +973,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a group to set for a custmer
-        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "status_id");
+        $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
         $statGrp = $groupingsStat->create("test-" . rand());
         $groupingsStat->add($statGrp);
         $this->groupingDataMapper->saveGroupings($groupingsStat);

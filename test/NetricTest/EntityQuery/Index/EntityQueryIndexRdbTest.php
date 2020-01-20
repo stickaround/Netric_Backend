@@ -39,10 +39,10 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     public function testbuildConditionStringForFkey()
     {
         $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);
-        $loader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         
         // Get all groupings for this object type
-        $groupings = $loader->get(ObjectTypes::PROJECT_STORY, "status_id");
+        $groupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/status_id");
 
         $completedGroup = $groupings->getByName("Completed");
         $compledtedId = $completedGroup->getValue("id");
