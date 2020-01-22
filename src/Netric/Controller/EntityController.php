@@ -894,15 +894,15 @@ class EntityController extends Mvc\AbstractAccountController
             // Get the entity defintion of the $objType
             $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
             $def = $defLoader->get($objType);
+            $path = "$objType/$fieldName";
 
-            // If this is a private object then set the user guid of the current user
-            $userGuid = "";
+            // If this is a private object then add the user guid in the unique path
             if ($def->isPrivate) {
-                $userGuid = $this->account->getUser()->getValue("guid");
+                $path .= "/" . $this->account->getUser()->getValue("guid");
             }
             
-            // Get all groupings for this object type
-            $groupings = $groupingLoader->get($objType, $fieldName, $userGuid);
+            // Get all groupings using a unique path
+            $groupings = $groupingLoader->get($path);
 
             // Return the groupings object
             return $groupings;   

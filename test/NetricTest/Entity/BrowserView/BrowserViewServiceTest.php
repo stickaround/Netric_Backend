@@ -165,7 +165,7 @@ class BrowserViewServiceTest extends TestCase
 
         $sm = $this->account->getServiceManager();
         $groupingLoader = $sm->get(GroupingLoaderFactory::class);
-        $groupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY, "status_id");
+        $groupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/status_id");
 
         // We should be able to get the groupings by id using the condition value
         $group = $groupings->getById($conditions[0]->value);

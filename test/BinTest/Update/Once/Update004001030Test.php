@@ -51,7 +51,7 @@ class Update004001030Test extends TestCase
     protected function tearDown(): void
     {
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id");
 
         // Delete the added groups
         foreach ($this->testGroups as $group) {
@@ -84,7 +84,7 @@ class Update004001030Test extends TestCase
         $currentUser = $this->account->getUser(UserEntity::USER_CURRENT);
         
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id", $currentUser->getValue("guid"));
+        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id/" . $currentUser->getValue("guid"));
 
         $groupWithUserId = new Group();
         $groupWithUserId->setValue("name", "UnitTestOnce 030 group with user guid");        

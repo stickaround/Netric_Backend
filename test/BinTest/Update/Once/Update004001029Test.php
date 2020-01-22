@@ -50,7 +50,7 @@ class Update004001029Test extends TestCase
     protected function tearDown(): void
     {
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id");
 
         // Delete the added groups
         foreach ($this->testGroups as $group) {
@@ -80,7 +80,7 @@ class Update004001029Test extends TestCase
         $db = $this->account->getServiceManager()->get(RelationalDbFactory::class);
 
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE, "status_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id");
 
         // Create a new instance of group and add it in the groupings
         $group = new Group();

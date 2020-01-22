@@ -157,6 +157,7 @@ class ActivityLog
 
         // Get the type of activity which is just a grouping entiry for the objType
         $group = $this->getActivityTypeGroup($objDef);
+
         $actEntity->setValue("type_id", $group->id, $group->name);
 
         // Log which entity performed the action
@@ -252,7 +253,7 @@ class ActivityLog
      */
     private function getActivityTypeGroup(EntityDefinition $objDef, $createIfMissing = true)
     {
-        $groupings = $this->groupingLoader->get(ObjectTypes::ACTIVITY, "type_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ACTIVITY . "/type_id");
 
         $existing = $groupings->getByName($objDef->title);
         if ($existing) {

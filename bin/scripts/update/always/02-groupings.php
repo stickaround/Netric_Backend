@@ -17,7 +17,7 @@ $groupingsLoader = $account->getServiceManager()->get(GroupingLoaderFactory::cla
 foreach ($defaultGroups as $objType => $fields) {
     foreach ($fields as $fieldName => $groupsData) {
         // Get groupings for each objType and $fieldName
-        $groupings = $groupingsLoader->get($objType, $fieldName);
+        $groupings = $groupingsLoader->get("$objType/$fieldName");
 
         // Only create default groupings if none exist
         if (count($groupings->getAll()) > 0) {

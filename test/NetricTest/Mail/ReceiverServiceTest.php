@@ -78,11 +78,7 @@ class ReceiverServiceTest extends TestCase
 
         // If it does not exist, create an inbox for the user
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            $this->user->getValue("guid")
-        );
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
         $inbox = new Group();
         $inbox->name = "Inbox";
         $inbox->isSystem = true;
@@ -121,11 +117,7 @@ class ReceiverServiceTest extends TestCase
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            $this->user->getId()
-        );
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
         $groupings->delete($this->inbox->id);
         $groupingsLoader->save($groupings);
 

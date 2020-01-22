@@ -9,14 +9,12 @@ use Netric\EntityGroupings\EntityGroupings;
 interface EntityGroupingDataMapperInterface
 {
     /**
-     * Get object definition based on an object type
+     * Get object groupings based on unique path
      *
-     * @param string $objType The object type name
-     * @param string $fieldName The field name to get grouping data for
-     * @param string $userGuid Optional. Used to load a private groupings
+     * @param string $path The path of the object groupings that we are going to query
      * @return EntityGroupings
      */
-    public function getGroupings(string $objType, string $fieldName, string $userGuid = "") : EntityGroupings;
+    public function getGroupings(string $path) : EntityGroupings;
 
     /**
      * Save groupings

@@ -63,7 +63,7 @@ class ActivityLogTest extends TestCase
     {
         // Create a test customer
         $customerEntity = $this->entityLoader->create(ObjectTypes::CONTACT);
-        $customerEntity->setValue("name", "Test Customer");
+        $customerEntity->setValue("name", "Test Customer Log");
         $this->entityLoader->save($customerEntity);
 
         // Log the activity

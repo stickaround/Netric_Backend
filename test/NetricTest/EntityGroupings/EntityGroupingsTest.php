@@ -5,15 +5,34 @@ namespace NetricTest\EntityGroupings;
 use PHPUnit\Framework\TestCase;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
+use Netric\EntityDefinition\ObjectTypes;
 
 class EntityGroupingsTest extends TestCase
 {
+    /**
+     * Test the path of grouping
+     */
+    public function testGroupingPath()
+    {
+        $groupings = new EntityGroupings(ObjectTypes::CONTACT . "/group");
+        $this->assertEquals($groupings->path, ObjectTypes::CONTACT. "/group");
+        $this->assertEquals($groupings->getObjType(), ObjectTypes::CONTACT);
+        $this->assertEquals($groupings->getFieldName(), "group");
+        
+        $groupingsWithUserGuid = new EntityGroupings(ObjectTypes::CONTACT . "/group/0000-0000-user-guid");
+        $this->assertEquals($groupingsWithUserGuid->getUserGuid(), "0000-0000-user-guid");
+
+        // Should throw an exception if we provide an invalid path for entity groupings
+        $this->expectExceptionMessage("Entity groupings should at least have 2 parts obj_type/field_name.");
+        new EntityGroupings(ObjectTypes::CONTACT);
+    }
+
     /**
      * Test adding a grouping
      */
     public function testAdd()
     {
-        $groupings = new EntityGroupings("test");
+        $groupings = new EntityGroupings("test/group");
         $group = new Group();
         $group->name = "My Test";
         $groupings->add($group);
@@ -27,7 +46,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testDelete()
     {
-        $groupings = new EntityGroupings("test");
+        $groupings = new EntityGroupings("test/group");
         $group = new Group();
         $group->id = 1;
         $group->name = "My Test";
@@ -46,7 +65,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testGetById()
     {
-        $groupings = new EntityGroupings("test");
+        $groupings = new EntityGroupings("test/group");
         $group = new Group();
         $group->id = 1;
         $group->name = "My Test";
@@ -61,7 +80,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testGetByName()
     {
-        $groupings = new EntityGroupings("test");
+        $groupings = new EntityGroupings("test/group");
         $group = new Group();
         $group->id = 1;
         $group->name = "My Test";
@@ -76,7 +95,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testGetByPath()
     {
-        $groupings = new EntityGroupings("test");
+        $groupings = new EntityGroupings("test/group");
 
         $group = new Group();
         $group->id = 1;
@@ -98,7 +117,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testGetPath()
     {
-        $groupings = new EntityGroupings("test");
+        $groupings = new EntityGroupings("test/group");
 
         $group = new Group();
         $group->id = 1;
@@ -117,60 +136,8 @@ class EntityGroupingsTest extends TestCase
 
     public function testCreate()
     {
-        $groupings = new EntityGroupings("test");
+        $groupings = new EntityGroupings("test/group");
         $group = $groupings->create();
         $this->assertInstanceOf(Group::class, $group);
-    }
-
-    public function testGetChildren()
-    {
-        $groupings = new EntityGroupings("test");
-
-        $group = new Group();
-        $group->id = 1;
-        $group->name = "My Test";
-        $groupings->add($group);
-
-        $group2 = new Group();
-        $group2->id = 2;
-        $group2->parentId = $group->id;
-        $group2->name = "Sub Test";
-        $groupings->add($group2);
-
-        $group3 = new Group();
-        $group3->id = 3;
-        $group3->parentId = $group2->id;
-        $group3->name = "Sub Test";
-        $groupings->add($group3);
-
-        $ret = $groupings->getChildren($group->id);
-        $this->assertEquals($group2->id, $ret[0]->id);
-        $this->assertEquals($group3->id, $ret[1]->id);
-    }
-
-    public function testGetHeirarch()
-    {
-        $groupings = new EntityGroupings("test");
-
-        $group = new Group();
-        $group->id = 1;
-        $group->name = "My Test";
-        $groupings->add($group);
-
-        $group2 = new Group();
-        $group2->id = 2;
-        $group2->parentId = $group->id;
-        $group2->name = "Sub Test";
-        $groupings->add($group2);
-
-        $group3 = new Group();
-        $group3->id = 3;
-        $group3->parentId = $group2->id;
-        $group3->name = "Sub Test";
-        $groupings->add($group3);
-
-        $ret = $groupings->getHeirarch($group->id);
-        $this->assertEquals($group2->id, $ret[0]->id);
-        $this->assertEquals($group3->id, $ret[0]->children[0]->id);
     }
 }

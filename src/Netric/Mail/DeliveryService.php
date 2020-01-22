@@ -190,10 +190,7 @@ class DeliveryService extends AbstractHasErrors
         $user = $this->entityLoader->get(ObjectTypes::USER, $emailAccount->getOwnerId());
 
         // Get Inbox for user
-        $mailboxGroups = $this->groupingLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            'mailbox_id',
-            $user->getValue("guid")
+        $mailboxGroups = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getValue("guid")
         );
         $inboxGroup = $mailboxGroups->getByPath('Inbox');
         if (!$inboxGroup) {
@@ -584,11 +581,7 @@ class DeliveryService extends AbstractHasErrors
         // Get user entity from email account
         $user = $this->entityLoader->get(ObjectTypes::USER, $emailAccount->getOwnerId());
 
-        $groupings = $this->groupingLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            $user->getValue("guid")
-        );
+        $groupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getValue("guid"));
 
         $inbox = new Group();
         $inbox->name = "Inbox";

@@ -30,6 +30,7 @@ class Group
     public $name = "";
 
     /**
+     * Deprecated - Marl 01/20/20
      * Grouping is heiarchial with a parent id
      *
      * @var bool
@@ -44,8 +45,9 @@ class Group
     public $isSystem = false;
 
     /**
+     * Deprecated - Marl 01/20/20
      * If heiarchial then parent may be used to define parent-child groupings
-     *
+     * 
      * @var int
      */
     public $parentId = null;
@@ -72,6 +74,7 @@ class Group
     public $commitId = 0;
 
     /**
+     * Deprecated - Marl 01/20/20
      * Children
      *
      * @var Group[]
@@ -96,18 +99,12 @@ class Group
             "id" => $this->id,
             "guid" => $this->guid,
             "name" => $this->name,
-            "is_heiarch" => $this->isHeiarch,
-            "is_system" => $this->isSystem,
+            "f_system" => $this->isSystem,
             "parent_id" => $this->parentId,
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
             "commit_id" => $this->commitId,
-            "children" => array(),
         );
-
-        foreach ($this->children as $child) {
-            $data['children'][] = $child->toArray();
-        }
 
         return $data;
     }
@@ -145,6 +142,14 @@ class Group
 
         if (isset($data['is_heiarch'])) {
             $this->isHeiarch = $data['is_heiarch'];
+        }
+
+        if (isset($data['commit_id'])) {
+            $this->commitId = $data['commit_id'];
+        }
+
+        if (isset($data['f_system'])) {
+            $this->isSystem = $data['f_system'];
         }
 
         // Inicate this group has been changed
