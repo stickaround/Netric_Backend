@@ -583,7 +583,9 @@ class EntityProviderTest extends TestCase
         $grpDrafts = $groupings->getByName("Drafts");
 
         $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $entity->setValue("body", "unit tests provider");
         $entity->setValue("mailbox_id", $grpDrafts->id);
+        $entity->setValue("owner_id", $this->user->getId());
         $id = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 

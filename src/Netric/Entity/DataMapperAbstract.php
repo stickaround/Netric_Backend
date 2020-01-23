@@ -19,6 +19,7 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\Field;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -555,7 +556,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         if ($entity->getDefinition()->isPrivate()) {
             // All entities have owner_id, but some old entities use user_id
             $userId = $entity->getValue("owner_id") !== null ? $entity->getValue("owner_id") : $entity->getValue("user_id");
-            $userGuid = "/" . $this->getAccount()->getUser($userId)->getValue("guid");
+            $userEntity = $entityLoader->get(ObjectTypes::USER, $userId);
+            $userGuid = "/" . $userEntity->getValue("guid");
         }
 
 
@@ -620,12 +622,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get("$objType/{$field->name}$userGuid");
+                    $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuid");
 
                     // Clear the value in preparation for an update - or to remove it if group was deleted
                     $entity->setValue($field->name, null);
 
-                    $group = $groups->getById($value);
+                    $group = $grouping->getById($value);
+
                     if ($group) {
                         // If the group exists then update the name
                         $entity->setValue($field->name, $value, $group->name);

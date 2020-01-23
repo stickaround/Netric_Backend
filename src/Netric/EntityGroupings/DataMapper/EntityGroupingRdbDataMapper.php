@@ -209,7 +209,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $path = $def->getObjType() . "/" . $field->name;
         if ($userGuid) {
             $path .= "/$userGuid";
-            $groupData["user_id"] = $userGuid = $this->account->getUser($userGuid)->getId();
+            $groupData["user_id"] = $this->account->getUser($userGuid)->getId();
         }
 
         $groupData["path"] = $path;
