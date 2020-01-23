@@ -508,8 +508,7 @@ class EntityProvider
          */
         $serviceManager = $this->account->getServiceManager();
         $gloader = $serviceManager->get(GroupingLoaderFactory::class);
-        $groupings = $gloader->get(ObjectTypes::EMAIL_MESSAGE .  "/mailbox_id/" . $this->user->getValue("guid"))
-        );
+        $groupings = $gloader->get(ObjectTypes::EMAIL_MESSAGE .  "/mailbox_id/" . $this->user->getValue("guid"));
 
         /*
          * For now we are just limiting this to the inbox because apparently the
