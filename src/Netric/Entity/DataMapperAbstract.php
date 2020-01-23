@@ -557,7 +557,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             // All entities have owner_id, but some old entities use user_id
             $userId = $entity->getValue("owner_id") !== null ? $entity->getValue("owner_id") : $entity->getValue("user_id");
             $userEntity = $entityLoader->get(ObjectTypes::USER, $userId);
-            $userGuid = "/" . $userEntity->getValue("guid");
+            
+            if ($userEntity) {
+                $userGuidPath = "/" . $userEntity->getValue("guid");
+            } else {
+                // If we do not find the owner_id or user_id, then let's use the current user id.
+                $userGuidPath = "/" . $this->getAccount()->getUser()->getValue("guid");
+            }
         }
 
 
@@ -622,7 +628,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING:
                     $objType = $entity->getDefinition()->getObjType();
-                    $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuid");
+                    $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
 
                     // Clear the value in preparation for an update - or to remove it if group was deleted
                     $entity->setValue($field->name, null);
@@ -637,7 +643,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get("$objType/{$field->name}$userGuid");
+                    $groups = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
                     if (is_array($value)) {
                         foreach ($value as $valPart) {
                             // Clear the value in preparation for an update - or to remove it if group was deleted
