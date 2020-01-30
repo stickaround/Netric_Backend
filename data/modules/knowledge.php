@@ -5,10 +5,10 @@
 namespace modules\navigation;
 
 return array(
-    "title" => "Infocenter",
+    "title" => "Knowledge",
     "icon" => "LightBulbIcon",
     "default_route" => "all-documents",
-    "name" => "infocenter",
+    "name" => "knowledge",
     "short_title" => 'Knowledge',
     "scope" => 'system',
     "sort_order" => '10',
