@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 class BrowserViewServiceTest extends TestCase
 {
@@ -164,8 +164,8 @@ class BrowserViewServiceTest extends TestCase
         $this->assertEquals("status_id", $conditions[0]->fieldName);
 
         $sm = $this->account->getServiceManager();
-        $groupingLoader = $sm->get(LoaderFactory::class);
-        $groupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY, "status_id");
+        $groupingLoader = $sm->get(GroupingLoaderFactory::class);
+        $groupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/status_id");
 
         // We should be able to get the groupings by id using the condition value
         $group = $groupings->getById($conditions[0]->value);

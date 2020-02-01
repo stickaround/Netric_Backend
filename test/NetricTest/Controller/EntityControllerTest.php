@@ -76,8 +76,7 @@ class EntityControllerTest extends TestCase
                 'action' => "delete",
                 'obj_type' => ObjectTypes::NOTE,
                 'field_name' => 'groups',
-                'id' => $groupId,
-                'filter' => array('user_id' => -9)
+                'id' => $groupId
             );
 
             // Set params in the request
@@ -615,8 +614,7 @@ class EntityControllerTest extends TestCase
             'obj_type' => ObjectTypes::NOTE,
             'field_name' => 'groups',
             'name' => 'test save group',
-            'color' => 'blue',
-            'filter' => array('user_id' => -9)
+            'color' => 'blue'
         );
 
         // Set params in the request
@@ -627,8 +625,7 @@ class EntityControllerTest extends TestCase
         $this->assertTrue($retGroup['id'] > 0);
         $this->assertEquals($retGroup['name'], $dataGroup['name']);
         $this->assertEquals($retGroup['color'], $dataGroup['color']);
-        $this->assertEquals($retGroup['filter_fields']['user_id'], $dataGroup['filter']['user_id']);
-
+        
         // Setup the save group data with parent
         $dataWithParent = array(
             'action' => "add",
@@ -636,8 +633,7 @@ class EntityControllerTest extends TestCase
             'field_name' => 'groups',
             'parent_id' => $retGroup['id'],
             'name' => 'test group with parent',
-            'color' => 'green',
-            'filter' => array('user_id' => -9)
+            'color' => 'green'
         );
 
         // Set params in the request
@@ -649,8 +645,7 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($retWithParent['name'], $dataWithParent['name']);
         $this->assertEquals($retWithParent['color'], $dataWithParent['color']);
         $this->assertEquals($retWithParent['parent_id'], $retGroup['id']);
-        $this->assertEquals($retWithParent['filter_fields']['user_id'], $dataWithParent['filter']['user_id']);
-
+        
         // Test the edit function of SaveGroup
         $dataEdit = array(
             'action' => "edit",
@@ -658,8 +653,7 @@ class EntityControllerTest extends TestCase
             'field_name' => 'groups',
             'id' => $retGroup['id'],
             'name' => 'test edit group save',
-            'color' => 'green',
-            'filter' => array('user_id' => -9)
+            'color' => 'green'
         );
 
         // Set params in the request
@@ -670,7 +664,6 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($retEdit['id'], $retGroup['id']);
         $this->assertEquals($retEdit['name'], $dataEdit['name']);
         $this->assertEquals($retEdit['color'], $dataEdit['color']);
-        $this->assertEquals($retEdit['filter_fields']['user_id'], $dataEdit['filter']['user_id']);
 
         // Set the added groups here to be deleted later in the tearDown
         $this->testGroups = array($retWithParent['id'], $retGroup['id']);

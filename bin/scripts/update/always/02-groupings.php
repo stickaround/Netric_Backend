@@ -3,7 +3,7 @@
  * Add default groups only if none exist - allowing accounts to override defaults
  */
 use Netric\EntityGroupings\Group;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 $account = $this->getAccount();
 if (!$account) {
@@ -12,12 +12,12 @@ if (!$account) {
 
 $defaultGroups= require(__DIR__ . "/../../../../data/account/groupings.php");
 
-$groupingsLoader = $account->getServiceManager()->get(LoaderFactory::class);
+$groupingsLoader = $account->getServiceManager()->get(GroupingLoaderFactory::class);
 
 foreach ($defaultGroups as $objType => $fields) {
     foreach ($fields as $fieldName => $groupsData) {
         // Get groupings for each objType and $fieldName
-        $groupings = $groupingsLoader->get($objType, $fieldName);
+        $groupings = $groupingsLoader->get("$objType/$fieldName");
 
         // Only create default groupings if none exist
         if (count($groupings->getAll()) > 0) {

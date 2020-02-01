@@ -5,7 +5,7 @@ use Netric\EntityGroupings\Group;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 class AssignActionTest extends AbstractActionTests
 {
@@ -111,8 +111,8 @@ class AssignActionTest extends AbstractActionTests
     public function SKIP_testExecute_Team()
     {
         // Create a test team_id
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::USER, "team_id");
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::USER . "/team_id");
         $group = $groupings->getByName("Test");
         if ($group) {
             $groupings->delete($group->id);
@@ -190,8 +190,8 @@ class AssignActionTest extends AbstractActionTests
     public function SKIP_testExecute_Group()
     {
         // Create a test team_id
-        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::USER, "groups");
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::USER . "/groups");
         $group = $groupings->getByName("Test");
         if ($group) {
             $groupings->delete($group->id);

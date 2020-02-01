@@ -3,7 +3,7 @@ namespace Netric\Entity;
 
 use Netric\ServiceManager;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Factory for constructing an activity log service
@@ -19,7 +19,7 @@ class ActivityLogFactory implements ServiceManager\AccountServiceFactoryInterfac
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $groupingsLoader = $sl->get(LoaderFactory::class);
+        $groupingsLoader = $sl->get(GroupingLoaderFactory::class);
         $currentUser = $sl->getAccount()->getUser();
         $log = $sl->getAccount()->getApplication()->getLog();
 

@@ -86,7 +86,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
             // Get groupings
             $filters = $this->getFiltersFromConditions();
-            $groupings = $this->groupingDataMapper->getGroupings($this->getObjType(), $this->getFieldName(), $filters);
+            $groupings = $this->groupingDataMapper->getGroupings($this->getObjType() . "/" . $this->getFieldName());
 
             // Loop through each change
             $grps = $groupings->getAll();
@@ -189,12 +189,8 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      */
     private function getCommitHeadIdent()
     {
-        // Convert collection conditions to simpler filters for groupings
-        $filters = $this->getFiltersFromConditions();
-        $filtersHash = EntityGroupings::getFiltersHash($filters);
-
         // TODO: if private then add the user_id as a filter field
-        return "groupings/" . $this->getObjType() . "/" . $this->getFieldName() . "/" . $filtersHash;
+        return "groupings/" . $this->getObjType() . "/" . $this->getFieldName();
     }
 
     /**

@@ -7,7 +7,7 @@ use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -34,7 +34,7 @@ class PermissionController extends Mvc\AbstractAccountController
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $groupingLoader = $serviceManager->get(EntityGroupingLoaderFactory::class);
+        $groupingLoader = $serviceManager->get(GroupingLoaderFactory::class);
 
         $objData = $this->getRequest()->getParams();
 
@@ -70,7 +70,7 @@ class PermissionController extends Mvc\AbstractAccountController
             }
         }
 
-        $userGroups = $groupingLoader->get(ObjectTypes::USER, "groups");
+        $userGroups = $groupingLoader->get(ObjectTypes::USER . "/groups");
         $groups = $userGroups->toArray();
 
         // Get the group details

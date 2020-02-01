@@ -50,6 +50,18 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
     private $dataPath = null;
 
     /**
+     * Get Allowed Groups
+     *
+     * @var int[]
+     */
+    private $allowedGroups = [
+        UserEntity::GROUP_ADMINISTRATORS,
+        UserEntity::GROUP_CREATOROWNER,
+        UserEntity::GROUP_USERS,
+        UserEntity::GROUP_EVERYONE
+    ];
+
+    /**
      * Override initialization
      */
     protected function init()
@@ -184,7 +196,26 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              * that the user has permission to the parent folder before creating a child folder
              */
             $folderEntity = $this->fileSystem->openFolder($folderPath);
+            
             if ($folderEntity) {
+                $daclData = array(
+                    "entries" => array(
+                        array(
+                            "name" => Dacl::PERM_VIEW,
+                            "groups" => $this->allowedGroups
+                        ),
+                        array(
+                            "name" => Dacl::PERM_EDIT,
+                            "groups" => $this->allowedGroups
+                        ),
+                        array(
+                            "name" => Dacl::PERM_DELETE,
+                            "groups" => $this->allowedGroups
+                        ),
+                    ),
+                );
+
+                $folderEntity->setValue("dacl", json_encode($daclData));
                 $dacl = $daclLoader->getForEntity($folderEntity);
                 if (!$dacl->isAllowed($user)) {
                     // Log a warning to flag repeat offenders
@@ -269,8 +300,18 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Make sure the current user has access
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+
+        $daclData = array(
+            "entries" => array(
+                array(
+                    "name" => Dacl::PERM_VIEW,
+                    "groups" => $this->allowedGroups
+                ),
+            ),
+        );
+        $fileEntity->setValue("dacl", json_encode($daclData));
         $dacl = $daclLoader->getForEntity($fileEntity);
-        if (!$dacl->isAllowed($user)) {
+        if (!$dacl->isAllowed($user, Dacl::PERM_VIEW)) {
             $log->warning(
                 "FilesController->getDownloadAction: User " . $user->getName() .
                     " does not have permissions to " .

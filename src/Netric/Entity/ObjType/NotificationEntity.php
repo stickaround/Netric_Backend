@@ -101,22 +101,25 @@ class NotificationEntity extends Entity implements EntityInterface
         // Get the referenced entity
         $objReference = Entity::decodeObjRef($this->getValue("obj_reference"));
         $entity = $sm->get(EntityLoaderFactory::class)->get($objReference['obj_type'], $objReference['id']);
+        $def = $entity->getDefinition();
+
+        $config = $sm->get(ConfigFactory::class);
+        $log = $sm->get(LogFactory::class);
 
         // Set the body
-        $body = $creator->getName() . " " . $this->getValue('name') . " on ";
+        $body = $creator->getName() . " - " . $this->getName('name') . " on ";
         $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
         $body .= "---------------------------------------\r\n\r\n";
-        $body .= $entity->getDescription();
-        $body .= "---------------------------------------\r\n\r\n";
-
+        $body .= $def->getTitle() . ": " . $entity->getName();
+        $body .= "\r\n\r\nLink: \r";
+        
         // Add link to body
-        $body .= $sm->getAccount()->getAccountUrl() . "/obj/";
-        $body .= $objReference['obj_type'] . "/" . $objReference['id'];
-        $body .= "\n\n";
+        $protocol = ($config->use_https) ? "https://" : "http://";
+        $body .= $protocol . $config->application_url . "/browse/" . $entity->getValue("guid");
+        $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
-
+        
         // Set from
-        $config = $sm->get(ConfigFactory::class);
         $fromEmail = $config->email['noreply'];
 
         // Add special dropbox that enables users to comment by just replying to an email
@@ -127,6 +130,10 @@ class NotificationEntity extends Entity implements EntityInterface
         }
 
         try {
+            $from = $config->email['noreply'];
+            $to = $user->getValue("email");
+            $subject = $this->getValue("name");
+
             // Create a new message and send it
             $from = new Address($fromEmail, $creator->getName());
             $message = new Mail\Message();
@@ -141,8 +148,7 @@ class NotificationEntity extends Entity implements EntityInterface
              * This should never happen, but in case we cannot send the email for
              * reason we should log it as an error and continue working.
              */
-            $log = $sm->get(LogFactory::class);
-            $log->error("Could not send notification: " . $ex->getMessage(), var_export($config, true));
+            $log->error("NotificationEntity:: Could not send notification: " . $ex->getMessage(), var_export($config, true));
         }
     }
 

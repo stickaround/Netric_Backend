@@ -7,7 +7,7 @@ use Netric\Config\ConfigFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Settings\SettingsFactory;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new BrowserView service for getting and saving forms
@@ -28,7 +28,7 @@ class BrowserViewServiceFactory implements ServiceManager\AccountServiceFactoryI
         $defLoader = $sl->get(EntityDefinitionLoaderFactory::class);
         $settings = $sl->get(SettingsFactory::class);
         $rdb = $sl->get(RelationalDbFactory::class);
-        $groupingLoader = $sl->get(LoaderFactory::class);
+        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
         return new BrowserViewService($rdb, $config, $defLoader, $settings, $groupingLoader);
     }
 }

@@ -34,7 +34,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**
@@ -372,12 +372,8 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_EMAIL:
-                $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
-                $groupings = $groupingsLoader->get(
-                    ObjectTypes::EMAIL_MESSAGE,
-                    "mailbox_id",
-                    array("user_id" => $this->user->getId())
-                );
+                $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+                $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
 
                 $group = $groupings->getById($folder['id']);
 
@@ -511,12 +507,8 @@ class EntityProvider
          * the names are different like - groupings.user_id=email_message.owner_id
          */
         $serviceManager = $this->account->getServiceManager();
-        $gloader = $serviceManager->get(LoaderFactory::class);
-        $groupings = $gloader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            array("user_id" => $this->user->getId())
-        );
+        $gloader = $serviceManager->get(GroupingLoaderFactory::class);
+        $groupings = $gloader->get(ObjectTypes::EMAIL_MESSAGE .  "/mailbox_id/" . $this->user->getValue("guid"));
 
         /*
          * For now we are just limiting this to the inbox because apparently the
@@ -613,7 +605,7 @@ class EntityProvider
 
         // Get note groupings
         $serviceManager = $this->account->getServiceManager();
-        $gloader = $serviceManager->get(LoaderFactory::class);
+        $gloader = $serviceManager->get(GroupingLoaderFactory::class);
         $groupings = $gloader->get(
             ObjectTypes::NOTE,
             "groups",
@@ -1217,8 +1209,8 @@ class EntityProvider
         if (isset($syncNote->categories)) {
 
             $sm = $this->account->getServiceManager();
-            $entityGroupingsLoader = $sm->get(LoaderFactory::class);
-            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE, "groups", array("user_id" => $this->user->getId()));
+            $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
+            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getValue("guid"));
 
             foreach ($syncNote->categories as $catName) {
                 // See if there is a grouping with this category name

@@ -5,8 +5,8 @@ namespace NetricTest\EntityGroupings;
 use Netric;
 use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use Netric\EntityGroupings\Loader;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 class LoaderFactoryTest extends TestCase
 {
@@ -16,8 +16,8 @@ class LoaderFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            Loader::class,
-            $sm->get(LoaderFactory::class)
+            GroupingLoader::class,
+            $sm->get(GroupingLoaderFactory::class)
         );
     }
 }

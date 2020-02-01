@@ -95,7 +95,7 @@ class Update004001016Test extends TestCase
         }
 
         // Clean up test object groupings
-        $groupings = $this->entityGroupingDataMapper->getGroupings(ObjectTypes::CONTACT, 'groups');
+        $groupings = $this->entityGroupingDataMapper->getGroupings(ObjectTypes::CONTACT . '/groups');
         foreach ($this->testGroupingIDs as $groupingId) {
             $groupings->delete($groupingId);
             $this->entityGroupingDataMapper->saveGroupings($groupings);
@@ -120,7 +120,7 @@ class Update004001016Test extends TestCase
     {
         // Create a test grouping
         $newGroupingName = "Unit Test Group" . rand();
-        $groupingsGroups = $this->entityGroupingDataMapper->getGroupings(ObjectTypes::CONTACT, "groups");
+        $groupingsGroups = $this->entityGroupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
         $groupsGrp = $groupingsGroups->getByName($newGroupingName);
         if (!$groupsGrp)
             $groupsGrp = $groupingsGroups->create($newGroupingName);

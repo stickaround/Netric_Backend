@@ -7,7 +7,7 @@ use Netric\EntityGroupings\Group;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
@@ -18,8 +18,8 @@ if (!$account)
  * First make sure default user groups exist
  */
 $groupsData = require(__DIR__ . "/../../../../data/account/user-groups.php");
-$groupingsLoader = $account->getServiceManager()->get(LoaderFactory::class);
-$groupings = $groupingsLoader->get(ObjectTypes::USER, "groups");
+$groupingsLoader = $account->getServiceManager()->get(GroupingLoaderFactory::class);
+$groupings = $groupingsLoader->get(ObjectTypes::USER . "/groups");
 foreach ($groupsData as $groupData) {
     if (!$groupings->getByName($groupData['name'])) {
         $group = new Group();

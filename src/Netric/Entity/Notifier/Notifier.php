@@ -226,7 +226,7 @@ class Notifier
             case ActivityEntity::VERB_SENT:
                 return "Sent " . $objTypeTitle;
             default:
-                return ucfirst($event) . " " . $objTypeTitle;
+                return ucfirst($event) . "d " . $objTypeTitle;
         }
     }
 

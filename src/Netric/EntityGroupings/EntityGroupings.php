@@ -37,6 +37,13 @@ class EntityGroupings
     private $fieldName = "";
 
     /**
+     * Optional. userGuid is set if this grouping is private
+     * 
+     * @var string
+     */
+    private $userGuid = "";
+
+    /**
      * Optional datamapper to call this->save through the Loader class
      *
      * @var EntityGroupingDataMapperInterface
@@ -44,27 +51,35 @@ class EntityGroupings
     private $dataMapper = null;
 
     /**
-     * Default filters that should be applied to all groups within this groupings container
-     *
-     * @var array
+     * Unique path of the entity groupings
+     * 
+     * @var string
      */
-    private $filters = array();
+    public $path = "";
 
     /**
      * Initialize groupings
      *
-     * @param string $objType Set object type
-     * @param string $fieldName The name of the field we are working with
-     * @param array $filters Key/Value filter conditions for each group
+     * @param string $path The path of the object groupings. This consists 2 or 3 parts: obj_type/field_name/user_guid. User guid is optional.
      */
-    public function __construct($objType, $fieldName = "", $filters = array())
+    public function __construct($path)
     {
-        $this->objType = $objType;
-        if ($fieldName) {
-            $this->fieldName = $fieldName;
+        $this->path = $path;
+        $parts = explode("/", $path);
+
+        if (sizeof($parts) <= 1) {
+            throw new \Exception("Entity groupings should at least have 2 parts obj_type/field_name.");
         }
 
-        $this->filters = $filters;
+        $this->objType = $parts[0];
+        $this->fieldName = $parts[1];
+        $path = "{$this->objType}/{$this->fieldName}";
+
+        // If we have 3 parts of path, then we set it as our user guid
+        if (isset($parts[2])) {
+            $this->userGuid = $parts[2];
+            $path .= "/{$this->userGuid}" ;
+        }
     }
 
     /**
@@ -112,13 +127,11 @@ class EntityGroupings
     }
 
     /**
-     * Get array of filters
-     *
-     * @return array
+     * Get the user guid of this groupings if it is a private grouping
      */
-    public function getFilters()
+    public function getUserGuid()
     {
-        return $this->filters;
+        return $this->userGuid;
     }
 
     /**
@@ -181,7 +194,7 @@ class EntityGroupings
     public function getByName($nameValue, $parent = null)
     {
         foreach ($this->groups as $grp) {
-            if ($grp->name == $nameValue && $grp->parentId == $parent) {
+            if ($grp->name == $nameValue) {
                 return $grp;
             }
         }
@@ -315,18 +328,7 @@ class EntityGroupings
             // TODO: check for circular reference in the chain
         }
 
-        // Make sure we have filters before we evaluate the group
-        if ($this->filters) {
-            // Set filters to match the defaults set in this container
-            foreach ($this->filters as $name => $value) {
-                if ($value && !$group->getFilteredVal($name)) {
-                    $group->setValue($name, $value);
-                }
-            }
-        }
-
         $this->groups[] = $group;
-
         return true;
     }
 
@@ -389,6 +391,8 @@ class EntityGroupings
     }
 
     /**
+     * Deprecated - Marl Tumulak 01/14/2020
+     * 
      * Get unique filters hash
      */
     public static function getFiltersHash($filters = array())

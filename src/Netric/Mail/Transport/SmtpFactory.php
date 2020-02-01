@@ -5,6 +5,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\Settings\SettingsFactory;
 use Netric\Config\ConfigFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Create a new SMTP Transport service based on account settings
@@ -76,9 +77,12 @@ class SmtpFactory implements AccountServiceFactoryInterface
             }
         }
 
-
         // Apply set options to the transport
         $transport->setOptions(new SmtpOptions($options));
+
+        // Log the Smtp settings
+        $log = $serviceManager->get(LogFactory::class);
+        $log->info("SmtpFactory:: Email Options - " . json_encode($options));
 
         return $transport;
     }

@@ -16,7 +16,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntitySync\EntitySync;
 use Netric\EntityQuery\Where;
 use Netric\Log\Log;
-use Netric\EntityGroupings\Loader as GroupingsLoader;
+use Netric\EntityGroupings\GroupingLoader;
 use Netric\Mail\Storage\Exception\InvalidArgumentException;
 use Netric\Mail\Storage\AbstractStorage;
 use Netric\Mail\Storage\Imap;
@@ -65,9 +65,9 @@ class ReceiverService extends AbstractHasErrors
     /**
      * Entity groupings loader
      *
-     * @var GroupingsLoader
+     * @var GroupingLoader
      */
-    private $groupingsLoader = null;
+    private $groupingLoader = null;
 
     /**
      * Entity loader
@@ -112,7 +112,7 @@ class ReceiverService extends AbstractHasErrors
      * @param EntitySync $entitySync Sync Service
      * @param CollectionFactoryInterface $collectionFactory Factory for constructing collections
      * @param EntityLoader $entityLoader Loader to get and save messages
-     * @param GroupingsLoader $groupingsLoader For loading mailbox groupings
+     * @param GroupingLoader $groupingLoader For loading mailbox groupings
      * @param IndexInterface $entityIndex The index for querying entities
      * @param VaultService $vaultService Service for retrieving encrypted keys
      * @param Config $config Email portion of config for connection defaults
@@ -124,7 +124,7 @@ class ReceiverService extends AbstractHasErrors
         EntitySync $entitySync,
         CollectionFactoryInterface $collectionFactory,
         EntityLoader $entityLoader,
-        GroupingsLoader $groupingsLoader,
+        GroupingLoader $groupingLoader,
         IndexInterface $entityIndex,
         VaultService $vaultService,
         Config $config,
@@ -135,7 +135,7 @@ class ReceiverService extends AbstractHasErrors
         $this->entitySync = $entitySync;
         $this->collectionFactory = $collectionFactory;
         $this->entityLoader = $entityLoader;
-        $this->groupingsLoader = $groupingsLoader;
+        $this->groupingLoader = $groupingLoader;
         $this->entityIndex = $entityIndex;
         $this->vaultService = $vaultService;
         $this->config = $config;
@@ -168,11 +168,7 @@ class ReceiverService extends AbstractHasErrors
         }
 
         // Get the mailbox path
-        $mailboxGroupings = $this->groupingsLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            ["user_id"=>$this->user->getId()]
-        );
+        $mailboxGroupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
         $mailboxPath = $mailboxGroupings->getpath($mailboxId);
 
         // Right now we only want to synchronize the Inbox - Sky
@@ -597,11 +593,7 @@ class ReceiverService extends AbstractHasErrors
      */
     private function getJunkMailboxForUser(UserEntity $user)
     {
-        $maiboxes = $this->groupingsLoader->get(
-            ObjectTypes::EMAIL_MESSAGE,
-            "mailbox_id",
-            ["user_id"=>$user->getId()]
-        );
+        $maiboxes = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getValue("guid"));
 
         $junk = $maiboxes->getByPath("Junk Mail");
         if (!$junk) {
