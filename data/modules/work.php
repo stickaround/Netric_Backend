@@ -1,14 +1,16 @@
 <?php
+
 /**
- * Return navigation for entity of object type 'project'
+ * Return navigation for entity of work module
  */
+
 namespace modules\navigation;
 
 return array(
     "title" => "Work",
     "icon" => "WorkIcon",
     "default_route" => "tasks",
-    "name" => "projects",
+    "name" => "work",
     "short_title" => 'Work',
     "scope" => 'system',
     "sort_order" => '6',

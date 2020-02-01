@@ -1,26 +1,34 @@
 <?php
+
 /**
  * Return navigation for entity of object type 'infocenter'
  */
+
 namespace modules\navigation;
 
-return array(
-    "title" => "Infocenter",
+return [
+    "title" => "Knowledge",
     "icon" => "LightBulbIcon",
-    "default_route" => "all-documents",
-    "name" => "infocenter",
+    "default_route" => "all-notes",
+    "name" => "knowledge",
     "short_title" => 'Knowledge',
     "scope" => 'system',
     "sort_order" => '10',
     "f_system" => true,
-    "navigation" => array(
-        array(
-            "title" => "All Documents",
+    "navigation" => [
+        [
+            "title" => "All Notes",
+            "type" => "browse",
+            "route" => "all-notes",
+            "objType" => "note",
+            "icon" => "ViewListIcon",
+        ],
+        [
+            "title" => "All Spaces",
             "type" => "browse",
             "route" => "all-documents",
             "objType" => "infocenter_document",
             "icon" => "StyleIcon",
-            "browseby" => "groups",
-        )
-    )
-);
+        ]
+    ]
+];

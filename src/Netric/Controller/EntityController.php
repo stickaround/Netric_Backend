@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Controller;
 
 use Netric\Entity\Entity;
@@ -50,7 +51,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Load the entity definition
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        
+
         try {
             // Get the definition data for this object type
             $def = $defLoader->get($params['obj_type']);
@@ -58,7 +59,7 @@ class EntityController extends Mvc\AbstractAccountController
             if (!$def) {
                 return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
             }
-    
+
             $ret = $this->fillDefinitionArray($def);
             return $this->sendOutput($ret);
         } catch (\Exception $ex) {
@@ -257,7 +258,7 @@ class EntityController extends Mvc\AbstractAccountController
             if (!$dataMapper->save($entity)) {
                 return $this->sendOutput(array("error" => "Error saving: " . $dataMapper->getLastError()));
             }
-        } catch(\RuntimeException $ex) {
+        } catch (\RuntimeException $ex) {
             return $this->sendOutput(array("error" => "Error saving: " . $ex->getMessage()));
         }
 
@@ -318,11 +319,11 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Get the datamapper to delete
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-        
+
         try {
             foreach ($ids as $did) {
                 $entity = $loader->get($objType, $did);
-    
+
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
                     // Proceed with the deleting this entity
@@ -331,7 +332,7 @@ class EntityController extends Mvc\AbstractAccountController
                     }
                 }
             }
-        } catch(\RuntimeException $ex) {
+        } catch (\RuntimeException $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
 
@@ -482,7 +483,8 @@ class EntityController extends Mvc\AbstractAccountController
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if ($field->subtype // Make sure that this field has a subtype
+                    if (
+                        $field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
@@ -564,7 +566,7 @@ class EntityController extends Mvc\AbstractAccountController
             $def->fromArray($objData);
 
             // Save the entity definition
-            $dataMapper->save($def);   
+            $dataMapper->save($def);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -610,9 +612,9 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             $def = $defLoader->get($objData['obj_type']);
-            
+
             // Delete the entity definition
-            $dataMapper->delete($def);   
+            $dataMapper->delete($def);
             return $this->sendOutput(true);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
@@ -680,16 +682,16 @@ class EntityController extends Mvc\AbstractAccountController
             foreach ($ids as $id) {
                 // Load the entity that we are going to update
                 $entity = $loader->get($objData['obj_type'], $id);
-    
+
                 // Update the fields with the data. Make sure we only update the provided fields.
                 $entity->fromArray($entityData, true);
-    
+
                 // Save the entity
                 $dataMapper->save($entity);
-    
+
                 // Return the entities that were updated
                 $ret[] = $entity->toArray();
-            }   
+            }
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -748,7 +750,7 @@ class EntityController extends Mvc\AbstractAccountController
             * Let's save the merged entity initially so we can get its entity id.
             * We will use the merged entity id as our moved object id when we loop thru the mergedData
             */
-            $mergedEntityId = $dataMapper->save($mergedEntity);    
+            $mergedEntityId = $dataMapper->save($mergedEntity);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -792,7 +794,7 @@ class EntityController extends Mvc\AbstractAccountController
             $mergedEntity->fromArray($entityData, true);
 
             // Now save the the entity where all merged data are set
-            $dataMapper->save($mergedEntity);    
+            $dataMapper->save($mergedEntity);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -879,7 +881,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             // Save the changes made to the groupings
-            $loader->save($groupings);    
+            $loader->save($groupings);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -907,12 +909,12 @@ class EntityController extends Mvc\AbstractAccountController
             if ($def->isPrivate && !count($groupFilter)) {
                 $groupFilter['user_id'] = $this->account->getUser()->getId();
             }
-            
+
             // Get all groupings for this object type
             $groupings = $loader->get($objType, $fieldName, $groupFilter);
 
             // Return the groupings object
-            return $groupings;   
+            return $groupings;
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }

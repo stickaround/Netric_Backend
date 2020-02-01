@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Abstract tests for CRUD on a Module
  */
+
 namespace NetricTest\Account\Module\DataMapper;
 
 use Netric\Account\Module\DataMapper;
@@ -28,7 +30,7 @@ abstract class AbstractDataMapperTests extends TestCase
      * Cleanup any created assets
      */
     protected function tearDown(): void
-{
+    {
         $dataMapper = $this->getDataMapper();
         foreach ($this->testModules as $module) {
             $dataMapper->delete($module);
@@ -86,7 +88,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Get a system module that will always exist
-        $module = $dataMapper->get("notes");
+        $module = $dataMapper->get("home");
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getId());
 
@@ -107,20 +109,20 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Get a system module that will be tested for saving
-        $module = $dataMapper->get("notes");
+        $module = $dataMapper->get("home");
 
         // Update the short title
-        $module->setShortTitle("Personal Notes");
+        $module->setShortTitle("Personal Home");
         $dataMapper->save($module);
 
-        // It should only update the short title and not the notes
-        $newModule = $dataMapper->get("notes");
+        // It should only update the short title and not the home
+        $newModule = $dataMapper->get("home");
 
-        $this->assertEquals($newModule->getShortTitle(), "Personal Notes");
+        $this->assertEquals($newModule->getShortTitle(), "Personal Home");
         $this->assertEquals($newModule->getNavigation(), $module->getNavigation());
 
-        // Reset back the notes short title
-        $module->setShortTitle("Notes");
+        // Reset back the Home short title
+        $module->setShortTitle("Home");
         $dataMapper->save($module);
     }
 
@@ -129,7 +131,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Get a system module that will be tested for saving
-        $module = $dataMapper->get("notes");
+        $module = $dataMapper->get("home");
 
         // Updat the navigation with new data
         $nav = array(
@@ -147,7 +149,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper->save($module);
 
         // It should update the navigation
-        $newModule = $dataMapper->get("notes");
+        $newModule = $dataMapper->get("home");
         $newNav = $newModule->getNavigation();
         $this->assertEquals($newNav[0]['route'], $nav[0]['route']);
     }
