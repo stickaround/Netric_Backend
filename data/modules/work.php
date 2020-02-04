@@ -8,7 +8,7 @@ return array(
     "title" => "Work",
     "icon" => "WorkIcon",
     "default_route" => "tasks",
-    "name" => "projects",
+    "name" => "work",
     "short_title" => 'Work',
     "scope" => 'system',
     "sort_order" => '6',
