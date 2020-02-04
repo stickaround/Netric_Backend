@@ -113,11 +113,6 @@ return array(
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'project'
         ),
-        'case_id' => array(
-            'title'=>'Case',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'case'
-        ),
         'contact_id' => array(
             'title'=>'Contact',
             'type'=>Field::TYPE_OBJECT,
@@ -127,17 +122,6 @@ return array(
             'title'=>'Contact',
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'customer'
-        ),
-        'story_id' => array(
-            'title'=>'Story',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'project_story'
-        ),
-        'category' => array(
-            'title'=>'Category',
-            'type'=>Field::TYPE_GROUPING,
-            'private'=>true,
-            'subtype'=>'object_groupings',
         ),
         'recur_id' => array(
             'title'=>'Recurrence',
@@ -149,6 +133,11 @@ return array(
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true
+        ),
+        'type_id' => array(
+            'title'=>'Type',
+            'type'=>Field::TYPE_GROUPING,
+            'subtype'=>'object_groupings',
         ),
     ),
     'aggregates' => array(
