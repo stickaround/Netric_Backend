@@ -60,7 +60,7 @@ class Update004001030Test extends TestCase
 
         // Save the changes in groupings
         $this->groupingLoader->save($groupings);
-    } 
+    }
 
     /**
      * Make sure the file exists
@@ -87,7 +87,8 @@ class Update004001030Test extends TestCase
         $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id/" . $currentUser->getValue("guid"));
 
         $groupWithUserId = new Group();
-        $groupWithUserId->setValue("name", "UnitTestOnce 030 group with user guid");        
+        $groupWithUserId->setValue("id", 1);
+        $groupWithUserId->setValue("name", "New");
         $groupings->add($groupWithUserId);
 
         // Save the changes in groupings
@@ -98,7 +99,7 @@ class Update004001030Test extends TestCase
         $row = $result->fetch();
 
         // Make sure that we have null guid and path
-        $this->assertEquals($row["name"], "UnitTestOnce 030 group with user guid");
+        $this->assertEquals($row["name"], "New");
 
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
