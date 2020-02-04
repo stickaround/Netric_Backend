@@ -1,4 +1,4 @@
-ay <?php
+<?php
 /**
  * Move Project Stories to Tasks
  */
