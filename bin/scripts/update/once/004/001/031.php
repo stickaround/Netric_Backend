@@ -53,6 +53,8 @@ foreach ($result->fetchAll() as $storyRawData) {
      * But we will still preserve the guid since they are global now.
      */
     $newEntity->setValue("id", null);
+
+    // Manually set the task data here, since these are the fields that were not captured when importing the story data.
     $newEntity->setValue("start_date", $storyData["date_start"]);
     $newEntity->setValue("user_id", $storyData["owner_id"]);
     $newEntity->setValue("project", $storyData["project_id"]);
