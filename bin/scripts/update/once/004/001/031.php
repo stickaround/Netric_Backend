@@ -49,9 +49,9 @@ foreach ($result->fetchAll() as $storyRawData) {
     $newEntity->fromArray($storyData, true);
 
     /*
-    * We need to set the value to null so EntityDataMapper can save this entity as a new entity
-    * But we will still preserve the guid since they are global now.
-    */
+     * We need to set the value to null so EntityDataMapper can save this entity as a new entity
+     * But we will still preserve the guid since they are global now.
+     */
     $newEntity->setValue("id", null);
     $newEntity->setValue("start_date", $storyData["date_start"]);
     $newEntity->setValue("user_id", $storyData["owner_id"]);
