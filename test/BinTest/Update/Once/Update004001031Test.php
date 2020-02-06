@@ -14,6 +14,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Log\LogFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 
 class Update004001031Test extends TestCase
@@ -81,6 +82,27 @@ class Update004001031Test extends TestCase
         $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $rdb = $this->account->getServiceManager()->get(RelationalDbFactory::class);
+        $log = $this->account->getServiceManager()->get(LogFactory::class);
+
+        // Check first if PROJECT_STORY constant is still available in the ObjectTypes class
+        $storyConstValue = "";
+        try {
+            $constantReflex = new \ReflectionClassConstant(ObjectTypes::class, 'PROJECT_STORY');
+            $storyConstValue = $constantReflex->getValue();
+        } catch (\ReflectionException $e) {
+            $this->assertEmpty($storyConstValue);
+            $log->warning("Update004001031Test:: Unit tests is skiped because project story is not available anymore in Netric\EntityDefinition\ObjectTypes");
+            return;
+        }
+
+        // Make sure that the project story table still exists
+        $projectStoryTableName = "objects_$storyConstValue";
+        if (!$rdb->tableExists($projectStoryTableName)) {
+            $this->assertFalse($rdb->tableExists($projectStoryTableName));
+            $log->warning("Update004001031Test:: Unit tests is skiped because project story table is not available anymore");
+            return;
+        }
 
         $statusStoryGroupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/status_id");
         $priorityStoryGroupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/priority_id");
@@ -101,11 +123,17 @@ class Update004001031Test extends TestCase
         $priorityStoryGroup = $priorityStoryGroupings->getByName("High");
         $typeStoryGroup = $typeStoryGroupings->getByName("Defect");
 
-        // Set the task's group id and name for status_id and priority_id
+        // Set the story's group id and name for status_id, priority_id, and type_id
         $storyEntity->setValue("status_id", $statusStoryGroup->id, $statusStoryGroup->name);
         $storyEntity->setValue("priority_id", $priorityStoryGroup->id, $priorityStoryGroup->name);
         $storyEntity->setValue("type_id", $typeStoryGroup->id, $typeStoryGroup->name);
         $testEntities[] = $entityDataMapper->save($storyEntity);
+
+        // Create new comment so we can set this comment to the story
+        $commentEntity = $entityLoader->create(ObjectTypes::COMMENT); 
+        $commentEntity->setValue("comment", "Comment in the story.");
+        $commentEntity->setValue("obj_reference", ObjectTypes::PROJECT_STORY . ":{$storyEntity->getId()}", $storyEntity->getName());
+        $testEntities[] = $entityDataMapper->save($commentEntity);
         
         // Execute the script
         $binScript = new BinScript($this->account->getApplication(), $this->account);
@@ -131,5 +159,13 @@ class Update004001031Test extends TestCase
         $this->assertEquals($movedEntity->getValueName("project"), $projectEntity->getValue("name"));
         $this->assertEquals($movedEntity->getValue("done"), true);
         $this->assertEquals(date("Y-m-d", $movedEntity->getValue("start_date")), "2020-02-02");
+
+        // Do a test that will make sure obj_reference in comment entity where also updated
+        $commentEnt = $entityLoader->getByGuid($commentEntity->getValue("guid"));
+        $this->assertEquals($commentEnt->getValue("obj_reference"), ObjectTypes::TASK . ":{$movedEntity->getId()}");
+
+        // Test that project entity were already deleted after it was moved
+        $result = $rdb->query("SELECT * FROM $projectStoryTableName WHERE id = :id", ["id" => $storyEntity->getId()]);
+        $this->assertEquals($result->rowCount(), 0);
     }
 }
