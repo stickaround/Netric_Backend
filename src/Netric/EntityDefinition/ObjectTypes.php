@@ -52,7 +52,6 @@ class ObjectTypes
     const PRODUCT_REVIEW = 'product_review';
     const PROJECT = 'project';
     const PROJECT_MILESTONE = 'project_milestone';
-    const PROJECT_STORY = 'project_story';
     const REMINDER = 'reminder';
     const REPORT = 'report';
     const SALES_ORDER = 'sales_order';

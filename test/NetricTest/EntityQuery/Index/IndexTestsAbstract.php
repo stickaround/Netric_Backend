@@ -1756,19 +1756,19 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Save a test object
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
-        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("project_story");
+        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $obj->setValue("name", "testSearchDeleted");
         $oid = $dm->save($obj);
         $dm->delete($obj);
 
         // First test regular query without f_deleted flag set
-        $query = new EntityQuery("project_story");
+        $query = new EntityQuery(ObjectTypes::TASK);
         $query->where('id')->equals($oid);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
 
         // Test deleted flag set should return with deleted customer
-        $query = new EntityQuery("project_story");
+        $query = new EntityQuery(ObjectTypes::TASK);
         $query->where('id')->equals($oid);
         $query->where('f_deleted')->equals(true);
         $res = $index->executeQuery($query);

@@ -20,11 +20,6 @@
 <tab name='Activity'>
 	<field name='activity'></field>
 </tab>
-
-<tab name='Issues'>
-	<objectsref name='Sprint Issues' obj_type='project_story' ref_field='milestone_id'></objectsref>
-</tab>
-
 <tab name='Tasks'>
 	<objectsref name='Tasks' obj_type='task' ref_field='milestone_id'></objectsref>
 </tab>

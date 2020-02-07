@@ -33,7 +33,6 @@ $data = array(
 	array("name"=>"product_review", "title"=>"Product Review", "object_table"=>"product_reviews", "revision"=>"0", "f_system"=>"t"),
 	array("name"=>"dashboard", "title"=>"Dashboard", "object_table"=>"dashboard", "revision"=>"0", "f_system"=>"t"),
 	array("name"=>"sales_payment", "title"=>"Payment", "object_table"=>"", "revision"=>"0", "f_system"=>"t"),
-	array("name"=>"project_story", "title"=>"User Story", "object_table"=>"", "revision"=>"0", "f_system"=>"t"),
 	array("name"=>"folder", "title"=>"Folder", "object_table"=>"", "revision"=>"0", "f_system"=>"t"),
 	array("name"=>"file", "title"=>"File", "object_table"=>"", "revision"=>"0", "f_system"=>"t"),
     array("name"=>"calendar", "title"=>"Calendar", "object_table"=>"calendars", "revision"=>"0", "f_system"=>"t"),

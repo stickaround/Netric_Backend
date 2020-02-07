@@ -154,22 +154,14 @@ class BrowserViewServiceTest extends TestCase
      */
     public function testGetSystemViews()
     {
-        // Use note because we know it has at least one BrowserView defined: default
-        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::PROJECT_STORY);
+        // Use task because we know it has at least one BrowserView defined: default
+        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
         $this->assertTrue(count($sysViews) >= 1);
         $this->assertInstanceOf(BrowserView::class, $sysViews[0]);
 
-        // We know the 2nd view in data/browser_views/project_story.php has a condition
+        // We know the 1st view in data/browser_views/task.php has a condition
         $conditions = $sysViews[1]->getConditions();
-        $this->assertEquals("status_id", $conditions[0]->fieldName);
-
-        $sm = $this->account->getServiceManager();
-        $groupingLoader = $sm->get(GroupingLoaderFactory::class);
-        $groupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/status_id");
-
-        // We should be able to get the groupings by id using the condition value
-        $group = $groupings->getById($conditions[0]->value);
-        $this->assertNotFalse($group);
+        $this->assertEquals("user_id", $conditions[0]->fieldName);
     }
 
     /**
