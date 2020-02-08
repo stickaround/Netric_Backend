@@ -162,7 +162,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("start_date");
         $condition->doesNotEqual(date("Y-m-d"));
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "((nullif(field_data->>'start_date', ''))::date != '" . date("Y-m-d") . "' OR field_data->>'date_start' IS NULL)");
+        $this->assertEquals($conditionString, "((nullif(field_data->>'start_date', ''))::date != '" . date("Y-m-d") . "' OR field_data->>'start_date' IS NULL)");
 
         // Greater Than
         $condition = new Where("revision");
