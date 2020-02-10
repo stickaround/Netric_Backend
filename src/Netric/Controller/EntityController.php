@@ -323,13 +323,8 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             foreach ($ids as $did) {
-<<<<<<< HEAD
-                $entity = $loader->get($objType, $did);
-
-=======
                 $entity = $entityLoader->get($objType, $did);
-    
->>>>>>> a9cf3a1bef5ba66413471aafc78e71cec91162b7
+
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
                     // Proceed with the deleting this entity
@@ -682,13 +677,8 @@ class EntityController extends Mvc\AbstractAccountController
         try {
             foreach ($ids as $id) {
                 // Load the entity that we are going to update
-<<<<<<< HEAD
-                $entity = $loader->get($objData['obj_type'], $id);
-
-=======
                 $entity = $entityLoader->get($objData['obj_type'], $id);
     
->>>>>>> a9cf3a1bef5ba66413471aafc78e71cec91162b7
                 // Update the fields with the data. Make sure we only update the provided fields.
                 $entity->fromArray($entityData, true);
 
@@ -884,11 +874,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             // Save the changes made to the groupings
-<<<<<<< HEAD
-            $loader->save($groupings);
-=======
             $groupingLoader->save($groupings);    
->>>>>>> a9cf3a1bef5ba66413471aafc78e71cec91162b7
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -916,15 +902,9 @@ class EntityController extends Mvc\AbstractAccountController
             if ($def->isPrivate) {
                 $path .= "/" . $this->account->getUser()->getValue("guid");
             }
-<<<<<<< HEAD
-
-            // Get all groupings for this object type
-            $groupings = $loader->get($objType, $fieldName, $groupFilter);
-=======
             
             // Get all groupings using a unique path
             $groupings = $groupingLoader->get($path);
->>>>>>> a9cf3a1bef5ba66413471aafc78e71cec91162b7
 
             // Return the groupings object
             return $groupings;
