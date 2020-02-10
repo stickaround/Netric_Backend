@@ -620,7 +620,7 @@ class Entity implements EntityInterface
         if ($entityFolder && $entityFolder->getValue('guid')) {
             $dacl = $sm->get(DaclLoaderFactory::class)->getForEntity($this);
             if ($dacl) {
-                $sm->get(FileSystemFactory::class)->setFileDacl($folderPath, $dacl);
+                $sm->get(FileSystemFactory::class)->setFolderDacl($entityFolder, $dacl);
             }
         }
 

@@ -440,6 +440,19 @@ class FileSystem implements Error\ErrorAwareInterface
     }
 
     /**
+     * Set dacl permissions for a folder and save the changes
+     *
+     * @param FolderEntity $folder
+     * @param Dacl $dacl
+     * @return void
+     */
+    public function setFolderDacl(FolderEntity $folder, Dacl $dacl)
+    {
+        $folder->setValue('dacl', json_encode($dacl->toArray()));
+        $this->entityLoader->save($folder);
+    }
+
+    /**
      * Write data to a file
      *
      * @param FileEntity $file The meta-data Entity for this file
