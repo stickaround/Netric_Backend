@@ -43,9 +43,6 @@
 	<objectsref obj_type='case' ref_field='project_id'></objectsref>
 </row>
 <row>
-	<objectsref obj_type='project_story' ref_field='project_id'></objectsref>
-</row>
-<row>
 	<objectsref obj_type='discussion'></objectsref>
 </row>
 <row>

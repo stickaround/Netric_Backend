@@ -392,7 +392,7 @@ abstract class DmTestsAbstract extends TestCase
         // ------------------------------------------------------------------------
 
         // Create a test customer to delete
-        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT_STORY);
+        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $story->setValue("name", "Entity_DataMapperTests");
         $cid = $dm->save($story, $this->user);
         $this->assertNotEquals(false, $cid);
@@ -402,7 +402,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertTrue($ret);
 
         // Reload and test if flagged but still in database
-        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT_STORY);
+        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $ret = $dm->getById($story, $cid);
         $this->assertTrue($ret);
         $this->assertEquals(true, $story->isDeleted());
@@ -410,7 +410,7 @@ abstract class DmTestsAbstract extends TestCase
         // Now delete and make sure the object cannot be reloaded
         $ret = $dm->delete($story);
         $this->assertTrue($ret);
-        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT_STORY);
+        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $ret = $dm->getById($story, $cid);
         $this->assertFalse($ret); // Not found
     }

@@ -12,10 +12,9 @@
                         <column>
                             <field name='done'></field>
                             <field name='priority_id'></field>
-                            <field name='category'></field>
+                            <field name='status_id'></field>
+                            <field name='type_id'></field>
                             <field name='milestone_id' ref_field='project_id' ref_this='project' ref_required='t' tooltip='Milestones can be added to projects to split subsets of tasks into shorter periods. The task must first be a member of a project before being assigned to a milestone.'></field>
-                            <field name='story_id' ref_field='project_id' ref_this='project' ref_required='t' tooltip='User stories are used in Agile Project Managment to track potential work to be done and tasks are used to assign the work to users.'></field>
-                            <field name='case_id'></field>
                             <recurrence></recurrence>
                         </column>
                         <column>

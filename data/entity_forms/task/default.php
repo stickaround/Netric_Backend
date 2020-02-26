@@ -8,7 +8,8 @@
 				<field name='done'></field>
 				<field name='deadline' tooltip='Optional due date for the completion of this task.'></field>
 				<field name='priority_id'></field>
-				<field name='category'></field>
+				<field name='status_id'></field>
+				<field name='type_id'></field>
 				<recurrence></recurrence>
 			</column>
 			<column>
@@ -16,8 +17,6 @@
 				<field name='depends_task_id' tooltip='Optional task that needs to be completed before this task can be worked on.'></field>
 				<field name='project'></field>
 				<field name='milestone_id' ref_field='project_id' ref_this='project' ref_required='t' tooltip='Milestones can be added to projects to split subsets of tasks into shorter periods. The task must first be a member of a project before being assigned to a milestone.'></field>
-				<field name='story_id' ref_field='project_id' ref_this='project' ref_required='t' tooltip='User stories are used in Agile Project Managment to track potential work to be done and tasks are used to assign the work to users.'></field>
-				<field name='case_id'></field>
 			</column>
 			<column>
 				<field name='customer_id'></field>

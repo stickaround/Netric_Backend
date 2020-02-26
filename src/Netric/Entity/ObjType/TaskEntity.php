@@ -22,6 +22,21 @@ class TaskEntity extends Entity implements EntityInterface
     const STATUS_TODO = 'ToDo';
     const STATUS_IN_PROGRESS = 'In-Progress';
     const STATUS_COMPLETED = 'Completed';
+    const STATUS_IN_TEST = "In-Test";
+    const STATUS_IN_REVIEW = "In-Review";
+
+    /**
+     * Constant Priorities
+     */
+    const PRIORITY_HIGH = 'High';
+    const PRIORITY_MEDIUM = 'Medium';
+    const PRIORITY_LOW = 'Low';
+
+    /**
+     * Constant Types
+     */
+    const TYPE_ENHANCEMENT = 'Enhancement';
+    const TYPE_DEFECT = 'Defect';
 
     /**
      * Callback function used for derrived subclasses

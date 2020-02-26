@@ -12,9 +12,9 @@ return array(
     'case' => array(
         'status_id' => array(
             array("name"=>"New", "sort_oder"=>1, "color"=>"2A4BD7"),
-            array("name"=>"In-Progress", "sort_oder"=>3, "color"=>"FF9233"),
-            array("name"=>"Closed: Resolved", "sort_oder"=>5, "color"=>"1D6914"),
-            array("name"=>"Closed: Unresolved", "sort_oder"=>7, "color"=>"AD2323"),
+            array("name"=>"In-Progress", "sort_oder"=>2, "color"=>"FF9233"),
+            array("name"=>"Closed: Resolved", "sort_oder"=>3, "color"=>"1D6914"),
+            array("name"=>"Closed: Unresolved", "sort_oder"=>4, "color"=>"AD2323"),
         ),
         'severity_id' => array(
             array("name"=>"Low", "sort_oder"=>1, "color"=>"1D6914"),
@@ -26,35 +26,23 @@ return array(
             array("name"=>"Technical Support", "color"=>"575757"),
         )
     ),
-    'project_story' => array(
-        'status_id' => array(
-            array("name"=>"Todo", "sort_oder"=>1, "color"=>"2A4BD7"),
-            array("name"=>"In-Progress", "sort_oder"=>2, "color"=>"FF9233"),
-            array("name"=>"In-Test", "sort_oder"=>3, "color"=>"FFEE33"),
-            array("name"=>"In-Review", "sort_oder"=>4, "color"=>"575757"),
-            array("name"=>"Completed", "sort_oder"=>6, "color"=>"1D6914"),
-        ),
-        'priority_id' => array(
-            array("name"=>"Low", "sort_oder"=>1, "color"=>"1D6914"),
-            array("name"=>"Medium", "sort_oder"=>2, "color"=>"1D6914"),
-            array("name"=>"High", "sort_oder"=>3, "color"=>"AD2323"),
-        ),
-        'type_id' => array(
-            array("name"=>"Enhancement", "color"=>"1D6914"),
-            array("name"=>"Defect", "color"=>"AD2323"),
-        )
-    ),
     'task' => array(
         'status_id' => array(
             array("name"=>TaskEntity::STATUS_TODO, "sort_oder"=>1, "color"=>"2A4BD7"),
             array("name"=>TaskEntity::STATUS_IN_PROGRESS, "sort_oder"=>2, "color"=>"FF9233"),
-            array("name"=>TaskEntity::STATUS_COMPLETED, "sort_oder"=>6, "color"=>"1D6914"),
+            array("name"=>TaskEntity::STATUS_COMPLETED, "sort_oder"=>3, "color"=>"1D6914"),
+            array("name"=>TaskEntity::STATUS_IN_TEST, "sort_oder"=>4, "color"=>"FFEE33"),
+            array("name"=>TaskEntity::STATUS_IN_REVIEW, "sort_oder"=>5, "color"=>"575757"),
         ),
         'priority_id' => array(
-            array("name"=>"Low", "sort_oder"=>1, "color"=>"1D6914"),
-            array("name"=>"Medium", "sort_oder"=>2, "color"=>"1D6914"),
-            array("name"=>"High", "sort_oder"=>3, "color"=>"AD2323"),
+            array("name"=>TaskEntity::PRIORITY_LOW, "sort_oder"=>1, "color"=>"1D6914"),
+            array("name"=>TaskEntity::PRIORITY_MEDIUM, "sort_oder"=>2, "color"=>"575757"),
+            array("name"=>TaskEntity::PRIORITY_HIGH, "sort_oder"=>3, "color"=>"AD2323"),
         ),
+        'type_id' => array(
+            array("name"=>TaskEntity::TYPE_ENHANCEMENT, "color"=>"1D6914"),
+            array("name"=>TaskEntity::TYPE_DEFECT, "color"=>"AD2323"),
+        )
     ),
     'marketing_campaign' => array(
         'type_id' => array(

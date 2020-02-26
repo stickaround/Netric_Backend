@@ -29,13 +29,6 @@ return array(
             "route" => "projects",
             "objType" => "project",
             "icon" => "ViewListIcon",
-        ),
-        array(
-            "title" => "Issues",
-            "type" => "browse",
-            "route" => "stories",
-            "objType" => "project_story",
-            "icon" => "ViewListIcon",
-        ),
+        )
     )
 );
