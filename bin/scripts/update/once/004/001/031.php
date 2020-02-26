@@ -22,20 +22,11 @@ $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $groupingLoader = $serviceManager->get(GroupingLoaderFactory::class);
 $rdb = $serviceManager->get(RelationalDbFactory::class);
 
-// Check first if PROJECT_STORY constant is still available in the ObjectTypes class
-$storyConstValue = "";
-try {
-    $constantReflex = new \ReflectionClassConstant(ObjectTypes::class, 'PROJECT_STORY');
-    $storyConstValue = $constantReflex->getValue();
-} catch (\ReflectionException $e) {
-    $log->warning("Update004001031:: Project story is not available anymore in Netric\EntityDefinition\ObjectTypes");
-    return;
-}
-
 // Make sure that the project story table still exists
-$projectStoryTableName = "objects_$storyConstValue";
+$projectStoryTableName = "objects_project_story";
 if (!$rdb->tableExists($projectStoryTableName)) {
     $log->warning("Update004001031:: Project story table is not available anymore");
+    return;
 }
 
 $result = $rdb->query("SELECT * FROM $projectStoryTableName");
