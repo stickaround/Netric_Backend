@@ -85,7 +85,7 @@ foreach ($result->fetchAll() as $storyRawData) {
 
     // Query all the project story's comments
     $query = new EntityQuery(ObjectTypes::COMMENT);
-    $query->where('obj_reference')->equals(ObjectTypes::PROJECT_STORY . ":{$storyData['id']}");
+    $query->where('obj_reference')->equals("project_story:{$storyData['id']}");
     $commentsResult = $entityIndex->executeQuery($query);
 
     // Loop thru each comment entity and update its object reference to the new task entity
