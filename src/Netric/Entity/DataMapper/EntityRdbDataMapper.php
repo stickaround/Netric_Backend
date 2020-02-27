@@ -155,6 +155,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     {
         $def = $entity->getDefinition();
 
+        // Make sure that we have an entity definition
+        if (!$def && $def->getId()) {
+            return;
+        }
+
         // All reference fields should store id and name of references in *_fkey row
         $foreignValues = null;
         if (isset($row[$field->name . "_fval"])) {
