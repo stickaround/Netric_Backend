@@ -156,7 +156,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $def = $entity->getDefinition();
 
         // Make sure that we have an entity definition
-        if (!$def && $def->getId()) {
+        if (!$def || !$def->getId()) {
             return;
         }
 
