@@ -29,10 +29,11 @@ if (!$rdb->tableExists($projectStoryTableName)) {
     return;
 }
 
-$result = $rdb->query("SELECT * FROM $projectStoryTableName");
+$result = $rdb->query("SELECT * FROM $projectStoryTableName as project_story
+                        WHERE NOT EXISTS (SELECT * FROM objects_task WHERE field_data->>'guid' = project_story.field_data->>'guid')");
 foreach ($result->fetchAll() as $storyRawData) {
     $storyData = json_decode($storyRawData['field_data'], true);
-    
+
     // Create a new task entity
     $newEntity = $entityLoader->create(ObjectTypes::TASK);
 

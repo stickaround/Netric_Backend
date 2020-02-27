@@ -85,28 +85,16 @@ class Update004001031Test extends TestCase
         $rdb = $this->account->getServiceManager()->get(RelationalDbFactory::class);
         $log = $this->account->getServiceManager()->get(LogFactory::class);
 
-        // Check first if PROJECT_STORY constant is still available in the ObjectTypes class
-        $storyConstValue = "";
-        try {
-            $constantReflex = new \ReflectionClassConstant(ObjectTypes::class, 'PROJECT_STORY');
-            $storyConstValue = $constantReflex->getValue();
-        } catch (\ReflectionException $e) {
-            $this->assertEmpty($storyConstValue);
-            $log->warning("Update004001031Test:: Unit tests is skiped because project story is not available anymore in Netric\EntityDefinition\ObjectTypes");
-            return;
-        }
-
         // Make sure that the project story table still exists
-        $projectStoryTableName = "objects_$storyConstValue";
+        $projectStoryTableName = "objects_project_story";
         if (!$rdb->tableExists($projectStoryTableName)) {
-            $this->assertFalse($rdb->tableExists($projectStoryTableName));
             $log->warning("Update004001031Test:: Unit tests is skiped because project story table is not available anymore");
             return;
         }
 
-        $statusStoryGroupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/status_id");
-        $priorityStoryGroupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/priority_id");
-        $typeStoryGroupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY . "/type_id");
+        $statusStoryGroupings = $groupingLoader->get("project_story/status_id");
+        $priorityStoryGroupings = $groupingLoader->get("project_story/priority_id");
+        $typeStoryGroupings = $groupingLoader->get("project_story/type_id");
 
         // Create a new project so we can assign this project to the story
         $projectEntity = $entityLoader->create(ObjectTypes::PROJECT); 
@@ -114,7 +102,7 @@ class Update004001031Test extends TestCase
         $testEntities[] = $entityDataMapper->save($projectEntity);
 
         // Create a project story entity
-        $storyEntity = $entityLoader->create(ObjectTypes::PROJECT_STORY);
+        $storyEntity = $entityLoader->create("project_story");
         $storyEntity->setValue("name", "Project story to move.");
         $storyEntity->setValue("date_start", "2020-02-02");
         $storyEntity->setValue("project_id", $projectEntity->getId(), $projectEntity->getValue("name"));
@@ -132,7 +120,7 @@ class Update004001031Test extends TestCase
         // Create new comment so we can set this comment to the story
         $commentEntity = $entityLoader->create(ObjectTypes::COMMENT); 
         $commentEntity->setValue("comment", "Comment in the story.");
-        $commentEntity->setValue("obj_reference", ObjectTypes::PROJECT_STORY . ":{$storyEntity->getId()}", $storyEntity->getName());
+        $commentEntity->setValue("obj_reference", "project_story:{$storyEntity->getId()}", $storyEntity->getName());
         $testEntities[] = $entityDataMapper->save($commentEntity);
         
         // Execute the script
