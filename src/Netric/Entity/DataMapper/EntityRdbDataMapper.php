@@ -156,7 +156,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $def = $entity->getDefinition();
 
         // Make sure that we have an entity definition
-        if (!$def || !$def->getId()) {
+        if (!$def->getId()) {
             return;
         }
 
@@ -739,6 +739,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 $log->error("Could not load {$fdef->subtype}.{$value} to update foreign value");
             }
         } elseif (($fdef->type == "object" && !$fdef->subtype) || $fdef->type == "object_multi") {
+            
+            // Make sure that we have object id and object type id
+            if (!$oid || !$otid) {
+                return $ret;
+            }
+
             $sql = 'SELECT ' .
                 'assoc_type_id, assoc_object_id, app_object_types.name as obj_name ' .
                 'FROM object_associations INNER JOIN app_object_types ' .
