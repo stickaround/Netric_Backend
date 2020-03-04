@@ -15,6 +15,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Manages notifications to followers of an entity
@@ -95,9 +96,7 @@ class Notifier
          * clicks on the link for the notification, it will take them to the
          * entity being commented on.
          */
-        $objReference = ($objType == ObjectTypes::COMMENT)
-            ? $entity->getValue("obj_reference")
-            : Entity::encodeObjRef($objType, $entity->getId());
+        $objReference = ($objType == ObjectTypes::COMMENT) ? $entity->getValue("obj_reference") : $entity->getValue("guid");
 
         // Get a human-readable name to use for this notification
         $name = $this->getNameFromEventVerb($event, $entity->getDefinition()->getTitle());
@@ -110,7 +109,16 @@ class Notifier
             return $notificationIds;
         }
 
-        foreach ($followers as $userId) {
+        foreach ($followers as $userGuid) {
+            // If the follower guid is not a valid guid, then we try to look for its user entity
+            if (!Uuid::isValid($userGuid)) {
+                $userEntity = $this->entityLoader->get(ObjectTypes::USER, $userGuid);
+
+                if ($userEntity) {
+                    $userGuid = $userEntity->getValue("guid");
+                }
+            }
+
             /*
              * Create a new notification if it is not the current user - we don't want
              * to notify a user if they are the one performing the action.
@@ -118,9 +126,9 @@ class Notifier
              * We also do not want to send notifications to users if the system does
              * something like adding a new email.
              */
-            if ($userId != $this->user->getId() && !$this->user->isSystem() && !$this->user->isAnonymous()) {
+            if (Uuid::isValid($userGuid) && $userGuid != $this->user->getValue("guid") && !$this->user->isSystem() && !$this->user->isAnonymous()) {
                 // Create new notification, or update an existing unseen one
-                $notification = $this->getNotification($objReference, $userId);
+                $notification = $this->getNotification($objReference, $userGuid);
                 $notification->setValue("name", $name);
                 $notification->setValue("description", $entity->getDescription());
                 $notification->setValue("f_email", true);
@@ -152,15 +160,9 @@ class Notifier
             $user = $this->user;
         }
 
-        // Get the object type
-        $objReference = Entity::encodeObjRef(
-            $entity->getDefinition()->getObjType(),
-            $entity->getId()
-        );
-
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
         $query->where("owner_id")->equals($user->getId());
-        $query->andWhere("obj_reference")->equals($objReference);
+        $query->andWhere("obj_reference")->equals($entity->getValue("guid"));
         $query->andWhere("f_seen")->equals(false);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();
@@ -174,11 +176,11 @@ class Notifier
     /**
      * Either get an existing notification if unseen, or create a new one for $objReference
      *
-     * @param string $objReference
-     * @param int $userId
+     * @param string $objReference The guid of the entity reference
+     * @param string $userGuid The guid of the user
      * @return EntityInterface
      */
-    private function getNotification($objReference, $userId)
+    private function getNotification(string $objReference, string $userGuid)
     {
         // Initialize the notification variable to return
         $notification = null;
@@ -188,9 +190,9 @@ class Notifier
          * and not yet seen for this entity/object reference.
          */
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
-        $query->where("owner_id")->equals($userId);
+        $query->where("owner_id")->equals($userGuid);
         $query->andWhere("obj_reference")->equals($objReference);
-        $query->andWhere("creator_id")->equals($this->user->getId());
+        $query->andWhere("creator_id")->equals($this->user->getValue("guid"));
         $query->andWhere("f_seen")->equals(false);
 
         // Make sure we get the latest notification if there are multiple
@@ -204,8 +206,8 @@ class Notifier
             // There are no outstanding/unseen notifications, create a new one
             $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
             $notification->setValue("obj_reference", $objReference);
-            $notification->setValue("owner_id", $userId);
-            $notification->setValue("creator_id", $this->user->getId(), $this->user->getName());
+            $notification->setValue("owner_id", $userGuid);
+            $notification->setValue("creator_id", $this->user->getValue("guid"), $this->user->getName());
         }
 
         return $notification;
@@ -250,11 +252,11 @@ class Notifier
          * If the entity being created is a comment, then we want to
          * check the followers of the entity being commented on.
          */
-        if ($objType == ObjectTypes::COMMENT && $entity->getValue("obj_reference")) {
-            $objRefValues = Entity::decodeObjRef($entity->getValue("obj_reference"));
-            $refEntity = $this->entityLoader->get($objRefValues['obj_type'], $objRefValues['id']);
-            if (is_array($refEntity->getValue('followers'))) {
-                $followers = array_merge($followers, $refEntity->getValue('followers'));
+        $objReference = $entity->getValue("obj_reference");
+        if ($objType == ObjectTypes::COMMENT && Uuid::isValid($objReference)) {
+            $refEntity = $this->entityLoader->getByGuid($objReference);
+            if ($refEntity && is_array($refEntity->getValue('followers'))) {
+                $followers = array_unique(array_merge($followers, $refEntity->getValue('followers')));
             }
         }
 

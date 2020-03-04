@@ -407,7 +407,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     return null;
                 }
 
-                $parentFieldCondition[$def->parentField] = $parentEntity->getId();
+                $parentFieldCondition[$def->parentField] = $parentEntity->getValue("guid");
             }
         }
 
@@ -578,49 +578,43 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
             switch ($field->type) {
                 case Field::TYPE_OBJECT:
-                    $objType = $field->subtype;
-                    $id = $value;
-                    if (!$objType) {
-                        $refParts = Entity::decodeObjRef($value);
-                        $objType = $refParts['obj_type'];
-                        $id = $refParts['id'];
+                    
+                    // Check if the value is already a valid uuid, then we just need to get the entity
+                    if (Uuid::isValid($value)) {
+                        $ent = $entityLoader->getByGuid($value);
+                    } else if ($field->subtype && $value) {
+                        $ent = $entityLoader->get($field->subtype, $value);
                     }
 
-                    // Get referenced object name
-                    if ($objType && $id) {
-                        $ent = $entityLoader->get($objType, $id);
-                        if ($ent) {
-                            $entity->setValue($field->name, $value, $ent->getName());
-                        } else {
-                            // Referenced entity was removed, so clear the value
-                            $entity->setValue($field->name, null);
-                        }
+                    // If we have found the referenced entity, then add it in the entity
+                    if ($ent) {
+                        $entity->setValue($field->name, $ent->getValue("guid"), $ent->getName());
+                        continue;
                     }
 
+                    // Since we havent found the referenced entity, chances are it was already removed, so we need to clear the value
+                    $entity->setValue($field->name, null);
                     break;
 
                 case Field::TYPE_OBJECT_MULTI:
-                    $objType = $field->subtype;
 
                     if (is_array($value)) {
-                        foreach ($value as $valPart) {
-                            $id = $valPart;
-                            if (empty($field->subtype)) {
-                                $refParts = Entity::decodeObjRef($valPart);
-                                $objType = $refParts['obj_type'];
-                                $id = $refParts['id'];
+                        foreach ($value as $id) {
+                            // Check if the value is already a valid uuid, then we just need to get the entity
+                            if (Uuid::isValid($id)) {
+                                $ent = $entityLoader->getByGuid($id);
+                            } else if ($field->subtype && $id) {
+                                $ent = $entityLoader->get($field->subtype, $id);
                             }
 
-                            // Get referenced object name
-                            if ($objType && is_numeric($id)) {
-                                $ent = $entityLoader->get($objType, $id);
-                                if ($ent) {
-                                    $entity->addMultiValue($field->name, $valPart, $ent->getName());
-                                } else {
-                                    // Referenced entity was removed, so clear the value
-                                    $entity->removeMultiValue($field->name, $valPart);
-                                }
+                            // If we have found the referenced entity, then add it in the entity
+                            if ($ent) {
+                                $entity->addMultiValue($field->name, $ent->getValue("guid"), $ent->getName());
+                                continue;
                             }
+
+                            // Since we havent found the referenced entity, chances are it was already removed, so we need to clear the value
+                            $entity->removeMultiValue($field->name, $id);
                         }
                     }
 
@@ -633,7 +627,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     // Clear the value in preparation for an update - or to remove it if group was deleted
                     $entity->setValue($field->name, null);
 
-                    $group = $grouping->getById($value);
+                    if (Uuid::isValid($value)) {
+                        $group = $grouping->getByGuid($value);
+                    } else {
+                        $grouping->getById($value);
+                    }
 
                     if ($group) {
                         // If the group exists then update the name
@@ -643,15 +641,21 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
+                    $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
+                    
                     if (is_array($value)) {
-                        foreach ($value as $valPart) {
+                        foreach ($value as $id) {
                             // Clear the value in preparation for an update - or to remove it if group was deleted
-                            $entity->removeMultiValue($field->name, $valPart);
+                            $entity->removeMultiValue($field->name, $id);
 
-                            $group = $groups->getById($valPart);
+                            if (Uuid::isValid($id)) {
+                                $group = $grouping->getByGuid($id);
+                            } else {
+                                $group = $grouping->getById($id);
+                            }
+
                             if ($group) {
-                                $entity->addMultiValue($field->name, $valPart, $group->name);
+                                $entity->addMultiValue($field->name, $group->guid, $group->name);
                             }
                         }
                     }

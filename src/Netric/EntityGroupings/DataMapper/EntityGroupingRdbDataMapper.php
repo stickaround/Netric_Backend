@@ -124,6 +124,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
             if ($this->saveGroup($def, $field, $grp, $groupings->getUserGuid())) {
                 $grp->setDirty(false);
+                
                 // Log here
                 $ret['changed'][$grp->id] = $lastCommitId;
             }

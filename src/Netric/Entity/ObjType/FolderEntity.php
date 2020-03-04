@@ -63,7 +63,7 @@ class FolderEntity extends Entity implements EntityInterface
 
             // This will avoid any circular reference to the root folder entity
             if ($rootFolderEntity && $rootFolderEntity->getId() != $this->getId()) {
-                $this->setValue("parent_id", $rootFolderEntity->getId());
+                $this->setValue("parent_id", $rootFolderEntity->getValue("guid"));
             }
         }
 
@@ -141,7 +141,7 @@ class FolderEntity extends Entity implements EntityInterface
             return false;
         }
 
-        $this->setValue("parent_id", $newParentFolder->getId());
+        $this->setValue("parent_id", $newParentFolder->getValue("guid"));
         return true;
     }
 

@@ -4,6 +4,7 @@ namespace Netric\Entity;
 use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The identity map (loader) is responsible for loading a specific entity and caching it for future calls.
@@ -134,6 +135,16 @@ class EntityLoader
      */
     public function get($objType, $id, EntityInterface $entityToFill = null)
     {
+        /*
+         * We need to check if the id provided here is a guid or just an id
+         * With the latest update made in object references, we are now using the entity's guid instead of id
+         * Once we have fully migrated to guid and updated all the entities to use guid, then we can remove this function
+         *  and just used the $this->getByGuid() - Marl 02/14/2020
+         */
+        if (Uuid::isValid($id)) {
+            return $this->getByGuid($id);
+        }
+        
         if ($this->isLoaded($objType, $id)) {
             return $this->loadedEntities[$objType][$id];
         }

@@ -341,15 +341,29 @@ class EntityGroupings
      */
     public function getById($entryId)
     {
-        $ret = false;
-
         foreach ($this->groups as $grp) {
             if ($grp->id == $entryId) {
-                $ret = $grp;
+                return $grp;
             }
         }
 
-        return $ret;
+        return false;
+    }
+
+    /**
+     * Get the grouping entry by guid
+     *
+     * @param strin $guid the id to delete
+     */
+    public function getByGuid($guid)
+    {
+        foreach ($this->groups as $grp) {
+            if ($grp->guid == $guid) {
+                return $grp;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -86,7 +86,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $thread;
 
         $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $message->setValue("thread", $tid);
+        $message->setValue("thread", $thread->getValue("guid"));
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
 
@@ -94,7 +94,7 @@ class EmailThreadTest extends TestCase
         $entityLoader->delete($thread);
 
         // Check to make sure the message was soft-deleted as well
-        $reloadedMessage = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $eid);
+        $reloadedMessage = $entityLoader->getByGuid($message->getValue("guid"));
         $this->assertTrue($reloadedMessage->getValue("f_deleted"));
     }
 
@@ -112,7 +112,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $thread;
 
         $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $message->setValue("thread", $tid);
+        $message->setValue("thread", $thread->getValue("guid"));
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
 
@@ -142,7 +142,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $thread;
 
         $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $message->setValue("thread", $tid);
+        $message->setValue("thread", $thread->getValue("guid"));
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
 

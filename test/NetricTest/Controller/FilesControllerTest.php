@@ -216,7 +216,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getId(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
     }
 
     /**
@@ -306,7 +306,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("myupdatedfile.jpg", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getId(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
     }
 
     /**
@@ -394,7 +394,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getId(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
     }
 
     /**
@@ -496,7 +496,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getId(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
 
         // Test the second file
         $this->assertEquals("files-upload-test2.txt", $file2->getValue("name"));

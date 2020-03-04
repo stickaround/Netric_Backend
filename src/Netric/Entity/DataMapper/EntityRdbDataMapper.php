@@ -10,6 +10,7 @@ use Netric\Db\DbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
@@ -17,6 +18,9 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\Entity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Load and save entity data to a relational database
@@ -61,11 +65,199 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $entityData = json_decode($row['field_data'], true);
         $entityData['guid'] = $row['guid'];
         $allFields = $def->getFields();
-        foreach ($allFields as $fieldDefinition) {
-            $this->setEntityFieldValueFromRow($entity, $fieldDefinition, $entityData);
+        foreach ($allFields as $field) {
+
+            // Sanitize the entity value.
+            $value = $this->sanitizeDbValuesToEntityFieldValue($field, $entityData[$field->name]);
+
+            $valueName = null;
+            if (!empty($entityData["{$field->name}_fval"])) {
+                $valueName = $entityData["{$field->name}_fval"];
+            }
+
+            // Set entity value
+            $entity->setValue($field->name, $value, $valueName);
         }
 
+        // Make sure that we are now using guid for object references
+        $this->updatObjectReferencesToGuid($entity);
+
         return true;
+    }
+
+    /**
+     * Update the object references to guid instead of just an id.
+     * 
+     * @param EntityInterface $entity The entity to update its object references
+     */
+    private function updatObjectReferencesToGuid(Entity $entity)
+    {
+        $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
+        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+     
+        $entity->resetIsDirty();
+        $fields = $entity->getDefinition()->getFields();
+        foreach ($fields as $field) {
+
+            switch ($field->type) {
+                case Field::TYPE_GROUPING:
+                case Field::TYPE_GROUPING_MULTI:
+                    $fieldValue = $entity->getValue($field->name);
+                    $ownerGuid = $entity->getOwnerId();
+                    
+                    // If the entity's owner id not guid, then we need to get its guid value
+                    if ($ownerGuid && !Uuid::isValid($ownerGuid)) {
+
+                        // If the current $entity is the owner, then we just get it right away to avoid infinite loop
+                        if ($ownerGuid == $entity->getId()) {
+                            $ownerGuid = $entity->getValue("guid");
+                        } else {
+                            $ownerEntity = $entityLoader->get(ObjectTypes::USER, $ownerGuid);
+                            $ownerGuid = $ownerEntity->getValue("guid");
+                        }
+                    }
+
+                    // Since we do not know if the group saved is a private grouping, we will just query both groupings and look for its id
+                    $publicGroupings = $groupingLoader->get($entity->getObjType() . "/{$field->name}");
+
+                    // Only load the private groupings if we have a valid ownerGuid
+                    if ($ownerGuid) {
+                        $privateGroupings = $groupingLoader->get($entity->getObjType() . "/{$field->name}/$ownerGuid");
+                    }
+
+                    // Check if this field is a grouping multi
+                    if ($field->isMultiValue()) {
+
+                        // Make sure that we have fieldValue and it is an array
+                        if ($fieldValue && is_array($fieldValue)) {
+                            
+                            // Loop thru the fieldValue and look for referenced group that still have id
+                            forEach($fieldValue as $value) {
+                                // Look first in public groupings and see if the group id exists.
+                                $group = $publicGroupings->getById($value);
+
+                                // If we haven't found the group in the public groupings, then let's look in the private groupings
+                                if (!$group && $privateGroupings) {
+                                    $group = $privateGroupings->getById($value);
+                                }
+
+                                // Make sure that we have retrieved now the group from private groupings or public groupings
+                                if ($group) {
+
+                                    // If the group value is already a guid, then go to the next group
+                                    if (Uuid::isValid($value)) {
+                                        // If the group name has changed, then we need to update the value name of this entity.
+                                        if ($entity->getValueName($field->name, $value) != $group->name) {
+                                            $entity->updateValueName($field->name, $value, $group->name);
+                                        }
+
+                                        continue;
+                                    }
+
+                                    // Before adding the new guid value of the group, we need to remove first the existing one.
+                                    $entity->removeMultiValue($field->name, $value);
+
+                                    // Now that we have already removed the old group id, we can now add the new group's guid
+                                    $entity->addMultiValue($field->name, $group->guid, $group->name);
+                                }
+                            }
+                        }
+                    } else if ($fieldValue && !Uuid::isValid($fieldValue) && $fieldValue) {
+                        // Here we will handle the grouping field and make sure that the fieldValue is still not a guid
+                        
+                        // Look first in public groupings and see if the group id exists.
+                        $group = $publicGroupings->getById($fieldValue);
+
+                        // If we haven't found the group in the public groupings, then let's look in the private groupings
+                        if (!$group && $privateGroupings) {
+                            $group = $publicGroupings->getById($value);
+                        }
+
+                        // Make sure that we have retrieved the group
+                        if ($group) {
+                            // If the group value is already a guid, then go to the next group
+                            if (Uuid::isValid($value)) {
+                                // If the group name has changed, then we need to update the value name of this entity.
+                                if ($entity->getValueName($field->name, $value) != $group->name) {
+                                    $entity->updateValueName($field->name, $value, $group->name);
+                                }
+                            } else {
+                                $entity->setValue($field->name, $group->guid, $group->name);
+                            }
+                        }
+                    }
+                break;
+
+                case Field::TYPE_OBJECT:
+                    $objValue = $entity->getValue($field->name);
+
+                    // If $objValue is already a guid, then let's just check if we have an updated referenced entity name
+                    if (Uuid::isValid($objValue)) {
+                        $refEntity = $entityLoader->getByGuid($objValue);
+                        
+                        // If the refEntity name has changed, then we need to update the value name of this entity.
+                        if ($entity->getValueName($field->name, $objValue) != $refEntity->getName()) {
+                            $entity->updateValueName($field->name, $objValue, $refEntity->getName());
+                        }
+                    } else if ($objValue && $field->subtype && $entity->getValue($field->name)) {
+                        $refEntity = $entityLoader->get($field->subtype, $objValue);
+                        $entity->setValue($field->name, $refEntity->getValue("guid"), $refEntity->getName());
+                    }
+                break;
+
+                case Field::TYPE_OBJECT_MULTI:
+                    $refValues = $entity->getValue($field->name);
+
+                    // Make sure the the multi value is an array
+                    if (is_array($refValues)) {
+                        forEach($refValues as $value) {
+                            // If the referenced id is already a guid, then go to the next object reference
+                            if (Uuid::isValid($value)) {
+                                // Before we continue to the next obj reference, let's check if we have an updated referenced entity name
+                                $refEntity = $entityLoader->getByGuid($value);
+                                
+                                // If the refEntity name has changed, then we need to update the value name of this entity.
+                                if ($entity->getValueName($field->name, $value) != $refEntity->getName()) {
+                                    $entity->updateValueName($field->name, $value, $refEntity->getName());
+                                }
+                                continue;
+                            }
+
+                            $decodedObjRef = Entity::decodeObjRef($value);
+
+                            // Make sure that we have the referenced id and obj type.
+                            if (!empty($decodedObjRef['id']) && !empty($decodedObjRef['obj_type'])) {
+                                $refEntity = $entityLoader->get($decodedObjRef['obj_type'], $decodedObjRef['id']);
+                            } else if (is_numeric($value) && is_null($decodedObjRef)) {
+                                /*
+                                 * If the value provided is already numeric and there was no decoded obj ref
+                                 * then, we can use the field's subtype
+                                 */
+                                $refEntity = $entityLoader->get($field->subtype, $decodedObjRef['id']);
+                            }
+
+                            // If we have successfully loaded the referenced entity, then we will add its guid
+                            if ($refEntity) {
+                                // Before adding the new guid value of the object, we need to remove first the existing one.
+                                $entity->removeMultiValue($field->name, $value);
+
+                                // Now that we have already removed the old object id, we can now add the new object's guid
+                                $entity->addMultiValue($field->name, $refEntity->getValue("guid"), $refEntity->getName());
+                            }
+                        }
+                    }
+                break;
+            }
+        }
+
+        // Save this entity only if there were changes made.
+        if ($entity->isDirty()) {
+            $this->saveData($entity);
+        }
+    }
+
+    public function getForeignValueUsingGuid() {
+
     }
 
     /**
@@ -98,90 +290,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $entityData['ts_entered'] = $entityData['ts_entered'];
         $entityData['ts_updated'] = $entityData['ts_updated'];
         return $entityData;
-    }
-
-    /**
-     * Set a field in an entity from a raw database row
-     *
-     * @param EntityInterface $entity
-     * @param Field $field
-     * @param array $row
-     * @return void
-     */
-    public function setEntityFieldValueFromRow(EntityInterface $entity, Field $field, array $row)
-    {
-        // Set IDs and names for referenced groupings or objects
-        $foreignReferenceValues = null;
-        if ($field->isObjectReference() || $field->isGroupingReference()) {
-            $foreignReferenceValues = $this->getForeignValuesForReference($entity, $field, $row);
-        }
-
-        /*
-         * If the field is multi-value, we need to decode the JSON since it will be
-         * stored as a string in the database
-         */
-        if ($field->isMultiValue()) {
-            if (!empty($row[$field->name])) {
-                $values = $row[$field->name];
-                if ($values !== false) {
-                    $row[$field->name] = $values;
-                }
-            } elseif ($foreignReferenceValues) {
-                $row[$field->name] = array();
-
-                // Error, data not set in the column, check if it was set in an referenced field values
-                foreach ($foreignReferenceValues as $referencedId => $referencedName) {
-                    $row[$field->name][] = $referencedId;
-                }
-            }
-        }
-
-        // Convert values such as 'f' for a bool in the DB to false
-        $row[$field->name] = $this->sanitizeDbValuesToEntityFieldValue($field, $row[$field->name]);
-
-        // Set entity value
-        $entity->setValue($field->name, $row[$field->name], $foreignReferenceValues);
-    }
-
-    /**
-     * Get referenced values for an object or grouping field
-     *
-     * @param EntityInterface $entity
-     * @param Field $field
-     * @param $row
-     * @return array|null
-     */
-    private function getForeignValuesForReference(EntityInterface $entity, Field $field, $row)
-    {
-        $def = $entity->getDefinition();
-
-        // Make sure that we have an entity definition
-        if (!$def->getId()) {
-            return;
-        }
-
-        // All reference fields should store id and name of references in *_fkey row
-        $foreignValues = null;
-        if (isset($row[$field->name . "_fval"])) {
-            $foreignValues = $row[$field->name . "_fval"];
-        }
-
-        /*
-         * Check if the *_fval field was not set last time the entity was saved.
-         * This should only occur in old objects saved before we moved to v2
-         * on the backend.
-         */
-        if (!$foreignValues || ($foreignValues == '[]' && $row[$field->name] != '[]' && $row[$field->name] != '')) {
-            $foreignValues = $this->getForeignKeyDataFromDb(
-                $field,
-                $row[$field->name],
-                $entity->getId(),
-                $def->getId()
-            );
-        }
-
-
-        return $foreignValues;
     }
 
     /**
@@ -249,28 +357,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $sql = "DELETE FROM " . $def->getTable() . " WHERE field_data->>'id' = :id";
         $result = $this->database->query($sql, ['id' => $entity->getId()]);
 
-        // Remove associations
-        $this->deleteAssociations($def->getId(), $entity->getId);
-
         // We just need to make sure the main object was deleted
         return ($result->rowCount() > 0);
-    }
-
-    /**
-     * Delete object associations related to an entity
-     *
-     * @param int $objTypeId
-     * @param int $id Entity id
-     * @return void
-     */
-    private function deleteAssociations($objTypeId, $id)
-    {
-        $this->database->query(
-            'DELETE FROM object_associations WHERE ' .
-                '(object_id=:object_id and type_id=:type_id) OR ' .
-                '(assoc_object_id=:object_id and assoc_type_id=:type_id)',
-            ['object_id' => $id, 'type_id' => $objTypeId]
-        );
     }
 
     /**
@@ -300,6 +388,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Convert to cols=>vals array
         $data = $this->getDataToInsertFromEntity($entity);
+
         $all_fields = $def->getFields();
 
         // Set typei_id to correctly build the sql statement based on custom table definitions
@@ -339,7 +428,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     // Set the id for the newly created entity
                     $entity->setValue('id', $entityId);
 
-                    // We need to update the field_Data->>'id' field since it was set as null when creating a new entity
+                    // We need to update the field_data->>'id' field since it was set as null when creating a new entity
                     $this->updateEntityData($targetTable, $entity);
                 }
             } catch (DatabaseQueryException $ex) {
@@ -385,11 +474,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         foreach ($all_fields as $fname => $fdef) {
             if ($fdef->type == Field::TYPE_GROUPING_MULTI) {
                 $this->updateObjectGroupingMulti($entity, $fdef);
-            }
-
-            // Handle object associations
-            if ($fdef->isObjectReference() && !empty($fdef->id)) {
-                $this->updateObjectAssociations($entity, $fdef);
             }
         }
 
@@ -455,97 +539,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                         $field->fkeyTable['ref_table']['table'],
                         $dataToInsert
                     );
-                }
-            }
-        }
-    }
-
-    /**
-     * Update associations that connect entities to each other
-     *
-     * @param EntityInterface $entity
-     * @param Field $field
-     * @throws DatabaseQueryException
-     */
-    private function updateObjectAssociations(EntityInterface $entity, Field $field)
-    {
-        $def = $entity->getDefinition();
-        $defLoader = $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-
-        /*
-         * We first clear out all existing values in the
-         * union table because trying to update them would require more work than its worth.
-         */
-        $this->database->delete(
-            'object_associations',
-            ['object_id' => $entity->getId(), 'type_id' => $def->getId(), 'field_id' => $field->id]
-        );
-       
-        // Set values
-        $mvalues = $entity->getValue($field->name);
-        if (is_array($mvalues)) {
-            foreach ($mvalues as $val) {
-                $subtype = null; // Set the initial value of subtype to null
-
-                $otid = -1;
-                if ($field->subtype) {
-                    $subtype = $field->subtype;
-                    $objid = $val;
-                } else {
-                    $parts = $entity->decodeObjRef($val);
-                    if ($parts['obj_type'] && $parts['id']) {
-                        $subtype = $parts['obj_type'];
-                        $objid = $parts['id'];
-                    }
-                }
-
-                if ($subtype) {
-                    $assocDef = $defLoader->get($subtype);
-                    if ($assocDef->getId() && is_numeric($objid)) {
-                        $this->database->insert(
-                            'object_associations',
-                            [
-                                'object_id' => $entity->getId(),
-                                'type_id' => $def->getId(),
-                                'assoc_type_id' => $assocDef->getId(),
-                                'assoc_object_id' => $objid,
-                                'field_id' => $field->id,
-                            ]
-                        );
-                    }
-                }
-            }
-        } elseif ($mvalues) {
-            if ($field->subtype) {
-                $assocDef = $defLoader->get($field->subtype);
-                if ($assocDef->getId()) {
-                    $this->database->insert(
-                        'object_associations',
-                        [
-                            'object_id' => $entity->getId(),
-                            'type_id' => $def->getId(),
-                            'assoc_type_id' => $assocDef->getId(),
-                            'assoc_object_id' => $mvalues,
-                            'field_id' => $field->id,
-                        ]
-                    );
-                }
-            } else {
-                $parts = $entity->decodeObjRef($mvalues);
-                if ($parts['obj_type'] && $parts['id']) {
-                    $assocDef = $defLoader->get($parts['obj_type']);
-                    if ($assocDef->getId() && $parts['id']) {
-                        $this->database->insert(
-                            'object_associations',
-                            [
-                                'object_id' => $entity->getId(),
-                                'type_id' => $def->getId(),
-                                'assoc_type_id' => $assocDef->getId(),
-                                'assoc_object_id' => $parts['id'],
-                                'field_id' => $field->id,
-                            ]
-                        );
-                    }
                 }
             }
         }
@@ -636,16 +629,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $ret[$fname] = ($val === true);
                     break;
                 case 'fkey':
-                    $ret[$fname] = (is_numeric($val)) ? $val : null;
+                    $ret[$fname] = $val ? $val : null;
                     break;
                 case 'object':
-                    if ($fdef->subtype) {
-                        // If there is a subtype then the value should be an int or null
-                        $ret[$fname] = (is_numeric($val)) ? $val : null;
-                    } else {
-                        // object references with both the type and id are stored as a string
-                        $ret[$fname] = $val;
-                    }
+                    $ret[$fname] = $val ? $val : null;
                     break;
                 default:
                     $ret[$fname] = $val;
@@ -677,102 +664,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     private function serialize(array $data)
     {
         return json_encode($data);
-    }
-
-    /**
-     * Load foreign values from the database
-     *
-     * @param EntityDefinition_Field $fdef The field we are getting foreign lavel/title for
-     * @param string $value Raw value from field if exists
-     * @param string $oid The object id we are getting values for
-     * @param string $otid The object type id id we are getting values for
-     * @return array('keyid'=>'value/name')
-     */
-    private function getForeignKeyDataFromDb($fdef, $value, $oid, $otid)
-    {
-        $ret = array();
-        
-        if ($fdef->type == "fkey" && $value) {
-            $sql = 'SELECT ' . $fdef->fkeyTable['key'] . ' as id, ' .
-                $fdef->fkeyTable['title'] . ' as name ' .
-                'FROM ' . $fdef->subtype . ' WHERE ' . $fdef->fkeyTable['key'] . '=:key_value';
-            $result = $this->database->query($sql, ['key_value' => $value]);
-            if ($result->rowCount()) {
-                $row = $result->fetch();
-                $ret[(string)$row['id']] = $row['name'];
-            } else {
-                // The foreign object is no longer in the foreign table, just use id
-                $ret[$value] = $value;
-            }
-        }
-
-        if ($fdef->type == "fkey_multi") {
-            $memTbl = $fdef->fkeyTable['ref_table']['table'];
-            $sql = 'SELECT ' . $fdef->subtype . '.' . $fdef->fkeyTable['key'] . ' as id, ' .
-                $fdef->subtype . '.' . $fdef->fkeyTable['title'] . ' as name' .
-                ' FROM ' . $fdef->subtype . ', ' . $memTbl .
-                ' WHERE ' .
-                $fdef->subtype . '.' . $fdef->fkeyTable['key'] . '=' .
-                $memTbl . '.' . $fdef->fkeyTable['ref_table']['ref'] .
-                ' AND ' . $fdef->fkeyTable['ref_table']["this"] . '=:oid';
-
-            $result = $this->database->query($sql, ['oid' => $oid]);
-            if ($result->rowCount()) {
-                $row = $result->fetch();
-                $ret[(string)$row['id']] = $row['name'];
-            }
-        }
-
-        /*
-         * Update the names of any object references
-         *
-         * The below solution is grossly inefficient but should only be necessary for very old
-         * objects and then will be cached by the loader in the caching datamapper.
-         * Eventually we will just remove it along with this entire function.
-         */
-        if ($fdef->type == "object" && $fdef->subtype && $this->getAccount()->getServiceManager() && $value) {
-            $entity  = $this->getAccount()->getServiceManager()->get(EntityFactoryFactory::class)->create($fdef->subtype);
-            if ($this->getById($entity, $value)) {
-                $ret[(string)$value] = $entity->getName();
-            } else {
-                $log = $this->getAccount()->getApplication()->getLog();
-                $log->error("Could not load {$fdef->subtype}.{$value} to update foreign value");
-            }
-        } elseif (($fdef->type == "object" && !$fdef->subtype) || $fdef->type == "object_multi") {
-            
-            // Make sure that we have object id and object type id
-            if (!$oid || !$otid) {
-                return $ret;
-            }
-
-            $sql = 'SELECT ' .
-                'assoc_type_id, assoc_object_id, app_object_types.name as obj_name ' .
-                'FROM object_associations INNER JOIN app_object_types ' .
-                'ON (object_associations.assoc_type_id = app_object_types.id) ' .
-                'WHERE field_id=:field_id AND type_id=:type_id AND object_id=:oid ' .
-                ' LIMIT 1000';
-            $whereConditions = ['field_id' => $fdef->id, 'type_id' => $otid, 'oid' => $oid];
-            $result = $this->database->query($sql, $whereConditions);
-            foreach ($result->fetchAll() as $row) {
-                $oname = "";
-                $oname = $row['obj_name'];
-                $idval = $oname . ":" . $row["assoc_object_id"];
-
-                // If subtype is set in the field, then only the id of the object is stored
-                if ($fdef->subtype) {
-                    $oname = $fdef->subtype;
-                    $idval = (string)$row['assoc_object_id'];
-                }
-                
-                /*
-                 * Set the value to null since we cant get the referenced entity name for now.
-                 * Let the caller handle getting the name of the referenced entity
-                 */
-                $ret[(string)$idval] = null;
-            }
-        }
-
-        return $ret;
     }
 
     /**
@@ -842,7 +733,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     {
         $entityDefinitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
+        $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
 
+        $toEntity = $entityLoader->get($def->getObjType(), $toId);
         $definitions = $entityDefinitionLoader->getAll();
 
         // Loop thru all the entity definitions and check if we have fields that needs to update the reference
@@ -863,14 +756,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 // Check if field subtype is the same as the $def objtype and if field is not multivalue
                 if ($field->subtype == $def->getObjType()) {
                     $oldFieldValue = $fromId;
-                    $newFieldValue = $toId;
+                    $newFieldValue = $toEntity->getValue("guid");
                 }
 
-                // Encode object type and id with generic obj_type:obj_id
-                if (empty($field->subtype)) {
-                    $oldFieldValue = $def->getObjType() . ':' . $fromId;
-                    $newFieldValue = $def->getObjType() . ':' . $toId;
-                }
+                
 
                 // Only continue if the field met one of the conditions above
                 if (!$oldFieldValue || !$newFieldValue) {

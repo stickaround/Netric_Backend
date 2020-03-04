@@ -94,7 +94,7 @@ class ProjectEntity extends Entity implements EntityInterface
 
         // Query the tasks of this project entity
         $query = new EntityQuery(ObjectTypes::TASK);
-        $query->where('project')->equals($this->getId());
+        $query->where('project')->equals($this->getValue("guid"));
 
         // Execute query and get num results
         $res = $this->indexInterface->executeQuery($query);
@@ -110,7 +110,7 @@ class ProjectEntity extends Entity implements EntityInterface
             $task->cloneTo($toTask);
 
             // Move task to the project entity we are cloning
-            $toTask->setValue("project", $toEntityId);
+            $toTask->setValue("project", $toEntity->getValue("guid"));
 
             // Save the task
             $this->entityLoader->save($toTask);

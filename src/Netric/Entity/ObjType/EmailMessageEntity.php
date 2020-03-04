@@ -146,10 +146,21 @@ class EmailMessageEntity extends Entity implements EntityInterface
                 $this->fileSystem->deleteFile($file, true);
             }
         }
+    }
 
+    /**
+     * Called right before the entity is purged (hard delete)
+     *
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     */
+    public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
+    {
         $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $this->getValue("thread"));
 
-        // If this is the last message, then purge the thread
+        /*
+         * If this is the last message, then purge the thread.
+         * We need to perform the deleting of thread right after we deleted the message, to avoid infinite loop
+         */
         if ($thread && intval($thread->getValue("num_messages")) === 1) {
             $this->entityLoader->delete($thread, true);
         }
@@ -555,7 +566,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $this->updateThreadFromMessage($thread);
 
         // Set the thread of this message to the discovered (or created) thread
-        $this->setValue("thread", $thread->getId());
+        $this->setValue("thread", $thread->getValue("guid"));
     }
 
     /**

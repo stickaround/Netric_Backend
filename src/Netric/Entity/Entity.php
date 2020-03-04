@@ -11,6 +11,8 @@ use DateTime;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Permissions\DaclLoaderFactory;
+use Ramsey\Uuid\Uuid;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -278,20 +280,22 @@ class Entity implements EntityInterface
             $this->values[$strName] = array();
         }
 
+        $fieldMultiValues = $this->values[$strName];
+        
         // Check to make sure we do not already have this value added
-        for ($i = 0; $i < count($this->values[$strName]); $i++) {
-            if (!empty($this->values[$strName][$i]) && $value == $this->values[$strName][$i]) {
+        forEach($fieldMultiValues as $key => $mValue) {
+            if ($value == $mValue) {
                 // The value was already added and they need to be unique
 
                 // Update valueName just in case it has changed
                 if ($valueName) {
                     $valueKeyName = (string) $value;
-                    $this->fkeysValues[$strName][$value] = $valueName;
+                    $this->fkeysValues[$strName][$mValue] = $valueName;
                 }
 
                 // Do not add an additional value
                 return;
-            }
+            }   
         }
 
         // Set the value
@@ -324,7 +328,39 @@ class Entity implements EntityInterface
      */
     public function removeMultiValue($strName, $value)
     {
-        // TODO: remove the value from the multi-value array
+        $fieldMultiValues = $this->values[$strName];
+        
+        // Loop thru the field values and look for the value that we will be removing
+        forEach($fieldMultiValues as $key => $mValue) {
+            if ($value == $mValue) {
+                
+                // Unset the array index and it will be removed from the field multi value
+                unset($fieldMultiValues[$key]);
+                unset($this->fkeysValues[$strName][$mValue]);
+
+                // Re-index the array
+                $this->values[$strName] = array_values($fieldMultiValues);
+
+                // Log changes
+                $this->logFieldChanges($strName, $this->values[$strName], $mValue, null);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Update a value name from a *_multi type field
+     * 
+     * @param string $strName The name of the field
+     * @param string|int $value The value of the field that we will update its value name
+     * @param string $valueName The value name that will be using for update
+     */
+    public function updateValueName($strName, $value, $valueName) {
+        $oldValueName = $this->fkeysValues[$strName][$value];
+        $this->fkeysValues[$strName][$value] = $valueName;
+
+        // Log changes
+        $this->logFieldChanges($strName, $this->fkeysValues[$strName], $valueName, $$oldValueName);
     }
 
     /**
@@ -572,24 +608,8 @@ class Entity implements EntityInterface
      */
     public function beforeSave(AccountServiceManagerInterface $sm)
     {
-        // Make sure we have associations added for any object reference
-        $fields = $this->getDefinition()->getFields();
-        foreach ($fields as $field) {
-            if ($field->type === Field::TYPE_OBJECT) {
-                $fieldValue = $this->getValue($field->name);
-                if ($fieldValue && $field->subtype) {
-                    $this->addMultiValue(
-                        "associations",
-                        Entity::encodeObjRef($field->subtype, $fieldValue)
-                    );
-                } elseif ($fieldValue) {
-                    $this->addMultiValue("associations", $fieldValue);
-                }
-            }
-        }
-
         // Update or add followers based on changes to fields
-        $this->updateFollowers();
+        $this->updateFollowers($sm);
 
         // Call derived extensions
         $this->onBeforeSave($sm);
@@ -1086,51 +1106,79 @@ class Entity implements EntityInterface
      * Interested users are any users attached via a field where type='object'
      * and subtype='user' or tagged in a text field with [user:<id>:<name>].
      */
-    private function updateFollowers()
+    private function updateFollowers(AccountServiceManagerInterface $sm)
     {
         $fields = $this->getDefinition()->getfields();
 
         foreach ($fields as $field) {
+            $value = $this->getValue($field->name);
+
             switch ($field->type) {
                 case FIELD::TYPE_TEXT:
                     // Check if any text fields are tagging users
-                    $tagged = self::getTaggedObjRef($this->getValue($field->name));
+                    $tagged = self::getTaggedObjRef($value);
                     foreach ($tagged as $objRef) {
                         // We need to have a valid uid, before we add it as follower
-                        if (
-                            $objRef['obj_type'] === 'user' && $objRef['id'] &&
-                            is_numeric($objRef['id']) && $objRef['id'] > 0
-                        ) {
-                            $this->addMultiValue("followers", $objRef['id'], $objRef['name']);
+                        if ($objRef['obj_type'] === 'user') {
+                            if (Uuid::isValid($objRef['id']) || ($objRef['id'] && is_numeric($objRef['id']) && $objRef['id'] > 0)) {
+                                $this->addMultiValue("followers", $objRef['id'], $objRef['name']);
+                            }
                         }
                     }
                     break;
 
                 case FIELD::TYPE_OBJECT:
+                    // Make sure we have associations added for any object reference
+                    if ($value) {
+                        $this->addObjReferenceGuid($sm, "associations", $value, $field->type);
+                    }
                 case FIELD::TYPE_OBJECT_MULTI:
                     // Check if any fields are referencing users
-                    if ($field->subtype === "user") {
-                        $value = $this->getValue($field->name);
-
+                    if ($field->subtype == ObjectTypes::USER) {
                         if (is_array($value)) {
-                            foreach ($value as $entityId) {
-                                if (is_numeric($entityId) && $entityId > 0) {
-                                    $this->addMultiValue(
-                                        "followers",
-                                        $entityId,
-                                        $this->getValueName($field->name, $entityId)
-                                    );
+                            foreach ($value as $guid) {
+                                if ($guid) {
+                                    $this->addObjReferenceGuid($sm, "followers", $guid, ObjectTypes::USER);
                                 }
                             }
-                        } elseif (is_numeric($value) && $value > 0) {
-                            $this->addMultiValue(
-                                "followers",
-                                $value,
-                                $this->getValueName($field->name, $value)
-                            );
+                        } elseif ($value) {
+                            $this->addObjReferenceGuid($sm, "followers", $value, ObjectTypes::USER);
                         }
                     }
                     break;
+            }
+        }
+    }
+
+    /**
+     * Add an object reference guid to a field
+     * 
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param string $fieldName The name of the field that we will be adding the object reference guid
+     * @param string $objReferenceValue The value of the object reference. This should be the guid of the referenced entity
+     * @param string $objType Optional. For backward compatibility, if the provided object reference value is an entity id, 
+     *                        then it needs the objType so we can look for the referenced entity.
+     */
+    private function addObjReferenceGuid(AccountServiceManagerInterface $sm, string $fieldName, string $objReferenceValue, string $objType = "")
+    {
+        $entityLoader = $sm->get(EntityLoaderFactory::class);
+
+        // If we have a valid object reference value, then we can add it directly to the field
+        if (Uuid::isValid($objReferenceValue)) {
+            $valueName = $this->getValueName($fieldName, $objReferenceValue);
+
+            if (!$valueName) {
+                $refEntity = $entityLoader->getByGuid($objReferenceValue);
+                $valueName = $refEntity->getName();
+            }
+            
+            $this->addMultiValue($fieldName, $objReferenceValue, $valueName);
+        } elseif ($objType && $objReferenceValue) {
+            // If we are dealing with a non-guid reference value, we need to check first if objType is provided so we can look for the referenced entity
+            $refEntity = $entityLoader->get($objType, $objReferenceValue);
+
+            if ($refEntity) {
+                $this->addMultiValue($fieldName, $refEntity->getValue("guid"), $refEntity->getName());
             }
         }
     }
@@ -1152,23 +1200,22 @@ class Entity implements EntityInterface
     {
         // First copy all followers from the entity we've commented on
         $entityFollowers = $otherEntity->getValue("followers");
-        foreach ($entityFollowers as $uid) {
-            // We need to have a valid uid, before we add it as follower
-            if (is_numeric($uid) && $uid > 0) {
-                $userName = $otherEntity->getValueName("followers", $uid);
+        foreach ($entityFollowers as $guid) {
+            if (Uuid::isValid($guid)) {
+                $userName = $otherEntity->getValueName("followers", $guid);
 
                 // addMultiValue will prevent duplicates so we just add them all
-                $this->addMultiValue("followers", $uid, $userName);
+                $this->addMultiValue("followers", $guid, $userName);
             }
         }
 
         // Now add any new followers from this comment to follow the entity we've commented on
         $commentFollowers = $this->getValue("followers");
-        foreach ($commentFollowers as $uid) {
-            // We need to have a valid uid, before we add it as follower
-            if (is_numeric($uid) && $uid > 0) {
-                $userName = $this->getValueName("followers", $uid);
-                $otherEntity->addMultiValue("followers", $uid, $userName);
+        foreach ($commentFollowers as $guid) {
+            // We need to have a valid guid, before we add it as follower
+            if (Uuid::isValid($guid)) {
+                $userName = $this->getValueName("followers", $guid);
+                $otherEntity->addMultiValue("followers", $guid, $userName);
             }
         }
     }

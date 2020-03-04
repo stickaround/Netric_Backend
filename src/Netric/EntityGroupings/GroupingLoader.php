@@ -78,6 +78,11 @@ class GroupingLoader
         // New DataMappers will throw an exception if they fail
         $this->dataMapper->saveGroupings($groupings);
 
+        // Update the cache after saving the groupings.
+        if ($groupings->path) {
+            $this->loadedGroupings[$groupings->path] = $groupings;
+        }
+
         // If we did not encounter any exceptions, then things went well
         return true;
     }
