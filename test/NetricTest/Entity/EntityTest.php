@@ -13,6 +13,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\Entity\ObjType\UserEntity;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 class EntityTest extends TestCase
 {
@@ -304,7 +305,7 @@ class EntityTest extends TestCase
         $updateFollowers->setAccessible(true);
 
         // Call update followers which should pull followers from user_id and notes
-        $updateFollowers->invoke($entity);
+        $updateFollowers->invoke($entity, $this->account->getServiceManager());
 
         // Now make sure followers were set to the two references above
         $followers = $entity->getValue("followers");
@@ -322,8 +323,8 @@ class EntityTest extends TestCase
     {
         // Add some fake users to a test task
         $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task1->addMultiValue("followers", 123, "John");
-        $task1->addMultiValue("followers", 456, "Dave");
+        $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "John");
+        $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "Dave");
 
         // Create a second task and synchronize
         $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
@@ -340,9 +341,9 @@ class EntityTest extends TestCase
     {
         // Add some fake users to a test task
         $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task1->addMultiValue("followers", 123, "John");
-        $task1->addMultiValue("followers", 456, "Dave");
-        $task1->addMultiValue("followers", 0, "invlid zero id");
+        $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "John");
+        $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "Dave");
+        $task1->addMultiValue("followers", 0, "invalid zero id");
         $task1->addMultiValue("followers", "testId", "invlid non-numeric id");
 
         // Create a second task and synchronize

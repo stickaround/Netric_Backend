@@ -29,6 +29,13 @@ abstract class AbstractAction implements ErrorAwareInterface
     private $id = null;
 
     /**
+     * Unique global id of this action
+     *
+     * @var string
+     */
+    private $guid = null;
+
+    /**
      * A human-entered name for this action
      */
     private $name = null;
@@ -150,6 +157,10 @@ abstract class AbstractAction implements ErrorAwareInterface
             $this->id = $data['id'];
         }
 
+        if (isset($data['guid'])) {
+            $this->guid = $data['guid'];
+        }
+
         if (isset($data['name'])) {
             $this->name = $data['name'];
         }
@@ -208,6 +219,7 @@ abstract class AbstractAction implements ErrorAwareInterface
     {
         $data = array(
             "id" => $this->id,
+            "guid" => $this->guid,
             "name" => $this->name,
             "type" => $this->type,
             "workflow_id" => $this->workflowId,
@@ -222,6 +234,24 @@ abstract class AbstractAction implements ErrorAwareInterface
         }
 
         return $data;
+    }
+
+    /**
+     * Get the global id of this action
+     *
+     * @return string
+     */
+    public function getGuid()
+    {
+        return $this->guid;
+    }
+
+    /**
+     * Set the id of this action
+     */
+    public function setGuid($guid)
+    {
+        $this->guid = $guid;
     }
 
     /**

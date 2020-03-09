@@ -22,7 +22,7 @@ class CreateEntityActionTest extends AbstractActionTests
 
     public function testExecute()
     {
-        $testLongName = 'utest-workflow-action-create-entity';
+        $testLongName = 'utest-workflow-action-create-entity' . uniqid();
         $action = $this->getAction();
         $action->setParam('obj_type', ObjectTypes::TASK);
         $action->setParam('name', $testLongName);
@@ -34,7 +34,7 @@ class CreateEntityActionTest extends AbstractActionTests
         // Create a test task that will create another task that copies the woner
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
-        $task->setValue("user_id", $user->getId());
+        $task->setValue("user_id", $user->getValue("guid"));
         $task->setId(321);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance

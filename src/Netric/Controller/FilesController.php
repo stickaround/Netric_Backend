@@ -247,6 +247,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             if ($file) {
                 $ret[] = array(
                     "id" => $file->getId(),
+                    "guid" => $file->getValue("guid"),
                     "name" => $file->getValue("name"),
                     "ts_updated" => $file->getValue("ts_updated")
                 );
@@ -364,13 +365,13 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         if ($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW)) {
             $response->setCacheable(
                 md5($this->account->getName() .
-                    ".file." . $fileEntity->getId() .
+                    ".file." . $fileEntity->getValue("guid") .
                     '.r' . $fileEntity->getValue("revision"))
             );
         }
 
         // Set netric entity header
-        $response->setHeader('X-Entity', $fileEntity->getObjRef());
+        $response->setHeader('X-Entity', $fileEntity->getValue("guid"));
 
         // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
@@ -390,7 +391,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // If the user id was not passed we use current
         if (!$userId) {
-            $userId = $this->account->getUser()->getId();
+            $userId = $this->account->getUser()->getValue("guid");
         }
 
         // We will need the entityLoader to load up a user

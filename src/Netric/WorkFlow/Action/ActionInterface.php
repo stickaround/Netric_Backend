@@ -81,4 +81,16 @@ interface ActionInterface
      * @return ActionInterface[]
      */
     public function getActions();
+
+    /**
+     * Get the global id of this action
+     *
+     * @return string
+     */
+    public function getGuid();
+
+    /**
+     * Set the id of this action
+     */
+    public function setGuid($guid);
 }

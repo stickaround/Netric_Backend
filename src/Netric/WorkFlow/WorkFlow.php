@@ -44,6 +44,13 @@ class WorkFlow
     private $id = null;
 
     /**
+     * Unique Global ID of this workflow
+     *
+     * @var string
+     */
+    private $guid = null;
+
+    /**
      * Textual name
      *
      * @var string
@@ -190,6 +197,10 @@ class WorkFlow
             $this->id = $data['id'];
         }
 
+        if (isset($data['guid'])) {
+            $this->guid = $data['guid'];
+        }
+
         if (isset($data['name'])) {
             $this->name = $data['name'];
         }
@@ -296,6 +307,7 @@ class WorkFlow
     {
         $ret = array(
             "id" => $this->id,
+            "guid" => $this->guid,
             "name" => $this->name,
             "notes" => $this->notes,
             "obj_type" => $this->objType,
@@ -324,6 +336,24 @@ class WorkFlow
         }
 
         return $ret;
+    }
+
+    /**
+     * Get the global id of this workflow
+     *
+     * @return int
+     */
+    public function getGuid()
+    {
+        return $this->guid;
+    }
+
+    /**
+     * Get the global id of this workflow
+     */
+    public function setGuid($guid)
+    {
+        $this->guid = $guid;
     }
 
     /**

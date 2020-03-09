@@ -57,20 +57,23 @@ class AssignActionTest extends AbstractActionTests
         // Create three users for assignment
         $user1 = $this->entityLoader->create(ObjectTypes::USER);
         $user1->setValue("name", "testuser-" . rand());
-        $user1Id = $this->entityLoader->save($user1);
+        $this->entityLoader->save($user1);
+        $userGuid1 = $user1->getValue("guid");
         $this->testEntities[] = $user1;
 
         $user2 = $this->entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "testuser-" . rand());
-        $user2Id = $this->entityLoader->save($user2);
+        $this->entityLoader->save($user2);
+        $userGuid2 = $user2->getValue("guid");
         $this->testEntities[] = $user2;
 
         $user3 = $this->entityLoader->create(ObjectTypes::USER);
         $user3->setValue("name", "testuser-" . rand());
-        $user3Id = $this->entityLoader->save($user3);
+        $this->entityLoader->save($user3);
+        $userGuid3 = $user3->getValue("guid");
         $this->testEntities[] = $user3;
 
-        $usersArray = [$user1Id, $user2Id, $user3Id];
+        $usersArray = [$userGuid1, $userGuid2, $userGuid3];
 
         // Create new action and set values for the userlist
         $action = $this->getAction();
@@ -93,16 +96,16 @@ class AssignActionTest extends AbstractActionTests
         $this->assertTrue(in_array($task->getValue("user_id"), $usersArray));
 
         // Execute repeatedly and check the probability distribution
-        $hits = [$user1Id => 0, $user2Id => 0, $user3Id => 0];
+        $hits = [$userGuid1 => 0, $userGuid2 => 0, $userGuid3 => 0];
         for ($i = 0; $i < 100; $i++) {
             $action->execute($workFlowInstance);
             $hits[$task->getValue('user_id')]++;
         }
 
         // Make sure probabilities are in acceptable ranges ~20% to each
-        $this->assertGreaterThan(20, $hits[$user1Id]);
-        $this->assertGreaterThan(20, $hits[$user2Id]);
-        $this->assertGreaterThan(20, $hits[$user3Id]);
+        $this->assertGreaterThan(20, $hits[$userGuid1]);
+        $this->assertGreaterThan(20, $hits[$userGuid2]);
+        $this->assertGreaterThan(20, $hits[$userGuid3]);
     }
 
     /**

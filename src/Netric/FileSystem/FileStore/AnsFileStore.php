@@ -214,7 +214,7 @@ class AnsFileStore implements FileStoreInterface
         $size = filesize($localPath);
 
         // Generate a unique id for the file
-        $key = $this->accountId . "/" . $file->getId() . "/";
+        $key = $this->accountId . "/" . $file->getValue("guid") . "/";
         $key .= $file->getValue("revision") . "/" . $file->getName();
 
         // Construct the full request with all params

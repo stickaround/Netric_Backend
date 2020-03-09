@@ -161,7 +161,7 @@ class UserEntity extends Entity implements EntityInterface
         }
 
         // Add to authenticated users group if we have determined this is a valid user
-        if ($this->getId() &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups)) {
+        if ($this->getValue("guid") &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups)) {
             $groups[] = self::GROUP_USERS;
         }
 

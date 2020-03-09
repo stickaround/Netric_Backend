@@ -607,8 +607,7 @@ class FilesControllerTest extends TestCase
         //unlink($tempFilePath);
 
         // Get the newly created resized file entity (will copy $importedFile)
-        $newFileRef = Netric\Entity\Entity::decodeObjRef($headers['X-Entity']);
-        $resizedFile = $this->fileSystem->openFileById($newFileRef['id']);
+        $resizedFile = $this->fileSystem->openFileById($headers['X-Entity']);
         $this->testFiles[] = $resizedFile;
 
         // Make sure the returned entity is different than the uploaded one
@@ -651,32 +650,34 @@ class FilesControllerTest extends TestCase
         $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set the newly imported file as the user's profile pic
-        $this->user->setValue('image_id', $importedFile->getId());
+        $this->user->setValue('image_id', $importedFile->getValue("guid"));
         $loader = $this->account->getServiceManager()->get(EntityLoader::class);
         $loader->save($this->user);
 
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
-        $req->setParam("user_id", $this->user->getId());
+        $req->setParam("user_id", $this->user->getValue("guid"));
         $req->setParam("max_width", 64);
         $req->setParam("max_height", 64);
 
+        // clear the cache of the file
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoader::class);
+        $entityLoader->clearCacheByGuid($importedFile->getValue("guid"));
+
         // Now stream the file contents into $ret
         $response = $this->controller->getUserImageAction();
-
+        
         // Create a temp file to store the resized image into
         $tempFilePath = __DIR__ . '/../../data/tmp/files_controller_temp.png';
         $outputStream = fopen($tempFilePath, 'w');
-
+                
         // Suppress the output into a file
         $response->suppressOutput(true);
         $response->stream($outputStream);
         $headers = $response->getHeaders();
-        fclose($outputStream);
 
         // Get the newly created resized file entity (will copy $importedFile)
-        $newFileRef = Netric\Entity\Entity::decodeObjRef($headers['X-Entity']);
-        $resizedFile = $this->fileSystem->openFileById($newFileRef['id']);
+        $resizedFile = $this->fileSystem->openFileById($headers['X-Entity']);
         $this->testFiles[] = $resizedFile;
 
         // Make sure we didn't stream an empty file

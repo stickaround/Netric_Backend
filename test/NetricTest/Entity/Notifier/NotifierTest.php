@@ -126,7 +126,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $notification;
 
         // Make sure we created a notice for the test user
-        $this->assertEquals($this->testUser->getId(), $notification->getValue("owner_id"));
+        $this->assertEquals($this->testUser->getValue("guid"), $notification->getValue("owner_id"));
 
         // Test private getNameFromEventVerb
         $this->assertEquals("Added Task", $notification->getValue("name"));
@@ -159,8 +159,8 @@ class NotifierTest extends TestCase
 
         // Query to make sure we have an unseen notification for the test user
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
-        $query->where("owner_id")->equals($this->testUser->getId());
-        $query->andWhere("obj_reference")->equals("task:" . $task->getId());
+        $query->where("owner_id")->equals($this->testUser->getValue("guid"));
+        $query->andWhere("obj_reference")->equals($task->getValue("guid"));
         $query->andWhere("f_seen")->equals(false);
         $result = $entityIndex->executeQuery($query);
         $this->assertEquals(1, $result->getNum());

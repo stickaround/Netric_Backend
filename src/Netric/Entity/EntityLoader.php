@@ -281,6 +281,9 @@ class EntityLoader
             $this->clearCache($entity->getDefinition()->getObjtype(), $entity->getId());
         }
 
+        // Also clear the cache for entity guid
+        $this->clearCacheByGuid($entity->getValue("guid"));
+
         return $ret;
     }
 
@@ -311,6 +314,18 @@ class EntityLoader
         }
 
         $ret = $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/$objType/$id");
+    }
+
+    /**
+     * Clear cache by guid
+     * 
+     * @param string $guid The guid of an entity
+     */
+    public function clearCacheByGuid(string $guid) {
+        if ($guid) {
+            $this->loadedEntities['guid'][$guid] = null;
+            $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/guid/$guid");
+        }
     }
 
     /**

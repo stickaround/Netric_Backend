@@ -125,7 +125,8 @@ class EntityControllerTest extends TestCase
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
-        $dashboardEntity->setValue("name", "activity-test");
+        $dashboardName =  "activity-test" . uniqid();
+        $dashboardEntity->setValue("name", $dashboardName);
         $dashboardEntity->setValue("owner_id", $this->account->getUser()->getValue("guid"));
         $loader->save($dashboardEntity);
         $this->testEntities[] = $dashboardEntity;
@@ -145,7 +146,7 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->postGetAction();
         $dashboardEntity = $loader->get(ObjectTypes::DASHBOARD, $ret['id']);
-        $this->assertEquals($dashboardEntity->getValue("name"), "activity-test");
+        $this->assertEquals($dashboardEntity->getValue("name"), $dashboardName);
     }
 
     public function testPostGetEntityAction()

@@ -70,14 +70,15 @@ class StartWorkflowActionTest extends AbstractActionTests
          * Create a task to run the new workflow against
          */
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("name", "test");
+        $task->setValue("name", "start worklfow action test");
+        $task->setValue("notes", "123");
         $task->setValue("done", false); // should cause it to be ignored by the WorkFlow
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
         $workFlowInstance = new WorkFlowInstance(123, $task);
-
+        
         // Setup action
         $action = $this->getAction();
         $action->setParam("wfid", $workFlow->getId());
