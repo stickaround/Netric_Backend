@@ -8,7 +8,7 @@ use Netric;
 use Netric\FileSystem\FileStore\MogileFileStore;
 use Netric\FileSystem\FileStore\FileStoreInterface;
 use MogileFs;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Config\ConfigFactory;
 
 /**
@@ -40,13 +40,13 @@ class MogileFileStoreTest extends AbstractFileStoreTests
         $this->tmpPath = __DIR__ . "/tmp";
 
         $accId = $account->getId();
-        $dataMapper = $sm->get(DataMapperFactory::class);
+        $entityLoader = $sm->get(EntityLoaderFactory::class);
 
         $config = $sm->get(ConfigFactory::class);
 
         $this->mogileFileStore = new MogileFileStore(
             $accId,
-            $dataMapper,
+            $entityLoader,
             $this->tmpPath,
             $config->files->server,
             $config->files->account,

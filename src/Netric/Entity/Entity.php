@@ -1130,19 +1130,24 @@ class Entity implements EntityInterface
                 case FIELD::TYPE_OBJECT:
                     // Make sure we have associations added for any object reference
                     if ($value) {
-                        $this->addObjReferenceGuid($sm, "associations", $value, $field->type);
+                        $this->addObjReferenceGuid($sm, "associations", $field->name, $value, $field->type);
+
+                        if ($field->subtype == ObjectTypes::USER) {
+                            $this->addObjReferenceGuid($sm, "followers", $field->name, $value, ObjectTypes::USER);
+                        }
                     }
+                    break;
                 case FIELD::TYPE_OBJECT_MULTI:
                     // Check if any fields are referencing users
                     if ($field->subtype == ObjectTypes::USER) {
                         if (is_array($value)) {
                             foreach ($value as $guid) {
                                 if ($guid) {
-                                    $this->addObjReferenceGuid($sm, "followers", $guid, ObjectTypes::USER);
+                                    $this->addObjReferenceGuid($sm, "followers", $field->name, $guid, ObjectTypes::USER);
                                 }
                             }
                         } elseif ($value) {
-                            $this->addObjReferenceGuid($sm, "followers", $value, ObjectTypes::USER);
+                            $this->addObjReferenceGuid($sm, "followers", $field->name, $value, ObjectTypes::USER);
                         }
                     }
                     break;
@@ -1154,31 +1159,32 @@ class Entity implements EntityInterface
      * Add an object reference guid to a field
      * 
      * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     * @param string $fieldName The name of the field that we will be adding the object reference guid
-     * @param string $objReferenceValue The value of the object reference. This should be the guid of the referenced entity
+     * @param string $referenceType The type object reference we are adding (associations or followers)
+     * @param string $fieldName The name of the field that we will be referencing
+     * @param string $value The value of the object reference. This should be the guid of the referenced entity
      * @param string $objType Optional. For backward compatibility, if the provided object reference value is an entity id, 
      *                        then it needs the objType so we can look for the referenced entity.
      */
-    private function addObjReferenceGuid(AccountServiceManagerInterface $sm, string $fieldName, string $objReferenceValue, string $objType = "")
+    private function addObjReferenceGuid(AccountServiceManagerInterface $sm, string $referenceType, string $fieldName, string $value, string $objType = "")
     {
         $entityLoader = $sm->get(EntityLoaderFactory::class);
 
         // If we have a valid object reference value, then we can add it directly to the field
-        if (Uuid::isValid($objReferenceValue)) {
-            $valueName = $this->getValueName($fieldName, $objReferenceValue);
+        if (Uuid::isValid($value)) {
+            $valueName = $this->getValueName($fieldName, $value);
 
             if (!$valueName) {
-                $refEntity = $entityLoader->getByGuid($objReferenceValue);
+                $refEntity = $entityLoader->getByGuid($value);
                 $valueName = $refEntity->getName();
             }
             
-            $this->addMultiValue($fieldName, $objReferenceValue, $valueName);
-        } elseif ($objType && $objReferenceValue) {
+            $this->addMultiValue($referenceType, $value, $valueName);
+        } elseif ($objType && $value) {
             // If we are dealing with a non-guid reference value, we need to check first if objType is provided so we can look for the referenced entity
-            $refEntity = $entityLoader->get($objType, $objReferenceValue);
+            $refEntity = $entityLoader->get($objType, $value);
 
             if ($refEntity) {
-                $this->addMultiValue($fieldName, $refEntity->getValue("guid"), $refEntity->getName());
+                $this->addMultiValue($referenceType, $refEntity->getValue("guid"), $refEntity->getName());
             }
         }
     }

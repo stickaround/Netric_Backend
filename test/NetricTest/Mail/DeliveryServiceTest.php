@@ -87,7 +87,7 @@ class DeliveryServiceTest extends TestCase
         $inbox = new Group();
         $inbox->name = "Inbox";
         $inbox->isSystem = true;
-        $inbox->user_id = $this->user->getId();
+        $inbox->user_id = $this->user->getValue("guid");
         $groupings->add($inbox);
         $groupingsLoader->save($groupings);
         $this->inbox = $groupings->getByPath("Inbox");
@@ -111,7 +111,7 @@ class DeliveryServiceTest extends TestCase
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
-        $groupings->delete($this->inbox->id);
+        $groupings->delete($this->inbox->guid);
         $groupingsLoader->save($groupings);
 
         // Delete any test entities
@@ -176,7 +176,7 @@ class DeliveryServiceTest extends TestCase
             $fakeUniqueId,
             $storageMessage,
             $this->emailAccount,
-            $this->inbox->id
+            $this->inbox->guid
         );
 
         $this->assertNotEquals(0, $messageId);
@@ -198,13 +198,13 @@ class DeliveryServiceTest extends TestCase
     {
         $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
         $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m7.attachment']);
-        $fakeUniqueId = "1234"; // Does not really matter
+        $fakeUniqueId = "123456"; // Does not really matter
         $messageId = $deliveryService->deliverMessage(
             $this->user,
             $fakeUniqueId,
             $storageMessage,
             $this->emailAccount,
-            $this->inbox->id
+            $this->inbox->guid
         );
 
         $this->assertNotEquals(0, $messageId);
@@ -213,10 +213,11 @@ class DeliveryServiceTest extends TestCase
         $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $messageId);
         $this->testEntities[] = $emailMessage;
 
-        // Check some snippets of text that should be in the hrml body
+        // Check some snippets of text that should be in the html body
         $attachments = $emailMessage->getValue("attachments");
         $this->assertEquals(3, count($attachments));
         $file = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::FILE, $attachments[0]);
+        
         $this->assertEquals("HoS-Logo-Black.pdf", $file->getValue("name"));
         $this->assertGreaterThan(0, $file->getValue("file_size"));
     }
@@ -236,7 +237,7 @@ class DeliveryServiceTest extends TestCase
             $fakeUniqueId,
             $storageMessage,
             $this->emailAccount,
-            $this->inbox->id
+            $this->inbox->guid
         );
 
         // Queue for cleanup
@@ -253,7 +254,7 @@ class DeliveryServiceTest extends TestCase
             $fakeUniqueId,
             $storageMessage,
             $this->emailAccount,
-            $this->inbox->id
+            $this->inbox->guid
         );
 
         // Should return the already imported message to fix the sync

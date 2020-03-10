@@ -2,6 +2,7 @@
 namespace Netric\EntityGroupings;
 
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Manage collection of groupings for an entity
@@ -167,10 +168,14 @@ class EntityGroupings
      */
     public function getPath($gid)
     {
-        $grp = $this->getById($gid);
+        // If group guid is provided, then we need to use getByGuid
+        if (Uuid::isValid($gid)) {
+            $grp = $this->getByGuid($gid);
+        } else {
+            $grp = $this->getById($gid);
+        }
 
         $path = "";
-
         if (!$grp) {
             return $path;
         }

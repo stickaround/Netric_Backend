@@ -163,13 +163,13 @@ class ReceiverService extends AbstractHasErrors
     {
         // When syncing emails, account type should not be empty
         if (empty($emailAccount->getValue("type"))) {
-            $this->log->info("ReceiverService->syncMail: Account has no type - " . $emailAccount->getId());
+            $this->log->info("ReceiverService->syncMail: Account has no type - " . $emailAccount->getValue("guid"));
             return false;
         }
 
         // Get the mailbox path
         $mailboxGroupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
-        $mailboxPath = $mailboxGroupings->getpath($mailboxId);
+        $mailboxPath = $mailboxGroupings->getPath($mailboxId);
 
         // Right now we only want to synchronize the Inbox - Sky
         if (strtolower($mailboxPath) != "inbox") {

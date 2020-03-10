@@ -342,4 +342,17 @@ class EntityLoader
         $this->clearCache($entity->getObjType(), $entity->getId());
         $this->get($entity->getObjType(), $entity->getId(), $entity);
     }
+
+    /**
+     * Get Revisions for this object
+     *
+     * @param string $objType The name of the object type to get
+     * @param string $id The unique id of the object to get revisions for
+     * @return array("revisionNum"=>Entity)
+     */
+    public function getRevisions($objType, $id)
+    {
+        return $this->dataMapper->getRevisions($objType, $id);
+    }
+        
 }

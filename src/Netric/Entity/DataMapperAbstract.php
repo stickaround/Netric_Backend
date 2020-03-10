@@ -219,7 +219,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         // Update foreign key names
         $this->updateForeignKeyNames($entity);
-
+        
         /*
          * If the entity has a new recurrence pattern, then we need to get the next recurring id
          * now so we can save it to the entity before saving the recurring patterns itself.
@@ -586,14 +586,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                         $ent = $entityLoader->get($field->subtype, $value);
                     }
 
-                    // If we have found the referenced entity, then add it in the entity
-                    if ($ent) {
-                        $entity->setValue($field->name, $ent->getValue("guid"), $ent->getName());
+                    // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
+                    if (!$ent) {
+                        $entity->setValue($field->name, null);
                         continue;
                     }
 
-                    // Since we havent found the referenced entity, chances are it was already removed, so we need to clear the value
-                    $entity->setValue($field->name, null);
+                    // Since we have found the referenced entity, then add it in the entity
+                    $entity->setValue($field->name, $ent->getValue("guid"), $ent->getName());
                     break;
 
                 case Field::TYPE_OBJECT_MULTI:

@@ -256,10 +256,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
     }
 
-    public function getForeignValueUsingGuid() {
-
-    }
-
     /**
      * Get entity data by guid
      *

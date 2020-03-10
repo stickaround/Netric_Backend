@@ -113,13 +113,11 @@ class DeliveryService extends AbstractHasErrors
      */
     public function deliverMessage(UserEntity $user, $uniqueId, Storage\Message $message, EmailAccountEntity $emailAccount, $mailboxId)
     {
-
-
         // Check to make sure this message was not already imported - no duplicates
         $query = new EntityQuery("email_message");
         $query->where("mailbox_id")->equals($mailboxId);
         $query->andWhere("message_uid")->equals($uniqueId);
-        $query->andWhere("email_account")->equals($emailAccount->getId());
+        $query->andWhere("email_account")->equals($emailAccount->getValue("guid"));
         if ($message->getHeaders()->has("message-id")) {
             $messageId = $message->getHeader("message-id", "string");
             $query->andWhere("message_id")->equals($messageId);
@@ -138,7 +136,7 @@ class DeliveryService extends AbstractHasErrors
         $query = new EntityQuery("email_message");
         $query->where("mailbox_id")->equals($mailboxId);
         $query->andWhere("message_uid")->equals($uniqueId);
-        $query->andWhere("email_account")->equals($emailAccount->getId());
+        $query->andWhere("email_account")->equals($emailAccount->getValue("guid"));
         if ($message->getHeaders()->has("message-id")) {
             $messageId = $message->getHeader("message-id", "string");
             $query->andWhere("message_id")->equals($messageId);
@@ -157,8 +155,8 @@ class DeliveryService extends AbstractHasErrors
         $emailEntity = $this->entityLoader->create("email_message");
         $this->importMailParse($emailEntity, $message);
 
-        $emailEntity->setValue("email_account", $emailAccount->getId());
-        $emailEntity->setValue("owner_id", $user->getId());
+        $emailEntity->setValue("email_account", $emailAccount->getValue("guid"));
+        $emailEntity->setValue("owner_id", $user->getValue("guid"));
         $emailEntity->setValue("mailbox_id", $mailboxId);
         $emailEntity->setValue("message_uid", $uniqueId);
         $emailEntity->setValue("flag_seen", $message->hasFlag(Storage::FLAG_SEEN));
@@ -197,7 +195,7 @@ class DeliveryService extends AbstractHasErrors
             // User exists, we need to create the inbox
             $inboxGroup = $this->createInbox($emailAccount);
         }
-        $mailboxId = $inboxGroup->id;
+        $mailboxId = $inboxGroup->guid;
 
         // Ready to deliver the message, create a parser and point it to the email message file
         $parser = new PhpMimeMailParser\Parser();
@@ -258,8 +256,8 @@ class DeliveryService extends AbstractHasErrors
 
         // Cleanup resources
         $parser = null;
-        $emailEntity->setValue("email_account", $emailAccount->getId());
-        $emailEntity->setValue("owner_id", $user->getId());
+        $emailEntity->setValue("email_account", $emailAccount->getValue("guid"));
+        $emailEntity->setValue("owner_id", $user->getValue("guid"));
         $emailEntity->setValue("mailbox_id", $mailboxId);
         $emailEntity->setValue("message_uid", $uniqueId);
         $emailEntity->setValue("flag_seen", false);
@@ -417,8 +415,8 @@ class DeliveryService extends AbstractHasErrors
 
         // Stream the temp file into the fileSystem
         $file = $this->fileSystem->createFile("%tmp%", $parserAttach->getFilename(), true);
-        $this->fileSystem->writeFile($file, $tmpFile);
-        $email->addMultiValue("attachments", $file->getId(), $file->getName());
+        $result = $this->fileSystem->writeFile($file, $tmpFile);
+        $email->addMultiValue("attachments", $file->getValue("guid"), $file->getName());
     }
 
     /**
