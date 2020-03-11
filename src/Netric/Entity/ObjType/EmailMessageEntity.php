@@ -400,7 +400,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
                 // This is an attachment - could either be inline or an attachment
                 $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), true);
                 $this->fileSystem->writeFile($file, $mimePart->getRawContent());
-                $this->addMultiValue("attachments", $file->getId(), $file->getName());
+                $this->addMultiValue("attachments", $file->getValue("guid"), $file->getName());
             } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
                 // If multipart/aleternative then this will come after 'plain' and overwrite
                 $this->setValue("body", trim($mimePart->getRawContent()));

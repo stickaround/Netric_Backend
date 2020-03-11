@@ -25,11 +25,11 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
     private $accountId = null;
 
     /**
-     * Entity DataMapper for pulling revision data
+     * Entity Loader for pulling revision data
      *
-     * @var DataMapperInterface
+     * @var EntityLoader
      */
-    private $entityDataMapper = null;
+    private $entityLoader = null;
 
     /**
      * Temporary folder path for processing remote files locally
@@ -292,7 +292,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         }
 
         // Delete all past revisions
-        $revisions = $this->entityDataMapper->getRevisions("file", $file->getId());
+        $revisions = $this->entityLoader->getRevisions("file", $file->getId());
         foreach ($revisions as $fileRev) {
             if ($fileRev->getValue("dat_ans_key")) {
                 try {

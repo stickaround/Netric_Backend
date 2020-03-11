@@ -318,6 +318,7 @@ class ReceiverServiceTest extends TestCase
             'user'     => $this->emailAccount->getValue("username"),
             'password' => getenv('TESTS_NETRIC_MAIL_PASSWORD')
         ]);
+
         $msgNum = $imap->getNumberByUniqueId($entity->getValue("message_uid"));
         $message = $imap->getMessage($msgNum);
 

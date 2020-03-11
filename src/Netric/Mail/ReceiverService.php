@@ -169,7 +169,7 @@ class ReceiverService extends AbstractHasErrors
 
         // Get the mailbox path
         $mailboxGroupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
-        $mailboxPath = $mailboxGroupings->getPath($mailboxId);
+        $mailboxPath = $mailboxGroupings->getpath($mailboxId);
 
         // Right now we only want to synchronize the Inbox - Sky
         if (strtolower($mailboxPath) != "inbox") {
