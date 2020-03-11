@@ -51,7 +51,7 @@ class EmailMailboxSyncWorkerTest extends TestCase
         // Create an email account for testing
         $config = $sl->get(ConfigFactory::class);
         $this->emailAccount = $sl->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT);
-        $this->emailAccount->setValue("owner_id", $this->user->getId());
+        $this->emailAccount->setValue("owner_id", $this->user->getValue("guid"));
         $this->emailAccount->setValue("type", "imap");
         $this->emailAccount->setValue("host", $config->imap_host);
         $sl->get(EntityLoaderFactory::class)->save($this->emailAccount);
@@ -74,7 +74,7 @@ class EmailMailboxSyncWorkerTest extends TestCase
         $job = new Job();
         $job->setWorkload([
             "account_id" => $this->account->getId(),
-            "user_id" => $this->user->getId(),
+            "user_id" => $this->user->getValue("guid"),
             "mailbox_id" => 123
         ]);
 
@@ -94,7 +94,7 @@ class EmailMailboxSyncWorkerTest extends TestCase
         $job = new Job();
         $job->setWorkload([
             "account_id" => $this->account->getId(),
-            "user_id" => $this->user->getId(),
+            "user_id" => $this->user->getValue("guid"),
             "mailbox_id" => 123
         ]);
         
@@ -119,7 +119,7 @@ class EmailMailboxSyncWorkerTest extends TestCase
         $job = new Job();
         $job->setWorkload([
             "account_id" => $this->account->getId(),
-            "user_id" => $this->user->getId(),
+            "user_id" => $this->user->getValue("guid"),
             "mailbox_id" => 123
         ]);
 
