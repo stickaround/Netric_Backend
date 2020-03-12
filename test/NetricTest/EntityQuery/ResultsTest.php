@@ -4,8 +4,10 @@ namespace NetricTest\EntityQuery;
 use Netric;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\Entity;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery;
+use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,6 +25,8 @@ class ResultsTest extends TestCase
      */
     public function testPagination()
     {
+        $account = Bootstrap::getAccount();
+        $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $testDefinition = new EntityDefinition("test");
 
         $query = new EntityQuery("test");
@@ -31,8 +35,8 @@ class ResultsTest extends TestCase
 
         // Simulate results and add entities
         $results = new Results($query);
-        $results->addEntity(new Entity($testDefinition));
-        $results->addEntity(new Entity($testDefinition));
+        $results->addEntity(new Entity($testDefinition, $entityLoader));
+        $results->addEntity(new Entity($testDefinition, $entityLoader));
         $results->setTotalNum(5);
 
         // Should push us to the second page

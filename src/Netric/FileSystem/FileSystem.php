@@ -132,7 +132,7 @@ class FileSystem implements Error\ErrorAwareInterface
         } else {
             // Create a new file that will represent the file data
             $file = $this->entityLoader->create(ObjectTypes::FILE);
-            $file->setValue("owner_id", $this->user->getValue("guid"));
+            $file->setValue("owner_id", $this->user->getGuid());
 
             // In some cases you may want to name the file something other than the local file name
             // such as when importing randomly named temp files.
@@ -141,7 +141,7 @@ class FileSystem implements Error\ErrorAwareInterface
             }
         }
 
-        $file->setValue("folder_id", $parentFolder->getValue("guid"));
+        $file->setValue("folder_id", $parentFolder->getGuid());
         $this->entityDataMapper->save($file);
 
         // Upload the file to the FileStore
@@ -183,7 +183,7 @@ class FileSystem implements Error\ErrorAwareInterface
     {
         $ret = $this->entityDataMapper->delete($file, $purge);
         if ($ret) {
-            $this->entityLoader->clearCache(ObjectTypes::FILE, $file->getValue("guid"));
+            $this->entityLoader->clearCache(ObjectTypes::FILE, $file->getGuid());
         }
         return $ret;
     }
@@ -354,13 +354,13 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function fileIsTemp(FileEntity $file)
     {
-        if (!$file->getValue("guid")) {
+        if (!$file->getGuid()) {
             return false;
         }
 
         $tempFolder = $this->openFolder("%tmp%");
 
-        if ($file->getValue("folder_id") == $tempFolder->getValue("guid")) {
+        if ($file->getValue("folder_id") == $tempFolder->getGuid()) {
             return true;
         } else {
             return false;
@@ -376,12 +376,12 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function moveFile(FileEntity $file, FolderEntity $toFolder)
     {
-        if (!$file || !$toFolder || !$toFolder->getValue("guid")) {
+        if (!$file || !$toFolder || !$toFolder->getGuid()) {
             return false;
         }
 
         // Change file to new folder
-        $file->setValue("folder_id", $toFolder->getValue("guid"));
+        $file->setValue("folder_id", $toFolder->getGuid());
         $this->entityDataMapper->save($file);
 
         return true;
@@ -417,9 +417,9 @@ class FileSystem implements Error\ErrorAwareInterface
         // Create the new empty file
         $file = $this->entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", $fileName);
-        $file->setValue("folder_id", $folder->getValue("guid"));
+        $file->setValue("folder_id", $folder->getGuid());
         $file->setValue("name", $this->escapeFilename($fileName));
-        $file->setValue("owner_id", $this->user->getValue("guid"));
+        $file->setValue("owner_id", $this->user->getGuid());
         $file->setValue("file_size", 0);
         $this->entityDataMapper->save($file);
 
@@ -510,15 +510,15 @@ class FileSystem implements Error\ErrorAwareInterface
             $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);
 
             // If the folder exists add it and continue
-            if ($nextFolder && $nextFolder->getValue("guid")) {
+            if ($nextFolder && $nextFolder->getGuid()) {
                 $folders[] = $nextFolder;
             } elseif ($createIfMissing) {
                 // TODO: Check permissions to see if we have access to create
 
                 $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
                 $nextFolder->setValue("name", $nextFolderName);
-                $nextFolder->setValue("parent_id", $lastFolder->getValue("guid"));
-                $nextFolder->setValue("owner_id", $this->user->getValue("guid"));
+                $nextFolder->setValue("parent_id", $lastFolder->getGuid());
+                $nextFolder->setValue("owner_id", $this->user->getGuid());
                 $this->entityDataMapper->save($nextFolder);
 
                 $folders[] = $nextFolder;
@@ -584,7 +584,7 @@ class FileSystem implements Error\ErrorAwareInterface
     private function getChildFolderByName($name, FolderEntity $parentFolder)
     {
         $query = new EntityQuery(ObjectTypes::FOLDER);
-        $query->where("parent_id")->equals($parentFolder->getValue("guid"));
+        $query->where("parent_id")->equals($parentFolder->getGuid());
         $query->andWhere("name")->equals($name);
         $result = $this->entityIndex->executeQuery($query);
         if ($result->getNum()) {
@@ -604,7 +604,7 @@ class FileSystem implements Error\ErrorAwareInterface
     private function getChildFileByName($fileName, FolderEntity $parentFolder)
     {
         $query = new EntityQuery(ObjectTypes::FILE);
-        $query->where("folder_id")->equals($parentFolder->getValue("guid"));
+        $query->where("folder_id")->equals($parentFolder->getGuid());
         $query->andWhere("name")->equals($fileName);
         $result = $this->entityIndex->executeQuery($query);
         if ($result->getNum()) {
@@ -628,7 +628,7 @@ class FileSystem implements Error\ErrorAwareInterface
             // Create root folder
             $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
             $rootFolder->setValue("name", "/");
-            $rootFolder->setValue("owner_id", $this->user->getValue("guid"));
+            $rootFolder->setValue("owner_id", $this->user->getGuid());
             $rootFolder->setValue("f_system", true);
             $this->entityDataMapper->save($rootFolder);
 

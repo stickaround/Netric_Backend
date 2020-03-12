@@ -117,9 +117,9 @@ class NotificationTest extends TestCase
         // Create a new notification
         $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
         $notification->setValue("f_email", true);
-        $notification->setValue("owner_id", $this->testUser->getValue("guid"));
-        $notification->setValue("creator_id", $this->user->getValue("guid"));
-        $notification->setValue("obj_reference", $task->getValue("guid"), $task->getName());
+        $notification->setValue("owner_id", $this->testUser->getGuid());
+        $notification->setValue("creator_id", $this->user->getGuid());
+        $notification->setValue("obj_reference", $task->getGuid(), $task->getName());
         // Setup testable transport
         $transport = new InMemory();
         $notification->setMailTransport($transport);
@@ -138,7 +138,7 @@ class NotificationTest extends TestCase
         // Check that obj_reference has value
         $this->assertEquals(
             $notification->getValue('obj_reference'),
-            $task->getValue("guid")
+            $task->getGuid()
         );
 
         // Make sure dropbox email is generated for replying to

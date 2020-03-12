@@ -84,7 +84,7 @@ class Update004001030Test extends TestCase
         $currentUser = $this->account->getUser(UserEntity::USER_CURRENT);
         
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id/" . $currentUser->getValue("guid"));
+        $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id/" . $currentUser->getGuid());
 
         $groupWithUserId = new Group();
         $groupWithUserId->setValue("id", 1);
@@ -109,6 +109,6 @@ class Update004001030Test extends TestCase
         $row = $result->fetch();
 
         // Make sure that we have path value (object type / field name / user id)
-        $this->assertEquals($row["path"], ObjectTypes::ISSUE . "/status_id/" . $currentUser->getValue("guid"));
+        $this->assertEquals($row["path"], ObjectTypes::ISSUE . "/status_id/" . $currentUser->getGuid());
     }
 }

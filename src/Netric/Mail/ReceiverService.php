@@ -163,12 +163,12 @@ class ReceiverService extends AbstractHasErrors
     {
         // When syncing emails, account type should not be empty
         if (empty($emailAccount->getValue("type"))) {
-            $this->log->info("ReceiverService->syncMail: Account has no type - " . $emailAccount->getValue("guid"));
+            $this->log->info("ReceiverService->syncMail: Account has no type - " . $emailAccount->getGuid());
             return false;
         }
 
         // Get the mailbox path
-        $mailboxGroupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
+        $mailboxGroupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
         $mailboxPath = $mailboxGroupings->getpath($mailboxId);
 
         // Right now we only want to synchronize the Inbox - Sky
@@ -593,7 +593,7 @@ class ReceiverService extends AbstractHasErrors
      */
     private function getJunkMailboxForUser(UserEntity $user)
     {
-        $maiboxes = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getValue("guid"));
+        $maiboxes = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getGuid());
 
         $junk = $maiboxes->getByPath("Junk Mail");
         if (!$junk) {

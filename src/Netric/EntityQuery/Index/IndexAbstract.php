@@ -244,11 +244,11 @@ abstract class IndexAbstract
             if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
                 $index = $this->account->getServiceManager()->get(IndexFactory::class);
                 $query = new EntityQuery($field->subtype);
-                $query->where($ent->getDefinition()->parentField)->equals($ent->getValue("guid"));
+                $query->where($ent->getDefinition()->parentField)->equals($ent->getGuid());
                 $res = $index->executeQuery($query);
                 for ($i = 0; $i < $res->getTotalNum(); $i++) {
                     $subEnt = $res->getEntity($i);
-                    $children = $this->getHeiarchyDownObj($objType, $subEnt->getValue("guid"), $aProtectCircular);
+                    $children = $this->getHeiarchyDownObj($objType, $subEnt->getGuid(), $aProtectCircular);
                     if (count($children)) {
                         $ret = array_merge($ret, $children);
                     }
@@ -304,7 +304,7 @@ abstract class IndexAbstract
         if ($user) {
             // Replace current user
             if ($value == UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
-                return $user->getValue("guid");
+                return $user->getGuid();
             }
 
             /*
@@ -324,7 +324,7 @@ abstract class IndexAbstract
             // Replace object reference with user variables
             if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
                 && $value == "user:" . UserEntity::USER_CURRENT) {
-                return $user->getValue("guid");
+                return $user->getGuid();
             }
         }
 
@@ -348,7 +348,7 @@ abstract class IndexAbstract
                 // We need to retrieve the actual entity so we can get its guid.
                 $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
                 $entity = $entityLoader->get($field->subtype, $objRefParts['id']);
-                return $entity->getValue("guid");
+                return $entity->getGuid();
             }
         }
 

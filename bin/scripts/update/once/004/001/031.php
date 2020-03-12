@@ -79,7 +79,7 @@ foreach ($result->fetchAll() as $storyRawData) {
     $newEntity->setValue("type_id", $typeGroup->id, $typeGroup->name);
 
     if (!$entityDataMapper->save($newEntity)) {
-        $errMessage = sprintf("Update004001031:: Error saving/moving project story to task. Guid: %s. %s", $newEntity->getValue("guid"), $entityDataMapper->getLastError());
+        $errMessage = sprintf("Update004001031:: Error saving/moving project story to task. Guid: %s. %s", $newEntity->getGuid(), $entityDataMapper->getLastError());
         $log->error($errMessage);
         throw new \RuntimeException($errMessage);
     }
@@ -98,5 +98,5 @@ foreach ($result->fetchAll() as $storyRawData) {
 
     // Since we are moving the story entity to task and preserving its guid, then we should delete the story entity.
     $result = $rdb->query("DELETE FROM $projectStoryTableName WHERE id = :id", ["id" => $storyData["id"]]);
-    $log->info("Update004001031:: Project story successfully moved to task. Guid: " . $newEntity->getValue("guid"));
+    $log->info("Update004001031:: Project story successfully moved to task. Guid: " . $newEntity->getGuid());
 }

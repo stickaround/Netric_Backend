@@ -900,7 +900,7 @@ class EntityController extends Mvc\AbstractAccountController
 
             // If this is a private object then add the user guid in the unique path
             if ($def->isPrivate) {
-                $path .= "/" . $this->account->getUser()->getValue("guid");
+                $path .= "/" . $this->account->getUser()->getGuid();
             }
             
             // Get all groupings using a unique path
@@ -926,7 +926,7 @@ class EntityController extends Mvc\AbstractAccountController
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
         $user = $this->account->getUser();
-        $isOwner = ($entity->getOwnerId() == $user->getValue("guid"));
+        $isOwner = ($entity->getOwnerGuid() == $user->getGuid());
 
         return $dacl->isAllowed($user, $permission, $isOwner);
     }

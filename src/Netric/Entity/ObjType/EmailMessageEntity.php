@@ -79,7 +79,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader);
     }
 
     /**
@@ -400,7 +400,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
                 // This is an attachment - could either be inline or an attachment
                 $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), true);
                 $this->fileSystem->writeFile($file, $mimePart->getRawContent());
-                $this->addMultiValue("attachments", $file->getValue("guid"), $file->getName());
+                $this->addMultiValue("attachments", $file->getGuid(), $file->getName());
             } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
                 // If multipart/aleternative then this will come after 'plain' and overwrite
                 $this->setValue("body", trim($mimePart->getRawContent()));
@@ -566,7 +566,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $this->updateThreadFromMessage($thread);
 
         // Set the thread of this message to the discovered (or created) thread
-        $this->setValue("thread", $thread->getValue("guid"));
+        $this->setValue("thread", $thread->getGuid());
     }
 
     /**

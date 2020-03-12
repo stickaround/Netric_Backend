@@ -401,7 +401,7 @@ class FileSystemTest extends TestCase
         $this->fileSystem->moveFile($file, $fldr);
 
         // Test to make sure it has moved
-        $this->assertEquals($fldr->getValue("guid"), $file->getValue("folder_id"));
+        $this->assertEquals($fldr->getGuid(), $file->getValue("folder_id"));
     }
 
     public function testWriteAndReadFile()

@@ -6,6 +6,7 @@ use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new payment profile entity
@@ -21,6 +22,7 @@ class PaymentProfileFactory implements EntityFactoryInterface
     public static function create(AccountServiceManagerInterface $serviceLocator)
     {
         $def = $serviceLocator->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::SALES_PAYMENT);
-        return new PaymentProfileEntity($def);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        return new PaymentProfileEntity($def, $entityLoader);
     }
 }

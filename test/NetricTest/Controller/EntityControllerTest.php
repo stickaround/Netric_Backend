@@ -127,7 +127,7 @@ class EntityControllerTest extends TestCase
         $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
         $dashboardName =  "activity-test" . uniqid();
         $dashboardEntity->setValue("name", $dashboardName);
-        $dashboardEntity->setValue("owner_id", $this->account->getUser()->getValue("guid"));
+        $dashboardEntity->setValue("owner_id", $this->account->getUser()->getGuid());
         $loader->save($dashboardEntity);
         $this->testEntities[] = $dashboardEntity;
 
@@ -137,7 +137,7 @@ class EntityControllerTest extends TestCase
             'obj_type' => ObjectTypes::DASHBOARD,
             'uname' => $dashboardEntity->getValue("uname"),
             'uname_conditions' => [
-                'owner_id' => $this->account->getUser()->getValue("guid"),
+                'owner_id' => $this->account->getUser()->getGuid(),
             ],
         );
         $req = $this->controller->getRequest();
@@ -183,7 +183,7 @@ class EntityControllerTest extends TestCase
 
         $page = $loader->create("cms_page");
         $page->setValue("name", "testPostGetEntityAction");
-        $page->setValue("site_id", $site->getValue("guid"));
+        $page->setValue("site_id", $site->getGuid());
         $loader->save($page);
         $this->testEntities[] = $page;
 
@@ -191,7 +191,7 @@ class EntityControllerTest extends TestCase
             'obj_type' => "cms_page",
             'uname' => $page->getValue("uname"),
             'uname_conditions' => [
-                'site_id' => $site->getValue("guid"),
+                'site_id' => $site->getGuid(),
             ],
         );
 
@@ -464,7 +464,7 @@ class EntityControllerTest extends TestCase
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
-        $groupings = $groupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->account->getUser()->getValue("guid"));
+        $groupings = $groupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->account->getUser()->getGuid());
 
         $group1 = new Group();
         $group2 = new Group();

@@ -45,7 +45,7 @@ class FolderEntity extends Entity implements EntityInterface
     {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityQueryIndex;
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader);
     }
 
     /**
@@ -63,7 +63,7 @@ class FolderEntity extends Entity implements EntityInterface
 
             // This will avoid any circular reference to the root folder entity
             if ($rootFolderEntity && $rootFolderEntity->getId() != $this->getId()) {
-                $this->setValue("parent_id", $rootFolderEntity->getValue("guid"));
+                $this->setValue("parent_id", $rootFolderEntity->getGuid());
             }
         }
 
@@ -141,7 +141,7 @@ class FolderEntity extends Entity implements EntityInterface
             return false;
         }
 
-        $this->setValue("parent_id", $newParentFolder->getValue("guid"));
+        $this->setValue("parent_id", $newParentFolder->getGuid());
         return true;
     }
 

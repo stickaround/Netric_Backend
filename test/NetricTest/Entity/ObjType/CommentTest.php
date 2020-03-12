@@ -64,7 +64,7 @@ class CommentTest extends TestCase
         $cid = $entityLoader->save($customer);
 
         // Now save the comment which should increment the num_comments of $customer
-        $comment->setValue("obj_reference", $customer->getValue("guid"), $customer->getName());
+        $comment->setValue("obj_reference", $customer->getGuid(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 
@@ -101,7 +101,7 @@ class CommentTest extends TestCase
         $cid = $entityLoader->save($customer);
 
         // Now create a comment on the customer which should sync the followers
-        $comment->setValue("obj_reference", $customer->getValue("guid"), $customer->getName());
+        $comment->setValue("obj_reference", $customer->getGuid(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 

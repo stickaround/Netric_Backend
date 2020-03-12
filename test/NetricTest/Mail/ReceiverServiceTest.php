@@ -78,11 +78,11 @@ class ReceiverServiceTest extends TestCase
 
         // If it does not exist, create an inbox for the user
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
         $inbox = new Group();
         $inbox->name = "Inbox";
         $inbox->isSystem = true;
-        $inbox->user_id = $this->user->getValue("guid");
+        $inbox->user_id = $this->user->getGuid();
         $groupings->add($inbox);
         $groupingsLoader->save($groupings);
         $this->inbox = $groupings->getByPath("Inbox");
@@ -117,7 +117,7 @@ class ReceiverServiceTest extends TestCase
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
         $groupings->delete($this->inbox->guid);
         $groupingsLoader->save($groupings);
 
@@ -209,8 +209,8 @@ class ReceiverServiceTest extends TestCase
         // Check if we imported 5 messages - the number that got uploaded
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->guid);
-        $query->andWhere("owner_id")->equals($this->user->getValue("guid"));
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getValue("guid"));
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertEquals(5, $results->getTotalNum());
@@ -230,9 +230,9 @@ class ReceiverServiceTest extends TestCase
         // In setup we set one message to unseen
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->guid);
-        $query->andWhere("owner_id")->equals($this->user->getValue("guid"));
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
         $query->andWhere("flag_seen")->equals(false);
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getValue("guid"));
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertGreaterThanOrEqual(0, $results->getTotalNum());
@@ -240,8 +240,8 @@ class ReceiverServiceTest extends TestCase
         // Clean up all messages
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->guid);
-        $query->andWhere("owner_id")->equals($this->user->getValue("guid"));
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getValue("guid"));
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         for ($i = 0; $i < $results->getTotalNum(); $i++) {
@@ -275,8 +275,8 @@ class ReceiverServiceTest extends TestCase
         // Check if one message got deleted
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->guid);
-        $query->andWhere("owner_id")->equals($this->user->getValue("guid"));
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getValue("guid"));
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertEquals(4, $results->getTotalNum());
@@ -298,8 +298,8 @@ class ReceiverServiceTest extends TestCase
         // Delete one of the messages locally
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->guid);
-        $query->andWhere("owner_id")->equals($this->user->getValue("guid"));
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getValue("guid"));
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
 
@@ -345,8 +345,8 @@ class ReceiverServiceTest extends TestCase
         // Delete one of the messages locally
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->guid);
-        $query->andWhere("owner_id")->equals($this->user->getValue("guid"));
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getValue("guid"));
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $entityLoader->delete($results->getEntity(0));

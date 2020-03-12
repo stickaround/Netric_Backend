@@ -43,7 +43,7 @@ class ProjectEntity extends Entity implements EntityInterface
      */
     public function __construct($def, EntityLoader $entityLoader, IndexInterface $indexInterface)
     {
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader);
 
         $this->entityLoader = $entityLoader;
         $this->indexInterface = $indexInterface;
@@ -94,7 +94,7 @@ class ProjectEntity extends Entity implements EntityInterface
 
         // Query the tasks of this project entity
         $query = new EntityQuery(ObjectTypes::TASK);
-        $query->where('project')->equals($this->getValue("guid"));
+        $query->where('project')->equals($this->getGuid());
 
         // Execute query and get num results
         $res = $this->indexInterface->executeQuery($query);
@@ -110,7 +110,7 @@ class ProjectEntity extends Entity implements EntityInterface
             $task->cloneTo($toTask);
 
             // Move task to the project entity we are cloning
-            $toTask->setValue("project", $toEntity->getValue("guid"));
+            $toTask->setValue("project", $toEntity->getGuid());
 
             // Save the task
             $this->entityLoader->save($toTask);

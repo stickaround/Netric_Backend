@@ -10,6 +10,7 @@ use Netric\ServiceManager;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new WorkerJob entity
@@ -25,6 +26,7 @@ class WorkerJobFactory implements EntityFactoryInterface
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::WORKER_JOB);
-        return new WorkerJobEntity($def);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new WorkerJobEntity($def, $entityLoader);
     }
 }

@@ -323,8 +323,8 @@ class EntityTest extends TestCase
         $this->testEntities[] = $user1;
         $this->testEntities[] = $user2;
 
-        $userGuid1 = $user1->getValue("guid");
-        $userGuid2 = $user2->getValue("guid");
+        $userGuid1 = $user1->getGuid();
+        $userGuid2 = $user2->getGuid();
 
         $entity = $entityLoader->create(ObjectTypes::TASK);
         $entity->setValue("user_id", $userGuid1, $user1->getName());
@@ -419,7 +419,7 @@ class EntityTest extends TestCase
     public function testSetValueObjectMultiWithName()
     {
         $username = 'fakeusername';
-        $userid = 123;
+        $userid = Uuid::uuid4()->toString();
         $sm = $this->account->getServiceManager();
         $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue('followers', $userid, $username);
@@ -430,34 +430,40 @@ class EntityTest extends TestCase
     /**
      * Make sure the owner of an entity is correctly returned
      */
-    public function testGetOwnerId()
+    public function testGetOwnerGuid()
     {
         $sm = $this->account->getServiceManager();
         $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task->setValue('owner_id', 123);
-        $this->assertEquals(123, $task->getOwnerId());
+
+        $userGuid = Uuid::uuid4()->toString();
+        $task->setValue('owner_id', $userGuid);
+        $this->assertEquals($userGuid, $task->getOwnerGuid());
     }
 
     /**
      * Make sure the owner of an entity is correctly if owner_id is not set but creator_id is
      */
-    public function testGetOwnerIdCreatorId()
+    public function testGetOwnerGuidCreatorId()
     {
         $sm = $this->account->getServiceManager();
         $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task->setValue('creator_id', 123);
-        $this->assertEquals(123, $task->getOwnerId());
+
+        $userGuid = Uuid::uuid4()->toString();
+        $task->setValue('creator_id', $userGuid);
+        $this->assertEquals($userGuid, $task->getOwnerGuid());
     }
 
     /**
      * Make sure the owner of an entity is correctly if owner_id is not set but user_id is
      */
-    public function testGetOwnerIdUserId()
+    public function testGetOwnerGuidUserId()
     {
         $sm = $this->account->getServiceManager();
         // Activity has a user_id field
         $activity = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY);
-        $activity->setValue('user_id', 123);
-        $this->assertEquals(123, $activity->getOwnerId());
+
+        $userGuid = Uuid::uuid4()->toString();
+        $activity->setValue('user_id', $userGuid);
+        $this->assertEquals($userGuid, $activity->getOwnerGuid());
     }
 }

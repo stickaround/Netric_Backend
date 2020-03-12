@@ -4,6 +4,7 @@ namespace Netric\Entity;
 use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\Entity;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -282,7 +283,7 @@ class EntityLoader
         }
 
         // Also clear the cache for entity guid
-        $this->clearCacheByGuid($entity->getValue("guid"));
+        $this->clearCacheByGuid($entity->getGuid());
 
         return $ret;
     }
@@ -354,5 +355,27 @@ class EntityLoader
     {
         return $this->dataMapper->getRevisions($objType, $id);
     }
-        
+
+    /**
+     * Function that will check if the value is a valid uuid or an object reference. Then will return the entity
+     * 
+     * @param string $value This value should be either a valid guid or an entity object reference
+     * @param string $objType Optiional. If the value provided is an entity id, then we need an object type to retrieve the entity
+     */
+    public function getByGuidOrObjRef(string $value, string $objType = "")
+    {
+        // We need to check first if the value is already a guid
+        if (Uuid::isValid($value)) {
+            return $this->getByGuid($value);
+        } else if (is_numeric($value) && $objType) {
+            return $this->get($objType, $value);
+        } else {
+            $parts = Entity::decodeObjRef($value);
+            if (isset($parts['obj_type']) && isset($parts['id'])) {
+                return $this->get($parts['obj_type'], $parts['id']);
+            }
+        }
+
+        return null;
+    }
 }

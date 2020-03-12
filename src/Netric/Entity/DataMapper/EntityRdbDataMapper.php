@@ -103,17 +103,17 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_GROUPING:
                 case Field::TYPE_GROUPING_MULTI:
                     $fieldValue = $entity->getValue($field->name);
-                    $ownerGuid = $entity->getOwnerId();
+                    $ownerGuid = $entity->getOwnerGuid();
                     
                     // If the entity's owner id not guid, then we need to get its guid value
                     if ($ownerGuid && !Uuid::isValid($ownerGuid)) {
 
                         // If the current $entity is the owner, then we just get it right away to avoid infinite loop
                         if ($ownerGuid == $entity->getId()) {
-                            $ownerGuid = $entity->getValue("guid");
+                            $ownerGuid = $entity->getGuid();
                         } else {
                             $ownerEntity = $entityLoader->get(ObjectTypes::USER, $ownerGuid);
-                            $ownerGuid = $ownerEntity->getValue("guid");
+                            $ownerGuid = $ownerEntity->getGuid();
                         }
                     }
 
@@ -134,26 +134,15 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                             // Loop thru the fieldValue and look for referenced group that still have id
                             forEach($fieldValue as $value) {
                                 // Look first in public groupings and see if the group id exists.
-                                $group = $publicGroupings->getById($value);
+                                $group = $publicGroupings->getByGuidOrGroupId($value);
 
                                 // If we haven't found the group in the public groupings, then let's look in the private groupings
                                 if (!$group && $privateGroupings) {
-                                    $group = $privateGroupings->getById($value);
+                                    $group = $privateGroupings->getByGuidOrGroupId($value);
                                 }
 
                                 // Make sure that we have retrieved now the group from private groupings or public groupings
                                 if ($group) {
-
-                                    // If the group value is already a guid, then go to the next group
-                                    if (Uuid::isValid($value)) {
-                                        // If the group name has changed, then we need to update the value name of this entity.
-                                        if ($entity->getValueName($field->name, $value) != $group->name) {
-                                            $entity->updateValueName($field->name, $value, $group->name);
-                                        }
-
-                                        continue;
-                                    }
-
                                     // Before adding the new guid value of the group, we need to remove first the existing one.
                                     $entity->removeMultiValue($field->name, $value);
 
@@ -166,24 +155,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                         // Here we will handle the grouping field and make sure that the fieldValue is still not a guid
                         
                         // Look first in public groupings and see if the group id exists.
-                        $group = $publicGroupings->getById($fieldValue);
+                        $group = $publicGroupings->getByGuidOrGroupId($fieldValue);
 
                         // If we haven't found the group in the public groupings, then let's look in the private groupings
                         if (!$group && $privateGroupings) {
-                            $group = $publicGroupings->getById($value);
+                            $group = $privateGroupings->getByGuidOrGroupId($value);
                         }
 
                         // Make sure that we have retrieved the group
                         if ($group) {
-                            // If the group value is already a guid, then go to the next group
-                            if (Uuid::isValid($value)) {
-                                // If the group name has changed, then we need to update the value name of this entity.
-                                if ($entity->getValueName($field->name, $value) != $group->name) {
-                                    $entity->updateValueName($field->name, $value, $group->name);
-                                }
-                            } else {
-                                $entity->setValue($field->name, $group->guid, $group->name);
-                            }
+                            $entity->setValue($field->name, $group->guid, $group->name);
                         }
                     }
                 break;
@@ -191,17 +172,13 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_OBJECT:
                     $objValue = $entity->getValue($field->name);
 
-                    // If $objValue is already a guid, then let's just check if we have an updated referenced entity name
-                    if (Uuid::isValid($objValue)) {
-                        $refEntity = $entityLoader->getByGuid($objValue);
-                        
-                        // If the refEntity name has changed, then we need to update the value name of this entity.
-                        if ($entity->getValueName($field->name, $objValue) != $refEntity->getName()) {
-                            $entity->updateValueName($field->name, $objValue, $refEntity->getName());
+                    if ($objValue) {
+                        // Get the referenced entity
+                        $referencedEntity = $entityLoader->getByGuidOrObjRef($objValue, $field->subtype);
+
+                        if ($referencedEntity) {
+                            $entity->setValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
                         }
-                    } else if ($objValue && $field->subtype && $entity->getValue($field->name)) {
-                        $refEntity = $entityLoader->get($field->subtype, $objValue);
-                        $entity->setValue($field->name, $refEntity->getValue("guid"), $refEntity->getName());
                     }
                 break;
 
@@ -211,38 +188,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     // Make sure the the multi value is an array
                     if (is_array($refValues)) {
                         forEach($refValues as $value) {
-                            // If the referenced id is already a guid, then go to the next object reference
-                            if (Uuid::isValid($value)) {
-                                // Before we continue to the next obj reference, let's check if we have an updated referenced entity name
-                                $refEntity = $entityLoader->getByGuid($value);
-                                
-                                // If the refEntity name has changed, then we need to update the value name of this entity.
-                                if ($entity->getValueName($field->name, $value) != $refEntity->getName()) {
-                                    $entity->updateValueName($field->name, $value, $refEntity->getName());
-                                }
-                                continue;
-                            }
-
-                            $decodedObjRef = Entity::decodeObjRef($value);
-
-                            // Make sure that we have the referenced id and obj type.
-                            if (!empty($decodedObjRef['id']) && !empty($decodedObjRef['obj_type'])) {
-                                $refEntity = $entityLoader->get($decodedObjRef['obj_type'], $decodedObjRef['id']);
-                            } else if (is_numeric($value) && is_null($decodedObjRef)) {
-                                /*
-                                 * If the value provided is already numeric and there was no decoded obj ref
-                                 * then, we can use the field's subtype
-                                 */
-                                $refEntity = $entityLoader->get($field->subtype, $decodedObjRef['id']);
-                            }
+                            // Get the referenced entity
+                            $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
 
                             // If we have successfully loaded the referenced entity, then we will add its guid
-                            if ($refEntity) {
+                            if ($referencedEntity) {
                                 // Before adding the new guid value of the object, we need to remove first the existing one.
                                 $entity->removeMultiValue($field->name, $value);
 
                                 // Now that we have already removed the old object id, we can now add the new object's guid
-                                $entity->addMultiValue($field->name, $refEntity->getValue("guid"), $refEntity->getName());
+                                $entity->addMultiValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
                             }
                         }
                     }
@@ -752,7 +707,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 // Check if field subtype is the same as the $def objtype and if field is not multivalue
                 if ($field->subtype == $def->getObjType()) {
                     $oldFieldValue = $fromId;
-                    $newFieldValue = $toEntity->getValue("guid");
+                    $newFieldValue = $toEntity->getGuid();
                 }
 
                 

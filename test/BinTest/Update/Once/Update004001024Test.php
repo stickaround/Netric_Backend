@@ -118,7 +118,7 @@ class Update004001024Test extends TestCase
         // Make sure a guid was set (clear cache first then reload fresh)
         $entityLoader->clearCache("utest_preguid", $this->testEntity->getId());
         $loaded = $entityLoader->get("utest_preguid", $this->testEntity->getId());
-        $this->assertNotEmpty($loaded->getValue("guid"));
+        $this->assertNotEmpty($loaded->getGuid());
 
         // Make sure index was created for the _act table
         $this->assertTrue($db->indexExists('objects_utest_preguid_act_id_idx'));

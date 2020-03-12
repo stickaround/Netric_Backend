@@ -115,7 +115,7 @@ class NotificationEntity extends Entity implements EntityInterface
         
         // Add link to body
         $protocol = ($config->use_https) ? "https://" : "http://";
-        $body .= $protocol . $config->application_url . "/browse/" . $entity->getValue("guid");
+        $body .= $protocol . $config->application_url . "/browse/" . $entity->getGuid();
         $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
         

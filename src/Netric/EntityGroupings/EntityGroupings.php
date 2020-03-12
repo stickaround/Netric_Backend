@@ -168,12 +168,7 @@ class EntityGroupings
      */
     public function getPath($gid)
     {
-        // If group guid is provided, then we need to use getByGuid
-        if (Uuid::isValid($gid)) {
-            $grp = $this->getByGuid($gid);
-        } else {
-            $grp = $this->getById($gid);
-        }
+        $grp = $this->getByGuidOrGroupId($gid);
 
         $path = "";
         if (!$grp) {
@@ -434,6 +429,21 @@ class EntityGroupings
             }
 
             return $ret;
+        }
+    }
+
+    /**
+     * Function that will check if the value is a valid uuid or a group id. Then it will return the group
+     * 
+     * @param string $value This value should be either a valud uuid or group id.
+     */
+    public function getByGuidOrGroupId(string $value)
+    {
+        // If group guid is provided, then we need to use getByGuid
+        if (Uuid::isValid($value)) {
+            return $this->getByGuid($value);
+        } else {
+            return $this->getById($value);
         }
     }
 }

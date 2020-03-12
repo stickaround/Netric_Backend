@@ -108,20 +108,9 @@ class ActivityLog
         // If we created a comment, then get the name from the object commented on
         if (($objType == ObjectTypes::COMMENT) && $objReference) {
 
-            // We need to check first if the object reference is already a guid
-            if (Uuid::isValid($objReference)) {
-                $entityReferenced = $this->entityLoader->getByGuid($objReference);
-            } else {
-                $parts = Entity::decodeObjRef($object->getValue("obj_reference"));
-                if (isset($parts['name'])) {
-                    // Get the cached name of the entity we commented on
-                    $name = $parts['name'];
-                } elseif ($parts > 1) {
-                    // Name was not cached in there reference, then load the entity commented on to get it
-                    $entityReferenced = $this->entityLoader->get($parts['obj_type'], $parts['id']);
-                }
-            }
-
+            // Get the referenced entity
+            $entityReferenced = $this->entityLoader->getByGuidOrObjRef($objReference);
+            
             if ($entityReferenced) {
                 // Only if the entity exists
                 $name = $entityReferenced->getName();
@@ -153,7 +142,7 @@ class ActivityLog
         $actEntity->setValue("f_private", $objDef->isPrivate);
 
         // In most cases we reference the object being acted on
-        $actEntity->setValue("obj_reference", $object->getValue("guid"));
+        $actEntity->setValue("obj_reference", $object->getGuid());
 
         /*
          * obj_reference is a reference to the entity object being acted on.
@@ -170,10 +159,10 @@ class ActivityLog
         $actEntity->setValue("type_id", $group->guid, $group->name);
 
         // Log which entity performed the action
-        $actEntity->setValue("subject", $subject->getValue("guid"), $subject->getName());
+        $actEntity->setValue("subject", $subject->getGuid(), $subject->getName());
 
         // Add referenced entity to activity associations
-        $actEntity->addMultiValue("associations", $object->getValue("guid"), $object->getName());
+        $actEntity->addMultiValue("associations", $object->getGuid(), $object->getName());
 
         /*
          * Copy associations from the referenced object so that
@@ -193,17 +182,12 @@ class ActivityLog
          */
         $fields = $objDef->getFields();
         foreach ($fields as $field) {
-            if ($field->type == FIELD::TYPE_OBJECT) {
-                $objReference = $object->getValue($field->name);
-                if (Uuid::isValid($objReference)) {
-                    $actEntity->addMultiValue("associations", $objReference);
-                } elseif ($objReference && $field->subtype) {
-                    // If objReference still not a guid, then we need to be able to retrieve the entity and get the referenced entity's guid
-                    $entityReferenced = $this->entityLoader->get($field->subtype, $objReference);
+            $objReference = $object->getValue($field->name);
+            if ($field->type == FIELD::TYPE_OBJECT && $objReference) {
+                $referencedEntity = $this->entityLoader->getByGuidOrObjRef($objReference);
 
-                    if ($entityReferenced) {
-                        $actEntity->addMultiValue("associations", $entityReferenced->getValue("guid"), $entityReferenced->getName());
-                    }
+                if ($referencedEntity) {
+                    $actEntity->addMultiValue("associations", $referencedEntity->getGuid(), $referencedEntity->getName());
                 }
             }
         }
@@ -212,7 +196,7 @@ class ActivityLog
         if ($this->currentUser) {
             $actEntity->addMultiValue(
                 "associations",
-                $this->currentUser->getValue("guid"),
+                $this->currentUser->getGuid(),
                 $this->currentUser->getName()
             );
         }

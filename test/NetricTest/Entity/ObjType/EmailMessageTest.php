@@ -387,7 +387,7 @@ class EmailMessageTest extends TestCase
         $this->testEntities[] = $file;
 
         // Set the raw file id
-        $emailMessage->setValue("file_id", $file->getValue("guid"), $file->getName());
+        $emailMessage->setValue("file_id", $file->getGuid(), $file->getName());
         $entityLoader->save($emailMessage);
 
         // Cache file id for later testing

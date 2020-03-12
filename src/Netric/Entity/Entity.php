@@ -12,7 +12,7 @@ use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Permissions\DaclLoaderFactory;
 use Ramsey\Uuid\Uuid;
-use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\EntityLoader;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -76,14 +76,23 @@ class Entity implements EntityInterface
     private $isRecurrenceException = false;
 
     /**
+     * Loader used to get entity owner details and entity members
+     *
+     * @var EntityLoader
+     */
+    private $entityLoader = null;
+
+    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader Loader used to get entity followers and entity owner details
      */
-    public function __construct($def)
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
     {
         $this->def = $def;
         $this->objType = $def->getObjType();
+        $this->entityLoader = $entityLoader;
     }
 
     /**
@@ -110,6 +119,14 @@ class Entity implements EntityInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get the unique global id of this object
+     */
+    public function getGuid()
+    {
+        return $this->getValue("guid");
     }
 
     /**
@@ -411,22 +428,29 @@ class Entity implements EntityInterface
      *
      * @return int
      */
-    public function getOwnerId()
+    public function getOwnerGuid()
     {
+        $ownerGuid = 0;
+
         if ($this->getValue('owner_id')) {
-            return $this->getValue('owner_id');
+            $ownerGuid = $this->getValue('owner_id');
+        } else if ($this->getValue('user_id')) {
+            $ownerGuid = $this->getValue(('user_id'));
+        } else if ($this->getValue('creator_id')) {
+            $ownerGuid = $this->getValue('creator_id');
         }
 
-        if ($this->getValue('user_id')) {
-            return $this->getValue(('user_id'));
-        }
+        // If ownerGuid is not a valid guid, then we need to look for its guid
+        if (!Uuid::isValid($ownerGuid) && is_numeric($ownerGuid)) {
+            $ownerEntity = $this->entityLoader->get(ObjectTypes::USER, $ownerGuid);
 
-        if ($this->getValue('creator_id')) {
-            return $this->getValue('creator_id');
+            if ($ownerEntity) {
+                $ownerGuid = $ownerEntity->getGuid();
+            }
         }
 
         // No owner
-        return 0;
+        return $ownerGuid;
     }
 
     /**
@@ -609,7 +633,7 @@ class Entity implements EntityInterface
     public function beforeSave(AccountServiceManagerInterface $sm)
     {
         // Update or add followers based on changes to fields
-        $this->updateFollowers($sm);
+        $this->updateFollowers();
 
         // Call derived extensions
         $this->onBeforeSave($sm);
@@ -1106,7 +1130,7 @@ class Entity implements EntityInterface
      * Interested users are any users attached via a field where type='object'
      * and subtype='user' or tagged in a text field with [user:<id>:<name>].
      */
-    private function updateFollowers(AccountServiceManagerInterface $sm)
+    private function updateFollowers()
     {
         $fields = $this->getDefinition()->getfields();
 
@@ -1130,10 +1154,10 @@ class Entity implements EntityInterface
                 case FIELD::TYPE_OBJECT:
                     // Make sure we have associations added for any object reference
                     if ($value) {
-                        $this->addObjReferenceGuid($sm, "associations", $field->name, $value, $field->type);
+                        $this->addObjReferenceGuid("associations", $field->name, $value, $field->type);
 
                         if ($field->subtype == ObjectTypes::USER) {
-                            $this->addObjReferenceGuid($sm, "followers", $field->name, $value, ObjectTypes::USER);
+                            $this->addObjReferenceGuid("followers", $field->name, $value, ObjectTypes::USER);
                         }
                     }
                     break;
@@ -1143,11 +1167,11 @@ class Entity implements EntityInterface
                         if (is_array($value)) {
                             foreach ($value as $guid) {
                                 if ($guid) {
-                                    $this->addObjReferenceGuid($sm, "followers", $field->name, $guid, ObjectTypes::USER);
+                                    $this->addObjReferenceGuid("followers", $field->name, $guid, ObjectTypes::USER);
                                 }
                             }
                         } elseif ($value) {
-                            $this->addObjReferenceGuid($sm, "followers", $field->name, $value, ObjectTypes::USER);
+                            $this->addObjReferenceGuid("followers", $field->name, $value, ObjectTypes::USER);
                         }
                     }
                     break;
@@ -1158,34 +1182,18 @@ class Entity implements EntityInterface
     /**
      * Add an object reference guid to a field
      * 
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      * @param string $referenceType The type object reference we are adding (associations or followers)
      * @param string $fieldName The name of the field that we will be referencing
      * @param string $value The value of the object reference. This should be the guid of the referenced entity
      * @param string $objType Optional. For backward compatibility, if the provided object reference value is an entity id, 
      *                        then it needs the objType so we can look for the referenced entity.
      */
-    private function addObjReferenceGuid(AccountServiceManagerInterface $sm, string $referenceType, string $fieldName, string $value, string $objType = "")
+    private function addObjReferenceGuid(string $referenceType, string $fieldName, string $value, string $objType = "")
     {
-        $entityLoader = $sm->get(EntityLoaderFactory::class);
-
-        // If we have a valid object reference value, then we can add it directly to the field
-        if (Uuid::isValid($value)) {
-            $valueName = $this->getValueName($fieldName, $value);
-
-            if (!$valueName) {
-                $refEntity = $entityLoader->getByGuid($value);
-                $valueName = $refEntity->getName();
-            }
-            
-            $this->addMultiValue($referenceType, $value, $valueName);
-        } elseif ($objType && $value) {
-            // If we are dealing with a non-guid reference value, we need to check first if objType is provided so we can look for the referenced entity
-            $refEntity = $entityLoader->get($objType, $value);
-
-            if ($refEntity) {
-                $this->addMultiValue($referenceType, $refEntity->getValue("guid"), $refEntity->getName());
-            }
+        // Get the referenced entity
+        $referencedEntity = $this->entityLoader->getByGuidOrObjRef($value, $objType);
+        if ($referencedEntity) {
+            $this->addMultiValue($referenceType, $referencedEntity->getGuid(), $referencedEntity->getName());
         }
     }
 

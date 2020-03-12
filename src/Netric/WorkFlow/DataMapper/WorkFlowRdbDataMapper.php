@@ -112,7 +112,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
         // Set the id
         $workFlow->setId($workflowId);
-        $workFlow->setGuid($workflowEntity->getValue("guid"));
+        $workFlow->setGuid($workflowEntity->getGuid());
 
         // Save actions
         $this->saveActions($workFlow->getActions(), $workFlow->getRemovedActions(), $workFlow->getGuid());
@@ -440,25 +440,25 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
              * Check to make sure there are no circular relationships where a child
              * lists a parent as it's own child - that would be very bad!
              */
-            if (in_array($action->getValue("guid"), $circularCheck)) {
-                throw new \RunTimeException($action->getValue("guid") . " is a curcular dependency because it was already added");
+            if (in_array($action->getGuid(), $circularCheck)) {
+                throw new \RunTimeException($action->getGuid() . " is a curcular dependency because it was already added");
             } else {
-                $circularCheck[] = $action->getValue("guid");
+                $circularCheck[] = $action->getGuid();
             }
 
             // If type is not defined then throw an exception since it is required
             if (!$action->getValue("type_name")) {
-                throw new \RuntimeException("Action " . $action->getValue("guid") . " does not have a type_name set");
+                throw new \RuntimeException("Action " . $action->getGuid() . " does not have a type_name set");
             }
 
             $actionArray = array(
                 "id" => $action->getId(),
-                "guid" => $action->getValue("guid"),
+                "guid" => $action->getGuid(),
                 "name" => $action->getValue("name"),
                 "workflow_id" => $action->getValue("workflow_id"),
                 "type" => $action->getValue("type_name"),
                 "parent_action_id" => $action->getValue("parent_action_id"),
-                "actions" => $this->getActionsArray($action->getValue("workflow_id"), $action->getValue("guid"), $circularCheck),
+                "actions" => $this->getActionsArray($action->getValue("workflow_id"), $action->getGuid(), $circularCheck),
             );
 
             if ($action->getValue("data")) {
@@ -527,7 +527,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         }
 
         $actionToSave->setId($actionEntity->getId());
-        $actionToSave->setGuid($actionEntity->getValue("guid"));
+        $actionToSave->setGuid($actionEntity->getGuid());
 
         // Save child actions
         $this->saveActions(

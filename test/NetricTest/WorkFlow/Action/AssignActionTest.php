@@ -58,19 +58,19 @@ class AssignActionTest extends AbstractActionTests
         $user1 = $this->entityLoader->create(ObjectTypes::USER);
         $user1->setValue("name", "testuser-" . rand());
         $this->entityLoader->save($user1);
-        $userGuid1 = $user1->getValue("guid");
+        $userGuid1 = $user1->getGuid();
         $this->testEntities[] = $user1;
 
         $user2 = $this->entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "testuser-" . rand());
         $this->entityLoader->save($user2);
-        $userGuid2 = $user2->getValue("guid");
+        $userGuid2 = $user2->getGuid();
         $this->testEntities[] = $user2;
 
         $user3 = $this->entityLoader->create(ObjectTypes::USER);
         $user3->setValue("name", "testuser-" . rand());
         $this->entityLoader->save($user3);
-        $userGuid3 = $user3->getValue("guid");
+        $userGuid3 = $user3->getGuid();
         $this->testEntities[] = $user3;
 
         $usersArray = [$userGuid1, $userGuid2, $userGuid3];

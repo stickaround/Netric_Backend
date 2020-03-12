@@ -216,7 +216,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
     }
 
     /**
@@ -306,7 +306,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("myupdatedfile.jpg", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
     }
 
     /**
@@ -394,7 +394,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
     }
 
     /**
@@ -496,7 +496,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getValue("guid"), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
 
         // Test the second file
         $this->assertEquals("files-upload-test2.txt", $file2->getValue("name"));
@@ -650,19 +650,19 @@ class FilesControllerTest extends TestCase
         $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set the newly imported file as the user's profile pic
-        $this->user->setValue('image_id', $importedFile->getValue("guid"));
+        $this->user->setValue('image_id', $importedFile->getGuid());
         $loader = $this->account->getServiceManager()->get(EntityLoader::class);
         $loader->save($this->user);
 
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
-        $req->setParam("user_id", $this->user->getValue("guid"));
+        $req->setParam("user_id", $this->user->getGuid());
         $req->setParam("max_width", 64);
         $req->setParam("max_height", 64);
 
         // clear the cache of the file
         $entityLoader = $this->account->getServiceManager()->get(EntityLoader::class);
-        $entityLoader->clearCacheByGuid($importedFile->getValue("guid"));
+        $entityLoader->clearCacheByGuid($importedFile->getGuid());
 
         // Now stream the file contents into $ret
         $response = $this->controller->getUserImageAction();

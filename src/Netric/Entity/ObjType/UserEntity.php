@@ -61,7 +61,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
     {
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader);
 
         $this->entityLoader = $entityLoader;
     }
@@ -161,7 +161,7 @@ class UserEntity extends Entity implements EntityInterface
         }
 
         // Add to authenticated users group if we have determined this is a valid user
-        if ($this->getValue("guid") &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups)) {
+        if ($this->getGuid() &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups)) {
             $groups[] = self::GROUP_USERS;
         }
 
@@ -255,19 +255,19 @@ class UserEntity extends Entity implements EntityInterface
     }
 
     /**
-     * Override getOwnerId to always return $this->id for a user entity
+     * Override getOwnerGuid to always return $this->id for a user entity
      *
      * We do this because a user is always the owner of him or her self in
      * terms of permissions and/or delegation of responsibility.
      *
      * @return int
      */
-    public function getOwnerId()
+    public function getOwnerGuid()
     {
-        if ($this->getId()) {
-            return $this->getId();
+        if ($this->getGuid()) {
+            return $this->getGuid();
         }
 
-        return parent::getOwnerId();
+        return parent::getOwnerGuid();
     }
 }

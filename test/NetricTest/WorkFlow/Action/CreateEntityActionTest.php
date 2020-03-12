@@ -34,7 +34,7 @@ class CreateEntityActionTest extends AbstractActionTests
         // Create a test task that will create another task that copies the woner
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
-        $task->setValue("user_id", $user->getValue("guid"));
+        $task->setValue("user_id", $user->getGuid());
         $task->setId(321);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance

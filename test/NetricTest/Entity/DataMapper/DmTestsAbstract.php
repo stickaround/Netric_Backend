@@ -155,7 +155,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($ent->getValue("id"), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
-        $this->assertEquals($ent->getValue("owner_id"), $this->user->getValue("guid"));
+        $this->assertEquals($ent->getValue("owner_id"), $this->user->getGuid());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
         $this->assertEquals($ent->getValue("status_id"), $statGrp->guid);
         $this->assertEquals($ent->getValueName("status_id"), "Unit Test Status");
@@ -235,7 +235,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($ent->getValue("id"), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
-        $this->assertEquals($ent->getValue("owner_id"), $this->user->getValue("guid"));
+        $this->assertEquals($ent->getValue("owner_id"), $this->user->getGuid());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
         $this->assertEquals($ent->getValue("status_id"), $statGrp->guid);
         $this->assertEquals($ent->getValueName("status_id"), $statGrp->name);
@@ -480,7 +480,7 @@ abstract class DmTestsAbstract extends TestCase
         // Create a task entity and set the user entity as owner
         $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ReferencedEntity");
-        $task->setValue("user_id", $user->getValue("guid"));
+        $task->setValue("user_id", $user->getGuid());
         $taskId = $dm->save($task, $this->user);
 
         // Queue for cleanup
@@ -488,7 +488,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Update Entity References
         $def = $user->getDefinition();
-        $dm->updateOldReferences($def, $user->getValue("guid"), $user2->getValue("guid"));
+        $dm->updateOldReferences($def, $user->getGuid(), $user2->getGuid());
 
         // Create the task entity
         $taskEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
@@ -496,7 +496,7 @@ abstract class DmTestsAbstract extends TestCase
         // Get the entity of $taskId using the datamapper and it should update the user_id to $userId2
         $dm->getById($taskEntity, $taskId);
 
-        $this->assertEquals($user2->getValue("guid"), $taskEntity->getValue("user_id"));
+        $this->assertEquals($user2->getGuid(), $taskEntity->getValue("user_id"));
     }
 
     /**
@@ -769,7 +769,7 @@ abstract class DmTestsAbstract extends TestCase
         // fkey_multi with no label (third param)
         $customer->addMultiValue("groups", $groupsGrp->guid);
         // object with no label (third param)
-        $customer->setValue("owner_id", $this->user->getValue("guid"));
+        $customer->setValue("owner_id", $this->user->getGuid());
 
         // Save should call private updateForeignKeyNames in the DataMapperAbstract
         $cid = $dm->save($customer, $this->user);
@@ -784,7 +784,7 @@ abstract class DmTestsAbstract extends TestCase
         // Make sure the fvals for references are updated
         $this->assertEquals($ent->getValueName("status_id", $statGrp->guid), $statGrp->name);
         $this->assertEquals($ent->getValueName("groups", $groupsGrp->guid), $groupsGrp->name);
-        $this->assertEquals($ent->getValueName("owner_id", $this->user->getValue("guid")), $this->user->getName());
+        $this->assertEquals($ent->getValueName("owner_id", $this->user->getGuid()), $this->user->getName());
 
         // Cleanup groupings
         $groupingsStat->delete($statGrp->id);
@@ -903,15 +903,15 @@ abstract class DmTestsAbstract extends TestCase
         // Create root page for site
         $homePage = $entityLoader->create(ObjectTypes::PAGE);
         $homePage->setValue("name", 'testgetbyunamehome'); // for uname
-        $homePage->setValue("site_id", $site->getValue("guid"));
+        $homePage->setValue("site_id", $site->getGuid());
         $dm->save($homePage);
         $this->testEntities[] = $homePage; // for cleanup
 
         // Create a subpage for the site
         $subPage = $entityLoader->create(ObjectTypes::PAGE);
         $subPage->setValue("name", "testgetbyunamefile");  // for uname
-        $subPage->setValue('parent_id', $homePage->getValue("guid"));
-        $subPage->setValue("site_id", $site->getValue("guid"));
+        $subPage->setValue('parent_id', $homePage->getGuid());
+        $subPage->setValue("site_id", $site->getGuid());
         $dm->save($subPage);
         $this->testEntities[] = $subPage; // for cleanup
 
@@ -924,10 +924,10 @@ abstract class DmTestsAbstract extends TestCase
         $retrievedPage = $dm->getByUniqueName(
             ObjectTypes::PAGE,
             $fullPath,
-            ['site_id' => $site->getValue("guid")]
+            ['site_id' => $site->getGuid()]
         );
 
-        $this->assertEquals($subPage->getValue("guid"), $retrievedPage->getValue("guid"));
+        $this->assertEquals($subPage->getGuid(), $retrievedPage->getGuid());
     }
 
     /**
@@ -951,7 +951,7 @@ abstract class DmTestsAbstract extends TestCase
         $customerReminder = "Customer Reminder";
         $reminder = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
         $reminder->setValue("name", $customerReminder);
-        $reminder->setValue("obj_reference", $customer->getValue("guid"));
+        $reminder->setValue("obj_reference", $customer->getGuid());
         $rid = $dm->save($reminder, $this->user);
 
         // Set the entities so it will be cleaned up properly
@@ -962,7 +962,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm->getById($reminderEntity, $rid);
         $this->assertEquals($customerEntity->getName(), $customerName);
         $this->assertEquals($reminderEntity->getName(), $customerReminder);
-        $this->assertEquals($reminderEntity->getValue("obj_reference"), $customer->getValue("guid"));
+        $this->assertEquals($reminderEntity->getValue("obj_reference"), $customer->getGuid());
         $this->assertEquals($reminderEntity->getValueName("obj_reference"), $customer->getName());
     }
 
