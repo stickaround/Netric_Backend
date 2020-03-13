@@ -286,6 +286,7 @@ class EntityLoader
         $this->clearCacheByGuid($entity->getGuid());
 
         return $ret;
+        
     }
 
     /**

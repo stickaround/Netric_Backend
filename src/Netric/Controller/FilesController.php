@@ -399,7 +399,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         $entiyLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Get the user entity for the user id
-        $userToGetImageFor = $entiyLoader->get(ObjectTypes::USER, $userId);
+        $userToGetImageFor = $entiyLoader->get(ObjectTypes::USER, $userGuid);
         $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
 
         // 404 if the user was not found or there was no image_id uploaded

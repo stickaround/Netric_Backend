@@ -662,7 +662,6 @@ class FilesControllerTest extends TestCase
 
         // clear the cache of the file
         $entityLoader = $this->account->getServiceManager()->get(EntityLoader::class);
-        $entityLoader->clearCacheByGuid($importedFile->getGuid());
 
         // Now stream the file contents into $ret
         $response = $this->controller->getUserImageAction();

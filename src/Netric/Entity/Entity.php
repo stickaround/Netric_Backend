@@ -1154,8 +1154,6 @@ class Entity implements EntityInterface
                 case FIELD::TYPE_OBJECT:
                     // Make sure we have associations added for any object reference
                     if ($value) {
-                        $this->addObjReferenceGuid("associations", $field->name, $value, $field->type);
-
                         if ($field->subtype == ObjectTypes::USER) {
                             $this->addObjReferenceGuid("followers", $field->name, $value, ObjectTypes::USER);
                         }

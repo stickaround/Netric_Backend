@@ -253,6 +253,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         // Clear cache in the EntityLoader
         $serviceManager->get(EntityLoaderFactory::class)->clearCache($def->getObjType(), $entity->getId());
 
+        // Clear cache for guid
+        $serviceManager->get(EntityLoaderFactory::class)->clearCacheByGuid($entity->getGuid());
+
         // Log the change in entity sync
         if ($ret && $lastCommitId && $commitId) {
             $this->entitySync->setExportedStale(
