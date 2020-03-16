@@ -86,20 +86,20 @@ class Update004001030Test extends TestCase
         // Get the groupings for this obj_type and field_name
         $groupings = $this->groupingLoader->get(ObjectTypes::ISSUE . "/status_id/" . $currentUser->getGuid());
 
+        $groupName = "new" . uniqid();
         $groupWithUserId = new Group();
-        $groupWithUserId->setValue("id", 1);
-        $groupWithUserId->setValue("name", "New");
+        $groupWithUserId->setValue("name", $groupName);
         $groupings->add($groupWithUserId);
 
         // Save the changes in groupings
         $this->groupingLoader->save($groupings);
         $this->testGroups[] = $groupWithUserId;
       
-        $result = $db->query("SELECT * FROM object_groupings WHERE id = {$groupWithUserId->id}");
+        $result = $db->query("SELECT * FROM object_groupings WHERE guid = :guid", ["guid" => $groupWithUserId->guid]);
         $row = $result->fetch();
 
         // Make sure that we have null guid and path
-        $this->assertEquals($row["name"], "New");
+        $this->assertEquals($row["name"], $groupName);
 
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));

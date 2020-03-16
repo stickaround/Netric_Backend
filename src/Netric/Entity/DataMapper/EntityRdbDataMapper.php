@@ -254,7 +254,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @param [type] $databaseValue
      * @return mixed
      */
-    private function sanitizeDbValuesToEntityFieldValue(Field $field, $databaseValue)
+    public function sanitizeDbValuesToEntityFieldValue(Field $field, $databaseValue)
     {
         switch ($field->type) {
             case Field::TYPE_BOOL:

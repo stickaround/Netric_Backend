@@ -111,7 +111,12 @@ foreach ($objectTypesToMove as $objectType) {
         // Load row and set values in the old entity
         $allFields = $def->getFields();
         foreach ($allFields as $fieldDefinition) {
-            $entityDataMapper->setEntityFieldValueFromRow($oldEntity, $fieldDefinition, $row);
+
+            // Sanitize the entity value.
+            $value = $entityDataMapper->sanitizeDbValuesToEntityFieldValue($fieldDefinition, $row[$fieldDefinition->name]);
+
+            // Set entity value
+            $oldEntity->setValue($fieldDefinition->name, $value);
         }
 
         // Create a new entity to save

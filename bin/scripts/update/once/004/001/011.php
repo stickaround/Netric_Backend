@@ -54,7 +54,7 @@ foreach ($result->fetchAll() as $row) {
 
         // First delete all messages in this account
         $messageQuery = new EntityQuery("email_message");
-        $messageQuery->where(ObjectTypes::EMAIL_ACCOUNT)->equals($emailAccount->getId());
+        $messageQuery->where(ObjectTypes::EMAIL_ACCOUNT)->equals($emailAccount->getGuid());
         $messageRet = $entityIndex->executeQuery($messageQuery);
         $numMessagesToDelete= $messageRet->getTotalNum();
         for ($m = 0; $m < $numMessagesToDelete; $m++) {
@@ -67,7 +67,7 @@ foreach ($result->fetchAll() as $row) {
 
             $log->info(
                 "Update 004.001.011 deleted email message $m of $numMessagesToDelete for " .
-                $emailAccount->getValue("address") . ":" . $emailAccount->getId()
+                $emailAccount->getValue("address") . ":" . $emailAccount->getGuid()
             );
         }
 
@@ -76,7 +76,7 @@ foreach ($result->fetchAll() as $row) {
 
         $log->info(
             "Update 004.001.011 deleted email account " .
-            $emailAccount->getValue("address") . ":" . $emailAccount->getId() .
+            $emailAccount->getValue("address") . ":" . $emailAccount->getGuid() .
             " and $numMessagesToDelete messages"
         );
     }

@@ -283,7 +283,9 @@ class EntityLoader
         }
 
         // Also clear the cache for entity guid
-        $this->clearCacheByGuid($entity->getGuid());
+        if ($entity->getGuid()) {
+            $this->clearCacheByGuid($entity->getGuid());
+        }
 
         return $ret;
         

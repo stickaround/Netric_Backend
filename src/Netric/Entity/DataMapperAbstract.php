@@ -416,6 +416,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         $filterValues = array_merge($namespaceFieldValues, $parentFieldCondition, ['uname' => $uname]);
         $matches = $this->getIdsFromFieldValues($objType, $filterValues);
+
         if (count($matches) == 1) {
             $entity = $entityFactory->create($objType);
             $this->getById($entity, $matches[0]);

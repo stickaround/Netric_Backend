@@ -87,13 +87,13 @@ class Update004001011Test extends TestCase
 
         // Add a duplicate email to each account
         $emailMessage1 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $emailMessage1->setValue(ObjectTypes::EMAIL_ACCOUNT, $account1->getId());
+        $emailMessage1->setValue(ObjectTypes::EMAIL_ACCOUNT, $account1->getGuid());
         $emailMessage1->setValue("subject", "test");
         $entityLoader->save($emailMessage1);
         $this->testEntities[] = $emailMessage1;
 
         $emailMessage2 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $emailMessage2->setValue(ObjectTypes::EMAIL_ACCOUNT, $account2->getId());
+        $emailMessage2->setValue(ObjectTypes::EMAIL_ACCOUNT, $account2->getGuid());
         $emailMessage2->setValue("subject", "test");
         $entityLoader->save($emailMessage2);
         $this->testEntities[] = $emailMessage2;

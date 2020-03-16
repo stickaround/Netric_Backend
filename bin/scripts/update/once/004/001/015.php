@@ -231,16 +231,16 @@ foreach ($groupingTables as $details) {
         if ($field->type === $field::TYPE_GROUPING_MULTI) {
             if ($db->columnExists($def->object_table, $fieldName)) {
                 $updateQuery = "UPDATE {$def->object_table}
-                                SET {$fieldName} = REPLACE({$fieldName}, '\"$oldFkeyId\"', '\"{$group->id}\"'),
-                                    {$fieldName}_fval = REPLACE({$fieldName}_fval, '\"$oldFkeyId\"', '\"{$group->id}\"')";
+                                SET {$fieldName} = REPLACE({$fieldName}, '\"$oldFkeyId\"', '\"{$group->guid}\"'),
+                                    {$fieldName}_fval = REPLACE({$fieldName}_fval, '\"$oldFkeyId\"', '\"{$group->guid}\"')";
 
                 // Update the table reference
                 $db->query($updateQuery);
             }
         } else {
             $updateData = [];
-            $updateData[$fieldName] = $group->id;
-            $updateData[$fieldName . "_fval"] = json_encode(array($group->id => $group->name));
+            $updateData[$fieldName] = $group->guid;
+            $updateData[$fieldName . "_fval"] = json_encode(array($group->guid => $group->name));
 
             // Update the table reference
             $sql = "UPDATE {$def->object_table} SET field_data = jsonb_set(field_data, '{" . $fieldName . "_fval}', :group_id_fval, true)
@@ -248,15 +248,14 @@ foreach ($groupingTables as $details) {
             
             $db->query($sql, [
                 "old_group_id" => $oldFkeyId,
-                "group_id_fval" => json_encode(array($group->id => $group->name))
+                "group_id_fval" => json_encode(array($group->guid => $group->name))
             ]);
 
-            $sql = "UPDATE {$def->object_table} SET field_data = jsonb_set(field_data, '{" . $fieldName . "}', :group_id, true)
+            $sql = "UPDATE {$def->object_table} SET field_data = jsonb_set(field_data, '{" . $fieldName . "}', '\"$group->guid\"', true)
             WHERE field_data->>'$fieldName' = :old_group_id";
             
             $db->query($sql, [
-                "old_group_id" => $oldFkeyId,
-                "group_id" => $group->id
+                "old_group_id" => $oldFkeyId
             ]);
         }
     }

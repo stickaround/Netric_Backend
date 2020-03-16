@@ -88,6 +88,7 @@ class Update004001031Test extends TestCase
         // Make sure that the project story table still exists
         $projectStoryTableName = "objects_project_story";
         if (!$rdb->tableExists($projectStoryTableName)) {
+            $this->assertFalse($rdb->tableExists($projectStoryTableName));
             $log->warning("Update004001031Test:: Unit tests is skiped because project story table is not available anymore");
             return;
         }

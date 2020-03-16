@@ -44,7 +44,12 @@ do {
         $entityRow = $resultEntity->fetch();
         $allFields = $def->getFields();
         foreach ($allFields as $fieldDefinition) {
-            $entityDataMapper->setEntityFieldValueFromRow($entity, $fieldDefinition, $entityRow);
+
+            // Sanitize the entity value.
+            $value = $entityDataMapper->sanitizeDbValuesToEntityFieldValue($fieldDefinition, $entityRow[$fieldDefinition->name]);
+
+            // Set entity value
+            $entity->setValue($fieldDefinition->name, $value);
         }
 
         // Encode the json and update the table row
