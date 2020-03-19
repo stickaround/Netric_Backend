@@ -599,6 +599,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                     if (is_array($value)) {
                         foreach ($value as $id) {
+
+                            // If this entity is trying to add itself as object reference, then we will not allow it.
+                            if ($entity->getObjRef() == $id || ($entity->getId() == $id && $entity->getObjType() == $field->subtype)) {
+                                continue;
+                            }
+
                             // Get the referenced entity
                             $referencedEntity = $entityLoader->getByGuidOrObjRef($id, $field->subtype);
 
