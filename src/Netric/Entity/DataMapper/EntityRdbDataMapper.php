@@ -594,9 +594,19 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $ret[$fname] = ($val === true);
                     break;
                 case 'fkey':
+                    // If val is already guid, then this value is already saved in field_data
+                    if (Uuid::isValid($val)) {
+                        continue;
+                    }
+                    
                     $ret[$fname] = $val ? $val : null;
                     break;
                 case 'object':
+                    // If val is already guid, then this value is already saved in field_data
+                    if (Uuid::isValid($val)) {
+                        continue;
+                    }
+
                     $ret[$fname] = $val ? $val : null;
                     break;
                 default:
