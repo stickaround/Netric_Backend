@@ -173,7 +173,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $objValue = $entity->getValue($field->name);
 
                     // If this entity is trying to add its self as object reference, then we will not allow it.
-                    if (($entity->getId() == $objValue && $entity->getObjType() == $field->subtype) || $entity->getGuid() == $objValue) {
+                    if ($entity->getObjRef() == $objValue || $entity->getGuid() == $objValue) {
                         continue;
                     }
 
@@ -195,7 +195,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                         forEach($refValues as $value) {
 
                             // If this entity is trying to add its self as object reference, then we will not allow it.
-                            if (($entity->getId() == $value && $entity->getObjType() == $field->subtype) || $entity->getGuid() == $value) {
+                            if ($entity->getObjRef() == $value || $entity->getGuid() == $value) {
                                 continue;
                             }
 
