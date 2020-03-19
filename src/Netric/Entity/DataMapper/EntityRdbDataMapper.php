@@ -21,7 +21,6 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
-use Netric\Log\LogFactory;
 
 /**
  * Load and save entity data to a relational database
@@ -35,15 +34,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     private $database = null;
 
-    private $log = null;
-
     /**
      * Setup this class called from the parent constructor
      */
     protected function setUp()
     {
         $this->database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
-        $this->log = $this->account->getServiceManager()->get(LogFactory::class);
     }
 
     /**
@@ -176,6 +172,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_OBJECT:
                     $objValue = $entity->getValue($field->name);
 
+                    // If this entity is trying to add its self as object reference, then we will not allow it.
+                    if (($entity->getId() == $objValue && $entity->getObjType() == $field->subtype) || $entity->getGuid() == $objValue) {
+                        continue;
+                    }
+
                     if ($objValue) {
                         // Get the referenced entity
                         $referencedEntity = $entityLoader->getByGuidOrObjRef($objValue, $field->subtype);
@@ -192,8 +193,13 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     // Make sure the the multi value is an array
                     if (is_array($refValues)) {
                         forEach($refValues as $value) {
+
+                            // If this entity is trying to add its self as object reference, then we will not allow it.
+                            if (($entity->getId() == $value && $entity->getObjType() == $field->subtype) || $entity->getGuid() == $value) {
+                                continue;
+                            }
+
                             if ($value) {
-                                $this->log->info("EntityRdbDataMapper:: value: $value; objType: {$field->subtype}. Entity:" . json_encode($entity->toArray()));
                                 // Get the referenced entity
                                 $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
 
@@ -206,6 +212,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                                     $entity->addMultiValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
                                 }
                             }
+                            
                         }
                     }
                 break;
