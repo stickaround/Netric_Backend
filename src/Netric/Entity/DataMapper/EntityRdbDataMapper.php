@@ -172,6 +172,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_OBJECT:
                     $objValue = $entity->getValue($field->name);
 
+                    // If this entity is trying to add itself as object reference, then we will not allow it.
+                    if ($entity->getObjRef() == $objValue || ($entity->getId() == $objValue && $entity->getObjType() == $field->subtype)) {
+                        continue;
+                    }
+
                     if ($objValue) {
                         // Get the referenced entity
                         $referencedEntity = $entityLoader->getByGuidOrObjRef($objValue, $field->subtype);

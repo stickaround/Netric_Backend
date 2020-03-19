@@ -582,6 +582,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
             switch ($field->type) {
                 case Field::TYPE_OBJECT:
+                    // If this entity is trying to add itself as object reference, then we will not allow it.
+                    if ($entity->getObjRef() == $value || ($entity->getId() == $value && $entity->getObjType() == $field->subtype)) {
+                        continue;
+                    }
+
                     // Get the referenced entity
                     $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
 
