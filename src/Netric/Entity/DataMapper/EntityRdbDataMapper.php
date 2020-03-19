@@ -21,6 +21,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
+use Netric\Log\LogFactory;
 
 /**
  * Load and save entity data to a relational database
@@ -34,12 +35,15 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     private $database = null;
 
+    private $log = null;
+
     /**
      * Setup this class called from the parent constructor
      */
     protected function setUp()
     {
         $this->database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
+        $this->log = $this->account->getServiceManager()->get(LogFactory::class);
     }
 
     /**
@@ -189,6 +193,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     if (is_array($refValues)) {
                         forEach($refValues as $value) {
                             if ($value) {
+                                $this->log->info("EntityRdbDataMapper:: value: $value; objType: {$field->subtype}. Entity:" . json_encode($entity->toArray()));
                                 // Get the referenced entity
                                 $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
 
