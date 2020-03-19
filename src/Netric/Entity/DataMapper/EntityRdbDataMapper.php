@@ -188,16 +188,18 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     // Make sure the the multi value is an array
                     if (is_array($refValues)) {
                         forEach($refValues as $value) {
-                            // Get the referenced entity
-                            $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
+                            if ($value) {
+                                // Get the referenced entity
+                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
 
-                            // If we have successfully loaded the referenced entity, then we will add its guid
-                            if ($referencedEntity) {
-                                // Before adding the new guid value of the object, we need to remove first the existing one.
-                                $entity->removeMultiValue($field->name, $value);
+                                // If we have successfully loaded the referenced entity, then we will add its guid
+                                if ($referencedEntity) {
+                                    // Before adding the new guid value of the object, we need to remove first the existing one.
+                                    $entity->removeMultiValue($field->name, $value);
 
-                                // Now that we have already removed the old object id, we can now add the new object's guid
-                                $entity->addMultiValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
+                                    // Now that we have already removed the old object id, we can now add the new object's guid
+                                    $entity->addMultiValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
+                                }
                             }
                         }
                     }
