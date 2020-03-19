@@ -6,6 +6,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new case entity
@@ -21,6 +22,7 @@ class CaseFactory implements Entity\EntityFactoryInterface
     public static function create(AccountServiceManagerInterface $sl)
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ISSUE);
-        return new CaseEntity($def);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new CaseEntity($def, $entityLoader);
     }
 }

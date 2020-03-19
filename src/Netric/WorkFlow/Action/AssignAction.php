@@ -80,17 +80,17 @@ class AssignAction extends AbstractAction implements ActionInterface
          * serve to accomplish what people are looking for.
          */
         if ($params['field']) {
-            $userId = null;
+            $userGuid = null;
             if (isset($params['team_id'])) {
-                $userId = $this->getNextUserFromTeam($params['team_id']);
+                $userGuid = $this->getNextUserFromTeam($params['team_id']);
             } elseif (isset($params['group_id'])) {
-                $userId = $this->getNextUserFromGroup($params['group_id']);
+                $userGuid = $this->getNextUserFromGroup($params['group_id']);
             } elseif (isset($params['users'])) {
-                $userId = $this->getNextUserFromList($params['users']);
+                $userGuid = $this->getNextUserFromList($params['users']);
             }
 
-            if ($userId !== null) {
-                $entity->setValue($params['field'], $userId);
+            if ($userGuid !== null) {
+                $entity->setValue($params['field'], $userGuid);
                 $this->entityLoader->save($entity);
                 return true;
             }
@@ -115,7 +115,7 @@ class AssignAction extends AbstractAction implements ActionInterface
         $num = $result->getTotalNum();
         $getIndex = mt_rand(0, ($num-1));
         $user = $result->getEntity($getIndex);
-        return $user->getId();
+        return $user->getGuid();
     }
 
     /**
@@ -132,7 +132,7 @@ class AssignAction extends AbstractAction implements ActionInterface
         $num = $result->getTotalNum();
         $getIndex = mt_rand(0, ($num-1));
         $user = $result->getEntity($getIndex);
-        return $user->getId();
+        return $user->getGuid();
     }
 
     /**

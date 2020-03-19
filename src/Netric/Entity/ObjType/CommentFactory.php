@@ -11,6 +11,7 @@ use Netric\ServiceManager;
 use Netric\Entity;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new comment entity
@@ -26,6 +27,7 @@ class CommentFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::COMMENT);
-        return new CommentEntity($def);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new CommentEntity($def, $entityLoader);
     }
 }

@@ -2,6 +2,7 @@
 namespace Netric\EntityGroupings;
 
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Manage collection of groupings for an entity
@@ -167,10 +168,9 @@ class EntityGroupings
      */
     public function getPath($gid)
     {
-        $grp = $this->getById($gid);
+        $grp = $this->getByGuidOrGroupId($gid);
 
         $path = "";
-
         if (!$grp) {
             return $path;
         }
@@ -341,15 +341,29 @@ class EntityGroupings
      */
     public function getById($entryId)
     {
-        $ret = false;
-
         foreach ($this->groups as $grp) {
             if ($grp->id == $entryId) {
-                $ret = $grp;
+                return $grp;
             }
         }
 
-        return $ret;
+        return false;
+    }
+
+    /**
+     * Get the grouping entry by guid
+     *
+     * @param strin $guid the id to delete
+     */
+    public function getByGuid($guid)
+    {
+        foreach ($this->groups as $grp) {
+            if ($grp->guid == $guid) {
+                return $grp;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -415,6 +429,21 @@ class EntityGroupings
             }
 
             return $ret;
+        }
+    }
+
+    /**
+     * Function that will check if the value is a valid uuid or a group id. Then it will return the group
+     * 
+     * @param string $value This value should be either a valud uuid or group id.
+     */
+    public function getByGuidOrGroupId(string $value)
+    {
+        // If group guid is provided, then we need to use getByGuid
+        if (Uuid::isValid($value)) {
+            return $this->getByGuid($value);
+        } else {
+            return $this->getById($value);
         }
     }
 }

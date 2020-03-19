@@ -36,7 +36,7 @@ foreach ($dashboardsData as $dashbordName => $dashboardData) {
 
         // Let's check if the widget is already added in the system wide dashboard
         $widgetEntity = $entityLoader->getByUniqueName(ObjectTypes::DASHBOARD_WIDGET, $widgetData['uname'], array(
-            "dashboard_id" => $dashboardEntity->getValue("id"),
+            "dashboard_id" => $dashboardEntity->getGuid(),
             "widget_name" => $widgetData["widget_name"]
         ));
 
@@ -44,7 +44,7 @@ foreach ($dashboardsData as $dashbordName => $dashboardData) {
         if (!$widgetEntity) {
             $widgetEntity = $entityLoader->create(ObjectTypes::DASHBOARD_WIDGET);
             $widgetEntity->fromArray($widgetData);
-            $widgetEntity->setValue("dashboard_id", $dashboardEntity->getValue("id"), $dashboardEntity->getValue("name"));
+            $widgetEntity->setValue("dashboard_id", $dashboardEntity->getGuid(), $dashboardEntity->getValue("name"));
             $entityLoader->save($widgetEntity);
         }
     }

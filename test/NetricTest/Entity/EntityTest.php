@@ -13,6 +13,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\Entity\ObjType\UserEntity;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 class EntityTest extends TestCase
 {
@@ -30,6 +31,12 @@ class EntityTest extends TestCase
      */
     private $user = null;
 
+    /**
+     * Test entities to delete
+     *
+     * @var EntityInterface[]
+     */
+    private $testEntities = array();
 
     /**
      * Setup each test
@@ -38,6 +45,17 @@ class EntityTest extends TestCase
 {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+    }
+
+    /**
+     * Cleanup
+     */
+    protected function tearDown(): void
+{
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        foreach ($this->testEntities as $entity) {
+            $entityLoader->delete($entity, true);
+        }
     }
 
     /**
@@ -294,25 +312,36 @@ class EntityTest extends TestCase
      */
     public function testUpdateFollowers()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $entity->setValue("user_id", 123, "John");
-        $entity->setValue("notes", "Hey [user:456:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user1 = $entityLoader->create(ObjectTypes::USER);
+        $user1->setValue("name", "John");
+        $entityLoader->save($user1);
 
-        // Use reflection to access the private function
-        $refEntity = new \ReflectionObject($entity);
-        $updateFollowers = $refEntity->getMethod("updateFollowers");
-        $updateFollowers->setAccessible(true);
+        $user2 = $entityLoader->create(ObjectTypes::USER);
+        $entityLoader->save($user2);
+        
+        $this->testEntities[] = $user1;
+        $this->testEntities[] = $user2;
 
-        // Call update followers which should pull followers from user_id and notes
-        $updateFollowers->invoke($entity);
+        $userGuid1 = $user1->getGuid();
+        $userGuid2 = $user2->getGuid();
 
+        $entity = $entityLoader->create(ObjectTypes::TASK);
+        $entity->setValue("user_id", $userGuid1, $user1->getName());
+        $entity->setValue("notes", "Hey [user:$userGuid2:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
+        
+        // Saving this entity will call the Entity::beforeSave() which will update the followers
+        $entityLoader->save($entity);
+        $this->testEntities[] = $entity;
+        
         // Now make sure followers were set to the two references above
         $followers = $entity->getValue("followers");
         sort($followers);
-        $this->assertEquals(array(123, 456), $followers);
+        $this->assertTrue(in_array($userGuid1, $followers));
+        $this->assertTrue(in_array($userGuid2, $followers));
 
-        // Should only have 2 followers. Since the other 2 followers ([user:0:invalidId] and [user:abc:nonNumericId]) are invalid
-        $this->assertEquals(2, count($followers));
+        // Should only have 3 followers including the owner_id. Since the other 2 followers ([user:0:invalidId] and [user:abc:nonNumericId]) are invalid
+        $this->assertEquals(3, count($followers));
     }
 
     /**
@@ -322,8 +351,8 @@ class EntityTest extends TestCase
     {
         // Add some fake users to a test task
         $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task1->addMultiValue("followers", 123, "John");
-        $task1->addMultiValue("followers", 456, "Dave");
+        $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "John");
+        $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "Dave");
 
         // Create a second task and synchronize
         $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
@@ -340,11 +369,13 @@ class EntityTest extends TestCase
     {
         // Add some fake users to a test task
         $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task1->addMultiValue("followers", 123, "John");
-        $task1->addMultiValue("followers", 456, "Dave");
-        $task1->addMultiValue("followers", 0, "invlid zero id");
+        $johnGuid = Uuid::uuid4()->toString();
+        $daveGuid = Uuid::uuid4()->toString();
+        $task1->addMultiValue("followers", $johnGuid, "John");
+        $task1->addMultiValue("followers", $daveGuid, "Dave");
         $task1->addMultiValue("followers", "testId", "invlid non-numeric id");
-
+        $task1->addMultiValue("followers", null, "invalid null id");
+        
         // Create a second task and synchronize
         $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task2->syncFollowers($task1);
@@ -388,7 +419,7 @@ class EntityTest extends TestCase
     public function testSetValueObjectMultiWithName()
     {
         $username = 'fakeusername';
-        $userid = 123;
+        $userid = Uuid::uuid4()->toString();
         $sm = $this->account->getServiceManager();
         $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue('followers', $userid, $username);
@@ -399,34 +430,40 @@ class EntityTest extends TestCase
     /**
      * Make sure the owner of an entity is correctly returned
      */
-    public function testGetOwnerId()
+    public function testGetOwnerGuid()
     {
         $sm = $this->account->getServiceManager();
         $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task->setValue('owner_id', 123);
-        $this->assertEquals(123, $task->getOwnerId());
+
+        $userGuid = Uuid::uuid4()->toString();
+        $task->setValue('owner_id', $userGuid);
+        $this->assertEquals($userGuid, $task->getOwnerGuid());
     }
 
     /**
      * Make sure the owner of an entity is correctly if owner_id is not set but creator_id is
      */
-    public function testGetOwnerIdCreatorId()
+    public function testGetOwnerGuidCreatorId()
     {
         $sm = $this->account->getServiceManager();
         $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task->setValue('creator_id', 123);
-        $this->assertEquals(123, $task->getOwnerId());
+
+        $userGuid = Uuid::uuid4()->toString();
+        $task->setValue('creator_id', $userGuid);
+        $this->assertEquals($userGuid, $task->getOwnerGuid());
     }
 
     /**
      * Make sure the owner of an entity is correctly if owner_id is not set but user_id is
      */
-    public function testGetOwnerIdUserId()
+    public function testGetOwnerGuidUserId()
     {
         $sm = $this->account->getServiceManager();
         // Activity has a user_id field
         $activity = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY);
-        $activity->setValue('user_id', 123);
-        $this->assertEquals(123, $activity->getOwnerId());
+
+        $userGuid = Uuid::uuid4()->toString();
+        $activity->setValue('user_id', $userGuid);
+        $this->assertEquals($userGuid, $activity->getOwnerGuid());
     }
 }

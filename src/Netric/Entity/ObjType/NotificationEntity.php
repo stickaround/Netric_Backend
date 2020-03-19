@@ -99,8 +99,8 @@ class NotificationEntity extends Entity implements EntityInterface
         }
 
         // Get the referenced entity
-        $objReference = Entity::decodeObjRef($this->getValue("obj_reference"));
-        $entity = $sm->get(EntityLoaderFactory::class)->get($objReference['obj_type'], $objReference['id']);
+        $objReference = $this->getValue("obj_reference");
+        $entity = $sm->get(EntityLoaderFactory::class)->getByGuid($objReference);
         $def = $entity->getDefinition();
 
         $config = $sm->get(ConfigFactory::class);
@@ -115,7 +115,7 @@ class NotificationEntity extends Entity implements EntityInterface
         
         // Add link to body
         $protocol = ($config->use_https) ? "https://" : "http://";
-        $body .= $protocol . $config->application_url . "/browse/" . $entity->getValue("guid");
+        $body .= $protocol . $config->application_url . "/browse/" . $entity->getGuid();
         $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
         
@@ -125,7 +125,7 @@ class NotificationEntity extends Entity implements EntityInterface
         // Add special dropbox that enables users to comment by just replying to an email
         if ($config->email['dropbox_catchall']) {
             $fromEmail = $sm->getAccount()->getName() . "-com-";
-            $fromEmail .= $objReference['obj_type'] . "." . $objReference['id'];
+            $fromEmail .= $objReference;
             $fromEmail .= $config->email['dropbox_catchall'];
         }
 

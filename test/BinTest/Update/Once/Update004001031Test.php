@@ -88,6 +88,7 @@ class Update004001031Test extends TestCase
         // Make sure that the project story table still exists
         $projectStoryTableName = "objects_project_story";
         if (!$rdb->tableExists($projectStoryTableName)) {
+            $this->assertFalse($rdb->tableExists($projectStoryTableName));
             $log->warning("Update004001031Test:: Unit tests is skiped because project story table is not available anymore");
             return;
         }
@@ -135,7 +136,7 @@ class Update004001031Test extends TestCase
         $priorityTaskGroup = $priorityTaskGroupings->getByName(TaskEntity::PRIORITY_HIGH);
         $typeTaskGroup = $typeTaskGroupings->getByName(TaskEntity::TYPE_DEFECT);
 
-        $movedEntity = $entityLoader->getByGuid($storyEntity->getValue("guid"));
+        $movedEntity = $entityLoader->getByGuid($storyEntity->getGuid());
         $this->testEntities[] = $movedEntity;
 
         // Perform the tests
@@ -149,7 +150,7 @@ class Update004001031Test extends TestCase
         $this->assertEquals(date("Y-m-d", $movedEntity->getValue("start_date")), "2020-02-02");
 
         // Do a test that will make sure obj_reference in comment entity where also updated
-        $commentEnt = $entityLoader->getByGuid($commentEntity->getValue("guid"));
+        $commentEnt = $entityLoader->getByGuid($commentEntity->getGuid());
         $this->assertEquals($commentEnt->getValue("obj_reference"), ObjectTypes::TASK . ":{$movedEntity->getId()}");
 
         // Test that project entity were already deleted after it was moved

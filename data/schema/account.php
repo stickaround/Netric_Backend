@@ -1370,7 +1370,7 @@ return array(
             'object_type_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
             'object_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
             'field_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
-            'grouping_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
+            'grouping_id' => array("type" => "character varying(256)", "notnull" => true),
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(

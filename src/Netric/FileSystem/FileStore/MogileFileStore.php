@@ -7,7 +7,7 @@ namespace Netric\FileSystem\FileStore;
 
 use Netric\Error;
 use Netric\Entity\ObjType\FileEntity;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\EntityLoader;
 use Netric\FileSystem\FileStore\Exception\CannotConnectException;
 use MogileFs;
 use MogileFsException;
@@ -25,11 +25,11 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
     private $accountId = null;
 
     /**
-     * Entity DataMapper for pulling revision data
+     * Entity Loader for pulling revision data
      *
-     * @var DataMapperInterface
+     * @var EntityLoader
      */
-    private $entityDataMapper = null;
+    private $entityLoader = null;
 
     /**
      * Temporary folder path for processing remote files locally
@@ -75,7 +75,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      * Class constructor
      *
      * @param string $accountId The unique id of the tennant's account
-     * @param DataMapperInterface $dataMapper An entity DataMapper for saving entities
+     * @param EntityLoader $entityLoader An entity loader to save entitites. We need to use entity loader so it can cache the entity data.
      * @param string $tmpPath The temp folder path
      * @param string $mogileServer The server endpoint to connect to
      * @param string $mogileAccount The account name to use for file storage
@@ -83,14 +83,14 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      */
     public function __construct(
         $accountId,
-        DataMapperInterface $dataMapper,
+        EntityLoader $entityLoader,
         $tmpPath,
         string $mogileServer,
         string $mogileAccount,
         int $mogilePort = 7001
     ) {
         $this->accountId = $accountId;
-        $this->entityDataMapper = $dataMapper;
+        $this->entityLoader = $entityLoader;
         $this->tmpPath = $tmpPath;
         $this->mogileServer = $mogileServer;
         $this->mogilePort = $mogilePort;
@@ -260,8 +260,8 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         // If set, then clear. Path will remain in saved revision.
         $file->setValue("dat_local_path", "");
         $file->setValue("dat_ans_key", $key);
-        $this->entityDataMapper->save($file);
 
+        $this->entityLoader->save($file);
         return true;
     }
 
@@ -292,7 +292,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         }
 
         // Delete all past revisions
-        $revisions = $this->entityDataMapper->getRevisions("file", $file->getId());
+        $revisions = $this->entityLoader->getRevisions("file", $file->getId());
         foreach ($revisions as $fileRev) {
             if ($fileRev->getValue("dat_ans_key")) {
                 try {

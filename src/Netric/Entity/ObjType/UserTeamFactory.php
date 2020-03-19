@@ -11,6 +11,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new User Teams entity
@@ -26,6 +27,7 @@ class UserTeamFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER_TEAM);
-        return new UserTeamEntity($def);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new UserTeamEntity($def, $entityLoader);
     }
 }

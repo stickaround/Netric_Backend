@@ -17,6 +17,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use NetricTest\Bootstrap;
+use Ramsey\Uuid\Uuid;
 
 class EntityLoaderTest extends TestCase
 {
@@ -147,18 +148,17 @@ class EntityLoaderTest extends TestCase
      */
     public function testReload()
     {
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-        $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
 
         // Create a new entity which will save it in cache
-        $task1 = $entityFactory->create(ObjectTypes::TASK);
+        $task1 = $entityLoader->create(ObjectTypes::TASK);
         $task1->setValue("name", 'test_reload');
-        $loader->save($task1);
+        $entityLoader->save($task1);
         $this->testEntities[] = $task1; // cleanup
 
         // Now save changes directly to the database bypassing the cache
-        $task2 = $entityFactory->create(ObjectTypes::TASK);
+        $task2 = $entityLoader->create(ObjectTypes::TASK);
         $dataMapper->getById($task2, $task1->getId());
         $task2->setValue("name", "test_reload_edited");
         $dataMapper->save($task2);
@@ -167,9 +167,30 @@ class EntityLoaderTest extends TestCase
         $this->assertNotEquals($task2->getValue("name"), $task1->getValue("name"));
 
         // Now reload task 1
-        $loader->reload($task1);
+        $entityLoader->reload($task1);
 
         // Make sure the values match what was in the database
         $this->assertEquals($task2->getValue("name"), $task1->getValue("name"));
+    }
+
+    /**
+     * Test the getting of entities by guid or object reference
+     */
+    public function testGetByGuidOrObjRef()
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+
+        $task = $entityLoader->create(ObjectTypes::TASK);
+        $task->setValue("name", 'test task');
+        $entityLoader->save($task);
+        $this->testEntities[] = $task; // cleanup
+
+        $this->assertTrue(Uuid::isValid($task->getGuid()));
+        
+        $entity = $entityLoader->getByGuidOrObjRef($task->getGuid());
+        $this->assertEquals($entity->getName(), $task->getName());
+
+        $entityByObjRef = $entityLoader->getByGuidOrObjRef(ObjectTypes::TASK . ":" . $task->getId());
+        $this->assertEquals($entityByObjRef->getName(), $task->getName());
     }
 }

@@ -816,62 +816,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $value = $condition->value;
         $operator = $condition->operator;
 
-        // This is a query string that is common for different condition operators
-        $selectQueryString = "SELECT ASSOC.object_id FROM object_associations AS ASSOC
-                                        WHERE ASSOC.object_id = " . $this->castNullIfInteger("$objectTable.field_data->>'id'") . "
-                                        AND ASSOC.type_id = {$entityDefinition->getId()}
-                                        AND ASSOC.field_id = {$field->id}";
-
-        $conditionString = "";
-
-        // If we are dealing with a condition with an empty value
-        if (empty($value)) {
-            if ($operator == Where::OPERATOR_EQUAL_TO) {
-                $conditionString = "NOT EXISTS ($selectQueryString)";
-            } else {
-                $conditionString = $this->castNullIfInteger("$objectTable.field_data->>'id'") . " in ($selectQueryString)";
-            }
+        if ($operator == Where::OPERATOR_EQUAL_TO) {
+            $conditionString = "field_data->'{$field->name}' @> jsonb_build_array('$value')";
         } else {
-            $objRef = Entity::decodeObjRef($value);
-            $referenceObjType = null;
-            $referenceId = null;
-
-            /*
-             * If we have successfully decoded the $value (e.g user:1:TestUser
-             * Then we need to make sure we have refernce id and obj_type
-             */
-            if ($objRef && !empty($objRef['id']) && !empty($objRef['obj_type'])) {
-                $referenceObjType = $objRef['obj_type'];
-                $referenceId = $objRef['id'];
-            } elseif ($field->subtype) {
-                /*
-                 * If the $value provided is the actual value of the where condition
-                 * Then we will just use the field's subtype as our referenced objType
-                 */
-                $referenceObjType = $field->subtype;
-                $referenceId = $value;
-            }
-
-            // If we have referencedObjType then we can now build the where condition
-            if ($referenceObjType) {
-                // Get the definition of the referenced objType
-                $refDef = $this->getDefinition($referenceObjType);
-
-                $prefixQueryString = "";
-                if ($operator == Where::OPERATOR_EQUAL_TO) {
-                    $prefixQueryString = "EXISTS";
-                } else {
-                    $prefixQueryString = $this->castNullIfInteger("$objectTable.field_data->>'id'") . " NOT IN";
-                }
-
-                if ($refDef && $refDef->getId() && $referenceId) {
-                    $conditionString = "$prefixQueryString ($selectQueryString AND ASSOC.assoc_type_id = {$refDef->getId()}
-                                    AND ASSOC.assoc_object_id = {$this->database->quote($referenceId)})";
-                } else {
-                    // only query associated subtype if there is no referenced id provided
-                    $conditionString = "$prefixQueryString ($selectQueryString AND ASSOC.assoc_type_id = {$refDef->getId()})";
-                }
-            }
+            $conditionString = "NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$field->name}' @> jsonb_build_array('$value'))";
         }
 
         return $conditionString;

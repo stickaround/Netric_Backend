@@ -78,11 +78,11 @@ class ReceiverServiceTest extends TestCase
 
         // If it does not exist, create an inbox for the user
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
         $inbox = new Group();
         $inbox->name = "Inbox";
         $inbox->isSystem = true;
-        $inbox->user_id = $this->user->getId();
+        $inbox->user_id = $this->user->getGuid();
         $groupings->add($inbox);
         $groupingsLoader->save($groupings);
         $this->inbox = $groupings->getByPath("Inbox");
@@ -117,8 +117,8 @@ class ReceiverServiceTest extends TestCase
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getValue("guid"));
-        $groupings->delete($this->inbox->id);
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
+        $groupings->delete($this->inbox->guid);
         $groupingsLoader->save($groupings);
 
         // Delete any test entities
@@ -204,13 +204,13 @@ class ReceiverServiceTest extends TestCase
     {
         $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
 
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // Check if we imported 5 messages - the number that got uploaded
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("mailbox_id")->equals($this->inbox->id);
-        $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $query->where("mailbox_id")->equals($this->inbox->guid);
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertEquals(5, $results->getTotalNum());
@@ -225,23 +225,23 @@ class ReceiverServiceTest extends TestCase
     {
         $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
 
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // In setup we set one message to unseen
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("mailbox_id")->equals($this->inbox->id);
-        $query->andWhere("owner_id")->equals($this->user->getId());
+        $query->where("mailbox_id")->equals($this->inbox->guid);
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
         $query->andWhere("flag_seen")->equals(false);
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertGreaterThanOrEqual(0, $results->getTotalNum());
 
         // Clean up all messages
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("mailbox_id")->equals($this->inbox->id);
-        $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $query->where("mailbox_id")->equals($this->inbox->guid);
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         for ($i = 0; $i < $results->getTotalNum(); $i++) {
@@ -254,7 +254,7 @@ class ReceiverServiceTest extends TestCase
         $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
 
         // Import 5 sample messages from the copied files in the setUp
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // Delete the message on the remote server
         $imap = new Imap([
@@ -270,13 +270,13 @@ class ReceiverServiceTest extends TestCase
         $imap->close();
 
         // Sync again which should delete a local message
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // Check if one message got deleted
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("mailbox_id")->equals($this->inbox->id);
-        $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $query->where("mailbox_id")->equals($this->inbox->guid);
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertEquals(4, $results->getTotalNum());
@@ -293,13 +293,13 @@ class ReceiverServiceTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Import 7 sample messages from the copied files in the setUp
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // Delete one of the messages locally
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("mailbox_id")->equals($this->inbox->id);
-        $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $query->where("mailbox_id")->equals($this->inbox->guid);
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
 
@@ -307,10 +307,10 @@ class ReceiverServiceTest extends TestCase
         $entity = $results->getEntity(0);
         $entity->setValue('flag_seen', true);
         $entity->setValue('flag_flagged', true);
-        $entityLoader->save($entity);
+        // $entityLoader->save($entity);
 
         // Synchronize which should update the flags on the server
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // Make sure messages were updated on the server
         $imap = new Imap([
@@ -318,6 +318,7 @@ class ReceiverServiceTest extends TestCase
             'user'     => $this->emailAccount->getValue("username"),
             'password' => getenv('TESTS_NETRIC_MAIL_PASSWORD')
         ]);
+
         $msgNum = $imap->getNumberByUniqueId($entity->getValue("message_uid"));
         $message = $imap->getMessage($msgNum);
 
@@ -339,19 +340,19 @@ class ReceiverServiceTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Import 7 sample messages from the copied files in the setUp
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // Delete one of the messages locally
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("mailbox_id")->equals($this->inbox->id);
-        $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $query->where("mailbox_id")->equals($this->inbox->guid);
+        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getGuid());
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $entityLoader->delete($results->getEntity(0));
 
         // Synchronize which should delete the message on the server
-        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+        $this->assertTrue($receiver->syncMailbox($this->inbox->guid, $this->emailAccount));
 
         // Delete the message on the remote server
         $imap = new Imap([

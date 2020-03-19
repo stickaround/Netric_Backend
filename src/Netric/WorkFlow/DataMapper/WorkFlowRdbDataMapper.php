@@ -13,6 +13,7 @@ use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use DateTime;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Relational Database datamapper for CRUD operations on a WorkFlow object
@@ -111,9 +112,10 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
         // Set the id
         $workFlow->setId($workflowId);
+        $workFlow->setGuid($workflowEntity->getGuid());
 
         // Save actions
-        $this->saveActions($workFlow->getActions(), $workFlow->getRemovedActions(), $workflowId);
+        $this->saveActions($workFlow->getActions(), $workFlow->getRemovedActions(), $workFlow->getGuid());
 
         return $workflowId;
     }
@@ -281,6 +283,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         // Create data array to import
         $importData = array(
             "id" => $row['id'],
+            "guid" => $row['guid'],
             "name" => $row['name'],
             "obj_type" => $row['object_type'],
             "notes" => $row['notes'],
@@ -295,7 +298,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             "last_run" => $row['ts_lastrun'],
             "only_on_conditions_unmet" => $row['f_condition_unmet'],
             "conditions" => ($row['conditions']) ? json_decode($row['conditions'], true) : null,
-            "actions" => $this->getActionsArray($row['id']),
+            "actions" => $this->getActionsArray($row['guid']),
         );
 
         // Set the data from the row
@@ -401,14 +404,14 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
     /**
      * Get conditions array for a workflow
      *
-     * @param int $workflowId Unique id of the workflow to get actions for
-     * @param int $parentActionid Get child actions for a parent action
+     * @param int $workflowGuid Global unique id of the workflow to get actions for
+     * @param int $parentActionGuid Get child actions for a parent action
      * @param array $circularCheck Log of previously added actions to avoid circular references
      * @return array
      */
-    private function getActionsArray($workflowId, $parentActionId = null, $circularCheck = array())
+    private function getActionsArray($workflowGuid, $parentActionGuid = null, $circularCheck = array())
     {
-        if (!is_numeric($workflowId) && !is_numeric($parentActionId)) {
+        if (!Uuid::isValid($workflowGuid) && !Uuid::isValid($parentActionGuid)) {
             throw new \InvalidArgumentException("A valid workflow id or parent action id must be passed");
         }
 
@@ -416,11 +419,11 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
         // Query all actions
         $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION);
-        if ($parentActionId) {
-            $query->where("parent_action_id")->equals($parentActionId);
+        if ($parentActionGuid) {
+            $query->where("parent_action_id")->equals($parentActionGuid);
         } else {
             $query->where("parent_action_id")->equals("");
-            $query->andWhere("workflow_id")->equals($workflowId);
+            $query->andWhere("workflow_id")->equals($workflowGuid);
         }
 
         $result = $this->entityIndex->executeQuery($query);
@@ -437,24 +440,25 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
              * Check to make sure there are no circular relationships where a child
              * lists a parent as it's own child - that would be very bad!
              */
-            if (in_array($action->getId(), $circularCheck)) {
-                throw new \RunTimeException($action->getId() . " is a curcular dependency because it was already added");
+            if (in_array($action->getGuid(), $circularCheck)) {
+                throw new \RunTimeException($action->getGuid() . " is a curcular dependency because it was already added");
             } else {
-                $circularCheck[] = $action->getId();
+                $circularCheck[] = $action->getGuid();
             }
 
             // If type is not defined then throw an exception since it is required
             if (!$action->getValue("type_name")) {
-                throw new \RuntimeException("Action " . $action->getId() . " does not have a type_name set");
+                throw new \RuntimeException("Action " . $action->getGuid() . " does not have a type_name set");
             }
 
             $actionArray = array(
                 "id" => $action->getId(),
+                "guid" => $action->getGuid(),
                 "name" => $action->getValue("name"),
                 "workflow_id" => $action->getValue("workflow_id"),
                 "type" => $action->getValue("type_name"),
                 "parent_action_id" => $action->getValue("parent_action_id"),
-                "actions" => $this->getActionsArray($action->getValue("workflow_id"), $action->getId(), $circularCheck),
+                "actions" => $this->getActionsArray($action->getValue("workflow_id"), $action->getGuid(), $circularCheck),
             );
 
             if ($action->getValue("data")) {
@@ -475,10 +479,10 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      * @param int $workflowId
      * @param int $parentActionId
      */
-    private function saveActions(array $actionsToAdd, array $actionsToRemove, $workflowId, $parentActionId = null)
+    private function saveActions(array $actionsToAdd, array $actionsToRemove, $workflowGuid, $parentActionGuid = null)
     {
-        if (!is_numeric($workflowId) && !is_numeric($parentActionId)) {
-            throw new \InvalidArgumentException("Must pass either workflowId or parantActionId as params");
+        if (!Uuid::isValid($workflowGuid) && !Uuid::isValid($parentActionGuid)) {
+            throw new \InvalidArgumentException("Must pass either workflowGuid or parentActionGuid as params");
         }
 
         // First purge any actions queued to be deleted
@@ -490,7 +494,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         }
 
         foreach ($actionsToAdd as $action) {
-            $this->saveAction($action, $workflowId, $parentActionId);
+            $this->saveAction($action, $workflowGuid, $parentActionGuid);
         }
     }
 
@@ -502,7 +506,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      * @param int $parentActionId
      * @return bool true on success, false on failure
      */
-    private function saveAction(ActionInterface $actionToSave, $workflowId, $parentActionId = null)
+    private function saveAction(ActionInterface $actionToSave, $workflowGuid, $parentActionGuid = null)
     {
         $actionData = $actionToSave->toArray();
 
@@ -514,8 +518,8 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         $actionEntity->setValue("type", 0); // for legacy code - can eventually delete when /lib/Workflow is deleted
         $actionEntity->setValue("type_name", $actionData['type']);
         $actionEntity->setValue("name", $actionData['name']);
-        $actionEntity->setValue("workflow_id", $workflowId);
-        $actionEntity->setValue("parent_action_id", $parentActionId);
+        $actionEntity->setValue("workflow_id", $workflowGuid);
+        $actionEntity->setValue("parent_action_id", $parentActionGuid);
         $actionEntity->setValue("data", json_encode($actionData['params']));
 
         if (!$this->entityLoader->save($actionEntity)) {
@@ -523,13 +527,14 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         }
 
         $actionToSave->setId($actionEntity->getId());
+        $actionToSave->setGuid($actionEntity->getGuid());
 
         // Save child actions
         $this->saveActions(
             $actionToSave->getActions(),
             $actionToSave->getRemovedActions(),
-            $workflowId,
-            $actionToSave->getId()
+            $workflowGuid,
+            $actionToSave->getGuid()
         );
 
         return false;
@@ -705,11 +710,12 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
             $actionArray = array(
                 "id" => $workflowData['id'],
+                "guid" => $workflowData['guid'],
                 "name" => $workflowData['name'],
                 "workflow_id" => $workflowData['workflow_id'],
                 "type" => $workflowData['type_name'],
                 "parent_action_id" => $workflowData['parent_action_id'],
-                "child_actions" => $this->getActionsArray($workflowData['workflow_id'], $actionId),
+                "child_actions" => $this->getActionsArray($workflowData['workflow_id'], $workflowData['guid']),
             );
 
             // TODO: get child actions

@@ -6,6 +6,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new activity entity
@@ -21,6 +22,7 @@ class ActivityFactory implements Entity\EntityFactoryInterface
     public static function create(AccountServiceManagerInterface $sl)
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ACTIVITY);
-        return new ActivityEntity($def);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new ActivityEntity($def, $entityLoader);
     }
 }

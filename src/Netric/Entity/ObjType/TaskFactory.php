@@ -11,6 +11,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new task entity
@@ -26,6 +27,7 @@ class TaskFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::TASK);
-        return new TaskEntity($def);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new TaskEntity($def, $entityLoader);
     }
 }

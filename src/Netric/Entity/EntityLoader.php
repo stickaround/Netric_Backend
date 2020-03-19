@@ -4,6 +4,8 @@ namespace Netric\Entity;
 use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\Entity;
+use Ramsey\Uuid\Uuid;
 
 /**
  * The identity map (loader) is responsible for loading a specific entity and caching it for future calls.
@@ -134,6 +136,16 @@ class EntityLoader
      */
     public function get($objType, $id, EntityInterface $entityToFill = null)
     {
+        /*
+         * We need to check if the id provided here is a guid or just an id
+         * With the latest update made in object references, we are now using the entity's guid instead of id
+         * Once we have fully migrated to guid and updated all the entities to use guid, then we can remove this function
+         *  and just used the $this->getByGuid() - Marl 02/14/2020
+         */
+        if (Uuid::isValid($id)) {
+            return $this->getByGuid($id);
+        }
+        
         if ($this->isLoaded($objType, $id)) {
             return $this->loadedEntities[$objType][$id];
         }
@@ -270,7 +282,13 @@ class EntityLoader
             $this->clearCache($entity->getDefinition()->getObjtype(), $entity->getId());
         }
 
+        // Also clear the cache for entity guid
+        if ($entity->getGuid()) {
+            $this->clearCacheByGuid($entity->getGuid());
+        }
+
         return $ret;
+        
     }
 
     /**
@@ -303,6 +321,18 @@ class EntityLoader
     }
 
     /**
+     * Clear cache by guid
+     * 
+     * @param string $guid The guid of an entity
+     */
+    public function clearCacheByGuid(string $guid) {
+        if ($guid) {
+            $this->loadedEntities['guid'][$guid] = null;
+            $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/guid/$guid");
+        }
+    }
+
+    /**
      * Clear any cache and reload from the database to make sure we have the latest version
      *
      * @param EntityInterface $entity The entity to refresh
@@ -315,5 +345,40 @@ class EntityLoader
         }
         $this->clearCache($entity->getObjType(), $entity->getId());
         $this->get($entity->getObjType(), $entity->getId(), $entity);
+    }
+
+    /**
+     * Get Revisions for this object
+     *
+     * @param string $objType The name of the object type to get
+     * @param string $id The unique id of the object to get revisions for
+     * @return array("revisionNum"=>Entity)
+     */
+    public function getRevisions($objType, $id)
+    {
+        return $this->dataMapper->getRevisions($objType, $id);
+    }
+
+    /**
+     * Function that will check if the value is a valid uuid or an object reference. Then will return the entity
+     * 
+     * @param string $value This value should be either a valid guid or an entity object reference
+     * @param string $objType Optiional. If the value provided is an entity id, then we need an object type to retrieve the entity
+     */
+    public function getByGuidOrObjRef(string $value, string $objType = "")
+    {
+        // We need to check first if the value is already a guid
+        if (Uuid::isValid($value)) {
+            return $this->getByGuid($value);
+        } else if (is_numeric($value) && $objType) {
+            return $this->get($objType, $value);
+        } else {
+            $parts = Entity::decodeObjRef($value);
+            if (isset($parts['obj_type']) && isset($parts['id'])) {
+                return $this->get($parts['obj_type'], $parts['id']);
+            }
+        }
+
+        return null;
     }
 }

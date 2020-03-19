@@ -16,6 +16,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 class UserTest extends TestCase
 {
@@ -187,14 +188,16 @@ class UserTest extends TestCase
     /**
      * We override getOwnerId to always be self::id
      */
-    public function testGetOwnerId()
+    public function testGetOwnerGuid()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
-        $task->setValue('id', 1);
-        $task->setValue('owner_id', 2);
+        $user = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+
+        $userGuid = Uuid::uuid4()->toString();
+        $user->setValue('guid', $userGuid);
+        $user->setValue('owner_id', Uuid::uuid4()->toString());
 
         // Normally the entity would return the owner_id, but users always return themselves
-        $this->assertEquals(1, $task->getOwnerId());
+        $this->assertEquals($userGuid, $user->getOwnerGuid());
     }
 }

@@ -247,6 +247,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             if ($file) {
                 $ret[] = array(
                     "id" => $file->getId(),
+                    "guid" => $file->getGuid(),
                     "name" => $file->getValue("name"),
                     "ts_updated" => $file->getValue("ts_updated")
                 );
@@ -364,13 +365,13 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         if ($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW)) {
             $response->setCacheable(
                 md5($this->account->getName() .
-                    ".file." . $fileEntity->getId() .
+                    ".file." . $fileEntity->getGuid() .
                     '.r' . $fileEntity->getValue("revision"))
             );
         }
 
         // Set netric entity header
-        $response->setHeader('X-Entity', $fileEntity->getObjRef());
+        $response->setHeader('X-Entity', $fileEntity->getGuid());
 
         // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
@@ -386,11 +387,11 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
     {
         $request = $this->getRequest();
         $response = new HttpResponse($request);
-        $userId = $request->getParam("user_id");
+        $userGuid = $request->getParam("user_id");
 
-        // If the user id was not passed we use current
-        if (!$userId) {
-            $userId = $this->account->getUser()->getId();
+        // If the user guid was not passed then we will use current user's guid
+        if (!$userGuid) {
+            $userGuid = $this->account->getUser()->getGuid();
         }
 
         // We will need the entityLoader to load up a user
@@ -398,7 +399,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         $entiyLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Get the user entity for the user id
-        $userToGetImageFor = $entiyLoader->get(ObjectTypes::USER, $userId);
+        $userToGetImageFor = $entiyLoader->get(ObjectTypes::USER, $userGuid);
         $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
 
         // 404 if the user was not found or there was no image_id uploaded

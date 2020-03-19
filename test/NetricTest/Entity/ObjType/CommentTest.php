@@ -12,6 +12,7 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\CommentEntity;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 class CommentTest extends TestCase
 {
@@ -63,7 +64,7 @@ class CommentTest extends TestCase
         $cid = $entityLoader->save($customer);
 
         // Now save the comment which should increment the num_comments of $customer
-        $comment->setValue("obj_reference", "customer:" . $cid, $customer->getName());
+        $comment->setValue("obj_reference", $customer->getGuid(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 
@@ -93,19 +94,20 @@ class CommentTest extends TestCase
         $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT);
 
+        $userGuid = $uuid4 = Uuid::uuid4()->toString();
         // Save customer with a fake user callout for testing
         $customer->setValue("name", "test sync followers");
-        $customer->setValue("notes", "Hey [user:456:Dave], check this out please.");
+        $customer->setValue("notes", "Hey [user:$userGuid:Dave], check this out please.");
         $cid = $entityLoader->save($customer);
 
         // Now create a comment on the customer which should sync the followers
-        $comment->setValue("obj_reference", "customer:" . $cid, $customer->getName());
+        $comment->setValue("obj_reference", $customer->getGuid(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 
         // Check to make sure the comment has user 456 as a follower copied from customer
         $followers = $comment->getValue("followers");
-        $this->assertTrue(in_array(456, $followers));
+        $this->assertTrue(in_array($userGuid, $followers));
 
         // Cleanup
         $entityLoader->delete($comment, true);

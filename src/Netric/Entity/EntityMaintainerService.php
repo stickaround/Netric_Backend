@@ -338,7 +338,7 @@ class EntityMaintainerService extends AbstractHasErrors
         }
 
         $query = new EntityQuery(ObjectTypes::FILE);
-        $query->where('folder_id')->equals($tmpFolder->getId());
+        $query->where('folder_id')->equals($tmpFolder->getGuid());
         $query->andWhere("ts_entered")->isLessOrEqualTo($cutoff->getTimestamp());
         $result = $this->entityIndex->executeQuery($query);
         $totalNum = $result->getTotalNum();

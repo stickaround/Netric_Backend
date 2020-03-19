@@ -6,6 +6,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\Entity;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new EntityFactory service
@@ -58,7 +59,9 @@ class EntityFactory
         }
 
         $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
+        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
+
         // TODO: if !$def then throw an exception
-        return new Entity($def);
+        return new Entity($def, $entityLoader);
     }
 }
