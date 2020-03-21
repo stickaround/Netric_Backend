@@ -113,7 +113,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                             $ownerGuid = $entity->getGuid();
                         } else {
                             $ownerEntity = $entityLoader->get(ObjectTypes::USER, $ownerGuid);
-                            $ownerGuid = $ownerEntity->getGuid();
+
+                            if ($ownerEntity) {
+                                $ownerGuid = $ownerEntity->getGuid();
+                            }
                         }
                     }
 
