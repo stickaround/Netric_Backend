@@ -102,7 +102,7 @@ pipeline {
             }
         }
 
-        stage('Integration') {
+        /*stage('Integration') {
             steps {
                 script {
                     deployToSwarm(
@@ -113,7 +113,7 @@ pipeline {
                     )
                 }
             }
-        }
+        }*/
 
         stage('Production Setup') {
             steps {
