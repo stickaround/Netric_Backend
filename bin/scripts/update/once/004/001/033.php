@@ -3,13 +3,13 @@
  * Get all entities in objects table, and update each entity's object reference.
  */
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Entity\DataMapper\EntityRdbDataMapper;
+use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\Entity\EntityFactoryFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
-$entityDm = $serviceManager->get(EntityRdbDataMapper::class);
+$entityDm = $serviceManager->get(DataMapperFactory::class);
 $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 
 $result = $db->query("SELECT guid, field_data FROM objects");
