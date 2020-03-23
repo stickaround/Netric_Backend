@@ -15,6 +15,11 @@ $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 $result = $db->query("SELECT guid, field_data FROM objects");
 foreach ($result->fetchAll() as $rowData) {
     $entityData = json_decode($rowData['field_data'], true);
+    
+    if (!$entityData || empty($entityData['obj_type'])) {
+        continue;
+    }
+
     $entityData['guid'] = $rowData['guid'];
     $entity = $entityFactory->create($entityData['obj_type']);
     $entity->fromArray($entityData);
