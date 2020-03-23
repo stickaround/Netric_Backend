@@ -90,7 +90,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * 
      * @param EntityInterface $entity The entity to update its object references
      */
-    public function updatObjectReferencesToGuid(Entity $entity)
+    private function updatObjectReferencesToGuid(Entity $entity)
     {
         $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
