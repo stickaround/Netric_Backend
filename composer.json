@@ -34,7 +34,7 @@
     "php-mime-mail-parser/php-mime-mail-parser": "^2.4",
     "authorizenet/authorizenet": "^1.9",
     "graylog2/gelf-php": "^1.5",
-    "ramsey/uuid": "3.9.2",
+    "ramsey/uuid": "^3.7",
     "ext-json": "*"
   },
   "require-dev": {
