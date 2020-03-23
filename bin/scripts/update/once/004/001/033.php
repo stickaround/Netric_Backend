@@ -12,12 +12,16 @@ $db = $serviceManager->get(RelationalDbFactory::class);
 $entityDm = $serviceManager->get(DataMapperFactory::class);
 $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 
-$result = $db->query("SELECT guid, field_data FROM objects");
+$result = $db->query("SELECT guid, id, field_data FROM objects");
 foreach ($result->fetchAll() as $rowData) {
     $entityData = json_decode($rowData['field_data'], true);
     
     if (!$entityData || empty($entityData['obj_type'])) {
         continue;
+    }
+
+    if (empty($entityData['id'])) {
+        $entityData['id'] = $rowData['id'];
     }
 
     $entityData['guid'] = $rowData['guid'];
