@@ -164,7 +164,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                         // If we haven't found the group in the public groupings, then let's look in the private groupings
                         if (!$group && $privateGroupings) {
-                            $group = $privateGroupings->getByGuidOrGroupId($value);
+                            $group = $privateGroupings->getByGuidOrGroupId($fieldValue);
                         }
 
                         // Make sure that we have retrieved the group
