@@ -312,7 +312,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         if (!$ret) {
             $movedToId = $this->entityHasMoved($entity->getDefinition(), $id);
             if ($movedToId && $movedToId != $id) {
-                $ret = $this->fetchById($entity, $movedToId);
+                $ret = $this->fetchById($entity, $movedToId, $skipObjRefUpdate);
             }
         }
 

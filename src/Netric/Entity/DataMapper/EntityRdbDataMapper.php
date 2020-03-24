@@ -211,7 +211,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                             if ($value) {
                                 // Get the referenced entity
-                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype, $entity->getGuid() . ":" . $entity->getName());
+                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype, $entity->getObjType() . ":" . $entity->getId() . ":" . $entity->getName());
 
                                 // If we have successfully loaded the referenced entity, then we will add its guid
                                 if ($referencedEntity) {
