@@ -16,8 +16,6 @@ $entityDm = $serviceManager->get(DataMapperFactory::class);
 $objTypes = [
     ObjectTypes::APPROVAL,
     ObjectTypes::COMMENT,
-    ObjectTypes::CONTACT,
-    ObjectTypes::CONTACT_PERSONAL,
     ObjectTypes::CONTENT_FEED,
     ObjectTypes::CONTENT_FEED_POST,
     ObjectTypes::DASHBOARD,
