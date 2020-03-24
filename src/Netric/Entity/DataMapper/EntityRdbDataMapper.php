@@ -175,14 +175,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_OBJECT:
                     $objValue = $entity->getValue($field->name);
 
-                    // If this entity is trying to add itself as object reference, then we will not allow it.
-                    if ($entity->getObjRef() == $objValue || ($entity->getId() == $objValue && $entity->getObjType() == $field->subtype)) {
-                        continue;
-                    }
-
                     if ($objValue) {
                         // Get the referenced entity
-                        $referencedEntity = $entityLoader->getByGuidOrObjRef($objValue, $field->subtype);
+                        $referencedEntity = $entityLoader->getByGuidOrObjRef($objValue, $field->subtype, $entity);
 
                         if ($referencedEntity) {
                             $entity->setValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
@@ -197,14 +192,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     if (is_array($refValues)) {
                         forEach($refValues as $value) {
 
-                            // If this entity is trying to add itself as object reference, then we will not allow it.
-                            if ($entity->getObjRef() == $value || ($entity->getId() == $value && $entity->getObjType() == $field->subtype)) {
-                                continue;
-                            }
-
                             if ($value) {
                                 // Get the referenced entity
-                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
+                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype, $entity);
 
                                 // If we have successfully loaded the referenced entity, then we will add its guid
                                 if ($referencedEntity) {

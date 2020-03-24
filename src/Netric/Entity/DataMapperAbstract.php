@@ -582,13 +582,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
             switch ($field->type) {
                 case Field::TYPE_OBJECT:
-                    // If this entity is trying to add itself as object reference, then we will not allow it.
-                    if ($entity->getObjRef() == $value || ($entity->getId() == $value && $entity->getObjType() == $field->subtype)) {
-                        continue;
-                    }
 
                     // Get the referenced entity
-                    $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
+                    $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype, $entity);
 
                     // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
                     if (!$referencedEntity) {
@@ -605,13 +601,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     if (is_array($value)) {
                         foreach ($value as $id) {
 
-                            // If this entity is trying to add itself as object reference, then we will not allow it.
-                            if ($entity->getObjRef() == $id || ($entity->getId() == $id && $entity->getObjType() == $field->subtype)) {
-                                continue;
-                            }
-
                             // Get the referenced entity
-                            $referencedEntity = $entityLoader->getByGuidOrObjRef($id, $field->subtype);
+                            $referencedEntity = $entityLoader->getByGuidOrObjRef($id, $field->subtype, $entity);
 
                             // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
                             if (!$referencedEntity) {

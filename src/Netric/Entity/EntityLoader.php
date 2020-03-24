@@ -365,8 +365,13 @@ class EntityLoader
      * @param string $value This value should be either a valid guid or an entity object reference
      * @param string $objType Optiional. If the value provided is an entity id, then we need an object type to retrieve the entity
      */
-    public function getByGuidOrObjRef(string $value, string $objType = "")
+    public function getByGuidOrObjRef(string $value, string $objType = "", $entity = null)
     {
+        // If this entity is trying to add itself as object reference, then we will not allow it.
+        if ($entity && ($entity->getObjRef() == $value || $entity->getId() == $value )) {
+            return null;
+        }
+
         // We need to check first if the value is already a guid
         if (Uuid::isValid($value)) {
             return $this->getByGuid($value);
