@@ -500,7 +500,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $values = $entity->getValue($field->name);
         if (is_array($values)) {
             foreach ($values as $val) {
-                if ($val) {
+                if (Uuid::isValid($val) || is_numeric($val)) {
                     $dataToInsert = [];
                     $dataToInsert[$field->fkeyTable['ref_table']['ref']] = $val;
                     $dataToInsert[$field->fkeyTable['ref_table']["this"]] = $entity->getId();
