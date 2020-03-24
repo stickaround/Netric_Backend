@@ -134,7 +134,7 @@ class EntityLoader
      * @param EntityInterface $entityToFill Optional entity to fill rather than creating a new one
      * @return EntityInterface
      */
-    public function get($objType, $id, EntityInterface $entityToFill = null)
+    public function get($objType, $id, EntityInterface $entityToFill = null, $skipObjRefUpdate = false)
     {
         /*
          * We need to check if the id provided here is a guid or just an id
@@ -175,7 +175,7 @@ class EntityLoader
         StatsPublisher::increment("entity.cache.miss");
 
         // Load from datamapper
-        if ($this->dataMapper->getById($entity, $id)) {
+        if ($this->dataMapper->getById($entity, $id, $skipObjRefUpdate)) {
             $this->loadedEntities[$objType][$id] = $entity;
             $this->cache->set($this->dataMapper->getAccount()->getName() . "/objects/$objType/$id", $entity->toArray());
             return $entity;
@@ -371,11 +371,11 @@ class EntityLoader
         if (Uuid::isValid($value)) {
             return $this->getByGuid($value);
         } else if (is_numeric($value) && $objType) {
-            return $this->get($objType, $value);
+            return $this->get($objType, $value, null, true);
         } else {
             $parts = Entity::decodeObjRef($value);
             if (isset($parts['obj_type']) && isset($parts['id'])) {
-                return $this->get($parts['obj_type'], $parts['id']);
+                return $this->get($parts['obj_type'], $parts['id'], null, true);
             }
         }
 

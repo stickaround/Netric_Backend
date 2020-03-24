@@ -301,13 +301,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param int $id The unique id of the entity to load
      * @return bool true if found and loaded successfully, false if not found or failed
      */
-    public function getById(EntityInterface $entity, $id)
+    public function getById(EntityInterface $entity, $id, $skipObjRefUpdate = false)
     {
         if (!empty($id) && !is_numeric($id)) {
             throw new \InvalidArgumentException("$id is not a valid entity id");
         }
 
-        $ret = $this->fetchById($entity, $id);
+        $ret = $this->fetchById($entity, $id, $skipObjRefUpdate);
 
         if (!$ret) {
             $movedToId = $this->entityHasMoved($entity->getDefinition(), $id);

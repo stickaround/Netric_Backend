@@ -49,7 +49,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var string $id The Id of the object
      * @return bool true on success, false on failure
      */
-    protected function fetchById($entity, $id)
+    protected function fetchById($entity, $id, $skipObjRefUpdate = false)
     {
         $def = $entity->getDefinition();
 
@@ -80,7 +80,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
 
         // Make sure that we are now using guid for object references
-        $this->updatObjectReferencesToGuid($entity);
+        if (!$skipObjRefUpdate) {
+            $this->updatObjectReferencesToGuid($entity);
+        }
 
         return true;
     }
@@ -204,7 +206,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                             if ($value) {
                                 // Get the referenced entity
-                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype, $entity->getName() . ":" . $entity->getGuid());
+                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
 
                                 // If we have successfully loaded the referenced entity, then we will add its guid
                                 if ($referencedEntity) {
