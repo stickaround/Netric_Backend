@@ -138,6 +138,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                             
                             // Loop thru the fieldValue and look for referenced group that still have id
                             forEach($fieldValue as $value) {
+                                
+                                if (!$value) {
+                                    continue;
+                                }
+
                                 // Look first in public groupings and see if the group id exists.
                                 $group = $publicGroupings->getByGuidOrGroupId($value);
 

@@ -627,15 +627,18 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     break;
 
                 case Field::TYPE_GROUPING:
-                    $objType = $entity->getDefinition()->getObjType();
-                    $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
-
-                    // Clear the value in preparation for an update - or to remove it if group was deleted
-                    $entity->setValue($field->name, null);
-                    $group = $grouping->getByGuidOrGroupId($value);
-                    if ($group) {
-                        // If the group exists then update the name
-                        $entity->setValue($field->name, $value, $group->name);
+                    if ($value) {
+                        $objType = $entity->getDefinition()->getObjType();
+                        $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
+    
+                        // Clear the value in preparation for an update - or to remove it if group was deleted
+                        $entity->setValue($field->name, null);
+                        $group = $grouping->getByGuidOrGroupId($value);
+                        
+                        if ($group) {
+                            // If the group exists then update the name
+                            $entity->setValue($field->name, $value, $group->name);
+                        }
                     }
                     break;
 
@@ -645,6 +648,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     
                     if (is_array($value)) {
                         foreach ($value as $id) {
+
+                            if (!$id) {
+                                continue;
+                            }
+
                             // Clear the value in preparation for an update - or to remove it if group was deleted
                             $entity->removeMultiValue($field->name, $id);
                             $group = $grouping->getByGuidOrGroupId($id);
