@@ -35,7 +35,7 @@ class ObjectTypes
     const HTML_TEMPLATE = 'html_template';
     const HTML_SNIPPET = 'cms_snippet';
     const INVOICE = 'invoice';
-    const INVOICE_TEMPLATE = 'invoice_templace';
+    const INVOICE_TEMPLATE = 'invoice_template';
     const ISSUE = 'case';
     const LEAD = 'lead';
     const LOG = 'log';

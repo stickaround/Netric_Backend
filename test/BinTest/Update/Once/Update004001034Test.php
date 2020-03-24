@@ -1,6 +1,6 @@
 <?php
 /**
- * Make sure the bin/scripts/update/once/004/001/032.php script works
+ * Make sure the bin/scripts/update/once/004/001/034.php script works
  */
 namespace BinTest\Update\Once;
 
@@ -17,7 +17,7 @@ use Netric\Log\LogFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 
 
-class Update004001032Test extends TestCase
+class Update004001034Test extends TestCase
 {
     /**
      * Handle to account
@@ -46,7 +46,7 @@ class Update004001032Test extends TestCase
     protected function setUp(): void
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/032.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/034.php";
         $this->entityDataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
     }
 
