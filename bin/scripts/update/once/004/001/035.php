@@ -1,6 +1,6 @@
 <?php
 /**
- * Get the entities from objects_* table (part/chunk 1) and update its object reference.
+ * Get the entities from objects_* table (part/chunk 2) and update its object reference.
  */
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
@@ -14,19 +14,33 @@ $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 $entityDm = $serviceManager->get(DataMapperFactory::class);
 
 $objTypes = [
-    ObjectTypes::APPROVAL,
-    ObjectTypes::CALENDAR,
-    ObjectTypes::CALENDAR_EVENT,
-    ObjectTypes::CALENDAR_EVENT_PROPOSAL,
-    ObjectTypes::CONTACT,
-    ObjectTypes::CONTACT_PERSONAL,
-    ObjectTypes::COMMENT,
-    ObjectTypes::CONTENT_FEED,
-    ObjectTypes::CONTENT_FEED_POST,
-    ObjectTypes::DASHBOARD,
-    ObjectTypes::DASHBOARD_WIDGET,
-    ObjectTypes::DISCUSSION,
-    ObjectTypes::DOCUMENT,
+  ObjectTypes::HTML_TEMPLATE,
+  ObjectTypes::HTML_SNIPPET,
+  ObjectTypes::INVOICE,
+  ObjectTypes::INVOICE_TEMPLATE,
+  ObjectTypes::ISSUE,
+  ObjectTypes::LEAD,
+  ObjectTypes::MARKETING_CAMPAIGN,
+  ObjectTypes::MEMBER,
+  ObjectTypes::NOTE,
+  ObjectTypes::NOTIFICATION,
+  ObjectTypes::OPPORTUNITY,
+  ObjectTypes::PAGE,
+  ObjectTypes::PAGE_TEMPLATE,
+  ObjectTypes::PHONE_CALL,
+  ObjectTypes::PRODUCT,
+  ObjectTypes::PRODUCT_FAMILY,
+  ObjectTypes::PRODUCT_REVIEW,
+  ObjectTypes::PROJECT,
+  ObjectTypes::PROJECT_MILESTONE,
+  ObjectTypes::REMINDER,
+  ObjectTypes::REPORT,
+  ObjectTypes::SALES_ORDER,
+  ObjectTypes::SALES_PAYMENT,
+  ObjectTypes::SALES_PAYMENT_PROFILE,
+  ObjectTypes::SITE,
+  ObjectTypes::USER,
+  ObjectTypes::USER_TEAM
 ];
 
 // Loop thru object types
