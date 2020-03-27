@@ -466,4 +466,29 @@ class EntityTest extends TestCase
         $activity->setValue('user_id', $userGuid);
         $this->assertEquals($userGuid, $activity->getOwnerGuid());
     }
+
+    /**
+     * Check if we can verify if the user has direct access to an entity if the user was assgined as creator_id, owner_id, or user_id
+     */
+    public function testCheckUserAccess()
+    {
+        $sm = $this->account->getServiceManager();
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        
+        $creatorGuid = Uuid::uuid4()->toString();
+        $userGuid = Uuid::uuid4()->toString();
+        $ownerGuid = Uuid::uuid4()->toString();
+
+        $task->setValue('owner_id', $ownerGuid);
+        $task->setValue('user_id', $userGuid);
+        $task->setValue('creator_id', $creatorGuid);
+
+
+        $this->assertTrue($task->checkUserAccess($ownerGuid));
+        $this->assertTrue($task->checkUserAccess($userGuid));
+        $this->assertTrue($task->checkUserAccess($creatorGuid));
+
+        // This should be false if we are providing a userGuid that is not allowed to have access
+        $this->assertFalse($task->checkUserAccess(Uuid::uuid4()->toString()));
+    }
 }
