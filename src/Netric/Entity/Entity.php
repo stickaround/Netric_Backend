@@ -454,24 +454,6 @@ class Entity implements EntityInterface
     }
 
     /**
-     * Check if user is assigned in creator_id, user_id, or owner_id. This is mostly used when verifying if the user has direct access to this entity.
-     * 
-     * @param string $userGuid The user that we will be checking
-     */
-    public function checkUserAccess(string $userGuid)
-    {
-        if ($this->getValue('owner_id') == $userGuid) {
-            return true;
-        } else if ($this->getValue('user_id') == $userGuid) {
-            return true;
-        } else if ($this->getValue('creator_id') == $userGuid) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Record changes to the local changelog
      *
      * @param $strName
