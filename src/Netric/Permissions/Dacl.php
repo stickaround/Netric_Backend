@@ -293,17 +293,15 @@ class Dacl
     public function isAllowed(UserEntity $user, $permission = self::PERM_FULL, $entity = null)
     {
         $userGuid = $user->getGuid();
-        
+
         /*
-         * If the user is the owner/creator of this entity or if the user was assigned to this entity
+         * If $entity is provided and if the $user is the owner/creator of $entity or if $user was assigned to $entity
          * Then no need to check for the dacl entries
          */
         if ($entity && ($entity->getValue("user_id") == $userGuid || $entity->getOwnerGuid() == $userGuid)) {
             return true;
         }
 
-        $groups = $user->getGroups();
-        
         // First check to see if the user has full control
         if (self::PERM_FULL == $permission) {
             foreach ($this->entries as $pname => $entry) {
@@ -327,6 +325,7 @@ class Dacl
                 }
 
                 // Test groups
+                $groups = $user->getGroups();
                 foreach ($this->entries[$permission]->groups as $gid) {
                     if (in_array($gid, $groups)) {
                         return true;
