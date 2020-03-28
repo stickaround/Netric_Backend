@@ -30,17 +30,7 @@ $objTypes = [
   ObjectTypes::PHONE_CALL,
   ObjectTypes::PRODUCT,
   ObjectTypes::PRODUCT_FAMILY,
-  ObjectTypes::PRODUCT_REVIEW,
-  ObjectTypes::PROJECT,
-  ObjectTypes::PROJECT_MILESTONE,
-  ObjectTypes::REMINDER,
-  ObjectTypes::REPORT,
-  ObjectTypes::SALES_ORDER,
-  ObjectTypes::SALES_PAYMENT,
-  ObjectTypes::SALES_PAYMENT_PROFILE,
-  ObjectTypes::SITE,
-  ObjectTypes::USER,
-  ObjectTypes::USER_TEAM
+  ObjectTypes::PRODUCT_REVIEW
 ];
 
 // Loop thru object types

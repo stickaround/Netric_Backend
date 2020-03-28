@@ -921,13 +921,10 @@ class EntityController extends Mvc\AbstractAccountController
      */
     private function checkIfUserIsAllowed(Entity $entity, $permission)
     {
-
         // Check entity permission
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
-        $user = $this->account->getUser();
-        $isOwner = ($entity->getOwnerGuid() == $user->getGuid());
 
-        return $dacl->isAllowed($user, $permission, $isOwner);
+        return $dacl->isAllowed($this->account->getUser(), $permission, $entity);
     }
 }
