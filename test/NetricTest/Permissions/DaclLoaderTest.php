@@ -192,6 +192,7 @@ class DaclLoaderTest extends TestCase
         // New file with no DACL
         $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
+        $file->setValue("owner_id", $this->user->getGuid());
         $entityLoader->save($file);
         $this->testEntities[] = $file;
 
@@ -202,6 +203,6 @@ class DaclLoaderTest extends TestCase
         $this->assertFalse($dacl->isAllowed($this->user));
 
         // Try creator owner
-        $this->assertTrue($dacl->isAllowed($this->user, Dacl::PERM_DEFAULT, true));
+        $this->assertTrue($dacl->isAllowed($this->user, Dacl::PERM_DEFAULT, $file));
     }
 }

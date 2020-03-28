@@ -924,16 +924,7 @@ class EntityController extends Mvc\AbstractAccountController
         // Check entity permission
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
-        $userGuid = $this->account->getUser()->getGuid();
-        
-        /*
-         * If the user is the owner/creator of this entity or if the user was assigned to this entity
-         * Then no need to check for the dacl permission and just return true.
-         */
-        if ($entity->getValue("user_id") == $userGuid || $entity->getOwnerGuid() == $userGuid) {
-            return true;
-        }
 
-        return $dacl->isAllowed($user, $permission);
+        return $dacl->isAllowed($this->account->getUser(), $permission, $entity);
     }
 }

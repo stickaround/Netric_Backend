@@ -8,6 +8,7 @@
 namespace Netric\Permissions;
 
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityInterface;
 use Netric\Permissions\Dacl\Entry;
 
 /**
@@ -286,20 +287,27 @@ class Dacl
      *
      * @param UserEntity $user The user to check for access
      * @param string $permission The permission to check against. Defaults to 'Full Control'
-     * @param bool $isowner Set to true if the user is the owner of the object being secured by this DACL
+     * @param EntityInterface $entity Optional. If entity is provided, then we can check if the $user is assigned as owner/creator/user of $entity
      * @return bool true if allowed, false if not allowed
      */
-    public function isAllowed(UserEntity $user, $permission = self::PERM_FULL, $isowner = false)
+    public function isAllowed(UserEntity $user, $permission = self::PERM_FULL, $entity = null)
     {
-        $groups = $user->getGroups();
-        if ($isowner) {
-            $groups[] = UserEntity::GROUP_CREATOROWNER; // Add to Creator/Owner group
+        $userGuid = $user->getGuid();
+        
+        /*
+         * If the user is the owner/creator of this entity or if the user was assigned to this entity
+         * Then no need to check for the dacl entries
+         */
+        if ($entity && ($entity->getValue("user_id") == $userGuid || $entity->getOwnerGuid() == $userGuid)) {
+            return true;
         }
 
+        $groups = $user->getGroups();
+        
         // First check to see if the user has full control
         if (self::PERM_FULL == $permission) {
             foreach ($this->entries as $pname => $entry) {
-                if (!$this->isAllowed($user, $pname, $isowner)) {
+                if (!$this->isAllowed($user, $pname, $entity)) {
                     return false;
                 }
             }

@@ -10,6 +10,7 @@ use Netric\Permissions\Dacl;
 use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 class DaclTest extends TestCase
 {
@@ -60,7 +61,7 @@ class DaclTest extends TestCase
 
     public function testAllowUser()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
 
         // First pass will fail since users was not given access
         $this->assertFalse($dacl->isAllowed($this->user));
@@ -73,7 +74,7 @@ class DaclTest extends TestCase
 
     public function testAllowGroup()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
 
         // First pass will fail since users was not given access
         $this->assertFalse($dacl->isAllowed($this->user));
@@ -86,7 +87,7 @@ class DaclTest extends TestCase
 
     public function testDenyUser()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
 
         // Add user which should cause it to pass
         $dacl->allowUser($this->user->getId());
@@ -99,7 +100,7 @@ class DaclTest extends TestCase
 
     public function testDenyGroup()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
 
         // Add user which should cause it to pass
         $dacl->allowGroup(UserEntity::GROUP_USERS);
@@ -122,7 +123,7 @@ class DaclTest extends TestCase
             ),
         );
 
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
         $dacl->fromArray($data);
 
         // Make sure it was loaded
@@ -142,7 +143,7 @@ class DaclTest extends TestCase
 
     public function testToArray()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
         $dacl->allowGroup(UserEntity::GROUP_USERS);
         $dacl->allowUser($this->user->getId());
 
@@ -152,7 +153,7 @@ class DaclTest extends TestCase
 
     public function testGetUsers()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
         $dacl->allowUser($this->user->getId());
 
         $users = $dacl->getUsers();
@@ -162,7 +163,7 @@ class DaclTest extends TestCase
 
     public function testGetGroups()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
         $dacl->allowGroup(UserEntity::GROUP_USERS);
 
         $groups = $dacl->getGroups();
@@ -172,7 +173,7 @@ class DaclTest extends TestCase
 
     public function testGroupIsAllowed()
     {
-        $dacl = new Permissions\Dacl();
+        $dacl = new Dacl();
         $dacl->allowGroup(UserEntity::GROUP_USERS);
 
         // Make sure anonymous access is not allowed if only authenticated users were given access
@@ -182,10 +183,33 @@ class DaclTest extends TestCase
         $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_USERS, Dacl::PERM_VIEW));
 
         // Now give everyone view only access and test
-        $dacl->allowGroup(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW);
+        $dacl->allowGroup(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW);
         $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW));
 
         // But not edit
         $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_EDIT));
+    }
+
+    public function testIsAllowedOnEntity()
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $entityLoader->create(ObjectTypes::USER);
+        $user->setValue("guid", Uuid::uuid4()->toString());
+
+        $userOwner = $entityLoader->create(ObjectTypes::USER);
+        $userOwner->setValue("guid", Uuid::uuid4()->toString());
+
+        $task = $entityLoader->create(ObjectTypes::TASK);
+        $task->setValue('user_id', $user->getGuid());
+        $task->setValue('owner_id', $userOwner->getGuid());
+
+        $dacl = new Dacl();
+        $this->assertTrue($dacl->isAllowed($user, null, $task));
+        $this->assertTrue($dacl->isAllowed($userOwner, null, $task));
+
+        // This should be false since the $userNotAssigned is not assigned in the task
+        $userNotAssigned = $entityLoader->create(ObjectTypes::USER);
+        $userNotAssigned->setValue("guid", Uuid::uuid4()->toString());
+        $this->assertFalse($dacl->isAllowed($userNotAssigned, null, $task));
     }
 }
