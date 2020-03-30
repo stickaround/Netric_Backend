@@ -1,6 +1,6 @@
 <?php
 /**
- * Get the entities from objects_* table (part/chunk 3) and update its object reference.
+ * Get the entities from objects_* table (part/chunk 4) and update its object reference.
  */
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
@@ -14,6 +14,16 @@ $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 $entityDm = $serviceManager->get(DataMapperFactory::class);
 
 $objTypes = [
+  ObjectTypes::SITE,
+  ObjectTypes::PROJECT,
+  ObjectTypes::USER,
+  ObjectTypes::USER_TEAM,
+  ObjectTypes::PROJECT_MILESTONE,
+  ObjectTypes::REMINDER,
+  ObjectTypes::REPORT,
+  ObjectTypes::SALES_ORDER,
+  ObjectTypes::SALES_PAYMENT,
+  ObjectTypes::SALES_PAYMENT_PROFILE
 ];
 
 // Loop thru object types
