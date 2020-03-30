@@ -14,23 +14,6 @@ $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 $entityDm = $serviceManager->get(DataMapperFactory::class);
 
 $objTypes = [
-  ObjectTypes::HTML_TEMPLATE,
-  ObjectTypes::HTML_SNIPPET,
-  ObjectTypes::INVOICE,
-  ObjectTypes::INVOICE_TEMPLATE,
-  ObjectTypes::ISSUE,
-  ObjectTypes::LEAD,
-  ObjectTypes::MARKETING_CAMPAIGN,
-  ObjectTypes::MEMBER,
-  ObjectTypes::NOTE,
-  ObjectTypes::NOTIFICATION,
-  ObjectTypes::OPPORTUNITY,
-  ObjectTypes::PAGE,
-  ObjectTypes::PAGE_TEMPLATE,
-  ObjectTypes::PHONE_CALL,
-  ObjectTypes::PRODUCT,
-  ObjectTypes::PRODUCT_FAMILY,
-  ObjectTypes::PRODUCT_REVIEW
 ];
 
 // Loop thru object types

@@ -14,19 +14,6 @@ $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 $entityDm = $serviceManager->get(DataMapperFactory::class);
 
 $objTypes = [
-    ObjectTypes::APPROVAL,
-    ObjectTypes::CALENDAR,
-    ObjectTypes::CALENDAR_EVENT,
-    ObjectTypes::CALENDAR_EVENT_PROPOSAL,
-    ObjectTypes::CONTACT,
-    ObjectTypes::CONTACT_PERSONAL,
-    ObjectTypes::COMMENT,
-    ObjectTypes::CONTENT_FEED,
-    ObjectTypes::CONTENT_FEED_POST,
-    ObjectTypes::DASHBOARD,
-    ObjectTypes::DASHBOARD_WIDGET,
-    ObjectTypes::DISCUSSION,
-    ObjectTypes::DOCUMENT,
 ];
 
 // Loop thru object types
