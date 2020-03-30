@@ -14,6 +14,11 @@ $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 $entityDm = $serviceManager->get(DataMapperFactory::class);
 
 $objTypes = [
+    ObjectTypes::SITE,
+    ObjectTypes::PROJECT,
+    ObjectTypes::USER,
+    ObjectTypes::USER_TEAM,
+    ObjectTypes::PROJECT_MILESTONE,
 ];
 
 // Loop thru object types
