@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
@@ -63,7 +64,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $row = $result->fetch();
 
             $def->title = $row["title"];
-            $def->revision = (int)$row["revision"];
+            $def->revision = (int) $row["revision"];
             $def->system = ($row["f_system"] == 1) ? true : false;
             $def->systemDefinitionHash = $row['system_definition_hash'];
             $def->setId($row["id"]);
@@ -638,13 +639,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 }
             }
         }
-
-        /*
-         * TODO: Remove this once everything is being tested in production - Marl 12-17-19
-         * We need to remove this line since we do not need to create the columns for each table anymore
-         * All the definition columns will be inherited from objects table - INHERITS (objects)
-         */
-        // $this->checkObjColumn($def, $field);
     }
 
     /**
@@ -668,163 +662,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $this->database->query("ALTER TABLE " . $tableName . " DROP COLUMN $fname;");
     }
 
-    /**
-     * Make sure column exists for a field
-     *
-     * @param EntityDefintionn $def The EntityDefinition we are saving
-     * @param EntityDefinition_Field The Field to verity we have a column for
-     * @return bool true on success, false on failure
-     */
-    private function checkObjColumn($def, $field)
-    {
-        $colname = $field->name;
-        $ftype = $field->type;
-        $subtype = $field->subtype;
-        $mustBeIndexed = $field->mustBeIndexed;
-        $tableName = strtolower($def->getTable());
-
-        // Use different type for creating the system revision commit_id
-        if ($field->name == "commit_id") {
-            $fType = "bigint";
-        }
-
-        if (!$this->database->columnExists($tableName, $colname)) {
-            $index = ""; // set to create dynamic indexes
-
-            switch ($ftype) {
-                case 'text':
-                    if ($subtype) {
-                        if (is_numeric($subtype)) {
-                            $type = "character varying($subtype)";
-                            $index = "btree";
-                        } else {
-                            // Handle special types
-                            switch ($subtype) {
-                                case 'email':
-                                    $type = "character varying(256)";
-                                    $index = "btree";
-                                    break;
-                                case 'zipcode':
-                                    $type = "character varying(32)";
-                                    $index = "btree";
-                                    break;
-                                default:
-                                    $type = "text";
-                                    $index = "gin";
-                                    break;
-                            }
-                        }
-                    } else {
-                        $type = "text";
-                        $index = "gin";
-                    }
-
-                    // else leave it as text
-                    break;
-                case 'alias':
-                    $type = "character varying(128)";
-                    $index = "btree";
-                    break;
-                case 'timestamp':
-                    $type = "timestamp with time zone";
-                    $index = "btree";
-                    break;
-                case 'date':
-                    $type = "date";
-                    $index = "btree";
-                    break;
-                case 'integer':
-                    $type = "integer";
-                    $index = "btree";
-                    break;
-                case 'bigint':
-                    $type = "bigint";
-                    $index = "btree";
-                    break;
-                case 'real': // legacy only
-                case 'numeric': // If ftype is already numeric, it should set the type
-                    $type = "numeric";
-                    $index = "btree";
-                    break;
-                case 'int':
-                case 'integer':
-                case 'number':
-                    if ($subtype) {
-                        $type = $subtype;
-                    } else {
-                        $type = "numeric";
-                    }
-
-                    $index = "btree";
-                    break;
-                case 'fkey':
-                    $type = "integer";
-                    $index = "btree";
-                    break;
-
-                case 'fkey_multi':
-                    $type = "text"; // store json
-
-                    //$type = "integer[]";
-                    //$index = "GIN";
-                    break;
-
-                case 'object_multi':
-                    $type = "text"; // store json
-
-                    //$type = "text[]";
-                    //$index = "GIN";
-                    break;
-
-                case 'bool':
-                case 'boolean':
-                    $type = "bool DEFAULT false";
-                    break;
-
-                case 'object':
-                    if ($subtype) {
-                        $type = "bigint";
-                        $index = "btree";
-                    } else {
-                        $type = "character varying(512)";
-                        $index = "btree";
-                    }
-                    break;
-
-                case 'uuid':
-                    $type = "uuid";
-                    break;
-                case 'auto':
-                    // Special type should not have a column
-                    $type = '';
-                    break;
-                default:
-                    throw new \RuntimeException(
-                        'Did not know how to create column ' .
-                        $tableName . ':' . $colname . ':' . $ftype
-                    );
-            }
-
-            // Make sure that the column does not exist yet
-            if ($mustBeIndexed && $type && !$this->database->columnExists($tableName, $colname)) {
-                $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN $colname $type");
-
-                // Store cached foreign key names
-                if ($ftype == FIELD::TYPE_GROUPING || $ftype == FIELD::TYPE_OBJECT || $ftype == FIELD::TYPE_GROUPING_MULTI || $ftype == FIELD::TYPE_OBJECT_MULTI) {
-                    $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN " . $colname . "_fval text");
-                }
-            }
-        } else {
-            // Make sure that existing foreign fields have local _fval caches
-            if ($mustBeIndexed && ($ftype == FIELD::TYPE_GROUPING || $ftype == FIELD::TYPE_OBJECT || $ftype == FIELD::TYPE_GROUPING_MULTI || $ftype == FIELD::TYPE_OBJECT_MULTI)) {
-                if (!$this->database->columnExists($tableName, $colname . "_fval")) {
-                    $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN " . $colname . "_fval text");
-                }
-            }
-        }
-
-        return true;
-    }
 
     /**
      * Object tables are created dynamically to inherit from the parent object table

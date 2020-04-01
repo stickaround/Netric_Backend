@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'note'
  */
@@ -38,7 +39,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'deadline')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline')
     ),
 
     'my_tasks_due_today' => array(
@@ -76,7 +77,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline')
     ),
 
     'all_my_tasks' => array(
@@ -102,7 +103,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline')
     ),
 
     'tasks_i_have_assigned' => array(
@@ -140,7 +141,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'user_id')
     ),
 
     'all_incomplete_tasks' => array(
@@ -166,7 +167,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'user_id')
     ),
 
     'all_tasks' => array(
@@ -184,6 +185,6 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'user_id')
     ),
 );
