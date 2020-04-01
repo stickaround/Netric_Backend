@@ -30,7 +30,7 @@
 				<field name='parent' class='compact' tooltip='A project can be a child of much larger projects which allows for smaller teams working on massive projects. This is not a commonly used feature, few projects are of that scale; but if you find a project has too much noise from all the people and activity it might be helpful to split out subprojects and make smaller teams.'></field>
 			</row>
 			<row>
-				<field name='user_id' class='compact' tooltip='Each project must have one responisble owner even though many members may be working on the project.'></field>
+				<field name='owner_id' class='compact' tooltip='Each project must have one responisble owner even though many members may be working on the project.'></field>
 			</row>
 			<row>
 				<field name='customer_id' class='compact'></field>

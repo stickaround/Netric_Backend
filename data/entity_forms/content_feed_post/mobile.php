@@ -4,7 +4,7 @@
 	</row>
 	<row>
 		<field name='status_id'></field>
-		<field name='user_id'></field>
+		<field name='owner_id'></field>
 		<field name='feed_id'></field>
 		<field name='categories'></field>
 		<field name='time_entered'></field>

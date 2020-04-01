@@ -172,7 +172,7 @@ class EntityController extends Mvc\AbstractAccountController
             if (!empty($params['guid'])) {
                 // Retrieve the entity by guid
                 $entity = $entityLoader->getByGuid($params['guid']);
-            } elseif (isset($params['id']) && isset($params['obj_type'])) {
+            } elseif (!empty($params['id']) && !empty($params['obj_type'])) {
                 // Retrieve the entity by obj_type and id
                 $entity = $entityLoader->get($params['obj_type'], $params['id']);
             } elseif (!empty($params['uname'])) {

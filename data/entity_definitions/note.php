@@ -32,14 +32,7 @@ return array(
             'subtype'=>'32',
             'readonly'=>true,
             'default'=>array("value"=>"html", "on"=>"null")
-        ),
-        'user_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>true,
-            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
-        ),
+        ),        
         'groups' => array(
             'title'=>'Groups',
             'type'=>Field::TYPE_GROUPING_MULTI,

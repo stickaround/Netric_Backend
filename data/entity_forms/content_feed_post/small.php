@@ -8,7 +8,7 @@
 <field name='site_id'
        tooltip='Optional, indicate this post belongs to a specific site if publishing to a site managed through netric.'></field>
 <field name='status_id'></field>
-<field name='user_id'></field>
+<field name='owner_id'></field>
 <field name='categories'
        tooltip='Each feed has its own set of categories for posts. To edit, click the "Categories" tab in the parent feed of this post. This is commonly used to create blog post categories. May be left blank.'></field>
 <field name='time_entered'></field>

@@ -118,10 +118,10 @@ class Update004001023Test extends TestCase
         $userMovedFromId = $entityDataMapper->save($userMovedFrom);
         $this->testEntities[] = $userMovedFrom;
 
-        // Create a task entity and set the $userMovedFrom as our user_id
+        // Create a task entity and set the $userMovedFrom as our owner_id
         $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "Referenced Entity for User Moved From");
-        $task->setValue("user_id", $userMovedFromId);
+        $task->setValue("owner_id", $userMovedFromId);
         $taskId = $entityDataMapper->save($task);
         $this->testEntities[] = $task;
 
@@ -139,7 +139,7 @@ class Update004001023Test extends TestCase
          * We need to manually update the task entity to set the old user id
          * because entityDataMapper is checking the foreign tables before setting a referenced entity
          */
-        $taskOldUserRef->setValue("user_id", $oldUserId);
+        $taskOldUserRef->setValue("owner_id", $oldUserId);
         $sql = "UPDATE objects_task SET field_data = :field_data WHERE field_data->>'id' = :id";
         $db->query($sql, [
             "field_data" => json_encode($taskOldUserRef->toArray()),
@@ -170,9 +170,9 @@ class Update004001023Test extends TestCase
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
 
-        // Load the task entity and it should update the moved from user_id to moved to user_id
+        // Load the task entity and it should update the moved from owner_id to moved to owner_id
         $entityLoader->clearCache(ObjectTypes::TASK, $taskId);
         $taskEntity = $entityLoader->get(ObjectTypes::TASK, $taskId);
-        $this->assertEquals($userMovedFrom->getGuid(), $taskEntity->getValue("user_id"));
+        $this->assertEquals($userMovedFrom->getGuid(), $taskEntity->getValue("owner_id"));
     }
 }

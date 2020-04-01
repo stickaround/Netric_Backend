@@ -44,12 +44,6 @@ return array(
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'project',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent")
-        ),
-        'user_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
-        ),
+        ),        
     ),
 );

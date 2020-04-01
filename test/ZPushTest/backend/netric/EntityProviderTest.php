@@ -126,7 +126,7 @@ class EntityProviderTest extends TestCase
         // Create a calendar for the user to test
         $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UTest provider");
-        $calendar->setValue("user_id", $this->user->getId());
+        $calendar->setValue("owner_id", $this->user->getGuid());
         $this->entityLoader->save($calendar);
         $this->testEntities[] = $calendar;
         $this->testCalendar = $calendar;
@@ -199,7 +199,7 @@ class EntityProviderTest extends TestCase
         $entityLoader = $this->entityLoader;
         $calendar = $entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "a test calendar");
-        $calendar->setValue("user_id", $this->user->getId());
+        $calendar->setValue("owner_id", $this->user->getGuid());
         $entityLoader->save($calendar);
 
         // Queue for cleanup
@@ -296,7 +296,7 @@ class EntityProviderTest extends TestCase
     {
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "My Unit Test Task");
-        $task->setValue("user_id", $this->user->getId());
+        $task->setValue("owner_id", $this->user->getGuid());
         $task->setValue("start_date", date("m/d/Y"));
         $task->setValue("date_completed", date("m/d/Y"));
         $task->setValue("deadline", date("m/d/Y"));
@@ -325,7 +325,7 @@ class EntityProviderTest extends TestCase
         $contact = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL);
         $contact->setValue("first_name", "John");
         $contact->setValue("last_name", "Doe");
-        $contact->setValue("user_id", $this->user->getId());
+        $contact->setValue("owner_id", $this->user->getGuid());
         $cid = $this->entityLoader->save($contact);
 
         // Queue for cleanup
@@ -408,7 +408,7 @@ class EntityProviderTest extends TestCase
         $entity = $this->entityLoader->get(ObjectTypes::TASK, $id);
         $this->testEntities[] = $entity;
         $this->assertEquals($task->subject, $entity->getValue("name"));
-        $this->assertGreaterThan(0, $entity->getValue("user_id"));
+        $this->assertNotNull($entity->getValue("owner_id"));
         $this->assertEquals(date("Y-m-d", $task->startdate), date("Y-m-d", $entity->getValue("start_date")));
 
         // Save changes to existing
@@ -509,7 +509,7 @@ class EntityProviderTest extends TestCase
         $this->testEntities[] = $entity;
         $this->assertEquals($contact->firstname, $entity->getValue("first_name"));
         $this->assertEquals($contact->lastname, $entity->getValue("last_name"));
-        $this->assertGreaterThan(0, $entity->getValue("user_id"));
+        $this->assertNotNull($entity->getValue("owner_id"));
 
         // Save changes to existing
         $contact->firstname = "test - edited";
@@ -551,7 +551,7 @@ class EntityProviderTest extends TestCase
         $groupings->delete($savedGroup->id);
 
         // Test values
-        $this->assertNotEmpty($entity->getValue("user_id"));
+        $this->assertNotEmpty($entity->getValue("owner_id"));
         $this->assertEquals('html', $entity->getValue("body_type"));
         $originalBody = stream_get_contents($note->asbody->data, -1, 0);
         $this->assertEquals($originalBody, $entity->getValue("body"));
@@ -607,7 +607,7 @@ class EntityProviderTest extends TestCase
         // Create a second calendar - first is created in setUp
         $calendar2 = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar2->setValue("name", "UTest provider 2");
-        $calendar2->setValue("user_id", $this->user->getId());
+        $calendar2->setValue("owner_id", $this->user->getGuid());
         $this->entityLoader->save($calendar2);
         $this->testEntities[] = $calendar2;
 

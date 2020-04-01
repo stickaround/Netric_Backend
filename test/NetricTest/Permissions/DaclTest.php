@@ -200,11 +200,9 @@ class DaclTest extends TestCase
         $userOwner->setValue("guid", Uuid::uuid4()->toString());
 
         $task = $entityLoader->create(ObjectTypes::TASK);
-        $task->setValue('user_id', $user->getGuid());
         $task->setValue('owner_id', $userOwner->getGuid());
 
         $dacl = new Dacl();
-        $this->assertTrue($dacl->isAllowed($user, null, $task));
         $this->assertTrue($dacl->isAllowed($userOwner, null, $task));
 
         // This should be false since the $userNotAssigned is not assigned in the task

@@ -92,12 +92,6 @@ return array(
             "filter"=>array("project_id"=>"project_id"),
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
-        'user_id' => array(
-            'title'=>'Assigned To',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
-        ),
         'priority_id' => array(
             'title'=>'Priority',
             'type'=>Field::TYPE_GROUPING,

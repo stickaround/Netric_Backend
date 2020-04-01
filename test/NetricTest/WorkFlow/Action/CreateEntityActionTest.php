@@ -26,7 +26,7 @@ class CreateEntityActionTest extends AbstractActionTests
         $action = $this->getAction();
         $action->setParam('obj_type', ObjectTypes::TASK);
         $action->setParam('name', $testLongName);
-        $action->setParam('user_id', '<%user_id%>'); // Copy from parent task
+        $action->setParam('owner_id', '<%owner_id%>'); // Copy from parent task
 
         // Get user
         $user = $this->account->getUser(UserEntity::USER_SYSTEM);
@@ -34,7 +34,7 @@ class CreateEntityActionTest extends AbstractActionTests
         // Create a test task that will create another task that copies the woner
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
-        $task->setValue("user_id", $user->getGuid());
+        $task->setValue("owner_id", $user->getGuid());
         $task->setId(321);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
@@ -51,8 +51,8 @@ class CreateEntityActionTest extends AbstractActionTests
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {
             $taskToDelete = $result->getEntity($i);
-            // Make sure the user was copied from the parent task via <%user_id%>
-            $this->assertEquals($task->getValue("user_id"), $taskToDelete->getValue("user_id"));
+            // Make sure the user was copied from the parent task via <%owner_id%>
+            $this->assertEquals($task->getValue("owner_id"), $taskToDelete->getValue("owner_id"));
             $this->entityLoader->delete($taskToDelete, true);
             $newEntityFound = true;
         }

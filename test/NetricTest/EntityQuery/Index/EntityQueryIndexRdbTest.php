@@ -83,10 +83,10 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $def = $this->defLoader->get(ObjectTypes::TASK);
         
         // Test Equals
-        $condition = new Where("user_id");
+        $condition = new Where("owner_id");
         $condition->equals(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals("field_data->>'user_id' = '1'", $conditionString);
+        $this->assertEquals("field_data->>'owner_id' = '1'", $conditionString);
     }
 
     public function testbuildConditionStringForString()

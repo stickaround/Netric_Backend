@@ -6,7 +6,7 @@
 		</row>
 		<row>
 			<column width='50%'>
-				<field name='user_id'></field>
+				<field name='owner_id'></field>
 				<field name='site_id'></field>
 			</column>
 			<column width='50%'>

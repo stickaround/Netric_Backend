@@ -387,7 +387,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
     {
         $request = $this->getRequest();
         $response = new HttpResponse($request);
-        $userGuid = $request->getParam("user_id");
+        $userGuid = $request->getParam("owner_id");
 
         // If the user guid was not passed then we will use current user's guid
         if (!$userGuid) {

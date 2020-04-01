@@ -14,7 +14,7 @@
 		<field name='parent' class='compact'></field>
 	</row>
 	<row>
-		<field name='user_id' class='compact'></field>
+		<field name='owner_id' class='compact'></field>
 	</row>
 	<row>
 		<field name='customer_id' class='compact'></field>

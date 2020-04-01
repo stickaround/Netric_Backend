@@ -77,7 +77,7 @@ class AssignActionTest extends AbstractActionTests
 
         // Create new action and set values for the userlist
         $action = $this->getAction();
-        $action->setParam('field', 'user_id');
+        $action->setParam('field', 'owner_id');
         $action->setParam('users', implode(',', $usersArray));
 
         // Create a test task
@@ -93,13 +93,13 @@ class AssignActionTest extends AbstractActionTests
         $this->assertTrue($action->execute($workFlowInstance));
 
         // Make sure the user was assigned to one of the users
-        $this->assertTrue(in_array($task->getValue("user_id"), $usersArray));
+        $this->assertTrue(in_array($task->getValue("owner_id"), $usersArray));
 
         // Execute repeatedly and check the probability distribution
         $hits = [$userGuid1 => 0, $userGuid2 => 0, $userGuid3 => 0];
         for ($i = 0; $i < 100; $i++) {
             $action->execute($workFlowInstance);
-            $hits[$task->getValue('user_id')]++;
+            $hits[$task->getValue('owner_id')]++;
         }
 
         // Make sure probabilities are in acceptable ranges ~20% to each
@@ -149,7 +149,7 @@ class AssignActionTest extends AbstractActionTests
 
         // Create new action and set values for the userlist
         $action = $this->getAction();
-        $action->setParam('field', 'user_id');
+        $action->setParam('field', 'owner_id');
         $action->setParam('team_id', $group->id);
 
         // Create a test task
@@ -166,15 +166,15 @@ class AssignActionTest extends AbstractActionTests
 
         // Make sure the user was assigned to one of the users
         $this->assertTrue(
-            in_array($task->getValue("user_id"), $usersArray),
-            "Missing user " . $task->getValue("user_id") . " in " . var_export($usersArray, true)
+            in_array($task->getValue("owner_id"), $usersArray),
+            "Missing user " . $task->getValue("owner_id") . " in " . var_export($usersArray, true)
         );
 
         // Execute repeatedly and check the probability distribution
         $hits = [$user1Id => 0, $user2Id => 0, $user3Id => 0];
         for ($i = 0; $i < 50; $i++) {
             $action->execute($workFlowInstance);
-            $hits[$task->getValue('user_id')]++;
+            $hits[$task->getValue('owner_id')]++;
         }
 
         // Make sure probabilities are in acceptable ranges <5 to each since rand is only so random
@@ -228,7 +228,7 @@ class AssignActionTest extends AbstractActionTests
 
         // Create new action and set values for the userlist
         $action = $this->getAction();
-        $action->setParam('field', 'user_id');
+        $action->setParam('field', 'owner_id');
         $action->setParam('group_id', $group->id);
 
         // Create a test task
@@ -244,13 +244,13 @@ class AssignActionTest extends AbstractActionTests
         $this->assertTrue($action->execute($workFlowInstance));
 
         // Make sure the user was assigned to one of the users
-        $this->assertTrue(in_array($task->getValue("user_id"), $usersArray));
+        $this->assertTrue(in_array($task->getValue("owner_id"), $usersArray));
 
         // Execute repeatedly and check the probability distribution
         $hits = [$user1Id => 0, $user2Id => 0, $user3Id => 0];
         for ($i = 0; $i < 50; $i++) {
             $action->execute($workFlowInstance);
-            $hits[$task->getValue('user_id')]++;
+            $hits[$task->getValue('owner_id')]++;
         }
 
         // It should try to somewhat randomly assign to each of the three passed users
