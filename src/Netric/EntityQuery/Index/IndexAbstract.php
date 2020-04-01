@@ -3,6 +3,7 @@
 /**
  * This is the base class for all entity indexes
  */
+
 namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition\Field;
@@ -237,7 +238,7 @@ abstract class IndexAbstract
 
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $ent = $loader->getByGuid($entityGuid);
-        
+
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
@@ -323,13 +324,17 @@ abstract class IndexAbstract
 
             // Replace object reference with user variables
             if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
-                && $value == "user:" . UserEntity::USER_CURRENT) {
+                && $value == "user:" . UserEntity::USER_CURRENT
+            ) {
                 return $user->getGuid();
             }
         }
 
         /*
         // TODO: Replace grouping labels with id
+        if ($field->type == Field::TYPE_GROUPING || $field->type == Field::TYPE_GROUPING_MULTI) {
+
+        }
         if (($field->type == "fkey" || $field->type == "fkey_multi") && $value && !is_numeric($value))
         {
             $grp = $this->obj->getGroupingEntryByName($fieldParts[0], $value);
