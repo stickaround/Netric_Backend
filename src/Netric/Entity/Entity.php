@@ -434,8 +434,6 @@ class Entity implements EntityInterface
 
         if ($this->getValue('owner_id')) {
             $ownerGuid = $this->getValue('owner_id');
-        } else if ($this->getValue('user_id')) {
-            $ownerGuid = $this->getValue(('user_id'));
         } else if ($this->getValue('creator_id')) {
             $ownerGuid = $this->getValue('creator_id');
         }

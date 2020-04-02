@@ -57,15 +57,15 @@ class SendEmailActionTest extends AbstractActionTests
 
         // Setup an action
         $action = new SendEmailAction($this->entityLoader, $this->actionFactory, $senderService);
-        $action->setParam("to", array("<%user_id.email%>"));
+        $action->setParam("to", array("<%owner_id.email%>"));
         $action->setParam("subject", "Automated Email");
-        $action->setParam("body", "Hello <%user_id.name%>");
+        $action->setParam("body", "Hello <%owner_id.name%>");
         $action->setParam("from", "test@test.com");
 
         // Create a task that will email the owner when completed
         $task = $this->entityLoader->create("task");
         $task->setValue("name", "test");
-        $task->setValue("user_id", $user->getId());
+        $task->setValue("owner_id", $user->getGuid());
         $task->setId(321);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance

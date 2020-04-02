@@ -54,12 +54,7 @@ return array(
             'title' => 'Priority',
             'type'=>Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
-        ),
-        'user_id' => array(
-            'title' => 'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype' => 'user'
-        ),
+        ),        
         'customer_id' => array(
             'title' => 'Contact',
             'type'=>Field::TYPE_OBJECT,

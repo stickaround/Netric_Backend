@@ -4,7 +4,7 @@
 			<field name='date_start'></field>
 			<field name='deadline'></field>
 			<field name='project_id'></field>
-			<field name='user_id'></field>
+			<field name='owner_id'></field>
 			<field name='f_completed'></field>
 		</fieldset>
 

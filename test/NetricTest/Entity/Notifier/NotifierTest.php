@@ -107,7 +107,7 @@ class NotifierTest extends TestCase
     {
         // Create a test task entity and assign it to $this->testUser
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("user_id", $this->testUser->getId());
+        $task->setValue("owner_id", $this->testUser->getGuid());
         $task->setValue("name", "test task");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -149,7 +149,7 @@ class NotifierTest extends TestCase
 
         // Create a test task entity and assign it to $this->testUser
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("user_id", $this->testUser->getId());
+        $task->setValue("owner_id", $this->testUser->getGuid());
         $task->setValue("name", "test task");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;

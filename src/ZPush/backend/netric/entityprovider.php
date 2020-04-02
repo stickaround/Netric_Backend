@@ -504,7 +504,7 @@ class EntityProvider
          * the key name is the name of the property in the entity, in this case
          * email_message.owner_id and the value to query for. The entity definition
          * for the grouping will map the entity field value to the grouping value if
-         * the names are different like - groupings.user_id=email_message.owner_id
+         * the names are different like - groupings.owner_id=email_message.owner_id
          */
         $serviceManager = $this->account->getServiceManager();
         $gloader = $serviceManager->get(GroupingLoaderFactory::class);
@@ -609,7 +609,7 @@ class EntityProvider
         $groupings = $gloader->get(
             ObjectTypes::NOTE,
             "groups",
-            array("user_id"=>$this->user->getId())
+            array("owner_id"=>$this->user->getId())
         );
 
         $groups = $groupings->getAll();
@@ -655,7 +655,7 @@ class EntityProvider
 
         // Setup the query
         $query = new Netric\EntityQuery(ObjectTypes::CALENDAR);
-        $query->where("user_id")->equals($this->user->getId());
+        $query->where("owner_id")->equals($this->user->getGuid());
 
         // Check fi we are only supposed to get a single calendar
         if ($id)
@@ -1134,7 +1134,7 @@ class EntityProvider
             $entity = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL);
         }
 
-        $entity->setValue('user_id', $this->user->getId());
+        $entity->setValue('owner_id', $this->user->getGuid());
         $entity->setValue('first_name', $syncContact->firstname);
         $entity->setValue('last_name', $syncContact->lastname);
         $entity->setValue('middle_name', $syncContact->middlename);
@@ -1203,7 +1203,7 @@ class EntityProvider
             $entity = $this->entityLoader->create(ObjectTypes::NOTE);
         }
 
-        $entity->setValue('user_id', $this->user->getId());
+        $entity->setValue('owner_id', $this->user->getGuid());
         $entity->setValue('name', $syncNote->subject);
 
         if (isset($syncNote->categories)) {
@@ -1291,7 +1291,7 @@ class EntityProvider
             $entity = $this->entityLoader->create(ObjectTypes::TASK);
         }
 
-        $entity->setValue('user_id', $this->user->getId());
+        $entity->setValue('owner_id', $this->user->getGuid());
         $entity->setValue('name', $syncTask->subject);
         $entity->setValue('notes', $syncTask->body);
         if ($syncTask->startdate)
@@ -1350,7 +1350,7 @@ class EntityProvider
         $entity->setValue("location", $syncAppointment->location);
         $entity->setValue("notes", $syncAppointment->body);
         $entity->setValue("sharing", 1);
-        $entity->setValue("user_id", $this->user->getId());
+        $entity->setValue("owner_id", $this->user->getGuid());
         $entity->setValue("all_day", ($syncAppointment->alldayevent) ? 't' : 'f');
         $entity->setValue(ObjectTypes::CALENDAR, $calendarId);
         if ($syncAppointment->starttime)

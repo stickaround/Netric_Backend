@@ -1,5 +1,5 @@
 <field name='title' class="headline"></field>
-<field name='user_id'></field>
+<field name='owner_id'></field>
 <field name='site_id'></field>
 <field name='groups'></field>
 <field name='ts_created'></field>

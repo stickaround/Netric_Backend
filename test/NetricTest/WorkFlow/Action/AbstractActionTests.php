@@ -153,7 +153,7 @@ abstract class AbstractActionTests extends TestCase
         // Create an entity
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
-        $task->setValue("user_id", $user->getId(), $user->getName());
+        $task->setValue("owner_id", $user->getGuid(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);
@@ -169,7 +169,7 @@ abstract class AbstractActionTests extends TestCase
         // Test calling with a merge field for user name (cross-entity reference)
         $this->assertEquals(
             $user->getValue("name"),
-            $getParamVariableFieldValue->invoke($action, $task, "user_id.name")
+            $getParamVariableFieldValue->invoke($action, $task, "owner_id.name")
         );
     }
 
@@ -181,7 +181,7 @@ abstract class AbstractActionTests extends TestCase
         // Create an entity
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
-        $task->setValue("user_id", $user->getId(), $user->getName());
+        $task->setValue("owner_id", $user->getGuid(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);
@@ -191,7 +191,7 @@ abstract class AbstractActionTests extends TestCase
         // Make sure we can merge multiple variables into a single string
         $this->assertEquals(
             $task->getValue("name") . " - " . $user->getValue("name"),
-            $replaceParamVariables->invoke($action, $task, "<%name%> - <%user_id.name%>")
+            $replaceParamVariables->invoke($action, $task, "<%name%> - <%owner_id.name%>")
         );
     }
 
@@ -231,12 +231,12 @@ abstract class AbstractActionTests extends TestCase
 
         // Set params for action
         $action->setParam("subject", "Work on <%name%>");
-        $action->setParam("username", "<%user_id.name%>");
+        $action->setParam("username", "<%owner_id.name%>");
 
         // Create an entity
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
-        $task->setValue("user_id", $user->getId(), $user->getName());
+        $task->setValue("owner_id", $user->getGuid(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);
@@ -321,12 +321,12 @@ abstract class AbstractActionTests extends TestCase
         $user = $this->testUser;
 
         // Set params for action
-        $action->setParam("to", "<%user_id%>,<%creator_id%>,<%user_id.email%>");
+        $action->setParam("to", "<%owner_id%>,<%creator_id%>,<%owner_id.email%>");
 
         // Create an entity with a user to send to
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("user_id", $user->getId(), $user->getName());
-        $task->setValue("creator_id", $user->getId(), $user->getName());
+        $task->setValue("owner_id", $user->getGuid(), $user->getName());
+        $task->setValue("creator_id", $user->getGuid(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);

@@ -63,7 +63,7 @@
         </row>
         <row>
             <column>
-                <field name='user_id'
+                <field name='owner_id'
                        tooltip='Each project must have one responisble owner even though many members may be working on the project.'></field>
             </column>
         </row>

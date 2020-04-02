@@ -265,13 +265,7 @@ return array(
             'default'=>array(
                 "value"=>"now", "on"=>"update"
             ),
-        ),
-        'user_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
-        ),
+        ),        
         'image_id' => array(
             'title'=>'Image',
             'type'=>Field::TYPE_OBJECT,

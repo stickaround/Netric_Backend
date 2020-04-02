@@ -3,7 +3,7 @@
 		<field name='title'></field>
 	</row>
 	<row>
-		<field name='user_id'></field>
+		<field name='owner_id'></field>
 		<field name='sort_by'></field>
 		<field name='limit_num'></field>
 		<field name='groups'></field>

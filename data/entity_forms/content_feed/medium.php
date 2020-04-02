@@ -7,7 +7,7 @@
         </row>
         <row>
             <column>
-                <field name='user_id'></field>
+                <field name='owner_id'></field>
                 <field name='site_id'></field>
             </column>
             <column showif='all_day=f'>

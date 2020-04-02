@@ -18,7 +18,7 @@ return array(
     			'direction' => 'desc',
     		),
 		),
-		'table_columns' => array('title', 'status_id', 'user_id', 'time_entered', 'ts_updated')
+		'table_columns' => array('title', 'status_id', 'owner_id', 'time_entered', 'ts_updated')
     ),
 		
 	'drafts'=> array(
@@ -40,7 +40,7 @@ return array(
 					'direction' => 'desc',
 			),
 		),
-		'table_columns' => array('title', 'user_id', 'time_entered', 'ts_updated')
+		'table_columns' => array('title', 'owner_id', 'time_entered', 'ts_updated')
 	),
 		
 	'published'=> array(
@@ -62,6 +62,6 @@ return array(
 				'direction' => 'desc',
 			),
 		),
-		'table_columns' => array('title', 'user_id', 'time_entered', 'ts_updated')
+		'table_columns' => array('title', 'owner_id', 'time_entered', 'ts_updated')
 	),
 );

@@ -102,12 +102,7 @@ return array(
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array("value"=>"now", "on"=>"null")
-        ),
-        'user_id' => array('title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
-        ),
+        ),        
         'recur_id' => array(
             'title'=>'Recurrance',
             'type'=>Field::TYPE_INTEGER,

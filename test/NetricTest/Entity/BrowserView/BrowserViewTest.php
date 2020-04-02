@@ -60,7 +60,7 @@ class BrowserViewTest extends TestCase
             'conditions' => array(
                 array(
                     'blogic' => Where::COMBINED_BY_AND,
-                    'field_name' => 'user_id',
+                    'field_name' => 'owner_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
                     'value' => -3
                 ),

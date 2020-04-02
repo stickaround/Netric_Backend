@@ -18,6 +18,6 @@ return array(
     			'direction' => 'desc',
     		),
 		),
-		'table_columns' => array('name', 'deadline', 'user_id', 'project_id', 'f_completed')
+		'table_columns' => array('name', 'deadline', 'owner_id', 'project_id', 'f_completed')
     ),
 );

@@ -558,14 +558,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         // Make sure that private groupings always have user_guid set
         $userGuidPath = "";
         if ($entity->getDefinition()->isPrivate()) {
-            // All entities have owner_id, but some old entities use user_id
-            $userId = $entity->getValue("owner_id") !== null ? $entity->getValue("owner_id") : $entity->getValue("user_id");
-            $userEntity = $entityLoader->get(ObjectTypes::USER, $userId);
+
+            // Make sure that the owner_id was set
+            if ($entity->getValue("owner_id")) {
+                $userEntity = $entityLoader->get(ObjectTypes::USER, $entity->getValue("owner_id"));
+            }
             
             if ($userEntity) {
                 $userGuidPath = "/" . $userEntity->getGuid();
             } else {
-                // If we do not find the owner_id or user_id, then let's use the current user id.
+                // If we do not find the owner_id, then let's use the current user id.
                 $userGuidPath = "/" . $this->getAccount()->getUser()->getGuid();
             }
         }
