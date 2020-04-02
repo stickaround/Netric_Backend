@@ -794,9 +794,9 @@ class BackendNetric implements IBackend
                 $cond = array(
                     array(
                         "blogic" => Where::COMBINED_BY_AND,
-                        "field" => "user_id",
+                        "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue" => $this->user->getId()
+                        "condValue" => $this->user->getGuid()
                     )
                 );
                 break;
@@ -818,9 +818,9 @@ class BackendNetric implements IBackend
                 $cond = array(
                     array(
                         "blogic" => Where::COMBINED_BY_AND,
-                        "field"=>"user_id",
+                        "field"=>"owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getId()
+                        "condValue"=>$this->user->getGuid()
                     ),
                 );
 
@@ -831,9 +831,9 @@ class BackendNetric implements IBackend
                 $cond = array(
                     array(
                         "blogic" => Where::COMBINED_BY_AND,
-                        "field"=>"user_id",
+                        "field"=>"owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getId()
+                        "condValue"=>$this->user->getGuid()
                     )
                 );
                 break;
@@ -845,7 +845,7 @@ class BackendNetric implements IBackend
                         "blogic" => Where::COMBINED_BY_AND,
                         "field"=>"owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getId()
+                        "condValue"=>$this->user->getGuid()
                     ),
                     array(
                         "blogic" => Where::COMBINED_BY_AND,

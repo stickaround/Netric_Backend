@@ -433,7 +433,7 @@ class EntityProviderTest extends TestCase
         $entity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
         $this->testEntities[] = $entity;
         $this->assertEquals($mail->subject, $entity->getValue("subject"));
-        $this->assertGreaterThan(0, $entity->getValue("owner_id"));
+        $this->assertNotNull($entity->getValue("owner_id"));
 
         // Save changes to existing
         $mail->subject = "test - edited";
@@ -597,7 +597,7 @@ class EntityProviderTest extends TestCase
         $this->assertTrue($ret);
 
         $loadedEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
-        $this->assertEquals($grpInbox->id, $loadedEntity->getValue("mailbox_id"));
+        $this->assertEquals($grpInbox->guid, $loadedEntity->getValue("mailbox_id"));
     }
 
     public function testMoveEntity_Appointment()
@@ -624,7 +624,7 @@ class EntityProviderTest extends TestCase
         $this->assertTrue($ret);
 
         $loadedEntity = $this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
-        $this->assertEquals($calendar2->getId(), $loadedEntity->getValue(ObjectTypes::CALENDAR));
+        $this->assertEquals($calendar2->getGuid(), $loadedEntity->getValue(ObjectTypes::CALENDAR));
     }
 
     /**
