@@ -656,7 +656,7 @@ class FilesControllerTest extends TestCase
 
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
-        $req->setParam("user_id", $this->user->getGuid());
+        $req->setParam("owner_id", $this->user->getGuid());
         $req->setParam("max_width", 64);
         $req->setParam("max_height", 64);
 

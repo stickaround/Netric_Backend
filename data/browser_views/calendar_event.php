@@ -26,7 +26,7 @@ return array(
     			'direction' => 'desc',
     		),
 		),
-		'table_columns' => array('name', 'location', 'ts_start', 'ts_end', 'user_id')
+		'table_columns' => array('name', 'location', 'ts_start', 'ts_end', 'owner_id')
     ),
 		
 	'my_past_events'=> array(
@@ -48,7 +48,7 @@ return array(
 				'direction' => 'desc',
 			),
 		),
-		'table_columns' => array('name', 'location', 'ts_start', 'ts_end', 'user_id')
+		'table_columns' => array('name', 'location', 'ts_start', 'ts_end', 'owner_id')
 	),
 		
 	'all_events'=> array(
@@ -62,6 +62,6 @@ return array(
 				'direction' => 'desc',
 			),
 		),
-		'table_columns' => array('name', 'location', 'ts_start', 'ts_end', 'user_id')
+		'table_columns' => array('name', 'location', 'ts_start', 'ts_end', 'owner_id')
 	),
 );

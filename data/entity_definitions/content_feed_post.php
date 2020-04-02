@@ -72,14 +72,6 @@ return array(
             "default" => array("value" => "now", "on" => "update"),
         ),
 
-        "user_id" => array(
-            'title' => 'User',
-            'type' => Field::TYPE_OBJECT,
-            'subtype' => 'user',
-            'readonly' => false,
-            "default" => array("value" => UserEntity::USER_CURRENT, "on" => "null"),
-        ),
-
         "feed_id" => array(
             'title' => 'Feed',
             'type' => Field::TYPE_OBJECT,

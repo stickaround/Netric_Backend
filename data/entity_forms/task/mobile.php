@@ -2,7 +2,7 @@
 <field name='done'></field>
 <field name='deadline'></field>
 <recurrence></recurrence>
-<field name='user_id'></field>
+<field name='owner_id'></field>
 <field name='priority_id'></field>
 <field name='status_id'></field>
 <field name='type_id'></field>

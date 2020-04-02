@@ -161,7 +161,7 @@ class BrowserViewServiceTest extends TestCase
 
         // We know the 1st view in data/browser_views/task.php has a condition
         $conditions = $sysViews[1]->getConditions();
-        $this->assertEquals("user_id", $conditions[0]->fieldName);
+        $this->assertEquals("owner_id", $conditions[0]->fieldName);
     }
 
     /**

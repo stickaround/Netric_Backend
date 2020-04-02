@@ -298,7 +298,7 @@ class Dacl
          * If $entity is provided and if the $user is the owner/creator of $entity or if $user was assigned to $entity
          * Then no need to check for the dacl entries
          */
-        if ($entity && ($entity->getValue("user_id") == $userGuid || $entity->getOwnerGuid() == $userGuid)) {
+        if ($entity && ($entity->getValue("owner_id") == $userGuid || $entity->getOwnerGuid() == $userGuid)) {
             return true;
         }
 

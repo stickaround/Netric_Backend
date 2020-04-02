@@ -480,7 +480,7 @@ abstract class DmTestsAbstract extends TestCase
         // Create a task entity and set the user entity as owner
         $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ReferencedEntity");
-        $task->setValue("user_id", $user->getGuid());
+        $task->setValue("owner_id", $user->getGuid());
         $taskId = $dm->save($task, $this->user);
 
         // Queue for cleanup
@@ -493,10 +493,10 @@ abstract class DmTestsAbstract extends TestCase
         // Create the task entity
         $taskEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
 
-        // Get the entity of $taskId using the datamapper and it should update the user_id to $userId2
+        // Get the entity of $taskId using the datamapper and it should update the owner_id to $userId2
         $dm->getById($taskEntity, $taskId);
 
-        $this->assertEquals($user2->getGuid(), $taskEntity->getValue("user_id"));
+        $this->assertEquals($user2->getGuid(), $taskEntity->getValue("owner_id"));
     }
 
     /**

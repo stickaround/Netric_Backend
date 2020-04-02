@@ -34,21 +34,5 @@ return array(
             'subtype' => '',
             'readonly' => false
         ),
-        'user_id' => array('title' => 'User',
-            'type' => Field::TYPE_OBJECT,
-            'subtype' => 'user',
-            'default' => array(
-                "value" => UserEntity::USER_CURRENT,
-                "on" => "null"
-            ),
-        ),
-        'owner_id' => array('title' => 'Owner',
-            'type' => Field::TYPE_OBJECT,
-            'subtype' => 'user',
-            'default' => array(
-                "value" => UserEntity::USER_CURRENT,
-                "on" => "null"
-            ),
-        ),
     ),
 );

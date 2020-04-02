@@ -42,14 +42,7 @@ return array(
             'type'=>Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => false
-        ),
-        'user_id' => array(
-            'title' => 'User',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype' => 'user',
-            'readonly' => true,
-            'default' => array("value" => UserEntity::USER_CURRENT, "on" => "null")
-        ),
+        ),        
         'groups' => array(
             'title' => 'Groups',
             'type'=>Field::TYPE_GROUPING_MULTI,

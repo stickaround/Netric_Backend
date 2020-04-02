@@ -177,22 +177,22 @@ abstract class IndexTestsAbstract extends TestCase
         $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
         $projectDef = $entityDefinitionLoader->get(ObjectTypes::PROJECT);
-        $userIdField = $projectDef->getField("user_id");
+        $ownerIdField = $projectDef->getField("owner_id");
 
-        $sanitizedValue = $index->sanitizeWhereCondition($userIdField, UserEntity::USER_CURRENT);
+        $sanitizedValue = $index->sanitizeWhereCondition($ownerIdField, UserEntity::USER_CURRENT);
         $this->assertEquals($sanitizedValue, $currentAccountUser->getGuid());
 
-        // Now let's create a project entity and set the value of user_id to current user's id
+        // Now let's create a project entity and set the value of owner_id to current user's id
         $projectEntity = $entityLoader->create(ObjectTypes::PROJECT);
         $projectEntity->setValue("name", "new project test");
-        $projectEntity->setValue("user_id", $currentAccountUser->getGuid());
+        $projectEntity->setValue("owner_id", $currentAccountUser->getGuid());
         $entityLoader->save($projectEntity);
 
          $this->testEntities[] = $projectEntity;
 
         // We will now create a query using UserEntity::USER_CURRENT to get the $projectEntity
         $query = new EntityQuery(ObjectTypes::PROJECT);
-        $query->where('user_id')->equals(UserEntity::USER_CURRENT);
+        $query->where('owner_id')->equals(UserEntity::USER_CURRENT);
         $res = $index->executeQuery($query);
 
         // This should return 1 result since we have created 1 project that has current user's id

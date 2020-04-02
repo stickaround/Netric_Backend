@@ -203,7 +203,7 @@ class BackendNetricTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "My Unit Test Task");
-        $task->setValue("user_id", $this->user->getId());
+        $task->setValue("owner_id", $this->user->getGuid());
         $task->setValue("start_date", date("m/d/Y"));
         $task->setValue("date_completed", date("m/d/Y"));
         $task->setValue("deadline", date("m/d/Y"));

@@ -18,7 +18,7 @@ return array(
         'conditions' => array(
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'user_id',
+                'field_name' => 'owner_id',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ),
@@ -50,7 +50,7 @@ return array(
         'conditions' => array(
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'user_id',
+                'field_name' => 'owner_id',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ),
@@ -88,7 +88,7 @@ return array(
         'conditions' => array(
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'user_id',
+                'field_name' => 'owner_id',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ),
@@ -120,7 +120,7 @@ return array(
             ),
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'user_id',
+                'field_name' => 'owner_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ),
@@ -141,7 +141,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'owner_id')
     ),
 
     'all_incomplete_tasks' => array(
@@ -167,7 +167,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'owner_id')
     ),
 
     'all_tasks' => array(
@@ -185,6 +185,6 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'status_id', 'deadline', 'owner_id')
     ),
 );

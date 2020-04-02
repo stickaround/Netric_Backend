@@ -327,7 +327,7 @@ class EntityTest extends TestCase
         $userGuid2 = $user2->getGuid();
 
         $entity = $entityLoader->create(ObjectTypes::TASK);
-        $entity->setValue("user_id", $userGuid1, $user1->getName());
+        $entity->setValue("owner_id", $userGuid1, $user1->getName());
         $entity->setValue("notes", "Hey [user:$userGuid2:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
         
         // Saving this entity will call the Entity::beforeSave() which will update the followers
@@ -403,8 +403,8 @@ class EntityTest extends TestCase
     {
         $sm = $this->account->getServiceManager();
         $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $task->setValue('user_id', 123, 'fakeusername');
-        $this->assertEquals('fakeusername', $task->getValueName('user_id'));
+        $task->setValue('owner_id', 123, 'fakeusername');
+        $this->assertEquals('fakeusername', $task->getValueName('owner_id'));
     }
 
     /**
@@ -454,16 +454,16 @@ class EntityTest extends TestCase
     }
 
     /**
-     * Make sure the owner of an entity is correctly if owner_id is not set but user_id is
+     * Make sure the owner of an entity is correctly if owner_id is not set but owner_id is
      */
     public function testGetOwnerGuidUserId()
     {
         $sm = $this->account->getServiceManager();
-        // Activity has a user_id field
+        // Activity has a owner_id field
         $activity = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY);
 
         $userGuid = Uuid::uuid4()->toString();
-        $activity->setValue('user_id', $userGuid);
+        $activity->setValue('owner_id', $userGuid);
         $this->assertEquals($userGuid, $activity->getOwnerGuid());
     }
 }
