@@ -8,13 +8,11 @@ Note: On some windows installations python is invoked by typing 'py'
 
 1. Install docker native (not docker toolbox)
 
-   http://www.docker.com/products/overview
+   http://www.docker.com
 
-2. Install python and pywatch
+2. Install python
 
    http://python-guide-pt-br.readthedocs.io/en/latest/starting/install3/osx/
-
-   pip install pywatch (pip3 install pywatch on osx)
 
 3. Log into dockerhub
 
@@ -88,16 +86,13 @@ Note: Make sure you have python 3+ installed and working
 
     ./jenkins-tests.sh # script to execute all tests in jenkins build
 
-# Work-in-Progress
+# Directory Structure
 
-We are working on simplifying the directory structure of netric. When finished the root should
-look like:
-
-/src - all netric classes
+/src - all classes and functions
 
 /public - all served assets and where apache will look for index files
 
-/vendor - libraries
+/vendor - third party libraries
 
 /data - non-executable stored data
 

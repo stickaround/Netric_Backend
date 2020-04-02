@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Application;
 
 use Netric\Account\Account;
@@ -144,7 +145,7 @@ class Application
      * @param string $path Optional initial route to load
      * @return int Return status code
      */
-    public function run($path = "") : int
+    public function run($path = ""): int
     {
         $returnStatusCode = 0;
 
@@ -178,27 +179,25 @@ class Application
             // An exception took place and was not handled
             $this->getLog()->error(
                 'Unhandled application exception in ' .
-                $unhandledException->getFile() .
-                ':' . $unhandledException->getLine() .
-                "; message=" . $unhandledException->getMessage() .
-                "\n" . $unhandledException->getTraceAsString()
-            );
-
-            // If we are suppressing logs then print out this exception
-            //if ($this->config->log->writer == 'null') {
-                print(
-                    $this->config->log->writer . "\n" .
-                    'Unhandled application exception in ' .
                     $unhandledException->getFile() .
                     ':' . $unhandledException->getLine() .
                     "; message=" . $unhandledException->getMessage() .
                     "\n" . $unhandledException->getTraceAsString()
-                );
+            );
+
+            // If we are suppressing logs then print out this exception
+            //if ($this->config->log->writer == 'null') {
+            print($this->config->log->writer . "\n" .
+                'Unhandled application exception in ' .
+                $unhandledException->getFile() .
+                ':' . $unhandledException->getLine() .
+                "; message=" . $unhandledException->getMessage() .
+                "\n" . $unhandledException->getTraceAsString());
             //}
 
             // Fail
             $returnStatusCode = -1;
-        } 
+        }
 
         // Handle any profiling needed for this request
         $this->profileRequest();
@@ -248,7 +247,7 @@ class Application
         if ($accountId) {
             return $this->accountsIdentityMapper->loadById($accountId, $this);
         }
-        
+
         return $this->accountsIdentityMapper->loadByName($accountName, $this);
     }
 
@@ -321,8 +320,10 @@ class Application
         }
 
         // Check url - 3rd level domain is the account name
-        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
-            && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)) {
+        if (
+            isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
+            && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)
+        ) {
             $left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
             if ($left) {
                 return $left;
@@ -397,29 +398,20 @@ class Application
 
     /**
      * Create the application database if it does not exist
-     *
-     * @param int $numRetries If > 0 then retry after 1 second for each iteration
      */
-    public function initDb($numRetries = 0)
+    public function initDb()
     {
         // Create database if it does not exist
         try {
             // Failures will result in a \RuntimeException, otherwise assume success
             $this->dm->createDatabase();
         } catch (\RuntimeException $ex) {
-            // If we are set to retry on failure, then wait a second and try again
-            if ($numRetries > 0) {
-                $this->getLog()->info("Could not create the system database, waiting a second to try again");
-                sleep(1);
-                return $this->initDb(--$numRetries);
-            } else {
-                // Let the caller know that we cannot create the database
-                $exceptionText = "Could not create application database: ";
-                if ($this->dm->getLastError()) {
-                    $exceptionText .= $this->dm->getLastError()->getMessage();
-                }
-                throw new \RuntimeException($exceptionText);
+            // Let the caller know that we cannot create the database
+            $exceptionText = "Could not create application database: ";
+            if ($this->dm->getLastError()) {
+                $exceptionText .= $this->dm->getLastError()->getMessage();
             }
+            throw new \RuntimeException($exceptionText);
         }
 
         // Initialize with setup
@@ -589,7 +581,7 @@ class Application
         // Loop through each function profiled
         foreach ($xhprofData as $functionAndCalledFrom => $stats) {
             // If the total walltime (duration) of the function is worth tracking then log
-            if ((int)$stats['wt'] >= (int)$this->config->profile->min_wall) {
+            if ((int) $stats['wt'] >= (int) $this->config->profile->min_wall) {
                 $functionCalled = $functionAndCalledFrom;
                 $calledFrom = "";
 
@@ -636,7 +628,7 @@ class Application
          * can load up any request to see the full profile and determine where performance
          * issues might be taking place.
          */
-       
+
         if ($this->config->profile->save_profiles) {
             $file_name = __DIR__ . '/../../../data/profile_runs/' . $this->getRequestId() . '.netric.xhprof';
             $file = fopen($file_name, 'w');

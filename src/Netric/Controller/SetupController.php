@@ -4,6 +4,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014-2017 Aereus
  */
+
 namespace Netric\Controller;
 
 use Netric\Application\Response\ConsoleResponse;
@@ -48,11 +49,8 @@ class SetupController extends Mvc\AbstractController
 
         /*
          * Create the system database if it does not exist
-         * the 60 passed as the first param means retry for 60 seconds
-         * in case the database is still starting up
-         * TODO: This is probably not the best place for checking if the DB is ready
          */
-        if (!$application->initDb(60)) {
+        if (!$application->initDb()) {
             throw new \RuntimeException("Could not create application database");
         }
 
@@ -175,7 +173,7 @@ class SetupController extends Mvc\AbstractController
         $serviceManager = $this->getApplication()->getServiceManager();
         $accountSetup = $serviceManager->get(AccountSetupFactory::class);
         $accountName = $accountSetup->getUniqueAccountName($accountName);
-        
+
         // Create the account
         $application = $this->getApplication();
         $createdAccount = $application->createAccount($accountName, $params['username'], $params['password']);
