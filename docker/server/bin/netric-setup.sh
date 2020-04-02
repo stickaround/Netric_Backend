@@ -2,8 +2,8 @@
 set -e
 
 # Update all dependencies
-composer install
-composer update
+# composer install
+# composer update
 
 # Make sure we can write to required files
 chown -R www-data:www-data data/log

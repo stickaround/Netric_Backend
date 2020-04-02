@@ -22,7 +22,7 @@ services:
       - mogilefs
       - mogilestore
       - kafka
-    entrypoint: 'bash -c "/netric-setup.sh && /start.sh"'
+    entrypoint: 'bash -c "composer install && composer update && /netric-setup.sh && /start.sh"'
     logging:
       driver: gelf
       options:
