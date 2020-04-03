@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\EntityQuery\Where;
-use Netric\WorkFlow\WorkFlow;
+use Netric\WorkFlow\WorkFlowFactory;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\EntityLoaderFactory;
@@ -19,11 +19,11 @@ use NetricTest\Bootstrap;
 abstract class AbstractDataMapperTests extends TestCase
 {
     /**
-     * Action factory is needed to construct a new workflow
+     * ServiceLocator for injecting dependencies
      *
-     * @var ActionFactory
+     * @var AccountServiceManagerInterface
      */
-    protected $actionFactory = null;
+    protected $sm = null;
 
     /**
      * Entity loader for managing entities
@@ -52,9 +52,8 @@ abstract class AbstractDataMapperTests extends TestCase
     protected function setUp(): void
 {
         $account = Bootstrap::getAccount();
-        $sm = $account->getServiceManager();
-        $this->actionFactory = new ActionFactory($sm);
-        $this->entityLoader = $sm->get(EntityLoaderFactory::class);
+        $this->sm = $account->getServiceManager();
+        $this->entityLoader = $this->sl->get(EntityLoaderFactory::class);
     }
 
     /**
@@ -116,7 +115,7 @@ abstract class AbstractDataMapperTests extends TestCase
         );
 
         // Create and save the workflow
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $workflowId = $dataMapper->save($workFlow);
         $this->assertNotNull($workflowId);
@@ -188,7 +187,7 @@ abstract class AbstractDataMapperTests extends TestCase
         );
 
         // Create and save the workflow
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $workflowId = $dataMapper->save($workFlow);
 
@@ -269,7 +268,7 @@ abstract class AbstractDataMapperTests extends TestCase
         );
 
         // Create and save the workflow
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $workflowId = $dataMapper->save($workFlow);
 
@@ -297,7 +296,7 @@ abstract class AbstractDataMapperTests extends TestCase
         );
 
         // Create and save the workflow
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $workflowId = $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -322,7 +321,7 @@ abstract class AbstractDataMapperTests extends TestCase
             "obj_type" => ObjectTypes::TASK,
             "active" => true,
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -351,7 +350,7 @@ abstract class AbstractDataMapperTests extends TestCase
             "obj_type" => ObjectTypes::TASK,
             "active" => true,
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -387,7 +386,7 @@ abstract class AbstractDataMapperTests extends TestCase
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -416,7 +415,7 @@ abstract class AbstractDataMapperTests extends TestCase
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -442,7 +441,7 @@ abstract class AbstractDataMapperTests extends TestCase
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -472,7 +471,7 @@ abstract class AbstractDataMapperTests extends TestCase
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -517,7 +516,7 @@ abstract class AbstractDataMapperTests extends TestCase
                 ),
             ),
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
@@ -555,7 +554,7 @@ abstract class AbstractDataMapperTests extends TestCase
                 ),
             ),
         );
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
         $this->testWorkFlows[] = $workFlow;
