@@ -25,7 +25,7 @@ return array(
             // Only trigger if the task is assinged to someone other than the current user
             array(
                 "blogic" => Where::COMBINED_BY_AND,
-                "field_name" => "user_id",
+                "field_name" => "owner_id",
                 "operator" => Where::OPERATOR_NOT_EQUAL_TO,
                 "value" => UserEntity::USER_CURRENT,
             )
@@ -39,7 +39,7 @@ return array(
                     "subject" => "New Task",
                     "body" => "You have been assigned a new task: <%object_link%>",
                     "to" => array(
-                        "<%user_id.email%>"
+                        "<%owner_id.email%>"
                     )
                 ),
             ),
@@ -76,7 +76,7 @@ return array(
                     "subject" => "New Task",
                     "body" => "You have been assigned a case: <%object_link%>",
                     "to" => array(
-                        "<%user_id.email%>"
+                        "<%owner_id.email%>"
                     )
                 ),
             ),

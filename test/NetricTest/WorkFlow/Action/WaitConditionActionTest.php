@@ -64,6 +64,7 @@ class WaitConditionActionTest extends AbstractActionTests
             "obj_type" => ObjectTypes::TASK,
             "active" => true,
         );
+        
         $workFlow = new WorkFlow($this->actionFactory);
         $workFlow->fromArray($workFlowData);
 

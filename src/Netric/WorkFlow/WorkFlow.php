@@ -257,18 +257,25 @@ class WorkFlow
             }
         }
 
+        $conditions = $data['conditions'];
+
+        // If conditions were json_encoded, then we will try to decode it
+        if (is_string($conditions)) {
+            $conditions = json_decode($conditions, true);
+        }
+
         // Load conditions
-        if (isset($data['conditions']) && is_array($data['conditions'])) {
+        if (is_array($conditions)) {
             // Reset any existing conditions
             $this->conditions = array();
 
             // Now add to local conditions property
-            foreach ($data['conditions'] as $condData) {
+            foreach ($conditions as $condData) {
                 $where = new Where();
                 $where->fromArray($condData);
 
                 if (!$where->operator) {
-                    throw new \RuntimeException("Tried to add a bad cond: " . var_export($data['conditions'], true));
+                    throw new \RuntimeException("Tried to add a bad cond: " . var_export($conditions, true));
                 }
 
                 $this->conditions[] = $where;
@@ -455,6 +462,14 @@ class WorkFlow
     public function getConditions()
     {
         return $this->conditions;
+    }
+
+    /**
+     * Clear the existing conditions for this workflow
+     */
+    public function clearConditions()
+    {
+        $this->conditions = [];
     }
 
     /**

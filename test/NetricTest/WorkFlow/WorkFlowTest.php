@@ -4,11 +4,12 @@
  */
 namespace NetricTest\WorkFlow;
 
-use Netric\WorkFlow\WorkFlow;
+use Netric\WorkFlow\WorkFlowFactory;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\EntityQuery\Where;
 use PHPUnit\Framework\TestCase;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 use NetricTest\Bootstrap;
 
 class WorkFlowTest extends TestCase
@@ -27,11 +28,18 @@ class WorkFlowTest extends TestCase
      */
     protected $actionFactory = null;
 
+    /**
+     * ServiceLocator for injecting dependencies
+     * 
+     * @var AccountServiceManagerInterface
+     */
+    private $sl = null;
+
     protected function setUp(): void
 {
         $this->account = Bootstrap::getAccount();
-        $sl = $this->account->getServiceManager();
-        $this->actionFactory = new ActionFactory($sl);
+        $this->sl = $this->account->getServiceManager();
+        $this->actionFactory = new ActionFactory($this->sl);
     }
 
     /**
@@ -85,7 +93,7 @@ class WorkFlowTest extends TestCase
             ),
         );
 
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
 
         // Now get the array back and make sure it matches the original
@@ -123,7 +131,7 @@ class WorkFlowTest extends TestCase
 
     public function testRemoveAction()
     {
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
 
         // Create a test action
         $action = $this->actionFactory->create("test");
@@ -150,7 +158,7 @@ class WorkFlowTest extends TestCase
 
     public function testGetRemovedActions()
     {
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
 
         // Create a test action
         $action = $this->actionFactory->create("test");
@@ -165,7 +173,7 @@ class WorkFlowTest extends TestCase
 
     public function testAddAction()
     {
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
 
         // Create a test action
         $action = $this->actionFactory->create("test");
@@ -187,7 +195,7 @@ class WorkFlowTest extends TestCase
 
     public function testGetActions()
     {
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
 
         // Create a test action
         $action = $this->actionFactory->create("test");
@@ -197,5 +205,27 @@ class WorkFlowTest extends TestCase
         // Make sure the action is in the queue of actions
         $actions = $workFlow->getActions();
         $this->assertEquals($action->getId(), $actions[0]->getId());
+    }
+
+    public function testFromArrayJsonEncodedConditions()
+    {
+        $uuid = Uuid::uuid4()->toString();
+        $conditionOwner = new Where("owner_id");
+        $conditionOwner->equals($uuid);
+
+        $conditionFlag = new Where("flag");
+        $conditionFlag->equals(true);
+
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
+
+        $workFlowData["conditions"] = json_encode([$conditionOwner->toArray(), $conditionFlag->toArray()]);
+        $workFlow->fromArray($workFlowData);
+
+        $conditions = $workFlow->getConditions();
+        $this->assertEquals(count($conditions), 2);
+        $this->assertEquals($conditions[0]->fieldName, "owner_id");
+        $this->assertEquals($conditions[0]->value, $uuid);
+        $this->assertEquals($conditions[1]->fieldName, "flag");
+        $this->assertEquals($conditions[1]->value, true);
     }
 }
