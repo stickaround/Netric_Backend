@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Factory used to initialize the netric filesystem
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Authentication;
 
 use Netric\Authentication\Token\AuthenticationTokenInterface;
@@ -246,7 +248,7 @@ class AuthenticationService
             $this->lastErrorMessage = self::IDENTITY_NOT_FOUND;
             return null;
         }
-        
+
         $user = $res->getEntity(0);
 
         // Make sure user is active
@@ -382,7 +384,7 @@ class AuthenticationService
          * Bin2hex over the raondom bites will double the size so
          * we are dividing by 2 to make the output match $length
          */
-        return bin2hex(openssl_random_pseudo_bytes($length/2));
+        return bin2hex(openssl_random_pseudo_bytes($length / 2));
     }
 
     /**
@@ -445,7 +447,7 @@ class AuthenticationService
     /**
      * Get instance of auth token from header or supplied param
      */
-    private function getTokenFromRequest():? AuthenticationTokenInterface
+    private function getTokenFromRequest(): ?AuthenticationTokenInterface
     {
         // Get authentication from either headers/get/post
         $fullAuthHeader = $this->request->getParam("Authentication");
@@ -457,10 +459,10 @@ class AuthenticationService
         }
 
         // Check if legacy header was passed (with no method)
-//        if (substr($fullAuthHeader, 0, 5) != 'NTRC-') {
-//            // Return default token
-//            return new HmacToken($fullAuthHeader);
-//        }
+        //        if (substr($fullAuthHeader, 0, 5) != 'NTRC-') {
+        //            // Return default token
+        //            return new HmacToken($fullAuthHeader);
+        //        }
 
         list($methodName, $token) = explode(" ", $fullAuthHeader);
         switch ($methodName) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Account;
 
 use Netric\Application\DataMapperInterface;
@@ -69,7 +70,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadById(int $id, Application $application) : ? Account
+    public function loadById(int $id, Application $application): ?Account
     {
         // First check to see if we have it cached in local memory
         $account = $this->loadFromMemory($id);
@@ -86,7 +87,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
         if ($this->loadFromCache($id, $account)) {
             return $account;
         }
-        
+
         // Load from the datamapper
         $ret = $this->appDm->getAccountById($id, $account);
 
@@ -107,7 +108,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadByName(string $name, Application $application) : ? Account
+    public function loadByName(string $name, Application $application): ?Account
     {
         // Try local memory first
         if (isset($this->nameToIdMap[$name])) {
@@ -143,7 +144,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * @return bool true on success, false on failure
      * @throws \RuntimeException If account is not a valid account with an ID
      */
-    public function deleteAccount(Account $account) : bool
+    public function deleteAccount(Account $account): bool
     {
         // Make sure this account is valid with an ID
         if (!$account->getId()) {
@@ -182,7 +183,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * @param string $name A unique name for this account
      * @return int Unique id of the created account, 0 on failure
      */
-    public function createAccount(string $name) : int
+    public function createAccount(string $name): int
     {
         return $this->appDm->createAccount($name);
     }

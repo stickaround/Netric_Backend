@@ -314,9 +314,17 @@ class Application
     {
         global $_SERVER, $_GET, $_POST, $_SERVER, $_REQUEST;
 
-        // First check if an account header was provided
+        // First check if an account param was provided
         if (!empty($_REQUEST['X-NTRC-ACCOUNT'])) {
+
             return $_REQUEST['X-NTRC-ACCOUNT'];
+        }
+
+        // Now look for account header
+        $headers = getallheaders();
+        if (!empty($headers['X-NTRC-ACCOUNT'])) {
+
+            return $headers['X-NTRC-ACCOUNT'];
         }
 
         // Check url - 3rd level domain is the account name
