@@ -321,10 +321,12 @@ class Application
         }
 
         // Now look for account header
-        $headers = getallheaders();
-        if (!empty($headers['X-NTRC-ACCOUNT'])) {
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (!empty($headers['X-NTRC-ACCOUNT'])) {
 
-            return $headers['X-NTRC-ACCOUNT'];
+                return $headers['X-NTRC-ACCOUNT'];
+            }
         }
 
         // Check url - 3rd level domain is the account name
