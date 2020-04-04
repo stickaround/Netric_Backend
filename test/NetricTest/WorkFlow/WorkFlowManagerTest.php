@@ -5,7 +5,7 @@
 namespace NetricTest\WorkFlow;
 
 use Netric\WorkFlow\Action\ActionFactory;
-use Netric\WorkFlow\WorkFlow;
+use Netric\WorkFlow\WorkFlowFactory;
 use Netric\EntityQuery\Where;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
@@ -61,6 +61,13 @@ class WorkFlowManagerTest extends TestCase
     private $workFlowManager = null;
 
     /**
+     * ServiceLocator for injecting dependencies
+     * 
+     * @var AccountServiceManagerInterface
+     */
+    private $sl = null;
+
+    /**
      * Work flow datamapper for saving worklfows
      *
      * @var DataMapperInterface
@@ -70,11 +77,11 @@ class WorkFlowManagerTest extends TestCase
     protected function setUp(): void
 {
         $this->account = Bootstrap::getAccount();
-        $sl = $this->account->getServiceManager();
-        $this->actionFactory = new ActionFactory($sl);
-        $this->entityLoader = $sl->get(EntityLoaderFactory::class);
-        $this->workFlowManager = $sl->get(WorkFlowManagerFactory::class);
-        $this->workFlowDataMapper = $sl->get(DataMapperFactory::class);
+        $this->sl = $this->account->getServiceManager();
+        $this->actionFactory = new ActionFactory($this->sl);
+        $this->entityLoader = $this->sl->get(EntityLoaderFactory::class);
+        $this->workFlowManager = $this->sl->get(WorkFlowManagerFactory::class);
+        $this->workFlowDataMapper = $this->sl->get(DataMapperFactory::class);
     }
 
     protected function tearDown(): void
@@ -97,7 +104,7 @@ class WorkFlowManagerTest extends TestCase
         $this->testEntities[] = $task;
 
         // Create a new workflow with conditions
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
         $workFlow->setObjType(ObjectTypes::TASK);
         $workFlow->setOnlyOnConditionsUnmet(true);
         $workFlow->setOnUpdate(true);
@@ -166,7 +173,7 @@ class WorkFlowManagerTest extends TestCase
         $this->testEntities[] = $task;
 
         // Create a new workflow with conditions
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
         $workFlow->setObjType(ObjectTypes::TASK);
         $workFlow->setOnlyOnConditionsUnmet(true);
         $workFlow->setOnDaily(true);
@@ -221,7 +228,7 @@ class WorkFlowManagerTest extends TestCase
         $this->testEntities[] = $task;
 
         // Create a new workflow with conditions
-        $workFlow = new WorkFlow($this->actionFactory);
+        $workFlow = $this->sl->get(WorkFlowFactory::class);
         $workFlow->setObjType(ObjectTypes::TASK);
         $workFlow->setOnUpdate(true);
 
