@@ -62,7 +62,8 @@ return array(
             'title'=>'Date Completed',
             'type'=>Field::TYPE_DATE,
             'subtype'=>'',
-            'readonly'=>false
+            'readonly'=>true,
+            'default'=>array("value"=>null, "on"=>"null")
         ),
         'deadline' => array(
             'title'=>'Due Date',
