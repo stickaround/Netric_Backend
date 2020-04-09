@@ -8,4 +8,7 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 
-$db->query("ALTER TABLE object_grouping_mem ALTER COLUMN grouping_id TYPE character varying(256)");
+// Make sure that the object_grouping_mem table still exists
+if ($db->tableExists("object_grouping_mem")) {
+  $db->query("ALTER TABLE object_grouping_mem ALTER COLUMN grouping_id TYPE character varying(256)");    
+}

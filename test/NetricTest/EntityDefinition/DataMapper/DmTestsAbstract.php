@@ -88,13 +88,7 @@ abstract class DmTestsAbstract extends TestCase
         // Test fkey_multi
         $field = $entDef->getField("groups");
         $this->assertFalse(empty($field->id));
-        $this->assertEquals("parent_id", $field->fkeyTable['parent']);
-        $this->assertEquals("fkey_multi", $field->type);
-        $this->assertEquals("object_groupings", $field->subtype);
-        $this->assertEquals("object_grouping_mem", $field->fkeyTable['ref_table']['table']);
-        $this->assertEquals("object_id", $field->fkeyTable['ref_table']['this']);
-        $this->assertEquals("grouping_id", $field->fkeyTable['ref_table']['ref']);
-
+        
         // Test object reference with autocreate
         $field = $entDef->getField("folder_id");
         $this->assertFalse(empty($field->id));

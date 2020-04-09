@@ -111,26 +111,6 @@ class Field implements \ArrayAccess
     public $optionalValues = null;
 
     /**
-     * Foreign key used with fkey type
-     *
-     * Below are they keys
-     * array(
-     *  "key" // The unique id of the referenced object
-     *  "title" // The title column for the label
-     *  "parent" // If set, the field that defines the parent for a heirarchial view of objects
-     *  "filter" // serialized array to use as a filter array('thisTableColumn'=>'matchesForeignColumn')
-     *  "ref_table" = array( // If an fkey_multi that is not grouping, then this is the *_mem table
-     *          "table" // The table name to get memberships from
-     *          "this" // The field in the membership table that refers to this object
-     *          "ref" // The field in the membership table that refers to the foreign object
-     *      )
-     * )
-     *
-     * @var array
-     */
-    public $fkeyTable = null;
-
-    /**
      * Sometimes we need to automatically create foreign reference
      *
      * @var bool
@@ -251,22 +231,6 @@ class Field implements \ArrayAccess
 
         if (isset($data["must_be_indexed"])) {
             $this->mustBeIndexed = $data["must_be_indexed"];
-        }
-
-        // If we are using standard object_groupings then manually set fkeyTable
-        // so that legacy code knows how to interact with the groupings
-        if ((self::TYPE_GROUPING == $this->type || self::TYPE_GROUPING_MULTI == $this->type)
-            && "object_groupings" == $this->subtype) {
-            $this->fkeyTable = array(
-                "key" => "id",
-                "title" => "name",
-                "parent" => "parent_id",
-                "ref_table" => array(
-                    "table" => "object_grouping_mem",
-                    "this" => "object_id",
-                    "ref" => "grouping_id"
-                )
-            );
         }
     }
 

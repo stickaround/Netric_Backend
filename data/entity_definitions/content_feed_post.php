@@ -80,25 +80,6 @@ return array(
             'required' => true,
         ),
 
-        // Type: Article, Page, Widget
-        /*
-        'type_id' => array(
-            'title'=>'Type',
-            'type'=>'fkey',
-            'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name",
-                "parent"=>"parent_id",
-                "ref_table"=>array(
-                    "table"=>"object_grouping_mem",
-                    "this"=>"object_id",
-                    "ref"=>"grouping_id",
-                ),
-            ),
-        ),
-         */
-
         'status_id' => array(
             'title' => 'Status',
             'type' => Field::TYPE_GROUPING,

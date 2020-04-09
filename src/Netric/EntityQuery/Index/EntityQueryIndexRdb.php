@@ -572,32 +572,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
-                $multiCond = [];
-                $fkeyRefField = $field->fkeyTable['ref_table']['this'];
-                $fkeyRefTable = $field->fkeyTable['ref_table']['table'];
-                $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
-
-                // Check if the fkey table has a parent
-                if (isset($field->fkeyTable["parent"]) && is_numeric($value)) {
-                    $children = $this->getHeiarchyDownGrp($field, $value);
-
-                    // Make sure that we have a children
-                    if (!empty($children)) {
-                        foreach ($children as $child) {
-                            $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($child)}";
-                        }
-                    } else {
-                        $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
-                    }
-                } elseif (!empty($value)) {
-                    $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
-                }
-
-                if (empty($value)) {
-                    $conditionString = " NOT EXISTS (select 1 from  $fkeyRefTable where $fkeyRefTable.$fkeyRefField = " . $this->castNullIfInteger("$objectTable.field_data->>'id'") . ") ";
+                // If the value provided for grouping id is null or empty
+                if (!$value) {
+                    $conditionString = "(field_data->'$fieldName' = 'null'::jsonb OR field_data->'$fieldName' = '[]'::jsonb)";
                 } else {
-                    $multiCondString = implode(" or ", $multiCond);
-                    $conditionString = " EXISTS (select 1 from  $fkeyRefTable where $fkeyRefTable.$fkeyRefField = " . $this->castNullIfInteger("$objectTable.field_data->>'id'") . " and ($multiCondString)) ";
+                    $conditionString = "field_data->'{$fieldName}' @> jsonb_build_array('$value')";
                 }
                 break;
             case FIELD::TYPE_GROUPING:
@@ -700,35 +679,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }*/
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
-                $fkeyRefField = $field->fkeyTable['ref_table']['this'];
-                $fkeyRefTable = $field->fkeyTable['ref_table']['table'];
-                $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
-
-                if (empty($value)) {
-                    $conditionString = $this->castNullIfInteger("field_data->>'id'") . " IN (select $fkeyRefField from $fkeyRefTable)";
+                // If the value provided for grouping id is null or empty
+                if (!$value) {
+                    $conditionString = "(field_data->'$fieldName' != 'null'::jsonb OR field_data->'$fieldName' != '[]'::jsonb)";
                 } else {
-                    $multiCond = [];
-
-                    // Check first if the fkey table has a parent
-                    if (!empty($field->fkeyTable["parent"]) && is_numeric($value)) {
-                        $children = $this->getHeiarchyDownGrp($field, $value);
-
-                        // Make sure that we have $children
-                        if (!empty($children)) {
-                            foreach ($children as $child) {
-                                $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($child)}";
-                            }
-                        } else {
-                            $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
-                        }
-                    } else {
-                        $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
-                    }
-
-                    $multiCondString = implode(" or ", $multiCond);
-                    $conditionString = $this->castNullIfInteger("field_data->>'id'") . " NOT IN (select $fkeyRefField from $fkeyRefTable where $multiCondString)";
+                    $conditionString = "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$fieldName}' @> jsonb_build_array('$value'))";
                 }
-
                 break;
             case FIELD::TYPE_GROUPING:
                 $conditionString = $this->buildGroupingQueryCondition($entityDefinition, $field, $condition);
@@ -819,50 +775,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         if ($operator == Where::OPERATOR_EQUAL_TO) {
             $conditionString = "field_data->'{$field->name}' @> jsonb_build_array('$value')";
         } else {
-            $conditionString = "NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$field->name}' @> jsonb_build_array('$value'))";
+            $conditionString = "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$field->name}' @> jsonb_build_array('$value'))";
         }
 
         return $conditionString;
-    }
-
-    /**
-     * Get ids of all child entries in a parent-child relationship
-     *
-     * This function may be over-ridden in specific indexes for performance reasons
-     *
-     * @param string $table The table to query
-     * @param string $parent_field The field containing the id of the parent entry
-     * @param int $childId The id of the child element
-     */
-    public function getHeiarchyDownGrp(Field $field, $childId)
-    {
-        $ret = array();
-
-        // If not heiarchy then just return this
-        if (empty($field->fkeyTable["parent"])) {
-            return array($childId);
-        }
-
-        $sql = "WITH RECURSIVE children AS
-                (
-                    -- non-recursive term
-                    SELECT id FROM {$field->subtype} WHERE id=:heiarchy_id
-                    UNION ALL
-                    -- recursive term
-                    SELECT {$field->subtype}.id
-                    FROM {$field->subtype}
-                    JOIN children AS chld
-                        ON ({$field->subtype}.{$field->fkeyTable["parent"]} = chld.id)
-                )
-                SELECT id
-                FROM children";
-
-        $result = $this->database->query($sql, ['heiarchy_id' => $childId]);
-        foreach ($result->fetchAll() as $row) {
-            $ret[] = $row["id"];
-        }
-
-        return $ret;
     }
 
     /**

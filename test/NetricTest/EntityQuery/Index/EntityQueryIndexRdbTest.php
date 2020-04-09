@@ -69,13 +69,25 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("groups");
         $condition->equals(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, " EXISTS (select 1 from  object_grouping_mem where object_grouping_mem.object_id = nullif(objects_note.field_data->>'id', '')::int and (object_grouping_mem.grouping_id = 1)) ");
+        $this->assertEquals($conditionString, "field_data->'groups' @> jsonb_build_array('1')");
+
+        // Test Equals on null value
+        $condition = new Where("groups");
+        $condition->equals(null);
+        $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
+        $this->assertEquals($conditionString, "(field_data->'groups' = 'null'::jsonb OR field_data->'groups' = '[]'::jsonb)");
         
         // Test Not Equal
         $condition = new Where("groups");
         $condition->doesNotEqual(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "nullif(field_data->>'id', '')::int NOT IN (select object_id from object_grouping_mem where object_grouping_mem.grouping_id = 1)");
+        $this->assertEquals($conditionString, "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM objects_note WHERE field_data->'groups' @> jsonb_build_array('1'))");
+
+        // Test Not Equal on null value
+        $condition = new Where("groups");
+        $condition->doesNotEqual(null);
+        $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
+        $this->assertEquals($conditionString, "(field_data->'groups' != 'null'::jsonb OR field_data->'groups' != '[]'::jsonb)");
     }
 
     public function testbuildConditionStringForObject()

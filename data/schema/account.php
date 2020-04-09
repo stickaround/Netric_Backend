@@ -1364,25 +1364,6 @@ return array(
         )
     ),
 
-    "object_grouping_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'object_type_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
-            'object_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
-            'field_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
-            'grouping_id' => array("type" => "character varying(256)", "notnull" => true),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
-            array('properties' => array("object_type_id", "object_id")),
-            array('properties' => array("field_id")),
-        ),
-        "INDEXES" => array(
-            array('properties' => array("object_type_id", "object_id")),
-            array('properties' => array("field_id")),
-        )
-    ),
-
     "printing_papers_labels" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_INT, 'default' => 'auto_increment'),

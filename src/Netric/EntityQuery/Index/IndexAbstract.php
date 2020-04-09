@@ -175,22 +175,6 @@ abstract class IndexAbstract
     }
 
     /**
-     * Get ids of all child entries in a parent-child relationship
-     *
-     * This function may be over-ridden in specific indexes for performance reasons
-     *
-     * @param string $table The table to query
-     * @param string $parent_field The field containing the id of the parent entry
-     * @param int $this_id The id of the child element
-     */
-    public function getHeiarchyDownGrp(Field $field, $this_id)
-    {
-        $children_arr = array($this_id);
-
-        return $children_arr;
-    }
-
-    /**
      * Get ids of all parent entries in a parent-child relationship of an object
      *
      * @param string $table The table to query

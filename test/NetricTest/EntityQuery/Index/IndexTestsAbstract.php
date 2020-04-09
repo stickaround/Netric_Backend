@@ -776,6 +776,26 @@ abstract class IndexTestsAbstract extends TestCase
         }
         $this->assertTrue($found);
 
+        // Test empty groups
+        $testEnt->setValue("groups", []);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
+
+        // Test null for groups
+        // -------------------------------------------------
+        $query = new EntityQuery($testEnt->getObjType());
+        $groups = $testEnt->getValue("groups");
+        $query->where('groups')->equals("");
+        $res = $index->executeQuery($query);
+        $found = false;
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
+            $ent = $res->getEntity($i);
+            if ($ent->getId() == $testEnt->getId()) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found);
+
         // Make sure object no longer returns on null query with old id
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());

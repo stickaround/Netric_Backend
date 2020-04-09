@@ -25,6 +25,11 @@ $groupingsLoader = $serviceManager->get(GroupingLoaderFactory::class);
 $entityDefinitionDataMapper = $account->getServiceManager()->get(DataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
+// Make sure that the object_grouping_mem table still exists
+if (!$db->tableExists("object_grouping_mem")) {
+    return;
+}
+
 // Groupings moved from custom tables to generic object_groupings in previous update
 $groupingTables = [
     ["refObjType" => "infocenter_document", "refFieldName" => "groups"],

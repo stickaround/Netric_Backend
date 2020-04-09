@@ -445,13 +445,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             }
         }
 
-        // Handle updating reference membership if needed
-        foreach ($all_fields as $fname => $fdef) {
-            if ($fdef->type == Field::TYPE_GROUPING_MULTI) {
-                $this->updateObjectGroupingMulti($entity, $fdef);
-            }
-        }
-
         return $entity->getId();
     }
 
@@ -467,56 +460,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             "field_data" => json_encode($entity->toArray()), 
             "f_deleted" => $entity->getValue('f_deleted'),
             "guid" => $entity->getValue('guid')]);
-    }
-
-    /**
-     * Update object groupings for a multi-value field
-     *
-     * @param EntityInterface $entity
-     * @param Field $field
-     */
-    private function updateObjectGroupingMulti(EntityInterface $entity, Field $field)
-    {
-        /*
-         * First clear out all existing values in the union table because trying to update
-         * them would require more work than its worth.
-         */
-        $whereParams = [];
-        // ['ref_table']["this"] is almost always just 'id'
-        $whereParams[$field->fkeyTable['ref_table']["this"]] = $entity->getId();
-
-        // object_type_id and field_id is needed for generic groupings
-        if ($field->subtype == "object_groupings") {
-            $whereParams['object_type_id'] = $entity->getDefinition()->getId();
-            $whereParams['field_id'] = $field->id;
-        }
-
-        $this->database->delete(
-            $field->fkeyTable['ref_table']['table'],
-            $whereParams
-        );
-
-        // Now insert the rows to associate this entity with the foreign grouping
-        $values = $entity->getValue($field->name);
-        if (is_array($values)) {
-            foreach ($values as $val) {
-                if (Uuid::isValid($val) || is_numeric($val)) {
-                    $dataToInsert = [];
-                    $dataToInsert[$field->fkeyTable['ref_table']['ref']] = $val;
-                    $dataToInsert[$field->fkeyTable['ref_table']["this"]] = $entity->getId();
-
-                    if ($field->subtype == "object_groupings") {
-                        $dataToInsert['object_type_id'] = $entity->getDefinition()->getId();
-                        $dataToInsert['field_id'] = $field->id;
-                    }
-
-                    $this->database->insert(
-                        $field->fkeyTable['ref_table']['table'],
-                        $dataToInsert
-                    );
-                }
-            }
-        }
     }
 
     /**

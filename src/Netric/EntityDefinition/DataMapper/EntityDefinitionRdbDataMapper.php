@@ -166,23 +166,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             }
 
             if ($row['type'] == FIELD::TYPE_GROUPING || $row['type'] == FIELD::TYPE_OBJECT || $row['type'] == FIELD::TYPE_GROUPING_MULTI) {
-                if ($row['fkey_table_key']) {
-                    $field->fkeyTable = array(
-                        "key" => $row['fkey_table_key'],
-                        "title" => $row['fkey_table_title'],
-                        "parent" => $row['parent_field'],
-                        "filter" => (!empty($row['filter']) ? unserialize($row['filter']) : null),
-                    );
-
-                    if ($row['type'] == 'fkey_multi' && $row['fkey_multi_tbl']) {
-                        $field->fkeyTable['ref_table'] = array(
-                            "table" => $row['fkey_multi_tbl'],
-                            "this" => $row['fkey_multi_this'],
-                            "ref" => $row['fkey_multi_ref']
-                        );
-                    }
-                }
-
                 // Autocreate
                 $field->autocreate = ($row['autocreate'] == 1) ? true : false;
                 $field->autocreatebase = $row['autocreatebase'];
@@ -400,18 +383,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 $updateFields["parent_field"] = $field->fkeyTable['parent'];
             }
 
-            if (!empty($field->fkeyTable['ref_table']['table'])) {
-                $updateFields["fkey_multi_tbl"] = $field->fkeyTable['ref_table']['table'];
-            }
-
-            if (!empty($field->fkeyTable['ref_table']['this'])) {
-                $updateFields["fkey_multi_this"] = $field->fkeyTable['ref_table']['this'];
-            }
-
-            if (!empty($field->fkeyTable['ref_table']['ref'])) {
-                $updateFields["fkey_multi_ref"] = $field->fkeyTable['ref_table']['ref'];
-            }
-
             $updateFields["sort_order"] = $sort_order;
             $updateFields["autocreate"] = $field->autocreate;
 
@@ -516,18 +487,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
             if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
                 $fKeyFilter = serialize($field->fkeyTable['filter']);
-            }
-
-            if (!empty($field->fkeyTable['ref_table']['ref'])) {
-                $fKeyRef = $field->fkeyTable['ref_table']['ref'];
-            }
-
-            if (!empty($field->fkeyTable['ref_table']['table'])) {
-                $fKeyRefTable = $field->fkeyTable['ref_table']['table'];
-            }
-
-            if (!empty($field->fkeyTable['ref_table']['this'])) {
-                $fKeyRefThis = $field->fkeyTable['ref_table']['this'];
             }
 
             if ($field->autocreatebase) {

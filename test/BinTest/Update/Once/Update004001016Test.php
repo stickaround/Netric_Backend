@@ -118,6 +118,12 @@ class Update004001016Test extends TestCase
      */
     public function testFkeyMultiGroupingTable()
     {
+
+        // Make sure that the object_grouping_mem table still exists
+        if (!$this->db->tableExists("object_grouping_mem")) {
+            return;
+        }
+
         // Create a test grouping
         $newGroupingName = "Unit Test Group" . rand();
         $groupingsGroups = $this->entityGroupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
