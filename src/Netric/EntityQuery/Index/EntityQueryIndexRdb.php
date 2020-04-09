@@ -572,11 +572,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
-                // If the value provided for grouping id is null or empty
-                if (!$value) {
-                    $conditionString = "(field_data->'$fieldName' = 'null'::jsonb OR field_data->'$fieldName' = '[]'::jsonb)";
-                } else {
+                // Make sure that the grouping value is provided
+                if ($value) {
                     $conditionString = "field_data->'{$fieldName}' @> jsonb_build_array('$value')";
+                } else {
+                    $conditionString = "(field_data->'$fieldName' = 'null'::jsonb OR field_data->'$fieldName' = '[]'::jsonb)";
                 }
                 break;
             case FIELD::TYPE_GROUPING:
@@ -679,11 +679,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }*/
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
-                // If the value provided for grouping id is null or empty
-                if (!$value) {
-                    $conditionString = "(field_data->'$fieldName' != 'null'::jsonb OR field_data->'$fieldName' != '[]'::jsonb)";
-                } else {
+                // Make sure that the grouping value is provided
+                if ($value) {
                     $conditionString = "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$fieldName}' @> jsonb_build_array('$value'))";
+                } else {
+                    $conditionString = "(field_data->'$fieldName' != 'null'::jsonb OR field_data->'$fieldName' != '[]'::jsonb)";
                 }
                 break;
             case FIELD::TYPE_GROUPING:
