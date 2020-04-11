@@ -5,7 +5,6 @@ namespace Netric\Application;
 use Netric\Account\Account;
 use Netric\Application\Exception;
 use Netric\Mvc\Exception\NotAuthorizedForRouteException;
-use Netric\Application\Response\ResponseInterface;
 use Netric\Application\Setup\Setup;
 use Netric\Request\RequestInterface;
 use Netric\Mvc\Router;
