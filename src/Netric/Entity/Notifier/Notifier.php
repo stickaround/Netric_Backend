@@ -88,6 +88,9 @@ class Notifier
             return $notificationIds;
         }
 
+        $objReference = $entity->getGuid();
+        $description = $entity->getDescription();
+
         /*
          * Get the object reference which is the entity this notice is about.
          * If this is a comment we are adding a notification for, then update
@@ -96,7 +99,11 @@ class Notifier
          * clicks on the link for the notification, it will take them to the
          * entity being commented on.
          */
-        $objReference = ($objType == ObjectTypes::COMMENT) ? $entity->getValue("obj_reference") : $entity->getGuid();
+        if ($objType == ObjectTypes::COMMENT) {
+            $objReference = $entity->getValue("obj_reference");
+            $ownerName = $entity->getValueName("owner_id");
+            $description = "$ownerName added a comment: " . $entity->getValue("comment");
+        }
 
         // Get a human-readable name to use for this notification
         $name = $this->getNameFromEventVerb($event, $entity->getDefinition()->getTitle());
@@ -130,11 +137,12 @@ class Notifier
                 // Create new notification, or update an existing unseen one
                 $notification = $this->getNotification($objReference, $userGuid);
                 $notification->setValue("name", $name);
-                $notification->setValue("description", $entity->getDescription());
+                $notification->setValue("description", $description);
                 $notification->setValue("f_email", true);
                 $notification->setValue("f_popup", false);
                 $notification->setValue("f_sms", false);
                 $notification->setValue("f_seen", false);
+                
                 $notificationIds[] = $this->entityLoader->save($notification);
             }
         }

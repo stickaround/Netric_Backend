@@ -100,8 +100,8 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // Get the referenced entity
         $objReference = $this->getValue("obj_reference");
-        $entity = $sm->get(EntityLoaderFactory::class)->getByGuid($objReference);
-        $def = $entity->getDefinition();
+        $referencedEntity = $sm->get(EntityLoaderFactory::class)->getByGuid($objReference);
+        $def = $referencedEntity->getDefinition();
 
         $config = $sm->get(ConfigFactory::class);
         $log = $sm->get(LogFactory::class);
@@ -110,12 +110,18 @@ class NotificationEntity extends Entity implements EntityInterface
         $body = $creator->getName() . " - " . $this->getName('name') . " on ";
         $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
         $body .= "---------------------------------------\r\n\r\n";
-        $body .= $def->getTitle() . ": " . $entity->getName();
-        $body .= "\r\n\r\nLink: \r";
+        $body .= $def->getTitle() . ": " . $referencedEntity->getName();
+
+        // If there is a notification description, then include it in the body
+        if ($this->getValue("description")) {
+            $body .= "\r\n\r\nDetails: \r";
+            $body .= $this->getValue("description");
+        }
         
         // Add link to body
         $protocol = ($config->use_https) ? "https://" : "http://";
-        $body .= $protocol . $config->application_url . "/browse/" . $entity->getGuid();
+        $body .= "\r\n\r\nLink: \r";
+        $body .= $protocol . $config->application_url . "/browse/" . $referencedEntity->getGuid();
         $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
         
