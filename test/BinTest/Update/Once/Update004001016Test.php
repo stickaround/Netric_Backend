@@ -121,6 +121,7 @@ class Update004001016Test extends TestCase
 
         // Make sure that the object_grouping_mem table still exists
         if (!$this->db->tableExists("object_grouping_mem")) {
+            $this->assertFalse($this->db->tableExists("object_grouping_mem"));
             return;
         }
 
