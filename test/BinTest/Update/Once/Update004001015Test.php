@@ -187,7 +187,7 @@ class Update004001015Test extends TestCase
         // Get new object groupings (which should have a new entry for the added group)
         $groupings = $this->entityGroupingDataMapper->getGroupings("$objType/$fieldName");
         $group = $groupings->getByName($groupName);
-        $this->assertEquals($entityGroupName, $group->name);
+        $this->assertEquals("Customer stage_id Group Unit Test", $group->name);
 
         $this->testObjectGroupings["object_groupings"][] = $group->id;
     }
