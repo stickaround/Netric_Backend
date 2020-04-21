@@ -12,6 +12,7 @@ use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoaderFactory;
+use Ramsey\Uuid\Uuid;
 
 class BrowserViewServiceTest extends TestCase
 {
@@ -340,5 +341,56 @@ class BrowserViewServiceTest extends TestCase
     {
         $defId = $this->browserViewService->getDefaultViewForUser(ObjectTypes::NOTE, $this->user);
         $this->assertNotNull($defId);
+    }
+
+    /**
+     * Make sure that the task browser views are using status_id instead of "done" field
+     */
+    public function testTaskSystemBrowserViewsStatus()
+    {
+        $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
+
+        $foundDoneField = false;
+        forEach($systemViews as $sysView) {
+            forEach($sysView->getConditions() as $cond) {
+
+                // If we have found a "done" field in the conditions, then 
+                if ($cond->fieldName == "done") {
+                    $foundDoneField = true;                        
+                }
+
+                // Make sure that status id value is already converted to the group's guid
+                if ($cond->fieldName == "status_id") {
+                    $this->assertTrue(Uuid::isValid($cond->value));
+                }
+            }
+        }
+
+        $this->assertFalse($foundDoneField);
+    }
+
+    /**
+     * Make sure that the incomplete task browser view is using status_id != completed in its conditions
+     */
+    public function testTaskSystemBrowserViewIncompleteTask()
+    {
+        $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
+
+        $foundStatusField = false;
+        forEach($systemViews as $sysView) {
+            if ($sysView->getId() == "my_tasks") {
+                forEach($sysView->getConditions() as $cond) {
+                    if ($cond->fieldName == "status_id") {
+
+                        // Make sure that the value is already converted to the group's guid
+                        $this->assertTrue(Uuid::isValid($cond->value));                
+                        $foundStatusField = true;
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        $this->assertTrue($foundStatusField);
     }
 }

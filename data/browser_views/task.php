@@ -7,6 +7,7 @@
 namespace data\browser_views;
 
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityQuery\Where;
 
 return array(
@@ -22,11 +23,11 @@ return array(
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ),
-            'done' => array(
+            'status_id' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'done',
+                'field_name' => 'status_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => 't'
+                'value' => TaskEntity::STATUS_COMPLETED
             ),
         ),
         'order_by' => array(
@@ -54,11 +55,11 @@ return array(
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ),
-            'done' => array(
+            'status_id' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'done',
+                'field_name' => 'status_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => 't'
+                'value' => TaskEntity::STATUS_COMPLETED
             ),
             'deadline' => array(
                 'blogic' => Where::COMBINED_BY_AND,
@@ -124,11 +125,11 @@ return array(
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ),
-            'done' => array(
+            'status_id' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'done',
+                'field_name' => 'status_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => 't'
+                'value' => TaskEntity::STATUS_COMPLETED
             ),
         ),
         'order_by' => array(
@@ -150,11 +151,11 @@ return array(
         'description' => 'All Tasks that have not yet been completed',
         'default' => false,
         'conditions' => array(
-            'done' => array(
+            'status_id' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'done',
+                'field_name' => 'status_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => 't'
+                'value' => TaskEntity::STATUS_COMPLETED
             ),
         ),
         'order_by' => array(
