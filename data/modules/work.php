@@ -21,6 +21,20 @@ return array(
             "type" => "browse",
             "route" => "tasks",
             "objType" => "task",
+            "icon" => "ViewListIcon"
+        ),
+        array(
+            "title" => "My Task",
+            "type" => "browse",
+            "route" => "tasks/view/my_tasks",
+            "objType" => "task",
+            "icon" => "ViewListIcon",
+        ),
+        array(
+            "title" => "All Tasks",
+            "type" => "browse",
+            "route" => "tasks/view/all_tasks",
+            "objType" => "task",
             "icon" => "ViewListIcon",
         ),
         array(
