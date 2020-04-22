@@ -25,17 +25,17 @@ return array(
         ),
         array(
             "title" => "My Task",
-            "type" => "browse",
-            "route" => "tasks/view/my_tasks",
+            "type" => "view",
+            "route" => "my_task",
             "objType" => "task",
-            "icon" => "ViewListIcon",
+            "icon" => "ChevronRightIcon",
         ),
         array(
             "title" => "All Tasks",
-            "type" => "browse",
-            "route" => "tasks/view/all_tasks",
+            "type" => "view",
+            "route" => "all_tasks",
             "objType" => "task",
-            "icon" => "ViewListIcon",
+            "icon" => "ChevronRightIcon",
         ),
         array(
             "title" => "Projects",
