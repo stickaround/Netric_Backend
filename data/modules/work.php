@@ -2,6 +2,9 @@
 
 /**
  * Return navigation for entity of work module
+ * 
+ * Note: 
+ * The browser_view property in navigation refers to the views that is set in objType's browser views (e.g. server/data/browser_views/task.php)
  */
 
 namespace modules\navigation;
@@ -25,15 +28,17 @@ return array(
         ),
         array(
             "title" => "My Task",
-            "type" => "view",
-            "route" => "my_task",
+            "type" => "browse",
+            "browser_view" => "my_task",
+            "route" => "my-task",
             "objType" => "task",
             "icon" => "ChevronRightIcon",
         ),
         array(
             "title" => "All Tasks",
-            "type" => "view",
-            "route" => "all_tasks",
+            "type" => "browse",
+            "browser_view" => "all_tasks",
+            "route" => "all-task",
             "objType" => "task",
             "icon" => "ChevronRightIcon",
         ),
