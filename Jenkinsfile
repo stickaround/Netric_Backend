@@ -33,7 +33,7 @@ pipeline {
         stage('Test') {
             steps {
                 // Run unit tests
-                script {
+                /*script {
                     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
                         sh 'docker-compose -f docker/docker-compose-test.yml build --no-cache'
                         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
@@ -50,7 +50,7 @@ pipeline {
                        pmdFile: '.reports/pmd.xml',
                        checkStyleFile: '.reports/checkstyle.xml'
                     )
-                }
+                }*/
                 script {
                     // Check container for security vulnerabilities
                     dir('.clair') {
