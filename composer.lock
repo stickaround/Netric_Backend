@@ -379,16 +379,16 @@
         },
         {
             "name": "graylog2/gelf-php",
-            "version": "1.6.4",
+            "version": "1.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bzikarsky/gelf-php.git",
-                "reference": "4502a39fc602d4037ae954bc9b1fa63acb10c3e1"
+                "reference": "14b87aa31880b9f2da6de053674ea1e12d4a174b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/4502a39fc602d4037ae954bc9b1fa63acb10c3e1",
-                "reference": "4502a39fc602d4037ae954bc9b1fa63acb10c3e1",
+                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/14b87aa31880b9f2da6de053674ea1e12d4a174b",
+                "reference": "14b87aa31880b9f2da6de053674ea1e12d4a174b",
                 "shasum": ""
             },
             "require": {
@@ -429,7 +429,7 @@
                 }
             ],
             "description": "A php implementation to send log-messages to a GELF compatible backend like Graylog2.",
-            "time": "2020-02-06T19:51:02+00:00"
+            "time": "2020-04-24T05:38:21+00:00"
         },
         {
             "name": "hoa/compiler",
