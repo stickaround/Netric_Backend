@@ -770,6 +770,10 @@ abstract class DmTestsAbstract extends TestCase
         $customer->addMultiValue("groups", $groupsGrp->guid);
         // object with no label (third param)
         $customer->setValue("owner_id", $this->user->getGuid());
+        // Setting object_multi field with array values of null and empty string should not throw an error
+        $customer->setValue("activity", array(null, ""));
+        // Setting object field with array values of null should not throw an error
+        $customer->setValue("primary_contact", null);
 
         // Save should call private updateForeignKeyNames in the DataMapperAbstract
         $cid = $dm->save($customer, $this->user);
