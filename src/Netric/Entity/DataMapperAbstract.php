@@ -584,6 +584,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
             switch ($field->type) {
                 case Field::TYPE_OBJECT:
+                    // If we are dealing with null or empty id, then there is no need to update this foreign key
+                    if (!$value) {
+                        continue;
+                    }
+
                     // If this entity is trying to add itself as object reference, then we will not allow it.
                     if ($entity->getObjRef() == $value || ($entity->getId() == $value && $entity->getObjType() == $field->subtype)) {
                         continue;
@@ -606,6 +611,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                     if (is_array($value)) {
                         foreach ($value as $id) {
+
+                            // If we are dealing with null or empty id, then there is no need to update this foreign key
+                            if (!$id) {
+                                continue;
+                            }
 
                             // If this entity is trying to add itself as object reference, then we will not allow it.
                             if ($entity->getObjRef() == $id || ($entity->getId() == $id && $entity->getObjType() == $field->subtype)) {
