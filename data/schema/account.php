@@ -247,14 +247,16 @@ return array(
             'team_id' => array('type' => SchemaProperty::TYPE_INT),
             'object_type_id' => array('type' => SchemaProperty::TYPE_INT),
             'report_id' => array('type' => SchemaProperty::TYPE_INT),
-            'owner_id' => array('type' => SchemaProperty::TYPE_INT),
+            'owner_id' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'conditions_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'order_by_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'table_columns_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
+            'group_by_field_name' => array('type' => SchemaProperty::TYPE_CHAR_256),
+            'system_view_name' => array('type' => SchemaProperty::TYPE_CHAR_256), // Column that will be used to store the name of system view if we are saving the user-modified view data.
         ),
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(
-            array('properties' => array("user_id")),
+            array('properties' => array("owner_id")),
             array('properties' => array("object_type_id")),
             array('properties' => array("report_id")),
         )

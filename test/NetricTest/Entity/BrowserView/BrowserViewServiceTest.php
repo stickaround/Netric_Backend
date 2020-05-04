@@ -31,6 +31,11 @@ class BrowserViewServiceTest extends TestCase
     private $browserViewService = null;
 
     /**
+     * Browser views that will be deleted after testing
+     */
+    private $testViews = [];
+
+    /**
      * Administrative user
      *
      * We test for this user since he will never have customized forms
@@ -51,6 +56,16 @@ class BrowserViewServiceTest extends TestCase
     }
 
     /**
+     * Cleanup any test browser views
+     */
+    protected function tearDown(): void
+{
+        foreach ($this->testViews as $view) {
+            $this->browserViewService->deleteView($view);
+        }
+    }
+
+    /**
      * Test saving a view to the database
      */
     public function testSaveView()
@@ -68,6 +83,7 @@ class BrowserViewServiceTest extends TestCase
             'table_columns' => array(
                 'first_name'
             ),
+            'group_by_field_name' => 'name',
             'order_by' => array(
                 array(
                     "field_name" => "name",
@@ -79,10 +95,16 @@ class BrowserViewServiceTest extends TestCase
         $view->fromArray($data);
 
         $ret = $this->browserViewService->saveView($view);
+        $this->testViews[] = $view;
+
         $this->assertTrue(is_numeric($ret));
 
         // Make sure save set the view id
         $this->assertNotNull($view->getId());
+
+        // Test group_by_field_name
+        $viewData = $view->toArray();
+        $this->assertEquals($viewData['group_by_field_name'], 'name');
 
         // Cleanup
         $this->browserViewService->deleteView($view);
@@ -106,6 +128,7 @@ class BrowserViewServiceTest extends TestCase
             'table_columns' => array(
                 'first_name'
             ),
+            'system_view_name' => 'contact_sys',
             'order_by' => array(
                 array(
                     "field_name" => "name",
@@ -116,6 +139,7 @@ class BrowserViewServiceTest extends TestCase
         $view = new BrowserView();
         $view->fromArray($data);
         $vid = $this->browserViewService->saveView($view);
+        $this->testViews[] = $view;
 
         // Load and test the values
         $loaded = $this->browserViewService->getViewById(ObjectTypes::CONTACT, $vid);
@@ -124,6 +148,7 @@ class BrowserViewServiceTest extends TestCase
         $this->assertEquals(count($data['conditions']), count($view->getConditions()));
         $this->assertEquals(count($data['table_columns']), count($view->getTableColumns()));
         $this->assertEquals(count($data['order_by']), count($view->getOrderBy()));
+        $this->assertEquals(count($data['system_view_name']), count($view->getSystemViewName()));
     }
 
     /**
@@ -135,6 +160,7 @@ class BrowserViewServiceTest extends TestCase
         $view = new BrowserView();
         $view->setObjType(ObjectTypes::NOTE);
         $vid = $this->browserViewService->saveView($view);
+        $this->testViews[] = $view;
 
         // Delete it
         $ret = $this->browserViewService->deleteView($view);
@@ -175,24 +201,27 @@ class BrowserViewServiceTest extends TestCase
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId(1);
         $this->browserViewService->saveView($teamView);
+        $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setUserId(1);
+        $userView->setOwnerId(1);
         $this->browserViewService->saveView($userView);
+        $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
         $this->browserViewService->saveView($accountView);
+        $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
         $accountViews = $this->browserViewService->getAccountViews(ObjectTypes::NOTE);
         $foundUserView = false;
         $foundTeamView = false;
         foreach ($accountViews as $view) {
-            if ($view->getUserId()) {
+            if ($view->getOwnerId()) {
                 $foundUserView = true;
             }
             if ($view->getTeamId()) {
@@ -219,27 +248,30 @@ class BrowserViewServiceTest extends TestCase
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId(1);
         $this->browserViewService->saveView($teamView);
+        $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setUserId(2);
+        $userView->setOwnerId(2);
         $this->browserViewService->saveView($userView);
+        $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
         $this->browserViewService->saveView($accountView);
+        $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
         $teamViews = $this->browserViewService->getTeamViews(ObjectTypes::NOTE, 1);
         $foundUserView = false;
         $foundAccountView = false;
         foreach ($teamViews as $view) {
-            if ($view->getUserId()) {
+            if ($view->getOwnerId()) {
                 $foundUserView = true;
             }
-            if (empty($view->getTeamId()) && empty($view->getUserId())) {
+            if (empty($view->getTeamId()) && empty($view->getOwnerId())) {
                 $foundAccountView = true;
             }
         }
@@ -263,17 +295,20 @@ class BrowserViewServiceTest extends TestCase
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId(1);
         $this->browserViewService->saveView($teamView);
+        $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setUserId(2);
+        $userView->setOwnerId(2);
         $this->browserViewService->saveView($userView);
+        $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
         $this->browserViewService->saveView($accountView);
+        $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
         $userViews = $this->browserViewService->getUserViews(ObjectTypes::NOTE, 2);
@@ -283,7 +318,7 @@ class BrowserViewServiceTest extends TestCase
             if ($view->getTeamid()) {
                 $foundTeamView = true;
             }
-            if (empty($view->getTeamId()) && empty($view->getUserId())) {
+            if (empty($view->getTeamId()) && empty($view->getOwnerId())) {
                 $foundAccountView = true;
             }
         }
@@ -307,22 +342,25 @@ class BrowserViewServiceTest extends TestCase
             $this->user->setValue("team_id", 3);
         }
 
-        // Setup team vuew
+        // Setup team view
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId($this->user->getValue("team_id"));
         $this->browserViewService->saveView($teamView);
+        $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setUserId($this->user->getId());
+        $userView->setOwnerId($this->user->getGuid());
         $this->browserViewService->saveView($userView);
+        $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
         $this->browserViewService->saveView($accountView);
+        $this->testViews[] = $accountView;
 
         // Make sure we get at least the number of added views plus the sytem
         $usersViews = $this->browserViewService->getViewsForUser(ObjectTypes::NOTE, $this->user);
@@ -332,6 +370,39 @@ class BrowserViewServiceTest extends TestCase
         $this->browserViewService->deleteView($teamView);
         $this->browserViewService->deleteView($userView);
         $this->browserViewService->deleteView($accountView);
+    }
+
+    /**
+     * Make sure that we user can get user-modified systsem views
+     */
+    public function testGetUserModifiedSystemViews()
+    {
+        // Setup user view
+        $userView = new BrowserView();
+        $userView->fromArray([
+            'owner_id' => $this->user->getGuid(),
+            'obj_type' => ObjectTypes::TASK,
+            'system_view_name' => 'all_incomplete_tasks', // See /data/browser_views/task.php to get the system view names
+            'date_completed' => 'date',
+            'description' => 'Modified incomplete tasks view'
+
+        ]);
+
+        $this->browserViewService->saveView($userView);
+        $this->testViews[] = $userView;
+
+        // Get the system views
+        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK, $this->user->getGuid());
+
+        $modifiedSysView = null;
+        forEach($sysViews as $view) {
+            if ($view->getSystemViewName() == 'all_incomplete_tasks') {
+                $modifiedSysView = $view; 
+                break;
+            }
+        }
+
+        $this->assertEquals($modifiedSysView->getDescription(), 'Modified incomplete tasks view');
     }
 
     /**

@@ -30,7 +30,12 @@ return array(
                 'value' => TaskEntity::STATUS_COMPLETED
             ),
         ),
+        'group_by_field_name' => 'status_id',
         'order_by' => array(
+            'status_id' => array(
+                'field_name' => 'status_id',
+                'direction' => 'asc',
+            ),
             'date' => array(
                 'field_name' => 'date_entered',
                 'direction' => 'desc',
