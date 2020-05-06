@@ -30,7 +30,7 @@ return array(
                 'value' => TaskEntity::STATUS_COMPLETED
             ),
         ),
-        'group_by_field_name' => 'status_id',
+        'group_first_order_by' => true,
         'order_by' => array(
             'status_id' => array(
                 'field_name' => 'status_id',

@@ -83,7 +83,7 @@ class BrowserViewServiceTest extends TestCase
             'table_columns' => array(
                 'first_name'
             ),
-            'group_by_field_name' => 'name',
+            'group_first_order_by' => true,
             'order_by' => array(
                 array(
                     "field_name" => "name",
@@ -102,9 +102,9 @@ class BrowserViewServiceTest extends TestCase
         // Make sure save set the view id
         $this->assertNotNull($view->getId());
 
-        // Test group_by_field_name
+        // Test group_first_order_by
         $viewData = $view->toArray();
-        $this->assertEquals($viewData['group_by_field_name'], 'name');
+        $this->assertEquals($viewData['group_first_order_by'], true);
 
         // Cleanup
         $this->browserViewService->deleteView($view);
@@ -128,7 +128,6 @@ class BrowserViewServiceTest extends TestCase
             'table_columns' => array(
                 'first_name'
             ),
-            'system_view_name' => 'contact_sys',
             'order_by' => array(
                 array(
                     "field_name" => "name",
@@ -148,7 +147,6 @@ class BrowserViewServiceTest extends TestCase
         $this->assertEquals(count($data['conditions']), count($view->getConditions()));
         $this->assertEquals(count($data['table_columns']), count($view->getTableColumns()));
         $this->assertEquals(count($data['order_by']), count($view->getOrderBy()));
-        $this->assertEquals(count($data['system_view_name']), count($view->getSystemViewName()));
     }
 
     /**
@@ -370,39 +368,6 @@ class BrowserViewServiceTest extends TestCase
         $this->browserViewService->deleteView($teamView);
         $this->browserViewService->deleteView($userView);
         $this->browserViewService->deleteView($accountView);
-    }
-
-    /**
-     * Make sure that we user can get user-modified systsem views
-     */
-    public function testGetUserModifiedSystemViews()
-    {
-        // Setup user view
-        $userView = new BrowserView();
-        $userView->fromArray([
-            'owner_id' => $this->user->getGuid(),
-            'obj_type' => ObjectTypes::TASK,
-            'system_view_name' => 'all_incomplete_tasks', // See /data/browser_views/task.php to get the system view names
-            'date_completed' => 'date',
-            'description' => 'Modified incomplete tasks view'
-
-        ]);
-
-        $this->browserViewService->saveView($userView);
-        $this->testViews[] = $userView;
-
-        // Get the system views
-        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK, $this->user->getGuid());
-
-        $modifiedSysView = null;
-        forEach($sysViews as $view) {
-            if ($view->getSystemViewName() == 'all_incomplete_tasks') {
-                $modifiedSysView = $view; 
-                break;
-            }
-        }
-
-        $this->assertEquals($modifiedSysView->getDescription(), 'Modified incomplete tasks view');
     }
 
     /**

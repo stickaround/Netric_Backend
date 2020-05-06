@@ -101,16 +101,11 @@ class BrowserView
     private $objType = null;
 
     /**
-     * Filter key that will be used for this browser view
+     * Flag that will determine if we will set a group by based on the first sort order field
      * 
-     * @var string
+     * @var boolean
      */
-    private $groupByFieldName = "";
-
-    /**
-     * View name of the system view with user-modified saved data in app_object_views table
-     */
-    private $systemViewName = "";
+    private $groupFirstOrderBy = false;
 
     /**
      * Convert the data for this view to an array
@@ -131,8 +126,7 @@ class BrowserView
             "table_columns" => array(),
             "conditions" => array(),
             "order_by" => array(),
-            "group_by_field_name" => $this->groupByFieldName,
-            "system_view_name"  => $this->systemViewName
+            "group_first_order_by" => $this->groupFirstOrderBy
         );
 
         // Add view fields
@@ -192,12 +186,8 @@ class BrowserView
             $this->setTeamId($data['team_id']);
         }
 
-        if (isset($data['group_by_field_name'])) {
-            $this->groupByFieldName = $data['group_by_field_name'];
-        }
-
-        if (isset($data['system_view_name'])) {
-            $this->systemViewName = $data['system_view_name'];
+        if (isset($data['group_first_order_by'])) {
+            $this->groupFirstOrderBy = $data['group_first_order_by'];
         }
 
         // We put this last in case they set both team and user then user will override team
@@ -399,13 +389,5 @@ class BrowserView
     public function getOrderBy()
     {
         return $this->orderBy;
-    }
-
-    /**
-     * Get the systemViewName
-     */
-    public function getSystemViewName()
-    {
-        return $this->systemViewName;
     }
 }

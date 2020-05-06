@@ -108,7 +108,7 @@ class BrowserViewService
 
         // Now load the system default
         if (!$defaultViewId) {
-            $sysViews = $this->getSystemViews($objType, $user->getGuid());
+            $sysViews = $this->getSystemViews($objType);
             foreach ($sysViews as $view) {
                 if ($view->isDefault()) {
                     $defaultViewId = $view->getId();
@@ -159,7 +159,7 @@ class BrowserViewService
             $this->loadViewsFromDb($objType);
         }
 
-        $systemViews = $this->getSystemViews($objType, $user->getGuid());
+        $systemViews = $this->getSystemViews($objType);
 
         // Add account views
         $accountViews = $this->getAccountViews($objType);
@@ -217,7 +217,7 @@ class BrowserViewService
         // Return all views that are set for a specific team
         $ret = [];
         foreach ($this->views[$objType] as $view) {
-            if ($view->getOwnerId() == $userGuid && !$view->getSystemViewName()) {
+            if ($view->getOwnerId() == $userGuid) {
                 $ret[] = $view;
             }
         }
@@ -275,10 +275,9 @@ class BrowserViewService
      * Get system/default views from config files
      *
      * @param string $objType The object type to get browser views for
-     * @param string $userGuid Optional. If specified, we need to look for user-modified system view data in this.views using system_view_name column
      * @return BrowserView[]
      */
-    public function getSystemViews(string $objType, string $userGuid = "")
+    public function getSystemViews(string $objType)
     {
         if (!$objType) {
             return false;
@@ -292,7 +291,7 @@ class BrowserViewService
             $viewsData = include($basePath . "/browser_views/$objType.php");
 
             // Initialize all the views from the returned array
-            foreach ($viewsData as $systemViewName => $systemViewData) {
+            foreach ($viewsData as $key => $systemViewData) {
                 // System level views must only have a name for the key because it is used for the id
                 if (is_numeric($key)) {
                     throw new \RuntimeException(
@@ -300,16 +299,10 @@ class BrowserViewService
                         "but " . $basePath . "/browser_views/$objType.php does not follow that rule"
                     );
                 }
-
-                // Check first if we have a user-modified system view
-                if ($userGuid && $this->getUserModifiedSystemView($objType, $systemViewName, $userGuid)) {
-                    $view = $this->getUserModifiedSystemView($objType, $systemViewName, $userGuid);
-                } else {
-                    $view = new BrowserView();
-                    $view->fromArray($systemViewData);
-                    $view->setId($systemViewName); // For saving the default in user settings
-                }
                 
+                $view = new BrowserView();
+                $view->fromArray($systemViewData);
+                $view->setId($key); // For saving the default in user settings
                 $view->setSystem(true);
 
                 // Traverse through the view's conditions and convert the grouping name to id
@@ -320,25 +313,7 @@ class BrowserViewService
 
         return $views;
     }
-
-    /**
-     * Function that will loop through the views and look for user-modified system view
-     * 
-     * @param string $objType Used to filter the $this->views to specific object type
-     * @param string $systemViewData The name of the system view that we are looking
-     * @param string $userGuid The owner of the user-modified system view
-     */
-    private function getUserModifiedSystemView(string $objType, string $systemViewName, string $userGuid)
-    {
-        forEach($this->views[$objType] as $view) {
-            if ($view->getSystemViewName() == $systemViewName && $view->getOwnerId() == $userGuid) {
-                return $view;
-            }
-        }
-
-        return null;
-    }
-
+    
     /**
      * Save this view to the database
      *
@@ -363,8 +338,7 @@ class BrowserViewService
             "object_type_id" => $def->getId(),
             "f_default" => $data['default'],
             "owner_id" => $data['owner_id'],
-            "group_by_field_name" => $data['group_by_field_name'],
-            "system_view_name" => $data['system_view_name'],
+            "group_first_order_by" => $data['group_first_order_by'],
             "conditions_data" => json_encode($data['conditions']),
             "order_by_data" => json_encode($data['order_by']),
             "table_columns_data" => json_encode($data['table_columns'])
@@ -501,7 +475,7 @@ class BrowserViewService
         $sql = "SELECT id, name, scope, description, filter_key,
                     object_type_id, f_default, team_id,
                     owner_id, conditions_data, order_by_data, table_columns_data,
-                    group_by_field_name, system_view_name
+                    group_first_order_by
                 FROM app_object_views WHERE object_type_id=:object_type_id";
 
         $result = $this->database->query($sql, ["object_type_id" => $def->getId()]);
@@ -512,8 +486,7 @@ class BrowserViewService
                 'name' => $row['name'],
                 'description' => $row['description'],
                 'owner_id' => $row['owner_id'],
-                'group_by_field_name' => $row['group_by_field_name'],
-                'system_view_name' => $row['system_view_name'],
+                'group_first_order_by' => $row['group_first_order_by'],
                 'team_id' => $row['team_id'],
                 'default' => ($row['f_default'] === 't') ? true : false,
                 'system' => false,

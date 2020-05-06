@@ -251,8 +251,7 @@ return array(
             'conditions_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'order_by_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'table_columns_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
-            'group_by_field_name' => array('type' => SchemaProperty::TYPE_CHAR_256),
-            'system_view_name' => array('type' => SchemaProperty::TYPE_CHAR_256), // Column that will be used to store the name of system view if we are saving the user-modified view data.
+            'group_first_order_by' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
         ),
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(
