@@ -34,7 +34,7 @@ return array(
         'order_by' => array(
             'status_id' => array(
                 'field_name' => 'status_id',
-                'direction' => 'asc',
+                'direction' => 'desc',
             ),
             'date' => array(
                 'field_name' => 'date_entered',
