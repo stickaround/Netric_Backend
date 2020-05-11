@@ -105,7 +105,7 @@ class StateObject implements Serializable {
     public function __get($name) {
         $lname = strtolower($name);
 
-        if (array_key_exists($lname, $this->data))
+        if (isset($this->data) && array_key_exists($lname, $this->data))
             return $this->data[$lname];
 
         if (isset($this->unsetdata) && is_array($this->unsetdata) && array_key_exists($lname, $this->unsetdata))

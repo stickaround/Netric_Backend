@@ -180,7 +180,7 @@ class NetricStateMachine implements IStateMachine
             "counter" => (int)$counter
         ];
 
-        $sql = "SELECT state_data FROM async_device_states
+        $sql = "SELECT state_data::text FROM async_device_states
                 WHERE device_id=:device_id AND state_type=:state_type AND counter=:counter";
 
         if ($key) {
@@ -194,13 +194,17 @@ class NetricStateMachine implements IStateMachine
         $result = $database->query($sql, $params);
         if ($result->rowCount()) {
             $row = $result->fetch();
-            $stateData = pg_unescape_bytea($row["state_data"]);
 
-            if (is_string($stateData)) {
-                // DB returns a string for LOB objects
-                $data = unserialize($stateData);
-            } else {
-                $data = unserialize(stream_get_contents($row["state_data"]));
+            // Make sure that we have state data value
+            if ($row["state_data"]) {
+                $stateData = pg_unescape_bytea($row["state_data"]);
+
+                if (is_string($stateData)) {
+                    // DB returns a string for LOB objects
+                    $data = unserialize($stateData);
+                } else {
+                    $data = unserialize(stream_get_contents($row["state_data"]));
+                }
             }
         }
 
