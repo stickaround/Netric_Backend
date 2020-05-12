@@ -570,8 +570,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        //$this->assertTrue(false, "Index could not be setup!");
-
+        
         // Save a test object
         $testEnt = $this->createTestCustomer();
 
@@ -598,6 +597,17 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
+
+        // Set customer name with single quote and double quote
+        $serviceManager = $this->account->getServiceManager();
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $customerName = "customer's new name with double \"";
+        $testEnt->setValue('name', $customerName);
+        $entityLoader->save($testEnt);
+
+        $query->where('name')->equals($customerName);
+        $res = $index->executeQuery($query);
+        $this->assertEquals(1, $res->getTotalNum());
     }
 
     /**
@@ -610,7 +620,6 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
 
@@ -1003,6 +1012,11 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
+
+        // Should be able to perform query even if condition value has single quote
+        $query->where('name')->doesNotEqual("non-existing customer with single quote ' ");
+        $res = $index->executeQuery($query);
+        $this->assertGreaterThanOrEqual(1, $res->getTotalNum());
     }
 
     /**
@@ -1477,6 +1491,19 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
+
+        // Set customer name with single quote and double quote
+        $serviceManager = $this->account->getServiceManager();
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $customerName = "customer's new name with double \"";
+        $testEnt->setValue('name', $customerName);        
+        $entityLoader->save($testEnt);
+
+        // Test begin with using a condition value with single quote
+        $query = new EntityQuery($testEnt->getObjType());
+        $query->where('name')->beginsWith("customer's new");
+        $res = $index->executeQuery($query);
+        $this->assertEquals(1, $res->getTotalNum());
     }
 
     /**
@@ -1507,6 +1534,19 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
+
+        // Set customer name with single quote and double quote
+        $serviceManager = $this->account->getServiceManager();
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $customerName = "customer's new name with double \"";
+        $testEnt->setValue('name', $customerName);
+        $entityLoader->save($testEnt);
+
+        // Test contains using a condition value with single quote
+        $query = new EntityQuery($testEnt->getObjType());
+        $query->where('name')->contains("tomer's new");
+        $res = $index->executeQuery($query);
+        $this->assertEquals(1, $res->getTotalNum());
     }
 
     /**

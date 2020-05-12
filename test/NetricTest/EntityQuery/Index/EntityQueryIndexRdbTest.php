@@ -50,14 +50,16 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         // Test Not Equal
         $condition = new Where("status_id");
         $condition->doesNotEqual($compledtedId);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(field_data->>'status_id' != '$compledtedId' OR field_data->>'status_id' IS NULL)");
+        $this->assertEquals($conditionString, "(field_data->>'status_id' != :$hash OR field_data->>'status_id' IS NULL)");
 
         // Test Equals
         $condition = new Where("status_id");
         $condition->equals($compledtedId);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "field_data->>'status_id' = '$compledtedId'");
+        $this->assertEquals($conditionString, "field_data->>'status_id' = :$hash");
     }
 
     public function testbuildConditionStringForFkeyMulti()
@@ -97,8 +99,9 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         // Test Equals
         $condition = new Where("owner_id");
         $condition->equals(1);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals("field_data->>'owner_id' = '1'", $conditionString);
+        $this->assertEquals("field_data->>'owner_id' = :$hash", $conditionString);
     }
 
     public function testbuildConditionStringForString()
@@ -107,26 +110,30 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         // Test Equals
         $condition = new Where("name");
         $condition->equals("Task Name");
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "lower(field_data->>'name') = 'task name'");
+        $this->assertEquals($conditionString, "lower(field_data->>'name') = :$hash");
 
         // Test Not Equal
         $condition = new Where("name");
         $condition->doesNotEqual("Task Name");
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "lower(field_data->>'name') != 'task name'");
+        $this->assertEquals($conditionString, "lower(field_data->>'name') != :$hash");
 
         // Test Contains
         $condition = new Where("name");
         $condition->contains("Task Name");
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "lower(field_data->>'name') LIKE '%task name%'");
+        $this->assertEquals($conditionString, "lower(field_data->>'name') LIKE :$hash");
 
         // Test Begins With
         $condition = new Where("name");
         $condition->beginsWith("Task Name");
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "lower(field_data->>'name') LIKE 'task name%'");
+        $this->assertEquals($conditionString, "lower(field_data->>'name') LIKE :$hash");
 
         // Greater Than
         $condition = new Where("name");
@@ -143,110 +150,128 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         // Test Equals
         $condition = new Where("revision");
         $condition->equals(1);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer = '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer = :$hash");
 
         // Test Equals for timestamp field type
         $condition = new Where("ts_entered");
         $condition->equals(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone = '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone = :$hash");
 
         // Test Equals for date field type
         $condition = new Where("start_date");
         $condition->equals(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date = '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date = :$hash");
 
         // Test Not Equals
         $condition = new Where("revision");
         $condition->doesNotEqual(1);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "((nullif(field_data->>'revision', ''))::integer != '1' OR field_data->>'revision' IS NULL)");
+        $this->assertEquals($conditionString, "((nullif(field_data->>'revision', ''))::integer != :$hash OR field_data->>'revision' IS NULL)");
 
         // Test Not Equals for timestamp field type
         $condition = new Where("ts_entered");
         $condition->doesNotEqual(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "((nullif(field_data->>'ts_entered', ''))::timestamp with time zone != '" . date("Y-m-d") . "' OR field_data->>'ts_entered' IS NULL)");
+        $this->assertEquals($conditionString, "((nullif(field_data->>'ts_entered', ''))::timestamp with time zone != :$hash OR field_data->>'ts_entered' IS NULL)");
 
         // Test Not Equals for date field type
         $condition = new Where("start_date");
         $condition->doesNotEqual(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "((nullif(field_data->>'start_date', ''))::date != '" . date("Y-m-d") . "' OR field_data->>'start_date' IS NULL)");
+        $this->assertEquals($conditionString, "((nullif(field_data->>'start_date', ''))::date != :$hash OR field_data->>'start_date' IS NULL)");
 
         // Greater Than
         $condition = new Where("revision");
         $condition->isGreaterThan(1);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer > '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer > :$hash");
 
         // Test Greater Than for timestamp field type
         $condition = new Where("ts_entered");
         $condition->isGreaterThan(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone > '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone > :$hash");
 
         // Test Greater Than for date field type
         $condition = new Where("start_date");
         $condition->isGreaterThan(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date > '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date > :$hash");
 
         // Greater Than Or Equal To
         $condition = new Where("revision");
         $condition->isGreaterOrEqualTo(1);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer >= '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer >= :$hash");
 
         // Test Greater Than or Equal To for timestamp field type
         $condition = new Where("ts_entered");
         $condition->isGreaterOrEqualTo(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone >= '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone >= :$hash");
 
         // Test Greater Than or Equal TO for date field type
         $condition = new Where("start_date");
         $condition->isGreaterOrEqualTo(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date >= '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date >= :$hash");
 
         // Less Than
         $condition = new Where("revision");
         $condition->isLessThan(1);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer < '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer < :$hash");
 
         // Test Less Than for timestamp field type
         $condition = new Where("ts_entered");
         $condition->isLessThan(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone < '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone < :$hash");
 
         // Test Less Than for date field type
         $condition = new Where("start_date");
         $condition->isLessThan(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date < '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date < :$hash");
 
         // Less Than Or Equal To
         $condition = new Where("revision");
         $condition->isLessOrEqualTo(1);
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer <= '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer <= :$hash");
 
         // Test Less Than or Equal To for timestamp field type
         $condition = new Where("ts_entered");
         $condition->isLessOrEqualTo(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone <= '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'ts_entered', ''))::timestamp with time zone <= :$hash");
 
         // Test Less Than or Equal To for date field type
         $condition = new Where("start_date");
         $condition->isLessOrEqualTo(date("Y-m-d"));
+        $hash = $condition->getHash();
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date <= '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'start_date', ''))::date <= :$hash");
 
         // Contains
         $condition = new Where("revision");
