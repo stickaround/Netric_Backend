@@ -322,7 +322,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $condition->value = $this->sanitizeWhereCondition($field, $condition->value);
 
         // After sanitizing the condition value, then we are now ready to build the condition string
-        $value = $condition->value;
+        $value = pg_escape_string($condition->value);
 
         $castType = $this->castType($field->type);
         $conditionString = "";
@@ -526,7 +526,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
-        $value = $condition->value;
+        $value = pg_escape_string($condition->value);
 
         $castType = $this->castType($field->type);
         $conditionString = "";
@@ -622,7 +622,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
-        $value = $condition->value;
+        $value = pg_escape_string($condition->value);
         
         $castType = $this->castType($field->type);
         $conditionString = "";
