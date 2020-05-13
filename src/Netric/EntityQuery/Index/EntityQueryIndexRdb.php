@@ -26,14 +26,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     private $database = null;
 
     /**
-     * Stores the condition params that will be used rdb->query
-     * Sample: ["name" => "condition value"]
-     * 
-     * @var Array
-     */
-    private $conditionParams = [];
-
-    /**
      * Setup this index for the given account
      *
      * @param Account $account
@@ -131,8 +123,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $parenShouldBeClosed = false;
 
         // Loop thru the query conditions and check for special fields
-        $this->conditionParams = [];
-        foreach ($queryConditions as $idx => $condition) {
+        foreach ($queryConditions as $condition) {
             $whereString = $this->buildConditionStringAndSetParams($entityDefinition, $condition);
 
             // Make sure that we have built an advanced condition string
@@ -205,7 +196,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " OFFSET {$query->getOffset()}";
         }
 
-        $result = $this->database->query($sql, $this->conditionParams);
+        $result = $this->database->query($sql);
 
         // Process the raw data of entities and update the $results
         $this->processEntitiesRawData($entityDefinition, $result->fetchAll(), $results);
@@ -244,7 +235,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " WHERE $conditionString";
         }
 
-        $result = $this->database->query($sql, $this->conditionParams);
+        $result = $this->database->query($sql);
         if ($result->rowCount()) {
             $row = $result->fetch();
             $results->setTotalNum($row["total_num"]);
@@ -313,7 +304,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         $fieldName = $condition->fieldName;
         $operator = $condition->operator;
-        $hash = $condition->getHash();
 
         // If we have a full text condition, then return a vector search
         if ($fieldName === "*") {
@@ -332,16 +322,16 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $condition->value = $this->sanitizeWhereCondition($field, $condition->value);
 
         // After sanitizing the condition value, then we are now ready to build the condition string
-        $value = $condition->value;
+        $value = pg_escape_string($condition->value);
 
         $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($operator) {
             case Where::OPERATOR_EQUAL_TO:
-                $conditionString = $this->buildIsEqual($enityDefinition, $field, $condition, $idx);
+                $conditionString = $this->buildIsEqual($enityDefinition, $field, $condition);
                 break;
             case Where::OPERATOR_NOT_EQUAL_TO:
-                $conditionString = $this->buildIsNotEqual($enityDefinition, $field, $condition, $idx);
+                $conditionString = $this->buildIsNotEqual($enityDefinition, $field, $condition);
                 break;
             case Where::OPERATOR_GREATER_THAN:
                 switch ($field->type) {
@@ -357,8 +347,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
                         
-                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType > :$hash";
-                        $this->conditionParams[$hash] = strval($value);
+                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType > '$value'";
                         break;
                 }
                 break;
@@ -376,8 +365,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType < :$hash";
-                        $this->conditionParams[$hash] = strval($value);;
+                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType < '$value'";
                         break;
                 }
                 break;
@@ -406,8 +394,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType >= :$hash";
-                        $this->conditionParams[$hash] = strval($value);;
+                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType >= '$value'";
                         break;
                 }
                 break;
@@ -449,22 +436,19 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType <= :$hash";
-                        $this->conditionParams[$hash] = strval($value);
+                        $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType <= '$value'";
                         break;
                 }
                 break;
             case Where::OPERATOR_BEGINS:
             case Where::OPERATOR_BEGINS_WITH:
                 if ($field->type == FIELD::TYPE_TEXT) {
-                    $conditionString = "lower(field_data->>'$fieldName') LIKE :$hash";
-                    $this->conditionParams[$hash] = strtolower("$value%");
+                    $conditionString = "lower(field_data->>'$fieldName') LIKE '" . strtolower("$value%") . "'";
                 }
                 break;
             case Where::OPERATOR_CONTAINS:
                 if ($field->type == FIELD::TYPE_TEXT) {
-                    $conditionString = "lower(field_data->>'$fieldName') LIKE :$hash";
-                    $this->conditionParams[$hash] = strtolower("%$value%");
+                    $conditionString = "lower(field_data->>'$fieldName') LIKE '" . strtolower("%$value%") . "'";
                 }
                 break;
         }
@@ -542,20 +526,27 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
-        $value = $condition->value;
-        $hash = $condition->getHash();
+        $value = pg_escape_string($condition->value);
 
         $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($value) {
-                    // Jsonb-based query condition
-                    $conditionString = "field_data->>'$fieldName' = :$hash";
-                    $this->conditionParams[$hash] = strval($value);
+                    // Old column-based query condition
+                    //$conditionString = "$fieldName=" . $this->database->quote($value);
+                    // New jsonb-based query condition
+                    $conditionString = "field_data->>'$fieldName' = '$value'";
                 } else {
                     // Value is null/empty or key does not exist
                     $conditionString = "(field_data->>'$fieldName') IS NULL OR field_data->>'$fieldName' = ''";
+
+                    // Old column-based query condition
+                    // $conditionString = "$fieldName is null";
+
+                    // if (empty($field->subtype)) {
+                    //     $conditionString .= " or $fieldName=''";
+                    // }
                 }
                 break;
             case FIELD::TYPE_OBJECT_MULTI:
@@ -595,8 +586,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if (empty($value)) {
                     $conditionString = "(field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = '')";
                 } else {
-                    $conditionString = "lower(field_data->>'$fieldName') = :$hash";
-                    $this->conditionParams[$hash] = strtolower($value);
+                    $conditionString = "lower(field_data->>'$fieldName') = '" . strtolower($value) . "'";
                 }
                 break;
             case FIELD::TYPE_BOOL:
@@ -611,8 +601,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
             default:
                 if (!empty($value)) {
-                    $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = :$hash";
-                    $this->conditionParams[$hash] = strval($value);
+                    $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = '$value'";
                 } else {
                     $conditionString = "field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = ''";
                 }
@@ -633,8 +622,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
-        $value = $condition->value;
-        $hash = $condition->getHash();
+        $value = pg_escape_string($condition->value);
         
         $castType = $this->castType($field->type);
         $conditionString = "";
@@ -664,8 +652,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                                     FROM children)";
                         }
                     } else {
-                        $conditionString = "field_data->>'$fieldName' != :$hash";
-                        $this->conditionParams[$hash] = strval($value);
+                        $conditionString = "field_data->>'$fieldName' != '$value'";
                     }
                 }
                 break;
@@ -706,8 +693,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if (empty($value)) {
                     $conditionString = "(field_data->>'$fieldName' != '' AND field_data->>'$fieldName' IS NOT NULL)";
                 } else {
-                    $conditionString = "lower(field_data->>'$fieldName') != :$hash";
-                    $this->conditionParams[$hash] = strtolower($value);
+                    $conditionString = "lower(field_data->>'$fieldName') != '" . strtolower($value) . "'";
                 }
                 break;
             case FIELD::TYPE_BOOL:
@@ -723,8 +709,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 // Format the string then fall through to default
             default:
                 if (!empty($value)) {
-                    $conditionString = "((nullif(field_data->>'$fieldName', ''))$castType != :$hash OR field_data->>'$fieldName' IS NULL)";
-                    $this->conditionParams[$hash] = strval($value);
+                    $conditionString = "((nullif(field_data->>'$fieldName', ''))$castType != '$value' OR field_data->>'$fieldName' IS NULL)";
                 } else {
                     $conditionString = "field_data->>'$fieldName' IS NOT NULL";
                 }
@@ -749,7 +734,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $value = $condition->value;
         $operator = $condition->operator;
         $conditionString = "";
-        $hash = $condition->getHash();
 
         if (empty($value)) {
             if ($operator == Where::OPERATOR_EQUAL_TO) {
@@ -763,8 +747,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $operatorSign = "!=";
             }
 
-            $conditionString = "field_data->>'$fieldName' $operatorSign :$hash";
-            $this->conditionParams[$hash] = strval($value);
+            $conditionString = "field_data->>'$fieldName' $operatorSign '$value'";
 
             // If our operator is not equal to , then we need to add if fieldname is null with or operator
             if ($operator == Where::OPERATOR_NOT_EQUAL_TO) {
@@ -788,13 +771,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $objectTable = $entityDefinition->getTable();
         $value = $condition->value;
         $operator = $condition->operator;
-        $hash = $condition->getHash();
 
         if ($operator == Where::OPERATOR_EQUAL_TO) {
             $conditionString = "field_data->'{$field->name}' @> jsonb_build_array('$value')";
         } else {
             $conditionString = "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$field->name}' @> jsonb_build_array('$value'))";
         }
+
         return $conditionString;
     }
 
@@ -838,7 +821,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $sql = "SELECT $queryFields FROM $objectTable WHERE field_data->>'id' IS NOT NULL $conditionQuery $orderBy";
 
-        $result = $this->database->query($sql, $this->conditionParams);
+        $result = $this->database->query($sql);
 
         // Make sure that we have results before we process the aggregates
         if ($result->rowCount()) {

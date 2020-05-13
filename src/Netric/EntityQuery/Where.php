@@ -383,21 +383,4 @@ class Where
                 break;
         }
     }
-
-    /**
-     * Get a hash for this where condition
-     *
-     * @return string Unique has for this where condition
-     */
-    public function getHash()
-    {
-        $signature = md5 ( json_encode($this->toArray()) );
-
-        // Keep it short, it should be unique enough
-        if (strlen($signature) > 8) {
-            $signature = substr($signature, 0, 8);
-        }
-
-        return $this->fieldName . $signature;
-    }
 }
