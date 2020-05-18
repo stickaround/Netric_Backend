@@ -29,6 +29,14 @@ return [
             "route" => "all-documents",
             "objType" => "infocenter_document",
             "icon" => "StyleIcon",
+        ],
+        [
+            "title" => "Spaces",
+            "type" => "browse",
+            "browser_view" => "spaces",
+            "route" => "spaces",
+            "objType" => "infocenter_document",
+            "icon" => "ChevronRightIcon",
         ]
     ]
 ];
