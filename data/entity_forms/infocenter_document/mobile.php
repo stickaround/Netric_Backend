@@ -1,5 +1,6 @@
 <fieldset name=''>
     <field name='title'></field>
+    <field name='is_rootspace'></field>
     <field name='groups'></field>
 </fieldset>
 <fieldset name='Document'>
