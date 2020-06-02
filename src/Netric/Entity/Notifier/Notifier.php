@@ -89,8 +89,7 @@ class Notifier
         }
 
         $objReference = $entity->getGuid();
-        $description = $entity->getDescription();
-
+        $description = $entity->getChangeLogDescription();
         /*
          * Get the object reference which is the entity this notice is about.
          * If this is a comment we are adding a notification for, then update

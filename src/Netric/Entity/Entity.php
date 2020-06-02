@@ -833,6 +833,8 @@ class Entity implements EntityInterface
     /**
      * Get a textual representation of what changed
      */
+
+     // user, changed status, status value
     public function getChangeLogDescription()
     {
         $hide = array(
