@@ -59,7 +59,7 @@ class BrowserViewServiceTest extends TestCase
      * Cleanup any test browser views
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testViews as $view) {
             $this->browserViewService->deleteView($view);
         }
