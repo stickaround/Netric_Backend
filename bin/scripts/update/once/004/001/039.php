@@ -16,6 +16,9 @@ $db->beginTransaction();
 // Do not timeout for this long query
 $db->query('set statement_timeout to 0');
 
+// Make sure that the owner_id field is varchar.
+$db->query('ALTER TABLE app_object_views ALTER COLUMN owner_id TYPE character varying(256)');
+
 $result = $db->query('SELECT id, user_id, owner_id FROM app_object_views');
 
 // Commit the transaction
