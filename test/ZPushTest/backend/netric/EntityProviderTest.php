@@ -574,7 +574,7 @@ class EntityProviderTest extends TestCase
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
         if (!$groupings->getByName("Drafts")) {
             $inbox = $groupings->create("Drafts");
-            $inbox->user_id = $this->user->getId();
+            $inbox->user_id = $this->user->getGuid();
             $groupings->add($inbox);
             $groupingsLoader->save($groupings);
         }
@@ -584,8 +584,8 @@ class EntityProviderTest extends TestCase
 
         $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity->setValue("body", "unit tests provider");
-        $entity->setValue("mailbox_id", $grpDrafts->id);
-        $entity->setValue("owner_id", $this->user->getId());
+        $entity->setValue("mailbox_id", $grpDrafts->guid);
+        $entity->setValue("owner_id", $this->user->getGuid());
         $id = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
@@ -597,7 +597,7 @@ class EntityProviderTest extends TestCase
         $this->assertTrue($ret);
 
         $loadedEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
-        $this->assertEquals($grpInbox->guid, $loadedEntity->getValue("mailbox_id"));
+        $this->assertEquals($grpInbox->id, $loadedEntity->getValue("mailbox_id"));
     }
 
     public function testMoveEntity_Appointment()

@@ -225,10 +225,6 @@ class Field implements \ArrayAccess
             $this->optionalValues = $data["optional_values"];
         }
 
-        if (isset($data["fkey_table"])) {
-            $this->fkeyTable = $data["fkey_table"];
-        }
-
         if (isset($data["must_be_indexed"])) {
             $this->mustBeIndexed = $data["must_be_indexed"];
         }
@@ -255,8 +251,7 @@ class Field implements \ArrayAccess
             "unique" => $this->unique,
             "use_when" => $this->useWhen,
             "default" => $this->default,
-            "optional_values" => $this->optionalValues,
-            "fkey_table" => $this->fkeyTable,
+            "optional_values" => $this->optionalValues,            
             "autocreate" => $this->autocreate,
             "autocreatename" => $this->autocreatename,
             "autocreatebase" => $this->autocreatebase,

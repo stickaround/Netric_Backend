@@ -87,8 +87,9 @@ class Notifier
         if ($objType == ObjectTypes::NOTIFICATION || $objType == ObjectTypes::ACTIVITY) {
             return $notificationIds;
         }
-
         $objReference = $entity->getGuid();
+        
+        // user, changed status, status value
         $description = $entity->getChangeLogDescription();
         /*
          * Get the object reference which is the entity this notice is about.

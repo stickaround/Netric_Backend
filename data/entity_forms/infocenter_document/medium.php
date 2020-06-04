@@ -5,6 +5,11 @@
 </row>
 <row>
     <column>
+        <field name='is_rootspace'></field>
+    </column>
+</row>
+<row>
+    <column>
         <field name='groups'></field>
     </column>
 </row>

@@ -4,6 +4,9 @@
 			<field name='title'></field>
 		</row>
 		<row>
+			<field name='is_rootspace'></field>
+		</row>
+		<row>
 			<field name='groups'></field>
 		</row>
 	</fieldset>

@@ -432,10 +432,10 @@ class Entity implements EntityInterface
     {
         $ownerGuid = 0;
 
-        if ($this->getValue('owner_id')) {
-            $ownerGuid = $this->getValue('owner_id');
-        } else if ($this->getValue('creator_id')) {
+        if ($this->getValue('creator_id')) {
             $ownerGuid = $this->getValue('creator_id');
+        } else if ($this->getValue('owner_id')) {
+            $ownerGuid = $this->getValue('owner_id');
         }
 
         // If ownerGuid is not a valid guid, then we need to look for its guid

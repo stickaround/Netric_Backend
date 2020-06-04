@@ -194,7 +194,8 @@ class NetricStateMachine implements IStateMachine
         $result = $database->query($sql, $params);
         if ($result->rowCount()) {
             $row = $result->fetch();
-            $stateData = pg_unescape_bytea($row["state_data"]);
+            
+            $stateData = @pg_unescape_bytea($row["state_data"]);
 
             if (is_string($stateData)) {
                 // DB returns a string for LOB objects

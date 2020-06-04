@@ -14,6 +14,9 @@ use Netric\Entity\ObjType\UserEntity;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Where;
 
 class EntityTest extends TestCase
 {
@@ -465,5 +468,30 @@ class EntityTest extends TestCase
         $userGuid = Uuid::uuid4()->toString();
         $activity->setValue('owner_id', $userGuid);
         $this->assertEquals($userGuid, $activity->getOwnerGuid());
+    }
+
+    /**
+     * Make sure that we can retrieve ic documents when filtering the is_rootspace field
+     */
+    public function testICDocumentIsRootspaceField()
+    {
+        $sm = $this->account->getServiceManager();
+        $entityLoader = $sm->get(EntityLoaderFactory::class);
+        $index = $sm->get(IndexFactory::class);
+        $document = $entityLoader->create(ObjectTypes::DOCUMENT);
+
+        $document->setValue('is_rootspace', true);
+        $entityLoader->save($document);
+        
+        $this->testEntities[] = $document;
+
+        // We will now create a query to get document with is_rootspace set to true
+        $query = new EntityQuery(ObjectTypes::DOCUMENT);
+        $query->where('is_rootspace')->equals(true);
+        $query->where('guid')->equals($document->getGuid());
+        $res = $index->executeQuery($query);
+
+        // This should return 1 result since we have created a document with is_rootspace field set to true
+        $this->assertEquals(1, $res->getTotalNum());
     }
 }
