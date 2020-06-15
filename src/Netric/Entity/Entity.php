@@ -838,10 +838,15 @@ class Entity implements EntityInterface
     public function getChangeLogDescription()
     {
         $hide = array(
-            "revision",
+            "commit_revision",
             "uname",
-            "num_comments",
-            "num_attachments",
+            "ts_updated",
+            "ts_entered",
+
+            // "revision",
+            // "uname",
+            // "num_comments",
+            // "num_attachments",
         );
         $buf = "";
         foreach ($this->changelog as $fname => $log) {
