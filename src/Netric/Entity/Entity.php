@@ -842,11 +842,10 @@ class Entity implements EntityInterface
             "uname",
             "ts_updated",
             "ts_entered",
-
-            // "revision",
-            // "uname",
-            // "num_comments",
-            // "num_attachments",
+            "revision",
+            "uname",
+            "num_comments",
+            "num_attachments",
         );
         $buf = "";
         foreach ($this->changelog as $fname => $log) {
