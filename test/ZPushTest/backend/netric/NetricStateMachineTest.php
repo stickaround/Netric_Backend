@@ -164,6 +164,7 @@ class NetricStateMachineTest extends TestCase
         $loadedState = $this->stateMachine->GetState(self::TEST_DEVID, 'test', false);
 
         $this->assertEquals($state, $loadedState);
+        $this->assertEquals($loadedState[0]['test'], 'ZPush can put whatever it wants');
     }
 
     public function testGetStateHash()

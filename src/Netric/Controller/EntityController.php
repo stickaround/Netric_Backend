@@ -21,6 +21,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityGroupings\Group;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Controller for interacting with entities
@@ -643,14 +644,9 @@ class EntityController extends Mvc\AbstractAccountController
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        // Check if we have obj_type. If it is not defined, then return an error
-        if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
-        }
-
         // Check if we have id. If it is not defined, then return an error
-        if (!isset($objData['id'])) {
-            return $this->sendOutput(array("error" => "id is a required param"));
+        if (!isset($objData['guid'])) {
+            return $this->sendOutput(array("error" => "guid is a required param"));
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
@@ -661,11 +657,11 @@ class EntityController extends Mvc\AbstractAccountController
         $entityData = $objData['entity_data'];
 
         // IDs can either be a single entry or an array
-        $ids = $objData['id'];
+        $guids = $objData['guid'];
 
         // Convert a single id to an array so we can handle them all the same way
-        if (!is_array($ids) && $ids) {
-            $ids = array($ids);
+        if (!is_array($guids) && $guids) {
+            $guids = array($guids);
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
@@ -675,18 +671,22 @@ class EntityController extends Mvc\AbstractAccountController
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         try {
-            foreach ($ids as $id) {
-                // Load the entity that we are going to update
-                $entity = $entityLoader->get($objData['obj_type'], $id);
-    
-                // Update the fields with the data. Make sure we only update the provided fields.
-                $entity->fromArray($entityData, true);
+            foreach ($guids as $guid) {
+                if (Uuid::isValid($guid)) {
+                    // Load the entity that we are going to update
+                    $entity = $entityLoader->getByGuid($guid);
+                        
+                    // Update the fields with the data. Make sure we only update the provided fields.
+                    $entity->fromArray($entityData, true);
 
-                // Save the entity
-                $dataMapper->save($entity);
+                    // Save the entity
+                    $dataMapper->save($entity);
 
-                // Return the entities that were updated
-                $ret[] = $entity->toArray();
+                    // Return the entities that were updated
+                    $ret[] = $entity->toArray();
+                } else {
+                    $ret["error"][] = "Invalid guid was provided during mass edit action. Guid: $guid.";
+                }
             }
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));

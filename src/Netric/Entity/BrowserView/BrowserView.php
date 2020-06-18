@@ -17,11 +17,11 @@ use Netric\EntityQuery;
 class BrowserView
 {
     /**
-     * User id if this view is owned by an individual user
+     * Owner id if this view is owned by an individual user
      *
-     * @var int
+     * @var string
      */
-    private $userId = null;
+    private $ownerId = null;
 
     /**
      * Set if this view is owned by a team
@@ -101,6 +101,13 @@ class BrowserView
     private $objType = null;
 
     /**
+     * Flag that will determine if we will set a group by based on the first sort order field
+     * 
+     * @var boolean
+     */
+    private $groupFirstOrderBy = false;
+
+    /**
      * Convert the data for this view to an array
      *
      * @return array
@@ -111,15 +118,15 @@ class BrowserView
             "id" => $this->id,
             "name" => $this->name,
             "description" => $this->description,
-            //"filter_key" => $this->filterKey,
             "system" => $this->system,
             "default" => $this->default,
-            "user_id" => $this->userId,
+            "owner_id" => $this->ownerId,
             "team_id" => $this->teamId,
             "obj_type" => $this->objType,
             "table_columns" => array(),
             "conditions" => array(),
             "order_by" => array(),
+            "group_first_order_by" => $this->groupFirstOrderBy
         );
 
         // Add view fields
@@ -179,9 +186,13 @@ class BrowserView
             $this->setTeamId($data['team_id']);
         }
 
+        if (isset($data['group_first_order_by'])) {
+            $this->groupFirstOrderBy = $data['group_first_order_by'];
+        }
+
         // We put this last in case they set both team and user then user will override team
-        if (isset($data['user_id'])) {
-            $this->setUserId($data['user_id']);
+        if (isset($data['owner_id'])) {
+            $this->setOwnerId($data['owner_id']);
         }
 
         if (isset($data['table_columns']) && is_array($data['table_columns'])) {
@@ -247,30 +258,30 @@ class BrowserView
     }
 
     /**
-     * Get user id if set just for a user
+     * Get owner global id if set just for a user
      *
      * @return int
      */
-    public function getUserId()
+    public function getOwnerId()
     {
-        return $this->userId;
+        return $this->ownerId;
     }
 
     /**
-     * Set the user id
+     * Set the owner global id for this browser view
      *
      * If the userId is set, then this will clear the teamId
      * since only one can be set at a time.
      *
-     * @param int $userId Unique user id for this view
+     * @param string $ownerId Unique user global id for this view
      */
-    public function setUserId($userId)
+    public function setOwnerId($ownerId)
     {
         if ($this->getTeamId()) {
             $this->teamId = null;
         }
 
-        $this->userId = $userId;
+        $this->ownerId = $ownerId;
     }
 
     /**
@@ -293,7 +304,7 @@ class BrowserView
      */
     public function setTeamId($teamId)
     {
-        if ($this->getUserId()) {
+        if ($this->getOwnerId()) {
             $this->userId = null;
         }
 

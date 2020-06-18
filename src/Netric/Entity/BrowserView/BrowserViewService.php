@@ -171,7 +171,7 @@ class BrowserViewService
         }
 
         // Add user specific views
-        $userViews = $this->getUserViews($objType, $user->getId());
+        $userViews = $this->getUserViews($objType, $user->getGuid());
 
         $mergedViews = array_merge($systemViews, $accountViews, $teamViews, $userViews);
         return $mergedViews;
@@ -204,10 +204,10 @@ class BrowserViewService
      * Get team views that are saved to the database
      *
      * @param string $objType The object type to get browser views for
-     * @param string $userId the unique id of the user to get views for
+     * @param string $userGuid The unique global id of the user to get views for
      * @return BrowserView[]
      */
-    public function getUserViews(string $objType, string $userId)
+    public function getUserViews(string $objType, string $userGuid)
     {
         // If we have not loaded views from the database then do that now
         if (!isset($this->views[$objType])) {
@@ -217,7 +217,7 @@ class BrowserViewService
         // Return all views that are set for a specific team
         $ret = [];
         foreach ($this->views[$objType] as $view) {
-            if ($view->getUserId() == $userId) {
+            if ($view->getOwnerId() == $userGuid) {
                 $ret[] = $view;
             }
         }
@@ -264,7 +264,7 @@ class BrowserViewService
         // Return all views that are not user or team views
         $ret = [];
         foreach ($this->views[$objType] as $view) {
-            if (empty($view->getTeamId()) && empty($view->getUserId())) {
+            if (empty($view->getTeamId()) && empty($view->getOwnerId())) {
                 $ret[] = $view;
             }
         }
@@ -291,7 +291,7 @@ class BrowserViewService
             $viewsData = include($basePath . "/browser_views/$objType.php");
 
             // Initialize all the views from the returned array
-            foreach ($viewsData as $key => $vData) {
+            foreach ($viewsData as $key => $systemViewData) {
                 // System level views must only have a name for the key because it is used for the id
                 if (is_numeric($key)) {
                     throw new \RuntimeException(
@@ -299,9 +299,9 @@ class BrowserViewService
                         "but " . $basePath . "/browser_views/$objType.php does not follow that rule"
                     );
                 }
-
+                
                 $view = new BrowserView();
-                $view->fromArray($vData);
+                $view->fromArray($systemViewData);
                 $view->setId($key); // For saving the default in user settings
                 $view->setSystem(true);
 
@@ -313,7 +313,7 @@ class BrowserViewService
 
         return $views;
     }
-
+    
     /**
      * Save this view to the database
      *
@@ -330,15 +330,15 @@ class BrowserViewService
         }
 
         $viewId = $view->getId();
-        $data = $view->toArray();
+        $data = $view->toArray();        
         $saveViewData = [
             "name" => $data['name'],
             "description" => $data['description'],
             "team_id" => $data['team_id'],
-            "user_id" => $data['user_id'],
             "object_type_id" => $def->getId(),
             "f_default" => $data['default'],
-            "owner_id" => $data['user_id'],
+            "owner_id" => $data['owner_id'],
+            "group_first_order_by" => $data['group_first_order_by'],
             "conditions_data" => json_encode($data['conditions']),
             "order_by_data" => json_encode($data['order_by']),
             "table_columns_data" => json_encode($data['table_columns'])
@@ -473,8 +473,9 @@ class BrowserViewService
 
         // Now get all views from the DB
         $sql = "SELECT id, name, scope, description, filter_key,
-                    user_id, object_type_id, f_default, team_id,
-                    owner_id, conditions_data, order_by_data, table_columns_data
+                    object_type_id, f_default, team_id,
+                    owner_id, conditions_data, order_by_data, table_columns_data,
+                    group_first_order_by
                 FROM app_object_views WHERE object_type_id=:object_type_id";
 
         $result = $this->database->query($sql, ["object_type_id" => $def->getId()]);
@@ -484,7 +485,8 @@ class BrowserViewService
                 'obj_type' => $objType,
                 'name' => $row['name'],
                 'description' => $row['description'],
-                'user_id' => $row['user_id'],
+                'owner_id' => $row['owner_id'],
+                'group_first_order_by' => $row['group_first_order_by'],
                 'team_id' => $row['team_id'],
                 'default' => ($row['f_default'] === 't') ? true : false,
                 'system' => false,

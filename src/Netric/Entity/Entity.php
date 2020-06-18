@@ -432,10 +432,10 @@ class Entity implements EntityInterface
     {
         $ownerGuid = 0;
 
-        if ($this->getValue('owner_id')) {
-            $ownerGuid = $this->getValue('owner_id');
-        } else if ($this->getValue('creator_id')) {
+        if ($this->getValue('creator_id')) {
             $ownerGuid = $this->getValue('creator_id');
+        } else if ($this->getValue('owner_id')) {
+            $ownerGuid = $this->getValue('owner_id');
         }
 
         // If ownerGuid is not a valid guid, then we need to look for its guid
@@ -833,9 +833,15 @@ class Entity implements EntityInterface
     /**
      * Get a textual representation of what changed
      */
+
+     // user, changed status, status value
     public function getChangeLogDescription()
     {
         $hide = array(
+            "commit_revision",
+            "uname",
+            "ts_updated",
+            "ts_entered",
             "revision",
             "uname",
             "num_comments",

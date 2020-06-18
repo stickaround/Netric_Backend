@@ -247,14 +247,15 @@ return array(
             'team_id' => array('type' => SchemaProperty::TYPE_INT),
             'object_type_id' => array('type' => SchemaProperty::TYPE_INT),
             'report_id' => array('type' => SchemaProperty::TYPE_INT),
-            'owner_id' => array('type' => SchemaProperty::TYPE_INT),
+            'owner_id' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'conditions_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'order_by_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'table_columns_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
+            'group_first_order_by' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
         ),
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(
-            array('properties' => array("user_id")),
+            array('properties' => array("owner_id")),
             array('properties' => array("object_type_id")),
             array('properties' => array("report_id")),
         )

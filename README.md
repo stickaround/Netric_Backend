@@ -34,7 +34,7 @@ Note: On some windows installations python is invoked by typing 'py'
 
 Log in with "test@netric.com" and "password" as the password.
 
-### Testing
+### Testing 
 
 Run python test.py [optargs]
 You can pass any arguments after test.sh that you would to phpunit. For example,

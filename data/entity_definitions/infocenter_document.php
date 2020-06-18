@@ -45,5 +45,11 @@ return array(
             'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
         ),
+        'is_rootspace' => array(
+            'title'=>'Is Rootspace',
+            'type'=>Field::TYPE_BOOL,
+            'subtype'=>'',
+            'readonly'=>false,
+        ),
     ),
 );

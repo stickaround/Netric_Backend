@@ -482,22 +482,22 @@ class EntityControllerTest extends TestCase
         $entity1->setValue("body", "Note 1");
         $entity1->addMultiValue("groups", $group1->guid, $group1->name);
         $dm->save($entity1);
-        $entityId1 = $entity1->getId();
+        $entityGuid1 = $entity1->getGuid();
+        $this->testEntities[] = $entity1;
 
         $entity2 = $loader->create(ObjectTypes::NOTE);
         $entity2->setValue("body", "Note 2");
         $entity2->addMultiValue("groups", $group2->guid, $group2->name);
         $dm->save($entity2);
-        $entityId2 = $entity2->getId();
+        $entityGuid2 = $entity2->getGuid();
+        $this->testEntities[] = $entity2;
         
-
         $groupData[$group1->guid] = $group1->name;
         $groupData[$group2->guid] = $group2->name;
 
         // Setup the data
         $data = array(
-            'obj_type' => ObjectTypes::NOTE,
-            'id' => array($entityId1, $entityId2),
+            'guid' => array($entityGuid1, $entityGuid2, "invalid-guid"),
             'entity_data' => array(
                 "body" => "test mass edit",
                 "groups" => array($group1->guid, $group2->guid),
@@ -512,7 +512,8 @@ class EntityControllerTest extends TestCase
         $ret = $this->controller->postMassEditAction();
 
         // Test the results
-        $this->assertEquals(sizeof($ret), 2);
+        $this->assertEquals(sizeof($ret), 3);
+        $this->assertEquals($ret["error"][0], "Invalid guid was provided during mass edit action. Guid: invalid-guid.");
         $this->assertEquals($data['entity_data']['body'], $ret[0]['body']);
         $this->assertEquals($data['entity_data']['body'], $ret[1]['body']);
 

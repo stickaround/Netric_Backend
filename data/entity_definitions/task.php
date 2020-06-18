@@ -101,6 +101,7 @@ return array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
+            'required'=>true
         ),
         'project' => array(
             'title'=>'Project',
