@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Mvc;
 
 use Netric;
@@ -31,7 +32,7 @@ class RouterTest extends TestCase
         $svr = new Netric\Mvc\Router($account->getApplication());
         $svr->testMode = true;
         $ret = $svr->run($request);
-        $this->assertEquals(['param'=>'test'], $ret->getOutputBuffer());
+        $this->assertEquals(['param' => 'test'], $ret->getOutputBuffer());
     }
 
     /**
