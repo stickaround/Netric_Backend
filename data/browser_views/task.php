@@ -37,7 +37,7 @@ return array(
                 'direction' => 'desc',
             ),
             'date' => array(
-                'field_name' => 'date_entered',
+                'field_name' => 'ts_updated',
                 'direction' => 'desc',
             ),
             'deadline' => array(
@@ -75,7 +75,7 @@ return array(
         ),
         'order_by' => array(
             'date' => array(
-                'field_name' => 'date_entered',
+                'field_name' => 'ts_updated',
                 'direction' => 'desc',
             ),
             'deadline' => array(
@@ -101,7 +101,7 @@ return array(
         ),
         'order_by' => array(
             'date' => array(
-                'field_name' => 'date_entered',
+                'field_name' => 'ts_updated',
                 'direction' => 'desc',
             ),
             'deadline' => array(
@@ -140,7 +140,7 @@ return array(
         ),
         'order_by' => array(
             'date' => array(
-                'field_name' => 'date_entered',
+                'field_name' => 'ts_updated',
                 'direction' => 'desc',
             ),
             'deadline' => array(
@@ -188,7 +188,7 @@ return array(
         'default' => false,
         'order_by' => array(
             'date' => array(
-                'field_name' => 'date_entered',
+                'field_name' => 'ts_updated',
                 'direction' => 'desc',
             ),
             'deadline' => array(
