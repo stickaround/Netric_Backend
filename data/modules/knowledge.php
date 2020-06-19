@@ -9,7 +9,7 @@ namespace modules\navigation;
 return [
     "title" => "Knowledge",
     "icon" => "LightBulbIcon",
-    "default_route" => "all-notes",
+    "default_route" => "my-notes",
     "name" => "knowledge",
     "short_title" => 'Knowledge',
     "scope" => 'system',
@@ -17,9 +17,9 @@ return [
     "f_system" => true,
     "navigation" => [
         [
-            "title" => "All Notes",
+            "title" => "My Notes",
             "type" => "browse",
-            "route" => "all-notes",
+            "route" => "my-notes",
             "objType" => "note",
             "icon" => "ViewListIcon",
         ],
