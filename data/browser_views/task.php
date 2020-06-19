@@ -117,6 +117,7 @@ return array(
         'name' => 'Tasks I Have Assigned',
         'description' => 'Tasks that were created by me but assigned to someone else',
         'default' => false,
+        'group_first_order_by' => true,
         'conditions' => array(
             'creator' => array(
                 'blogic' => Where::COMBINED_BY_AND,
@@ -164,6 +165,10 @@ return array(
             ),
         ),
         'order_by' => array(
+            'status_id' => array(
+                'field_name' => 'status_id',
+                'direction' => 'desc',
+            ),
             'date' => array(
                 'field_name' => 'date_completed',
                 'direction' => 'desc',
