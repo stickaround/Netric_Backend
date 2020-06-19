@@ -25,7 +25,7 @@ return [
             "browser_view" => "my_task",
             "route" => "my-task",
             "objType" => "task",
-            "icon" => "ViewListIcon",
+            "icon" => "CheckIcon",
         ],
         [
             "title" => "Delegated Tasks",
@@ -33,7 +33,7 @@ return [
             "browser_view" => "tasks_i_have_assigned",
             "route" => "delegated-task",
             "objType" => "task",
-            "icon" => "ViewListIcon",
+            "icon" => "CheckIcon",
         ],
         [
             "title" => "All Tasks",
@@ -41,7 +41,7 @@ return [
             "browser_view" => "all_tasks",
             "route" => "all-task",
             "objType" => "task",
-            "icon" => "ChevronRightIcon",
+            "icon" => "CheckIcon",
         ],
         [
             "title" => "Projects",
