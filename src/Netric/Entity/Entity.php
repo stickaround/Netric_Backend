@@ -229,7 +229,7 @@ class Entity implements EntityInterface
     public function setValue($strName, $value, $valueName = null)
     {
         $oldval = $this->getValue($strName);
-        $oldvalName = $this->getValueNames($strName);
+        $oldvalName = $this->getValueName($strName);
 
         // Convert data types and validate
         $field = $this->def->getField($strName);
@@ -298,9 +298,9 @@ class Entity implements EntityInterface
         }
 
         $fieldMultiValues = $this->values[$strName];
-        
+
         // Check to make sure we do not already have this value added
-        forEach($fieldMultiValues as $key => $mValue) {
+        foreach ($fieldMultiValues as $key => $mValue) {
             if ($value == $mValue) {
                 // The value was already added and they need to be unique
 
@@ -312,7 +312,7 @@ class Entity implements EntityInterface
 
                 // Do not add an additional value
                 return;
-            }   
+            }
         }
 
         // Set the value
@@ -346,11 +346,11 @@ class Entity implements EntityInterface
     public function removeMultiValue($strName, $value)
     {
         $fieldMultiValues = $this->values[$strName];
-        
+
         // Loop thru the field values and look for the value that we will be removing
-        forEach($fieldMultiValues as $key => $mValue) {
+        foreach ($fieldMultiValues as $key => $mValue) {
             if ($value == $mValue) {
-                
+
                 // Unset the array index and it will be removed from the field multi value
                 unset($fieldMultiValues[$key]);
                 unset($this->fkeysValues[$strName][$mValue]);
@@ -372,7 +372,8 @@ class Entity implements EntityInterface
      * @param string|int $value The value of the field that we will update its value name
      * @param string $valueName The value name that will be using for update
      */
-    public function updateValueName($strName, $value, $valueName) {
+    public function updateValueName($strName, $value, $valueName)
+    {
         $oldValueName = $this->fkeysValues[$strName][$value];
         $this->fkeysValues[$strName][$value] = $valueName;
 
@@ -834,19 +835,19 @@ class Entity implements EntityInterface
      * Get a textual representation of what changed
      */
 
-     // user, changed status, status value
+    // user, changed status, status value
     public function getChangeLogDescription()
     {
-        $hide = array(
-            "commit_revision",
+        $hide = [
+            "commit_id",
             "uname",
             "ts_updated",
             "ts_entered",
             "revision",
-            "uname",
             "num_comments",
             "num_attachments",
-        );
+            "dacl",
+        ];
         $buf = "";
         foreach ($this->changelog as $fname => $log) {
             $oldVal = $log['oldval'];
@@ -857,6 +858,10 @@ class Entity implements EntityInterface
             // Skip multi key arrays
             if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
                 continue;
+            }
+
+            if ($field->type == FIELD::TYPE_GROUPING || $field->type == FIELD::TYPE_OBJECT) {
+                $newVal = $this->getValueName($fname);
             }
 
             if ($field->type == FIELD::TYPE_BOOL) {
