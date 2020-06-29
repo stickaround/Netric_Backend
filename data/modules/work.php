@@ -49,6 +49,12 @@ return [
             "route" => "projects",
             "objType" => "project",
             "icon" => "ViewListIcon",
+        ],
+        [
+            "type" => "browse-leftnav",
+            "route" => "projects",
+            "browser_view" => "my_open_projects",
+            "objType" => "project"
         ]
     ]
 ];
