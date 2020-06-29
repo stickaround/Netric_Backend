@@ -1,4 +1,4 @@
 <?php
 return [
-    'home', 'messages', 'crm', 'calendar', 'work', 'files', 'notes', 'cms', 'knowledge', 'settings'
+    'home', 'messages', 'crm', 'calendar', 'work', 'files', 'cms', 'knowledge', 'settings'
 ];
