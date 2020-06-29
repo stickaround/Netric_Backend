@@ -79,7 +79,7 @@ class ModuleServiceTest extends TestCase
     public function testGetByName()
     {
         // Get a system module that will always exist
-        $module = $this->moduleService->getByName("notes");
+        $module = $this->moduleService->getByName("knowledge");
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getId());
     }
@@ -87,7 +87,7 @@ class ModuleServiceTest extends TestCase
     public function testGetById()
     {
         // First get by name
-        $module = $this->moduleService->getByName("notes");
+        $module = $this->moduleService->getByName("knowledge");
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getId());
 
