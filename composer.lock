@@ -207,23 +207,6 @@
                 "constructor",
                 "instantiate"
             ],
-<<<<<<< HEAD
-=======
-            "funding": [
-                {
-                    "url": "https://www.doctrine-project.org/sponsorship.html",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://www.patreon.com/phpdoctrine",
-                    "type": "patreon"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Finstantiator",
-                    "type": "tidelift"
-                }
-            ],
->>>>>>> 2ced8b5514d410c59dc8d1f837a3ffe664422e3f
             "time": "2020-05-29T17:27:14+00:00"
         },
         {
