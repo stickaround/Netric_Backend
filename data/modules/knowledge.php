@@ -2,6 +2,8 @@
 
 /**
  * Return navigation for entity of object type 'infocenter'
+ * 
+ * browse-leftnav is a new navigation type where it will display the list of entities in the left navigation
  */
 
 namespace modules\navigation;
@@ -37,6 +39,12 @@ return [
             "route" => "spaces",
             "objType" => "infocenter_document",
             "icon" => "ChevronRightIcon",
+        ],
+        [
+            "type" => "browse-leftnav",
+            "route" => "spaces",
+            "browser_view" => "spaces",
+            "objType" => "infocenter_document"
         ]
     ]
 ];

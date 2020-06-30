@@ -56,15 +56,6 @@ $data = array(
 		"sort_order"=>'7', 
 		"f_system"=>'t'
 	),
-	// Notes
-	array(
-		"name"=>"notes", 
-		"short_title"=>'Notes', 
-		"title"=>'Personal Notes', 
-		"scope"=>'system', 
-		"sort_order"=>'8', 
-		"f_system"=>'t'
-	),
 	// CMS
 	array(
 		"name"=>"cms", 

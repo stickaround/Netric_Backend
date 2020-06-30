@@ -44,11 +44,17 @@ return [
             "icon" => "DoneAllIcon",
         ],
         [
-            "title" => "Projects",
+            "title" => "All Projects",
             "type" => "browse",
             "route" => "projects",
             "objType" => "project",
             "icon" => "WorkIcon",
+        ],
+        [
+            "type" => "browse-leftnav",
+            "route" => "projects",
+            "browser_view" => "my_open_projects",
+            "objType" => "project"
         ]
     ]
 ];
