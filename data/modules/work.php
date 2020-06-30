@@ -33,7 +33,7 @@ return [
             "browser_view" => "tasks_i_have_assigned",
             "route" => "delegated-task",
             "objType" => "task",
-            "icon" => "CheckIcon",
+            "icon" => "AssignmentIndIcon",
         ],
         [
             "title" => "All Tasks",
@@ -41,14 +41,14 @@ return [
             "browser_view" => "all_tasks",
             "route" => "all-task",
             "objType" => "task",
-            "icon" => "CheckIcon",
+            "icon" => "DoneAllIcon",
         ],
         [
             "title" => "Projects",
             "type" => "browse",
             "route" => "projects",
             "objType" => "project",
-            "icon" => "ViewListIcon",
+            "icon" => "WorkIcon",
         ]
     ]
 ];

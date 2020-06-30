@@ -21,7 +21,7 @@ return [
             "type" => "browse",
             "route" => "my-notes",
             "objType" => "note",
-            "icon" => "ViewListIcon",
+            "icon" => "AssignmentIcon",
         ],
         [
             "title" => "All Spaces",

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Return navigation for entity of object type 'files'
  */
+
 namespace modules\navigation;
 
-return array(
+return [
     "title" => "Files & Documents",
     "icon" => "PermMediaIcon",
     "default_route" => "all-files",
@@ -13,20 +15,20 @@ return array(
     "scope" => 'system',
     "sort_order" => '7',
     "f_system" => true,
-    "navigation" => array(
-        array(
+    "navigation" => [
+        [
             "title" => "All Files",
             "type" => "browse",
             "route" => "all-files",
             "objType" => "file",
             "icon" => "ViewListIcon"
-        ),
-        array(
+        ],
+        [
             "title" => "All Folders",
             "type" => "browse",
             "route" => "all-folders",
             "objType" => "folder",
             "icon" => "ViewListIcon"
-        )
-    )
-);
+        ]
+    ]
+];

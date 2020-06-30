@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Return navigation for entity of object type 'calendar'
  */
+
 namespace modules\navigation;
 
-return array(
+return [
     "title" => "Calendar",
     "icon" => "DateRangeIcon",
     "default_route" => "all-calendars",
@@ -13,14 +15,14 @@ return array(
     "scope" => 'system',
     "sort_order" => '5',
     "f_system" => true,
-    "navigation" => array(
-        array(
+    "navigation" => [
+        [
             "title" => "All Calendars",
             "type" => "browse",
             "route" => "all-calendars",
             "objType" => "calendar",
             "icon" => "ViewListIcon",
             "browseby" => "groups",
-        )
-    )
-);
+        ]
+    ]
+];
