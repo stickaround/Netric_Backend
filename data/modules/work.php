@@ -1,13 +1,13 @@
 <?php
 
+namespace modules\navigation;
+
 /**
  * Return navigation for entity of work module
  *
  * The browser_view property in navigation refers to the views that is set in
  * objType's browser views (e.g. server/data/browser_views/task.php)
  */
-
-namespace modules\navigation;
 
 return [
     "title" => "Work",

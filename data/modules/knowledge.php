@@ -2,7 +2,7 @@
 
 /**
  * Return navigation for entity of object type 'infocenter'
- * 
+ *
  * browse-leftnav is a new navigation type where it will display the list of entities in the left navigation
  */
 

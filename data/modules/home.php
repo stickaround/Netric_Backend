@@ -1,10 +1,10 @@
 <?php
 
+namespace modules\navigation;
+
 /**
  * Return navigation for entity of object type 'home'
  */
-
-namespace modules\navigation;
 
 return [
     "title" => "Home",
