@@ -10,7 +10,7 @@ namespace modules\navigation;
 
 return [
     "title" => "Knowledge",
-    "icon" => "LightbulbOutlineIcon",
+    "icon" => "PermDeviceInformationIcon",
     "default_route" => "my-notes",
     "name" => "knowledge",
     "short_title" => 'Knowledge',
