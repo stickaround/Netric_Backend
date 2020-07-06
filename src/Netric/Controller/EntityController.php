@@ -932,13 +932,15 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Function that will get the groupings by path
      */
-    public function getGetGroupByPathAction() {
-        $path = $this->request->getParam("path");
+    public function getGetGroupByObjTypeAction() {
+        $objType = $this->request->getParam("obj_type");
+        $fieldName = $this->request->getParam("field_name");
         
-        // Get the groupingLoader that will be used to get the groupings model
+        $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $groupingDM = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
 
-        $group = $groupingDM->getGroupings($path);
+        $def = $definitionLoader->get($objType);
+        $group = $groupingDM->getGroupingsByObjType($def, $fieldName);
 
         return $this->sendOutput($group->toArray());
     }

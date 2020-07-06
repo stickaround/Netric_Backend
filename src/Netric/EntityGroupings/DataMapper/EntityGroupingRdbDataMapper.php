@@ -175,6 +175,30 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     }
 
     /**
+     * Function that will get the groupings by objType
+     * 
+     * @param Definition $definition The definition that we will use to filter the object groupings
+     * @param string $fieldName The name of the field of this grouping
+     */
+    public function getGroupingsByObjType($definition, $fieldName)
+    {
+        $sql = "SELECT * FROM object_groupings WHERE object_type_id = :definition_id ORDER BY sort_order, name LIMIT 10000";
+        $result = $this->database->query($sql, ["definition_id" => $definition->getId()]);
+
+        $groupings = new EntityGroupings("{$definition->getObjType()}/$fieldName");
+        foreach ($result->fetchAll() as $row) {
+            $group = new Group();
+            $group->fromArray($row);
+            
+            // Make sure the group is not marked as dirty
+            $group->setDirty(false);
+            $groupings->add($group);
+        }
+
+        return $groupings;
+    }
+
+    /**
      * Save a new or existing group
      *
      * @param EntityDefinition $def Entity type definition
