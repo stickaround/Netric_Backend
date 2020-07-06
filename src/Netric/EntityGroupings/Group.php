@@ -118,10 +118,16 @@ class Group
             "parent_id" => $this->parentId,
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
-            "commit_id" => $this->commitId,
-            "user_id" => $this->userId,
-            "path" => $this->path,
+            "commit_id" => $this->commitId
         );
+
+        if ($this->userId) {
+            $data["user_id"] = $this->userId;
+        }
+
+        if ($this->path) {
+            $data["path"] = $this->path;
+        }
 
         return $data;
     }
