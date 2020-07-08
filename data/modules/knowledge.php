@@ -26,25 +26,22 @@ return [
             "icon" => "AssignmentIcon",
         ],
         [
-            "title" => "All Spaces",
-            "type" => "browse",
-            "route" => "all-documents",
-            "objType" => "infocenter_document",
-            "icon" => "StyleIcon",
-        ],
-        [
+            "type" => "list-subheader",
             "title" => "Spaces",
-            "type" => "browse",
-            "browser_view" => "spaces",
             "route" => "spaces",
-            "objType" => "infocenter_document",
-            "icon" => "ChevronRightIcon",
         ],
         [
             "type" => "browse-leftnav",
             "route" => "spaces",
             "browser_view" => "spaces",
             "objType" => "infocenter_document"
+        ],
+        [
+            "title" => "All Documents",
+            "type" => "browse",
+            "route" => "spaces",
+            "objType" => "infocenter_document",
+            "icon" => "SearchIcon",
         ]
     ]
 ];

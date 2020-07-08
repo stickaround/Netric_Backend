@@ -44,17 +44,23 @@ return [
             "icon" => "DoneAllIcon",
         ],
         [
-            "title" => "All Projects",
-            "type" => "browse",
-            "route" => "projects",
-            "objType" => "project",
-            "icon" => "WorkIcon",
+            "type" => "list-subheader",
+            "title" => "Projects",
+            "route" => "projects"
         ],
         [
             "type" => "browse-leftnav",
             "route" => "projects",
             "browser_view" => "my_open_projects",
-            "objType" => "project"
+            "objType" => "project",
+            "icon" => "DoneAllIcon",
+        ],
+        [
+            "title" => "All Projects",
+            "type" => "browse",
+            "route" => "projects",
+            "objType" => "project",
+            "icon" => "SearchIcon",
         ]
     ]
 ];

@@ -90,6 +90,20 @@ class Group
     private $dirty = false;
 
     /**
+     * The user of this group
+     *
+     * @var int
+     */
+    private $userId = 0;
+
+    /**
+     * The path of this group
+     *
+     * @var string
+     */
+    private $path = "";
+
+    /**
      * Convert class properties to an associative array
      *
      * @return array
@@ -104,8 +118,16 @@ class Group
             "parent_id" => $this->parentId,
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
-            "commit_id" => $this->commitId,
+            "commit_id" => $this->commitId
         );
+
+        if ($this->userId) {
+            $data["user_id"] = $this->userId;
+        }
+
+        if ($this->path) {
+            $data["path"] = $this->path;
+        }
 
         return $data;
     }
@@ -151,6 +173,14 @@ class Group
 
         if (isset($data['f_system'])) {
             $this->isSystem = $data['f_system'];
+        }
+
+        if (isset($data['user_id'])) {
+            $this->userId = $data['user_id'];
+        }
+
+        if (isset($data['path'])) {
+            $this->path = $data['path'];
         }
 
         // Inicate this group has been changed

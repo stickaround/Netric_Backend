@@ -20,6 +20,7 @@ use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionData
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityGroupings\Group;
 use Ramsey\Uuid\Uuid;
 
@@ -926,5 +927,21 @@ class EntityController extends Mvc\AbstractAccountController
         $dacl = $daclLoader->getForEntity($entity);
 
         return $dacl->isAllowed($this->account->getUser(), $permission, $entity);
+    }
+
+    /**
+     * Function that will get the groupings by path
+     */
+    public function getGetGroupByObjTypeAction() {
+        $objType = $this->request->getParam("obj_type");
+        $fieldName = $this->request->getParam("field_name");
+        
+        $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $groupingDM = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
+
+        $def = $definitionLoader->get($objType);
+        $group = $groupingDM->getGroupingsByObjType($def, $fieldName);
+
+        return $this->sendOutput($group->toArray());
     }
 }
