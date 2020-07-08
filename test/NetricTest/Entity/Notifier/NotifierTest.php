@@ -183,6 +183,61 @@ class NotifierTest extends TestCase
     }
 
     /**
+     * Test the creating of comment and check if notification entity has the description of the comment
+     */
+    public function testUserCallout()
+    {
+        // Create a test task entity and assign it to $this->testUser
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
+        $task->setValue("owner_id", $this->testUser->getGuid());
+        $task->setValue("name", "test task");
+        $this->entityLoader->save($task);
+        $this->testEntities[] = $task;
+
+        // Saving created notices automatically, mark them all as read for the test
+        $this->notifier->markNotificationsSeen($task);
+        
+        // Create a test user that will create the notification
+        $user = $this->entityLoader->create(ObjectTypes::USER);
+        $user->setValue("name", "Comment User");
+        $this->entityLoader->save($user);
+        $this->testEntities[] = $user;
+
+        // Create a test user that will will be called out
+        $userCallout = $this->entityLoader->create(ObjectTypes::USER);
+        $userCallout->setValue("name", "calledoutUser");
+        $this->entityLoader->save($userCallout);
+        $this->testEntities[] = $userCallout;
+
+        // Create a test comment entity and set its object reference to the test task
+        $comment = $this->entityLoader->create(ObjectTypes::COMMENT);
+        $comment->setValue("comment", "@calledoutUser Check this comment.");
+        $comment->setValue("obj_reference", $task->getGuid());
+        $comment->setValue("owner_id", $user->getGuid());
+        $comment->setValue("followers", [$userCallout->getGuid()]);
+        $this->entityLoader->save($comment);
+        $this->testEntities[] = $comment;
+
+        // Now re-create notifications
+        $notificationIds = $this->notifier->send($comment, ActivityEntity::VERB_CREATED);
+
+        /**
+         * Exactly three notification should have been created for the test user.
+         * One if for creating the comment.
+         * Second is for updating the task.
+         * Third is the user being called out.
+         */
+        $this->assertEquals(3, count($notificationIds));
+
+        // Check that the test notification has the right values
+        $notification = $this->entityLoader->get(ObjectTypes::NOTIFICATION, $notificationIds[0]);
+        $this->testEntities[] = $notification;
+
+        // Make sure that the notification included the comment in the description
+        $this->assertEquals($notification->getValue("description"), $user->getName() . " directed a comment at you: " . $comment->getValue("comment"));
+    }
+
+    /**
      * Make sure we can mark all unseen notifications as ween
      */
     public function testMarkNotificationsSeen()
