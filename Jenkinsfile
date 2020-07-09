@@ -41,7 +41,7 @@ pipeline {
                     if (params.DIFF_ID) {
                         sh "arc patch ${params.DIFF_ID}"
                     }
-                    
+
                     dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", ".");
                 }
             }
@@ -87,9 +87,9 @@ pipeline {
                         sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://dev1.aereus.com:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}"
                    }
                 }
-                if (params.DIFF_ID) {
-                    step([$class: 'PhabricatorNotifier', commentOnSuccess: true, commentWithConsoleLinkOnFailure: true])
-                }
+                // if (params.DIFF_ID) {
+                //     step([$class: 'PhabricatorNotifier', commentOnSuccess: true, commentWithConsoleLinkOnFailure: true])
+                // }
             }
         }
 
