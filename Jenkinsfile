@@ -15,8 +15,8 @@ currentBuild.result = "SUCCESS"
 pipeline {
     agent { node { label 'linux' } }
     options {
-        // buildDiscarder(logRotator(numToKeepStr:'10'))
-        // timeout(time: 5, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        //timeout(time: 60, unit: 'MINUTES')
         ansiColor('xterm')
     }
     parameters {
