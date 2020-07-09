@@ -31,10 +31,6 @@ pipeline {
             name: 'PHID'
         )
     }
-    environment {
-        DIFF_ID = ${params.DIFF_ID}
-        PHID    = ${params.PHID}
-    }
     stages {
         stage('Build') {
             steps {
