@@ -8,7 +8,6 @@ return [
     "app_object_field_defaults" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'field_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
             'on_event' => ['type' => SchemaProperty::TYPE_CHAR_32, 'notnull' => true],
             'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT, 'notnull' => true],
@@ -23,7 +22,6 @@ return [
     "app_object_field_options" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'field_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
             'key' => ['type' => SchemaProperty::TYPE_CHAR_TEXT, 'notnull' => true],
             'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT, 'notnull' => true],
@@ -36,7 +34,6 @@ return [
     "app_object_imp_maps" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'template_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
             'col_name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'property_name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
@@ -50,7 +47,6 @@ return [
     "app_object_imp_templates" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'user_id' => ['type' => SchemaProperty::TYPE_INT],
@@ -65,7 +61,6 @@ return [
     "app_object_type_fields" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_128],
             'title' => ['type' => SchemaProperty::TYPE_CHAR_128],
@@ -99,7 +94,6 @@ return [
     "app_object_type_frm_layouts" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
             'team_id' => ['type' => SchemaProperty::TYPE_INT],
             'user_id' => ['type' => SchemaProperty::TYPE_INT],
@@ -118,7 +112,6 @@ return [
     "app_object_types" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'title' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'revision' => ['type' => SchemaProperty::TYPE_INT, 'default' => '1'],
@@ -149,7 +142,6 @@ return [
     "app_object_view_conditions" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'view_id' => ['type' => SchemaProperty::TYPE_INT],
             'field_id' => ['type' => SchemaProperty::TYPE_INT],
             'blogic' => ["type" => SchemaProperty::TYPE_CHAR_128, "notnull" => true],
@@ -166,7 +158,6 @@ return [
     "app_object_view_fields" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'view_id' => ['type' => SchemaProperty::TYPE_INT],
             'field_id' => ['type' => SchemaProperty::TYPE_INT],
             'sort_order' => ['type' => SchemaProperty::TYPE_INT, 'default' => '0'],
@@ -181,7 +172,6 @@ return [
     "app_object_view_orderby" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'view_id' => ['type' => SchemaProperty::TYPE_INT],
             'field_id' => ['type' => SchemaProperty::TYPE_INT],
             'order_dir' => ['type' => SchemaProperty::TYPE_CHAR_32, 'notnull' => true],
@@ -197,7 +187,6 @@ return [
     "app_object_views" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'scope' => ['type' => SchemaProperty::TYPE_CHAR_16],
             'description' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
@@ -224,7 +213,6 @@ return [
     "applications" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'short_title' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'title' => ['type' => SchemaProperty::TYPE_CHAR_512, 'notnull' => true],
@@ -298,7 +286,6 @@ return [
         "PROPERTIES" => [
             // id is sequential and unique to a single account
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             // global id is unique across all accounts but not sequential
             'guid' => ['type' => SchemaProperty::TYPE_UUID],
             'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
@@ -330,7 +317,6 @@ return [
     "object_associations" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
             'object_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'assoc_type_id' => ['type' => SchemaProperty::TYPE_INT],
