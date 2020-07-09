@@ -32,8 +32,8 @@ pipeline {
         )
     }
     environment {
-        DIFF_ID = params.DIFF_ID
-        PHID    = params.PHID
+        DIFF_ID = ${params.DIFF_ID}
+        PHID    = ${params.PHID}
     }
     stages {
         stage('Build') {
