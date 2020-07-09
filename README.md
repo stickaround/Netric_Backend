@@ -10,43 +10,26 @@ Note: On some windows installations python is invoked by typing 'py'
 
    http://www.docker.com
 
-2. Install python
-
-   http://python-guide-pt-br.readthedocs.io/en/latest/starting/install3/osx/
-
-3. Log into dockerhub
+2. Log into dockerhub
 
    docker login dockerhub.aereus.com
    user: aereusdev
    password: p7pfsGRe
 
-4. Build the environment (in linux/mac)
+3. Run dev environment
 
-   python build-dev.py
+   docker-compose up
 
-5. Run dev environment (in linux/mac)
+### Testing
 
-   python start-dev.py
+Run tests within the container by executing.
 
-6. Load netric in the browser
-
-   http://localhost
-
-Log in with "test@netric.com" and "password" as the password.
-
-### Testing 
-
-Run python test.py [optargs]
-You can pass any arguments after test.sh that you would to phpunit. For example,
-if you only want to test a specific test type:
-
-    python test.py NetricTest/Application/Application.php
+    docker-compose exec netric_server vendor/bin/phpunit
 
 ### Accessing Services
 
 - http://localhost:80 - load netric
-- http://localhost:5601 - load kibana to view logs
-- http://localhost:8888 - view quest profiles
+- http://localhost:8888 - view performance profiles
 - localhost:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging
@@ -57,7 +40,7 @@ If using PHPStorm simply start listening on port 9000 for xdebug
 
 You can remote into the server with the follwoing command:
 
-    docker exec -it docker_netric_server_1 /bin/bash
+    docker-compose exec netric_server bash
 
 This will spawn a new interactive process in the container and run bash which
 is similar what happens when you SSH into a remote machine.
@@ -65,9 +48,7 @@ is similar what happens when you SSH into a remote machine.
 ## The Client
 
 Netric can have multiple clients. The main web client is build separately and deployed by
-copying the source from the built webapp into the server directory /server/v2. When we finish
-moving the server into a new directory structure we will simply deploy the built
-webapp into /public/\*.
+copying the source from the built webapp into the server directory /server/v2.
 
 ## Clients are split into separate repos:
 
@@ -86,7 +67,7 @@ Note: Make sure you have python 3+ installed and working
 
     ./jenkins-tests.sh # script to execute all tests in jenkins build
 
-# Directory Structure
+## Directory Structure
 
 /src - all classes and functions
 

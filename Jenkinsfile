@@ -19,6 +19,22 @@ pipeline {
         // timeout(time: 5, unit: 'MINUTES')
         ansiColor('xterm')
     }
+    parameters {
+        string(
+            defaultValue: '',
+            description: 'Differential ID for use with a review - will not release',
+            name: 'DIFF_ID'
+        )
+        string(
+            defaultValue: '',
+            description: 'Phabricator user ID used when submitting a review',
+            name: 'PHID'
+        )
+    }
+    environment {
+        DIFF_ID = params.DIFF_ID
+        PHID    = params.PHID
+    }
     stages {
         stage('Build') {
             steps {
@@ -74,6 +90,12 @@ pipeline {
         }
 
         stage('Publish') {
+            when {
+                // Do not publish
+                expression {
+                    return !params.DIFF_ID
+                }
+            }
             steps {
                 script {
                     docker.withRegistry('https://dockerhub.aereus.com', 'aereusdev-dockerhub') {
@@ -115,6 +137,12 @@ pipeline {
         // }
 
         stage('Production Setup') {
+            when {
+                // Do not publish
+                expression {
+                    return !params.DIFF_ID
+                }
+            }
             steps {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
@@ -132,6 +160,12 @@ pipeline {
         }
 
         stage('Production') {
+            when {
+                // Do not publish
+                expression {
+                    return !params.DIFF_ID
+                }
+            }
             steps {
                 script {
                     script {
