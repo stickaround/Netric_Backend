@@ -25,7 +25,7 @@ class DataMapperApplicationRdbTest extends AbstractDataMapperTests
             $dbName,
             $this->config->db['user'],
             $this->config->db['password'],
-            $this->config->db['accdb'],
+            $this->config->db['accdb']
         );
     }
 

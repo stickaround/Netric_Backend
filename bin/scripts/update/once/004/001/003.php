@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Transfer the email_accounts table to objects_email_account_act
  *
@@ -6,6 +7,7 @@
  * The record will be imported to the new email_account entity via ::fromArray
  * Then it will be saved using DataMapper::save()
  */
+
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -24,6 +26,10 @@ $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::cl
 $entityIndex = $serviceManager->get(IndexFactory::class);
 $vaultService = $serviceManager->get(VaultServiceFactory::class);
 $blockCypher = new BlockCipher($vaultService->getSecret("EntityEnc"));
+
+if ($db->tableExists('email_accounts') === false) {
+    return true;
+}
 
 $def = null;
 try {

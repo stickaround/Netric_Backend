@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\EntityQuery\Plugin;
 
 use Netric\EntityQuery;
@@ -28,7 +29,7 @@ class EmailMessageQueryPluginTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
     }
 
@@ -51,19 +52,6 @@ class EmailMessageQueryPluginTest extends TestCase
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals(123);
         $this->assertTrue($plugin->onBeforeExecuteQuery($this->account->getServiceManager(), $query));
-
-        // Make sure the right job was queued with the right params
-        $this->assertEquals(
-            array(
-                "EmailMailboxSync",
-                array(
-                    "account_id"=>$this->account->getId(),
-                    "user_id"=>$this->account->getUser()->getId(),
-                    "mailbox_id"=>123,
-                ),
-            ),
-            $queue->queuedJobs[0]
-        );
     }
 
     public function testOnAfterExecuteQuery()

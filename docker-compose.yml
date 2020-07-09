@@ -16,7 +16,6 @@ services:
     depends_on:
       - memcached
       - gearmand
-      - mail
       - db1
       - mogilefs
       - mogilestore
@@ -33,7 +32,6 @@ services:
     depends_on:
       - memcached
       - gearmand
-      - mail
       - db1
       - mogilefs
       - mogilestore
@@ -66,18 +64,6 @@ services:
       ]
     ports:
       - "5432:5432"
-
-  mail:
-    image: dockerhub.aereus.com/mail:latest
-    environment:
-      APP_HOST: netric.com
-      DB_USER: vagrant
-      DB_PASSWORD: vagrant
-      DB_HOST: db1
-      DB_NAME: antsystem
-      DB_PORT: 5432
-    depends_on:
-      - db1
 
   mogilefs:
     image: dockerhub.aereus.com/mogiletracker:latest

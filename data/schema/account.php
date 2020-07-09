@@ -246,41 +246,30 @@ return [
         ]
     ],
 
-    "email_accounts" => [
+    /**
+     * Adding this back so that unit tests don't fail, we eventually
+     * need to remove this table and use groupings.
+     */
+    "email_mailboxes" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_INT, 'default' => 'auto_increment'],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_512, 'notnull' => true],
-            'address' => ['type' => SchemaProperty::TYPE_CHAR_512, 'notnull' => true],
-            'reply_to' => ['type' => SchemaProperty::TYPE_CHAR_512],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
-            'ts_last_full_sync' => ['type' => SchemaProperty::TYPE_INT],
-            'f_default' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'signature' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'type' => ['type' => SchemaProperty::TYPE_CHAR_16],
-            'username' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'password' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'host' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'port' => ['type' => SchemaProperty::TYPE_SMALLINT],
-            'ssl' => ['type' => SchemaProperty::TYPE_CHAR_8],
-            'sync_data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'f_ssl' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
+            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'name' => ['type' => SchemaProperty::TYPE_CHAR_64],
+            'parent_box' => ['type' => SchemaProperty::TYPE_INT],
+            'flag_special' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
             'f_system' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_outgoing_auth' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'host_out' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'port_out' => ['type' => SchemaProperty::TYPE_CHAR_8],
-            'f_ssl_out' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'username_out' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'password_out' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'forward' => ['type' => SchemaProperty::TYPE_CHAR_256],
+            'sort_order' => ['type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'],
+            'color' => ['type' => SchemaProperty::TYPE_CHAR_6],
+            'user_id' => ['type' => SchemaProperty::TYPE_INT],
+            'type' => ['type' => SchemaProperty::TYPE_CHAR_16],
+            'mailbox' => ['type' => SchemaProperty::TYPE_CHAR_128],
+            'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
         ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
+        'PRIMARY_KEY' => 'id', "INDEXES" => [
             ['properties' => ["user_id", "users", "id"]],
         ],
         "INDEXES" => [
-            ['properties' => ["address"]],
-        ],
+            ['properties' => ["parent_box"]],
+        ]
     ],
 
     /**

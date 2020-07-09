@@ -80,7 +80,9 @@ $fkeys = [
 
 foreach ($fkeys as $table => $constraints) {
     foreach ($constraints as $contraintToDrop) {
-        $db->query("ALTER TABLE " . $table . " DROP CONSTRAINT IF EXISTS " . $contraintToDrop);
+        if ($db->tableExists($table)) {
+            $db->query("ALTER TABLE " . $table . " DROP CONSTRAINT IF EXISTS " . $contraintToDrop);
+        }
     }
 }
 
@@ -214,8 +216,10 @@ foreach ($groupingTables as $details) {
             }
 
             // Fix a problem where on some accounts we had multiple administrators
-            if (strtolower($groupName) == 'administrators'
-                && $objType === 'user' && $fieldName === 'groups') {
+            if (
+                strtolower($groupName) == 'administrators'
+                && $objType === 'user' && $fieldName === 'groups'
+            ) {
                 $group->id = UserEntity::GROUP_ADMINISTRATORS;
                 $group->name = "Administrators";
             }
@@ -245,7 +249,7 @@ foreach ($groupingTables as $details) {
             // Update the table reference
             $sql = "UPDATE {$def->object_table} SET field_data = jsonb_set(field_data, '{" . $fieldName . "_fval}', :group_id_fval, true)
             WHERE field_data->>'$fieldName' = :old_group_id";
-            
+
             $db->query($sql, [
                 "old_group_id" => $oldFkeyId,
                 "group_id_fval" => json_encode(array($group->guid => $group->name))
@@ -253,7 +257,7 @@ foreach ($groupingTables as $details) {
 
             $sql = "UPDATE {$def->object_table} SET field_data = jsonb_set(field_data, '{" . $fieldName . "}', '\"$group->guid\"', true)
             WHERE field_data->>'$fieldName' = :old_group_id";
-            
+
             $db->query($sql, [
                 "old_group_id" => $oldFkeyId
             ]);

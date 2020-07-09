@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Move the old project_membership data to the project's member table (which is now an object multi)
  */
+
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\EntityLoaderFactory;
 
@@ -10,6 +12,10 @@ $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $account->getApplication()->getLog();
+
+if (!$db->tableExists('project_membership')) {
+    return true;
+}
 
 $projectMemberships = [];
 $result = $db->query("SELECT * from project_membership");

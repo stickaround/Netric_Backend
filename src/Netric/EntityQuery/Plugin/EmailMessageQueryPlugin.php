@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\EntityQuery\Plugin;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
@@ -47,20 +49,24 @@ class EmailMessageQueryPlugin implements PluginInterface
             return true;
         }
 
-        // Setup background job and queue it
-        $jobData = array(
-            'account_id' => $sl->getAccount()->getId(),
-            'user_id' => $sl->getAccount()->getUser()->getId(),
-            'mailbox_id' => $mailboxId,
-        );
-        $workerMan = $this->getWorkerService($sl);
-        if ($workerMan->doWorkBackground("EmailMailboxSync", $jobData)) {
-            return true;
-        } else {
-            // Something failed
-            $sl->get(LogFactory::class)->error("EmailMessageQueryPlugin->onBeforeExecuteQuery: For some reason a job could not be queued");
-            return false;
-        }
+        return true;
+
+        // TODO: We are no longer doing email sync below
+        // // Setup background job and queue it
+        // $jobData = array(
+        //     'account_id' => $sl->getAccount()->getId(),
+        //     'user_id' => $sl->getAccount()->getUser()->getId(),
+        //     'mailbox_id' => $mailboxId,
+        // );
+        // $workerMan = $this->getWorkerService($sl);
+
+        // if ($workerMan->doWorkBackground("EmailMailboxSync", $jobData)) {
+        //     return true;
+        // } else {
+        //     // Something failed
+        //     $sl->get(LogFactory::class)->error("EmailMessageQueryPlugin->onBeforeExecuteQuery: For some reason a job could not be queued");
+        //     return false;
+        // }
     }
 
     /**

@@ -1,9 +1,7 @@
 <?php
+
 namespace NetricTest\Mail;
 
-use Netric\EntityQuery;
-use Netric\Mail\Storage;
-use Netric\Mail\Storage\Imap;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\EmailAccountEntity;
@@ -154,110 +152,5 @@ class DeliveryServiceTest extends TestCase
             "td style=\"font-weight: bold; padding-top: 10px; padding-left: 12px;\"",
             $emailMessage->getValue("body")
         );
-    }
-
-    /**
-     * Test a funky message sent by groupon where they send the following mime structure
-     *
-     * multipart/related
-     *  multipart/alternative
-     *    text/plain
-     *    test/html
-     *
-     * The multipart/related (first part) is basically useless, but we need to handle it.
-     */
-    public function testDeliverComplex()
-    {
-        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
-        $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m6.complex.mime.unseen']);
-        $fakeUniqueId = "1234"; // Does not really matter
-        $messageId = $deliveryService->deliverMessage(
-            $this->user,
-            $fakeUniqueId,
-            $storageMessage,
-            $this->emailAccount,
-            $this->inbox->guid
-        );
-
-        $this->assertNotEquals(0, $messageId);
-        $this->assertNotEquals(-1, $messageId);
-        
-        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $messageId);
-        $this->testEntities[] = $emailMessage;
-
-        // Check some snippets of text that should be in the hrml body
-        $this->assertStringContainsString("$2,399", $emailMessage->getValue("body"));
-        // Make sure the body which is quoted-printable was decoded
-        $this->assertStringContainsString(
-            "td style=\"font-weight: bold; padding-top: 10px; padding-left: 12px;\"",
-            $emailMessage->getValue("body")
-        );
-    }
-
-    public function testDeliverAttachment()
-    {
-        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
-        $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m7.attachment']);
-        $fakeUniqueId = "123456"; // Does not really matter
-        $messageId = $deliveryService->deliverMessage(
-            $this->user,
-            $fakeUniqueId,
-            $storageMessage,
-            $this->emailAccount,
-            $this->inbox->guid
-        );
-
-        $this->assertNotEquals(0, $messageId);
-        $this->assertNotEquals(-1, $messageId);
-
-        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $messageId);
-        $this->testEntities[] = $emailMessage;
-
-        // Check some snippets of text that should be in the html body
-        $attachments = $emailMessage->getValue("attachments");
-        $this->assertEquals(3, count($attachments));
-        $file = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::FILE, $attachments[0]);
-        
-        $this->assertEquals("HoS-Logo-Black.pdf", $file->getValue("name"));
-        $this->assertGreaterThan(0, $file->getValue("file_size"));
-    }
-
-    /**
-     * Test delivering duplicate and make sure it does not add it to the inbox
-     */
-    public function testDeliverNoDuplicates()
-    {
-        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
-        $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m1.example.org.unseen']);
-        $fakeUniqueId = "1234";
-
-        // Deliver the message for the first time
-        $messageId = $deliveryService->deliverMessage(
-            $this->user,
-            $fakeUniqueId,
-            $storageMessage,
-            $this->emailAccount,
-            $this->inbox->guid
-        );
-
-        // Queue for cleanup
-        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $messageId);
-        $this->testEntities[] = $emailMessage;
-
-        // Assure that the response is not 0  (failure) or -1 (already delivered)
-        $this->assertNotEquals(0, $messageId);
-        $this->assertNotEquals(-1, $messageId);
-
-        // Now try to deliver it again
-        $messageId = $deliveryService->deliverMessage(
-            $this->user,
-            $fakeUniqueId,
-            $storageMessage,
-            $this->emailAccount,
-            $this->inbox->guid
-        );
-
-        // Should return the already imported message to fix the sync
-        $this->assertEquals($emailMessage->getId(), $messageId);
     }
 }

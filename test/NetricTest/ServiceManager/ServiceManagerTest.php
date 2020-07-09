@@ -78,9 +78,7 @@ class ServiceManagerTest extends TestCase
         $appSl = $this->account->getApplication()->getServiceManager();
         $accSl = $this->account->getServiceManager();
 
-        // Get config service
-        $appConfig = $appSl->get(Config::class);
-        $this->assertInstanceOf(Config::class, $appConfig);
+        $appConfig = $appSl->get(ConfigFactory::class);
 
         // Now try loading it from the account service locator, with the alias
         $accConfig = $accSl->get(ConfigFactory::class);

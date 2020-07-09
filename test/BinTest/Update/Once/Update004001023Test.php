@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/once/004/001/023.php script works
  */
+
 namespace BinTest\Update\Once;
 
 use Netric\Entity\EntityLoaderFactory;
@@ -54,7 +56,7 @@ class Update004001023Test extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/023.php";
     }
@@ -63,7 +65,7 @@ class Update004001023Test extends TestCase
      * Cleanup after a test runs
      */
     protected function tearDown(): void
-{
+    {
         $serviceManager = $this->account->getServiceManager();
         $loader = $serviceManager->get(EntityLoaderFactory::class);
         $db = $serviceManager->get(RelationalDbFactory::class);
@@ -125,9 +127,8 @@ class Update004001023Test extends TestCase
         $taskId = $entityDataMapper->save($task);
         $this->testEntities[] = $task;
 
-        // Create a user entity in the old users table
-        $oldUserId = $db->insert("users", ["name" => "Unit Test Old User", "active" => true]);
-        $this->testOldUserIds[] = $oldUserId;
+        // Create a fake id in the old format
+        $oldUserId = 12345567;
 
         // Create a task entity and add the old user as it's owner
         $taskOldUserRef = $entityLoader->create(ObjectTypes::TASK);

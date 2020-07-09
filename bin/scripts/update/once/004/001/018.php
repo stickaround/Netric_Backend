@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Move all custom table entities over to objects_* table so that we no longer
  * have to deal with custom tables from entities
  */
+
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
@@ -38,7 +40,7 @@ foreach ($types as $objDefData) {
 
         // Reload fresh from the database
         $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
-        
+
         // Make sure it has all the latest changes from the local data/entity_definitions/
         $entityDefinitionDataMapper->updateSystemDefinition($def);
 
@@ -99,6 +101,13 @@ foreach ($objectTypesToMove as $objectType) {
     // Get the entity definition
     $def = $entityDefinitionLoader->get($objType);
 
+    /*
+     * If the old table does not exist, then just skip
+     */
+    if ($db->tableExists($oldTable) === false) {
+        continue;
+    }
+
     // Get old entities that are not yet moved
     $sql = "SELECT oldTable.* FROM $oldTable as oldTable WHERE oldTable.id NOT IN (SELECT object_id FROM objects_moved WHERE object_id = oldTable.id AND object_type_id=:object_type_id)";
     $result = $db->query($sql, ["object_type_id" => $def->getId()]);
@@ -121,7 +130,7 @@ foreach ($objectTypesToMove as $objectType) {
 
         // Create a new entity to save
         $newEntity = $entityLoader->create($objType);
-        
+
         // Make sure that we set the id to null, so it will create a new entity record
         $entityData = $oldEntity->toArray();
         $entityData["id"] = null;
@@ -154,7 +163,7 @@ foreach ($objectTypesToMove as $objectType) {
 
         $log->info(
             "Update 004.001.018 moved {$objType}.$oldEntityId to " .
-            $def->getTable() . '.' . $newEntityId
+                $def->getTable() . '.' . $newEntityId
         );
 
         // Now set the entity that it has been moved to new object table

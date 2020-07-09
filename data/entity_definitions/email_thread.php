@@ -80,20 +80,20 @@ return array(
         'mailbox_id' => array(
             'title' => 'Groups',
             'type' => Field::TYPE_GROUPING_MULTI,
-            // 'subtype'=>'email_mailboxes',
-            // 'fkey_table'=>array(
-            //     "key"=>"id",
-            //     "title"=>"name",
-            //     "parent"=>"parent_box",
-            //     "filter"=>array(
-            //         "user_id"=>"owner_id"
-            //     ),
-            //     "ref_table"=>array(
-            //         "table"=>"email_thread_mailbox_mem",
-            //         "this"=>"thread_id",
-            //         "ref"=>"mailbox_id"
-            //     )
-            // )
+            'subtype' => 'email_mailboxes',
+            'fkey_table' => array(
+                "key" => "id",
+                "title" => "name",
+                "parent" => "parent_box",
+                "filter" => array(
+                    "user_id" => "owner_id"
+                ),
+                "ref_table" => array(
+                    "table" => "email_thread_mailbox_mem",
+                    "this" => "thread_id",
+                    "ref" => "mailbox_id"
+                )
+            )
         ),
     ),
 );
