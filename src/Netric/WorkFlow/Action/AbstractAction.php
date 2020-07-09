@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Common Action functionality
  *
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\WorkFlow\Action;
 
 use Netric\EntityDefinition\Field;
@@ -82,14 +84,14 @@ abstract class AbstractAction implements ErrorAwareInterface
      *
      * @var ActionInterface[]
      */
-    private $childActions = array();
+    private $childActions = [];
 
     /**
      * Child actions that have been removed and a queued for deletion on save
      *
      * @var ActionInterface[]
      */
-    private $removedChildActions = array();
+    private $removedChildActions = [];
 
     /**
      * Param data for this activity
@@ -100,7 +102,7 @@ abstract class AbstractAction implements ErrorAwareInterface
      *
      * @var array
      */
-    private $params = array();
+    private $params = [];
 
     /**
      * Entity loader
@@ -121,7 +123,7 @@ abstract class AbstractAction implements ErrorAwareInterface
      *
      * @var Error[]
      */
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * Execute this action
@@ -228,7 +230,7 @@ abstract class AbstractAction implements ErrorAwareInterface
         );
 
         // Set child actions
-        $data['actions'] = array();
+        $data['actions'] = [];
         foreach ($this->childActions as $childAction) {
             $data['actions'][] = $childAction->toArray();
         }
@@ -283,8 +285,10 @@ abstract class AbstractAction implements ErrorAwareInterface
     public function removeAction(ActionInterface $action)
     {
         for ($i = 0; $i < count($this->childActions); $i++) {
-            if ($action === $this->childActions[$i] ||
-                ($action->getId() != null && $action->getId() === $this->childActions[$i]->getId())) {
+            if (
+                $action === $this->childActions[$i] ||
+                ($action->getId() != null && $action->getId() === $this->childActions[$i]->getId())
+            ) {
                 array_splice($this->childActions, $i, 1);
 
                 // If previously saved then queue it to be purged on save
@@ -317,11 +321,8 @@ abstract class AbstractAction implements ErrorAwareInterface
 
         // First make sure we didn't previously remove this action
         for ($i = 0; $i < count($this->removedChildActions); $i++) {
-            if ($actionToAdd === $this->removedChildActions[$i] || (
-                    $actionToAdd->getId() != null
-                    && $actionToAdd->getId() === $this->removedChildActions[$i]->getId()
-                )
-            ) {
+            if ($actionToAdd === $this->removedChildActions[$i] || ($actionToAdd->getId() != null
+                && $actionToAdd->getId() === $this->removedChildActions[$i]->getId())) {
                 // Remove it from deletion queue, apparently the user didn't mean to delete it
                 array_splice($this->removedChildActions, $i, 1);
             }
@@ -330,8 +331,10 @@ abstract class AbstractAction implements ErrorAwareInterface
         // Check if previously added
         $previouslyAddedAt = -1;
         for ($i = 0; $i < count($this->childActions); $i++) {
-            if ($actionToAdd->getId() &&
-                $this->childActions[$i]->getId() === $actionToAdd->getId()) {
+            if (
+                $actionToAdd->getId() &&
+                $this->childActions[$i]->getId() === $actionToAdd->getId()
+            ) {
                 $previouslyAddedAt = $i;
                 break;
             }
@@ -422,7 +425,7 @@ abstract class AbstractAction implements ErrorAwareInterface
              * but just provide a field with a user id and not the .email attribute appended
              */
             if (!is_array($paramValue) && ($paramName === 'to' || $paramName === 'cc' || $paramName === 'bcc')) {
-                $matches = array();
+                $matches = [];
                 preg_match_all("/<%(.*?)%>/", $paramValue, $matches);
                 // Above sets $matches to (array(array('matches'), array('variable_names'))
                 if (isset($matches[1])) {
@@ -470,7 +473,7 @@ abstract class AbstractAction implements ErrorAwareInterface
         $iterations = 0;
 
         // Buffer for matches
-        $matches = array();
+        $matches = [];
 
         while (preg_match("/<%(.*?)%>/", $value, $matches)) {
             $variableName = $matches[1];
@@ -491,7 +494,7 @@ abstract class AbstractAction implements ErrorAwareInterface
 
                     break;
 
-                // Legacy before we used <%id%>
+                    // Legacy before we used <%id%>
                 case 'oid':
                     $fieldValue = $mergeWithEntity->getId();
                     $value = str_replace("<%$variableName%>", $fieldValue, $value);

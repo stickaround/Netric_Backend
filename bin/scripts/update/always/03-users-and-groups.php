@@ -1,8 +1,5 @@
 <?php
 
-/**
- * Add default users and groups for each account
- */
 use Netric\EntityGroupings\Group;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -11,8 +8,9 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
-if (!$account)
+if (!$account) {
     throw new \RuntimeException("This must be run only against a single account");
+}
 
 /*
  * First make sure default user groups exist

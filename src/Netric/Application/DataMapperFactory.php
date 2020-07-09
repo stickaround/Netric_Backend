@@ -1,10 +1,10 @@
 <?php
+
 namespace Netric\Application;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-
-use Netric\Config\Config;
+use Netric\Config\ConfigFactory;
 
 /**
  * Create a new Application DataMapper service
@@ -19,7 +19,14 @@ class DataMapperFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get(Config::class);
-        return new ApplicationRdbDataMapper($config->db->host, $config->db->sysdb, $config->db->user, $config->db->password);
+        $config = $serviceLocator->get(ConfigFactory::class);
+
+        return new ApplicationRdbDataMapper(
+            $config->db->host,
+            $config->db->sysdb,
+            $config->db->user,
+            $config->db->password,
+            $config->db->accdb
+        );
     }
 }

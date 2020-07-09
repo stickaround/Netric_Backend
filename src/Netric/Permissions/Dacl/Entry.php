@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Access control list entry for a permission
  *
@@ -21,22 +22,22 @@ class Entry
      *
      * @var int[]
      */
-    public $groups = array();
-    
+    public $groups = [];
+
     /**
      * User IDs with access to this entry
      *
      * @var string[]
      */
-    public $users = array();
-    
+    public $users = [];
+
     /**
      * Unique ID of this entry (if any)
      *
      * @var string
      */
     public $id = "";
-    
+
     /**
      * If the entry has a parent like "Full Controll" then then ID will be here
      *
@@ -56,7 +57,7 @@ class Entry
      *
      * @param array $data Associative array that contains the initial data of the entry
      */
-    public function __construct($data = array())
+    public function __construct($data = [])
     {
         $this->id = $data["id"];
         $this->name = $data["name"];

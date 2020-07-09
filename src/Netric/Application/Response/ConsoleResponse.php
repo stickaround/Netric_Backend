@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
+
 namespace Netric\Application\Response;
 
 use Netric\Log\LogInterface;
@@ -17,7 +19,7 @@ class ConsoleResponse implements ResponseInterface
      *
      * @var string[]
      */
-    private $outputBuffer = array();
+    private $outputBuffer = [];
 
     /**
      * Flag to suppress output
@@ -116,7 +118,7 @@ class ConsoleResponse implements ResponseInterface
             $this->outputBuffer[] = $text;
             return;
         }
-        
+
         echo $text;
     }
 
@@ -130,7 +132,7 @@ class ConsoleResponse implements ResponseInterface
         if ($this->log) {
             $this->log->info($text);
         }
-        
+
         if ($this->suppressOutput) {
             $this->outputBuffer[] = $text;
             return;

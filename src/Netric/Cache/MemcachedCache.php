@@ -1,13 +1,15 @@
 <?php
+
 /**
  * Use memcached extension to store cache in a memcache server cluster
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2017 Aereus
  */
+
 namespace Netric\Cache;
 
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Memcached;
 
 class MemcachedCache implements CacheInterface
@@ -31,7 +33,7 @@ class MemcachedCache implements CacheInterface
         // Make sure servers are not already added
         if (!count($this->memCached->getServerList())) {
             if (is_array($config->host)) {
-                $servers = array();
+                $servers = [];
                 foreach ($config->host as $svr) {
                     $servers[] = array($svr, 11211, 100);
                 }

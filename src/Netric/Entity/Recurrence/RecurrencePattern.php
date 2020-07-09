@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Generic recurrence pattern used with entities and various other objects in netric
  *
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
  *  @copyright 2014-2015 Aereus
  */
+
 namespace Netric\Entity\Recurrence;
 
 use Netric\Entity\Entity;
@@ -185,7 +187,7 @@ class RecurrencePattern implements ErrorAwareInterface
      *
      * @var array
      */
-    private $arrChangeLog = array();
+    private $arrChangeLog = [];
 
     /**
      * Locked timestamp
@@ -293,7 +295,7 @@ class RecurrencePattern implements ErrorAwareInterface
         // Format dates for export
         $dateStart = ($this->dateStart) ? $this->dateStart->format("Y-m-d") : null;
         $dateEnd = ($this->dateEnd) ? $this->dateEnd->format("Y-m-d") : null;
-        $dateProcessedTo =($this->dateProcessedTo) ? $this->dateProcessedTo->format("Y-m-d") : null;
+        $dateProcessedTo = ($this->dateProcessedTo) ? $this->dateProcessedTo->format("Y-m-d") : null;
 
         return array(
             "id" => $this->id,
@@ -636,11 +638,11 @@ class RecurrencePattern implements ErrorAwareInterface
             "dayofmonth" => $this->dayOfMonth,
             "monthofyear" => $this->monthOfYear,
             "instance" => $this->instance,
-            "dayofweekmask" =>$this->dayOfWeekMask
+            "dayofweekmask" => $this->dayOfWeekMask
         );
     }
 
-    
+
     /**
      * Get the DateTime for the next instance start date
      *
@@ -651,22 +653,22 @@ class RecurrencePattern implements ErrorAwareInterface
         switch ($this->recurType) {
             case self::RECUR_DAILY:
                 return $this->getNextStartDaily();
-            break;
+                break;
             case self::RECUR_WEEKLY:
                 return $this->getNextStartWeekly();
-            break;
+                break;
             case self::RECUR_MONTHLY:
                 return $this->getNextStartMonthly();
-            break;
+                break;
             case self::RECUR_MONTHNTH:
                 return $this->getNextStartMonthlyNth();
-            break;
+                break;
             case self::RECUR_YEARLY:
                 return $this->getNextStartYearly();
-            break;
+                break;
             case self::RECUR_YEARNTH:
                 return $this->getNextStartYearlyNth();
-            break;
+                break;
         }
 
         return false; // RecurrenceType was not set for this object
@@ -734,13 +736,13 @@ class RecurrencePattern implements ErrorAwareInterface
         } else {
             $dtCur = clone $this->dateStart;
         }
-        
+
         $loops = 0;
         do {
             // Step through the week and look for a match
             $tsTmp = clone $dtCur;
             $dow = $dtCur->format("w"); // get starting day of week - 0 for Sunday, 6 for Saturday
-            for ($i = (int)$dow; $i<=6; $i++) { // Loop while we don't have a match and we are still within the week
+            for ($i = (int) $dow; $i <= 6; $i++) { // Loop while we don't have a match and we are still within the week
                 switch ($i) {
                     case 0:
                         $test = self::WEEKDAY_SUNDAY;
@@ -789,7 +791,7 @@ class RecurrencePattern implements ErrorAwareInterface
 
             // Increment safty check
             $loops++;
-        } while (!$ret && $loops<$maxloops);
+        } while (!$ret && $loops < $maxloops);
 
         // Check if we have moved beyond the end of this pattern
         if ($this->dateEnd) {
@@ -825,13 +827,13 @@ class RecurrencePattern implements ErrorAwareInterface
             $tsStart = clone $this->dateStart;
 
             // Deal will a different start date from the dayOfMonth
-            if ($this->dayOfMonth != (int)$tsStart->format("j")) {
+            if ($this->dayOfMonth != (int) $tsStart->format("j")) {
                 // Rewind to beginning of the month
                 $tsStart = new \DateTime($tsStart->format("Y") . "-" . $tsStart->format("m") . "-01");
                 // Add a month - no longer needed
                 //$tsStart->add(new \DateInterval('P1M'));
                 // 't' returns the number of days in current month
-                $lastDayOfMonth = (int)$tsStart->format('t');
+                $lastDayOfMonth = (int) $tsStart->format('t');
 
                 // If not a valid date then skip to next month
                 if ($lastDayOfMonth >= $this->dayOfMonth) {
@@ -865,7 +867,7 @@ class RecurrencePattern implements ErrorAwareInterface
             // Add a month
             $nextMonth->add(new \DateInterval('P' . $this->interval . 'M'));
             // Get the last day of next month
-            $lastDayOfMonth = (int)$nextMonth->format('t');
+            $lastDayOfMonth = (int) $nextMonth->format('t');
 
             // If not a valid date then skip to next month
             if ($lastDayOfMonth >= $this->dayOfMonth) {
@@ -917,7 +919,7 @@ class RecurrencePattern implements ErrorAwareInterface
         } else {
             $dtCur = $dtBegin;
         }
-        
+
         // Step over days in each week until we have a $ret or have exceed $maxloops
         $maxloops = 100;
         $loops = 0;
@@ -927,13 +929,13 @@ class RecurrencePattern implements ErrorAwareInterface
             $tsTmp = clone $dtCur;
 
             // Get the current day
-            $day = (int)$dtCur->format("j");
+            $day = (int) $dtCur->format("j");
 
             // Get the last day of the month
-            $lastDayOfMonth = (int)$tsTmp->format('t');
+            $lastDayOfMonth = (int) $tsTmp->format('t');
 
             // Loop while we don't have a match and we are still within the month
-            for ($i = (int)$day; $i<=(int)$lastDayOfMonth; $i++) {
+            for ($i = (int) $day; $i <= (int) $lastDayOfMonth; $i++) {
                 // get starting day of week - 0 for Sunday, 6 for Saturday
                 $dow = (int) $tsTmp->format("w");
 
@@ -962,12 +964,12 @@ class RecurrencePattern implements ErrorAwareInterface
                 }
 
                 // 2nd Monday, 1st Tuesday etc...
-                $currentInstance = ceil((int)$tsTmp->format('j') / 7);
+                $currentInstance = ceil((int) $tsTmp->format('j') / 7);
                 // Last thursday etc...
                 $f_lastwkdayinmonth = $this->dateIsLastWkDayInMonth($tsTmp);
 
                 // Check if we have a match to return
-                if ($this->dayOfWeekMask & $test && ($currentInstance==$this->instance || ($this->instance==5 && $f_lastwkdayinmonth))) {
+                if ($this->dayOfWeekMask & $test && ($currentInstance == $this->instance || ($this->instance == 5 && $f_lastwkdayinmonth))) {
                     $ret = $tsTmp;
                     break;
                 } else {
@@ -985,7 +987,7 @@ class RecurrencePattern implements ErrorAwareInterface
 
             // Increment counter to keep things safe
             $loops++;
-        } while (!$ret && $loops<$maxloops);
+        } while (!$ret && $loops < $maxloops);
 
         // Check to see if we have moved beyond the bounds of this pattern
         if ($this->dateEnd) {
@@ -1016,7 +1018,7 @@ class RecurrencePattern implements ErrorAwareInterface
 
         if (!$this->dateProcessedTo) {
             $ret = clone $this->dateStart;
-            $ret->setDate((int)$this->dateStart->format("Y"), $this->monthOfYear, $this->dayOfMonth);
+            $ret->setDate((int) $this->dateStart->format("Y"), $this->monthOfYear, $this->dayOfMonth);
             $ret->setTime(0, 0);
             if ($this->dateStart > $ret) {
                 $this->dateProcessedTo = clone $this->dateStart;
@@ -1033,9 +1035,9 @@ class RecurrencePattern implements ErrorAwareInterface
 
         // Get real start point
         $dtBegin = clone $this->dateStart;
-        if ((int)$dtBegin->format("j") != $this->dayOfMonth) {
+        if ((int) $dtBegin->format("j") != $this->dayOfMonth) {
             $tmp = clone $dtBegin;
-            $tmp->setDate((int)$dtBegin->format("Y"), $this->monthOfYear, $this->dayOfMonth);
+            $tmp->setDate((int) $dtBegin->format("Y"), $this->monthOfYear, $this->dayOfMonth);
             if ($dtBegin > $tmp) {
                 // Add a year
                 $dtBegin->add(new \DateInterval("P1Y"));
@@ -1082,13 +1084,13 @@ class RecurrencePattern implements ErrorAwareInterface
 
         // Get real start point
         $tsBegin = clone $this->dateStart;
-        if ((int)$tsBegin->format("m") != $this->monthOfYear) {
+        if ((int) $tsBegin->format("m") != $this->monthOfYear) {
             $tmp = clone $tsBegin;
-            $tmp->setDate((int)$tsBegin->format("Y"), $this->monthOfYear, 1);
+            $tmp->setDate((int) $tsBegin->format("Y"), $this->monthOfYear, 1);
             if ($tsBegin > $tmp) {
                 $tmp->add(new \DateInterval("P1Y"));
             }
-            
+
             $tsBegin = $tmp;
         }
 
@@ -1108,13 +1110,13 @@ class RecurrencePattern implements ErrorAwareInterface
             $tsTmp = clone $tsCur;
 
             // Get the current day
-            $day = (int)$tsTmp->format("j");
+            $day = (int) $tsTmp->format("j");
 
             // Get the last day of the month
-            $lastDayOfMonth = (int)$tsTmp->format('t');
+            $lastDayOfMonth = (int) $tsTmp->format('t');
 
             // Loop while we don't have a match and we are still within the month
-            for ($i = (int)$day; $i<=(int)$lastDayOfMonth; $i++) {
+            for ($i = (int) $day; $i <= (int) $lastDayOfMonth; $i++) {
                 $dow = $tsTmp->format("w"); // get starting day of week - 0 for Sunday, 6 for Saturday
                 switch ($dow) {
                     case 0:
@@ -1141,11 +1143,11 @@ class RecurrencePattern implements ErrorAwareInterface
                 }
 
                 // 2nd Monday, 1st Tuesday etc...
-                $currentInstance = ceil((int)$tsTmp->format('j') / 7);
+                $currentInstance = ceil((int) $tsTmp->format('j') / 7);
                 // Last thursday etc...
                 $f_lastwkdayinmonth = $this->dateIsLastWkDayInMonth($tsTmp);
 
-                if ($this->dayOfWeekMask & $test && ($currentInstance==$this->instance || ($this->instance==5 && $f_lastwkdayinmonth))) {
+                if ($this->dayOfWeekMask & $test && ($currentInstance == $this->instance || ($this->instance == 5 && $f_lastwkdayinmonth))) {
                     $ret = $tsTmp;
                     break;
                 } else {
@@ -1157,12 +1159,12 @@ class RecurrencePattern implements ErrorAwareInterface
             if (!$ret) {
                 // Increment year and set to the beginning of the month
                 $tsCur->add(new \DateInterval('P' . $this->interval . 'Y'));
-                $tsCur->setDate((int)$tsCur->format("Y"), $this->monthOfYear, 1);
+                $tsCur->setDate((int) $tsCur->format("Y"), $this->monthOfYear, 1);
             }
 
             // Increment safty check to guard against infinite loops
             $loops++;
-        } while (!$ret && $loops<$maxloops);
+        } while (!$ret && $loops < $maxloops);
 
         // Check if we have gone beyond the bounds of this pattern (past dateEnd)
         if ($this->dateEnd) {
@@ -1252,16 +1254,16 @@ class RecurrencePattern implements ErrorAwareInterface
     private function dateIsLastWkDayInMonth(\DateTime $date)
     {
         $date_cur = $date->getTimestamp();
-        $month = (int)$date->format("m");
-        $year = (int)$date->format("Y");
+        $month = (int) $date->format("m");
+        $year = (int) $date->format("Y");
 
         if ($month == 12) {
-            $date_next = mktime(0, 0, 0, 1, 1, $year+1);
+            $date_next = mktime(0, 0, 0, 1, 1, $year + 1);
         } else {
-            $date_next = mktime(0, 0, 0, $month+1, 1, $year);
+            $date_next = mktime(0, 0, 0, $month + 1, 1, $year);
         }
 
-        $last = strtotime("last ".date('l', $date_cur), $date_next);
+        $last = strtotime("last " . date('l', $date_cur), $date_next);
 
         return ($date_cur == $last) ? true : false;
     }

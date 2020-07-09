@@ -1,14 +1,8 @@
 <?php
+
 /**
- * Geneic object sync class
- *
  * The main idea is that this class should return a list of entities
  * that have been added, changed or deleted since the last sync.
- *
- * @category Netric
- * @package EntitySync
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
 
 namespace Netric\EntitySync;
@@ -51,7 +45,7 @@ class EntitySync
      */
     public function __construct(DataMapperInterface $dm)
     {
-            $this->dataMapper = $dm;
+        $this->dataMapper = $dm;
     }
 
     /**
@@ -141,11 +135,11 @@ class EntitySync
      */
     public function updateGroupingStat($objType, $fieldName, $fieldVal, $action = 'c')
     {
-        $ret = array();
+        $ret = [];
         $field = $this->obj->def->getField($fieldName);
 
         if (!$field) {
-                return false;
+            return false;
         }
 
         // Get all collections that match the conditions

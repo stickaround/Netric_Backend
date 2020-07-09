@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\ServiceManager;
 
 use Netric\Application\Application;
@@ -13,7 +14,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      *
      * @var array
      */
-    protected $loadedServices = array();
+    protected $loadedServices = [];
 
     /**
      * Optional parent used to walk up a tree
@@ -191,8 +192,10 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     public function isLoaded($serviceName)
     {
-        if (isset($this->loadedServices[$serviceName])
-            && $this->loadedServices[$serviceName] != null) {
+        if (
+            isset($this->loadedServices[$serviceName])
+            && $this->loadedServices[$serviceName] != null
+        ) {
             return true;
         } else {
             return false;

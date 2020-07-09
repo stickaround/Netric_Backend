@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityGroupings\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
@@ -80,7 +81,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * @param EntityGroupings $groupings Groupings object to save
      * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
      */
-    public function saveGroupings(EntityGroupings $groupings) : array
+    public function saveGroupings(EntityGroupings $groupings): array
     {
         // Now save
         $def = $this->entityDefinitionLoader->get($groupings->getObjType());
@@ -92,16 +93,16 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         // Increment head commit for groupings which triggers all collections to sync
         $commitHeadIdent = "groupings/" . $groupings->path;
-        
+
         /*
          * Groupings are all saved as a single collection, but only updated
          * groupings will shre a new commit id.
          */
         $nextCommit = $this->commitManager->createCommit($commitHeadIdent);
-        
+
         // Now save
         $field = $def->getField($groupings->getFieldName());
-        $ret = array("deleted" => array(), "changed" => array());
+        $ret = array("deleted" => [], "changed" => []);
 
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
@@ -124,7 +125,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
             if ($this->saveGroup($def, $field, $grp, $groupings->getUserGuid())) {
                 $grp->setDirty(false);
-                
+
                 // Log here
                 $ret['changed'][$grp->id] = $lastCommitId;
             }
@@ -156,7 +157,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * @param string $path The path of the object groupings that we are going to query
      * @return EntityGroupings
      */
-    public function getGroupings(string $path) : EntityGroupings
+    public function getGroupings(string $path): EntityGroupings
     {
         $sql = "SELECT * FROM object_groupings WHERE path = :path ORDER BY sort_order, name LIMIT 10000";
         $result = $this->database->query($sql, ["path" => $path]);
@@ -165,7 +166,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         foreach ($result->fetchAll() as $row) {
             $group = new Group();
             $group->fromArray($row);
-            
+
             // Make sure the group is not marked as dirty
             $group->setDirty(false);
             $groupings->add($group);
@@ -189,7 +190,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         foreach ($result->fetchAll() as $row) {
             $group = new Group();
             $group->fromArray($row);
-            
+
             // Make sure the group is not marked as dirty
             $group->setDirty(false);
             $groupings->add($group);

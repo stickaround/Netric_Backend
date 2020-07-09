@@ -1,14 +1,16 @@
 <?php
+
 /**
  * Manage entity browser views
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\BrowserView;
 
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Settings\Settings;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric;
@@ -296,10 +298,10 @@ class BrowserViewService
                 if (is_numeric($key)) {
                     throw new \RuntimeException(
                         "BrowserViews must be defined with associative and unique keyname " .
-                        "but " . $basePath . "/browser_views/$objType.php does not follow that rule"
+                            "but " . $basePath . "/browser_views/$objType.php does not follow that rule"
                     );
                 }
-                
+
                 $view = new BrowserView();
                 $view->fromArray($systemViewData);
                 $view->setId($key); // For saving the default in user settings
@@ -313,7 +315,7 @@ class BrowserViewService
 
         return $views;
     }
-    
+
     /**
      * Save this view to the database
      *
@@ -330,7 +332,7 @@ class BrowserViewService
         }
 
         $viewId = $view->getId();
-        $data = $view->toArray();        
+        $data = $view->toArray();
         $saveViewData = [
             "name" => $data['name'],
             "description" => $data['description'],
@@ -520,7 +522,7 @@ class BrowserViewService
 
             // We need to check if we have an invalid uuid value, then we need to sanitize it
             if ($field && $field->isGroupingReference() && !Uuid::isValid($condValue)) {
-                
+
                 // Sanitize the value by loading the grouping data and get the value's guid
                 $groupings = $this->groupingLoader->get("$objType/$fieldName");
                 $group = $groupings->getByName($condValue);

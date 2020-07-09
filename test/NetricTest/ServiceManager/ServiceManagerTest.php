@@ -3,13 +3,14 @@
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
  */
+
 namespace NetricTest\ServiceManager;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\ServiceManager\Test\Service;
 use Netric\ServiceManager\Test\ServiceFactory;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Config\ConfigFactory;
 
@@ -26,7 +27,7 @@ class ServiceManagerTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Application\Schema;
 
 use Netric\Error\Error;
@@ -70,7 +71,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
         if (!$this->database->tableExists("settings")) {
             throw new \RuntimeException(
                 "Tried to set schma hash on a schema that does not " .
-                "have a settings table: " . $this->database->getNamespace()
+                    "have a settings table: " . $this->database->getNamespace()
             );
         }
 
@@ -140,7 +141,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
          * This is done because creating the table all at once is about 2x as fast as
          * creating an empty table and altering it to add each column.
          */
-        $createColumns = ($tableExists) ? false : array();
+        $createColumns = ($tableExists) ? false : [];
 
         // Loop through each column and either queue it to be added to a new table or alter existing
         foreach ($bucketDefinition['PROPERTIES'] as $columnName => $columnDefinition) {
@@ -157,7 +158,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
 
             // Does this table inherit?
             if (isset($bucketDefinition['INHERITS'])) {
-                $sql .= " INHERITS (".$bucketDefinition['INHERITS'].")";
+                $sql .= " INHERITS (" . $bucketDefinition['INHERITS'] . ")";
             }
 
             // Create the table
@@ -209,9 +210,11 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
             throw new \RuntimeException("Column name '$columnName' on table '$tableName' is too long.");
         }
 
-        if (!empty($columnDefinition["default"])
+        if (
+            !empty($columnDefinition["default"])
             && $columnDefinition["default"] === "auto_increment"
-            && strlen($columnName) > 61) {
+            && strlen($columnName) > 61
+        ) {
             throw new \RuntimeException("Auto increment column name '$columnName' on table '$tableName' is too long.");
         }
 
@@ -291,9 +294,11 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
     private function applyForeignKey($tableName, $keyDefinition)
     {
         // Make sure the definition is valid
-        if (empty($keyDefinition["property"])
+        if (
+            empty($keyDefinition["property"])
             || !empty($keyDefinition["references_bucket"])
-            || !empty($keyDefinition["references_property"])) {
+            || !empty($keyDefinition["references_property"])
+        ) {
             $this->errors[] = new Error("Key definition for $tableName is invalid" . var_export($keyDefinition, true));
             return false;
         }
@@ -318,39 +323,6 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
     }
 
     /**
-     * @deprecated We replaced this with new INDEXES settings seen in applyIndex
-     *
-     * Old index was in keys
-     *
-     * @param string $tableName
-     * @param string $foreignKeyName
-     * @param array $keyDefinition
-     * @return bool true on sucess, false on failure
-     */
-    private function applyIndexOld($tableName, $foreignKeyName, $keyDefinition)
-    {
-        // TODO: right now we don't do anything with keys
-        return true;
-
-        /*
-        // The first element of the definition should be an array of columns
-        if (!is_array($keyDefinition[1]))
-        {
-            $keyDefinition[1] = array($keyDefinition[1]);
-        }
-
-        if (strlen($tableName . $foreignKeyName) > 63)
-        {
-            throw new \RuntimeException("Key name '${$tableName}_$foreignKeyName' on table '$tableName' is too long");
-        }
-
-        $sql = ($keyDefinition[0] == 'UNIQUE') ?  'CREATE UNIQUE INDEX' : 'CREATE INDEX';
-        $sql .= " {$tableName}_{$foreignKeyName}_idx ON {$tableName} (" . implode(', ', $keyDefinition[1]) . ");";
-        return ($this->dbh->query($sql)) ? true : false;
-        */
-    }
-
-    /**
      * Add an index to the table
      *
      * @param string $tableName
@@ -370,7 +342,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
             return true;
         }
 
-        $sql = (isset($indexData['type']) && $indexData['type'] == 'UNIQUE') ?  'CREATE UNIQUE INDEX' : 'CREATE INDEX';
+        $sql = (isset($indexData['type']) && $indexData['type'] == 'UNIQUE') ? 'CREATE UNIQUE INDEX' : 'CREATE INDEX';
         $sql .= " {$tableName}_{$indexName}_idx ON {$tableName} (" . implode(', ', $indexData['properties']) . ");";
 
         return ($this->database->query($sql)) ? true : false;

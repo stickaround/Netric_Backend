@@ -1,5 +1,7 @@
 <?php
+
 namespace Netric\EntityDefinition;
+
 use Netric\Entity\ObjType\UserEntity;
 use PetstoreIO\User;
 
@@ -186,19 +188,19 @@ class Field implements \ArrayAccess
         }
 
         if (isset($data["required"])) {
-            $this->required = ($data["required"] === true || (string)$data["required"] == "true" || (string)$data["required"] == "t") ? true : false;
+            $this->required = ($data["required"] === true || (string) $data["required"] == "true" || (string) $data["required"] == "t") ? true : false;
         }
 
         if (isset($data["system"])) {
-            $this->system = ($data["system"] === true || (string)$data["system"] == "true" || (string)$data["system"] == "t") ? true : false;
+            $this->system = ($data["system"] === true || (string) $data["system"] == "true" || (string) $data["system"] == "t") ? true : false;
         }
 
         if (isset($data["readonly"])) {
-            $this->readonly = ($data["readonly"] === true || (string)$data["readonly"] == "true" || (string)$data["readonly"] == "t") ? true : false;
+            $this->readonly = ($data["readonly"] === true || (string) $data["readonly"] == "true" || (string) $data["readonly"] == "t") ? true : false;
         }
 
         if (isset($data["unique"])) {
-            $this->unique = ($data["unique"] === true || (string)$data["unique"] == "true" || (string)$data["unique"] == "t") ? true : false;
+            $this->unique = ($data["unique"] === true || (string) $data["unique"] == "true" || (string) $data["unique"] == "t") ? true : false;
         }
 
         if (isset($data["autocreate"])) {
@@ -251,7 +253,7 @@ class Field implements \ArrayAccess
             "unique" => $this->unique,
             "use_when" => $this->useWhen,
             "default" => $this->default,
-            "optional_values" => $this->optionalValues,            
+            "optional_values" => $this->optionalValues,
             "autocreate" => $this->autocreate,
             "autocreatename" => $this->autocreatename,
             "autocreatebase" => $this->autocreatebase,
@@ -330,11 +332,11 @@ class Field implements \ArrayAccess
             // Determin appropriate event and action
             switch ($on) {
                 case 'create':
-                    if ($event == "create" && !$value) {                    
+                    if ($event == "create" && !$value) {
                         $ret = $this->default['value'];
                     }
                     break;
-                // Fall through to also use update
+                    // Fall through to also use update
                 case 'update':
                     if ($event == "update") {
                         if (isset($this->default['coalesce']) && is_array($this->default['coalesce']) && $obj) {
@@ -384,7 +386,7 @@ class Field implements \ArrayAccess
 
         // Look for variables
         if (is_string($ret)) {
-            if ("<%username%>" == (string)$ret) {
+            if ("<%username%>" == (string) $ret) {
                 if ($user) {
                     $ret = $user->getValue('name');
                 } else {
@@ -392,7 +394,7 @@ class Field implements \ArrayAccess
                 }
             }
 
-            if ("<%userid%>" == (string)$ret) {
+            if ("<%userid%>" == (string) $ret) {
                 if ($user) {
                     $ret = $user->getId();
                 } else {

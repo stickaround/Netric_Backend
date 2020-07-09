@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Router handles loading a controller from a URL route
  */
@@ -7,7 +8,7 @@
 include(__DIR__ . "/../init_autoloader.php");
 
 use Netric\Application\Application;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 
 // Set headers to allow CORS since we are using /svr resources in multiple clients
 // @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server

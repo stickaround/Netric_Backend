@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\Stats\StatsPublisher;
@@ -17,7 +18,7 @@ class EntityLoader
      *
      * @var EntityInterface[]
      */
-    private $loadedEntities = array();
+    private $loadedEntities = [];
 
     /**
      * Store the single instance of the loader
@@ -90,7 +91,7 @@ class EntityLoader
 
         // If we have switched accounts then reload the cache
         if ($dm->getAccount()->getName() != self::$m_pInstance->dataMapper->getAccount()->getName()) {
-            self::$m_pInstance->loadedEntities = array();
+            self::$m_pInstance->loadedEntities = [];
             self::$m_pInstance->dataMapper = $dm;
             self::$m_pInstance->definitionLoader = $defLoader;
         }
@@ -145,7 +146,7 @@ class EntityLoader
         if (Uuid::isValid($id)) {
             return $this->getByGuid($id);
         }
-        
+
         if ($this->isLoaded($objType, $id)) {
             return $this->loadedEntities[$objType][$id];
         }
@@ -193,7 +194,7 @@ class EntityLoader
      * @param string $guid
      * @return EntityInterface|null
      */
-    public function getByGuid(string $guid): ? EntityInterface
+    public function getByGuid(string $guid): ?EntityInterface
     {
         if ($this->isLoaded('guid', $guid)) {
             return $this->loadedEntities['guid'][$guid];
@@ -288,7 +289,6 @@ class EntityLoader
         }
 
         return $ret;
-        
     }
 
     /**
@@ -325,7 +325,8 @@ class EntityLoader
      * 
      * @param string $guid The guid of an entity
      */
-    public function clearCacheByGuid(string $guid) {
+    public function clearCacheByGuid(string $guid)
+    {
         if ($guid) {
             $this->loadedEntities['guid'][$guid] = null;
             $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/guid/$guid");

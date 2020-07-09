@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityGroupings;
 
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
@@ -14,14 +15,14 @@ class EntityGroupings
      *
      * @var Group
      */
-    private $groups = array();
+    private $groups = [];
 
     /**
      * Removed groupings
      *
      * @param array
      */
-    private $deleted = array();
+    private $deleted = [];
 
     /**
      * Get object type
@@ -79,7 +80,7 @@ class EntityGroupings
         // If we have 3 parts of path, then we set it as our user guid
         if (isset($parts[2])) {
             $this->userGuid = $parts[2];
-            $path .= "/{$this->userGuid}" ;
+            $path .= "/{$this->userGuid}";
         }
     }
 
@@ -219,7 +220,7 @@ class EntityGroupings
      */
     public function toArray()
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($this->groups as $grp) {
             $ret[] = $grp->toArray();
@@ -236,7 +237,7 @@ class EntityGroupings
      */
     public function getHeirarch($parentId = null)
     {
-        $ret = array();
+        $ret = [];
         foreach ($this->groups as $grp) {
             if ($grp->parentId == $parentId) {
                 // If existing group, then get the children setting parent to group id
@@ -260,13 +261,13 @@ class EntityGroupings
     public function getChildren($parentId = null, &$ret = null)
     {
         if ($ret == null) {
-            $ret = array();
+            $ret = [];
         }
 
         foreach ($this->groups as $grp) {
             if ($grp->parentId == $parentId) {
                 $ret[] = $grp;
-                
+
                 // If existing group, then get the children setting parent to group id
                 if ($grp->id) {
                     $this->getChildren($grp->id, $ret);
@@ -294,7 +295,7 @@ class EntityGroupings
      */
     public function getChanged()
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($this->groups as $grp) {
             if ($grp->isDirty()) {
@@ -409,7 +410,7 @@ class EntityGroupings
      * 
      * Get unique filters hash
      */
-    public static function getFiltersHash($filters = array())
+    public static function getFiltersHash($filters = [])
     {
         // Make sure we have filters provided
         if ($filters) {

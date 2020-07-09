@@ -228,7 +228,7 @@ class AccountUpdater extends AbstractHasErrors
         $updatePath = $this->rootPath . "/always";
 
         // Get individual update scripts
-        $updates = array();
+        $updates = [];
         $dir = opendir($updatePath);
         if ($dir) {
             while ($file = readdir($dir)) {
@@ -266,7 +266,7 @@ class AccountUpdater extends AbstractHasErrors
         $updatePath = $this->rootPath . "/once";
 
         // Get major version directories
-        $majors = array();
+        $majors = [];
         $dir = opendir($updatePath);
         if ($dir) {
             while ($file = readdir($dir)) {
@@ -303,7 +303,7 @@ class AccountUpdater extends AbstractHasErrors
         $path = $base . "/" . $major;
 
         // Get major version directories
-        $minors = array();
+        $minors = [];
         $dir_handle = opendir($path);
         if ($dir_handle) {
             while ($file = readdir($dir_handle)) {
@@ -347,9 +347,9 @@ class AccountUpdater extends AbstractHasErrors
         $this->log->info("AccountUpdater:: Current version: " . json_encode($this->version));
         
         // Get individual update points
-        $updates = array();
-        $points = array();
-        $pointsVersion = array();
+        $updates = [];
+        $points = [];
+        $pointsVersion = [];
         $dir_handle = opendir($path);
         if ($dir_handle) {
             while ($file = readdir($dir_handle)) {

@@ -8,6 +8,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\EntitySync\Collection;
 
 use Netric\Entity;
@@ -72,7 +73,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
         }
 
         // Set return array
-        $retStats = array();
+        $retStats = [];
 
         // Get the current commit for this collection
         $lastCollectionCommit = $this->getLastCommitId();
@@ -81,7 +82,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
             if ($this->getId()) {
                 $imports = $this->dataMapper->getImported($this->getId());
             } else {
-                $imports = array();
+                $imports = [];
             }
 
             // Get groupings
@@ -97,8 +98,10 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
                     // First make sure we didn't just import this
                     $skipStat = false;
                     foreach ($imports as $imported) {
-                        if ($imported['local_id'] == $grp->id
-                            && $imported['local_revision'] == $grp->commitId) {
+                        if (
+                            $imported['local_id'] == $grp->id
+                            && $imported['local_revision'] == $grp->commitId
+                        ) {
                             // Skip over this export because we just imported it
                             $skipStat = true;
                             break;
@@ -172,7 +175,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      */
     private function getFiltersFromConditions()
     {
-        $filters = array();
+        $filters = [];
         $conditions = $this->getConditions();
         foreach ($conditions as $cond) {
             if ($cond['blogic'] == 'and' && $cond['operator'] == 'id_equal') {

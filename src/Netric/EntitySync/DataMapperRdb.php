@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Relational database datamapper for synchronization library
  */
@@ -374,7 +375,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             throw new \Exception("A valid $collectionId is a required param.");
         }
 
-        $staleStats = array();
+        $staleStats = [];
 
         // Get everything from the exported log that is set as stale
         $sql = "SELECT unique_id FROM object_sync_export 
@@ -404,7 +405,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             throw new \InvalidArgumentException("A valid $collectionId is a required param.");
         }
 
-        $importedStats = array();
+        $importedStats = [];
 
         // Get everything from the exported log that is set as stale
         $sql = "SELECT unique_id, remote_revision, object_id, revision FROM object_sync_import
@@ -433,9 +434,13 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param int $localRevision The revision of the local object
      * @return bool true if imported false if failure
      */
-    public function logImported(int $collectionId, string $remoteId, int $remoteRevision = null,
-                                int $localId = null, int $localRevision = null)
-    {
+    public function logImported(
+        int $collectionId,
+        string $remoteId,
+        int $remoteRevision = null,
+        int $localId = null,
+        int $localRevision = null
+    ) {
         if (!$remoteId) {
             throw new \InvalidArgumentException("remoteId was not set and is required.");
         }

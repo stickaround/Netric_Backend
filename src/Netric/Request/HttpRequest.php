@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Http Request
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015-2017 Aereus
  */
+
 namespace Netric\Request;
 
 class HttpRequest implements RequestInterface
@@ -21,7 +23,7 @@ class HttpRequest implements RequestInterface
      *
      * @var array
      */
-    private $params = array();
+    private $params = [];
 
     /**
      * Request method
@@ -64,7 +66,7 @@ class HttpRequest implements RequestInterface
         }
 
         // Add uploaded files
-        $this->params['files'] = (isset($_FILES) && count($_FILES)) ? $_FILES : array();
+        $this->params['files'] = (isset($_FILES) && count($_FILES)) ? $_FILES : [];
 
         // Combine all sources of request data
         $this->httpStores = array(
@@ -110,7 +112,7 @@ class HttpRequest implements RequestInterface
      */
     public function getParams()
     {
-        $ret = array();
+        $ret = [];
 
         // Check through any http request objects
         foreach ($this->httpStores as $httpStore) {

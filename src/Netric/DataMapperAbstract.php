@@ -7,6 +7,7 @@
  * @author      Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright   Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric;
 
 use Netric\Error;
@@ -26,7 +27,7 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
      *
      * @var array(array('message','file','line'))
      */
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * Get account

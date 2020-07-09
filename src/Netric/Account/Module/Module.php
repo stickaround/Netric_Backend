@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Account\Module;
 
 use SimpleXMLElement;
@@ -273,8 +275,7 @@ class Module
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
-        ;
+        $this->userId = $userId;;
     }
 
     /**
@@ -547,7 +548,7 @@ class Module
             return array_values(json_decode($json, true));
         }
 
-        return array();
+        return [];
     }
 
     /**

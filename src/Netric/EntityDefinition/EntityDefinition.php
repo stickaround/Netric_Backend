@@ -21,7 +21,7 @@ class EntityDefinition
      *
      * @var Field[]
      */
-    private $fields = array();
+    private $fields = [];
 
     /**
      * The object type name for this definiton
@@ -88,7 +88,7 @@ class EntityDefinition
      *
      * @var EntityCollection_View[]
      */
-    public $collectionViews = array();
+    public $collectionViews = [];
 
     /**
      * Unique name settings string
@@ -118,7 +118,7 @@ class EntityDefinition
      *
      * @var array('desktop', 'mobile', 'infobox', 'small', 'medium', 'large', 'xlarge')
      */
-    private $forms = array();
+    private $forms = [];
 
     /**
      * Is this a private object type where only the owner gets acces
@@ -139,7 +139,7 @@ class EntityDefinition
      *
      * @var array
      */
-    public $aggregates = array();
+    public $aggregates = [];
 
     /**
      * Define a field reference to inherit permissions from if set like cases and projects
@@ -327,7 +327,7 @@ class EntityDefinition
             return $this->fields;
         }
 
-        $fields = array();
+        $fields = [];
         foreach ($this->fields as $fname => $field) {
             if ($field) {
                 $fields[$fname] = $field;
@@ -421,8 +421,8 @@ class EntityDefinition
             "system" => $this->system,
             "system_definition_hash" => $this->systemDefinitionHash,
             "application_id" => $this->applicationId,
-            "fields" => array(),
-            "aggregates" => array(),
+            "fields" => [],
+            "aggregates" => [],
             "dacl" => '',
             "store_revisions" => $this->storeRevisions,
             "parent_field" => $this->parentField,
@@ -437,7 +437,7 @@ class EntityDefinition
         }
 
         $views = $this->getViews();
-        $ret['views'] = array();
+        $ret['views'] = [];
         foreach ($views as $view) {
             $ret['views'][] = $view->toArray();
         }

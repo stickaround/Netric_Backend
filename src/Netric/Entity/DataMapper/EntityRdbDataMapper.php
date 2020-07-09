@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity\DataMapper;
 
 use DateTime;
@@ -96,7 +97,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     {
         $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-     
+
         $entity->resetIsDirty();
         $fields = $entity->getDefinition()->getFields();
         foreach ($fields as $field) {
@@ -106,7 +107,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_GROUPING_MULTI:
                     $fieldValue = $entity->getValue($field->name);
                     $ownerGuid = $entity->getOwnerGuid();
-                    
+
                     // If the entity's owner id not guid, then we need to get its guid value
                     if ($ownerGuid && !Uuid::isValid($ownerGuid)) {
 
@@ -135,10 +136,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                         // Make sure that we have fieldValue and it is an array
                         if ($fieldValue && is_array($fieldValue)) {
-                            
+
                             // Loop thru the fieldValue and look for referenced group that still have id
-                            forEach($fieldValue as $value) {
-                                
+                            foreach ($fieldValue as $value) {
+
                                 if (!$value) {
                                     continue;
                                 }
@@ -163,7 +164,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                         }
                     } else if ($fieldValue && !Uuid::isValid($fieldValue) && $fieldValue) {
                         // Here we will handle the grouping field and make sure that the fieldValue is still not a guid
-                        
+
                         // Look first in public groupings and see if the group id exists.
                         $group = $publicGroupings->getByGuidOrGroupId($fieldValue);
 
@@ -177,7 +178,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                             $entity->setValue($field->name, $group->guid, $group->name);
                         }
                     }
-                break;
+                    break;
 
                 case Field::TYPE_OBJECT:
                     $objValue = $entity->getValue($field->name);
@@ -195,14 +196,14 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                             $entity->setValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
                         }
                     }
-                break;
+                    break;
 
                 case Field::TYPE_OBJECT_MULTI:
                     $refValues = $entity->getValue($field->name);
 
                     // Make sure the the multi value is an array
                     if (is_array($refValues)) {
-                        forEach($refValues as $value) {
+                        foreach ($refValues as $value) {
 
                             // If this entity is trying to add itself as object reference, then we will not allow it.
                             if ($entity->getObjRef() == $value || ($entity->getId() == $value && $entity->getObjType() == $field->subtype)) {
@@ -222,10 +223,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                                     $entity->addMultiValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
                                 }
                             }
-                            
                         }
                     }
-                break;
+                    break;
             }
         }
 
@@ -241,7 +241,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @param string $guid
      * @return array|null
      */
-    protected function fetchDataByGuid(string $guid):? array
+    protected function fetchDataByGuid(string $guid): ?array
     {
         $sql = "SELECT guid, field_data FROM objects where guid = :guid";
         $result = $this->database->query($sql, ['guid' => $guid]);
@@ -424,9 +424,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         //       business logic, or better yet - delete it if we can retire autocreatename
         //       in exchange for using the more generic attachments field that every entity has
         foreach ($all_fields as $fname => $fdef) {
-            if ($fdef->type == "object" && $fdef->subtype == "folder"
+            if (
+                $fdef->type == "object" && $fdef->subtype == "folder"
                 && $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
-                && !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)) {
+                && !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)
+            ) {
                 // Make a folder for the entity
                 $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
 
@@ -454,12 +456,14 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @param $targetTable Table that we will be using to update the entity (deleted or active partition)
      * @param $entity The entity that will be updated
      */
-    private function updateEntityData(string $targetTable, Entity $entity) {
+    private function updateEntityData(string $targetTable, Entity $entity)
+    {
         $sql = "UPDATE $targetTable SET field_data = :field_data, f_deleted = :f_deleted WHERE guid = :guid";
         $this->database->query($sql, [
-            "field_data" => json_encode($entity->toArray()), 
+            "field_data" => json_encode($entity->toArray()),
             "f_deleted" => $entity->getValue('f_deleted'),
-            "guid" => $entity->getValue('guid')]);
+            "guid" => $entity->getValue('guid')
+        ]);
     }
 
     /**
@@ -470,7 +474,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     private function getDataToInsertFromEntity(EntityInterface $entity)
     {
-        $ret = array();
+        $ret = [];
         $all_fields = $entity->getDefinition()->getFields();
 
         foreach ($all_fields as $fname => $fdef) {
@@ -508,7 +512,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case 'numeric':
                     if (is_numeric($val)) {
                         if ($fdef->subtype == "integer" && $val) {
-                            $ret[$fname] = (int)$val;
+                            $ret[$fname] = (int) $val;
                         } else {
                             $ret[$fname] = $val;
                         }
@@ -551,7 +555,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     if (Uuid::isValid($val)) {
                         continue;
                     }
-                    
+
                     $ret[$fname] = $val ? $val : null;
                     break;
                 case 'object':
@@ -568,8 +572,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             }
 
             // Set fval cache so we do not have to do crazy joins across tables
-            if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
-                $fdef->type == "object" || $fdef->type == "object_multi") {
+            if (
+                $fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
+                $fdef->type == "object" || $fdef->type == "object_multi"
+            ) {
                 // Get the value names (if set) and save
                 $fvals = $entity->getValueNames($fname);
                 if (!is_array($fvals)) {
@@ -687,7 +693,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $newFieldValue = $toEntity->getGuid();
                 }
 
-                
+
 
                 // Only continue if the field met one of the conditions above
                 if (!$oldFieldValue || !$newFieldValue) {
@@ -763,7 +769,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             return null;
         }
 
-        $ret = array();
+        $ret = [];
 
         $results = $this->database->query(
             'SELECT id, revision, data FROM object_revisions ' .

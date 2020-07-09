@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest;
 
 // Get application autoloader
@@ -6,7 +7,7 @@ include(__DIR__ . "/../init_autoloader.php");
 
 use Zend\Loader\StandardAutoloader;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 use Netric\Application\Application;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -60,7 +61,7 @@ class Bootstrap
 
     protected static function initAutoloader()
     {
-            
+
         $autoLoader = new StandardAutoloader(array(
             'namespaces' => array(
                 __NAMESPACE__ => __DIR__ . '/' . __NAMESPACE__,
@@ -68,7 +69,6 @@ class Bootstrap
             'fallback_autoloader' => true,
         ));
         $autoLoader->register();
-
     }
 
     protected static function findParentPath($path)

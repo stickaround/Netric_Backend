@@ -5,149 +5,149 @@ use Netric\Entity\ObjType\TaskEntity;
 /**
  * Default groupings for entities
  *
- * These values will be added if and only if there are no (0) groupings for the
+ * These values will be added if and only if there are no (0] groupings for the
  * field. This allows an administrator to completely change their groupings without
  * it being overwritten with each update.
  */
-return array(
-    'task' => array(
-        'status_id' => array(
-            array("name" => TaskEntity::STATUS_TODO, "sort_oder" => 1, "color" => "2A4BD7"),
-            array("name" => TaskEntity::STATUS_IN_PROGRESS, "sort_oder" => 2, "color" => "FF9233"),
-            array("name" => TaskEntity::STATUS_COMPLETED, "sort_oder" => 3, "color" => "1D6914"),
-            array("name" => TaskEntity::STATUS_IN_TEST, "sort_oder" => 4, "color" => "FFEE33"),
-            array("name" => TaskEntity::STATUS_IN_REVIEW, "sort_oder" => 5, "color" => "575757"),
-        ),
-        'priority_id' => array(
-            array("name" => TaskEntity::PRIORITY_LOW, "sort_oder" => 1, "color" => "1D6914"),
-            array("name" => TaskEntity::PRIORITY_MEDIUM, "sort_oder" => 2, "color" => "575757"),
-            array("name" => TaskEntity::PRIORITY_HIGH, "sort_oder" => 3, "color" => "AD2323"),
-        ),
-        'type_id' => array(
-            array("name" => TaskEntity::TYPE_ENHANCEMENT, "color" => "1D6914"),
-            array("name" => TaskEntity::TYPE_DEFECT, "color" => "AD2323"),
-        )
-    ),
-    'marketing_campaign' => array(
-        'type_id' => array(
-            array("name" => "Email", "color" => "2A4BD7"),
-            array("name" => "Advertisement", "color" => "575757"),
-            array("name" => "Telephone", "color" => "FF9233"),
-            array("name" => "Banner Ads", "color" => "FFEE33"),
-            array("name" => "Public Relations", "color" => "1D6914"),
-            array("name" => "Partners", "color" => "AD2323"),
-            array("name" => "Resellers", "color" => "A0A0A0"),
-            array("name" => "Referral Program", "color" => "814A19"),
-            array("name" => "Direct Mail", "color" => "8126C0"),
-            array("name" => "Trade Show", "color" => "9DAFFF"),
-            array("name" => "Conference", "color" => "E9DEBB"),
-            array("name" => "Other", "color" => "29D0D0"),
+return [
+    'task' => [
+        'status_id' => [
+            ["name" => TaskEntity::STATUS_TODO, "sort_oder" => 1, "color" => "2A4BD7"],
+            ["name" => TaskEntity::STATUS_IN_PROGRESS, "sort_oder" => 2, "color" => "FF9233"],
+            ["name" => TaskEntity::STATUS_COMPLETED, "sort_oder" => 3, "color" => "1D6914"],
+            ["name" => TaskEntity::STATUS_IN_TEST, "sort_oder" => 4, "color" => "FFEE33"],
+            ["name" => TaskEntity::STATUS_IN_REVIEW, "sort_oder" => 5, "color" => "575757"],
+        ],
+        'priority_id' => [
+            ["name" => TaskEntity::PRIORITY_LOW, "sort_oder" => 1, "color" => "1D6914"],
+            ["name" => TaskEntity::PRIORITY_MEDIUM, "sort_oder" => 2, "color" => "575757"],
+            ["name" => TaskEntity::PRIORITY_HIGH, "sort_oder" => 3, "color" => "AD2323"],
+        ],
+        'type_id' => [
+            ["name" => TaskEntity::TYPE_ENHANCEMENT, "color" => "1D6914"],
+            ["name" => TaskEntity::TYPE_DEFECT, "color" => "AD2323"],
+        ]
+    ],
+    'marketing_campaign' => [
+        'type_id' => [
+            ["name" => "Email", "color" => "2A4BD7"],
+            ["name" => "Advertisement", "color" => "575757"],
+            ["name" => "Telephone", "color" => "FF9233"],
+            ["name" => "Banner Ads", "color" => "FFEE33"],
+            ["name" => "Public Relations", "color" => "1D6914"],
+            ["name" => "Partners", "color" => "AD2323"],
+            ["name" => "Resellers", "color" => "A0A0A0"],
+            ["name" => "Referral Program", "color" => "814A19"],
+            ["name" => "Direct Mail", "color" => "8126C0"],
+            ["name" => "Trade Show", "color" => "9DAFFF"],
+            ["name" => "Conference", "color" => "E9DEBB"],
+            ["name" => "Other", "color" => "29D0D0"],
 
-        ),
-        'status_id' => array(
-            array("name" => "Planning", "sort_oder" => 1, "color" => "2A4BD7"),
-            array("name" => "Active", "sort_oder" => 2, "color" => "575757"),
-            array("name" => "Inactive", "sort_oder" => 3, "color" => "FF9233"),
-            array("name" => "Complete", "sort_oder" => 4, "color" => "FFEE33"),
-        ),
-    ),
-    'content_feed_post' => array(
-        'status_id' => array(
-            array("name" => "Draft", "color" => "2A4BD7"),
-            array("name" => "Awaiting Review", "color" => "575757"),
-            array("name" => "Rejected", "color" => "FF9233"),
-            array("name" => "Published", "color" => "FFEE33"),
-        ),
-    ),
-    'cms_page' => array(
-        'status_id' => array(
-            array("name" => "Draft", "color" => "2A4BD7"),
-            array("name" => "Awaiting Review", "color" => "575757"),
-            array("name" => "Rejected", "color" => "FF9233"),
-            array("name" => "Published", "color" => "FFEE33"),
-        ),
-    ),
-    'activity' => array(
-        'type_id' => array(
-            array("name" => "Phone Call", "color" => "2A4BD7"),
-            array("name" => "Status Update", "color" => "575757"),
-        ),
-    ),
-    'phone_call' => array(
-        'purpose_id' => array(
-            array("name" => "Prospecting", "color" => "2A4BD7"),
-            array("name" => "Administrative", "color" => "FF9233"),
-            array("name" => "Negotiation", "color" => "1D6914"),
-            array("name" => "Demo", "color" => "AD2323"),
-            array("name" => "Project", "color" => "1D6914"),
-            array("name" => "Support", "color" => "AD2323"),
-        ),
-    ),
-    'lead' => array(
-        'status_id' => array(
-            array("name" => "New: Not Contacted", "color" => "2A4BD7"),
-            array("name" => "New: Pre Qualified", "color" => "9DAFFF"),
-            array("name" => "Working: Attempted to Contact", "color" => "575757"),
-            array("name" => "Working: Contacted", "color" => "FF9233"),
-            array("name" => "Working: Contact Later", "color" => "FFEE33"),
-            array("name" => "Closed: Converted", "color" => "1D6914"),
-            array("name" => "Closed: Lost", "color" => "AD2323"),
-            array("name" => "Closed: Junk", "color" => "29D0D0"),
-        ),
-        'rating_id' => array(
-            array("name" => "Hot", "color" => "2A4BD7"),
-            array("name" => "Medium", "color" => "575757"),
-            array("name" => "Cold", "color" => "FF9233"),
-        ),
-        'source_id' => array(
-            array("name" => "Advertisement", "color" => "2A4BD7"),
-            array("name" => "Cold Call", "color" => "575757"),
-            array("name" => "Employee Referral", "color" => "FF9233"),
-            array("name" => "External Referral", "color" => "FFEE33"),
-            array("name" => "Website", "color" => "1D6914"),
-            array("name" => "Partner", "color" => "AD2323"),
-            array("name" => "Email", "color" => "A0A0A0"),
-            array("name" => "Web Research", "color" => "814A19"),
-            array("name" => "Direct Mail", "color" => "8126C0"),
-            array("name" => "Trade Show", "color" => "9DAFFF"),
-            array("name" => "Conference", "color" => "E9DEBB"),
-            array("name" => "Other", "color" => "29D0D0"),
-        ),
-    ),
-    'opportunity' => array(
-        'stage_id' => array(
-            array("name" => "Qualification", "color" => "2A4BD7"),
-            array("name" => "Needs Analysis", "color" => "575757"),
-            array("name" => "Value Proposition", "color" => "FF9233"),
-            array("name" => "Id. Decision Makers", "color" => "FFEE33"),
-            array("name" => "Proposal/Price Quote", "color" => "1D6914"),
-            array("name" => "Negotiation/Review", "color" => "AD2323"),
-            array("name" => "Closed: Won", "color" => "A0A0A0"),
-            array("name" => "Closed: Lost", "color" => "814A19"),
-        ),
-        'type_id' => array(
-            array("name" => "New Business", "color" => "2A4BD7"),
-            array("name" => "Existing Business", "color" => "575757"),
-        ),
-        'objection_id' => array(
-            array("name" => "Not Interested / Don't need it", "color" => "2A4BD7"),
-            array("name" => "Already Working with Someone", "color" => "575757"),
-            array("name" => "Trouble Getting Approved", "color" => "FF9233"),
-            array("name" => "Price Too High", "color" => "FFEE33"),
-            array("name" => "Troubling Reputation", "color" => "1D6914"),
-            array("name" => "Never Heard of Us", "color" => "AD2323"),
-            array("name" => "Had Problems in the Past", "color" => "A0A0A0"),
-            array("name" => "Too Confusing/Complex", "color" => "814A19"),
-            array("name" => "Not a Good Fit", "color" => "8126C0"),
-        ),
-        'selling_point_id' => array(
-            array("name" => "Price", "color" => "2A4BD7"),
+        ],
+        'status_id' => [
+            ["name" => "Planning", "sort_oder" => 1, "color" => "2A4BD7"],
+            ["name" => "Active", "sort_oder" => 2, "color" => "575757"],
+            ["name" => "Inactive", "sort_oder" => 3, "color" => "FF9233"],
+            ["name" => "Complete", "sort_oder" => 4, "color" => "FFEE33"],
+        ],
+    ],
+    'content_feed_post' => [
+        'status_id' => [
+            ["name" => "Draft", "color" => "2A4BD7"],
+            ["name" => "Awaiting Review", "color" => "575757"],
+            ["name" => "Rejected", "color" => "FF9233"],
+            ["name" => "Published", "color" => "FFEE33"],
+        ],
+    ],
+    'cms_page' => [
+        'status_id' => [
+            ["name" => "Draft", "color" => "2A4BD7"],
+            ["name" => "Awaiting Review", "color" => "575757"],
+            ["name" => "Rejected", "color" => "FF9233"],
+            ["name" => "Published", "color" => "FFEE33"],
+        ],
+    ],
+    'activity' => [
+        'type_id' => [
+            ["name" => "Phone Call", "color" => "2A4BD7"],
+            ["name" => "Status Update", "color" => "575757"],
+        ],
+    ],
+    'phone_call' => [
+        'purpose_id' => [
+            ["name" => "Prospecting", "color" => "2A4BD7"],
+            ["name" => "Administrative", "color" => "FF9233"],
+            ["name" => "Negotiation", "color" => "1D6914"],
+            ["name" => "Demo", "color" => "AD2323"],
+            ["name" => "Project", "color" => "1D6914"],
+            ["name" => "Support", "color" => "AD2323"],
+        ],
+    ],
+    'lead' => [
+        'status_id' => [
+            ["name" => "New: Not Contacted", "color" => "2A4BD7"],
+            ["name" => "New: Pre Qualified", "color" => "9DAFFF"],
+            ["name" => "Working: Attempted to Contact", "color" => "575757"],
+            ["name" => "Working: Contacted", "color" => "FF9233"],
+            ["name" => "Working: Contact Later", "color" => "FFEE33"],
+            ["name" => "Closed: Converted", "color" => "1D6914"],
+            ["name" => "Closed: Lost", "color" => "AD2323"],
+            ["name" => "Closed: Junk", "color" => "29D0D0"],
+        ],
+        'rating_id' => [
+            ["name" => "Hot", "color" => "2A4BD7"],
+            ["name" => "Medium", "color" => "575757"],
+            ["name" => "Cold", "color" => "FF9233"],
+        ],
+        'source_id' => [
+            ["name" => "Advertisement", "color" => "2A4BD7"],
+            ["name" => "Cold Call", "color" => "575757"],
+            ["name" => "Employee Referral", "color" => "FF9233"],
+            ["name" => "External Referral", "color" => "FFEE33"],
+            ["name" => "Website", "color" => "1D6914"],
+            ["name" => "Partner", "color" => "AD2323"],
+            ["name" => "Email", "color" => "A0A0A0"],
+            ["name" => "Web Research", "color" => "814A19"],
+            ["name" => "Direct Mail", "color" => "8126C0"],
+            ["name" => "Trade Show", "color" => "9DAFFF"],
+            ["name" => "Conference", "color" => "E9DEBB"],
+            ["name" => "Other", "color" => "29D0D0"],
+        ],
+    ],
+    'opportunity' => [
+        'stage_id' => [
+            ["name" => "Qualification", "color" => "2A4BD7"],
+            ["name" => "Needs Analysis", "color" => "575757"],
+            ["name" => "Value Proposition", "color" => "FF9233"],
+            ["name" => "Id. Decision Makers", "color" => "FFEE33"],
+            ["name" => "Proposal/Price Quote", "color" => "1D6914"],
+            ["name" => "Negotiation/Review", "color" => "AD2323"],
+            ["name" => "Closed: Won", "color" => "A0A0A0"],
+            ["name" => "Closed: Lost", "color" => "814A19"],
+        ],
+        'type_id' => [
+            ["name" => "New Business", "color" => "2A4BD7"],
+            ["name" => "Existing Business", "color" => "575757"],
+        ],
+        'objection_id' => [
+            ["name" => "Not Interested / Don't need it", "color" => "2A4BD7"],
+            ["name" => "Already Working with Someone", "color" => "575757"],
+            ["name" => "Trouble Getting Approved", "color" => "FF9233"],
+            ["name" => "Price Too High", "color" => "FFEE33"],
+            ["name" => "Troubling Reputation", "color" => "1D6914"],
+            ["name" => "Never Heard of Us", "color" => "AD2323"],
+            ["name" => "Had Problems in the Past", "color" => "A0A0A0"],
+            ["name" => "Too Confusing/Complex", "color" => "814A19"],
+            ["name" => "Not a Good Fit", "color" => "8126C0"],
+        ],
+        'selling_point_id' => [
+            ["name" => "Price", "color" => "2A4BD7"],
 
-            array("name" => "Features", "color" => "575757"),
-            array("name" => "Good Reputation", "color" => "FF9233"),
-            array("name" => "Support", "color" => "FFEE33"),
-            array("name" => "Simplicity", "color" => "1D6914"),
-            array("name" => "Good Experience", "color" => "AD2323"),
-        ),
-    ),
-);
+            ["name" => "Features", "color" => "575757"],
+            ["name" => "Good Reputation", "color" => "FF9233"],
+            ["name" => "Support", "color" => "FFEE33"],
+            ["name" => "Simplicity", "color" => "1D6914"],
+            ["name" => "Good Experience", "color" => "AD2323"],
+        ],
+    ],
+];

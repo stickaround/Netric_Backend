@@ -64,7 +64,7 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $ret['account'] = $this->getApplication()->getAccount()->getName();
 
         // Set results
-        $entities = array();
+        $entities = [];
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 

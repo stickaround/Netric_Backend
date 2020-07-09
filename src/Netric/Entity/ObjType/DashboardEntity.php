@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dashboard entity extension
  *

@@ -31,7 +31,7 @@ class Entity implements EntityInterface
      *
      * @var array
      */
-    protected $values = array();
+    protected $values = [];
 
     /**
      * Set object type
@@ -45,7 +45,7 @@ class Entity implements EntityInterface
      *
      * @var array
      */
-    protected $fkeysValues = array();
+    protected $fkeysValues = [];
 
     /**
      * Object type definition
@@ -59,7 +59,7 @@ class Entity implements EntityInterface
      *
      * @var array
      */
-    private $changelog = array();
+    private $changelog = [];
 
     /**
      * Recurrence pattern if this entity is part of a series
@@ -204,7 +204,7 @@ class Entity implements EntityInterface
         if (isset($this->fkeysValues[$strName])) {
             // Only return value name data for peoperites in $values
             if (is_array($values)) {
-                $ret = array();
+                $ret = [];
                 foreach ($values as $val) {
                     if (isset($this->fkeysValues[$strName][$val])) {
                         $ret[$val] = $this->fkeysValues[$strName][$val];
@@ -216,7 +216,7 @@ class Entity implements EntityInterface
             }
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -294,7 +294,7 @@ class Entity implements EntityInterface
         $oldvalName = $this->getValueNames($strName);
 
         if (!isset($this->values[$strName]) || $this->values[$strName] == '') {
-            $this->values[$strName] = array();
+            $this->values[$strName] = [];
         }
 
         $fieldMultiValues = $this->values[$strName];
@@ -500,7 +500,7 @@ class Entity implements EntityInterface
         foreach ($fields as $field) {
             $fname = $field->name;
             $value = (isset($data[$fname])) ? $data[$fname] : "";
-            $valNames = array();
+            $valNames = [];
 
             /*
              * If $onlyProvidedFields is set to true, we need to check first if field key exists in $data array
@@ -603,7 +603,7 @@ class Entity implements EntityInterface
 
             $valueNames = $this->getValueNames($fname);
             if ($valueNames) {
-                $data[$fname . "_fval"] = array();
+                $data[$fname . "_fval"] = [];
 
                 // Send the value name for each id
                 if (is_array($val)) {
@@ -765,7 +765,7 @@ class Entity implements EntityInterface
      */
     public function resetIsDirty()
     {
-        $this->changelog = array();
+        $this->changelog = [];
     }
 
     /**
@@ -1006,9 +1006,9 @@ class Entity implements EntityInterface
      */
     public static function getTaggedObjRef($text)
     {
-        $taggedReferences = array();
+        $taggedReferences = [];
 
-        $matches = array();
+        $matches = [];
         // Extract all [<obj_type>:<id>:<name>] tags from string
         preg_match_all('/\[([a-z_]+)\:(.*?)\:(.*?)\]/u', $text, $matches);
 

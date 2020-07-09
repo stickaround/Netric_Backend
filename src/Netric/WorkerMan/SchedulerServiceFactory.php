@@ -1,9 +1,10 @@
 <?php
+
 namespace Netric\WorkerMan;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 

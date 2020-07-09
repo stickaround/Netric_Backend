@@ -1,8 +1,9 @@
 <?php
+
 namespace Netric\Log\Writer;
 
 use Netric\Log\LogMessage;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Gelf\Transport\UdpTransport as GelfUdpTransport;
 use Gelf\Publisher as GelfPublisher;
 use Gelf\Message as GelfMessage;
@@ -27,12 +28,21 @@ class GelfLogWriter implements LogWriterInterface
     private $numMessageWritten = 0;
 
     /**
+     * Gelf configuration
+     *
+     * @var Config
+     */
+    private $config = [];
+
+    /**
      * Construct a new greylog writer
      *
      * @param Config $logConfig
      */
     public function __construct(Config $logConfig)
     {
+        $this->config = $logConfig;
+
         // We need a transport - default to UDP
         $transport = new GelfUdpTransport($logConfig->server, 12201);
 
@@ -71,7 +81,10 @@ class GelfLogWriter implements LogWriterInterface
         $message->setAdditional('request_route', $logMessage->getRequestPath());
         $message->setAdditional('request_id', $logMessage->getRequestId());
 
-        $this->gelfPublisher->publish($message);
+        if (!$this->config->skipPublish) {
+            $this->gelfPublisher->publish($message);
+        }
+
         $this->numMessageWritten++;
     }
 

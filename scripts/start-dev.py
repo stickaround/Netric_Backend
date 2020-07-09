@@ -17,12 +17,12 @@ else:
 
 print("IP" + os.environ["HOST_IP"])
 # Change to docker directory
-os.chdir("../docker")
+os.chdir("..")
 
 # Cause a rebuild
 #subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "build"])
 
 # Run docker compose daemon
-subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "up"])
+subprocess.call(["docker-compose", "-f", "docker-compose.yml", "up"])
 
 print("Done. The netric service is now running. To use the UI, clone netric.client.web and follow the instructions in the README.")

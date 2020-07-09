@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Activity entity extension
  *
@@ -51,13 +52,15 @@ class ActivityEntity extends Entity implements EntityInterface
         }
 
         // Make sure the required data is set
-        if (empty($this->getValue("subject")) ||
-            empty($this->getValue("verb"))) {
+        if (
+            empty($this->getValue("subject")) ||
+            empty($this->getValue("verb"))
+        ) {
             throw new \InvalidArgumentException(
                 "subject and verb are required: " .
-                $this->getValue("subject") . "," .
-                $this->getValue("verb") . "," .
-                var_export($this->toArray(), true)
+                    $this->getValue("subject") . "," .
+                    $this->getValue("verb") . "," .
+                    var_export($this->toArray(), true)
             );
         }
     }

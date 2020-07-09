@@ -1,9 +1,10 @@
 <?php
+
 namespace NetricTest\WorkerMan;
 
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Config\ConfigFactory;
 
 class ConfigFactoryTest extends TestCase

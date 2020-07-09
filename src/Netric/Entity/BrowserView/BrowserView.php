@@ -1,10 +1,12 @@
 <?php
+
 /**
  * A saved (or defined by file) view for an entity browser
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\BrowserView;
 
 use Netric\EntityQuery;
@@ -56,7 +58,7 @@ class BrowserView
      *
      * @var array
      */
-    private $tableColumns = array();
+    private $tableColumns = [];
 
     /**
      * TODO: document or remove if we no longer need it
@@ -84,14 +86,14 @@ class BrowserView
      *
      * @var EntityQuery\OrderBy[]
      */
-    private $orderBy = array();
+    private $orderBy = [];
 
     /**
      * Array of where conditions
      *
      * @var EntityQuery\Where[]
      */
-    private $wheres = array();
+    private $wheres = [];
 
     /**
      * The type of object this view is describing
@@ -123,9 +125,9 @@ class BrowserView
             "owner_id" => $this->ownerId,
             "team_id" => $this->teamId,
             "obj_type" => $this->objType,
-            "table_columns" => array(),
-            "conditions" => array(),
-            "order_by" => array(),
+            "table_columns" => [],
+            "conditions" => [],
+            "order_by" => [],
             "group_first_order_by" => $this->groupFirstOrderBy
         );
 

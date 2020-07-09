@@ -1,9 +1,10 @@
 <?php
+
 namespace NetricTest\Application;
 
 use Netric\Application\DataMapperInterface;
 use Netric\Application\ApplicationRdbDataMapper;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 use Netric\Db\Relational\PgsqlDb;
 use PHPUnit\Framework\TestCase;
 
@@ -23,7 +24,8 @@ class DataMapperApplicationRdbTest extends AbstractDataMapperTests
             $this->config->db['syshost'],
             $dbName,
             $this->config->db['user'],
-            $this->config->db['password']
+            $this->config->db['password'],
+            $this->config->db['accdb'],
         );
     }
 

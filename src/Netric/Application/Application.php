@@ -8,7 +8,7 @@ use Netric\Mvc\Exception\NotAuthorizedForRouteException;
 use Netric\Application\Setup\Setup;
 use Netric\Request\RequestInterface;
 use Netric\Mvc\Router;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Log\LogInterface;
 use Netric\Log\Log;
 use Netric\Cache\MemcachedCache;

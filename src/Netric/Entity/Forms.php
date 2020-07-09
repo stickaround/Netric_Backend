@@ -1,15 +1,17 @@
 <?php
+
 /**
  * Manage entity forms
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Db\Relational\RelationalDbInterface;
 
 /**
@@ -143,7 +145,7 @@ class Forms
                 return $row["form_layout_xml"];
             }
         }
-        
+
         // Check for team specific form
         if ($user->getValue("team_id")) {
             $sql = "SELECT form_layout_xml FROM app_object_type_frm_layouts

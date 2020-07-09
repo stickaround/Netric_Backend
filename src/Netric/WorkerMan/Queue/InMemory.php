@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -16,14 +17,14 @@ class InMemory implements QueueInterface
      *
      * @var array
      */
-    public $queuedJobs = array();
+    public $queuedJobs = [];
 
     /**
      * Workers that are listening for jobs by workerName
      *
      * @var WorkerInterface[]
      */
-    private $listeners = array();
+    private $listeners = [];
 
     /**
      * Add a job to the queue and run it
@@ -114,7 +115,7 @@ class InMemory implements QueueInterface
      */
     public function clearWorkerQueue($workerName)
     {
-        $toRemove = array();
+        $toRemove = [];
         for ($i = 0; $i < count($this->queuedJobs); $i++) {
             if ($this->queuedJobs[$i][0] === $workerName) {
                 $toRemove[] = $i;

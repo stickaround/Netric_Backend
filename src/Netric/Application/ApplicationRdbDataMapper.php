@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Application;
 
 use Netric\Account\Account;
@@ -74,8 +75,13 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      * @param string $password System database password
      * @param string $defaultAccountDatabase The database name used for new accounts
      */
-    public function __construct($host, $databaseName, $username, $password, $defaultAccountDatabase = 'netric')
-    {
+    public function __construct(
+        $host,
+        $databaseName,
+        $username,
+        $password,
+        $defaultAccountDatabase
+    ) {
         $this->host = $host;
         $this->databaseName = $databaseName;
         $this->username = $username;
@@ -104,7 +110,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         if (!$this->checkDbConnection()) {
             return false;
         }
-        
+
         $sql = "SELECT * FROM accounts WHERE id=:id";
         $result = $this->database->query($sql, ["id" => $id]);
 
@@ -129,7 +135,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         if (!$this->checkDbConnection()) {
             return false;
         }
-        
+
         $sql = "SELECT * FROM accounts WHERE name=:name";
         $result = $this->database->query($sql, ["name" => $name]);
 
@@ -158,8 +164,8 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         if (!$this->checkDbConnection()) {
             return false;
         }
-        
-        $ret = array();
+
+        $ret = [];
         $sqlParams = [];
 
         $sql = "SELECT * FROM accounts WHERE active is not false";
@@ -192,8 +198,8 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         if (!$this->checkDbConnection()) {
             return false;
         }
-        
-        $ret = array();
+
+        $ret = [];
 
         // Check accounts for a username matching this address
         $sql = "SELECT accounts.name as account, account_users.username
@@ -636,9 +642,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             // Check to see if the process has expired (run too long)
             if (($now - $timeEntered) >= $expiresInSeconds) {
                 // Update the lock and return true so the caller can start a new process
-                $ret = $this->database->update("worker_process_lock",
+                $ret = $this->database->update(
+                    "worker_process_lock",
                     ["ts_entered" => date('Y-m-d H:i:s')],
-                    ["id" => $row['id']]);
+                    ["id" => $row['id']]
+                );
 
                 if ($ret) {
                     return true;
@@ -677,9 +685,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function extendLock($uniqueLockName)
     {
-        $result = $this->database->update("worker_process_lock",
+        $result = $this->database->update(
+            "worker_process_lock",
             ["ts_entered" => date('Y-m-d H:i:s')],
-            ["process_name" => $uniqueLockName]);
+            ["process_name" => $uniqueLockName]
+        );
         return ($result) ? true : false;
     }
 

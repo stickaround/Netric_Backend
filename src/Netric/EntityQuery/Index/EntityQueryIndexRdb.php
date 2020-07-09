@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition\Field;
@@ -273,7 +274,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                if ($fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
+                if (
+                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
                     || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
@@ -346,7 +348,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         } elseif ($field->type == FIELD::TYPE_DATE) {
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
-                        
+
                         $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType > '$value'";
                         break;
                 }
@@ -372,9 +374,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case Where::OPERATOR_GREATER_THAN_OR_EQUAL_TO:
                 switch ($field->type) {
                     case FIELD::TYPE_OBJECT_MULTI:
-                        case FIELD::TYPE_GROUPING_MULTI:
-                        case FIELD::TYPE_TEXT:
-                            break;
+                    case FIELD::TYPE_GROUPING_MULTI:
+                    case FIELD::TYPE_TEXT:
+                        break;
                     case FIELD::TYPE_OBJECT:
                         if ($field->subtype) {
                             $children = $this->getHeiarchyDownObj($field->subtype, $value);
@@ -401,13 +403,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case Where::OPERATOR_LESS_THAN_OR_EQUAL_TO:
                 switch ($field->type) {
                     case FIELD::TYPE_OBJECT_MULTI:
-                        case FIELD::TYPE_GROUPING_MULTI:
-                        case FIELD::TYPE_TEXT:
-                            break;
+                    case FIELD::TYPE_GROUPING_MULTI:
+                    case FIELD::TYPE_TEXT:
+                        break;
                     case FIELD::TYPE_OBJECT:
-                        if (!empty($field->subtype)
+                        if (
+                            !empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
-                            && is_numeric($value)) {
+                            && is_numeric($value)
+                        ) {
                             $refDef = $this->getDefinition($field->subtype);
                             $refDefTable = $refDef->getTable(true);
 
@@ -483,7 +487,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $dateType = $condition->getOperatorDateType();
 
         switch ($condition->operator) {
-            // Operator Date is equal
+                // Operator Date is equal
             case Where::OPERATOR_DAY_IS_EQUAL:
             case Where::OPERATOR_MONTH_IS_EQUAL:
             case Where::OPERATOR_YEAR_IS_EQUAL:
@@ -495,7 +499,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
 
-            // Operator Last X DateType
+                // Operator Last X DateType
             case Where::OPERATOR_LAST_X_DAYS:
             case Where::OPERATOR_LAST_X_WEEKS:
             case Where::OPERATOR_LAST_X_MONTHS:
@@ -503,7 +507,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType <= (now()-INTERVAL '$value {$dateType}s')$castType";
                 break;
 
-            // Operator Next DateType
+                // Operator Next DateType
             case Where::OPERATOR_NEXT_X_DAYS:
             case Where::OPERATOR_NEXT_X_WEEKS:
             case Where::OPERATOR_NEXT_X_MONTHS:
@@ -607,7 +611,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
         }
-        
+
         return $conditionString;
     }
 
@@ -623,7 +627,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
         $value = pg_escape_string($condition->value);
-        
+
         $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($field->type) {
@@ -843,11 +847,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     break;
                 case 'stats':
                     $row = $result->fetch();
-                    $data = ["min" => $row["agg_min"],
-                             "max" => $row["agg_max"],
-                             "avg" => $row["agg_avg"],
-                             "sum" => $row["agg_sum"],
-                             "count" => $results->getTotalNum()];
+                    $data = [
+                        "min" => $row["agg_min"],
+                        "max" => $row["agg_max"],
+                        "avg" => $row["agg_avg"],
+                        "sum" => $row["agg_sum"],
+                        "count" => $results->getTotalNum()
+                    ];
                     break;
                 case 'count':
                     $data = $results->getTotalNum();
@@ -881,14 +887,16 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * 
      * @param string $fieldName The name of the field that we will be setting as nullif
      */
-    private function castNullIfInteger($fieldName) {
+    private function castNullIfInteger($fieldName)
+    {
         return "nullif($fieldName, '')::int";
     }
 
     /**
      * Function that will return the cast type based on the field type
      */
-    private function castType($fieldType) {
+    private function castType($fieldType)
+    {
         switch ($fieldType) {
             case FIELD::TYPE_TIMESTAMP:
                 return "::timestamp with time zone";

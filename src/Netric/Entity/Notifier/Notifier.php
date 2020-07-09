@@ -81,14 +81,14 @@ class Notifier
         $objType = $entity->getDefinition()->getObjType();
 
         // Array of notification entities we either create or update below
-        $notificationIds = array();
+        $notificationIds = [];
 
         // We obviously never want to send notifications about notifications or activities
         if ($objType == ObjectTypes::NOTIFICATION || $objType == ObjectTypes::ACTIVITY) {
             return $notificationIds;
         }
         $objReference = $entity->getGuid();
-        
+
         // user, changed status, status value
         $description = $entity->getChangeLogDescription();
         /*
@@ -142,7 +142,7 @@ class Notifier
                 $notification->setValue("f_popup", false);
                 $notification->setValue("f_sms", false);
                 $notification->setValue("f_seen", false);
-                
+
                 $notificationIds[] = $this->entityLoader->save($notification);
             }
         }

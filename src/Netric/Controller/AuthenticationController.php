@@ -3,6 +3,7 @@
 /**
  * Controller for handling user authentication
  */
+
 namespace Netric\Controller;
 
 use Netric\Mvc;
@@ -192,7 +193,7 @@ class AuthenticationController extends Mvc\AbstractAccountController
         // TODO: Figure out a way to authorize the requestor so that
         // a bot cannot use this endpoint to validate email addresses.
 
-        $ret = array();
+        $ret = [];
 
         if ($email) {
             $ret = $this->account->getApplication()->getAccountsByEmail($email);

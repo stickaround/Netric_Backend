@@ -2,6 +2,7 @@
 /*
  * Order a query by entity fields
  */
+
 namespace Netric\EntityQuery;
 
 /**

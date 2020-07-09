@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Add system types to the database
  */
+
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory;
@@ -10,8 +12,9 @@ use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 $types = require(__DIR__ . "/../../../../data/account/object-types.php");
 
 $account = $this->getAccount();
-if (!$account)
+if (!$account) {
     throw new \RuntimeException("This must be run only against a single account");
+}
 
 $entityDefinitionDataMapper = $account->getServiceManager()->get(DataMapperFactory::class);
 $entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);

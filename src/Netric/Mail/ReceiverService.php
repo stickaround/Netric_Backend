@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright Copyright (c) 2016 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\Mail;
 
 use Netric\Crypt\BlockCipher;
@@ -24,7 +26,7 @@ use Netric\Mail\Storage\Pop3;
 use Netric\Entity\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\EntityDefinition\ObjectTypes;
 
 /**
@@ -189,7 +191,7 @@ class ReceiverService extends AbstractHasErrors
 
             $this->log->error(
                 "ReceiverService->syncMail: Unable to log in " .
-                $emailAccount->getValue("address") . " - "  . $ex->getMessage()
+                    $emailAccount->getValue("address") . " - "  . $ex->getMessage()
             );
             return false;
         }
@@ -273,7 +275,7 @@ class ReceiverService extends AbstractHasErrors
                                 } catch (Storage\Exception\RuntimeException $ex) {
                                     $this->log->info(
                                         "ReceiverService->sendChanges: Tried to set flag on $msgNum but server failed - probably alraedy set: " .
-                                        $ex->getMessage()
+                                            $ex->getMessage()
                                     );
                                 }
 
@@ -309,7 +311,7 @@ class ReceiverService extends AbstractHasErrors
                     // If not permanently deleted then throw exception without commit id
                     throw new \RuntimeException(
                         "Tried to synchronize an email_message without a commit id: " .
-                        $syncColl->getId()
+                            $syncColl->getId()
                     );
                 }
             }
@@ -340,7 +342,7 @@ class ReceiverService extends AbstractHasErrors
                 $message = $mailServer->getMessage($id);
                 $importList[] = array(
                     "remote_id" => $mailServer->getUniqueId($id),
-                    "remote_revision"=>1,
+                    "remote_revision" => 1,
                     "message" => $message
                 );
             } catch (\Exception $ex) {
@@ -351,8 +353,8 @@ class ReceiverService extends AbstractHasErrors
 
                 $this->log->warning(
                     "Could not import message $id " .
-                    "for " . $emailAccount->getValue('address') . ":" .
-                    $ex->getMessage()
+                        "for " . $emailAccount->getValue('address') . ":" .
+                        $ex->getMessage()
                 );
             }
         }
@@ -434,10 +436,10 @@ class ReceiverService extends AbstractHasErrors
                         );
                         $this->log->info(
                             "ReceiverService->receiveChanges: Message " .
-                            $emailEntity->getValue("message_uid") .
-                            " - " .
-                            $emailEntity->getValue("message_id") .
-                            " delivered to $importMid"
+                                $emailEntity->getValue("message_uid") .
+                                " - " .
+                                $emailEntity->getValue("message_id") .
+                                " delivered to $importMid"
                         );
                     } elseif ($importMid == -1) {
                         // This message was previously imported and then deleted so delete on the server

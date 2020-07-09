@@ -39,7 +39,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      *
      * @var array
      */
-    protected $movedToRef = array();
+    protected $movedToRef = [];
 
     /**
      * Commit manager used to crate global commits for sync
@@ -74,7 +74,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $this->setUp();
 
         // Clear the moved entities cache
-        $this->cacheMovedEntities = array();
+        $this->cacheMovedEntities = [];
 
         $serviceManager = $account->getServiceManager();
         $this->recurIdentityMapper = $serviceManager->get(RecurrenceIdentityMapperFactory::class);
@@ -121,7 +121,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param string $guid
      * @return array|null
      */
-    abstract protected function fetchDataByGuid(string $guid):? array;
+    abstract protected function fetchDataByGuid(string $guid): ?array;
 
     /**
      * Purge data from the database
@@ -219,7 +219,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         // Update foreign key names
         $this->updateForeignKeyNames($entity);
-        
+
         /*
          * If the entity has a new recurrence pattern, then we need to get the next recurring id
          * now so we can save it to the entity before saving the recurring patterns itself.
@@ -340,7 +340,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param string $guid
      * @return EntityInterface|null
      */
-    public function getByGuid(string $guid): ? EntityInterface
+    public function getByGuid(string $guid): ?EntityInterface
     {
         $serviceManager = $this->getAccount()->getServiceManager();
         $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
@@ -563,7 +563,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             if ($entity->getValue("owner_id")) {
                 $userEntity = $entityLoader->get(ObjectTypes::USER, $entity->getValue("owner_id"));
             }
-            
+
             if ($userEntity) {
                 $userGuidPath = "/" . $userEntity->getGuid();
             } else {
@@ -627,7 +627,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                             // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
                             if (!$referencedEntity) {
-                                $entity->removeMultiValue($field->name, $id);    
+                                $entity->removeMultiValue($field->name, $id);
                                 continue;
                             }
 
@@ -642,11 +642,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     if ($value) {
                         $objType = $entity->getDefinition()->getObjType();
                         $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
-    
+
                         // Clear the value in preparation for an update - or to remove it if group was deleted
                         $entity->setValue($field->name, null);
                         $group = $grouping->getByGuidOrGroupId($value);
-                        
+
                         if ($group) {
                             // If the group exists then update the name
                             $entity->setValue($field->name, $value, $group->name);
@@ -657,7 +657,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                 case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
                     $grouping = $groupingsLoader->get("$objType/{$field->name}$userGuidPath");
-                    
+
                     if (is_array($value)) {
                         foreach ($value as $id) {
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Account;
 
 use Netric\Application\Application;
@@ -229,7 +230,7 @@ class Account
 
         // Entity loader will be needed once we have determined a user id to load
         $loader = $this->getServiceManager()->get(EntityLoaderFactory::class);
-        
+
         /*
          * Try to get the currently logged in user from the authentication service if not provided
          */

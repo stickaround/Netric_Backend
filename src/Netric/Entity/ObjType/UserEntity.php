@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provide user extensions to base Entity class
  *
@@ -157,7 +158,7 @@ class UserEntity extends Entity implements EntityInterface
     {
         $groups = $this->getValue("groups");
         if (!$groups || !is_array($groups)) {
-            $groups = array();
+            $groups = [];
         }
 
         // Add to authenticated users group if we have determined this is a valid user

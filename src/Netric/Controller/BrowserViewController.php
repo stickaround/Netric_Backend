@@ -3,6 +3,7 @@
 /**
  * Controller for handling Browser View
  */
+
 namespace Netric\Controller;
 
 use Netric\Mvc;
@@ -18,7 +19,7 @@ class BrowserViewController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        $ret = array();
+        $ret = [];
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -38,10 +39,10 @@ class BrowserViewController extends Mvc\AbstractAccountController
 
         try {
             $result = $browserViewService->saveView($view);
-        } catch(\RuntimeException $ex) {
+        } catch (\RuntimeException $ex) {
             return $this->sendOutput(array("error" => "Error saving browser view: " . $ex->getMessage()));
         }
-        
+
         if (!$view->isSystem() && $view->isDefault()) {
             $browserViewService->setDefaultViewForUser($view->getObjType(), $this->account->getUser(), $result);
         }
@@ -53,7 +54,7 @@ class BrowserViewController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        $ret = array();
+        $ret = [];
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -95,7 +96,7 @@ class BrowserViewController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        $ret = array();
+        $ret = [];
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }

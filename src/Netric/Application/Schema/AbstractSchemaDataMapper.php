@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2015-2016 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\Application\Schema;
 
 use Netric\Error\AbstractHasErrors;
@@ -79,7 +81,7 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
      * @param array $columnName The name of the column we are going to check
      */
     public function checkIfColumnExist($bucketName, $columnName)
-    {        
+    {
         $bucketDefinition = $this->schemaDefinition[$bucketName];
 
         // Loop thru definition properties and check if the column name exists
@@ -120,7 +122,7 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
      *
      * @return string
      */
-    private function getHashFromDefinition() : string
+    private function getHashFromDefinition(): string
     {
         return md5(json_encode($this->schemaDefinition));
     }

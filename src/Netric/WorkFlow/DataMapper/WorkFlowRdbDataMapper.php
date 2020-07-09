@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\WorkFlow\DataMapper;
 
 use Netric\Entity\EntityLoader;
@@ -213,7 +214,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             case 'delete':
                 $query->andWhere("f_on_delete")->equals(true);
                 break;
-            /* Below are for future expansions to periodic workflows
+                /* Below are for future expansions to periodic workflows
             case 'yearly':
                 $sql .= " AND f_on_yearly is TRUE";
                 $sql .= " AND (
@@ -258,7 +259,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             throw new \RuntimeException("Could not get actions: " . $this->entityIndex->getLastError());
         }
 
-        $workFlows = array();
+        $workFlows = [];
         $num = $result->getNum();
         for ($i = 0; $i < $num; $i++) {
             $entityWorkflow = $result->getEntity($i);
@@ -409,13 +410,13 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      * @param array $circularCheck Log of previously added actions to avoid circular references
      * @return array
      */
-    private function getActionsArray($workflowGuid, $parentActionGuid = null, $circularCheck = array())
+    private function getActionsArray($workflowGuid, $parentActionGuid = null, $circularCheck = [])
     {
         if (!Uuid::isValid($workflowGuid) && !Uuid::isValid($parentActionGuid)) {
             throw new \InvalidArgumentException("A valid workflow id or parent action id must be passed");
         }
 
-        $actionsArray = array();
+        $actionsArray = [];
 
         // Query all actions
         $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION);
@@ -434,7 +435,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         $num = $result->getNum();
         for ($i = 0; $i < $num; $i++) {
             $action = $result->getEntity($i);
-            
+
             /*
              * Actions can be children of other actions.
              * Check to make sure there are no circular relationships where a child
@@ -642,7 +643,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
     public function getScheduledActions(\DateTime $toDate = null)
     {
         // Return array
-        $actions = array();
+        $actions = [];
 
         // If no date was passed use now
         if ($toDate === null) {
@@ -692,13 +693,13 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         if (!$actionId || !is_numeric($actionId)) {
             throw new \InvalidArgumentException("First param is required to load an action");
         }
-        
+
         $sql = "SELECT * FROM objects_workflow_action WHERE id=:id";
         $result = $this->database->query($sql, ["id" => $actionId]);
 
         if ($result->rowCount()) {
             $workflowData = $result->fetch();
-            
+
             /*
              * If we have field_data in our result, it means that we have already implemented the new definiton schema
              * where we eliminated definition columns and put all the entity data in the field_data column

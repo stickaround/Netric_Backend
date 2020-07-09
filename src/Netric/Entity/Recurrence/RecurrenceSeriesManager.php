@@ -6,6 +6,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014-2015 Aereus
  */
+
 namespace Netric\Entity\Recurrence;
 
 use Netric\Entity;
@@ -61,7 +62,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      *
      * @var Error\Error
      */
-    private $errors = array();
+    private $errors = [];
 
     /**
      * Setup the class
@@ -232,8 +233,10 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $processTo = 0;
         $conditions = $query->getWheres();
         foreach ($conditions as $cond) {
-            if ($cond->fieldName == $recurRules['field_date_start']
-                || $cond->fieldName == $recurRules['field_date_end']) {
+            if (
+                $cond->fieldName == $recurRules['field_date_start']
+                || $cond->fieldName == $recurRules['field_date_end']
+            ) {
                 if (is_numeric($cond->value)) {
                     // Handle next 'x' number of 'days|weeks|months|years' conditions
                     $inter = "";

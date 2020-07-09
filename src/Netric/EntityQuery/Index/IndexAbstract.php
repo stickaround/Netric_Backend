@@ -121,10 +121,10 @@ abstract class IndexAbstract
     public function queryStringToTerms($qstring)
     {
         if (!$qstring) {
-            return array();
+            return [];
         }
 
-        $res = array();
+        $res = [];
         //preg_match_all('/(?<!")\b\w+\b|\@(?<=")\b[^"]+/', $qstr, $res, PREG_PATTERN_ORDER);
         preg_match_all('~(?|"([^"]+)"|(\S+))~', $qstring, $res);
         return $res[0]; // not sure why but for some reason results are in a multi-dimen array, we just need the first
@@ -210,7 +210,7 @@ abstract class IndexAbstract
      * @param int $this_id The id of the child element
      * @param int[] $aProtectCircular Hold array of already referenced objects to chk for array
      */
-    public function getHeiarchyDownObj($objType, $entityGuid, $aProtectCircular = array())
+    public function getHeiarchyDownObj($objType, $entityGuid, $aProtectCircular = [])
     {
         // Check for circular refrences
         if (in_array($entityGuid, $aProtectCircular)) {

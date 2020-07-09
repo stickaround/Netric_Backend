@@ -19,7 +19,7 @@
 include(__DIR__ . "/../init_autoloader.php");
 
 use Netric\Application\Application;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 
 ini_set("display_errors", "On");
 ini_set("memory_limit", "2G");

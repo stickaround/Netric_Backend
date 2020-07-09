@@ -1,1 +1,0 @@
-ALTER TABLE app_object_views ADD COLUMN owner_id integer;

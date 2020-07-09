@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -30,7 +31,7 @@ class Gearman implements QueueInterface
      *
      * @var WorkerInterface[]
      */
-    private $listeners = array();
+    private $listeners = [];
 
     /**
      * The gearman server
@@ -129,7 +130,7 @@ class Gearman implements QueueInterface
             sleep(1);
             return $this->dispatchJobs();
         }
-        
+
         $error = $gmWorker->error();
         if ($error) {
             throw new \RuntimeException("Job failed: " . $error);

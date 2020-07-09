@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Add default groups only if none exist - allowing accounts to override defaults
  */
+
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 
@@ -10,7 +12,7 @@ if (!$account) {
     throw new \RuntimeException("This must be run only against a single account");
 }
 
-$defaultGroups= require(__DIR__ . "/../../../../data/account/groupings.php");
+$defaultGroups = require(__DIR__ . "/../../../../data/account/groupings.php");
 
 $groupingsLoader = $account->getServiceManager()->get(GroupingLoaderFactory::class);
 
@@ -39,7 +41,7 @@ foreach ($defaultGroups as $objType => $fields) {
                 if (isset($groupData['color'])) {
                     $group->color = $groupData['color'];
                 }
-                    
+
                 if (isset($groupData['sort_oder'])) {
                     $group->sortOrder = $groupData['sort_oder'];
                 }

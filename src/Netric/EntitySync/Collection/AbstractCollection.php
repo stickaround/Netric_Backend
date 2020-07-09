@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\Commit;
@@ -72,7 +73,7 @@ abstract class AbstractCollection
      *
      * @var array(array("blogic", "field", "operator", "condValue"));
      */
-    protected $conditions = array();
+    protected $conditions = [];
 
     /**
      * Cache change results in a revision increment
@@ -330,10 +331,10 @@ abstract class AbstractCollection
     public function getExportedStale()
     {
         if (!$this->getId()) {
-            return array();
+            return [];
         }
 
-        $staleStats = array();
+        $staleStats = [];
 
         $stale = $this->dataMapper->getExportedStale($this->getId());
         foreach ($stale as $oid) {
@@ -361,7 +362,7 @@ abstract class AbstractCollection
     public function getImportChanged(array $importList)
     {
         if (!$this->getId()) {
-            return array();
+            return [];
         }
 
         // Get previously imported list and set the default action to delete
@@ -371,7 +372,7 @@ abstract class AbstractCollection
         for ($i = 0; $i < $numChanges; $i++) {
             $changes[$i]['action'] = 'delete';
         }
-        
+
         // Loop through both lists and look for differences
         // --------------------------------------------------------------------
         foreach ($importList as $item) {

@@ -3,6 +3,7 @@
 /**
  * Controller for account interaction
  */
+
 namespace Netric\Controller;
 
 use Netric\Mvc;
@@ -29,7 +30,7 @@ class AccountController extends Mvc\AbstractAccountController
         // navigation defined in the database OR can be found in /data/modules/...
         $userModules = $moduleService->getForUser($user);
 
-        $modules = array();
+        $modules = [];
 
         // Loop through each module for the current user
         foreach ($userModules as $module) {

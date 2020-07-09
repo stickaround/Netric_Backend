@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Console Request
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Request;
 
 use Zend\Console\Getopt;
@@ -15,19 +17,20 @@ use Zend\Console\Getopt;
  * We are basically telling the pcntl_signal to check after every
  * single operation to see if we should exit.
  */
-declare(ticks = 1);
+
+declare(ticks=1);
 
 class ConsoleRequest implements RequestInterface
 {
     /**
      * @var array
      */
-    private $params = array();
+    private $params = [];
 
     /**
      * @var array
      */
-    private $envParams = array();
+    private $envParams = [];
 
     /**
      * @var string

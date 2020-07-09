@@ -1,10 +1,12 @@
 <?php
+
 /**
  * FileSystem service
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem;
 
 use Netric\Error\Error;
@@ -30,7 +32,7 @@ class ImageResizer implements ErrorAwareInterface
      *
      * @var Error[]
      */
-    private $errors = array();
+    private $errors = [];
 
     /**
      * Absolute path to a temp folder for working with files locally
@@ -103,7 +105,8 @@ class ImageResizer implements ErrorAwareInterface
     {
         // First make sure it is an image
         $fileType = $source->getType();
-        if ('jpg' !== $fileType &&
+        if (
+            'jpg' !== $fileType &&
             'jpeg' !== $fileType &&
             'png' !== $fileType
         ) {
@@ -209,8 +212,8 @@ class ImageResizer implements ErrorAwareInterface
                 imagealphablending($processedImage, false);
                 imagesavealpha($processedImage, true);
                 $transparent = imagecolorallocatealpha($processedImage, 255, 255, 255, 0);
-                for ($x=0; $x<$newWidth; $x++) {
-                    for ($y=0; $y<$newHeight; $y++) {
+                for ($x = 0; $x < $newWidth; $x++) {
+                    for ($y = 0; $y < $newHeight; $y++) {
                         imageSetPixel($processedImage, $x, $y, $transparent);
                     }
                 }

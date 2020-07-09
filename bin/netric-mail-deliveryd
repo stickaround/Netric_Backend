@@ -17,7 +17,7 @@ $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV'
 chdir(dirname(__DIR__));
 
 // Get system config
-$config = Netric\Config\ConfigLoader::fromFolder(
+$config = Aereus\Config\ConfigLoader::fromFolder(
     __DIR__ . "/../config",
     $applicationEnvironment
 );
@@ -36,7 +36,8 @@ $pids = [];
  * We are basically telling the pcntl_signal to check after every
  * single operation to see if we should exit.
  */
-declare(ticks = 1);
+
+declare(ticks=1);
 
 // Path to the pid file to use
 $pidFile = $config->pidfile;
@@ -72,7 +73,7 @@ switch ($_SERVER['argv'][1]) {
 
         break;
 
-    // Start the process in the foreground - usually used in docker containers
+        // Start the process in the foreground - usually used in docker containers
     case "start-fg":
         if ($runningPid) {
             die("netricd is already running");
@@ -148,12 +149,13 @@ $log->debug("New daemon process is: " . getmypid());
 /*
  * Handle signals coming in from the outside
  */
-function sig_handler($signo) {
+function sig_handler($signo)
+{
     global $pids, $pidFile, $log;
 
     $log->debug("Received signal: $signo");
 
-    if ($signo == SIGTERM || $signo == SIGHUP || $signo == SIGINT){
+    if ($signo == SIGTERM || $signo == SIGHUP || $signo == SIGINT) {
         // If we are being restarted or killed, quit all children
 
         /*
@@ -163,7 +165,7 @@ function sig_handler($signo) {
          * to clean up immediately. The first param -1 means any child of the current process.
          */
         $deadAndGone = pcntl_waitpid(-1, $status, WNOHANG);
-        while($deadAndGone > 0){
+        while ($deadAndGone > 0) {
             // Remove the gone pid from the array
             unset($pids[array_search($deadAndGone, $pids)]);
             $log->debug("netricd: Cleaned up dead process: $deadAndGone");
@@ -173,27 +175,27 @@ function sig_handler($signo) {
         }
 
         // Send the same signal to the children which we recieved
-        foreach($pids as $p) {
+        foreach ($pids as $p) {
             $log->debug("\tKilling child $p");
-            posix_kill($p,$signo);
+            posix_kill($p, $signo);
         }
 
         // Women and Children first (wait for them to exit)
-        foreach($pids as $p) {
+        foreach ($pids as $p) {
             $log->debug("\tWaiting for child $p");
-            pcntl_waitpid($p,$status);
+            pcntl_waitpid($p, $status);
             $log->debug("\tdone");
         }
 
         $log->debug(
             "netricd: Parent ["
-            .  getmypid()
-            . "] - all child processes have exited, "
-            . " now clearing the pid file and exiting."
+                .  getmypid()
+                . "] - all child processes have exited, "
+                . " now clearing the pid file and exiting."
         );
 
         exit();
-    } else if($signo == SIGUSR1) {
+    } else if ($signo == SIGUSR1) {
         print "netricd: " . count($pids) . " children are running\n";
     }
 }
@@ -210,10 +212,10 @@ pcntl_signal(SIGUSR1, "sig_handler");
 /*
  * Now run mail delivery job that will look for email messages to process
  */
-while(true) {
+while (true) {
 
     // Make sure at all times that there are at least 6 workers running
-    if(count($pids) < 6) {
+    if (count($pids) < 6) {
 
         // Fork a new child process
         $pid = pcntl_fork();
@@ -237,7 +239,7 @@ while(true) {
      * to clean up immediately. The first param -1 means any child of the current process.
      */
     $deadAndGone = pcntl_waitpid(-1, $status, WNOHANG);
-    while($deadAndGone > 0){
+    while ($deadAndGone > 0) {
         // Remove the gone pid from the array
         unset($pids[array_search($deadAndGone, $pids)]);
         $log->debug("netricd: Cleaned up dead process: $deadAndGone");

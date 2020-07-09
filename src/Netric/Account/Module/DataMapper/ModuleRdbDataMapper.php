@@ -1,16 +1,12 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
 namespace Netric\Account\Module\DataMapper;
 
 use Netric\Error\AbstractHasErrors;
 use Netric\Account\Module\Module;
 use Netric\Account\Module\DataMapper\DataMapperInterface as ModuleDataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
@@ -87,11 +83,11 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
         // Compose either an update or insert statement
         if ($module->getId()) {
             $this->db->update('applications', $data, ['id' => $module->getId()]);
-        } else {
-            $id = $this->db->insert('applications', $data);
-            $module->setId($id);
+            return true;
         }
 
+        $id = $this->db->insert('applications', $data);
+        $module->setId($id);
         return true;
     }
 

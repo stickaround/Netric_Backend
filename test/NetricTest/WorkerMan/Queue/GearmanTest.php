@@ -1,9 +1,10 @@
 <?php
+
 namespace NetricTest\WorkerMan\Queue;
 
 use Netric\WorkerMan\Queue\Gearman;
 use Netric\WorkerMan\Queue\QueueInterface;
-use Netric\WorkerMan\Worker\TestWorker;
+use Netric\Config\ConfigFactory;
 
 class GearmanTest extends AbstractQueueTests
 {
@@ -14,7 +15,7 @@ class GearmanTest extends AbstractQueueTests
      */
     protected function getQueue()
     {
-        $config = $this->account->getServiceManager()->get('Netric\Config\Config');
+        $config = $this->account->getServiceManager()->get(ConfigFactory::class);
         $queue = new Gearman($config->workers->server);
         return $queue;
     }

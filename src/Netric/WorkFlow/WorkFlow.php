@@ -1,4 +1,5 @@
 <?php
+
 /**
  * WorkFlow
  *
@@ -137,14 +138,14 @@ class WorkFlow
      *
      * @var ActionInterface[]
      */
-    private $actions = array();
+    private $actions = [];
 
     /**
      * Actions that were previously saved with IDs but removed
      *
      * @var ActionInterface[]
      */
-    private $removedActions = array();
+    private $removedActions = [];
 
     /**
      * Array of query conditions
@@ -153,7 +154,7 @@ class WorkFlow
      *
      * @var Where[]
      */
-    private $conditions = array();
+    private $conditions = [];
 
     /**
      * Factory for creating actions
@@ -267,7 +268,7 @@ class WorkFlow
         // Load conditions
         if (is_array($conditions)) {
             // Reset any existing conditions
-            $this->conditions = array();
+            $this->conditions = [];
 
             // Now add to local conditions property
             foreach ($conditions as $condData) {
@@ -331,13 +332,13 @@ class WorkFlow
         );
 
         // Set conditions
-        $ret['conditions'] = array();
+        $ret['conditions'] = [];
         foreach ($this->conditions as $where) {
             $ret['conditions'][] = $where->toArray();
         }
 
         // Set actions
-        $ret['actions'] = array();
+        $ret['actions'] = [];
         foreach ($this->actions as $action) {
             $ret['actions'][] = $action->toArray();
         }
@@ -481,8 +482,10 @@ class WorkFlow
     public function removeAction(ActionInterface $action)
     {
         for ($i = 0; $i < count($this->actions); $i++) {
-            if ($action === $this->actions[$i] ||
-                ($action->getId() != null && $action->getId() === $this->actions[$i]->getId())) {
+            if (
+                $action === $this->actions[$i] ||
+                ($action->getId() != null && $action->getId() === $this->actions[$i]->getId())
+            ) {
                 array_splice($this->actions, $i, 1);
 
                 // If previously saved then queue it to be purged on save
@@ -507,8 +510,10 @@ class WorkFlow
     {
         // First make sure we didn't previously remove this action
         for ($i = 0; $i < count($this->removedActions); $i++) {
-            if ($actionToAdd === $this->removedActions[$i] ||
-                ($actionToAdd->getId() != null && $actionToAdd->getId() === $this->removedActions[$i]->getId())) {
+            if (
+                $actionToAdd === $this->removedActions[$i] ||
+                ($actionToAdd->getId() != null && $actionToAdd->getId() === $this->removedActions[$i]->getId())
+            ) {
                 // Remove it from deletion queue, apparently the user didn't mean to delete it
                 array_splice($this->removedActions, $i, 1);
             }
@@ -517,8 +522,10 @@ class WorkFlow
         // Check if previously added
         $previouslyAddedAt = -1;
         for ($i = 0; $i < count($this->actions); $i++) {
-            if ($actionToAdd->getId() &&
-                $this->actions[$i]->getId() === $actionToAdd->getId()) {
+            if (
+                $actionToAdd->getId() &&
+                $this->actions[$i]->getId() === $actionToAdd->getId()
+            ) {
                 $previouslyAddedAt = $i;
                 break;
             }

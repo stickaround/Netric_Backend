@@ -1,9 +1,10 @@
 <?php
+
 namespace Netric\Db\Relational;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\Config\Config;
+use Netric\Config\ConfigFactory;
 
 /**
  * Create a service that returns a handle to an application (not account) database
@@ -18,7 +19,7 @@ class RelationalApplicationDbFactory implements ApplicationServiceFactoryInterfa
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get(Config::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
 
         return new PgsqlDb(
             $config->db["host"],

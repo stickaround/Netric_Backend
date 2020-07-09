@@ -1,13 +1,8 @@
 <?php
-/**
- * Sends statistics to an instance of the statsd daemon over UDP
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- **/
+
 namespace Netric\Stats;
 
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
@@ -48,7 +43,7 @@ class StatsPublisher
      *
      * @var array
      */
-    protected static $queuedStats = array();
+    protected static $queuedStats = [];
 
     /**
      * Internal representation of queued counters to be sent.
@@ -56,7 +51,7 @@ class StatsPublisher
      *
      * @var array
      */
-    protected static $queuedCounters = array();
+    protected static $queuedCounters = [];
 
     /**
      * Namespace for measure - prefix to string
@@ -90,7 +85,7 @@ class StatsPublisher
             // Pull from global config
             //$config = Config::getInstance();
 
-            $configLoader = new \Netric\Config\ConfigLoader();
+            $configLoader = new ConfigLoader();
             $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
             // Setup the new config
@@ -197,7 +192,7 @@ class StatsPublisher
         // Check if we need to down-sample
         if ($sampleRate < 1) {
             if ((mt_rand() / mt_getrandmax()) <= $sampleRate) {
-                static::$queuedStats[] = "$stat:$deltaStr|c|@". self::num($sampleRate);
+                static::$queuedStats[] = "$stat:$deltaStr|c|@" . self::num($sampleRate);
             }
         } else {
             if (!isset(static::$queuedCounters[$stat])) {
@@ -225,7 +220,7 @@ class StatsPublisher
         if ($sampleRate < 1) {
             foreach ($data as $stat => $value) {
                 if ((mt_rand() / mt_getrandmax()) <= $sampleRate) {
-                    static::$queuedStats[] = "$stat:$value|@". self::num($sampleRate);
+                    static::$queuedStats[] = "$stat:$value|@" . self::num($sampleRate);
                 }
             }
         } else {
@@ -266,8 +261,8 @@ class StatsPublisher
         }
 
         self::sendLines(static::$queuedStats);
-        static::$queuedStats = array();
-        static::$queuedCounters = array();
+        static::$queuedStats = [];
+        static::$queuedCounters = [];
     }
 
     /**
@@ -288,7 +283,7 @@ class StatsPublisher
             $host = static::$host;
             $port = static::$port;
             $fp = @fsockopen("udp://$host", $port, $errno, $errstr);
-            if (! $fp) {
+            if (!$fp) {
                 return;
             }
             // Non-blocking I/O, please.
@@ -309,7 +304,7 @@ class StatsPublisher
      */
     protected static function sendLines($lines)
     {
-        $out = array();
+        $out = [];
         $chunkSize = 0;
         $i = 0;
         $lineCount = count($lines);

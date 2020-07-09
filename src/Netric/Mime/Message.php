@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
@@ -180,7 +181,7 @@ class Message
         // find every mime part limiter and cut out the
         // string before it.
         // the part before the first boundary string is discarded:
-        $p = strpos($body, '--' . $boundary."\n", $start);
+        $p = strpos($body, '--' . $boundary . "\n", $start);
         if ($p === false) {
             // no parts found!
             return [];
@@ -190,18 +191,18 @@ class Message
         $start = $p + 3 + strlen($boundary);
 
         while (($p = strpos($body, '--' . $boundary . "\n", $start)) !== false) {
-            $res[] = substr($body, $start, $p-$start);
+            $res[] = substr($body, $start, $p - $start);
             $start = $p + 3 + strlen($boundary);
         }
 
         // no more parts, find end boundary
         $p = strpos($body, '--' . $boundary . '--', $start);
-        if ($p===false) {
+        if ($p === false) {
             throw new Exception\RuntimeException('Not a valid Mime Message: End Missing');
         }
 
         // the remaining part also needs to be parsed:
-        $res[] = substr($body, $start, $p-$start);
+        $res[] = substr($body, $start, $p - $start);
         return $res;
     }
 
@@ -264,9 +265,11 @@ class Message
             }
 
             // Get the body
-            if (isset($properties['type']) &&
+            if (
+                isset($properties['type']) &&
                 isset($properties['boundary']) &&
-                strtok($properties['type'], '/') == 'multipart') {
+                strtok($properties['type'], '/') == 'multipart'
+            ) {
                 $mpart = self::createFromMessage($part['body'], $properties['boundary'], $EOL);
                 $body = $mpart->generateMessage();
             } else {

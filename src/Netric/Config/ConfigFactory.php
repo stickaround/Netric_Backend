@@ -1,12 +1,10 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
+declare(strict_types=1);
 
 namespace Netric\Config;
 
+use Aereus\Config\ConfigLoader;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 
@@ -23,17 +21,10 @@ class ConfigFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
-        $config = ConfigLoader::fromFolder(
-            __DIR__ . "/../../../config",
-            $applicationEnvironment
-        );
+        $configLoader = new ConfigLoader();
+        $appEnv = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
-        // If for any reason config is not set then we should fail here
-        if ($config == null) {
-            throw new \RuntimeException("Config returned null, this should never happen");
-        }
-
-        return $config;
+        // Setup the new config
+        return $configLoader->fromFolder(__DIR__ . "/../../../config", $appEnv);
     }
 }

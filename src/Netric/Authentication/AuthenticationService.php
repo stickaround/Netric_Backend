@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Factory used to initialize the netric filesystem
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\Authentication;
 
 use Netric\Authentication\Token\AuthenticationTokenInterface;
@@ -334,11 +327,11 @@ class AuthenticationService
      */
     public function packSessionString($uid, $expires, $password)
     {
-        $sessionDataArr = array(
+        $sessionDataArr = [
             self::SESSIONPART_USERID => $uid,
             self::SESSIONPART_EXPIRES => $expires,
             self::SESSIONPART_PASSWORD => $password,
-        );
+        ];
         return implode(":", $sessionDataArr);
     }
 

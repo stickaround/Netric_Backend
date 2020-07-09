@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Controller;
 
 use Netric\Mvc;
@@ -45,7 +46,7 @@ class ModuleController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        $ret = array();
+        $ret = [];
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -127,7 +128,7 @@ class ModuleController extends Mvc\AbstractAccountController
         // Get the available modules for the current user
         $userModules = $moduleService->getForUser($user);
 
-        $modules = array();
+        $modules = [];
 
         // Loop through each module for the current user
         foreach ($userModules as $module) {

@@ -75,7 +75,7 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function postQueryAction()
     {
-        $ret = array();
+        $ret = [];
         $params = $this->getRequest()->getParams();
 
         if (!isset($params["obj_type"])) {
@@ -112,7 +112,7 @@ class EntityController extends Mvc\AbstractAccountController
         $ret["limit"] = $query->getLimit();
 
         // Set results
-        $entities = array();
+        $entities = [];
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 
@@ -292,7 +292,7 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function getRemoveAction()
     {
-        $ret = array();
+        $ret = [];
         // objType is a required to determine what exactly we are deleting
         $objType = $this->request->getParam("obj_type");
         // IDs can either be a single entry or an array
@@ -405,7 +405,7 @@ class EntityController extends Mvc\AbstractAccountController
         $definitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $definitions = $definitionLoader->getAll();
 
-        $ret = array();
+        $ret = [];
         foreach ($definitions as $def) {
             $ret[] = $this->fillDefinitionArray($def);
         }
@@ -442,7 +442,7 @@ class EntityController extends Mvc\AbstractAccountController
         // Get views from browser view service
         $viewsService = $serviceManager->get(BrowserViewServiceFactory::class);
         $browserViews = $viewsService->getViewsForUser($def->getObjType(), $user);
-        $ret['views'] = array();
+        $ret['views'] = [];
         foreach ($browserViews as $view) {
             $ret['views'][] = $view->toArray();
         }
@@ -531,7 +531,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        $ret = array();
+        $ret = [];
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -589,7 +589,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        $ret = array();
+        $ret = [];
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -634,7 +634,7 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function getMassEditAction()
     {
-        $ret = array();
+        $ret = [];
 
         $rawBody = $this->getRequest()->getBody();
 
@@ -676,7 +676,7 @@ class EntityController extends Mvc\AbstractAccountController
                 if (Uuid::isValid($guid)) {
                     // Load the entity that we are going to update
                     $entity = $entityLoader->getByGuid($guid);
-                        
+
                     // Update the fields with the data. Make sure we only update the provided fields.
                     $entity->fromArray($entityData, true);
 
@@ -752,7 +752,7 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
 
-        $entityData = array();
+        $entityData = [];
 
         try {
             /*
@@ -808,7 +808,7 @@ class EntityController extends Mvc\AbstractAccountController
     public function postSaveGroupAction()
     {
         $rawBody = $this->getRequest()->getBody();
-        $ret = array();
+        $ret = [];
 
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
@@ -875,7 +875,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             // Save the changes made to the groupings
-            $groupingLoader->save($groupings);    
+            $groupingLoader->save($groupings);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
@@ -903,7 +903,7 @@ class EntityController extends Mvc\AbstractAccountController
             if ($def->isPrivate) {
                 $path .= "/" . $this->account->getUser()->getGuid();
             }
-            
+
             // Get all groupings using a unique path
             $groupings = $groupingLoader->get($path);
 
@@ -932,10 +932,11 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Function that will get the groupings by path
      */
-    public function getGetGroupByObjTypeAction() {
+    public function getGetGroupByObjTypeAction()
+    {
         $objType = $this->request->getParam("obj_type");
         $fieldName = $this->request->getParam("field_name");
-        
+
         $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $groupingDM = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
 

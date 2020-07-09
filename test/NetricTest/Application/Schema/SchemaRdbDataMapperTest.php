@@ -1,11 +1,13 @@
 <?php
+
 /**
  * Test managing a schema in PostgreSQL database
  */
+
 namespace NetricTest\Application\Schema;
 
 use Netric\Application\Application;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 use Netric\Db\Relational\PgsqlDb;
 use Netric\Application\Schema\SchemaRdbDataMapper;
 use Netric\Db\Relational\RelationalDbInterface;

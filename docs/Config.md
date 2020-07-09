@@ -12,7 +12,7 @@ property is created as a new iNetric\Config\Config object, loaded with the array
 This occurs recursively, such that a hierarchy of configuration data may be created with any number of levels.
 
 By default, configuration data made available through Netric\Config\Config are read-only, and an assignment
-(e.g. $config->domian = 'example.com';) results in a thrown exception.
+(e.g. \$config->domian = 'example.com';) results in a thrown exception.
 
 ## Using Config
 
@@ -41,14 +41,14 @@ INI files are also supported via the config loader.
 
 ### Loading Config Files
 
-\Netric\Config\ConfigLoader can be used to load configuration from a file or even merge multiple files to allow
- alternative configurations based on environment (such as 'develop' and 'local').
+Aereus\Config\ConfigLoader can be used to load configuration from a file or even merge multiple files to allow
+alternative configurations based on environment (such as 'develop' and 'local').
 
 Example:
 
     // Set the application environment: develop|staging|testing...
     $appEnv = "develop";
-    $config = \Netric\Config\ConfigLoader::fromFolder("./config", $appEnv);
+    $config = Aereus\Config\ConfigLoader::fromFolder("./config", $appEnv);
 
 The ConfigLoader::fromFolder will construct the configuration from multiple files in the provided path.
 
@@ -58,13 +58,13 @@ It will load the files in the following order, merging and overriding any previo
 
 The global.php file contains the default common values that get loaded in all environments.
 
-#### {$appEnv}.php
+#### {\$appEnv}.php
 
-If the second param is passed to ConfigLoader::fromFolder, it will load the array and merge it with global.php. 
+If the second param is passed to ConfigLoader::fromFolder, it will load the array and merge it with global.php.
 
-If both files contain the same property name, values in {$appEnv}.php will override global.php.
+If both files contain the same property name, values in {\$appEnv}.php will override global.php.
 
 #### local.php
 
-Never check local.php into version control. \Netric\Config\ConfigLoader::fromFolder will load local.php 
-(if it exists), allowing the developer to override the values in global.php and {$appEnv}.php
+Never check local.php into version control. Aereus\Config\ConfigLoader::fromFolder will load local.php
+(if it exists), allowing the developer to override the values in global.php and {\$appEnv}.php

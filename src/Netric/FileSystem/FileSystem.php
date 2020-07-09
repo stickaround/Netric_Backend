@@ -75,7 +75,7 @@ class FileSystem implements Error\ErrorAwareInterface
      *
      * @var Error\Error[]
      */
-    private $errors = array();
+    private $errors = [];
 
     /**
      * Define some path constants so we are not typing them as string literals each time

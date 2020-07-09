@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -148,7 +149,7 @@ abstract class AbstractOptions implements ParameterObjectInterface
         } catch (Exception\BadMethodCallException $e) {
             throw new Exception\InvalidArgumentException(
                 'The class property $' . $key . ' cannot be unset as'
-                . ' NULL is an invalid value for it',
+                    . ' NULL is an invalid value for it',
                 0,
                 $e
             );

@@ -1,14 +1,16 @@
 <?php
+
 /**
  * Test core netric application class
  */
+
 namespace NetricTest\Application;
 
 use Netric;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 use Netric\Application\Application;
 use PHPUnit\Framework\TestCase;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Account\Account;
 
 class ApplicationTest extends TestCase
@@ -26,7 +28,7 @@ class ApplicationTest extends TestCase
     const TEST_ACCT_NAME = "unit_test_application";
 
     protected function setUp(): void
-{
+    {
         $configLoader = new ConfigLoader();
 
         // Setup the new config
@@ -39,7 +41,7 @@ class ApplicationTest extends TestCase
     {
         $this->assertInstanceOf(Config::class, $this->application->getConfig());
     }
-    
+
     /**
      * Test getting the current/default account
      */
@@ -61,7 +63,7 @@ class ApplicationTest extends TestCase
 
         // Get accounts associated with the amil addres(or username if the same)
         $accounts = $this->application->getAccountsByEmail("test@test.com");
-        
+
         // Make sure the above user was associated with at least one account
         $this->assertGreaterThanOrEqual(1, count($accounts));
 

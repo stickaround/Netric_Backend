@@ -1,10 +1,11 @@
 <?php
-/** 
+
+/**
  * Root level application initialization
- * 
+ *
  * This is similar to a 'main' routine in that it MUST be included in all executed scripts
  * because it is responsible for setting up and initializing the netric application and account.
- * 
+ *
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
  *  @copyright 2014-2017 Aereus
  */
@@ -14,8 +15,7 @@ include(__DIR__ . "/init_autoloader.php");
 
 // Initialize Netric Application and Account
 // ------------------------------------------------
-//$config = new Netric\Config\Config();
-$configLoader = new Netric\Config\ConfigLoader();
+$configLoader = new Aereus\Config\ConfigLoader();
 $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
 // Setup the new config

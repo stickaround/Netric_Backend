@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sync collection for entities
  *
@@ -7,6 +8,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntityQuery\Index;
@@ -67,7 +69,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
         }
 
         // Set return array
-        $retStats = array();
+        $retStats = [];
 
         // Get the current commit for this collection
         $lastCollectionCommit = $this->getLastCommitId();
@@ -111,7 +113,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
             if ($this->getId() && $num) {
                 $imports = $this->dataMapper->getImported($this->getId());
             } else {
-                $imports = array();
+                $imports = [];
             }
 
             // Loop through each change
@@ -121,7 +123,8 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 // First make sure we didn't just import this
                 $skipStat = false;
                 foreach ($imports as $imported) {
-                    if ($imported['local_id'] == $ent->getId() &&
+                    if (
+                        $imported['local_id'] == $ent->getId() &&
                         $imported['local_revision'] == $ent->getValue("commit_id")
                     ) {
                         // Skip over this export because we just imported it
@@ -141,7 +144,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                     if ($ent->getValue("commit_id") == $lastCollectionCommit) {
                         throw new \Exception(
                             "ERROR: Trying to return the commit previously returned: " .
-                            $lastCollectionCommit
+                                $lastCollectionCommit
                         );
                     }
                 }

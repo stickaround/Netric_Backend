@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
@@ -321,7 +322,7 @@ class Headers implements Countable, Iterator
                 } else {
                     return $results[0];
                 }
-            //fall-trough
+                //fall-trough
             default:
                 return new ArrayIterator($results);
         }

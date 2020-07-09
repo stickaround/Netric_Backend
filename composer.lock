@@ -4,8 +4,72 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dd5b0215e469aa5c454c4cd14411f83c",
+    "content-hash": "67ebed1904b6a7092e62f096c7d2bbe1",
     "packages": [
+        {
+            "name": "aereus/lib",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "ssh://git@src.aereus.com:222/source/aereus.lib.php.git",
+                "reference": "4debfeb2de46cab0341f70603e5f81ae026005ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.aereus.com/dist/aereus/lib/aereus-lib-dev-master-b774ec.zip",
+                "reference": "4debfeb2de46cab0341f70603e5f81ae026005ef",
+                "shasum": "3620bd447956377a2803450f80b5288547bbfbac"
+            },
+            "require": {
+                "php": "^7.2",
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "aereus/codequality": "*",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Aereus\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "AereusTest\\": "test/"
+                }
+            },
+            "scripts": {
+                "lint": [
+                    "@composer lint-fix",
+                    "@composer lint-phpcs",
+                    "@composer lint-phpmd"
+                ],
+                "lint-phpcs": [
+                    "phpcs --standard=./vendor/aereus/codequality/phpcs.xml --report-checkstyle=.reports/checkstyle.xml ./src ./test"
+                ],
+                "lint-phpmd": [
+                    "phpmd ./src xml ./vendor/aereus/codequality/phpmd.xml --reportfile .reports/pmd.xml"
+                ],
+                "lint-fix": [
+                    "phpcbf --standard=./vendor/aereus/codequality/phpcs.xml ./src ./test"
+                ],
+                "test": [
+                    "vendor/bin/phpunit"
+                ],
+                "test-ci": [
+                    "@composer install",
+                    "@composer lint",
+                    "@composer test"
+                ]
+            },
+            "license": [
+                "Commercial"
+            ],
+            "description": "PHP Core Libraries for Aereus",
+            "homepage": "https://src.aereus.com/source/application.lib.php/",
+            "time": "2020-06-12T02:05:30+00:00"
+        },
         {
             "name": "authorizenet/authorizenet",
             "version": "1.9.9",
@@ -839,6 +903,56 @@
                 "psr"
             ],
             "time": "2017-02-14T16:28:37+00:00"
+        },
+        {
+            "name": "psr/http-message",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-message.git",
+                "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-message/zipball/f6561bf28d520154e4b0ec72be95418abe6d9363",
+                "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for HTTP messages",
+            "homepage": "https://github.com/php-fig/http-message",
+            "keywords": [
+                "http",
+                "http-message",
+                "psr",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "time": "2016-08-06T14:39:51+00:00"
         },
         {
             "name": "psr/log",
@@ -1794,6 +1908,33 @@
     ],
     "packages-dev": [
         {
+            "name": "aereus/codequality",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "ssh://git@src.aereus.com:222/source/codequality.lib.php.git",
+                "reference": "cee48f2974e5593104881f753655ec3bee649d01"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.aereus.com/dist/aereus/codequality/aereus-codequality-dev-master-98822a.zip",
+                "reference": "cee48f2974e5593104881f753655ec3bee649d01",
+                "shasum": "df9fb291cab3404c9020e7d541a1c67ca1eb715e"
+            },
+            "require": {
+                "php": "^7.2",
+                "phpmd/phpmd": "@stable",
+                "squizlabs/php_codesniffer": "3.*"
+            },
+            "type": "library",
+            "license": [
+                "Commercial"
+            ],
+            "description": "Tools and configs to help assure all Aereus code is high quality",
+            "homepage": "https://src.aereus.com/source/codequality.lib.php/",
+            "time": "2020-06-09T22:49:46+00:00"
+        },
+        {
             "name": "composer/xdebug-handler",
             "version": "1.4.2",
             "source": {
@@ -2279,33 +2420,33 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "v1.10.3",
+            "version": "1.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "451c3cd1418cf640de218914901e51b064abb093"
+                "reference": "b20034be5efcdab4fb60ca3a29cba2949aead160"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/451c3cd1418cf640de218914901e51b064abb093",
-                "reference": "451c3cd1418cf640de218914901e51b064abb093",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/b20034be5efcdab4fb60ca3a29cba2949aead160",
+                "reference": "b20034be5efcdab4fb60ca3a29cba2949aead160",
                 "shasum": ""
             },
             "require": {
-                "doctrine/instantiator": "^1.0.2",
-                "php": "^5.3|^7.0",
-                "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0|^5.0",
-                "sebastian/comparator": "^1.2.3|^2.0|^3.0|^4.0",
-                "sebastian/recursion-context": "^1.0|^2.0|^3.0|^4.0"
+                "doctrine/instantiator": "^1.2",
+                "php": "^7.2",
+                "phpdocumentor/reflection-docblock": "^5.0",
+                "sebastian/comparator": "^3.0 || ^4.0",
+                "sebastian/recursion-context": "^3.0 || ^4.0"
             },
             "require-dev": {
-                "phpspec/phpspec": "^2.5 || ^3.2",
-                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5 || ^7.1"
+                "phpspec/phpspec": "^6.0",
+                "phpunit/phpunit": "^8.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.10.x-dev"
+                    "dev-master": "1.11.x-dev"
                 }
             },
             "autoload": {
@@ -2338,7 +2479,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2020-03-05T15:02:03+00:00"
+            "time": "2020-07-08T12:44:21+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2532,8 +2673,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Utility class for timing",
@@ -3249,8 +3390,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Collection of value objects that represent the types of the PHP type system",
@@ -3773,8 +3914,8 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "role": "Developer",
-                    "email": "arne@blankerts.de"
+                    "email": "arne@blankerts.de",
+                    "role": "Developer"
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
@@ -3782,20 +3923,20 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "1.9.0",
+            "version": "1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozart/assert.git",
-                "reference": "9dc4f203e36f2b486149058bade43c851dd97451"
+                "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/9dc4f203e36f2b486149058bade43c851dd97451",
-                "reference": "9dc4f203e36f2b486149058bade43c851dd97451",
+                "url": "https://api.github.com/repos/webmozart/assert/zipball/bafc69caeb4d49c39fd0779086c03a3738cbb389",
+                "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3 || ^7.0",
+                "php": "^5.3.3 || ^7.0 || ^8.0",
                 "symfony/polyfill-ctype": "^1.8"
             },
             "conflict": {
@@ -3827,13 +3968,14 @@
                 "check",
                 "validate"
             ],
-            "time": "2020-06-16T10:16:42+00:00"
+            "time": "2020-07-08T17:02:28+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "phpmd/phpmd": 0
+        "aereus/lib": 20,
+        "aereus/codequality": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

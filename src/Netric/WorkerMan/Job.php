@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -16,7 +17,7 @@ class Job
      *
      * @var array
      */
-    private $workload = array();
+    private $workload = [];
 
     /**
      * The numarator of the status of the job (how much we have done)

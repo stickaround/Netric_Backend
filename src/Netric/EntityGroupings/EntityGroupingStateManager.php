@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityGroupings;
 
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
@@ -24,7 +25,7 @@ class EntityGroupingStateManager
      *
      * @var array
      */
-    private $loadedGroupings = array();
+    private $loadedGroupings = [];
 
     /**
      * Cache
@@ -130,7 +131,7 @@ class EntityGroupingStateManager
     private function loadGroupings(string $path)
     {
         $groupings = $this->dataMapper->getGroupings($path);
-        
+
         // Cache the loaded definition for future requests
         $this->loadedGroupings[$path] = $groupings;
         return $groupings;

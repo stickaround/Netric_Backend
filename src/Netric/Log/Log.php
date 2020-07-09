@@ -1,14 +1,8 @@
 <?php
-/**
- * Netric logger class
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2014 Aereus
- */
 
 namespace Netric\Log;
 
-use Netric\Config\Config;
+use Aereus\Config\Config;
 use Netric\Log\Writer\LogWriterInterface;
 use Netric\Log\Writer\PhpErrorLogWriter;
 use Netric\Log\Writer\GelfLogWriter;
@@ -79,7 +73,7 @@ class Log implements LogInterface
 
         // Set current logging level if defined
         if ($logConfig->level) {
-            $this->level =$logConfig->level;
+            $this->level = $logConfig->level;
         }
     }
 
@@ -288,7 +282,7 @@ class Log implements LogInterface
             $backtrace = $exc->getTrace();
         }
 
-        $errorType = array (
+        $errorType = array(
             E_ERROR          => 'ERROR',
             E_WARNING        => 'WARNING',
             E_PARSE          => 'PARSING ERROR',
@@ -316,24 +310,24 @@ class Log implements LogInterface
         $trace = "";
         foreach ($backtrace as $v) {
             if (isset($v['class'])) {
-                $trace = 'in class '.$v['class'].'::'.$v['function'].'(';
+                $trace = 'in class ' . $v['class'] . '::' . $v['function'] . '(';
 
                 if (isset($v['args'])) {
                     $separator = '';
 
                     foreach ($v['args'] as $arg) {
-                        $trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
+                        $trace .= "$separator" . $this->getPhpErrorArgumentStr($arg);
                         $separator = ', ';
                     }
                 }
                 $trace .= ')';
             } elseif (isset($v['function']) && empty($trace)) {
-                $trace = 'in function '.$v['function'].'(';
+                $trace = 'in function ' . $v['function'] . '(';
                 if (!empty($v['args'])) {
                     $separator = '';
 
                     foreach ($v['args'] as $arg) {
-                        $trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
+                        $trace .= "$separator" . $this->getPhpErrorArgumentStr($arg);
                         $separator = ', ';
                     }
                 }
@@ -348,7 +342,7 @@ class Log implements LogInterface
             case E_STRICT:
             case E_DEPRECATED:
                 return;
-            break;
+                break;
 
             default:
                 // Log the error
@@ -373,23 +367,23 @@ class Log implements LogInterface
 
         $body = "errNo = \"$errno: $errstr in $errfile on line $errline\";\n";
         if (isset($_COOKIE['uname'])) {
-            $body .= "USER_NAME: ".$_COOKIE['uname']."\n";
+            $body .= "USER_NAME: " . $_COOKIE['uname'] . "\n";
         }
         $body .= "Type: System\n";
         if (isset($_COOKIE['db'])) {
-            $body .= "DATABASE: ".$_COOKIE['db']."\n";
+            $body .= "DATABASE: " . $_COOKIE['db'] . "\n";
         }
         if (isset($_COOKIE['dbs'])) {
-            $body .= "DATABASE_SERVER: ".$_COOKIE['dbs']."\n";
+            $body .= "DATABASE_SERVER: " . $_COOKIE['dbs'] . "\n";
         }
         if (isset($_COOKIE['aname'])) {
-            $body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
+            $body .= "ACCOUNT_NAME: " . $_COOKIE['aname'] . "\n";
         }
 
-        $body .= "When: ".date('Y-m-d H:i:s')."\n";
-        $body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
+        $body .= "When: " . date('Y-m-d H:i:s') . "\n";
+        $body .= "PAGE: " . $_SERVER['PHP_SELF'] . "\n";
         $body .= "----------------------------------------------\n";
-        $body .= $errstr."\nTrace: $backtrace";
+        $body .= $errstr . "\nTrace: $backtrace";
         $body .= "\n----------------------------------------------\n";
 
         // Log the error
@@ -410,7 +404,7 @@ class Log implements LogInterface
                     $error['message'],
                     $error['file'],
                     $error['line'],
-                    array()
+                    []
                 );
             }
         }
@@ -433,13 +427,13 @@ class Log implements LogInterface
     {
         switch (strtolower(gettype($arg))) {
             case 'string':
-                return( '"'.str_replace(array("\n"), array(''), $arg).'"' );
+                return ('"' . str_replace(array("\n"), array(''), $arg) . '"');
 
             case 'boolean':
-                return (bool)$arg;
+                return (bool) $arg;
 
             case 'object':
-                return 'object('.get_class($arg).')';
+                return 'object(' . get_class($arg) . ')';
 
             case 'array':
                 $ret = 'array(';
@@ -454,7 +448,7 @@ class Log implements LogInterface
                 return $ret;
 
             case 'resource':
-                return 'resource('.get_resource_type($arg).')';
+                return 'resource(' . get_resource_type($arg) . ')';
 
             default:
                 return var_export($arg, true);

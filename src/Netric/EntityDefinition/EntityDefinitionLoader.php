@@ -24,7 +24,7 @@ class EntityDefinitionLoader
      *
      * @var array
      */
-    private $loadedDefinitions = array();
+    private $loadedDefinitions = [];
 
     /**
      * Cache
@@ -362,7 +362,7 @@ class EntityDefinitionLoader
             $this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes", $allObjectTypes);
         }
 
-        $ret = array();
+        $ret = [];
         foreach ($allObjectTypes as $objType) {
             // Get the defintion of the current $objType
             $ret[] = $this->get($objType);

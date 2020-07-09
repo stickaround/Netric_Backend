@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Identity mapper for entity groupings
  */
+
 namespace Netric\EntityGroupings;
 
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
@@ -24,7 +26,7 @@ class GroupingLoader
      *
      * @var array
      */
-    private $loadedGroupings = array();
+    private $loadedGroupings = [];
 
     /**
      * Cache

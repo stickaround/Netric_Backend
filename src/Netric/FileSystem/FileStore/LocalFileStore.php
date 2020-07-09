@@ -1,10 +1,12 @@
 <?php
+
 /**
  * File DataMapper for storing files to the local disk
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem\FileStore;
 
 use Netric\Error\Error;
@@ -23,7 +25,7 @@ class LocalFileStore implements FileStoreInterface
      *
      * @var Error[]
      */
-    private $errors = array();
+    private $errors = [];
 
     /**
      * Account/tennant ID
@@ -59,7 +61,7 @@ class LocalFileStore implements FileStoreInterface
         $this->dataPath = $dataPath;
         $this->entityDataMapper = $dataMapper;
     }
-    
+
     /**
      * Read and return numBypes (or all) of a file
      *
@@ -187,7 +189,7 @@ class LocalFileStore implements FileStoreInterface
             }
 
             // last entry is the file name
-            $file->setValue("name", $parts[count($parts)-1]);
+            $file->setValue("name", $parts[count($parts) - 1]);
         }
 
         // Get the local account root directory

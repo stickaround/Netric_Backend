@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Interface defining what an EntitySync must implement
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\EntitySync;
 
 interface DataMapperInterface
@@ -78,8 +80,13 @@ interface DataMapperInterface
      * @param int $localRevision The revision of the local object
      * @return bool true if imported false if failure
      */
-    public function logImported(int $collectionId, string $remoteId, int $remoteRevision = null,
-                                int $localId = null, int $localRevision = null);
+    public function logImported(
+        int $collectionId,
+        string $remoteId,
+        int $remoteRevision = null,
+        int $localId = null,
+        int $localRevision = null
+    );
 
     /**
      * Get a list of previously exported commits that have been updated
@@ -119,7 +126,7 @@ interface DataMapperInterface
     //public function getListeningPartners($fieldName=null);
     /*
     {
-        $ret = array();
+        $ret = [];
 
         $field = ($fieldName) ? $this->obj->def->getField($fieldName) : false;
 

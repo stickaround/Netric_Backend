@@ -1,10 +1,11 @@
 <?php
+
 namespace NetricTest\Application;
 
 use Netric\Application\DataMapperInterface;
 use Netric\Account\Account;
 use Netric\Application\Application;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 use PHPUnit\Framework\TestCase;
 
 abstract class AbstractDataMapperTests extends TestCase
@@ -39,7 +40,7 @@ abstract class AbstractDataMapperTests extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $configLoader = new ConfigLoader();
         $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
@@ -59,7 +60,7 @@ abstract class AbstractDataMapperTests extends TestCase
      * Cleanup after each test
      */
     protected function tearDown(): void
-{
+    {
         $dataMapper = $this->getDataMapper();
 
         foreach ($this->testAccountIds as $accountId) {
@@ -149,119 +150,119 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertTrue($dataMapper->createDatabase());
     }
 
-    public function testCreateEmailDomain()
-    {
-        $dataMapper = $this->getDataMapper();
-        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
-        $this->testAccountIds[] = $aid;
-        $ret = $dataMapper->createEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
-        $this->assertTrue($ret);
+    // public function testCreateEmailDomain()
+    // {
+    //     $dataMapper = $this->getDataMapper();
+    //     $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+    //     $this->testAccountIds[] = $aid;
+    //     $ret = $dataMapper->createEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
+    //     $this->assertTrue($ret);
 
-        // Now try retrieving the email domain using ::getEmailDomain()
-        $result = $dataMapper->getEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
-        $this->assertEquals($result["account_id"], $aid);
-        $this->assertEquals($result["domain"], self::TEST_EMAIL_DOMAIN);
-    }
+    //     // Now try retrieving the email domain using ::getEmailDomain()
+    //     $result = $dataMapper->getEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
+    //     $this->assertEquals($result["account_id"], $aid);
+    //     $this->assertEquals($result["domain"], self::TEST_EMAIL_DOMAIN);
+    // }
 
-    public function testDeleteEmailDomain()
-    {
-        $dataMapper = $this->getDataMapper();
-        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
-        $this->testAccountIds[] = $aid;
-        $dataMapper->createEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
-        $this->assertTrue($dataMapper->deleteEmailDomain($aid, self::TEST_EMAIL_DOMAIN));
-    }
+    // public function testDeleteEmailDomain()
+    // {
+    //     $dataMapper = $this->getDataMapper();
+    //     $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+    //     $this->testAccountIds[] = $aid;
+    //     $dataMapper->createEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
+    //     $this->assertTrue($dataMapper->deleteEmailDomain($aid, self::TEST_EMAIL_DOMAIN));
+    // }
 
-    public function testCreateUoUpdateEmailAlias()
-    {
-        $dataMapper = $this->getDataMapper();
-        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
-        $this->testAccountIds[] = $aid;
+    // public function testCreateUoUpdateEmailAlias()
+    // {
+    //     $dataMapper = $this->getDataMapper();
+    //     $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+    //     $this->testAccountIds[] = $aid;
 
-        // TODO: When a constraint is added to check if the domain exists, we'll
-        // need to create a test domain here before creating the alias.
+    //     // TODO: When a constraint is added to check if the domain exists, we'll
+    //     // need to create a test domain here before creating the alias.
 
-        // Test insert
-        $ret = $dataMapper->createOrUpdateEmailAlias(
-            $aid,
-            'address@' . self::TEST_EMAIL_DOMAIN,
-            'someotheraddress@test.com'
-        );
-        $this->assertTrue($ret);
+    //     // Test insert
+    //     $ret = $dataMapper->createOrUpdateEmailAlias(
+    //         $aid,
+    //         'address@' . self::TEST_EMAIL_DOMAIN,
+    //         'someotheraddress@test.com'
+    //     );
+    //     $this->assertTrue($ret);
 
-        // Test Update
-        $ret = $dataMapper->createOrUpdateEmailAlias(
-            $aid,
-            'address@' . self::TEST_EMAIL_DOMAIN,
-            'someotheraddress@test.com,andanother@test.com'
-        );
-        $this->assertTrue($ret);
+    //     // Test Update
+    //     $ret = $dataMapper->createOrUpdateEmailAlias(
+    //         $aid,
+    //         'address@' . self::TEST_EMAIL_DOMAIN,
+    //         'someotheraddress@test.com,andanother@test.com'
+    //     );
+    //     $this->assertTrue($ret);
 
-        // Make sure delete succeeds which tells us we created it correctly
-        $this->assertTrue($dataMapper->deleteEmailAlias($aid, 'address@' . self::TEST_EMAIL_DOMAIN));
-    }
+    //     // Make sure delete succeeds which tells us we created it correctly
+    //     $this->assertTrue($dataMapper->deleteEmailAlias($aid, 'address@' . self::TEST_EMAIL_DOMAIN));
+    // }
 
-    public function testDeleteEmailAlias()
-    {
-        $dataMapper = $this->getDataMapper();
-        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
-        $this->testAccountIds[] = $aid;
+    // public function testDeleteEmailAlias()
+    // {
+    //     $dataMapper = $this->getDataMapper();
+    //     $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+    //     $this->testAccountIds[] = $aid;
 
-        $dataMapper->createOrUpdateEmailAlias(
-            $aid,
-            'testdelete@' . self::TEST_EMAIL_DOMAIN,
-            'someotheraddress@test.com'
-        );
+    //     $dataMapper->createOrUpdateEmailAlias(
+    //         $aid,
+    //         'testdelete@' . self::TEST_EMAIL_DOMAIN,
+    //         'someotheraddress@test.com'
+    //     );
 
-        $this->assertTrue(
-            $dataMapper->deleteEmailAlias($aid, 'testdelete@' . self::TEST_EMAIL_DOMAIN)
-        );
-    }
+    //     $this->assertTrue(
+    //         $dataMapper->deleteEmailAlias($aid, 'testdelete@' . self::TEST_EMAIL_DOMAIN)
+    //     );
+    // }
 
-    public function testCreateOrUpdateEmailuser()
-    {
-        $dataMapper = $this->getDataMapper();
-        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
-        $this->testAccountIds[] = $aid;
+    // public function testCreateOrUpdateEmailuser()
+    // {
+    //     $dataMapper = $this->getDataMapper();
+    //     $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+    //     $this->testAccountIds[] = $aid;
 
-        // TODO: When a constraint is added to check if the domain exists, we'll
-        // need to create a test domain here before creating the user.
+    //     // TODO: When a constraint is added to check if the domain exists, we'll
+    //     // need to create a test domain here before creating the user.
 
-        // Test insert
-        $ret = $dataMapper->createOrUpdateEmailUser(
-            $aid,
-            'address@' . self::TEST_EMAIL_DOMAIN,
-            'password'
-        );
+    //     // Test insert
+    //     $ret = $dataMapper->createOrUpdateEmailUser(
+    //         $aid,
+    //         'address@' . self::TEST_EMAIL_DOMAIN,
+    //         'password'
+    //     );
 
-        // Test Update
-        $ret = $dataMapper->createOrUpdateEmailUser(
-            $aid,
-            'address@' . self::TEST_EMAIL_DOMAIN,
-            'password2'
-        );
-        $this->assertTrue($ret);
+    //     // Test Update
+    //     $ret = $dataMapper->createOrUpdateEmailUser(
+    //         $aid,
+    //         'address@' . self::TEST_EMAIL_DOMAIN,
+    //         'password2'
+    //     );
+    //     $this->assertTrue($ret);
 
-        // Make sure delete succeeds which tells us we created it correctly
-        $this->assertTrue($dataMapper->deleteEmailUser($aid, 'address@' . self::TEST_EMAIL_DOMAIN));
-    }
+    //     // Make sure delete succeeds which tells us we created it correctly
+    //     $this->assertTrue($dataMapper->deleteEmailUser($aid, 'address@' . self::TEST_EMAIL_DOMAIN));
+    // }
 
-    public function testDeleteEmailUser()
-    {
-        $dataMapper = $this->getDataMapper();
-        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
-        $this->testAccountIds[] = $aid;
+    // public function testDeleteEmailUser()
+    // {
+    //     $dataMapper = $this->getDataMapper();
+    //     $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+    //     $this->testAccountIds[] = $aid;
 
-        $dataMapper->createOrUpdateEmailUser(
-            $aid,
-            'testdelete@' . self::TEST_EMAIL_DOMAIN,
-            'password'
-        );
+    //     $dataMapper->createOrUpdateEmailUser(
+    //         $aid,
+    //         'testdelete@' . self::TEST_EMAIL_DOMAIN,
+    //         'password'
+    //     );
 
-        $this->assertTrue(
-            $dataMapper->deleteEmailUser($aid, 'testdelete@' . self::TEST_EMAIL_DOMAIN)
-        );
-    }
+    //     $this->assertTrue(
+    //         $dataMapper->deleteEmailUser($aid, 'testdelete@' . self::TEST_EMAIL_DOMAIN)
+    //     );
+    // }
 
     public function testAcquireLock()
     {

@@ -6,6 +6,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\Validator;
 
 use Netric\Entity\Entity;
@@ -27,7 +28,7 @@ class EntityValidator implements Error\ErrorAwareInterface
      *
      * @var Error\Error[]
      */
-    private $errors = array();
+    private $errors = [];
 
     /**
      * Setup the validator service

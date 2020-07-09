@@ -1,9 +1,10 @@
 <?php
+
 namespace Netric\Application\Health\DependencyCheck;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\Config\Config;
+use Netric\Config\ConfigFactory;
 use Netric\Application\Health\DependencyCheck\PgsqlDependencyCheck;
 
 /**
@@ -20,7 +21,7 @@ class DependenciesFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $dependencies = [];
-        $config = $serviceLocator->get(Config::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
 
         // We need pgsql to be working
         $dependencies[] = new PgsqlDependencyCheck(

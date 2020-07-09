@@ -1,10 +1,12 @@
 <?php
+
 /**
  * New discretionary access control list
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Permissions;
 
 use Netric\Entity\ObjType\UserEntity;
@@ -35,7 +37,7 @@ class Dacl
      *
      * @var Dacl\Entry[]
      */
-    private $entries = array();
+    private $entries = [];
 
     /**
      * The default permission to check if none is supplied
@@ -79,7 +81,7 @@ class Dacl
             }
         }
     }
-    
+
     /**
      * Load definition of this array from data array
      *
@@ -155,7 +157,7 @@ class Dacl
      */
     public function getUsers()
     {
-        $uids = array();
+        $uids = [];
 
         // Get distinct list of users
         foreach ($this->entries as $ent) {
@@ -176,7 +178,7 @@ class Dacl
      */
     public function getGroups()
     {
-        $gids = array();
+        $gids = [];
 
         // Get distinct list of users
         foreach ($this->entries as $ent) {
@@ -186,7 +188,7 @@ class Dacl
                 }
             }
         }
-        
+
         return $gids;
     }
 

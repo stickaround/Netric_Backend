@@ -3,6 +3,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+
 namespace Netric\EntityQuery;
 
 /**
@@ -359,7 +360,7 @@ class Where
     public function getOperatorDateType()
     {
         switch ($this->operator) {
-            
+
             case self::OPERATOR_DAY_IS_EQUAL:
             case self::OPERATOR_LAST_X_DAYS:
             case self::OPERATOR_NEXT_X_DAYS:

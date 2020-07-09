@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityQuery;
 
 use Netric\Stats\StatsPublisher;
@@ -31,7 +32,7 @@ class Results
      *
      * @param Entity
      */
-    private $entities = array();
+    private $entities = [];
 
     /**
      * The starting offset of the next page
@@ -63,7 +64,7 @@ class Results
      *
      * @var array("name"=>array(data))
      */
-    private $aggregations = array();
+    private $aggregations = [];
 
     /**
      * Class constructor
@@ -187,7 +188,7 @@ class Results
      */
     public function clearEntities()
     {
-        $this->entities = array();
+        $this->entities = [];
     }
 
     /**
@@ -198,8 +199,10 @@ class Results
      */
     public function getEntity($offset = 0)
     {
-        if ($offset >= ($this->getOffset() + $this->query->getLimit()) ||
-            $offset < $this->getOffset()) {
+        if (
+            $offset >= ($this->getOffset() + $this->query->getLimit()) ||
+            $offset < $this->getOffset()
+        ) {
             // Get total number of pages
             $leftover = $this->totalNum % $this->query->getLimit();
             if ($leftover) {
@@ -207,7 +210,7 @@ class Results
             } else {
                 $numpages = $this->totalNum / $this->query->getLimit();
             }
-            
+
             // Get current page offset
             $page = floor($offset / $this->query->getLimit());
             if ($page) {
@@ -215,14 +218,14 @@ class Results
             } else {
                 $this->setOffset(0);
             }
-            
-            
+
+
             // Automatially load the next page
             if ($this->index) {
                 $this->index->executeQuery($this->query, $this);
             }
         }
-        
+
         // Adjust offset for pagination
         $offset = $offset - $this->getOffset();
 
@@ -254,7 +257,7 @@ class Results
     /**
      * Get aggregation data for this query by name
      *
-     * @return array()
+     * @return []
      */
     public function getAggregation($name)
     {

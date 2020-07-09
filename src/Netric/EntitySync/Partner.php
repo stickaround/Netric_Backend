@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sync partner represents a foreign datastore and/or device to import and export data to
  *
@@ -55,7 +56,7 @@ class Partner
      *
      * @var string[]
      */
-    private $removedCollections = array();
+    private $removedCollections = [];
 
     /**
      * Object collections this partner is listening for
@@ -68,7 +69,7 @@ class Partner
      *
      * @var Netric\EntitySync\Collection\CollectionInterface[]
      */
-    private $collections = array();
+    private $collections = [];
 
     /**
      * Class constructor
@@ -124,7 +125,7 @@ class Partner
     {
         return $this->partnerId;
     }
-    
+
 
     /**
      * Set the owner of this partner
@@ -179,7 +180,7 @@ class Partner
      * @param array $conditions Array of conditions used to filter the collection
      * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
      */
-    public function getEntityCollection($objType, $conditions = array())
+    public function getEntityCollection($objType, $conditions = [])
     {
         return $this->getCollection($objType, null, $conditions);
     }
@@ -192,7 +193,7 @@ class Partner
      * @param array $conditions Array of conditions used to filter the collection
      * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
      */
-    public function getGroupingCollection($objType, $fieldName, $conditions = array())
+    public function getGroupingCollection($objType, $fieldName, $conditions = [])
     {
         return $this->getCollection($objType, $fieldName, $conditions);
     }
@@ -203,7 +204,7 @@ class Partner
      * @param array $conditions Array of conditions used to filter the collection
      * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
      */
-    public function getEntityDefinitionCollection($conditions = array())
+    public function getEntityDefinitionCollection($conditions = [])
     {
         return $this->getCollection(null, null, $conditions);
     }
@@ -217,13 +218,13 @@ class Partner
      * @param bool $addIfMissing Add the object type to the list of synchronized objects if it does not already exist
      * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
      */
-    private function getCollection($obj_type, $fieldName = null, $conditions = array())
+    private function getCollection($obj_type, $fieldName = null, $conditions = [])
     {
         $ret = null;
 
         // Make sure conditions is an array so we can loop over them (even if 0)
         if (!is_array($conditions)) {
-            $conditions = array();
+            $conditions = [];
         }
 
         foreach ($this->collections as $col) {
@@ -237,7 +238,7 @@ class Partner
                 }
 
                 // Make sure conditions match - if not set back to false
-                if ($ret!=null && count($conditions) > 0) {
+                if ($ret != null && count($conditions) > 0) {
                     $collConds = $col->getConditions();
 
                     // Compare against challenge list
@@ -245,10 +246,12 @@ class Partner
                         $found = false;
 
                         foreach ($collConds as $cmdCond) {
-                            if ($cmdCond['blogic'] == $cond['blogic']
+                            if (
+                                $cmdCond['blogic'] == $cond['blogic']
                                 && $cmdCond['field'] == $cond['field']
                                 && $cmdCond['operator'] == $cond['operator']
-                                && $cmdCond['condValue'] == $cond['condValue']) {
+                                && $cmdCond['condValue'] == $cond['condValue']
+                            ) {
                                 $found = true;
                             }
                         }
@@ -263,10 +266,12 @@ class Partner
                     foreach ($collConds as $cond) {
                         $found = false;
                         foreach ($conditions as $cmdCond) {
-                            if ($cmdCond['blogic'] == $cond['blogic']
+                            if (
+                                $cmdCond['blogic'] == $cond['blogic']
                                 && $cmdCond['field'] == $cond['field']
                                 && $cmdCond['operator'] == $cond['operator']
-                                && $cmdCond['condValue'] == $cond['condValue']) {
+                                && $cmdCond['condValue'] == $cond['condValue']
+                            ) {
                                 $found = true;
                             }
                         }
@@ -331,7 +336,7 @@ class Partner
         }
 
         // Empty the collections id
-        $this->collections = array();
+        $this->collections = [];
     }
 
     /**

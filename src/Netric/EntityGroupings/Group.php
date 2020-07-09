@@ -80,7 +80,7 @@ class Group
      *
      * @var Group[]
      */
-    public $children = array();
+    public $children = [];
 
     /**
      * Dirty flag set when changes are made

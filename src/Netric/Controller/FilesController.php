@@ -3,6 +3,7 @@
 /**
  * Controller for FileSystem interaction
  */
+
 namespace Netric\Controller;
 
 use Netric\Entity\ObjType\UserEntity;
@@ -94,7 +95,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         return $dacl;
     }
-   
+
     /**
      * Upload a new file to the filesystem via POST
      *
@@ -111,7 +112,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
 
         $folder = null;
-        $ret = array();
+        $ret = [];
 
         // If folderid has been passed the override the text path
         if ($request->getParam('folderid')) {
@@ -131,7 +132,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         $files = $request->getParam('files');
 
         // List of files that just got uploaded
-        $uploadedFiles = array();
+        $uploadedFiles = [];
 
         /**
          * When a file is uploaded it can be sent as 'input_name' or as 'input_name[]'
@@ -171,7 +172,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         $user = $this->account->getUser();
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        
+
         foreach ($uploadedFiles as $uploadedFile) {
             /*
              * Make sure that the file was uploaded via HTTP_POST. This is useful to help
@@ -196,7 +197,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              * that the user has permission to the parent folder before creating a child folder
              */
             $folderEntity = $this->fileSystem->openFolder($folderPath);
-            
+
             if ($folderEntity) {
                 $daclData = array(
                     "entries" => array(

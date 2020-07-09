@@ -1,7 +1,9 @@
 <?php
+
 /**
  * All entities/objects should implement this interface
  */
+
 namespace Netric\Entity;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
@@ -19,7 +21,7 @@ interface EntityInterface
      * Get unique id of this object
      */
     public function getId();
-    
+
     /**
      * Set the unique id of this object
      *
@@ -33,7 +35,7 @@ interface EntityInterface
      * @return EntityDefinition
      */
     public function getDefinition();
-    
+
     /**
      * Return either the string or an array of values if *_multi
      *
@@ -41,7 +43,7 @@ interface EntityInterface
      * @return string|array
      */
     public function getValue($strname);
-    
+
     /**
      * Get fkey name for key/value field types like fkey and fkeyMulti
      *
@@ -58,7 +60,7 @@ interface EntityInterface
      * @return array(array("id"=>"name"))
      */
     public function getValueNames($strName);
-    
+
     /**
      * Set a field value for this object
      *
@@ -76,7 +78,7 @@ interface EntityInterface
      * @param string $valueName Optional value name if $value is a key
      */
     public function addMultiValue($strName, $value, $valueName = "");
-    
+
     /**
      * Remove a value from a *_multi type field
      *
@@ -147,14 +149,14 @@ interface EntityInterface
      * @return string The name/label of this object
      */
     public function getName();
-    
+
     /**
      * Check if the deleted flag is set for this object
      *
      * @return bool
      */
     public function isDeleted();
-    
+
     /**
      * Set defaults for a field given an event
      *

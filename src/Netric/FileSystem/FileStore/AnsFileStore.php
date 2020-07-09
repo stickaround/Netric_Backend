@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Store files in the ANS storage server
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem\FileStore;
 
 use Netric\Error;
@@ -48,7 +50,7 @@ class AnsFileStore implements FileStoreInterface
      *
      * @var Error\Error[]
      */
-    private $errors = array();
+    private $errors = [];
 
     /**
      * Account/tennant ID
@@ -113,7 +115,7 @@ class AnsFileStore implements FileStoreInterface
         $this->tmpPath = $tmpPath;
 
         $this->requestUrl = "http://" . $this->ansServer . "/server.php?account=";
-        $this->requestUrl .= $this->ansAccount . "&p=".md5($this->ansPassword);
+        $this->requestUrl .= $this->ansAccount . "&p=" . md5($this->ansPassword);
         $this->requestUrl .= "&pver=" . self::ANS_API_VER;
     }
 
@@ -129,8 +131,8 @@ class AnsFileStore implements FileStoreInterface
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
         $url = $this->requestUrl;
-        $url .= "&function=file_download&folder=".rawurlencode($this->ansFolder);
-        $url .= "&file=".rawurlencode($file->getValue("dat_ans_key"));
+        $url .= "&function=file_download&folder=" . rawurlencode($this->ansFolder);
+        $url .= "&file=" . rawurlencode($file->getValue("dat_ans_key"));
 
         // If file has not yet been opened, then open it
         if (!$file->getFileHandle()) {
@@ -139,7 +141,7 @@ class AnsFileStore implements FileStoreInterface
             } else {
                 throw new Exception\FileNotFoundException(
                     "Key '$url' is not in the ANS store: " .
-                    $this->getLastError()->getMessage()
+                        $this->getLastError()->getMessage()
                 );
             }
         }
@@ -219,8 +221,8 @@ class AnsFileStore implements FileStoreInterface
 
         // Construct the full request with all params
         $url = $this->requestUrl;
-        $url .= "&function=file_upload&folder=".rawurlencode($this->ansFolder);
-        $url .= "&filename=".rawurlencode($key)."&size=$size";
+        $url .= "&function=file_upload&folder=" . rawurlencode($this->ansFolder);
+        $url .= "&filename=" . rawurlencode($key) . "&size=$size";
 
         $ch = curl_init();
         //curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -272,10 +274,10 @@ class AnsFileStore implements FileStoreInterface
 
         // Setup the base URL for request to the ans server
         $baseUrl = $this->requestUrl;
-        $baseUrl .= "&function=file_delete&folder=".rawurlencode($this->ansFolder);
+        $baseUrl .= "&function=file_delete&folder=" . rawurlencode($this->ansFolder);
 
         // Delete the current file
-        $deleteUrl = $baseUrl . "&file=".rawurlencode($file->getValue("dat_ans_key"));
+        $deleteUrl = $baseUrl . "&file=" . rawurlencode($file->getValue("dat_ans_key"));
         $response = file_get_contents($deleteUrl);
 
         if ($response) {
@@ -327,8 +329,8 @@ class AnsFileStore implements FileStoreInterface
 
         // Construct the full request with all params
         $url = $this->requestUrl;
-        $url .= "&function=file_exists&folder=".rawurlencode($this->ansFolder);
-        $url .= "&file=".rawurlencode($file->getValue('dat_ans_key'));
+        $url .= "&function=file_exists&folder=" . rawurlencode($this->ansFolder);
+        $url .= "&file=" . rawurlencode($file->getValue('dat_ans_key'));
 
         $response = file_get_contents($url);
 

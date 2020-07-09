@@ -189,7 +189,7 @@ class Router
              * which is more useful for different environments
              */
             // forward request variables in as params
-            $params = array();
+            $params = [];
 
             // POST params
             foreach ($_POST as $varname => $varval) {

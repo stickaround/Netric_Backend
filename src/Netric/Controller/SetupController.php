@@ -14,7 +14,6 @@ use Netric\Permissions\Dacl;
 use Netric\Application\Setup\Setup;
 use Netric\Console\BinScript;
 use Netric\Application\Response\HttpResponse;
-use Netric\Application\DataMapperFactory;
 use Netric\Account\AccountSetupFactory;
 use Netric\Log\LogFactory;
 

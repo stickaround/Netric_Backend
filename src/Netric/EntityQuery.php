@@ -1,9 +1,11 @@
 <?php
+
 /**
  * This class is used to handle querying collections of objects
  *
  * TODO: this is a work in progress
  */
+
 namespace Netric;
 
 use Netric\EntityQuery\OrderBy;
@@ -22,49 +24,49 @@ class EntityQuery
      * @var string
      */
     private $objType = "";
-    
+
     /**
      * Array of where conditions
      *
      * @var array [['blogic', 'field', 'operator', 'value']]
      */
-    private $wheres = array();
-    
+    private $wheres = [];
+
     /**
      * Order by fields
      *
      * @var array [['field', 'direction']]
      */
-    private $orderBy = array();
-    
+    private $orderBy = [];
+
     /**
      * DataMapper reference used for automatic pagination after initial load
      *
      * @var /Netric/models/DataMapperInterface
      */
     private $dataMapper = null;
-    
+
     /**
      * Array of entities that are loaded in this collection
      *
      * @param \Netric\Models\Entity
      */
-    private $entities = array();
-    
+    private $entities = [];
+
     /**
      * Limit number of entities loaded from datamapper per page
      *
      * @var int
      */
     private $limitPerPage = 100;
-    
+
     /**
      * The current offset
      *
      * @var int
      */
     private $offset = 0;
-    
+
     /**
      * The starting offset of the next page
      *
@@ -73,7 +75,7 @@ class EntityQuery
      * @var int
      */
     private $nextPageOffset = -1;
-    
+
     /**
      * The starting offset of the previous page
      *
@@ -82,20 +84,20 @@ class EntityQuery
      * @var int
      */
     private $prevPageOffset = -1;
-    
+
     /**
      * Total number of entities in the collection
      *
      * @var int
      */
     private $totalNum = 0;
-    
+
     /**
      * Aggregations to use with this query
      *
      * @var Netric\EntityQuery\Aggregation\AbstractAggregation[]
      */
-    private $aggregations = array();
+    private $aggregations = [];
 
     /**
      * Operator constants
@@ -104,7 +106,7 @@ class EntityQuery
      */
     const OP_EQUALTO = "is_equal";
     const OP_DOESNOTEQUAL = "is_not_equal";
-       
+
     /**
      * Class constructor
      *
@@ -114,7 +116,7 @@ class EntityQuery
     {
         $this->objType = $objType;
     }
-    
+
     /**
      * Get the object type for this collection
      *
@@ -124,7 +126,7 @@ class EntityQuery
     {
         return $this->objType;
     }
-    
+
     /**
      * Add a where condition
      *
@@ -143,7 +145,7 @@ class EntityQuery
         $this->addCondition($where);
         return $where;
     }
-    
+
     /**
      * Add a where condition with "and" boolean logic
      *
@@ -178,7 +180,7 @@ class EntityQuery
     {
         $this->wheres[] = $where;
     }
-    
+
     /**
      * Get array of wheres used to filter this collection
      *
@@ -227,7 +229,7 @@ class EntityQuery
     {
         $this->orderBy[] = $orderBy;
     }
-    
+
     /**
      * Get array of order by used to filter this collection
      *
@@ -237,7 +239,7 @@ class EntityQuery
     {
         return $this->orderBy;
     }
-    
+
     /**
      *  Set local reference to datamapper for loading objects and auto pagination
      *
@@ -247,7 +249,7 @@ class EntityQuery
     {
         $this->dataMapper = $dm;
     }
-    
+
     /**
      * Restrict the number of entities that can be loaded per page
      *
@@ -257,7 +259,7 @@ class EntityQuery
     {
         $this->limitPerPage = $num;
     }
-    
+
     /**
      * Get the limit per page that can be loaded
      *
@@ -267,7 +269,7 @@ class EntityQuery
     {
         return $this->limitPerPage;
     }
-    
+
     /**
      * Determine if this query is searching for deleted items or active
      *
@@ -285,7 +287,7 @@ class EntityQuery
         }
         return $ret;
     }
-    
+
     /**
      * Get the offset of the next page for automatic pagination
      *
@@ -295,7 +297,7 @@ class EntityQuery
     {
         return $this->nextPageOffset;
     }
-    
+
     /**
      * Get the offset of the previous page for automatic pagination
      *
@@ -305,7 +307,7 @@ class EntityQuery
     {
         return $this->prevPageOffset;
     }
-    
+
     /**
      * Set the offset
      *
@@ -315,7 +317,7 @@ class EntityQuery
     {
         $this->offset = $offset;
     }
-    
+
     /**
      * Get current offset
      *
@@ -325,7 +327,7 @@ class EntityQuery
     {
         return $this->offset;
     }
-    
+
     /**
      * Set the total number of entities for the defined query
      *
@@ -337,7 +339,7 @@ class EntityQuery
     {
         $this->totalNum = $num;
     }
-    
+
     /**
      * Get the total number of entities in this collection
      *
@@ -347,7 +349,7 @@ class EntityQuery
     {
         return $this->totalNum;
     }
-    
+
     /**
      * Add an entity to this collection
      *
@@ -357,15 +359,15 @@ class EntityQuery
     {
         $this->entities[] = $entity;
     }
-    
+
     /**
      * Reset the entities array
      */
     public function clearEntities()
     {
-        $this->entities = array();
+        $this->entities = [];
     }
-    
+
     /**
      * Retrieve an entity from the collection
      *
@@ -404,7 +406,7 @@ class EntityQuery
         return $this->entities[$offset];
     }
      */
-    
+
     /**
      * Add a facet count to the list of facets
      *
@@ -428,7 +430,7 @@ class EntityQuery
     {
         $this->aggregations[] = $agg;
     }
-    
+
     /**
      * Get aggregations for this query
      *
@@ -438,7 +440,7 @@ class EntityQuery
     {
         return $this->aggregations;
     }
-    
+
     /**
      * Check if this query has any aggregations
      *
@@ -446,9 +448,9 @@ class EntityQuery
      */
     public function hasAggregations()
     {
-        return (count($this->aggregations)>0) ? true : false;
+        return (count($this->aggregations) > 0) ? true : false;
     }
-    
+
     /**
      * Execute the query for this collection
      *
@@ -477,14 +479,14 @@ class EntityQuery
         );
 
         // Add all where conditions
-        $ret['conditions'] = array();
+        $ret['conditions'] = [];
         $wheres = $this->getWheres();
         foreach ($wheres as $whereCondition) {
             $ret['conditions'][] = $whereCondition->toArray();
         }
 
         // Add order by
-        $ret['order_by'] = array();
+        $ret['order_by'] = [];
         $orderBy = $this->getOrderBy();
         foreach ($orderBy as $sortDef) {
             $ret['order_by'][] = $sortDef->toArray();

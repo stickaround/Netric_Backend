@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity\Recurrence;
 
 use Netric\Db;
@@ -289,9 +290,11 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             throw new \InvalidArgumentException("Cannot update recurrence parent object id. Invalid entity id.");
         }
 
-        $result = $this->database->update("object_recurrence",
+        $result = $this->database->update(
+            "object_recurrence",
             ["parent_object_id" => $entityId],
-            ["id" => $recurrenceId]);
+            ["id" => $recurrenceId]
+        );
 
         return ($result) ? true : false;
     }

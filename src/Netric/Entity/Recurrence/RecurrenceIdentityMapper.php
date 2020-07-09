@@ -1,10 +1,12 @@
 <?php
+
 /**
  * IdentityMapper for recurrence patterns
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\Recurrence;
 
 use Netric\Entity\Entity;
@@ -23,7 +25,7 @@ class RecurrenceIdentityMapper
      *
      * @var array
      */
-    private $cachedPatterns = array();
+    private $cachedPatterns = [];
 
     /**
      * Construct the identity mapper and set all dependencies
@@ -174,7 +176,7 @@ class RecurrenceIdentityMapper
      */
     public function getStalePatterns($objType, \DateTime $dateTo)
     {
-        $recurrencePatterns = array();
+        $recurrencePatterns = [];
         $stalePatternIds = $this->recurDataMapper->getStalePatternIds($objType, $dateTo);
 
         // Load each through this identity mapper - which caches them - and return

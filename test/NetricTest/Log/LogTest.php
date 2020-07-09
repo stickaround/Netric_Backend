@@ -1,13 +1,15 @@
 <?php
+
 /**
  * Test entity/object class
  */
+
 namespace NetricTest\Log;
 
 use Netric\Log\Log;
 use Netric\Log\Writer\GelfLogWriter;
 use PHPUnit\Framework\TestCase;
-use Netric\Config\Config;
+use Aereus\Config\Config;
 
 class LogTest extends TestCase
 {
@@ -36,7 +38,7 @@ class LogTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         // Create a silent writer
         $this->log = new Log(new Config(['writer' => 'null']));
     }
@@ -56,7 +58,7 @@ class LogTest extends TestCase
      */
     public function testConstructGelfWriter()
     {
-        $testLog = new Log(new Config(['writer' => 'gelf', 'server'=>'logstash']));
+        $testLog = new Log(new Config(['writer' => 'gelf', 'server' => 'logstash']));
         $this->assertInstanceOf(GelfLogWriter::class, $testLog->getLogWriter());
     }
 }

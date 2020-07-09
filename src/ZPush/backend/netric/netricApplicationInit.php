@@ -4,7 +4,7 @@
 require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
 
 use Netric\Application\Application;
-use Netric\Config\ConfigLoader;
+use Aereus\Config\ConfigLoader;
 
 
 /**
@@ -41,7 +41,7 @@ class NetricApplicationInit
         $applicationEnvironment = (getenv('APPLICATION_ENV')) ?
             getenv('APPLICATION_ENV') : "production";
         $config = $configLoader->fromFolder(
-            dirname(__FILE__)."/../../../../config",
+            dirname(__FILE__) . "/../../../../config",
             $applicationEnvironment
         );
         self::$applicationInstance = Application::init($config);

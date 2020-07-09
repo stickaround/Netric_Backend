@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\WorkerMan;
 
 use Netric\WorkerMan\Queue\QueueInterface;
@@ -93,12 +95,12 @@ class WorkerService
      */
     private function loadWorkers()
     {
-        $this->workers = array();
+        $this->workers = [];
 
         // Load up all workers from the ../Worker directory
         foreach (glob(__DIR__ . "/Worker/*Worker.php") as $filename) {
             // Add each worker as a listener
-            $workerName = substr(basename($filename), 0, -(strlen("Worker.php")));
+            $workerName = substr(basename($filename), 0, - (strlen("Worker.php")));
             $workerClass = "\\Netric\\WorkerMan\\Worker\\" . $workerName . "Worker";
             $this->workers[$workerName] = new $workerClass($this->application);
             $this->jobQueue->addWorker($workerName, $this->workers[$workerName]);
