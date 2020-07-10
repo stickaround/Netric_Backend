@@ -334,7 +334,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             }
         }
 
-        // Now try to make the default account database if it does not exist
+        // Now try to make the account database if it does not exist
         if (!$defaultAcctDb->checkConnection()) {
             if (!$postgres->query("CREATE DATABASE " . $this->defaultAccountDatabase)) {
                 throw new \RuntimeException("Could not create database: " . $this->defaultAccountDatabase);
