@@ -185,6 +185,8 @@ return [
      */
     "entities" => [
         "PROPERTIES" => [
+            // Used for inserts and internal/shorthand operations, but guid is the primary key
+            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'guid' => ['type' => SchemaProperty::TYPE_UUID],
             'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
