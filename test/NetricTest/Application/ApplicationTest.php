@@ -87,20 +87,6 @@ class ApplicationTest extends TestCase
         $this->application->deleteAccount(self::TEST_ACCT_NAME);
     }
 
-    /**
-     * Check that we can initialize a new database
-     */
-    public function testInitDb()
-    {
-        /*
-         * The actual function of creating the database is tested
-         * in the application DataMapper tests. All we need to do here
-         * is make sure this function works with an existing database
-         * since the create can be assumed to be thoroughly tested elsewhere.
-         */
-        $this->assertTrue($this->application->initDb());
-    }
-
     public function testDeleteAccount()
     {
         // First cleanup in case we left an account around

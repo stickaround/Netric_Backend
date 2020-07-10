@@ -8,6 +8,7 @@
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
  *  @copyright 2014 Aereus
  */
+
 namespace Netric\Application;
 
 use Netric\Account\Account;
@@ -79,13 +80,6 @@ interface DataMapperInterface
      * @return bool true on success, false on failure - call getLastError for details
      */
     public function deleteAccount($accountId);
-
-    /**
-     * Create the application database if it does not already exist
-     *
-     * @return bool true if exists, false if not and could not create it with $this->getLastError set
-     */
-    public function createDatabase();
 
     /**
      * Create a new email domain

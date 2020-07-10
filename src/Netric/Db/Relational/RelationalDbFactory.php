@@ -23,13 +23,10 @@ class RelationalDbFactory implements AccountServiceFactoryInterface
 
         $db = new PgsqlDb(
             $config->db["host"],
-            $sl->getAccount()->getDatabaseName(),
+            $config->db["dbname"],
             $config->db["user"],
             $config->db["password"]
         );
-
-        // Set the schema to a specific account to keep the data segregated
-        $db->setNamespace('acc_' . $sl->getAccount()->getId());
 
         return $db;
     }

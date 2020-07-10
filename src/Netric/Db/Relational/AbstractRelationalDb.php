@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Db\Relational;
 
 use Netric\Db\Relational\Exception\DatabaseException;
@@ -122,7 +123,7 @@ abstract class AbstractRelationalDb
      * @param string $columnName
      * @return string | null
      */
-    abstract protected function getSequenceName(string $tableName, string $columnName): ? string;
+    abstract protected function getSequenceName(string $tableName, string $columnName): ?string;
 
     /**
      * Chose the current connection if it exists
@@ -195,8 +196,8 @@ abstract class AbstractRelationalDb
         // Bummer! No connection could be established
         throw new Exception\DatabaseConnectionException(
             'Could not establish connection after ' .
-            self::MAX_CONNECT_ATTEMPTS . ' attempts. Exception: ' .
-            $oLastException->getMessage()
+                self::MAX_CONNECT_ATTEMPTS . ' attempts. Exception: ' .
+                $oLastException->getMessage()
         );
     }
 
@@ -252,9 +253,9 @@ abstract class AbstractRelationalDb
              */
             throw new DatabaseQueryException(
                 $oPdoException->getMessage() .
-                ",database=" . $this->getDatabaseName() . "." . $this->getNamespace() .
-                ", query=" . $sqlQuery .
-                ", params=" . var_export($params, true)
+                    ",database=" . $this->getDatabaseName() . "." . $this->getNamespace() .
+                    ", query=" . $sqlQuery .
+                    ", params=" . var_export($params, true)
             );
         }
     }
@@ -405,8 +406,8 @@ abstract class AbstractRelationalDb
         } catch (\PDOException $exception) {
             throw new DatabaseException(
                 'Unable to get the last inserted ID. This often happens if this ' .
-                'was called after the transaction was committed, or the ' .
-                'table does not have a serialized primary key.'
+                    'was called after the transaction was committed, or the ' .
+                    'table does not have a serialized primary key.'
             );
         }
     }
@@ -428,7 +429,7 @@ abstract class AbstractRelationalDb
      *
      * @return bool Returns true if we can connect to PDO otherwise returns false
      */
-    public function checkConnection()
+    public function checkConnection(): bool
     {
         try {
             $pdoConnection = new \PDO(

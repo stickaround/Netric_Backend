@@ -345,7 +345,7 @@ class AccountUpdater extends AbstractHasErrors
         // Log the current path of the major.minor dir
         $this->log->info("AccountUpdater:: Current path $path");
         $this->log->info("AccountUpdater:: Current version: " . json_encode($this->version));
-        
+
         // Get individual update points
         $updates = [];
         $points = [];

@@ -49,17 +49,6 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
     private $password = "";
 
     /**
-     * The default database name used for accounts
-     *
-     * At some point we may want to use different databases for different account
-     * types or something like that, but for now we are putting everything in a common
-     * database and utilizing PostgreSQL's schemas for multi-tenancy.
-     *
-     * @var null
-     */
-    private $defaultAccountDatabase = null;
-
-    /**
      * Errors array
      *
      * @var Error[]
@@ -73,20 +62,17 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      * @param string $databaseName System database name
      * @param string $username System database username
      * @param string $password System database password
-     * @param string $defaultAccountDatabase The database name used for new accounts
      */
     public function __construct(
         $host,
         $databaseName,
         $username,
-        $password,
-        $defaultAccountDatabase
+        $password
     ) {
         $this->host = $host;
         $this->databaseName = $databaseName;
         $this->username = $username;
         $this->password = $password;
-        $this->defaultAccountDatabase = $defaultAccountDatabase;
 
         // Create an instance of the new Relational Database of PgSql
         $this->database = new PgsqlDb(
@@ -262,7 +248,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         // Create account in antsystem
         $insertData = [
             "name" => $name,
-            "database" => $this->defaultAccountDatabase,
+            //"database" => $this->defaultAccountDatabase,
         ];
         $ret = $this->database->insert("accounts", $insertData);
 
@@ -303,60 +289,13 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
 
         if ($ret) {
             return true;
-        } else if ($ret === 0) {
+        }
+
+        if ($ret === 0) {
             $this->errors[] = new Error("Accountid $accountId does not exists.");
         }
 
         return false;
-    }
-
-    /**
-     * Create the local database if it does not already exist
-     *
-     * @return bool true if exists, false if not and could not create it with $this->getLastError set
-     */
-    public function createDatabase()
-    {
-        $defaultAcctDb = new PgsqlDb($this->host, $this->defaultAccountDatabase, $this->username, $this->password);
-
-        // First try to connect to this database to see if it exists
-        if ($this->checkDbConnection() && $defaultAcctDb->checkConnection()) {
-            return true;
-        }
-
-        // Try to create databases  by connecting to template1, then create the new db, and reconnect
-        $postgres = new PgsqlDb($this->host, "postgres", $this->username, $this->password);
-
-        // Try to create the application database if it does not exist
-        if (!$this->checkDbConnection()) {
-            if (!$postgres->query("CREATE DATABASE " . $this->databaseName)) {
-                throw new \RuntimeException("Could not create database: " . $this->databaseName);
-            }
-        }
-
-        // Now try to make the account database if it does not exist
-        if (!$defaultAcctDb->checkConnection()) {
-            if (!$postgres->query("CREATE DATABASE " . $this->defaultAccountDatabase)) {
-                throw new \RuntimeException("Could not create database: " . $this->defaultAccountDatabase);
-            }
-
-            if (!$defaultAcctDb->checkConnection()) {
-                throw new \RuntimeException("Failed to connect to created database: " . $this->defaultAccountDatabase);
-            }
-        }
-
-        $postgres->close();
-
-        // Now let's try to connect to the newly created database
-        $this->database = new PgsqlDb(
-            $this->host,
-            $this->databaseName,
-            $this->username,
-            $this->password
-        );
-
-        // New database was created, now try to reconnect and return the results
-        return $this->checkDbConnection();
     }
 
     /**

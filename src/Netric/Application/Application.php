@@ -18,6 +18,9 @@ use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\DataMapperInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Request\RequestFactory;
+use Netric\Application\Setup\AccountUpdater;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Main application instance class
@@ -351,7 +354,7 @@ class Application
      * @param string $adminUserPassword Required password for the admin
      * @return Account
      */
-    public function createAccount($accountName, $adminUserName, $adminUserPassword)
+    public function createAccount($accountName, $adminUserName, $adminEmail, $adminPassword)
     {
         // Make sure the account does not already exists
         if ($this->accountsIdentityMapper->loadByName($accountName, $this)) {
@@ -374,12 +377,25 @@ class Application
         $account = $this->accountsIdentityMapper->loadById($accountId, $this);
 
         // Initialize with setup
-        $setup = new Setup();
-        $setup->setupAccount($account, $adminUserName, $adminUserPassword);
+        // $setup = new Setup();
+        // $setup->setupAccount($account, $adminUserName, $adminUserPassword);
+
+        // Run update scripts and data
+        $updater = new AccountUpdater($account);
+        $updater->runUpdates();
+
+        // Create the default account
+        $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
+        $adminUser = $entityLoader->create(ObjectTypes::USER);
+        $adminUser->setValue("name", $adminUserName);
+        $adminUser->setValue("email", $adminEmail);
+        $adminUser->setValue("password", $adminPassword);
+        $adminUser->setIsAdmin(true);
+        $entityLoader->save($adminUser);
 
         // If the username is an email address then set the email address to be the username
-        if (strpos($adminUserName, '@') !== false) {
-            $this->setAccountUserEmail($accountId, $adminUserName, $adminUserName);
+        if (strpos($adminEmail, '@') !== false) {
+            $this->setAccountUserEmail($accountId, $adminUserName, $adminEmail);
         }
 
         // Return the new account
@@ -408,25 +424,25 @@ class Application
     /**
      * Create the application database if it does not exist
      */
-    public function initDb()
-    {
-        // Create database if it does not exist
-        try {
-            // Failures will result in a \RuntimeException, otherwise assume success
-            $this->dm->createDatabase();
-        } catch (\RuntimeException $ex) {
-            // Let the caller know that we cannot create the database
-            $exceptionText = "Could not create application database: ";
-            if ($this->dm->getLastError()) {
-                $exceptionText .= $this->dm->getLastError()->getMessage();
-            }
-            throw new \RuntimeException($exceptionText);
-        }
+    // public function initDb()
+    // {
+    //     // Create database if it does not exist
+    //     try {
+    //         // Failures will result in a \RuntimeException, otherwise assume success
+    //         $this->dm->createDatabase();
+    //     } catch (\RuntimeException $ex) {
+    //         // Let the caller know that we cannot create the database
+    //         $exceptionText = "Could not create application database: ";
+    //         if ($this->dm->getLastError()) {
+    //             $exceptionText .= $this->dm->getLastError()->getMessage();
+    //         }
+    //         throw new \RuntimeException($exceptionText);
+    //     }
 
-        // Initialize with setup
-        $setup = new Setup();
-        return $setup->updateApplication($this);
-    }
+    //     // Initialize with setup
+    //     $setup = new Setup();
+    //     return $setup->updateApplication($this);
+    // }
 
     /**
      * Get the application service manager

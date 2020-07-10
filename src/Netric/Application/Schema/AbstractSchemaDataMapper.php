@@ -46,23 +46,24 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
      */
     public function update($accountId = null)
     {
+        // TODO: We are no longer using schemas per account
         // First make sure the schema exists
-        if ($accountId) {
-            /*
-             * If no $accountId has been passed then we can assume this is updating the
-             * system account. Otherwise, if an accountId has been passed we need to make
-             * sure the schema/database for that specific account exists before we try
-             * to update it.
-             *
-             * In the case of the main system Application database, it MUST be created prior
-             * to running update on the schema. This is normally done by running
-             * ./bin netric install from the command line if netric is running in stand alone mode
-             * otherwise we can assume the administrator should have setup the application.
-             */
-            if (!$this->createSchemaIfNotExists($accountId)) {
-                return false;
-            }
-        }
+        // if ($accountId) {
+        //     /*
+        //      * If no $accountId has been passed then we can assume this is updating the
+        //      * system account. Otherwise, if an accountId has been passed we need to make
+        //      * sure the schema/database for that specific account exists before we try
+        //      * to update it.
+        //      *
+        //      * In the case of the main system Application database, it MUST be created prior
+        //      * to running update on the schema. This is normally done by running
+        //      * ./bin netric install from the command line if netric is running in stand alone mode
+        //      * otherwise we can assume the administrator should have setup the application.
+        //      */
+        //     if (!$this->createSchemaIfNotExists($accountId)) {
+        //         return false;
+        //     }
+        // }
 
         // Make sure the this->schemaDefinition is applied to the new schema
         if (!$this->processDefinition()) {
@@ -76,7 +77,7 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
 
     /**
      * Function that will check if column exists in the schema definition
-     * 
+     *
      * @param string $bucketName The name of the definition
      * @param array $columnName The name of the column we are going to check
      */

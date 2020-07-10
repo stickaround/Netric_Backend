@@ -23,10 +23,9 @@ class DataMapperFactory implements ApplicationServiceFactoryInterface
 
         return new ApplicationRdbDataMapper(
             $config->db->host,
-            $config->db->sysdb,
+            $config->db->dbname,
             $config->db->user,
-            $config->db->password,
-            $config->db->accdb
+            $config->db->password
         );
     }
 }

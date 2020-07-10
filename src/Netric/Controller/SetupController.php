@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2014-2017 Aereus
- */
-
 namespace Netric\Controller;
 
 use Netric\Application\Response\ConsoleResponse;
@@ -15,7 +10,10 @@ use Netric\Application\Setup\Setup;
 use Netric\Console\BinScript;
 use Netric\Application\Response\HttpResponse;
 use Netric\Account\AccountSetupFactory;
+use Netric\Application\DatabaseSetupFactory;
 use Netric\Log\LogFactory;
+use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * Controller used for setting up netric - mostly from the command line
@@ -29,40 +27,53 @@ class SetupController extends Mvc\AbstractController
     {
         $request = $this->getRequest();
         $application = $this->getApplication();
-        $config = $application->getConfig();
         $response = new ConsoleResponse();
 
+        // First make sure they passed the username and password params to the command
+        if (
+            !$request->getParam("account") ||
+            !$request->getParam("email") ||
+            !$request->getParam("username") ||
+            !$request->getParam("password")
+        ) {
+            throw new InvalidArgumentException(
+                "Required params\n" .
+                    "--account=accountname\n" .
+                    "--username=test\n" .
+                    "--email=test@netric.com\n" .
+                    "--password=mypass\n" .
+                    "\n"
+            );
+        }
+
         // Check to see if account already exists which means we're alraedy installed
-        if ($application->getAccount(null, $config->default_account)) {
+        if ($application->getAccount(null, $request->getParam("account"))) {
             $response->writeLine("Netric already installed. Run update instead.");
             return $response;
         }
 
-        // First make sure they passed the username and password params to the command
-        if (!$request->getParam("username") || !$request->getParam("password")) {
-            throw new \InvalidArgumentException(
-                "Please enter --username=myuser and --password=mypass arguments " .
-                    "for the default account before installing the application."
-            );
+        // Create the database and update the schema
+        $serviceManager = $this->getApplication()->getServiceManager();
+        $dbSetup = $serviceManager->get(DatabaseSetupFactory::class);
+        $dbSetup->updateDatabaseSchema();
+
+        // Create account
+        if (!$application->createAccount(
+            $request->getParam("account"),
+            $request->getParam("username"),
+            $request->getParam("email"),
+            $request->getParam("password")
+        )) {
+            throw new RuntimeException("Could not create default account");
         }
 
-        /*
-         * Create the system database if it does not exist
-         */
-        if (!$application->initDb()) {
-            throw new \RuntimeException("Could not create application database");
-        }
-
-        // Create the default account
-        if (!$application->createAccount($config->default_account, $request->getParam("username"), $request->getParam("password"))) {
-            throw new \RuntimeException("Could not create default account");
-        }
-
-
+        // Let the user know we have created the account
         $response->writeLine(
-            "-- Install Complete: " .
-                "username=" . $request->getParam("username") . ", " .
-                "password=" . $request->getParam("password") . " --"
+            "-- Install Complete! You can log in with:\n" .
+                "email=" . $request->getParam("email") .
+                "\n" .
+                "password=" . $request->getParam("password") .
+                "\n"
         );
         return $response;
     }
@@ -82,8 +93,15 @@ class SetupController extends Mvc\AbstractController
         $response->write("Updating application");
         $applicationSetup = new Setup();
         if (!$applicationSetup->updateApplication($this->getApplication())) {
-            $log->error("SetupController: Failed to update application: " . $applicationSetup->getLastError()->getMessage());
-            throw new \Exception("Failed to update application: " . $applicationSetup->getLastError()->getMessage());
+            $log->error(
+                "SetupController: Failed to update application: " .
+                    $applicationSetup->getLastError()->getMessage()
+            );
+
+            throw new \Exception(
+                "Failed to update application: " .
+                    $applicationSetup->getLastError()->getMessage()
+            );
         }
 
         $response->write("\t\t[done]\n");
@@ -127,6 +145,11 @@ class SetupController extends Mvc\AbstractController
         return $this->sendOutput(2);
     }
 
+    /**
+     * Create a unique name for an account
+     *
+     * @return HttpResponse
+     */
     public function getGenerateUniqueAccountNameAction()
     {
         $response = new HttpResponse($this->getRequest());

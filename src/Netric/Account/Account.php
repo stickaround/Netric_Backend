@@ -169,10 +169,10 @@ class Account
      *
      * @return string
      */
-    public function getDatabaseName()
-    {
-        return $this->dbname;
-    }
+    // public function getDatabaseName()
+    // {
+    //     return $this->dbname;
+    // }
 
     /**
      * Get ServiceManager for this account

@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Common tests for all schema DataMappers
  */
+
 namespace NetricTest\Application\Schema;
 
 use PHPUnit\Framework\TestCase;
@@ -9,7 +11,6 @@ use Netric\Application\Application;
 use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaProperty;
 use NetricTest\Bootstrap;
-use Netric\Application\Schema\SchemaDataMapperFactory;
 
 abstract class AbstractSchemaDataMapperTests extends TestCase
 {
@@ -35,7 +36,7 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
     const TEST_ACCOUNT_NAME = 'ut_schema_testr';
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->application = $this->account->getApplication();
 
@@ -43,7 +44,7 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         $this->deleteTestAccount();
     }
 
@@ -104,14 +105,14 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
         $testDefinition = array(
             "unit_test_schema" => array(
                 "PROPERTIES" => array(
-                    'id'            => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type'=>SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type'=>SchemaProperty::TYPE_INT),
-                    'some_unique'   => array('type'=>SchemaProperty::TYPE_CHAR_128)
+                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
+                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
+                    'value'         => array('type' => SchemaProperty::TYPE_INT),
+                    'some_unique'   => array('type' => SchemaProperty::TYPE_CHAR_128)
                 ),
                 'PRIMARY_KEY'       => 'id',
                 "INDEXES" => array(
-                    array('properties'=>array('name'))
+                    array('properties' => array('name'))
                 )
             ),
         );
@@ -144,14 +145,14 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
         $testDefinition = array(
             "unit_test_schema" => array(
                 "PROPERTIES" => array(
-                    'id'            => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type'=>SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type'=>SchemaProperty::TYPE_INT),
-                    'some_unique'   => array('type'=>SchemaProperty::TYPE_CHAR_128)
+                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
+                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
+                    'value'         => array('type' => SchemaProperty::TYPE_INT),
+                    'some_unique'   => array('type' => SchemaProperty::TYPE_CHAR_128)
                 ),
                 'PRIMARY_KEY'       => 'id',
                 "INDEXES" => array(
-                    array('properties'=>array('name'))
+                    array('properties' => array('name'))
                 )
             ),
         );
@@ -174,14 +175,14 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
         $testDefinition = array(
             "unit_test_schema" => array(
                 "PROPERTIES" => array(
-                    'id'            => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type'=>SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type'=>SchemaProperty::TYPE_INT),
-                    'some_unique'   => array('type'=>SchemaProperty::TYPE_CHAR_128)
+                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
+                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
+                    'value'         => array('type' => SchemaProperty::TYPE_INT),
+                    'some_unique'   => array('type' => SchemaProperty::TYPE_CHAR_128)
                 ),
                 'PRIMARY_KEY'       => 'id',
                 "INDEXES" => array(
-                    array('properties'=>array('name'))
+                    array('properties' => array('name'))
                 )
             ),
         );
@@ -204,9 +205,9 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
         $testDefinition = array(
             "unit_test_schema" => array(
                 "PROPERTIES" => array(
-                    'id'            => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type'=>SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type'=>SchemaProperty::TYPE_INT),
+                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
+                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
+                    'value'         => array('type' => SchemaProperty::TYPE_INT),
                     'field_data'    => array('type' => SchemaProperty::TYPE_JSON),
                 ),
             ),
@@ -214,7 +215,7 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
 
         $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
-        
+
         $this->assertEquals($dataMapper->checkIfColumnExist("unit_test_schema", "field_data"), true);
         $this->assertEquals($dataMapper->checkIfColumnExist("unit_test_schema", "ts_entered"), false);
         $this->assertEquals($dataMapper->checkIfColumnExist("non_existing_schema", "ts_entered"), false);

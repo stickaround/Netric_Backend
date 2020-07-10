@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Db\Relational;
 
 use PHPUnit\Framework\TestCase;
@@ -328,7 +329,7 @@ abstract class AbstractRelationalDbTests extends TestCase
     public function testColumnExists()
     {
         $database = $this->getDatabase();
-        
+
         // The created utest_people in setup has a name, but not a noexist column
         $this->assertTrue($database->columnExists('utest_people', 'name'));
         $this->assertFalse($database->columnExists('utest_people', 'noexist'));
@@ -342,7 +343,7 @@ abstract class AbstractRelationalDbTests extends TestCase
     public function testTableExists()
     {
         $database = $this->getDatabase();
-        
+
         // utest_people is created on setup, but nonexisttable is not
         $this->assertTrue($database->tableExists('utest_people'));
         $this->assertFalse($database->tableExists('nonexisttable'));

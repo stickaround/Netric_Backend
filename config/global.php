@@ -72,8 +72,8 @@ return [
         'host' => "10.4.6.22",
         'user' => "aereus",
         'password' => "kryptos78",
+        'dbname' => 'netric',
         'syshost' => "10.4.26.26",
-        'sysdb' => "antsystem",
         'accdb' => "netric",
     ],
     // Files settings

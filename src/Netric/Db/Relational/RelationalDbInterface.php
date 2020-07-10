@@ -59,6 +59,13 @@ interface RelationalDbInterface
     public function delete(string $tableName, array $whereParams);
 
     /**
+     * Check if a connection is active
+     *
+     * @return bool
+     */
+    public function checkConnection(): bool;
+
+    /**
      * Starts a DB Transaction.
      *
      * @return bool

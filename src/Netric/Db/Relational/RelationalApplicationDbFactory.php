@@ -23,7 +23,7 @@ class RelationalApplicationDbFactory implements ApplicationServiceFactoryInterfa
 
         return new PgsqlDb(
             $config->db["host"],
-            $config->db['sysdb'],
+            $config->db['dbname'],
             $config->db["user"],
             $config->db["password"]
         );
