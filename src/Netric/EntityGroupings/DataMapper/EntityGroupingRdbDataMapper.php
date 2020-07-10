@@ -107,7 +107,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
             $this->database->query(
-                'DELETE FROM ' . $field->subtype . ' WHERE id=:id',
+                'DELETE FROM object_groupings WHERE id=:id',
                 ['id' => $grp->id]
             );
 

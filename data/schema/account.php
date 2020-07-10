@@ -230,6 +230,7 @@ return [
      */
     "objects_moved" => [
         "PROPERTIES" => [
+            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'object_type_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
             'object_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
             'moved_to' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
@@ -445,6 +446,7 @@ return [
 
     "object_sync_export" => [
         "PROPERTIES" => [
+            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'collection_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'collection_type' => ['type' => SchemaProperty::TYPE_SMALLINT],
             'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],

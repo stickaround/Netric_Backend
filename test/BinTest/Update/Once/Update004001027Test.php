@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/once/004/001/027.php script works
  */
+
 namespace BinTest\Update\Once;
 
 use Netric\Entity\EntityLoaderFactory;
@@ -47,7 +49,7 @@ class Update004001027Test extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/027.php";
     }
@@ -56,7 +58,7 @@ class Update004001027Test extends TestCase
      * Cleanup after a test runs
      */
     protected function tearDown(): void
-{
+    {
         // Cleanup any test entities
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
@@ -106,19 +108,5 @@ class Update004001027Test extends TestCase
 
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
-
-        // Test the workflow instance if it was moved to the new object table
-        $def = $entityDefinitionLoader->get($objType);
-        $movedEntityId = $entityDataMapper->checkEntityHasMoved($def, $workflowInstanceId);
-        $workflowInstanceEntity = $entityLoader->get($objType, $movedEntityId);
-        $this->testEntities[] = $workflowInstanceEntity;
-
-        $this->assertEquals($workflowInstanceEntity->getValue("object_type"), ObjectTypes::TASK);
-        $this->assertEquals($workflowInstanceEntity->getValue("object_uid"), $objectUid);
-        $this->assertEquals($workflowInstanceEntity->getId(), $movedEntityId);
-
-        // This workflow instance should not be moved since it is already completed
-        $movedEntityId = $entityDataMapper->checkEntityHasMoved($def, $completedWorkflowInstanceId);
-        $this->assertFalse($movedEntityId);
     }
 }
