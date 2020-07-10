@@ -182,11 +182,11 @@ return array(
         'mailbox_id' => array(
             'title' => 'Mailbox',
             'type' => Field::TYPE_GROUPING,
-            'subtype' => 'email_mailboxes',
-            'fkey_table' => array(
-                "key" => "id",
-                "title" => "name"
-            ),
+            // 'subtype' => 'email_mailboxes',
+            // 'fkey_table' => array(
+            //     "key" => "id",
+            //     "title" => "name"
+            // ),
             'readonly' => false
         ),
         'thread' => array(

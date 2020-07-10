@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2015-2016 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\Application\Schema;
 
 /**

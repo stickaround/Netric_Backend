@@ -5,6 +5,24 @@ namespace data\schema;
 use Netric\Application\Schema\SchemaProperty;
 
 return [
+    /**
+     * Generic settings table used fro both user, account, and system settings
+     */
+    "settings" => [
+        "PROPERTIES" => [
+            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
+            'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
+            'user_id' => ['type' => SchemaProperty::TYPE_INT],
+        ],
+        'PRIMARY_KEY' => 'id',
+        "KEYS" => [
+            ['properties' => ["name", "user_id"], 'type' => 'UNIQUE'],
+        ],
+        "INDEXES" => [
+            ['properties' => ["user_id"]],
+        ]
+    ],
     "app_object_field_defaults" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -31,33 +49,6 @@ return [
             ['properties' => ["field_id"]],
         ]
     ],
-    "app_object_imp_maps" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'template_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
-            'col_name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
-            'property_name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["template_id"]],
-        ]
-    ],
-
-    "app_object_imp_templates" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["type_id"]],
-            ['properties' => ["user_id"]],
-        ]
-    ],
-
     "app_object_type_fields" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -139,51 +130,6 @@ return [
         ]
     ],
 
-    "app_object_view_conditions" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'view_id' => ['type' => SchemaProperty::TYPE_INT],
-            'field_id' => ['type' => SchemaProperty::TYPE_INT],
-            'blogic' => ["type" => SchemaProperty::TYPE_CHAR_128, "notnull" => true],
-            'operator' => ["type" => SchemaProperty::TYPE_CHAR_128, "notnull" => true],
-            'value' => ["type" => SchemaProperty::TYPE_CHAR_TEXT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["view_id"]],
-            ['properties' => ["field_id"]],
-        ]
-    ],
-
-    "app_object_view_fields" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'view_id' => ['type' => SchemaProperty::TYPE_INT],
-            'field_id' => ['type' => SchemaProperty::TYPE_INT],
-            'sort_order' => ['type' => SchemaProperty::TYPE_INT, 'default' => '0'],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["view_id"]],
-            ['properties' => ["field_id"]],
-        ]
-    ],
-
-    "app_object_view_orderby" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'view_id' => ['type' => SchemaProperty::TYPE_INT],
-            'field_id' => ['type' => SchemaProperty::TYPE_INT],
-            'order_dir' => ['type' => SchemaProperty::TYPE_CHAR_32, 'notnull' => true],
-            'sort_order' => ['type' => SchemaProperty::TYPE_INT, 'default' => '0'],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["view_id"]],
-            ['properties' => ["field_id"]],
-        ]
-    ],
-
     "app_object_views" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -235,47 +181,25 @@ return [
     ],
 
     /**
-     * Adding this back so that unit tests don't fail, we eventually
-     * need to remove this table and use groupings.
-     */
-    "email_mailboxes" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_64],
-            'parent_box' => ['type' => SchemaProperty::TYPE_INT],
-            'flag_special' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_system' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'sort_order' => ['type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'],
-            'color' => ['type' => SchemaProperty::TYPE_CHAR_6],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
-            'type' => ['type' => SchemaProperty::TYPE_CHAR_16],
-            'mailbox' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-        ],
-        'PRIMARY_KEY' => 'id', "INDEXES" => [
-            ['properties' => ["user_id", "users", "id"]],
-        ],
-        "INDEXES" => [
-            ['properties' => ["parent_box"]],
-        ]
-    ],
-
-    /**
      * New entities table for storing all entities
      */
     "entities" => [
         "PROPERTIES" => [
             'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            // universal id is unique across all accounts but not sequential
             'guid' => ['type' => SchemaProperty::TYPE_UUID],
             'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
             'ts_entered' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
             'ts_updated' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
             'f_deleted' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'tsv_fulltext' => ['type' => SchemaProperty::TYPE_TEXT_TOKENS],
             'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'field_data' => ['type' => SchemaProperty::TYPE_JSON],
+            'tsv_fulltext' => ['type' => SchemaProperty::TYPE_TEXT_TOKENS],
+        ],
+        'PRIMARY_KEY' => 'guid',
+        "INDEXES" => [
+            ['properties' => ["account_id", "object_type_id"]],
+            ['type' => 'gin', 'properties' => ["tsv_fulltext"]],
         ]
     ],
 
@@ -309,30 +233,6 @@ return [
             'moved_to' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
         ],
         'PRIMARY_KEY' => ["object_type_id", "object_id"],
-    ],
-
-    /**
-     * Store multi-dim references between objects (related to / associated with]
-     */
-    "object_associations" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'object_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'assoc_type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'assoc_object_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'field_id' => ['type' => SchemaProperty::TYPE_INT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["assoc_type_id", "assoc_object_id", "field_id"]],
-            ['properties' => ["type_id", "object_id", "field_id"]],
-            ['properties' => ["type_id", "assoc_type_id", "field_id"]],
-        ],
-        "INDEXES" => [
-            ['properties' => ["object_id"]],
-            ['properties' => ["type_id"]],
-        ]
     ],
 
     "object_recurrence" => [
@@ -379,28 +279,6 @@ return [
         ]
     ],
 
-    "object_revision_data" => [
-        "PROPERTIES" => [
-            'revision_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'field_name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'field_value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-        ],
-        "KEYS" => [
-            ['properties' => ['revision_id', "object_revisions", "id"]],
-        ]
-    ],
-
-    "object_unames" => [
-        "PROPERTIES" => [
-            'object_type_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
-            'object_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_512],
-        ],
-        "INDEXES" => [
-            ['properties' => ["object_type_id", "name"]],
-        ]
-    ],
-
     "object_groupings" => [
         "PROPERTIES" => [
             'guid' => ['type' => SchemaProperty::TYPE_UUID],
@@ -429,185 +307,6 @@ return [
         ]
     ],
 
-    "security_dacl" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_512],
-            'inherit_from' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'inherit_from_old' => ['type' => SchemaProperty::TYPE_BIGINT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["name"]],
-            ['properties' => ["inherit_from"]],
-            ['properties' => ["inherit_from"]],
-        ]
-    ],
-
-    "security_acle" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'pname' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'dacl_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'user_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'group_id' => ['type' => SchemaProperty::TYPE_INT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["user_id", "users", "id"]],
-            ['properties' => ["group_id", "user_groups", "id"]],
-            ['properties' => ["dacl_id", "security_dacl", "id"]],
-        ]
-    ],
-
-    "settings" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["name", "user_id"], 'type' => 'UNIQUE'],
-        ],
-        "INDEXES" => [
-            ['properties' => ["user_id"]],
-        ]
-    ],
-
-    "user_timezones" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_INT, 'subtype' => '', 'default' => 'auto_increment'],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_64, 'notnull' => true],
-            'code' => ['type' => SchemaProperty::TYPE_CHAR_8, 'notnull' => true],
-            'loc_name' => ['type' => SchemaProperty::TYPE_CHAR_64],
-            'offs' => ['type' => SchemaProperty::TYPE_REAL],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["code"]],
-        ]
-    ],
-
-    "worker_jobs" => [
-        "PROPERTIES" => [
-            'job_id' => ['type' => SchemaProperty::TYPE_CHAR_512, 'notnull' => true],
-            'function_name' => ['type' => SchemaProperty::TYPE_CHAR_512],
-            'ts_started' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'ts_completed' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'status_numerator' => ['type' => SchemaProperty::TYPE_INT, 'default' => '-1'],
-            'status_denominator' => ['type' => SchemaProperty::TYPE_INT, 'default' => '100'],
-            'log' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'retval' => ['type' => SchemaProperty::TYPE_BINARY_STRING],
-        ],
-        'PRIMARY_KEY' => 'job_id',
-        "INDEXES" => []
-    ],
-
-    "workflows" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_INT, 'default' => 'auto_increment'],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'notes' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'object_type' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'f_on_create' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_on_update' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_on_delete' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_singleton' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_allow_manual' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_active' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_on_daily' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_condition_unmet' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_processed_cond_met' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-
-            /*
-             * This column is being depreciated with the V2 version of WorkFlow
-             * and we will be using ts_lastrun below instead.
-             */
-            'ts_on_daily_lastrun' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-
-            /*
-             * When the workflow was last run. This is particularly useful
-             * for keeping track of 'periodic' workflows that run at an interval
-             * and look for all matching entities.
-             */
-            'ts_lastrun' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'revision' => ['type' => SchemaProperty::TYPE_INT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["object_type", "f_active"]],
-        ],
-        "INDEXES" => [
-            ['properties' => ["uname"]],
-        ]
-    ],
-
-    "workflow_actions" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'when_interval' => ['type' => SchemaProperty::TYPE_SMALLINT],
-            'when_unit' => ['type' => SchemaProperty::TYPE_SMALLINT],
-            'send_email_fid' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'update_field' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'update_to' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'create_object' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'start_wfid' => ['type' => SchemaProperty::TYPE_INT],
-            'stop_wfid' => ['type' => SchemaProperty::TYPE_INT],
-            'workflow_id' => ['type' => SchemaProperty::TYPE_INT],
-            'type' => ['type' => SchemaProperty::TYPE_SMALLINT],
-            'type_name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'parent_action_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'parent_action_event' => ['type' => SchemaProperty::TYPE_CHAR_32],
-            'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["workflow_id", "workflows", "id"]],
-            ['properties' => ["start_wfid", "workflows", "id"]],
-            ['properties' => ["stop_wfid", "workflows", "id"]],
-        ],
-        "INDEXES" => [
-            ['properties' => ["parent_action_id"]],
-            ['properties' => ["uname"]],
-        ]
-    ],
-
-    "workflow_action_schedule" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'action_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'ts_execute' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'instance_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'inprogress' => ['type' => SchemaProperty::TYPE_INT, 'default' => '0'],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["ts_execute"]],
-        ]
-    ],
-
-    "workflow_conditions" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'blogic' => ['type' => SchemaProperty::TYPE_CHAR_64],
-            'field_name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'operator' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'cond_value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'workflow_id' => ['type' => SchemaProperty::TYPE_INT],
-            'wf_action_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["workflow_id", "workflows", "id"]],
-            ['properties' => ["wf_action_id", "workflow_actions", "id"]],
-        ]
-    ],
-
     "workflow_instances" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -630,68 +329,12 @@ return [
         ]
     ],
 
-    "workflow_object_values" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'field' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'f_array' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'parent_id' => ['type' => SchemaProperty::TYPE_INT],
-            'action_id' => ['type' => SchemaProperty::TYPE_INT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["action_id", "workflow_actions", "id"]],
-        ],
-        "INDEXES" => [
-            ['properties' => ["parent_id"]],
-        ]
-    ],
-
-    "workflow_approvals" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'notes' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'workflow_action_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'status' => ['type' => SchemaProperty::TYPE_CHAR_32],
-            'requested_by' => ['type' => SchemaProperty::TYPE_INT],
-            'owner_id' => ['type' => SchemaProperty::TYPE_INT],
-            'obj_reference' => ['type' => SchemaProperty::TYPE_CHAR_512],
-            'ts_status_change' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'ts_entered' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'ts_updated' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'f_deleted' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'revision' => ['type' => SchemaProperty::TYPE_INT],
-            'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'path' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            [
-                "property" => 'owner_id',
-                'references_bucket' => 'users',
-                'references_property' => 'id',
-            ],
-            [
-                "property" => 'requested_by',
-                'references_bucket' => 'users',
-                'references_property' => 'id',
-            ],
-            [
-                "property" => 'workflow_action_id',
-                'references_bucket' => 'workflow_actions',
-                'references_property' => 'id',
-            ],
-        ],
-        "INDEXES" => []
-    ],
-
     /**
      * Store history of commit heads
      */
     "object_sync_commit_heads" => [
         "PROPERTIES" => [
+            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'type_key' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'head_commit_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
         ],
@@ -753,59 +396,6 @@ return [
             ],
         ],
         "INDEXES" => []
-    ],
-
-    "object_sync_partner_collection_init" => [
-        "PROPERTIES" => [
-            'collection_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'parent_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'ts_completed' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-        ],
-        "KEYS" => [
-            [
-                "property" => 'collection_id',
-                'references_bucket' => 'object_sync_partner_collections',
-                'references_property' => 'id',
-            ],
-        ],
-        "INDEXES" => [
-            ['properties' => ["parent_id"]],
-        ]
-    ],
-
-
-    "object_sync_stats" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'collection_id' => ['type' => SchemaProperty::TYPE_INT],
-            'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'object_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'parent_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'field_id' => ['type' => SchemaProperty::TYPE_INT],
-            'revision' => ['type' => SchemaProperty::TYPE_INT],
-            'field_name' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'field_val' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'action' => ['type' => SchemaProperty::TYPE_CHAR],
-            'ts_entered' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            [
-                "property" => 'collection_id',
-                'references_bucket' => 'object_sync_partner_collections',
-                'references_property' => 'id',
-            ],
-            [
-                "property" => 'object_type_id',
-                'references_bucket' => 'app_object_types',
-                'references_property' => 'id',
-            ],
-        ],
-        "INDEXES" => [
-            ['properties' => ["object_type_id", "object_id"]],
-            ['properties' => ["field_id", "field_val"]],
-            ['properties' => ["ts_entered"]],
-        ]
     ],
 
     "object_sync_import" => [
@@ -875,6 +465,10 @@ return [
         ]
     ],
 
+    /**
+     * The below tables are used with zpush and are not really part of netric.
+     * We'll be splitting these out later.
+     */
     "async_users" => [
         "PROPERTIES" => [
             'username' => ['type' => SchemaProperty::TYPE_CHAR_256],

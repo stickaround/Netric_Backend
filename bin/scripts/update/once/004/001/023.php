@@ -3,6 +3,7 @@
 /**
  * Scan the moved entities and update its references
  */
+
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
@@ -17,8 +18,8 @@ $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
 $sql = "select objects_moved.object_id, objects_moved.moved_to, objects_moved.object_type_id, " .
-       "app_object_types.name as obj_type from objects_moved, " .
-       "app_object_types WHERE objects_moved.object_type_id=app_object_types.id";
+    "app_object_types.name as obj_type from objects_moved, " .
+    "app_object_types WHERE objects_moved.object_type_id=app_object_types.id";
 $resultMoved = $db->query($sql);
 $rowsMoved = $resultMoved->fetchAll();
 foreach ($rowsMoved as $rowMoved) {
@@ -36,7 +37,7 @@ foreach ($rowsMoved as $rowMoved) {
             // Log what is going on to track progress
             $log->info(
                 "Update 004001023: Moving {$rowMoved["obj_type"]}.{$field->name}" .
-                " from {$rowMoved['object_id']} to {$rowMoved['moved_to']}"
+                    " from {$rowMoved['object_id']} to {$rowMoved['moved_to']}"
             );
 
             // Create an EntityQuery for each object type
@@ -51,7 +52,7 @@ foreach ($rowsMoved as $rowMoved) {
 
             // Encode object type and id with generic obj_type:obj_id
             if (empty($field->subtype)) {
-                $oldFieldValue =$rowMoved['obj_type'] . ':' . $rowMoved['object_id'];
+                $oldFieldValue = $rowMoved['obj_type'] . ':' . $rowMoved['object_id'];
                 $newFieldValue = $rowMoved['obj_type'] . ':' . $rowMoved['moved_to'];
             }
 
@@ -64,7 +65,7 @@ foreach ($rowsMoved as $rowMoved) {
                 // If type = object then we will just need to update the id
                 $sql = "UPDATE objects_{$objTypeDef->getObjType()}_act SET field_data = jsonb_set(field_data, '{" . $field->name . "}', '\"$newFieldValue\"', true)
                 WHERE field_data->>'" . $field->name . "' = :old_group_id";
-                
+
                 $db->query($sql, [
                     "old_group_id" => $oldFieldValue
                 ]);
@@ -73,8 +74,8 @@ foreach ($rowsMoved as $rowMoved) {
                     // Replace array values in the field column that is json encoded
                     $db->query(
                         "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
-                        "{$field->name}=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .
-                        "WHERE {$field->name} LIKE '%{$oldFieldValue}%'"
+                            "{$field->name}=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .
+                            "WHERE {$field->name} LIKE '%{$oldFieldValue}%'"
                     );
                 }
             }
@@ -83,8 +84,8 @@ foreach ($rowsMoved as $rowMoved) {
             if ($db->columnExists("objects_{$objTypeDef->getObjType()}_act", "{$field->name}_fvals")) {
                 $db->query(
                     "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
-                    "{$field->name}_fvals=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .                    
-                    "WHERE {$field->name}_fvals LIKE '%{$oldFieldValue}%'"
+                        "{$field->name}_fvals=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .
+                        "WHERE {$field->name}_fvals LIKE '%{$oldFieldValue}%'"
                 );
             }
         }
@@ -96,17 +97,20 @@ foreach ($rowsMoved as $rowMoved) {
         $db->query("SET statement_timeout=0");
 
         // Update object_associations
-        $db->update(
-            'object_associations',
-            ['object_id'=>$rowMoved['moved_to']],
-            ['type_id'=>$rowMoved['object_type_id'], 'object_id'=>$rowMoved['object_id']]
-        );
+        if ($db->tableExists('object_associations')) {
+            $db->update(
+                'object_associations',
+                ['object_id' => $rowMoved['moved_to']],
+                ['type_id' => $rowMoved['object_type_id'], 'object_id' => $rowMoved['object_id']]
+            );
 
-        $db->update(
-            'object_associations',
-            ['assoc_object_id'=>$rowMoved['moved_to']],
-            ['assoc_type_id'=>$rowMoved['object_type_id'], 'assoc_object_id'=>$rowMoved['object_id']]
-        );
+            $db->update(
+                'object_associations',
+                ['assoc_object_id' => $rowMoved['moved_to']],
+                ['assoc_type_id' => $rowMoved['object_type_id'], 'assoc_object_id' => $rowMoved['object_id']]
+            );
+        }
+
 
         $db->commitTransaction();
     }

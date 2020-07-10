@@ -5,6 +5,7 @@
  * After creating the new objects table, copy the existing entities from the old table
  * This update is related to 018.php
  */
+
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
@@ -22,6 +23,10 @@ $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 $entityDefinitionDataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 $entityIndex = $serviceManager->get(IndexFactory::class);
+
+if (!$db->tableExists('workflow_action_schedule') || !$db->tableExists('workflow_instances')) {
+    return true;
+}
 
 /*
  * Since we are dealing with new object types, we will only specify only the new ones
@@ -222,7 +227,7 @@ foreach ($objectTypesToMove as $objectType) {
 
         $log->info(
             "Update 004.001.027 moved {$objType}.$oldEntityId to " .
-            $def->getTable() . '.' . $newEntityId
+                $def->getTable() . '.' . $newEntityId
         );
 
         // Now set the entity that it has been moved to new object table

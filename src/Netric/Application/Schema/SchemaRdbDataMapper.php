@@ -343,27 +343,12 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
         }
 
         $sql = (isset($indexData['type']) && $indexData['type'] == 'UNIQUE') ? 'CREATE UNIQUE INDEX' : 'CREATE INDEX';
-        $sql .= " {$tableName}_{$indexName}_idx ON {$tableName} (" . implode(', ', $indexData['properties']) . ");";
-
-        return ($this->database->query($sql)) ? true : false;
-    }
-
-    /**
-     * Add a constraint to the table
-     *
-     * @param string $tableName The name of the table we are editing
-     * @param string $constraintName Unique name of the constraint
-     * @param string $constraint
-     * @return bool true on success, false on failure
-     */
-    private function applyConstraint($tableName, $constraintName, $constraint)
-    {
-        // If already exists do nothing
-        if ($this->database->constraintExists($tableName, "{$tableName}_{$constraintName}")) {
-            return true;
+        $sql .= " {$tableName}_{$indexName}_idx ON {$tableName} ";
+        if (isset($indexData['type']) && $indexData['type'] != 'UNIQUE') {
+            $sql .= 'USING ' . $indexData['type'];
         }
+        $sql .= "(" . implode(', ', $indexData['properties']) . ");";
 
-        $sql = "ALTER $tableName ADD CONSTRAINT {$tableName}_{$constraintName} CHECK (" . $constraint . ")";
         return ($this->database->query($sql)) ? true : false;
     }
 }
