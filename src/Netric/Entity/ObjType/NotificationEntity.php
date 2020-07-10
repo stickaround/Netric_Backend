@@ -111,11 +111,18 @@ class NotificationEntity extends Entity implements EntityInterface
         $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
         $body .= "---------------------------------------\r\n\r\n";
         $body .= $def->getTitle() . ": " . $referencedEntity->getName();
-
+        
         // If there is a notification description, then include it in the body
-        if ($this->getValue("description")) {
-            $body .= "\r\n\r\nDetails: \r";
-            $body .= $this->getValue("description");
+        $description = $this->getValue("description");
+        if ($description) {
+            $body .= "\r\n\r\n";
+
+            // If the description is already directed to a user, there is no need to add the Details text
+            if (!preg_match('/(directed a comment at you:)/', $description)) {
+                $body .= "Details: ";
+            }
+
+            $body .= "\r$description";
         }
         
         // Add link to body
