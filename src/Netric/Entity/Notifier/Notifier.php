@@ -129,7 +129,7 @@ class Notifier
                 $description = "$ownerName added a comment: $comment";
 
                 // Check if the user is being called out in the comment, if so, then let's change the description.
-                if (strpos($comment, "@$followerName") !== false) {
+                if (preg_match('/(@' . $followerName . ')/', $comment)) {   
                     $description = "$ownerName directed a comment at you: $comment";
                 }                
             }
