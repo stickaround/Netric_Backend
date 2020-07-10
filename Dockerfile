@@ -127,7 +127,7 @@ RUN chown -R www-data:www-data /var/www/html/data/
 RUN rm -rf /var/www/html/vendor/
 
 # Run composer install to get all required dependencies
-RUN cd /var/www/html && composer install && composer update
+RUN cd /var/www/html && composer install
 
 EXPOSE 80
 EXPOSE 443
