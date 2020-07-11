@@ -59,7 +59,12 @@ class ApplicationTest extends TestCase
         }
 
         // Create a new test account
-        $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
+        $account = $this->application->createAccount(
+            self::TEST_ACCT_NAME,
+            "automated_test",
+            "automated_test@netric.com",
+            'password'
+        );
 
         // Get accounts associated with the amil addres(or username if the same)
         $accounts = $this->application->getAccountsByEmail("test@test.com");

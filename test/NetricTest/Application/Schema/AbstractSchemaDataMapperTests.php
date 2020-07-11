@@ -99,7 +99,12 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
     public function testUpdate()
     {
         // Create a new account to update
-        $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
+        $account = $this->application->createAccount(
+            self::TEST_ACCOUNT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
 
         // Create a test definition with all the goodies for testing
         $testDefinition = array(
@@ -157,7 +162,13 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
             ),
         );
 
-        $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
+        $account = $this->application->createAccount(
+            self::TEST_ACCOUNT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
+
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
         $dataMapper->update($account->getId());
         // A schema should have been set on the last application (if it exists)
@@ -187,7 +198,12 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
             ),
         );
 
-        $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
+        $account = $this->application->createAccount(
+            self::TEST_ACCOUNT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
         $dataMapper->update($account->getId());
         $dataMapper->setLastAppliedSchemaHash('test');
@@ -213,7 +229,12 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
             ),
         );
 
-        $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
+        $account = $this->application->createAccount(
+            self::TEST_ACCOUNT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
 
         $this->assertEquals($dataMapper->checkIfColumnExist("unit_test_schema", "field_data"), true);

@@ -23,8 +23,8 @@ class EntityLoaderFactory implements AccountServiceFactoryInterface
     {
         $dm = $sl->get(DataMapperFactory::class);
         $definitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
-        $entityFactory = $dm->getAccount()->getServiceManager()->get(EntityFactoryFactory::class);
-        $cache = $dm->getAccount()->getServiceManager()->get(CacheFactory::class);
+        $entityFactory = $sl->get(EntityFactoryFactory::class);
+        $cache = $sl->get(CacheFactory::class);
 
         return new EntityLoader($dm, $definitionLoader, $entityFactory, $cache);
     }

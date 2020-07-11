@@ -64,7 +64,12 @@ class AccountUpdaterTest extends TestCase
         $application = $this->account->getApplication();
 
         // Create a new test account
-        $account = $application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
+        $account = $application->createAccount(
+            self::TEST_ACCOUNT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
 
         // Run test updates in TestAssets/UpdateScripts which should result in 1.1.1
@@ -84,7 +89,12 @@ class AccountUpdaterTest extends TestCase
         $application = $this->account->getApplication();
 
         // Create a new test account
-        $account = $application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
+        $account = $application->createAccount(
+            self::TEST_ACCOUNT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
 
         // Run test updates in TestAssets/UpdateScripts which should result in 1.1.1
         $accountUpdater = new AccountUpdater($account);
@@ -105,7 +115,12 @@ class AccountUpdaterTest extends TestCase
         $application = $this->account->getApplication();
 
         // Create a new test account
-        $account = $application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
+        $account = $application->createAccount(
+            self::TEST_ACCOUNT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
 
         // Run test updates in TestAssets/UpdateScripts which should result in 1.1.1
         $accountUpdater = new AccountUpdater($account);

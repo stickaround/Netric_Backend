@@ -96,7 +96,8 @@ class SetupControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setBody(json_encode([
             'account_name' => $tempAccountName,
-            'username' => 'test2@netric.com',
+            'username' => 'test2',
+            'email' => 'test2@netric.com',
             'password' => 'PassRandNeverLogin!',
         ]));
 

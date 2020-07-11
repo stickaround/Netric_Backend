@@ -154,7 +154,9 @@ class AccountIdentityMapperTest extends TestCase
         }
 
         // Create a test account directly in the database
-        $accountId = $this->dataMapper->createAccount("unit_test_im");
+        $accountId = $this->dataMapper->createAccount(
+            "unit_test_im"
+        );
 
         // Load the test account (this will cache it)
         $testAccount = $this->mapper->loadById($accountId, $application);

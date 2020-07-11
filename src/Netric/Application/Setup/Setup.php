@@ -128,7 +128,7 @@ class Setup extends AbstractHasErrors
                 // Get handle to system database
                 $rdb = new PgsqlDb(
                     $config->db['syshost'],
-                    $config->db['sysdb'],
+                    $config->db['dbname'],
                     $config->db['user'],
                     $config->db['password']
                 );

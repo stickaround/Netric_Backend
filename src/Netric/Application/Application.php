@@ -242,7 +242,8 @@ class Application
         }
 
         if (!$accountId && !$accountName) {
-            throw new \Exception("Cannot get account without accountName");
+            return null;
+            //throw new \Exception("Cannot get account without accountName");
         }
 
         // Get the account with either $accountId or $accountName
@@ -342,8 +343,8 @@ class Application
             }
         }
 
-        // Get default account from the system settings
-        return $this->getConfig()->default_account;
+        // No account has been set or loaded
+        return '';
     }
 
     /**
@@ -376,16 +377,13 @@ class Application
         // Load the newly created account
         $account = $this->accountsIdentityMapper->loadById($accountId, $this);
 
-        // Initialize with setup
-        // $setup = new Setup();
-        // $setup->setupAccount($account, $adminUserName, $adminUserPassword);
-
-        // Run update scripts and data
+        // Run update scripts and data - set it to the latest version first so we don't run old scripts
         $updater = new AccountUpdater($account);
+        $updater->setCurrentAccountToLatestVersion();
         $updater->runUpdates();
 
         // Create the default account
-        $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $adminUser = $entityLoader->create(ObjectTypes::USER);
         $adminUser->setValue("name", $adminUserName);
         $adminUser->setValue("email", $adminEmail);
@@ -420,29 +418,6 @@ class Application
 
         return false;
     }
-
-    /**
-     * Create the application database if it does not exist
-     */
-    // public function initDb()
-    // {
-    //     // Create database if it does not exist
-    //     try {
-    //         // Failures will result in a \RuntimeException, otherwise assume success
-    //         $this->dm->createDatabase();
-    //     } catch (\RuntimeException $ex) {
-    //         // Let the caller know that we cannot create the database
-    //         $exceptionText = "Could not create application database: ";
-    //         if ($this->dm->getLastError()) {
-    //             $exceptionText .= $this->dm->getLastError()->getMessage();
-    //         }
-    //         throw new \RuntimeException($exceptionText);
-    //     }
-
-    //     // Initialize with setup
-    //     $setup = new Setup();
-    //     return $setup->updateApplication($this);
-    // }
 
     /**
      * Get the application service manager
@@ -482,80 +457,6 @@ class Application
     public function getRequest()
     {
         return $this->request;
-    }
-
-    /**
-     * Create a new email domain
-     *
-     * @param int $accountId
-     * @param string $domainName
-     * @return bool true on success, false on failure
-     */
-    public function createEmailDomain($accountId, $domainName)
-    {
-        return $this->dm->createEmailDomain($accountId, $domainName);
-    }
-
-    /**
-     * Delete an existing email domain
-     *
-     * @param int $accountId
-     * @param string $domainName
-     * @return bool true on success, false on failure
-     */
-    public function deleteEmailDomain($accountId, $domainName)
-    {
-        return $this->dm->deleteEmailDomain($accountId, $domainName);
-    }
-
-    /**
-     * Create or update an email alias
-     *
-     * @param int $accountId
-     * @param string $emailAddress
-     * @param string $goto
-     * @return bool true on success, false on failure
-     */
-    public function createOrUpdateEmailAlias($accountId, $emailAddress, $goto)
-    {
-        return $this->dm->createOrUpdateEmailAlias($accountId, $emailAddress, $goto);
-    }
-
-    /**
-     * Delete an email alias
-     *
-     * @param int $accountId
-     * @param string $emailAddress
-     * @return bool true on success, false on failure
-     */
-    public function deleteEmailAlias($accountId, $emailAddress)
-    {
-        return $this->dm->deleteEmailAlias($accountId, $emailAddress);
-    }
-
-    /**
-     * Create a new or update an existing email user in the mail system
-     *
-     * @param int $accountId
-     * @param string $emailAddress
-     * @param string $password
-     * @return bool true on success, false on failure
-     */
-    public function createOrUpdateEmailUser($accountId, $emailAddress, $password)
-    {
-        return $this->dm->createOrUpdateEmailUser($accountId, $emailAddress, $password);
-    }
-
-    /**
-     * Delete an email user from the mail system
-     *
-     * @param int $accountId
-     * @param string $emailAddress
-     * @return bool true on success, false on failure
-     */
-    public function deleteEmailUser($accountId, $emailAddress)
-    {
-        return $this->dm->deleteEmailUser($accountId, $emailAddress);
     }
 
     /**

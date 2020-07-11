@@ -46,11 +46,7 @@ class SetupController extends Mvc\AbstractController
             );
         }
 
-        // Check to see if account already exists which means we're alraedy installed
-        if ($application->getAccount(null, $request->getParam("account"))) {
-            $response->writeLine("Netric already installed. Run update instead.");
-            return $response;
-        }
+        // TODO: Find out a way to determine if netric is already installed
 
         // Create the database and update the schema
         $serviceManager = $this->getApplication()->getServiceManager();
@@ -198,7 +194,13 @@ class SetupController extends Mvc\AbstractController
 
         // Create the account
         $application = $this->getApplication();
-        $createdAccount = $application->createAccount($accountName, $params['username'], $params['password']);
+        $createdAccount = $application->createAccount(
+            $accountName,
+            $params['username'],
+            $params['email'],
+            $params['password']
+        );
+
         if (!$createdAccount) {
             $response->write(['error' => 'Failed to create account.']);
             return $response;

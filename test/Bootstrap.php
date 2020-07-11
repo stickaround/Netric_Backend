@@ -37,17 +37,13 @@ class Bootstrap
         $application = new Application($config);
 
         // Initialize account
-        static::$account = $application->getAccount();
+        static::$account = $application->getAccount(null, 'autotest');
+        if (!static::$account) {
+            static::$account = $application->createAccount('autotest', "automated_test", "automated_test@netric.com", 'password');
+        }
 
         // Get or create an administrator user so permissions are not limiting
         $user = self::$account->getUser(null, "automated_test");
-        if (!$user) {
-            $loader = static::$account->getServiceManager()->get(EntityLoaderFactory::class);
-            $user = $loader->create(ObjectTypes::USER);
-            $user->setValue("name", "automated_test");
-            $user->addMultiValue("groups", UserEntity::GROUP_ADMINISTRATORS);
-            $loader->save($user);
-        }
         static::$user = $user;
         static::$account->setCurrentUser($user);
     }

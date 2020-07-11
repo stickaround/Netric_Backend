@@ -18,14 +18,13 @@ class DataMapperApplicationRdbTest extends AbstractDataMapperTests
      */
     protected function getDataMapper($optDbName = null)
     {
-        $dbName = ($optDbName) ? $optDbName : $this->config->db['sysdb'];
+        $dbName = ($optDbName) ? $optDbName : $this->config->db['dbname'];
 
         return new ApplicationRdbDataMapper(
             $this->config->db['syshost'],
             $dbName,
             $this->config->db['user'],
-            $this->config->db['password'],
-            $this->config->db['accdb']
+            $this->config->db['password']
         );
     }
 
@@ -42,7 +41,7 @@ class DataMapperApplicationRdbTest extends AbstractDataMapperTests
     {
         $db = new PgsqlDb(
             $this->config->db['syshost'],
-            $this->config->db['sysdb'],
+            $this->config->db['dbname'],
             $this->config->db['user'],
             $this->config->db['password']
         );

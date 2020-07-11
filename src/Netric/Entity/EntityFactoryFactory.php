@@ -1,28 +1,22 @@
 <?php
-/**
- * Service factory for the EntityFactory
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
+
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a new EntityFactory service
- *
- * @package Netric\FileSystem
  */
 class EntityFactoryFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return FileSystem
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @return EntityFactory
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $sl)
     {
         return new EntityFactory($sl);
     }

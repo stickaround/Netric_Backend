@@ -5,7 +5,6 @@ namespace Netric\Application\Health\DependencyCheck;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
-use Netric\Application\Health\DependencyCheck\PgsqlDependencyCheck;
 
 /**
  * Create a service that returns a handle to an application (not account) database
