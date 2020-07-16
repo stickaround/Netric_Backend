@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the browser view service for getting browser views for a user
  */
+
 namespace NetricTest\Entity\BrowserView;
 
 use Netric\Entity\BrowserView\BrowserView;
@@ -16,6 +18,12 @@ use Ramsey\Uuid\Uuid;
 
 class BrowserViewServiceTest extends TestCase
 {
+    /**
+     * Arbitrary IDs
+     */
+    const TEST_TEAM_ID = 'a4bf054d-7499-40d9-83a2-98ec023b233f';
+    const TEST_USER_ID = 'a4bf054d-7450-40d9-83a2-98ec023b233f';
+
     /**
      * Tennant account
      *
@@ -48,7 +56,7 @@ class BrowserViewServiceTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->browserViewService = $sm->get(BrowserViewServiceFactory::class);
@@ -197,14 +205,14 @@ class BrowserViewServiceTest extends TestCase
         // Setup team vuew
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
-        $teamView->setTeamId(1);
+        $teamView->setTeamId(self::TEST_TEAM_ID);
         $this->browserViewService->saveView($teamView);
         $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setOwnerId(1);
+        $userView->setOwnerId(self::TEST_USER_ID);
         $this->browserViewService->saveView($userView);
         $this->testViews[] = $userView;
 
@@ -244,14 +252,14 @@ class BrowserViewServiceTest extends TestCase
         // Setup team vuew
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
-        $teamView->setTeamId(1);
+        $teamView->setTeamId(self::TEST_TEAM_ID);
         $this->browserViewService->saveView($teamView);
         $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setOwnerId(2);
+        $userView->setOwnerId(self::TEST_USER_ID);
         $this->browserViewService->saveView($userView);
         $this->testViews[] = $userView;
 
@@ -262,7 +270,7 @@ class BrowserViewServiceTest extends TestCase
         $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
-        $teamViews = $this->browserViewService->getTeamViews(ObjectTypes::NOTE, 1);
+        $teamViews = $this->browserViewService->getTeamViews(ObjectTypes::NOTE, self::TEST_TEAM_ID);
         $foundUserView = false;
         $foundAccountView = false;
         foreach ($teamViews as $view) {
@@ -291,14 +299,14 @@ class BrowserViewServiceTest extends TestCase
         // Setup team view
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
-        $teamView->setTeamId(1);
+        $teamView->setTeamId(self::TEST_TEAM_ID);
         $this->browserViewService->saveView($teamView);
         $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setOwnerId(2);
+        $userView->setOwnerId(self::TEST_USER_ID);
         $this->browserViewService->saveView($userView);
         $this->testViews[] = $userView;
 
@@ -309,7 +317,7 @@ class BrowserViewServiceTest extends TestCase
         $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
-        $userViews = $this->browserViewService->getUserViews(ObjectTypes::NOTE, 2);
+        $userViews = $this->browserViewService->getUserViews(ObjectTypes::NOTE, self::TEST_USER_ID);
         $foundTeamView = false;
         $foundAccountView = false;
         foreach ($userViews as $view) {
@@ -337,7 +345,7 @@ class BrowserViewServiceTest extends TestCase
     {
         // Set temp view id for testing if not set
         if (empty($this->user->getValue("team_id"))) {
-            $this->user->setValue("team_id", 3);
+            $this->user->setValue("team_id", self::TEST_TEAM_ID);
         }
 
         // Setup team view
@@ -350,7 +358,7 @@ class BrowserViewServiceTest extends TestCase
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
-        $userView->setOwnerId($this->user->getGuid());
+        $userView->setOwnerId($this->user->getEntityId());
         $this->browserViewService->saveView($userView);
         $this->testViews[] = $userView;
 
@@ -387,12 +395,12 @@ class BrowserViewServiceTest extends TestCase
         $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
 
         $foundDoneField = false;
-        forEach($systemViews as $sysView) {
-            forEach($sysView->getConditions() as $cond) {
+        foreach ($systemViews as $sysView) {
+            foreach ($sysView->getConditions() as $cond) {
 
                 // If we have found a "done" field in the conditions, then 
                 if ($cond->fieldName == "done") {
-                    $foundDoneField = true;                        
+                    $foundDoneField = true;
                 }
 
                 // Make sure that status id value is already converted to the group's guid
@@ -413,13 +421,13 @@ class BrowserViewServiceTest extends TestCase
         $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
 
         $foundStatusField = false;
-        forEach($systemViews as $sysView) {
+        foreach ($systemViews as $sysView) {
             if ($sysView->getId() == "my_tasks") {
-                forEach($sysView->getConditions() as $cond) {
+                foreach ($sysView->getConditions() as $cond) {
                     if ($cond->fieldName == "status_id") {
 
                         // Make sure that the value is already converted to the group's guid
-                        $this->assertTrue(Uuid::isValid($cond->value));                
+                        $this->assertTrue(Uuid::isValid($cond->value));
                         $foundStatusField = true;
                         break 2;
                     }

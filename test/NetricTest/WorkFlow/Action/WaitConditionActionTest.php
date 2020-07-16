@@ -88,7 +88,7 @@ class WaitConditionActionTest extends AbstractActionTests
         $this->testEntities[] = $task;
 
         // Start a new instance from the workflow and task
-        $workFlowInstance = new WorkFlowInstance($workFlow->getId(), $task);
+        $workFlowInstance = new WorkFlowInstance($workFlow->getWorkFlowId(), $task);
         $instanceId = $this->workFlowDataMapper->saveWorkFlowInstance($workFlowInstance);
 
         // Execute the action and make sure it returns false because it was scheduled for the future

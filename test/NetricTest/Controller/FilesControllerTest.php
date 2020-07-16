@@ -2,7 +2,6 @@
 
 namespace NetricTest\Controller;
 
-use Netric;
 use Netric\Entity\EntityLoader;
 use Netric\Account\Account;
 use Netric\Controller\FilesController;
@@ -216,7 +215,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getEntityId(), $file->getValue("owner_id"));
     }
 
     /**
@@ -249,7 +248,7 @@ class FilesControllerTest extends TestCase
         );
         $req->setParam("files", $testUploadedFiles);
         $req->setParam("path", "/testUpload");
-        $req->setParam("file_id", $file->getValue("id"));
+        $req->setParam("file_id", $file->getEntityId());
         $req->setParam("file_name", "myupdatedfile.jpg");
 
         /*
@@ -295,7 +294,7 @@ class FilesControllerTest extends TestCase
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity);
-        
+
         // Test if user is allowed to access folder/file
         $this->assertEquals($dacl->isAllowed($this->user), true);
 
@@ -306,7 +305,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("myupdatedfile.jpg", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getEntityId(), $file->getValue("owner_id"));
     }
 
     /**
@@ -383,7 +382,7 @@ class FilesControllerTest extends TestCase
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity);
-        
+
         // Test if user is allowed to access folder/file
         $this->assertEquals($dacl->isAllowed($this->user), true);
 
@@ -394,7 +393,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getEntityId(), $file->getValue("owner_id"));
     }
 
     /**
@@ -481,7 +480,7 @@ class FilesControllerTest extends TestCase
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity);
-        
+
         // Test if user is allowed to access folder/file
         $this->assertEquals($dacl->isAllowed($this->user), true);
 
@@ -496,7 +495,7 @@ class FilesControllerTest extends TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals($this->account->getUser()->getGuid(), $file->getValue("owner_id"));
+        $this->assertEquals($this->account->getUser()->getEntityId(), $file->getValue("owner_id"));
 
         // Test the second file
         $this->assertEquals("files-upload-test2.txt", $file2->getValue("name"));
@@ -528,13 +527,13 @@ class FilesControllerTest extends TestCase
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity);
-        
+
         // Test if user is allowed to access folder/file
         $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set which file to download in the request
         $req = $this->controller->getRequest();
-        $req->setParam("file_id", $importedFile->getId());
+        $req->setParam("file_id", $importedFile->getEntityId());
 
         /*
          * Now stream the file contents into $ret
@@ -579,13 +578,13 @@ class FilesControllerTest extends TestCase
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity);
-        
+
         // Test if user is allowed to access folder/file
         $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
-        $req->setParam("file_id", $importedFile->getId());
+        $req->setParam("file_id", $importedFile->getEntityId());
         $req->setParam("max_width", 64);
         $req->setParam("max_height", 64);
 
@@ -611,7 +610,7 @@ class FilesControllerTest extends TestCase
         $this->testFiles[] = $resizedFile;
 
         // Make sure the returned entity is different than the uploaded one
-        $this->assertNotEquals($importedFile->getId(), $resizedFile->getId());
+        $this->assertNotEquals($importedFile->getEntityId(), $resizedFile->getEntityId());
 
         // Make sure the image is valid and resized
         $this->assertEquals(64, $sizes[0]);
@@ -645,18 +644,18 @@ class FilesControllerTest extends TestCase
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity);
-        
+
         // Test if user is allowed to access folder/file
         $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set the newly imported file as the user's profile pic
-        $this->user->setValue('image_id', $importedFile->getGuid());
+        $this->user->setValue('image_id', $importedFile->getEntityId());
         $loader = $this->account->getServiceManager()->get(EntityLoader::class);
         $loader->save($this->user);
 
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
-        $req->setParam("owner_id", $this->user->getGuid());
+        $req->setParam("owner_id", $this->user->getEntityId());
         $req->setParam("max_width", 64);
         $req->setParam("max_height", 64);
 
@@ -665,11 +664,11 @@ class FilesControllerTest extends TestCase
 
         // Now stream the file contents into $ret
         $response = $this->controller->getUserImageAction();
-        
+
         // Create a temp file to store the resized image into
         $tempFilePath = __DIR__ . '/../../data/tmp/files_controller_temp.png';
         $outputStream = fopen($tempFilePath, 'w');
-                
+
         // Suppress the output into a file
         $response->suppressOutput(true);
         $response->stream($outputStream);

@@ -87,7 +87,7 @@ class Notifier
         if ($objType == ObjectTypes::NOTIFICATION || $objType == ObjectTypes::ACTIVITY) {
             return $notificationIds;
         }
-        $objReference = $entity->getGuid();
+        $objReference = $entity->getEntityId();
 
         // user, changed status, status value
         $description = $entity->getChangeLogDescription();
@@ -119,10 +119,10 @@ class Notifier
         foreach ($followers as $userGuid) {
             // If the follower guid is not a valid guid, then we try to look for its user entity
             if (!Uuid::isValid($userGuid)) {
-                $userEntity = $this->entityLoader->get(ObjectTypes::USER, $userGuid);
+                $userEntity = $this->entityLoader->getByGuid($userGuid);
 
                 if ($userEntity) {
-                    $userGuid = $userEntity->getGuid();
+                    $userGuid = $userEntity->getEntityId();
                 }
             }
 
@@ -133,7 +133,7 @@ class Notifier
              * We also do not want to send notifications to users if the system does
              * something like adding a new email.
              */
-            if (Uuid::isValid($userGuid) && $userGuid != $this->user->getGuid() && !$this->user->isSystem() && !$this->user->isAnonymous()) {
+            if (Uuid::isValid($userGuid) && $userGuid != $this->user->getEntityId() && !$this->user->isSystem() && !$this->user->isAnonymous()) {
                 // Create new notification, or update an existing unseen one
                 $notification = $this->getNotification($objReference, $userGuid);
                 $notification->setValue("name", $name);
@@ -169,8 +169,8 @@ class Notifier
         }
 
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
-        $query->where("owner_id")->equals($user->getId());
-        $query->andWhere("obj_reference")->equals($entity->getGuid());
+        $query->where("owner_id")->equals($user->getEntityId());
+        $query->andWhere("obj_reference")->equals($entity->getEntityId());
         $query->andWhere("f_seen")->equals(false);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();
@@ -200,7 +200,7 @@ class Notifier
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
         $query->where("owner_id")->equals($userGuid);
         $query->andWhere("obj_reference")->equals($objReference);
-        $query->andWhere("creator_id")->equals($this->user->getGuid());
+        $query->andWhere("creator_id")->equals($this->user->getEntityId());
         $query->andWhere("f_seen")->equals(false);
 
         // Make sure we get the latest notification if there are multiple
@@ -215,7 +215,7 @@ class Notifier
             $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
             $notification->setValue("obj_reference", $objReference);
             $notification->setValue("owner_id", $userGuid);
-            $notification->setValue("creator_id", $this->user->getGuid(), $this->user->getName());
+            $notification->setValue("creator_id", $this->user->getEntityId(), $this->user->getName());
         }
 
         return $notification;

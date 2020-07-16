@@ -261,9 +261,9 @@ abstract class AbstractAction implements ErrorAwareInterface
      *
      * @return int
      */
-    public function getId()
+    public function getWorkFlowActionId()
     {
-        return $this->id;
+        return $this->guid;
     }
 
     /**
@@ -273,7 +273,7 @@ abstract class AbstractAction implements ErrorAwareInterface
      */
     public function setId($id)
     {
-        $this->id = $id;
+        $this->guid = $id;
     }
 
     /**
@@ -287,12 +287,12 @@ abstract class AbstractAction implements ErrorAwareInterface
         for ($i = 0; $i < count($this->childActions); $i++) {
             if (
                 $action === $this->childActions[$i] ||
-                ($action->getId() != null && $action->getId() === $this->childActions[$i]->getId())
+                ($action->getWorkFlowActionId() != null && $action->getWorkFlowActionId() === $this->childActions[$i]->getWorkFlowActionId())
             ) {
                 array_splice($this->childActions, $i, 1);
 
                 // If previously saved then queue it to be purged on save
-                if ($action->getId()) {
+                if ($action->getWorkFlowActionId()) {
                     $this->removedChildActions[] = $action;
                 }
 
@@ -321,8 +321,8 @@ abstract class AbstractAction implements ErrorAwareInterface
 
         // First make sure we didn't previously remove this action
         for ($i = 0; $i < count($this->removedChildActions); $i++) {
-            if ($actionToAdd === $this->removedChildActions[$i] || ($actionToAdd->getId() != null
-                && $actionToAdd->getId() === $this->removedChildActions[$i]->getId())) {
+            if ($actionToAdd === $this->removedChildActions[$i] || ($actionToAdd->getWorkFlowActionId() != null
+                && $actionToAdd->getWorkFlowActionId() === $this->removedChildActions[$i]->getWorkFlowActionId())) {
                 // Remove it from deletion queue, apparently the user didn't mean to delete it
                 array_splice($this->removedChildActions, $i, 1);
             }
@@ -332,8 +332,8 @@ abstract class AbstractAction implements ErrorAwareInterface
         $previouslyAddedAt = -1;
         for ($i = 0; $i < count($this->childActions); $i++) {
             if (
-                $actionToAdd->getId() &&
-                $this->childActions[$i]->getId() === $actionToAdd->getId()
+                $actionToAdd->getWorkFlowActionId() &&
+                $this->childActions[$i]->getWorkFlowActionId() === $actionToAdd->getWorkFlowActionId()
             ) {
                 $previouslyAddedAt = $i;
                 break;
@@ -488,7 +488,7 @@ abstract class AbstractAction implements ErrorAwareInterface
                     $objType = $mergeWithEntity->getDefinition()->getObjType();
                     $value = str_replace(
                         "<%$variableName%>",
-                        $baseUrl . "/obj/" . $objType . '/' . $mergeWithEntity->getId(),
+                        $baseUrl . "/obj/" . $objType . '/' . $mergeWithEntity->getEntityId(),
                         $value
                     );
 
@@ -496,7 +496,7 @@ abstract class AbstractAction implements ErrorAwareInterface
 
                     // Legacy before we used <%id%>
                 case 'oid':
-                    $fieldValue = $mergeWithEntity->getId();
+                    $fieldValue = $mergeWithEntity->getEntityId();
                     $value = str_replace("<%$variableName%>", $fieldValue, $value);
                     break;
 
@@ -567,7 +567,7 @@ abstract class AbstractAction implements ErrorAwareInterface
 
             if ($referencedEntityId && $field->type == FIELD::TYPE_OBJECT && $field->subtype) {
                 // Load the referenced entity
-                $referencedEntity = $this->entityLoader->get($field->subtype, $referencedEntityId);
+                $referencedEntity = $this->entityLoader->getByGuid($referencedEntityId);
 
                 // Recursively call until we are at the last element of the fieldName
                 return $this->getParamVariableFieldValue($referencedEntity, $fieldNameRemainder);
@@ -596,7 +596,7 @@ abstract class AbstractAction implements ErrorAwareInterface
      */
     private function childActionIsCircular(ActionInterface $action)
     {
-        if ($action === $this || ($action->getId() && $action->getId() === $this->getId())) {
+        if ($action === $this || ($action->getWorkFlowActionId() && $action->getWorkFlowActionId() === $this->getWorkFlowActionId())) {
             return true;
         }
 

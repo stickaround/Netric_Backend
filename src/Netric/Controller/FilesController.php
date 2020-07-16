@@ -247,8 +247,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
             if ($file) {
                 $ret[] = array(
-                    "id" => $file->getId(),
-                    "guid" => $file->getGuid(),
+                    "guid" => $file->getEntityId(),
                     "name" => $file->getValue("name"),
                     "ts_updated" => $file->getValue("ts_updated")
                 );
@@ -317,7 +316,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             $log->warning(
                 "FilesController->getDownloadAction: User " . $user->getName() .
                     " does not have permissions to " .
-                    $fileEntity->getId() . ":" . $fileEntity->getName()
+                    $fileEntity->getEntityId() . ":" . $fileEntity->getName()
             );
 
             // Return a 403
@@ -366,13 +365,13 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         if ($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW)) {
             $response->setCacheable(
                 md5($this->account->getName() .
-                    ".file." . $fileEntity->getGuid() .
+                    ".file." . $fileEntity->getEntityId() .
                     '.r' . $fileEntity->getValue("revision"))
             );
         }
 
         // Set netric entity header
-        $response->setHeader('X-Entity', $fileEntity->getGuid());
+        $response->setHeader('X-Entity', $fileEntity->getEntityId());
 
         // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
@@ -392,15 +391,15 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // If the user guid was not passed then we will use current user's guid
         if (!$userGuid) {
-            $userGuid = $this->account->getUser()->getGuid();
+            $userGuid = $this->account->getUser()->getEntityId();
         }
 
         // We will need the entityLoader to load up a user
-        $serviceManager = $this->getApplication()->getAccount()->getServiceManager();
+        $serviceManager = $this->account->getServiceManager();
         $entiyLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Get the user entity for the user id
-        $userToGetImageFor = $entiyLoader->get(ObjectTypes::USER, $userGuid);
+        $userToGetImageFor = $entiyLoader->getByGuid($userGuid);
         $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
 
         // 404 if the user was not found or there was no image_id uploaded

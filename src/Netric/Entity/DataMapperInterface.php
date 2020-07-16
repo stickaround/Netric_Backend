@@ -70,7 +70,7 @@ interface DataMapperInterface
      * @param stirng $toId The unique id of the object this was moved to
      * @return bool true on succes, false on failure
      */
-    public function setEntityMovedTo(EntityDefinition $def, $fromId, $toId);
+    public function setEntityMovedTo(EntityDefinition $def, string $fromId, string $toId);
 
     /**
      * Set this object as having been moved to another object
@@ -89,7 +89,7 @@ interface DataMapperInterface
      * @param string $id The id of the object that no longer exists - may have moved
      * @return string|bool New entity id if moved, otherwise false
      */
-    public function checkEntityHasMoved($def, $id);
+    public function checkEntityHasMoved($def, string $id);
 
     /**
      * Get Revisions for this object

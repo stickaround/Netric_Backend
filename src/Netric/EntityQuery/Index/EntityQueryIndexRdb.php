@@ -20,6 +20,11 @@ use Netric\Db\Relational\RelationalDbFactory;
 class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 {
     /**
+     * Set table const
+     */
+    const ENTITY_TABLE = 'entity';
+
+    /**
      * Handle to database
      *
      * @var RelationalDbInterface
@@ -46,8 +51,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         $def = $entity->getDefinition();
 
-        $tableName = $def->getTable();
-        $tableName .= ($entity->isDeleted()) ? "_del" : "_act";
+        $tableName = self::ENTITY_TABLE;
+
+        // @deprecated We no longer partition by _del and _act, this can be deleted
+        //$tableName .= ($entity->isDeleted()) ? "_del" : "_act";
 
         // Get indexed text
         $fields = $def->getFields();
@@ -60,13 +67,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $sql = "UPDATE $tableName
                 SET tsv_fulltext=to_tsvector('english', :full_text_terms)
-                WHERE id=:id";
+                WHERE guid=:id";
 
         /*
          * We will be using rdb::query() here instead of rdb::update()
          * since we are using to_vector() pgsql function and not updating a field using a normal data
          */
-        $queryParams = ["id" => $entity->getId(), "full_text_terms" => implode(" ", $fieldTextValues)];
+        $queryParams = ["id" => $entity->getEntityid(), "full_text_terms" => implode(" ", $fieldTextValues)];
         $result = $this->database->query($sql, $queryParams);
 
         return $result->rowCount() > 0;
@@ -114,7 +121,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Get table to query
-        $objectTable = $entityDefinition->getTable();
+        $objectTable = self::ENTITY_TABLE;
 
         // Start building the condition string
         $conditionString = "";
@@ -163,6 +170,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $castType = $this->castType(FIELD::TYPE_BOOL);
             $conditionString .= "((nullif(field_data->>'f_deleted', ''))$castType = false OR field_data->>'f_deleted' IS NULL)";
         }
+
+        // Add object_type_id constraint
+        if (!empty($conditionString)) {
+            $conditionString .= " AND ";
+        }
+        $conditionString .= "object_type_id='" . $entityDefinition->getEntityDefinitionId() . "'";
 
         // Get order by from $query and setup the sort order
         $sortOrder = [];
@@ -226,7 +239,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     private function setResultsTotalNum(EntityDefinition $entityDefinition, Results $results, $conditionString)
     {
         // Get table to query
-        $objectTable = $entityDefinition->getTable();
+        $objectTable = self::ENTITY_TABLE;
 
         // Create the sql string to get the total num
         $sql = "SELECT count(*) as total_num FROM $objectTable";
@@ -528,7 +541,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function buildIsEqual(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $entityDefinition->getTable();
+        $objectTable = self::ENTITY_TABLE;
         $fieldName = $condition->fieldName;
         $value = pg_escape_string($condition->value);
 
@@ -555,25 +568,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case FIELD::TYPE_OBJECT_MULTI:
                 $conditionString = $this->buildObjectMultiQueryCondition($entityDefinition, $field, $condition);
-                break;
-            case 'object_dereference':
-                // TODO: Ask sky about what is object_dereference
-                if ($field->subtype && isset($refField)) {
-                    // Create subquery
-                    /*$subQuery = new EntityQuery($field->subtype);
-                    $subQuery->where($refField)->equals($value);
-                    $subIndex = new EntityQueryIndexRdb($this->account);
-                    $tmp_obj_cnd_str = $subIndex->buildConditionStringAndSetParams($subQuery);
-                    $refDef = $this->getDefinition($field->subtype);
-
-                    if ($value == "" || $value == "NULL") {
-                        $buf .= " " . $objectTable . ".$fieldName not in (select id from " . $refDef->getTable() . "
-                                                                                where $tmp_obj_cnd_str) ";
-                    } else {
-                        $buf .= " " . $objectTable . ".$fieldName in (select id from " . $refDef->getTable() . "
-                                                                                where $tmp_obj_cnd_str) ";
-                    }*/
-                }
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
                 // Make sure that the grouping value is provided
@@ -624,7 +618,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function buildIsNotEqual(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $entityDefinition->getTable();
+        $objectTable = self::ENTITY_TABLE;
         $fieldName = $condition->fieldName;
         $value = pg_escape_string($condition->value);
 
@@ -733,7 +727,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function buildGroupingQueryCondition(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $entityDefinition->getTable();
+        $objectTable = self::ENTITY_TABLE;
         $fieldName = $condition->fieldName;
         $value = $condition->value;
         $operator = $condition->operator;
@@ -772,7 +766,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function buildObjectMultiQueryCondition(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $entityDefinition->getTable();
+        $objectTable = self::ENTITY_TABLE;
         $value = $condition->value;
         $operator = $condition->operator;
 
@@ -796,7 +790,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function queryAggregation(EntityDefinition $entityDefinition, AggregationInterface $agg, Results $results, $conditionQuery)
     {
-        $objectTable = $entityDefinition->getTable();
+        $objectTable = self::ENTITY_TABLE;
         $fieldName = $agg->getField();
         $aggTypeName = $agg->getTypeName();
 

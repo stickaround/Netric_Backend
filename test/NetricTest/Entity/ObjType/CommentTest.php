@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity activity class
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
@@ -35,7 +37,7 @@ class CommentTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -64,17 +66,17 @@ class CommentTest extends TestCase
         $cid = $entityLoader->save($customer);
 
         // Now save the comment which should increment the num_comments of $customer
-        $comment->setValue("obj_reference", $customer->getGuid(), $customer->getName());
+        $comment->setValue("obj_reference", $customer->getEntityId(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 
         // Now re-open the referenced customer just to make sure it was saved right
-        $openedCustomer = $entityLoader->get(ObjectTypes::CONTACT, $cid);
+        $openedCustomer = $entityLoader->getByGuid($cid);
         $this->assertEquals(1, $openedCustomer->getValue("num_comments"));
 
         // Delete the comment and make sure num_comments is decremented
         $entityLoader->delete($comment);
-        $reopenedCustomer = $entityLoader->get(ObjectTypes::CONTACT, $cid);
+        $reopenedCustomer = $entityLoader->getByGuid($cid);
         $this->assertEquals(0, $reopenedCustomer->getValue("num_comments"));
 
         // Cleanup
@@ -101,7 +103,7 @@ class CommentTest extends TestCase
         $cid = $entityLoader->save($customer);
 
         // Now create a comment on the customer which should sync the followers
-        $comment->setValue("obj_reference", $customer->getGuid(), $customer->getName());
+        $comment->setValue("obj_reference", $customer->getEntityId(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 

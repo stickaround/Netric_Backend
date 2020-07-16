@@ -180,7 +180,7 @@ abstract class AbstractFileStoreTests extends TestCase
          * immediately after creating the file.
          */
         $dataMapper = $this->getEntityDataMapper();
-        $files = $dataMapper->getRevisions("file", $testFile->getId());
+        $files = $dataMapper->getRevisions("file", $testFile->getEntityId());
         $keys = array_keys($files); // $fiels is an assoicative with key being revid
         $this->assertEquals(3, count($files));
         // The second revision (index 1) should be the first import
@@ -205,7 +205,7 @@ abstract class AbstractFileStoreTests extends TestCase
 
         // Now loop through all revisions and make sure we purged them
         $dataMapper = $this->getEntityDataMapper();
-        $files = $dataMapper->getRevisions(ObjectTypes::FILE, $testFile->getId());
+        $files = $dataMapper->getRevisions(ObjectTypes::FILE, $testFile->getEntityId());
         foreach ($files as $rev => $file) {
             $this->assertFalse($fileStore->fileExists($file));
         }

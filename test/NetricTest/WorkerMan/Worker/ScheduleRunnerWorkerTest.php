@@ -96,7 +96,7 @@ class ScheduleRunnerWorkerTest extends TestCase
 
         $job = new Job();
         $job->setWorkload([
-            "account_id" => $this->account->getId(),
+            "account_id" => $this->account->getAccountId(),
         ]);
 
         // Make sure it is a success

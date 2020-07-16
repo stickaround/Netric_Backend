@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity activity class
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
@@ -50,7 +52,7 @@ class FileTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->entityDataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
@@ -60,9 +62,9 @@ class FileTest extends TestCase
      * Clean-up and test files
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testFiles as $file) {
-            if ($file->getId()) {
+            if ($file->getEntityId()) {
                 $this->entityDataMapper->delete($file, true);
             }
         }
@@ -89,8 +91,7 @@ class FileTest extends TestCase
         $file = $loader->create(ObjectTypes::FILE);
         $file->setValue("name", "test.txt");
         $this->entityDataMapper->save($file);
-        $this->testFiles[] = $file;
-        ;
+        $this->testFiles[] = $file;;
 
         // Write data to the file
         $fileStore->writeFile($file, "my test data");
@@ -98,7 +99,7 @@ class FileTest extends TestCase
 
         // Open a copy to check the store later since the DataMapper will zero out $file
         $fileCopy = $loader->create(ObjectTypes::FILE);
-        $this->entityDataMapper->getById($fileCopy, $file->getId());
+        $this->entityDataMapper->getByGuid($file->getEntityId());
 
         // Purge the file -- second param is a delete hard param
         $this->entityDataMapper->delete($file, true);

@@ -70,13 +70,6 @@ class EntityDefinition
     public $icon = "";
 
     /**
-     * The table where objects are stored
-     *
-     * @var string
-     */
-    public $object_table = "";
-
-    /**
      * The default activity level to use when working with this object type
      *
      * @var int
@@ -190,9 +183,6 @@ class EntityDefinition
     {
         $this->objType = trim($objType);
 
-        // Set object table
-        $this->object_table = "objects_" . $objType;
-
         // Set default fields
         $this->setDefaultFields();
     }
@@ -202,7 +192,7 @@ class EntityDefinition
      *
      * @param string $id
      */
-    public function setId($id)
+    public function setEntityDefinitionId($id)
     {
         $this->id = $id;
     }
@@ -212,7 +202,7 @@ class EntityDefinition
      *
      * @return string The saved unique id of this definition
      */
-    public function getId()
+    public function getEntityDefinitionId()
     {
         return $this->id;
     }
@@ -566,16 +556,6 @@ class EntityDefinition
         }
 
         return true;
-    }
-
-    /**
-     * Get table name
-     *
-     * @return string
-     */
-    public function getTable()
-    {
-        return $this->object_table;
     }
 
     /**

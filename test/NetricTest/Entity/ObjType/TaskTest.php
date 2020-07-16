@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity task class
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity\ObjType\UserEntity;
@@ -42,7 +44,7 @@ class TaskTest extends TestCase
     protected function tearDown(): void
     {
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
-        
+
         foreach ($this->tasks as $task) {
             $dm->delete($task, true);
         }
@@ -77,7 +79,7 @@ class TaskTest extends TestCase
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/2/2010"));
         $rp->setDateEnd(new \DateTime("3/1/2010"));
-        
+
         $task = $loader->create(ObjectTypes::TASK);
         $task->setValue("name", "Test Task Recurrence");
         $task->setValue("deadline", strtotime("01 January 2010"));
@@ -86,7 +88,7 @@ class TaskTest extends TestCase
         $this->tasks[] = $task;
 
         // Use the loader to get the task entity with recurrence
-        $ent = $loader->get(ObjectTypes::TASK, $taskId);
+        $ent = $loader->getByGuid($taskId);
         $taskRecurrence = $ent->getRecurrencePattern();
 
         // First instance should be today
@@ -96,7 +98,7 @@ class TaskTest extends TestCase
         // Next instance should be tomorrow
         $tsNext = $taskRecurrence->getNextStart();
         $this->assertEquals($tsNext, new \DateTime("01/03/2010"));
-        
+
         // Change interval to skip a day and rewind to set
         $taskRecurrence->setInterval(2);
         $tsNext = $taskRecurrence->getNextStart();

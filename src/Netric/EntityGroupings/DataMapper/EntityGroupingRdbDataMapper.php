@@ -107,12 +107,12 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
             $this->database->query(
-                'DELETE FROM object_groupings WHERE id=:id',
-                ['id' => $grp->id]
+                'DELETE FROM object_groupings WHERE guid=:guid',
+                ['guid' => $grp->guid]
             );
 
             // Log here
-            $ret['deleted'][$grp->id] = $grp->commitId;
+            $ret['deleted'][$grp->guid] = $grp->commitId;
         }
 
         $toSave = $groupings->getChanged();
@@ -127,7 +127,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
                 $grp->setDirty(false);
 
                 // Log here
-                $ret['changed'][$grp->id] = $lastCommitId;
+                $ret['changed'][$grp->guid] = $lastCommitId;
             }
         }
 
@@ -184,7 +184,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     public function getGroupingsByObjType($definition, $fieldName)
     {
         $sql = "SELECT * FROM object_groupings WHERE object_type_id = :definition_id ORDER BY sort_order, name LIMIT 10000";
-        $result = $this->database->query($sql, ["definition_id" => $definition->getId()]);
+        $result = $this->database->query($sql, ["definition_id" => $definition->getEntityDefinitionId()]);
 
         $groupings = new EntityGroupings("{$definition->getObjType()}/$fieldName");
         foreach ($result->fetchAll() as $row) {
@@ -229,13 +229,13 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         // Additional data when creating a new group
         $grp->guid = Uuid::uuid4()->toString();
         $groupData["guid"] = $grp->guid;
-        $groupData['object_type_id'] = $def->getId();
+        $groupData['object_type_id'] = $def->getEntityDefinitionId();
         $groupData['field_id'] = $field->id;
 
         $path = $def->getObjType() . "/" . $field->name;
         if ($userGuid) {
             $path .= "/$userGuid";
-            $groupData["user_id"] = $this->account->getUser($userGuid)->getId();
+            $groupData["user_id"] = $this->account->getUser($userGuid)->getEntityId();
         }
 
         $groupData["path"] = $path;
@@ -244,7 +244,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         unset($groupData['id']);
 
         // Default to inserting
-        $grp->id = $this->database->insert("object_groupings", $groupData);
+        $this->database->insert("object_groupings", $groupData);
         return true;
     }
 }

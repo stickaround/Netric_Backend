@@ -3,6 +3,7 @@
 /**
  * Test entity/object class
  */
+
 namespace NetricTest\Entity;
 
 use Netric\Entity\Entity;
@@ -45,7 +46,7 @@ class EntityTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -54,7 +55,7 @@ class EntityTest extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
@@ -105,7 +106,7 @@ class EntityTest extends TestCase
         // bool
         $cust->setValue("f_nocall", true);
         // object
-        $cust->setValue("owner_id", $this->user->getId(), $this->user->getValue("name"));
+        $cust->setValue("owner_id", $this->user->getEntityId(), $this->user->getValue("name"));
         // object_multi
         // fkey
         // fkey_multi
@@ -130,9 +131,9 @@ class EntityTest extends TestCase
             "last_contacted" => time(),
             "f_nocall" => true,
             "company" => "test company",
-            "owner_id" => $this->user->getId(),
+            "owner_id" => $this->user->getEntityId(),
             "owner_id_fval" => array(
-                $this->user->getId() => $this->user->getValue("name")
+                $this->user->getEntityId() => $this->user->getValue("name")
             ),
         );
 
@@ -161,8 +162,8 @@ class EntityTest extends TestCase
             )
         );
 
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $existingCust = $loader->get(ObjectTypes::CONTACT, $cust->getId());
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $existingCust = $entityLoader->getByGuid($cust->getEntityId());
 
         // Load the updated data into the entity
         $existingCust->fromArray($updatedData, true);
@@ -217,11 +218,11 @@ class EntityTest extends TestCase
         // Create a customer
         $cust = $entityLoader->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "Aereus Corp");
-        $cust->addMultiValue("attachments", $file->getId(), $file->getValue("name"));
+        $cust->addMultiValue("attachments", $file->getEntityId(), $file->getValue("name"));
         $dataMapper->save($cust);
 
         // Test to see if file was moved
-        $testFile = $fileSystem->openFileById($file->getId());
+        $testFile = $fileSystem->openFileById($file->getEntityId());
         $this->assertNotEquals($tempFolderId, $testFile->getValue("folder_id"));
 
         // Cleanup
@@ -240,7 +241,7 @@ class EntityTest extends TestCase
         $cust->setValue("f_nocall", true);
 
         // object
-        $cust->setValue("owner_id", $this->user->getId(), $this->user->getValue("name"));
+        $cust->setValue("owner_id", $this->user->getEntityId(), $this->user->getValue("name"));
 
         // TODO: object_multi
         // TODO: fkey
@@ -249,14 +250,13 @@ class EntityTest extends TestCase
         // timestamp
         $cust->setValue("last_contacted", time());
         // Set a fake id just to make sure it does not get copied
-        $cust->setId(1);
         $cust->setValue('guid', '82d264a2-8070-11e8-adc0-fa7ae01bbebc');
 
         // Clone it
         $cloned = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->cloneTo($cloned);
 
-        $this->assertEmpty($cloned->getId());
+        $this->assertEmpty($cloned->getEntityId());
         $this->assertEmpty($cloned->getValue('guid'));
         $this->assertEquals($cust->getValue("name"), $cloned->getValue("name"));
         $this->assertEquals($cust->getValue("f_nocall"), $cloned->getValue("f_nocall"));
@@ -322,21 +322,21 @@ class EntityTest extends TestCase
 
         $user2 = $entityLoader->create(ObjectTypes::USER);
         $entityLoader->save($user2);
-        
+
         $this->testEntities[] = $user1;
         $this->testEntities[] = $user2;
 
-        $userGuid1 = $user1->getGuid();
-        $userGuid2 = $user2->getGuid();
+        $userGuid1 = $user1->getEntityId();
+        $userGuid2 = $user2->getEntityId();
 
         $entity = $entityLoader->create(ObjectTypes::TASK);
         $entity->setValue("owner_id", $userGuid1, $user1->getName());
         $entity->setValue("notes", "Hey [user:$userGuid2:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
-        
+
         // Saving this entity will call the Entity::beforeSave() which will update the followers
         $entityLoader->save($entity);
         $this->testEntities[] = $entity;
-        
+
         // Now make sure followers were set to the two references above
         $followers = $entity->getValue("followers");
         sort($followers);
@@ -378,7 +378,7 @@ class EntityTest extends TestCase
         $task1->addMultiValue("followers", $daveGuid, "Dave");
         $task1->addMultiValue("followers", "testId", "invlid non-numeric id");
         $task1->addMultiValue("followers", null, "invalid null id");
-        
+
         // Create a second task and synchronize
         $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task2->syncFollowers($task1);
@@ -482,13 +482,13 @@ class EntityTest extends TestCase
 
         $document->setValue('is_rootspace', true);
         $entityLoader->save($document);
-        
+
         $this->testEntities[] = $document;
 
         // We will now create a query to get document with is_rootspace set to true
         $query = new EntityQuery(ObjectTypes::DOCUMENT);
         $query->where('is_rootspace')->equals(true);
-        $query->where('guid')->equals($document->getGuid());
+        $query->where('guid')->equals($document->getEntityId());
         $res = $index->executeQuery($query);
 
         // This should return 1 result since we have created a document with is_rootspace field set to true

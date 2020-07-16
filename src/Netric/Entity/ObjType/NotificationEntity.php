@@ -88,10 +88,10 @@ class NotificationEntity extends Entity implements EntityInterface
         }
 
         // Get the user that owns this notice
-        $user = $sm->get(EntityLoaderFactory::class)->get(ObjectTypes::USER, $this->getValue("owner_id"));
+        $user = $sm->get(EntityLoaderFactory::class)->getByGuid($this->getValue("owner_id"));
 
         // Get the user that triggered this notice
-        $creator = $sm->get(EntityLoaderFactory::class)->get(ObjectTypes::USER, $this->getValue("creator_id"));
+        $creator = $sm->get(EntityLoaderFactory::class)->getByGuid($this->getValue("creator_id"));
 
         // Make sure the user has an email
         if (!$user || !$user->getValue("email")) {
@@ -121,7 +121,7 @@ class NotificationEntity extends Entity implements EntityInterface
         // Add link to body
         $protocol = ($config->use_https) ? "https://" : "http://";
         $body .= "\r\n\r\nLink: \r";
-        $body .= $protocol . $config->application_url . "/browse/" . $referencedEntity->getGuid();
+        $body .= $protocol . $config->application_url . "/browse/" . $referencedEntity->getEntityId();
         $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
         

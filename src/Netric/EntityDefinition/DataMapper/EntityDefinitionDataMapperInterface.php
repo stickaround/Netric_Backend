@@ -20,6 +20,14 @@ interface EntityDefinitionDataMapperInterface
     public function fetchByName($objType);
 
     /**
+     * Get an entity definition by id
+     *
+     * @param string $definitionTypeId
+     * @return EntityDefinition
+     */
+    public function fetchById(string $definitionTypeId): ?EntityDefinition;
+
+    /**
      * Delete object definition
      *
      * @param EntityDefinition $def The definition to delete

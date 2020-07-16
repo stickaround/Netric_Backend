@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
  *
@@ -9,6 +10,7 @@
  * @author      Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright   Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
@@ -57,7 +59,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         return $result;
     }
- 
+
     /**
      * Save a definition
      *
@@ -87,7 +89,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $def = $this->fetchByName($objType);
         return $this->delete($def);
     }
-    
+
     /**
      * Get definition loader using this mapper
      *

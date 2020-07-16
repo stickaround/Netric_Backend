@@ -86,7 +86,7 @@ class WorkersControllerTest extends TestCase
             ->method('doWorkBackground')
             ->with(
                 $this->equalTo('ScheduleRunner'),
-                $this->equalTo(['account_id'=>$this->account->getId()])
+                $this->equalTo(['account_id'=>$this->account->getAccountId()])
             );
 
         // Artificially lock the test for 1 second

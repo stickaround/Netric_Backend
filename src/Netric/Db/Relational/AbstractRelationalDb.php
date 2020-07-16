@@ -280,6 +280,7 @@ abstract class AbstractRelationalDb
         // Run query, get next value (if selected), and commit
         $this->query($sql, $params);
 
+
         // If the primary key was set in the params already, return it
         $insertedId = (empty($params[$primaryKeyColumn])) ? null : $params[$primaryKeyColumn];
 

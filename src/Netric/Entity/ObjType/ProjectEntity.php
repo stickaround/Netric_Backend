@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Provides extensions for the Project object
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
@@ -84,17 +86,17 @@ class ProjectEntity extends Entity implements EntityInterface
     public function cloneTo(Entity $toEntity)
     {
         // Get the id of $toEntity since ::cloneTo() will set the $toEntity's id to null. We assign it back later after cloning this project
-        $toEntityId = $toEntity->getId();
+        $toEntityId = $toEntity->getEntityId();
 
         // Perform the shallow copy of fields
         parent::cloneTo($toEntity);
 
         // Assign back the $toEntity Id since it was set to null when cloning this project using ::cloneTo().
-        $toEntity->setId($toEntityId);
+        $toEntity->setValue('guid', $toEntityId);
 
         // Query the tasks of this project entity
         $query = new EntityQuery(ObjectTypes::TASK);
-        $query->where('project')->equals($this->getGuid());
+        $query->where('project')->equals($this->getEntityId());
 
         // Execute query and get num results
         $res = $this->indexInterface->executeQuery($query);
@@ -110,7 +112,7 @@ class ProjectEntity extends Entity implements EntityInterface
             $task->cloneTo($toTask);
 
             // Move task to the project entity we are cloning
-            $toTask->setValue("project", $toEntity->getGuid());
+            $toTask->setValue("project", $toEntity->getEntityId());
 
             // Save the task
             $this->entityLoader->save($toTask);

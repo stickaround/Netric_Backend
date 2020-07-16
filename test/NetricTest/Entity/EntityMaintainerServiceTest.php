@@ -259,8 +259,8 @@ class EntityMaintainerServiceTest extends TestCase
         $deleted = $this->maintainerService->deleteOldSpamMessages($cutoff);
 
         // Assert that the message above was deleted but the second one was not
-        $this->assertTrue(in_array($entity1->getId(), $deleted));
-        $this->assertFalse(in_array($entity2->getId(), $deleted));
+        $this->assertTrue(in_array($entity1->getEntityId(), $deleted));
+        $this->assertFalse(in_array($entity2->getEntityId(), $deleted));
     }
 
     /**
@@ -280,7 +280,7 @@ class EntityMaintainerServiceTest extends TestCase
         $file1 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile.txt", true);
         $fileSystem->writeFile($file1, $testData);
         $this->testEntities[] = $file1;
-        $fileId1 = $file1->getId();
+        $fileId1 = $file1->getEntityId();
 
         // Get a cutoff
         $cutoff = new \DateTime();
@@ -289,7 +289,7 @@ class EntityMaintainerServiceTest extends TestCase
         $file2 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile2.txt", true);
         $fileSystem->writeFile($file2, $testData);
         $this->testEntities[] = $file2;
-        $fileId2 = $file2->getId();
+        $fileId2 = $file2->getEntityId();
 
         // Bump the ts_created timestamp of the second file to make it later than the cutoff
         $file2->setValue('ts_entered', ((int) $file2->getValue('ts_entered') + 10));

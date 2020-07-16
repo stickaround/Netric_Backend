@@ -47,7 +47,10 @@ class ApplicationTest extends TestCase
      */
     public function testGetAccount()
     {
-        $this->assertInstanceOf(Account::class, $this->application->getAccount());
+        $this->assertInstanceOf(
+            Account::class,
+            $this->application->getAccount(null, 'autotest')
+        );
     }
 
     public function testGetAccountsByEmail()
@@ -85,8 +88,13 @@ class ApplicationTest extends TestCase
         }
 
         // Create a new test account
-        $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
-        $this->assertTrue($account->getId() > 0);
+        $account = $this->application->createAccount(
+            self::TEST_ACCT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
+        $this->assertTrue($account->getAccountId() > 0);
 
         // Cleanup
         $this->application->deleteAccount(self::TEST_ACCT_NAME);
@@ -101,13 +109,18 @@ class ApplicationTest extends TestCase
         }
 
         // Create account
-        $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
+        $account = $this->application->createAccount(
+            self::TEST_ACCT_NAME,
+            'test',
+            "test@test.com",
+            "password"
+        );
 
         // Now delete the account
         $this->assertTrue($this->application->deleteAccount(self::TEST_ACCT_NAME));
 
         // Make sure we cannot open the account - it should be deleted
-        $this->assertNull($this->application->getAccount($account->getId()));
+        $this->assertNull($this->application->getAccount($account->getAccountId()));
     }
 
     public function testAcquireLock()

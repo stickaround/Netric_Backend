@@ -79,7 +79,7 @@ class BinScript
          * then we will not allow a script to get all accounts.
          */
         if ($this->account) {
-            throw new \RuntimeException("This script is set to execute under one account only: " . $this->account->getId());
+            throw new \RuntimeException("This script is set to execute under one account only: " . $this->account->getAccountId());
         }
 
         // Return all accounts for this application - filtered by version automatically

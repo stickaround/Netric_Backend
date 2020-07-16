@@ -40,7 +40,7 @@ class AccountController extends Mvc\AbstractAccountController
 
         // Setup the return details
         $ret = array(
-            "id" => $this->account->getId(),
+            "id" => $this->account->getAccountId(),
             "name" => $this->account->getName(),
             "orgName" => "", // TODO: $this->account->get
             "defaultModule" => "home", // TODO: this should be home until it is configurable

@@ -150,7 +150,7 @@ class EntityGroupings
         // Loop through the path and get the last entry
         foreach ($parts as $grpname) {
             if ($grpname) {
-                $parent = ($ret) ? $ret->id : "";
+                $parent = ($ret) ? $ret->guid : "";
                 $ret = $this->getByName($grpname, $parent);
             }
         }
@@ -241,8 +241,8 @@ class EntityGroupings
         foreach ($this->groups as $grp) {
             if ($grp->parentId == $parentId) {
                 // If existing group, then get the children setting parent to group id
-                if ($grp->id) {
-                    $grp->children = $this->getHeirarch($grp->id);
+                if ($grp->guid) {
+                    $grp->children = $this->getHeirarch($grp->guid);
                 }
 
                 $ret[] = $grp;
@@ -269,8 +269,8 @@ class EntityGroupings
                 $ret[] = $grp;
 
                 // If existing group, then get the children setting parent to group id
-                if ($grp->id) {
-                    $this->getChildren($grp->id, $ret);
+                if ($grp->guid) {
+                    $this->getChildren($grp->guid, $ret);
                 }
             }
         }
@@ -334,24 +334,6 @@ class EntityGroupings
     }
 
     /**
-     * Get the grouping entry by id
-     *
-     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
-     * @param int $entryId the id to delete
-     * @return bool true on sucess, false on failure
-     */
-    public function getById($entryId)
-    {
-        foreach ($this->groups as $grp) {
-            if ($grp->id == $entryId) {
-                return $grp;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Get the grouping entry by guid
      *
      * @param strin $guid the id to delete
@@ -391,7 +373,7 @@ class EntityGroupings
     public function delete($entryId)
     {
         for ($i = 0; $i < count($this->groups); $i++) {
-            if ($this->groups[$i]->id == $entryId) {
+            if ($this->groups[$i]->guid == $entryId) {
                 // Move to deleted queue
                 $this->deleted[] = $this->groups[$i];
 
@@ -443,8 +425,7 @@ class EntityGroupings
         // If group guid is provided, then we need to use getByGuid
         if (Uuid::isValid($value)) {
             return $this->getByGuid($value);
-        } else {
-            return $this->getById($value);
         }
+        return null;
     }
 }

@@ -232,7 +232,7 @@ class EntitySearchProvider implements ISearchProvider
         }
 
         // Filter by user id of course
-        $query->andWhere("owner_id")->equals($this->user->getGuid());
+        $query->andWhere("owner_id")->equals($this->user->getEntityId());
 
         if (isset($searchRange[0]) && is_numeric($searchRange[0]))
             $query->setOffset($searchRange[0]);

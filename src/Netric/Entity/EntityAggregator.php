@@ -6,6 +6,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity;
 
 use Netric\EntityDefinition\Field;
@@ -115,7 +116,7 @@ class EntityAggregator
                     $aggValue = $this->entityIndex->executeQuery($query)->getAggregation("update");
 
                     // Update $agg['refField'] of referenced entity
-                    $entityToUpdate = $this->entityLoader->get($field->subtype, $referencedId);
+                    $entityToUpdate = $this->entityLoader->getByGuid($referencedId);
                     $entityToUpdate->setValue($agg->refField, $aggValue);
                     $this->entityLoader->save($entityToUpdate);
                 }

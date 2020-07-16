@@ -5,9 +5,7 @@ use Netric\Entity\DataMapperInterface;
 use Netric\Entity\DataMapper\EntityRdbDataMapper;
 
 /**
- * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
- *
- * @group integration
+ * Test entity definition loader class that is responsible for creating and initializing existing definitions
  */
 class EntityRdbDataMapperTest extends DmTestsAbstract
 {

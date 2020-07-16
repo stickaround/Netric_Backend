@@ -131,7 +131,7 @@ class AuthenticationServiceTest extends TestCase
         $this->assertNotNull($ret);
 
         // Make sure the validated identntiy was cached (since the session header is not set)
-        $this->assertEquals($this->user->getId(), $this->authService->getIdentity());
+        $this->assertEquals($this->user->getEntityId(), $this->authService->getIdentity());
     }
 
     public function testAuthenticateBadUser()
@@ -187,7 +187,7 @@ class AuthenticationServiceTest extends TestCase
         $pass = self::TEST_USER_PASS;
         $salt = "testsalt";
 
-        $sessionStr = $this->authService->getSignedSession($this->user->getId(), $expires, $pass, $salt);
+        $sessionStr = $this->authService->getSignedSession($this->user->getEntityId(), $expires, $pass, $salt);
 
         // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
         $req = $this->getMockBuilder(RequestInterface::class)
@@ -197,7 +197,7 @@ class AuthenticationServiceTest extends TestCase
 
         // Now get the identity (userid) of the authenticated user
         $authUserId = $this->authService->getIdentity();
-        $this->assertEquals($this->user->getId(), $authUserId);
+        $this->assertEquals($this->user->getEntityId(), $authUserId);
     }
 
     /**

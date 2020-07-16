@@ -306,7 +306,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
     private function createInstance(RecurrencePattern $recurrencePattern, \DateTime $date)
     {
         $objType = $recurrencePattern->getObjType();
-        $firstEntity = $this->entityLoader->get($objType, $recurrencePattern->getFirstEntityId());
+        $firstEntity = $this->entityLoader->getByGuid($recurrencePattern->getFirstEntityId());
         // If the first entity no longer exists then we should cancel this recurrence pattern
         if (!$firstEntity) {
             return false;
@@ -352,9 +352,9 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $newInstanceEntity->setValue($useEndField, $newEndDate->getTimestamp());
 
         /*
-         * Clone will copy the reference of the old recurrence pattern to the new instance.
-         * We do not have to do anything to keep the dataMapper from trying to re-create an
-         * instance from the recurrence pattern because it is currently
+         * Clone will copy the reference of the old recurrence pattern to the new
+         * instance. We do not have to do anything to keep the dataMapper from trying
+         * to re-create an instance from the recurrence pattern because it is currently
          * locked in $this->createSeries(). Otherwise saving an entity may trigger another
          * process to create the series starting from the new entity forward which would get ugly.
          */
@@ -379,7 +379,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         if (!$firstEntity->getValue($useTimeField)) {
             throw new \RuntimeException(
                 $useTimeField . " is required and not set in entity" .
-                    $firstEntity->getDefinition()->getObjType() . ":" . $firstEntity->getId()
+                    $firstEntity->getDefinition()->getObjType() . ":" . $firstEntity->getEntityId()
             );
         }
 

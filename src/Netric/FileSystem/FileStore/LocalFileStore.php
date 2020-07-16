@@ -116,7 +116,7 @@ class LocalFileStore implements FileStoreInterface
         $ret = -1;
 
         // Must be an exisitng file to write
-        if (!$file->getId()) {
+        if (!$file->getEntityId()) {
             $this->errors[] = new Error(
                 "Cannot write data a file that does not exist. Please save the file before writing."
             );
@@ -221,7 +221,7 @@ class LocalFileStore implements FileStoreInterface
      */
     public function deleteFile(FileEntity $file, $revision = null)
     {
-        if (!$file->getId()) {
+        if (!$file->getEntityId()) {
             return false;
         }
 
@@ -237,7 +237,7 @@ class LocalFileStore implements FileStoreInterface
         }
 
         // Delete all past revisions
-        $revisions = $this->entityDataMapper->getRevisions("file", $file->getId());
+        $revisions = $this->entityDataMapper->getRevisions("file", $file->getEntityId());
         foreach ($revisions as $fileRev) {
             try {
                 $filePath = $this->getFullLocalPath($fileRev);
@@ -355,12 +355,12 @@ class LocalFileStore implements FileStoreInterface
      */
     private function getRelativeFileDirectory(FileEntity $file)
     {
-        $localPath = $this->explodeIdToPath($file->getId());
+        $localPath = $this->explodeIdToPath($file->getEntityId());
 
         // Make sure we can save locally
         $this->verifyPathTree($localPath);
 
-        return $localPath . "/" . $file->getId() . "-" . $file->getValue("revision");
+        return $localPath . "/" . $file->getEntityId() . "-" . $file->getValue("revision");
     }
 
     /**

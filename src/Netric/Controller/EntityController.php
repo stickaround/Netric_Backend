@@ -161,7 +161,6 @@ class EntityController extends Mvc\AbstractAccountController
         if ($rawBody) {
             $body = json_decode($rawBody, true);
             $params['obj_type'] = (isset($body['obj_type'])) ? $body['obj_type'] : null;
-            $params['id'] = (isset($body['id'])) ? $body['id'] : null;
             $params['guid'] = (isset($body['guid'])) ? $body['guid'] : null;
             $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
             $params['uname_conditions'] = (isset($body['uname_conditions'])) ? $body['uname_conditions'] : [];
@@ -174,9 +173,6 @@ class EntityController extends Mvc\AbstractAccountController
             if (!empty($params['guid'])) {
                 // Retrieve the entity by guid
                 $entity = $entityLoader->getByGuid($params['guid']);
-            } elseif (!empty($params['id']) && !empty($params['obj_type'])) {
-                // Retrieve the entity by obj_type and id
-                $entity = $entityLoader->get($params['obj_type'], $params['id']);
             } elseif (!empty($params['uname'])) {
                 // Retrieve the entity by a unique name and optional condition
                 $entity = $entityLoader->getByUniqueName(
@@ -187,7 +183,7 @@ class EntityController extends Mvc\AbstractAccountController
             } else {
                 return $this->sendOutput(
                     array(
-                        "error" => "guid, or obj_type + id, or uname are required params.",
+                        "error" => "guid or uname are required params.",
                         "params" => $params
                     )
                 );
@@ -244,8 +240,8 @@ class EntityController extends Mvc\AbstractAccountController
             $entity = $entityLoader->create($objData['obj_type']);
 
             // If editing an existing etity, then load it rather than using the new entity
-            if (isset($objData['id']) && !empty($objData['id'])) {
-                $entity = $entityLoader->get($objData['obj_type'], $objData['id']);
+            if (isset($objData['guid']) && !empty($objData['guid'])) {
+                $entity = $entityLoader->getByGuid($objData['guid']);
             }
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
@@ -325,7 +321,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             foreach ($ids as $did) {
-                $entity = $entityLoader->get($objType, $did);
+                $entity = $entityLoader->getByGuid($did);
 
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
@@ -490,7 +486,7 @@ class EntityController extends Mvc\AbstractAccountController
                             $waitingObjectEntity = $entityLoader->create($field->subtype);
 
                             // Specify the object reference for the awaiting entity to be saved
-                            $data['obj_reference'] = $entity->getObjType() . ":" . $entity->getId();
+                            $data['obj_reference'] = $entity->getEntityId();
 
                             // Parse the awaiting entity data
                             $waitingObjectEntity->fromArray($data);
@@ -501,7 +497,7 @@ class EntityController extends Mvc\AbstractAccountController
                             }
 
                             // Set the reference for the $entity
-                            $entity->addMultiValue($field->name, $waitingObjectEntity->getId(), $waitingObjectEntity->getName());
+                            $entity->addMultiValue($field->name, $waitingObjectEntity->getEntityId(), $waitingObjectEntity->getName());
 
                             // Lets flag this to true so $entity will be saved after the looping thru the fields
                             $entityShouldUpdate = true;
@@ -765,7 +761,7 @@ class EntityController extends Mvc\AbstractAccountController
             * )
             */
             foreach ($mergeData as $entityId => $fields) {
-                $entity = $entityLoader->get($requestData['obj_type'], $entityId);
+                $entity = $entityLoader->getByGuid($entityId);
 
                 // Build the entity data and get the field values from the entity we want to merge
                 foreach ($fields as $field) {
@@ -901,7 +897,7 @@ class EntityController extends Mvc\AbstractAccountController
 
             // If this is a private object then add the user guid in the unique path
             if ($def->isPrivate) {
-                $path .= "/" . $this->account->getUser()->getGuid();
+                $path .= "/" . $this->account->getUser()->getEntityId();
             }
 
             // Get all groupings using a unique path

@@ -81,7 +81,7 @@ return [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
+            'user_id' => ['type' => SchemaProperty::TYPE_UUID],
             'account_id' => ['type' => SchemaProperty::TYPE_INT],
         ],
         'PRIMARY_KEY' => 'id',
@@ -92,6 +92,7 @@ return [
             ['properties' => ["user_id"]],
         ]
     ],
+
     "app_object_field_defaults" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -106,6 +107,7 @@ return [
             ['properties' => ["field_id"]],
         ]
     ],
+    
     "app_object_field_options" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -118,6 +120,7 @@ return [
             ['properties' => ["field_id"]],
         ]
     ],
+    
     "app_object_type_fields" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -151,16 +154,17 @@ return [
         ]
     ],
 
-    "app_object_type_frm_layouts" => [
+    "entity_form" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_form_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'team_id' => ['type' => SchemaProperty::TYPE_INT],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
+            'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'team_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'user_id' => ['type' => SchemaProperty::TYPE_UUID],
             'scope' => ["type" => SchemaProperty::TYPE_CHAR_128],
             'form_layout_xml' => ["type" => SchemaProperty::TYPE_CHAR_TEXT],
         ],
-        'PRIMARY_KEY' => 'id',
+        'PRIMARY_KEY' => 'entity_form_id',
         "INDEXES" => [
             ['properties' => ["type_id"]],
             ['properties' => ["team_id"]],
@@ -169,7 +173,7 @@ return [
         ]
     ],
 
-    "app_object_types" => [
+    "entity_types" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ["type" => SchemaProperty::TYPE_CHAR_256],
@@ -207,11 +211,11 @@ return [
             'description' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'filter_key' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'f_default' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
-            'team_id' => ['type' => SchemaProperty::TYPE_INT],
+            'user_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'team_id' => ['type' => SchemaProperty::TYPE_UUID],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'report_id' => ['type' => SchemaProperty::TYPE_INT],
-            'owner_id' => ['type' => SchemaProperty::TYPE_CHAR_256],
+            'report_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'owner_id' => ['type' => SchemaProperty::TYPE_UUID],
             'conditions_data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'order_by_data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'table_columns_data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
@@ -236,8 +240,8 @@ return [
             'xml_navigation' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'navigation_data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'f_system' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
-            'team_id' => ['type' => SchemaProperty::TYPE_INT],
+            'user_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'team_id' => ['type' => SchemaProperty::TYPE_UUID],
             'sort_order' => ['type' => SchemaProperty::TYPE_SMALLINT],
             'icon' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'default_route' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
@@ -252,22 +256,22 @@ return [
     /**
      * New entities table for storing all entities
      */
-    "entities" => [
+    "entity" => [
         "PROPERTIES" => [
             // Used for inserts and internal/shorthand operations, but guid is the primary key
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_id' => ['type' => SchemaProperty::TYPE_UUID],
             'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'guid' => ['type' => SchemaProperty::TYPE_UUID],
             'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
+            'object_type_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'ts_entered' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
             'ts_updated' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
             'f_deleted' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
             'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'field_data' => ['type' => SchemaProperty::TYPE_JSON],
+            'schema_revision' => ['type' => SchemaProperty::TYPE_INT],
             'tsv_fulltext' => ['type' => SchemaProperty::TYPE_TEXT_TOKENS],
         ],
-        'PRIMARY_KEY' => 'guid',
+        'PRIMARY_KEY' => 'entity_id',
         "INDEXES" => [
             ['properties' => ["account_id", "object_type_id"]],
             ['type' => 'gin', 'properties' => ["tsv_fulltext"]],
@@ -275,42 +279,39 @@ return [
     ],
 
     /**
-     * Based table where all object tables inherit from
+     * Table stores reference of moved entities (like when merged)
      */
-    "objects" => [
+    "entity_moved" => [
         "PROPERTIES" => [
-            // id is sequential and unique to a single account
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            // global id is unique across all accounts but not sequential
-            'guid' => ['type' => SchemaProperty::TYPE_UUID],
-            'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'ts_entered' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'ts_updated' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'f_deleted' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'tsv_fulltext' => ['type' => SchemaProperty::TYPE_TEXT_TOKENS],
-            'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'old_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'new_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
+        ],
+        'PRIMARY_KEY' => ["old_guid"],
+    ],
+
+    /**
+     * Store historical revisions of some entities - if set in definition
+     */
+    "entity_revision" => [
+        "PROPERTIES" => [
+            'entity_revision_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
+            'revision' => ['type' => SchemaProperty::TYPE_INT],
+            'ts_updated' => ['type' => SchemaProperty::TYPE_TIME_WITH_TIME_ZONE],
             'field_data' => ['type' => SchemaProperty::TYPE_JSON],
+        ],
+        'PRIMARY_KEY' => ['entity_revision_id'],
+        "INDEXES" => [
+            ['properties' => ["entity_id"]],
         ]
     ],
 
     /**
-     * Table stores reference of moved objects to another object (like when merged]
+     * Store entity recurrence
      */
-    "objects_moved" => [
+    "entity_recurrence" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'object_type_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
-            'object_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
-            'moved_to' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
-        ],
-        'PRIMARY_KEY' => ["object_type_id", "object_id"],
-    ],
-
-    "object_recurrence" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'object_type' => ['type' => SchemaProperty::TYPE_CHAR_256],
+            'entity_recurrence_id' => ['type' => SchemaProperty::TYPE_UUID],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
             'type' => ['type' => SchemaProperty::TYPE_SMALLINT],
             'interval' => ['type' => SchemaProperty::TYPE_SMALLINT],
@@ -326,28 +327,13 @@ return [
             'duration' => ['type' => SchemaProperty::TYPE_INT],
             'instance' => ['type' => SchemaProperty::TYPE_SMALLINT],
             'monthofyear' => ['type' => SchemaProperty::TYPE_SMALLINT],
-            'parent_object_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'parent_entity_id' => ['type' => SchemaProperty::TYPE_UUID],
             'type_id' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'f_active' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "true"],
         ],
-        'PRIMARY_KEY' => ['id'],
+        'PRIMARY_KEY' => ['entity_recurrence_id'],
         "INDEXES" => [
             ['properties' => ["date_processed_to"]],
-        ]
-    ],
-
-    "object_revisions" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'object_type_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
-            'object_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
-            'revision' => ['type' => SchemaProperty::TYPE_INT],
-            'ts_updated' => ['type' => SchemaProperty::TYPE_TIME_WITH_TIME_ZONE],
-            'data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-        ],
-        'PRIMARY_KEY' => ['id'],
-        "INDEXES" => [
-            ['properties' => ["object_type_id", "object_id"]],
         ]
     ],
 
@@ -359,8 +345,8 @@ return [
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
             'field_id' => ['type' => SchemaProperty::TYPE_INT],
             'parent_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'user_id' => ['type' => SchemaProperty::TYPE_INT],
-            'feed_id' => ['type' => SchemaProperty::TYPE_INT],
+            'user_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'feed_id' => ['type' => SchemaProperty::TYPE_UUID],
             'color' => ['type' => SchemaProperty::TYPE_CHAR_6],
             'sort_order' => ['type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'],
             'f_system' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
@@ -418,7 +404,7 @@ return [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'pid' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'owner_id' => ['type' => SchemaProperty::TYPE_INT],
+            'owner_id' => ['type' => SchemaProperty::TYPE_UUID],
             'ts_last_sync' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
         ],
         'PRIMARY_KEY' => 'id',

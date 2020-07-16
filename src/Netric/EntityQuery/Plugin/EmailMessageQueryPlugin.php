@@ -55,7 +55,7 @@ class EmailMessageQueryPlugin implements PluginInterface
         // // Setup background job and queue it
         // $jobData = array(
         //     'account_id' => $sl->getAccount()->getId(),
-        //     'user_id' => $sl->getAccount()->getUser()->getId(),
+        //     'user_id' => $sl->getAccount()->getUser()->getEntityId(),
         //     'mailbox_id' => $mailboxId,
         // );
         // $workerMan = $this->getWorkerService($sl);

@@ -7,6 +7,7 @@
  * to extend this class and create a getDataMapper class that returns the
  * datamapper to be tested
  */
+
 namespace NetricTest\Entity\DataMapper;
 
 use Netric;
@@ -57,7 +58,7 @@ abstract class DmTestsAbstract extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
         $this->groupingDataMapper = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
@@ -67,7 +68,7 @@ abstract class DmTestsAbstract extends TestCase
      * Cleanup any test entities we created
      */
     protected function tearDown(): void
-{
+    {
         $dm = $this->getDataMapper();
         foreach ($this->testEntities as $entity) {
             $dm->delete($entity, true);
@@ -94,7 +95,7 @@ abstract class DmTestsAbstract extends TestCase
         // bool
         $customer->setValue("f_nocall", true);
         // object
-        $customer->setValue("owner_id", $this->user->getId(), $this->user->getName());
+        $customer->setValue("owner_id", $this->user->getEntityId(), $this->user->getName());
         // object_multi
         // timestamp
         $contactedTime = mktime(0, 0, 0, 12, 1, 2013);
@@ -145,17 +146,12 @@ abstract class DmTestsAbstract extends TestCase
         // Queue for cleanup
         $this->testEntities[] = $customer;
 
-        // Get entity definition
-        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-
         // Load the object through the loader which should cache it
-        $ret = $dm->getById($ent, $cid);
-        $this->assertTrue($ret);
-        $this->assertEquals($ent->getId(), $cid);
-        $this->assertEquals($ent->getValue("id"), $cid);
+        $ent = $dm->getByGuid($cid);
+        $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
-        $this->assertEquals($ent->getValue("owner_id"), $this->user->getGuid());
+        $this->assertEquals($ent->getValue("owner_id"), $this->user->getEntityId());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
         $this->assertEquals($ent->getValue("status_id"), $statGrp->guid);
         $this->assertEquals($ent->getValueName("status_id"), "Unit Test Status");
@@ -189,7 +185,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Load the entity by guid (no need for obj_type)
         $loadedCustomer = $dm->getByGuid($guid);
-        $this->assertEquals($customer->getId(), $loadedCustomer->getId());
+        $this->assertEquals($customer->getEntityId(), $loadedCustomer->getEntityId());
     }
 
     /**
@@ -201,9 +197,11 @@ abstract class DmTestsAbstract extends TestCase
 
         // Create a few test groups
         $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
-        $statGrp = $groupingsStat->create("Unit Test Status");
-        $groupingsStat->add($statGrp);
-        $this->groupingDataMapper->saveGroupings($groupingsStat);
+        if (!$groupingsStat->getByName("Unit Test Status")) {
+            $statGrp = $groupingsStat->create("Unit Test Status");
+            $groupingsStat->add($statGrp);
+            $this->groupingDataMapper->saveGroupings($groupingsStat);
+        }
 
         $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
         $groupsGrp = $groupingsGroups->create("Unit Test Group");
@@ -224,18 +222,12 @@ abstract class DmTestsAbstract extends TestCase
         // Queue for cleanup
         $this->testEntities[] = $customer;
 
-        // Get entity definition
-        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-
         // Load the object through the loader which should cache it
-        $ret = $dm->getById($ent, $cid);
-
-        $this->assertTrue($ret);
-        $this->assertEquals($ent->getId(), $cid);
-        $this->assertEquals($ent->getValue("id"), $cid);
+        $ent = $dm->getByGuid($cid);
+        $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
-        $this->assertEquals($ent->getValue("owner_id"), $this->user->getGuid());
+        $this->assertEquals($ent->getValue("owner_id"), $this->user->getEntityId());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
         $this->assertEquals($ent->getValue("status_id"), $statGrp->guid);
         $this->assertEquals($ent->getValueName("status_id"), $statGrp->name);
@@ -243,20 +235,10 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($ent->getValueName("groups"), $groupsGrp->name);
         $this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
-        // Test if id field_data was saved in field_data
-        $rDatabase = $this->account->getServiceManager()->get(RelationalDbFactory::class);
-        $def = $ent->getDefinition();
-        $result = $rDatabase->query("SELECT field_data->>'id' as id FROM {$def->getTable()} WHERE guid = :entity_guid",
-            ['entity_guid' => $ent->getValue('guid')]);
-
-        $row = $result->fetch();
-        $this->assertEquals($row['id'], $ent->getId());
-        $this->assertEquals($result->rowCount(), 1);
-
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->id);
+        $groupingsStat->delete($statGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
-        $groupingsGroups->delete($groupsGrp->id);
+        $groupingsGroups->delete($groupsGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -281,11 +263,11 @@ abstract class DmTestsAbstract extends TestCase
         $cmsSite->setValue("name", 'utest-edited');
         $savedAgainCid = $dm->save($cmsSite);
         $this->assertEquals($cid, $savedAgainCid);
-        $this->assertEquals($cid, $cmsSite->getId());
+        $this->assertEquals($cid, $cmsSite->getEntityId());
 
         // And finally soft-delete and once again assure the IDs are unchanged
         $dm->delete($cmsSite);
-        $this->assertEquals($cid, $cmsSite->getId());
+        $this->assertEquals($cid, $cmsSite->getEntityId());
     }
 
     public function testSaveClearMultiVal()
@@ -305,7 +287,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Create an entity and initialize values
         $customer = $this->createCustomer();
-        $customer->addMultiValue("groups", $groupsGrp->id, $groupsGrp->name);
+        $customer->addMultiValue("groups", $groupsGrp->guid, $groupsGrp->name);
         // Cache returned time
         $cid = $dm->save($customer, $this->user);
         $this->assertNotEquals(false, $cid);
@@ -317,20 +299,17 @@ abstract class DmTestsAbstract extends TestCase
         // Queue for cleanup
         $this->testEntities[] = $customer;
 
-        // Create new entity
-        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-
         // Load the object through the loader which should cache it
-        $ret = $dm->getById($ent, $cid);
-        $this->assertTrue($ret);
+        $ent = $dm->getByGuid($cid);
+
         $this->assertEquals([], $ent->getValue("groups"));
         $this->assertEquals([], $ent->getValueNames("groups"));
         $this->assertEquals('', $ent->getValueName("groups"));
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->id);
+        $groupingsStat->delete($statGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
-        $groupingsGroups->delete($groupsGrp->id);
+        $groupingsGroups->delete($groupsGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -377,8 +356,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertTrue($ret);
 
         // Reload and test if flagged but still in database
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $ret = $dm->getById($customer, $cid);
+        $customer = $dm->getByGuid($cid);
         $this->assertTrue($ret);
         $this->assertEquals(true, $customer->isDeleted());
 
@@ -386,8 +364,7 @@ abstract class DmTestsAbstract extends TestCase
         $ret = $dm->delete($customer);
         $this->assertTrue($ret);
         $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $ret = $dm->getById($customer, $cid);
-        $this->assertFalse($ret); // Not found
+        $this->assertNull($dm->getByGuid($cid)); // Not found
 
         // Test a dynamic table object
         // ------------------------------------------------------------------------
@@ -403,17 +380,14 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertTrue($ret);
 
         // Reload and test if flagged but still in database
-        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $ret = $dm->getById($story, $cid);
+        $story = $dm->getByGuid($cid);
         $this->assertTrue($ret);
         $this->assertEquals(true, $story->isDeleted());
 
         // Now delete and make sure the object cannot be reloaded
         $ret = $dm->delete($story);
         $this->assertTrue($ret);
-        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $ret = $dm->getById($story, $cid);
-        $this->assertFalse($ret); // Not found
+        $this->assertNull($dm->getByGuid($cid));
     }
 
     /**
@@ -444,7 +418,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Set moved to
         $def = $customer->getDefinition();
-        $ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
+        $ret = $dm->setEntityMovedTo($def, $customer->getEntityId(), $customer2->getEntityId());
         $this->assertTrue($ret);
     }
 
@@ -480,7 +454,7 @@ abstract class DmTestsAbstract extends TestCase
         // Create a task entity and set the user entity as owner
         $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ReferencedEntity");
-        $task->setValue("owner_id", $user->getGuid());
+        $task->setValue("owner_id", $user->getEntityId());
         $taskId = $dm->save($task, $this->user);
 
         // Queue for cleanup
@@ -488,15 +462,12 @@ abstract class DmTestsAbstract extends TestCase
 
         // Update Entity References
         $def = $user->getDefinition();
-        $dm->updateOldReferences($def, $user->getGuid(), $user2->getGuid());
-
-        // Create the task entity
-        $taskEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $dm->updateOldReferences($def, $user->getEntityId(), $user2->getEntityId());
 
         // Get the entity of $taskId using the datamapper and it should update the owner_id to $userId2
-        $dm->getById($taskEntity, $taskId);
+        $taskEntity = $dm->getByGuid($taskId);
 
-        $this->assertEquals($user2->getGuid(), $taskEntity->getValue("owner_id"));
+        $this->assertEquals($user2->getEntityId(), $taskEntity->getValue("owner_id"));
     }
 
     /**
@@ -527,7 +498,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Set moved to
         $def = $customer->getDefinition();
-        $ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
+        $ret = $dm->setEntityMovedTo($def, $customer->getEntityId(), $customer2->getEntityId());
 
         // Get access to protected entityHasMoved with reflection object
         $refIm = new \ReflectionObject($dm);
@@ -668,8 +639,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load into a new entity
-        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $ret = $dm->getById($ent, $oid);
+        $ent = $dm->getByGuid($oid);
 
         // Even though we just loaded all the data into the entity, it should not be marked as dirty
         $this->assertFalse($ent->isDirty());
@@ -698,7 +668,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertNotNull($recurrencePattern->getId());
 
         // Now close the task and reload it to make sure recurrence is still set
-        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::TASK, $tid);
+        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getByGuid($tid);
         $this->assertNotNull($task2->getRecurrencePattern());
 
         // Cleanup
@@ -769,7 +739,7 @@ abstract class DmTestsAbstract extends TestCase
         // fkey_multi with no label (third param)
         $customer->addMultiValue("groups", $groupsGrp->guid);
         // object with no label (third param)
-        $customer->setValue("owner_id", $this->user->getGuid());
+        $customer->setValue("owner_id", $this->user->getEntityId());
         // Setting object_multi field with array values of null and empty string should not throw an error
         $customer->setValue("activity", array(null, ""));
         // Setting object field with array values of null should not throw an error
@@ -782,18 +752,17 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the entity from the datamapper
-        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $ret = $dm->getById($ent, $cid);
+        $ent = $dm->getByGuid($cid);
 
         // Make sure the fvals for references are updated
-        $this->assertEquals($ent->getValueName("status_id", $statGrp->guid), $statGrp->name);
+        $this->assertEquals($ent->getValueName("status_id", $statGrp->guid), $statGrp->name, var_export($ent->getValue('status_id_fkey'), true));
         $this->assertEquals($ent->getValueName("groups", $groupsGrp->guid), $groupsGrp->name);
-        $this->assertEquals($ent->getValueName("owner_id", $this->user->getGuid()), $this->user->getName());
+        $this->assertEquals($ent->getValueName("owner_id", $this->user->getEntityId()), $this->user->getName());
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->id);
+        $groupingsStat->delete($statGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
-        $groupingsGroups->delete($groupsGrp->id);
+        $groupingsGroups->delete($groupsGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -825,7 +794,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Set moved to
         $def = $customer->getDefinition();
-        $ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
+        $ret = $dm->setEntityMovedTo($def, $customer->getEntityId(), $customer2->getEntityId());
 
         $movedTo = $dm->checkEntityHasMoved($customer->getDefinition(), $oid1);
 
@@ -907,15 +876,15 @@ abstract class DmTestsAbstract extends TestCase
         // Create root page for site
         $homePage = $entityLoader->create(ObjectTypes::PAGE);
         $homePage->setValue("name", 'testgetbyunamehome'); // for uname
-        $homePage->setValue("site_id", $site->getGuid());
+        $homePage->setValue("site_id", $site->getEntityId());
         $dm->save($homePage);
         $this->testEntities[] = $homePage; // for cleanup
 
         // Create a subpage for the site
         $subPage = $entityLoader->create(ObjectTypes::PAGE);
         $subPage->setValue("name", "testgetbyunamefile");  // for uname
-        $subPage->setValue('parent_id', $homePage->getGuid());
-        $subPage->setValue("site_id", $site->getGuid());
+        $subPage->setValue('parent_id', $homePage->getEntityId());
+        $subPage->setValue("site_id", $site->getEntityId());
         $dm->save($subPage);
         $this->testEntities[] = $subPage; // for cleanup
 
@@ -928,10 +897,10 @@ abstract class DmTestsAbstract extends TestCase
         $retrievedPage = $dm->getByUniqueName(
             ObjectTypes::PAGE,
             $fullPath,
-            ['site_id' => $site->getGuid()]
+            ['site_id' => $site->getEntityId()]
         );
 
-        $this->assertEquals($subPage->getGuid(), $retrievedPage->getGuid());
+        $this->assertEquals($subPage->getEntityId(), $retrievedPage->getEntityId());
     }
 
     /**
@@ -945,28 +914,26 @@ abstract class DmTestsAbstract extends TestCase
         $customerName = "Test Customer";
         $customer = $this->createCustomer();
         $customer->setValue("name", $customerName);
-        $customer->setValue("owner_id", $this->user->getId());
+        $customer->setValue("owner_id", $this->user->getEntityId());
         $cid = $dm->save($customer, $this->user);
 
-        $customerEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $dm->getById($customerEntity, $cid);
+        $customerEntity = $dm->getByGuid($cid);
 
         // Create reminder and set the customer as our object reference
         $customerReminder = "Customer Reminder";
         $reminder = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
         $reminder->setValue("name", $customerReminder);
-        $reminder->setValue("obj_reference", $customer->getGuid());
+        $reminder->setValue("obj_reference", $customer->getEntityId());
         $rid = $dm->save($reminder, $this->user);
 
         // Set the entities so it will be cleaned up properly
         $this->testEntities[] = $customer;
         $this->testEntities[] = $reminder;
 
-        $reminderEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
-        $dm->getById($reminderEntity, $rid);
+        $reminderEntity = $dm->getByGuid($rid);
         $this->assertEquals($customerEntity->getName(), $customerName);
         $this->assertEquals($reminderEntity->getName(), $customerReminder);
-        $this->assertEquals($reminderEntity->getValue("obj_reference"), $customer->getGuid());
+        $this->assertEquals($reminderEntity->getValue("obj_reference"), $customer->getEntityId());
         $this->assertEquals($reminderEntity->getValueName("obj_reference"), $customer->getName());
     }
 
@@ -995,7 +962,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($statGrp->name, $customer->getValueName('status_id'));
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->id);
+        $groupingsStat->delete($statGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
     }
 }

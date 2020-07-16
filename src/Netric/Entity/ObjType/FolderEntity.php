@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provide user extensions to base Entity class
  *
@@ -62,13 +63,13 @@ class FolderEntity extends Entity implements EntityInterface
             $rootFolderEntity = $this->getRootFolder();
 
             // This will avoid any circular reference to the root folder entity
-            if ($rootFolderEntity && $rootFolderEntity->getId() != $this->getId()) {
-                $this->setValue("parent_id", $rootFolderEntity->getGuid());
+            if ($rootFolderEntity && $rootFolderEntity->getEntityId() != $this->getEntityId()) {
+                $this->setValue("parent_id", $rootFolderEntity->getEntityId());
             }
         }
 
         // Make sure that parent_id and entity id is not the same
-        if ($this->getId() && $this->getId() == $this->getValue("parent_id")) {
+        if ($this->getEntityId() && $this->getEntityId() == $this->getValue("parent_id")) {
             throw new \RuntimeException("Invalid parent id. Cannot set its own id as parent id.");
         }
 
@@ -117,7 +118,7 @@ class FolderEntity extends Entity implements EntityInterface
             return "/";
         }
 
-        $parentFolder = $this->entityLoader->get(ObjectTypes::FOLDER, $this->getValue("parent_id"));
+        $parentFolder = $this->entityLoader->getByGuid($this->getValue("parent_id"));
         $pre = $parentFolder->getFullPath();
 
         // If our parent is the root, then just absolute path to root and avoid returing '//"
@@ -136,12 +137,12 @@ class FolderEntity extends Entity implements EntityInterface
      */
     public function move(Folder $newParentFolder)
     {
-        if (!$newParentFolder->getId()) {
+        if (!$newParentFolder->getEntityId()) {
             // TODO: Maybe throw exception since this should probably never happen?
             return false;
         }
 
-        $this->setValue("parent_id", $newParentFolder->getGuid());
+        $this->setValue("parent_id", $newParentFolder->getEntityId());
         return true;
     }
 

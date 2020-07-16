@@ -109,7 +109,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
         if (!$file->getValue("dat_ans_key")) {
-            throw new Exception\FileNotFoundException($file->getId() . ":" . $file->getName() . " not found. No key");
+            throw new Exception\FileNotFoundException($file->getEntityId() . ":" . $file->getName() . " not found. No key");
         }
 
         $metadata = $this->getMogileFsConnection()->get($file->getValue("dat_ans_key"));
@@ -246,7 +246,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         }
 
         // Generate a unique id for the file
-        $key = $this->accountId . "/" . $file->getId() . "/";
+        $key = $this->accountId . "/" . $file->getEntityId() . "/";
         $key .= $file->getValue("revision") . "/" . $file->getName();
 
         // Put the file on the server
@@ -292,7 +292,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         }
 
         // Delete all past revisions
-        $revisions = $this->entityLoader->getRevisions("file", $file->getId());
+        $revisions = $this->entityLoader->getRevisions("file", $file->getEntityId());
         foreach ($revisions as $fileRev) {
             if ($fileRev->getValue("dat_ans_key")) {
                 try {
@@ -345,7 +345,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      */
     private function getTempName(FileEntity $file)
     {
-        return "file-" . $this->accountId . "-" . $file->getId() . "-" . $file->getValue('revision');
+        return "file-" . $this->accountId . "-" . $file->getEntityId() . "-" . $file->getValue('revision');
     }
 
     /**

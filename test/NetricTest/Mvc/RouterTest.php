@@ -29,7 +29,7 @@ class RouterTest extends TestCase
         $request->setParam("controller", "test");
         $request->setParam("function", "test");
 
-        $svr = new Netric\Mvc\Router($account->getApplication());
+        $svr = new Netric\Mvc\Router($account->getApplication(), $account);
         $svr->testMode = true;
         $ret = $svr->run($request);
         $this->assertEquals(['param' => 'test'], $ret->getOutputBuffer());
@@ -52,7 +52,7 @@ class RouterTest extends TestCase
         $request->setParam("controller", "test");
         $request->setParam("function", "test");
 
-        $svr = new Netric\Mvc\Router($account->getApplication());
+        $svr = new Netric\Mvc\Router($account->getApplication(), $account);
         $svr->testMode = true;
 
         $this->expectException(NotAuthorizedForRouteException::class);
@@ -79,7 +79,7 @@ class RouterTest extends TestCase
         $request->setParam("controller", "test");
         $request->setParam("function", "test");
 
-        $svr = new Netric\Mvc\Router($account->getApplication());
+        $svr = new Netric\Mvc\Router($account->getApplication(), $account);
         $svr->testMode = true;
         $ret = $svr->run($request);
         // Request should fail succeed even though we do not have an authenticated user

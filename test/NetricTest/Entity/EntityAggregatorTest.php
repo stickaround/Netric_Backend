@@ -97,7 +97,7 @@ class EntityAggregatorTest extends TestCase
         $this->testEntities[] = $time2;
 
         // Now check if the task has 2 hours in the cost_actual field
-        $task = $this->entityLoader->get(ObjectTypes::TASK, $tid);
+        $task = $this->entityLoader->getByGuid($tid);
         $this->assertEquals(2, $task->getValue("cost_actual"));
     }
 
@@ -124,7 +124,7 @@ class EntityAggregatorTest extends TestCase
         $this->testEntities[] = $rating2;
 
         // The product rating should be an avg of 5 (8 + 2) / 2 ratings
-        $task = $this->entityLoader->get(ObjectTypes::PRODUCT, $pid);
+        $task = $this->entityLoader->getByGuid($pid);
         $this->assertEquals(5, $task->getValue("rating"));
     }
 }

@@ -33,7 +33,6 @@ return [
         'user' => "vagrant",
         'password' => "vagrant",
         'syshost' => "db1",
-        'accdb' => "netricacc",
     ],
     // Files settings
     'files' => [

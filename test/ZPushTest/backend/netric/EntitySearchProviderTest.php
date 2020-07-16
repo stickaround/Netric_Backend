@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test searching entities
  */
+
 namespace ZPushTest\backend\netric;
 
 use PHPUnit\Framework\TestCase;
@@ -87,7 +89,7 @@ class EntitySearchProviderTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
@@ -120,7 +122,7 @@ class EntitySearchProviderTest extends TestCase
 
         // Create inbox mailbox for testing
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getGuid());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
             $inbox->user_id = $user->getId();
@@ -138,7 +140,7 @@ class EntitySearchProviderTest extends TestCase
         $this->testCalendar = $calendar;
 
         // Initialize zpush - copied from zpush index file
-        if (!defined ( 'REAL_BASE_PATH' )) {
+        if (!defined('REAL_BASE_PATH')) {
             \ZPush::CheckConfig();
         }
 
@@ -150,7 +152,7 @@ class EntitySearchProviderTest extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

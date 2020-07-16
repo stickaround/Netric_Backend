@@ -50,7 +50,7 @@ class ModuleService
     {
         $all = $this->moduleDataMapper->getAll();
         foreach ($all as $module) {
-            if ($module->getId() == $id) {
+            if ($module->getModuleId() == $id) {
                 return $module;
             }
         }
@@ -74,7 +74,7 @@ class ModuleService
             if ($module->getScope() == Module::SCOPE_EVERYONE
                 || (
                     $module->getScope() == Module::SCOPE_USER &&
-                    $module->getUserId() == $user->getId()
+                    $module->getUserId() == $user->getEntityId()
                 )
                 || (
                     $module->getScope() == Module::SCOPE_TEAM &&

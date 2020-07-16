@@ -68,6 +68,23 @@ class EntityDefinitionLoader
     }
 
     /**
+     * Retrieve an entity definition by id
+     *
+     * @param string $entityDefinitionId
+     * @return EntityDefinition|null
+     */
+    public function getById(string $entityDefinitionId): ?EntityDefinition
+    {
+        $def = $this->dataMapper->fetchById($entityDefinitionId);
+        $objType = $def->getObjType();
+        if ($this->isLoaded($objType)) {
+            return $this->loadedDefinitions[$objType];
+        }
+
+        return $this->loadDefinition($objType);
+    }
+
+    /**
      * Save a defintion from a system definition if it exists
      *
      * @param string $objType
@@ -153,7 +170,7 @@ class EntityDefinitionLoader
         if (!$hash) {
             $hash = 'custom';
         }
-        return $this->dataMapper->getAccount()->getId() . '/entitydefinition/' . $hash . "-" . $objType;
+        return $this->dataMapper->getAccount()->getAccountId() . '/entitydefinition/' . $hash . "-" . $objType;
     }
 
 
@@ -323,7 +340,7 @@ class EntityDefinitionLoader
         $this->cache->remove($this->getUniqueKeyForObjType($objType));
 
         // Remove cached all Object Types
-        $this->cache->remove($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes");
+        $this->cache->remove($this->dataMapper->getAccount()->getAccountId() . "/objects/allObjectTypes");
     }
 
     /**
@@ -352,14 +369,14 @@ class EntityDefinitionLoader
     public function getAll()
     {
         // First try to load the definitions from cache
-        $allObjectTypes = $this->cache->get($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes");
+        $allObjectTypes = $this->cache->get($this->dataMapper->getAccount()->getAccountId() . "/objects/allObjectTypes");
 
         // No cache, then load objects from dataMapper
         if (!$allObjectTypes) {
             $allObjectTypes = $this->dataMapper->getAllObjectTypes();
 
             // Cache the loaded objects for future requests
-            $this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes", $allObjectTypes);
+            $this->cache->set($this->dataMapper->getAccount()->getAccountId() . "/objects/allObjectTypes", $allObjectTypes);
         }
 
         $ret = [];

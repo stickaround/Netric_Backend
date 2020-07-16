@@ -60,7 +60,7 @@ class CheckConditionAction extends AbstractAction implements ActionInterface
         $entity = $workflowInstance->getEntity();
 
         // Entity must be saved to meet conditions
-        if (!$entity->getId()) {
+        if (!$entity->getEntityId()) {
             return false;
         }
 
@@ -71,7 +71,7 @@ class CheckConditionAction extends AbstractAction implements ActionInterface
         $query = new EntityQuery($entity->getDefinition()->getObjType());
 
         // Add the entity as a condition to see if it meets the criteria
-        $query->where("id")->equals($entity->getId());
+        $query->where("id")->equals($entity->getEntityId());
 
         // Query deleted if the entity is deleted
         if ($entity->isDeleted()) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
@@ -63,5 +64,17 @@ class EntityFactory
 
         // TODO: if !$def then throw an exception
         return new Entity($def, $entityLoader);
+    }
+
+    /**
+     * Create a new entity from a definition id
+     *
+     * @param string $entityDefinitionId
+     * @return EntityInterface
+     */
+    public function createEntityFromDefinitionId(string $entityDefinitionId): EntityInterface
+    {
+        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->getById($entityDefinitionId);
+        return $this->create($def->getObjType());
     }
 }

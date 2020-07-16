@@ -76,7 +76,7 @@ class WorkFlowInstance
      *
      * @return int
      */
-    public function getId()
+    public function getWorkFlowInstanceId()
     {
         return $this->id;
     }
@@ -128,7 +128,7 @@ class WorkFlowInstance
      */
     public function getObjTypeId()
     {
-        return $this->entity->getDefinition()->getId();
+        return $this->entity->getDefinition()->getEntityDefinitionId();
     }
 
     /**
@@ -138,7 +138,7 @@ class WorkFlowInstance
      */
     public function getEntityId()
     {
-        return $this->entity->getId();
+        return $this->entity->getEntityId();
     }
 
     /**

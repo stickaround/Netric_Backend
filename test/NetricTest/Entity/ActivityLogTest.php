@@ -68,7 +68,7 @@ class ActivityLogTest extends TestCase
 
         // Log the activity
         $act = $this->activityLog->log($this->user, ActivityEntity::VERB_CREATED, $customerEntity);
-        $openedAct = $this->entityLoader->get(ObjectTypes::ACTIVITY, $act->getId());
+        $openedAct = $this->entityLoader->getByGuid($act->getEntityId());
 
         // Test activity
         $this->assertNotNull($openedAct);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -114,7 +115,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     public function onAfterSave(AccountServiceManagerInterface $sm)
     {
         if ($this->isDeleted()) {
-            $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $this->getValue("thread"));
+            $thread = $this->entityLoader->getByGuid($this->getValue("thread"));
 
             // Decrement the number of messages in the thread if it exists
             if ($thread) {
@@ -155,7 +156,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
     {
-        $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $this->getValue("thread"));
+        $thread = $this->entityLoader->getByGuid($this->getValue("thread"));
 
         /*
          * If this is the last message, then purge the thread.
@@ -400,7 +401,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
                 // This is an attachment - could either be inline or an attachment
                 $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), true);
                 $this->fileSystem->writeFile($file, $mimePart->getRawContent());
-                $this->addMultiValue("attachments", $file->getGuid(), $file->getName());
+                $this->addMultiValue("attachments", $file->getEntityId(), $file->getName());
             } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
                 // If multipart/aleternative then this will come after 'plain' and overwrite
                 $this->setValue("body", trim($mimePart->getRawContent()));
@@ -508,7 +509,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
             $results = $this->entityIndex->executeQuery($query);
             if ($results->getNum()) {
                 $emailMessage = $results->getEntity(0);
-                $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $emailMessage->getValue("thread"));
+                $thread = $this->entityLoader->getByGuid($emailMessage->getValue("thread"));
             }
         }
 
@@ -566,7 +567,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $this->updateThreadFromMessage($thread);
 
         // Set the thread of this message to the discovered (or created) thread
-        $this->setValue("thread", $thread->getGuid());
+        $this->setValue("thread", $thread->getEntityId());
     }
 
     /**
@@ -590,7 +591,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
 
         // If a thread was not passed, the load it from value
         if (!$thread) {
-            $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $this->getValue("thread"));
+            $thread = $this->entityLoader->getByGuid($this->getValue("thread"));
         }
 
         /*
@@ -614,8 +615,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
         // Update the delivered date
         if ($this->getValue("message_date")) {
             // Only update if this is newer than the last message added
-            if (!$thread->getValue("ts_delivered")
-                || $thread->getValue("ts_delivered") < $this->getValue("message_date")) {
+            if (
+                !$thread->getValue("ts_delivered")
+                || $thread->getValue("ts_delivered") < $this->getValue("message_date")
+            ) {
                 // Set  the last delivered date of the thread to this message date
                 $thread->setValue("ts_delivered", $this->getValue("message_date"));
             }

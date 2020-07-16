@@ -84,7 +84,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
         ];
 
         // Insert the new value
-        $ret = $this->database->insert("settings", $insertData);
+        $ret = $this->database->insert("settings", $insertData, 'id');
 
         // Throw a runtime exception if insert query did not return a value
         if (!$ret) {
@@ -93,25 +93,6 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
                 throw new \RuntimeException("Could not set last_applied_definition using the value: $schemaHash");
             }
         }
-    }
-
-    /**
-     * Make sure a namespace/schema exists for this tenant
-     *
-     * @param int $accountId The unique account id to create a schema for
-     * @return bool true on success, false on failure with $this->getLastError set
-     */
-    protected function createSchemaIfNotExists($accountId)
-    {
-        $schemaName = "acc_" . $accountId;
-        if (!$this->database->namespaceExists($schemaName)) {
-            $this->database->createNamespace($schemaName);
-
-            // Switch to the new schema
-            $this->database->setNamespace($schemaName);
-        }
-
-        return true;
     }
 
     /**

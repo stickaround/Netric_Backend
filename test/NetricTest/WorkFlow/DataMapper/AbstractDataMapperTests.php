@@ -305,7 +305,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlowOpened = $dataMapper->getById($workflowId);
 
         // Just make sure we got the right entry since testSave* will be more detailed
-        $this->assertEquals($workFlow->getId(), $workFlowOpened->getId());
+        $this->assertEquals($workFlow->getEntityId(), $workFlowOpened->getWorkFlowId());
     }
 
     /**
@@ -330,7 +330,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlows = $dataMapper->getWorkFlows();
         $found = false;
         foreach ($workFlows as $wf) {
-            if ($wf->getId() == $workFlow->getId()) {
+            if ($wf->getWorkFlowId() == $workFlow->getId()) {
                 $found = true;
             }
         }
@@ -360,7 +360,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlowFound = false;
         $anomalyFound = false;
         foreach ($workFlows as $wf) {
-            if ($wf->getId() == $workFlow->getId()) {
+            if ($wf->getWorkFlowId() == $workFlow->getId()) {
                 $workFlowFound = true;
             }
 
@@ -395,7 +395,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlows = $dataMapper->getWorkFlows($workFlowData['obj_type'], true);
         $workFlowFound = false;
         foreach ($workFlows as $wf) {
-            if ($wf->getId() == $workFlow->getId()) {
+            if ($wf->getWorkFlowId() == $workFlow->getId()) {
                 $workFlowFound = true;
             }
         }
@@ -424,7 +424,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlows = $dataMapper->getWorkFlows($workFlowData['obj_type'], false);
         $workFlowFound = false;
         foreach ($workFlows as $wf) {
-            if ($wf->getId() == $workFlow->getId()) {
+            if ($wf->getWorkFlowId() == $workFlow->getId()) {
                 $workFlowFound = true;
             }
         }

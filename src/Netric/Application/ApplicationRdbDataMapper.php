@@ -180,11 +180,6 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function getAccountsByEmail($emailAddress)
     {
-        // Check first if we have database connection before getting the account data
-        if (!$this->checkDbConnection()) {
-            return false;
-        }
-
         $ret = [];
 
         // Check accounts for a username matching this address
@@ -230,7 +225,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
                 "email_address" => $emailAddress,
                 "username" => $username
             ];
-            $result = $this->database->insert("account_users", $insertData);
+            $result = $this->database->insert("account_users", $insertData, 'id');
             $ret = ($result) ? true : false;
         }
 
@@ -250,7 +245,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             "name" => $name,
             //"database" => $this->defaultAccountDatabase,
         ];
-        $ret = $this->database->insert("accounts", $insertData);
+        $ret = $this->database->insert("accounts", $insertData, 'id');
 
         if ($ret) {
             return $ret;
@@ -351,7 +346,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             }
         } else {
             $insertData = ["process_name" => $uniqueLockName, "ts_entered" => date('Y-m-d H:i:s')];
-            $ret = $this->database->insert("worker_process_lock", $insertData);
+            $ret = $this->database->insert("worker_process_lock", $insertData, 'id');
 
             if ($ret) {
                 return true;

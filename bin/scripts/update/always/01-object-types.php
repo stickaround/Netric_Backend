@@ -29,7 +29,7 @@ foreach ($types as $objDefData) {
         $def = new EntityDefinition($objDefData['obj_type']);
         $def->fromArray($objDefData);
         $entityDefinitionDataMapper->save($def);
-        if (!$def->getId()) {
+        if (!$def->getEntityDefinitionId()) {
             throw new \RuntimeException("Could not save " . $entityDefinitionDataMapper->getLastError());
         }
     }

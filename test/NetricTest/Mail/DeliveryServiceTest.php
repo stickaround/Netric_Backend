@@ -81,11 +81,11 @@ class DeliveryServiceTest extends TestCase
 
         // If it does not exist, create an inbox for the user
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
         $inbox = new Group();
         $inbox->name = "Inbox";
         $inbox->isSystem = true;
-        $inbox->user_id = $this->user->getGuid();
+        $inbox->user_id = $this->user->getEntityId();
         $groupings->add($inbox);
         $groupingsLoader->save($groupings);
         $this->inbox = $groupings->getByPath("Inbox");
@@ -94,7 +94,7 @@ class DeliveryServiceTest extends TestCase
         $this->emailAccount = $entityLoader->create(ObjectTypes::EMAIL_ACCOUNT);
         $this->emailAccount->setValue("type", "imap");
         $this->emailAccount->setValue('address', self::TEST_EMAIL);
-        $this->emailAccount->setValue('owner_id', $this->user->getId());
+        $this->emailAccount->setValue('owner_id', $this->user->getEntityId());
         $this->emailAccount->setValue("name", "test-imap");
         $this->emailAccount->setValue("host", getenv('TESTS_NETRIC_MAIL_HOST'));
         $this->emailAccount->setValue("username", getenv('TESTS_NETRIC_MAIL_USER'));
@@ -108,7 +108,7 @@ class DeliveryServiceTest extends TestCase
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
         $groupings->delete($this->inbox->guid);
         $groupingsLoader->save($groupings);
 

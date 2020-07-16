@@ -61,7 +61,7 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $ret["limit"] = $query->getLimit();
         $ret['num'] = $res->getNum();
         $ret['query_ran'] = $query->toArray();
-        $ret['account'] = $this->getApplication()->getAccount()->getName();
+        $ret['account'] = $this->account->getName();
 
         // Set results
         $entities = [];

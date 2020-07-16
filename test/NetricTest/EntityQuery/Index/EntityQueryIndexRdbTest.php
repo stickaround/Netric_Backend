@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test querying ElasticSearch server
  *
@@ -7,6 +8,7 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
+
 namespace NetricTest\EntityQuery\Index;
 
 use Netric;
@@ -27,7 +29,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     {
         return new EntityQueryIndexRdb($this->account);
     }
-    
+
     /**
      * Dummy test
      */
@@ -40,12 +42,12 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     {
         $def = $this->defLoader->get(ObjectTypes::TASK);
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        
+
         // Get all groupings for this object type
         $groupings = $groupingLoader->get(ObjectTypes::TASK . "/status_id");
 
         $completedGroup = $groupings->getByName("Completed");
-        $compledtedId = $completedGroup->getValue("id");
+        $compledtedId = $completedGroup->getValue("guid");
 
         // Test Not Equal
         $condition = new Where("status_id");
@@ -63,8 +65,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     public function testbuildConditionStringForFkeyMulti()
     {
         $def = $this->defLoader->get(ObjectTypes::NOTE);
-        $objTable = $def->getTable();
-        
+
         // Test Equals
         $condition = new Where("groups");
         $condition->equals(1);
@@ -76,7 +77,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition->equals(null);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
         $this->assertEquals($conditionString, "(field_data->'groups' = 'null'::jsonb OR field_data->'groups' = '[]'::jsonb)");
-        
+
         // Test Not Equal
         $condition = new Where("groups");
         $condition->doesNotEqual(1);
@@ -93,7 +94,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     public function testbuildConditionStringForObject()
     {
         $def = $this->defLoader->get(ObjectTypes::TASK);
-        
+
         // Test Equals
         $condition = new Where("owner_id");
         $condition->equals(1);
@@ -273,7 +274,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
         $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', ''))::boolean != true");
     }
-    
+
     public function testbuildConditionStringForDate()
     {
         $def = $this->defLoader->get(ObjectTypes::TASK);

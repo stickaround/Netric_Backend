@@ -24,7 +24,7 @@ class AnsFileStoreFactory implements ServiceManager\AccountServiceFactoryInterfa
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $accountId = $sl->getAccount()->getId();
+        $accountId = $sl->getAccount()->getAccountId();
         $dataMapper = $sl->get(DataMapperFactory::class);
 
         $config = $sl->get(ConfigFactory::class);

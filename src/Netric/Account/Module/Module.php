@@ -143,7 +143,7 @@ class Module
      *
      * @return int
      */
-    public function getId()
+    public function getModuleId()
     {
         return $this->id;
     }
@@ -153,7 +153,7 @@ class Module
      *
      * @param int $id
      */
-    public function setId($id)
+    public function setModuleId($id)
     {
         $this->id = $id;
     }

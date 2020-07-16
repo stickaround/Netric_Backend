@@ -23,35 +23,35 @@ class BrowserView
      *
      * @var string
      */
-    private $ownerId = null;
+    private $ownerId = '';
 
     /**
      * Set if this view is owned by a team
      *
-     * @var int
+     * @var string
      */
-    private $teamId = null;
+    private $teamId = '';
 
     /**
      * Unique id of this view if saved
      *
      * @var string
      */
-    private $id = null;
+    private $id = '';
 
     /**
      * Name describing this view
      *
      * @var string
      */
-    private $name = null;
+    private $name = '';
 
     /**
      * Full description of the view
      *
      * @var string
      */
-    private $description = null;
+    private $description = '';
 
     /**
      * Which fields to display in a table view
@@ -65,7 +65,7 @@ class BrowserView
      *
      * @var string
      */
-    private $filterKey = null;
+    private $filterKey = '';
 
     /**
      * True if this is the default view for the given user
@@ -100,11 +100,11 @@ class BrowserView
      *
      * @var string
      */
-    private $objType = null;
+    private $objType = '';
 
     /**
      * Flag that will determine if we will set a group by based on the first sort order field
-     * 
+     *
      * @var boolean
      */
     private $groupFirstOrderBy = false;
@@ -262,9 +262,9 @@ class BrowserView
     /**
      * Get owner global id if set just for a user
      *
-     * @return int
+     * @return string
      */
-    public function getOwnerId()
+    public function getOwnerId(): string
     {
         return $this->ownerId;
     }
@@ -277,7 +277,7 @@ class BrowserView
      *
      * @param string $ownerId Unique user global id for this view
      */
-    public function setOwnerId($ownerId)
+    public function setOwnerId(string $ownerId)
     {
         if ($this->getTeamId()) {
             $this->teamId = null;
@@ -289,9 +289,9 @@ class BrowserView
     /**
      * Get team id if only set for a team
      *
-     * @return int
+     * @return string
      */
-    public function getTeamId()
+    public function getTeamId(): string
     {
         return $this->teamId;
     }
@@ -302,9 +302,9 @@ class BrowserView
      * If the teamId is set, then this will clear the userId
      * since only one can be set at a time.
      *
-     * @param int $teamId Unique team ID for this view
+     * @param string $teamId Unique team ID for this view
      */
-    public function setTeamId($teamId)
+    public function setTeamId(string $teamId)
     {
         if ($this->getOwnerId()) {
             $this->userId = null;

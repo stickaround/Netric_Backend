@@ -96,7 +96,7 @@ class WorkFlowManager extends AbstractHasErrors
             $this->workFlowDataMapper->save($workFlow);
 
             // Log what just happened
-            $this->log->info("Ran periodic WorkFlow " . $workFlow->getId() . " on $num entities");
+            $this->log->info("Ran periodic WorkFlow " . $workFlow->getWorkFlowId() . " on $num entities");
         }
     }
 
@@ -198,7 +198,7 @@ class WorkFlowManager extends AbstractHasErrors
         $query = new EntityQuery($entity->getDefinition()->getObjType());
 
         // Add the entity as a condition to see if it meets the criteria
-        $query->where("id")->equals($entity->getId());
+        $query->where("id")->equals($entity->getEntityId());
 
         // Query deleted if the entity is deleted
         if ($entity->isDeleted()) {
@@ -253,7 +253,7 @@ class WorkFlowManager extends AbstractHasErrors
      */
     private function startWorkFlowInstance(WorkFlow $workFlow, EntityInterface $entity)
     {
-        $workFlowInstance = new WorkFlowInstance($workFlow->getId(), $entity);
+        $workFlowInstance = new WorkFlowInstance($workFlow->getWorkFlowId(), $entity);
         $this->workFlowDataMapper->saveWorkFlowInstance($workFlowInstance);
 
         // Now execute first level of actions in the workflow
@@ -274,11 +274,11 @@ class WorkFlowManager extends AbstractHasErrors
     {
         if ($action->execute($workFlowInstance)) {
             // Log what just happened for troubleshooting
-            $this->log->info("Executed action " . $action->getId() . " against instance " . $workFlowInstance->getId());
+            $this->log->info("Executed action " . $action->getWorkFlowActionId() . " against instance " . $workFlowInstance->getWorkFlowInstanceId());
 
             // Delete any scheduled tasks if set
             if ($purgeScheduled) {
-                $this->workFlowDataMapper->deleteScheduledAction($workFlowInstance->getId(), $action->getId());
+                $this->workFlowDataMapper->deleteScheduledAction($workFlowInstance->getWorkFlowInstanceId(), $action->getWorkFlowActionId());
             }
 
             // If action completed and returned true then run children
@@ -288,7 +288,7 @@ class WorkFlowManager extends AbstractHasErrors
             }
         } elseif ($action->getLastError()) {
             // Log the error
-            $this->log->error("Failed to execute " . $action->getId() . ": " . $action->getLastError()->getMessage());
+            $this->log->error("Failed to execute " . $action->getWorkFlowActionId() . ": " . $action->getLastError()->getMessage());
         }
     }
 

@@ -1,12 +1,5 @@
 <?php
 
-/**
- * WorkFlow
- *
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
- */
-
 namespace Netric\WorkFlow;
 
 use Netric\EntityQuery\Where;
@@ -369,7 +362,7 @@ class WorkFlow
      *
      * @return int
      */
-    public function getId()
+    public function getWorkFlowId()
     {
         return $this->id;
     }
@@ -484,12 +477,12 @@ class WorkFlow
         for ($i = 0; $i < count($this->actions); $i++) {
             if (
                 $action === $this->actions[$i] ||
-                ($action->getId() != null && $action->getId() === $this->actions[$i]->getId())
+                ($action->getWorkFlowActionId() != null && $action->getWorkFlowActionId() === $this->actions[$i]->getWorkFlowActionId())
             ) {
                 array_splice($this->actions, $i, 1);
 
                 // If previously saved then queue it to be purged on save
-                if ($action->getId()) {
+                if ($action->getWorkFlowActionId()) {
                     $this->removedActions[] = $action;
                 }
 
@@ -512,7 +505,7 @@ class WorkFlow
         for ($i = 0; $i < count($this->removedActions); $i++) {
             if (
                 $actionToAdd === $this->removedActions[$i] ||
-                ($actionToAdd->getId() != null && $actionToAdd->getId() === $this->removedActions[$i]->getId())
+                ($actionToAdd->getWorkFlowActionId() != null && $actionToAdd->getWorkFlowActionId() === $this->removedActions[$i]->getWorkFlowActionId())
             ) {
                 // Remove it from deletion queue, apparently the user didn't mean to delete it
                 array_splice($this->removedActions, $i, 1);
@@ -523,8 +516,8 @@ class WorkFlow
         $previouslyAddedAt = -1;
         for ($i = 0; $i < count($this->actions); $i++) {
             if (
-                $actionToAdd->getId() &&
-                $this->actions[$i]->getId() === $actionToAdd->getId()
+                $actionToAdd->getWorkFlowActionId() &&
+                $this->actions[$i]->getWorkFlowActionId() === $actionToAdd->getWorkFlowActionId()
             ) {
                 $previouslyAddedAt = $i;
                 break;

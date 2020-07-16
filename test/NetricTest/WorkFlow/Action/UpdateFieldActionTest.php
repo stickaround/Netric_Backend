@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
@@ -18,7 +19,7 @@ class UpdateFieldActionTest extends AbstractActionTests
      * Cleanup entities
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }
@@ -53,7 +54,7 @@ class UpdateFieldActionTest extends AbstractActionTests
         $this->testEntities[] = $task;
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
-        $workFlowInstance = new WorkFlowInstance(123, $task);
+        $workFlowInstance = new WorkFlowInstance(self::TEST_WORKFLOW_ID, $task);
 
         // Now execute the action and make sure it updated the field in $task
         $action->execute($workFlowInstance);

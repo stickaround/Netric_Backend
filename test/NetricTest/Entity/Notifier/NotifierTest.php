@@ -107,7 +107,7 @@ class NotifierTest extends TestCase
     {
         // Create a test task entity and assign it to $this->testUser
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("owner_id", $this->testUser->getGuid());
+        $task->setValue("owner_id", $this->testUser->getEntityId());
         $task->setValue("name", "test task");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -122,11 +122,11 @@ class NotifierTest extends TestCase
         $this->assertEquals(1, count($notificationIds));
 
         // Check that the test notification has the right values
-        $notification = $this->entityLoader->get(ObjectTypes::NOTIFICATION, $notificationIds[0]);
+        $notification = $this->entityLoader->getByGuid($notificationIds[0]);
         $this->testEntities[] = $notification;
 
         // Make sure we created a notice for the test user
-        $this->assertEquals($this->testUser->getGuid(), $notification->getValue("owner_id"));
+        $this->assertEquals($this->testUser->getEntityId(), $notification->getValue("owner_id"));
 
         // Test private getNameFromEventVerb
         $this->assertEquals("Added Task", $notification->getValue("name"));
@@ -146,7 +146,7 @@ class NotifierTest extends TestCase
     {
         // Create a test task entity and assign it to $this->testUser
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("owner_id", $this->testUser->getGuid());
+        $task->setValue("owner_id", $this->testUser->getEntityId());
         $task->setValue("name", "test task");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -163,8 +163,8 @@ class NotifierTest extends TestCase
         // Create a test comment entity and set its object reference to the test task
         $comment = $this->entityLoader->create(ObjectTypes::COMMENT);
         $comment->setValue("comment", "Test Comment");
-        $comment->setValue("obj_reference", $task->getGuid());
-        $comment->setValue("owner_id", $user->getGuid());
+        $comment->setValue("obj_reference", $task->getEntityId());
+        $comment->setValue("owner_id", $user->getEntityId());
         $this->entityLoader->save($comment);
         $this->testEntities[] = $comment;
 
@@ -175,7 +175,7 @@ class NotifierTest extends TestCase
         $this->assertEquals(2, count($notificationIds));
 
         // Check that the test notification has the right values
-        $notification = $this->entityLoader->get(ObjectTypes::NOTIFICATION, $notificationIds[0]);
+        $notification = $this->entityLoader->getByGuid($notificationIds[0]);
         $this->testEntities[] = $notification;
 
         // Make sure that the notification included the comment in the description
@@ -192,7 +192,7 @@ class NotifierTest extends TestCase
 
         // Create a test task entity and assign it to $this->testUser
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("owner_id", $this->testUser->getGuid());
+        $task->setValue("owner_id", $this->testUser->getEntityId());
         $task->setValue("name", "test task");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -202,8 +202,8 @@ class NotifierTest extends TestCase
 
         // Query to make sure we have an unseen notification for the test user
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
-        $query->where("owner_id")->equals($this->testUser->getGuid());
-        $query->andWhere("obj_reference")->equals($task->getGuid());
+        $query->where("owner_id")->equals($this->testUser->getEntityId());
+        $query->andWhere("obj_reference")->equals($task->getEntityId());
         $query->andWhere("f_seen")->equals(false);
         $result = $entityIndex->executeQuery($query);
         $this->assertEquals(1, $result->getNum());
@@ -213,8 +213,8 @@ class NotifierTest extends TestCase
 
         // Query to make sure no unseen entities exist for the current user
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
-        $query->where("owner_id")->equals($this->testUser->getId());
-        $query->andWhere("obj_reference")->equals("task:" . $task->getId());
+        $query->where("owner_id")->equals($this->testUser->getEntityId());
+        $query->andWhere("obj_reference")->equals("task:" . $task->getEntityId());
         $query->andWhere("f_seen")->equals(false);
         $result = $entityIndex->executeQuery($query);
 

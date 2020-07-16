@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/always/07-dashboard-and-widgets.php script works
  */
+
 namespace BinTest\Update\Always;
 
 use Netric\Console\BinScript;
@@ -29,7 +31,7 @@ class DashboardAndWidgetsTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/07-dashboard-and-widgets.php";
     }
@@ -57,13 +59,13 @@ class DashboardAndWidgetsTest extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         $dashboardEntity = $entityLoader->getByUniqueName(ObjectTypes::DASHBOARD, "activity");
-        $this->assertNotNull($dashboardEntity->getValue("id"));
+        $this->assertNotNull($dashboardEntity->getValue("guid"));
 
         $widgetEntity = $entityLoader->getByUniqueName(ObjectTypes::DASHBOARD_WIDGET, "", array(
-            "dashboard_id" => $dashboardEntity->getGuid(),
+            "dashboard_id" => $dashboardEntity->getEntityId(),
             "widget_name" => "activity"
         ));
 
-        $this->assertNotNull($widgetEntity->getValue("id"));
+        $this->assertNotNull($widgetEntity->getValue("guid"));
     }
 }

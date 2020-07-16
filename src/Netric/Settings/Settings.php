@@ -123,10 +123,10 @@ class Settings
     public function getForUser(UserEntity $user, $name)
     {
         // First try to get from cache (it's much faster that way)
-        $ret = $this->getCached($name, $user->getId());
+        $ret = $this->getCached($name, $user->getEntityId());
 
         if ($ret === null) {
-            $ret = $this->getDb($name, $user->getId());
+            $ret = $this->getDb($name, $user->getEntityId());
         }
 
         return $ret;
@@ -143,11 +143,11 @@ class Settings
     public function setForUser(UserEntity $user, $name, $value)
     {
         // First save to the database and make sure it was a success
-        $ret = $this->saveDb($name, $value, $user->getId());
+        $ret = $this->saveDb($name, $value, $user->getEntityId());
 
         // Now save to cache for later retieval
         if ($ret) {
-            $this->setCache($name, $value, $user->getId());
+            $this->setCache($name, $value, $user->getEntityId());
         }
 
         return $ret;
@@ -190,7 +190,7 @@ class Settings
     private function getCachedKey($name, $userId = null)
     {
         // Namespace by account id
-        $cachedKey = $this->account->getId();
+        $cachedKey = $this->account->getAccountId();
 
         // if user-specfici then prefix with the user id
         if ($userId) {

@@ -294,7 +294,7 @@ class Dacl
      */
     public function isAllowed(UserEntity $user, $permission = self::PERM_FULL, $entity = null)
     {
-        $userGuid = $user->getGuid();
+        $userGuid = $user->getEntityId();
 
         /*
          * If $entity is provided and if the $user is the owner/creator of $entity or if $user was assigned to $entity
@@ -321,7 +321,7 @@ class Dacl
             if (isset($this->entries[$permission])) {
                 // Test users
                 foreach ($this->entries[$permission]->users as $uid) {
-                    if ($uid == $user->getId()) {
+                    if ($uid == $user->getEntityId()) {
                         return true;
                     }
                 }

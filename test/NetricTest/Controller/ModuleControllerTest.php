@@ -3,6 +3,7 @@
 /**
  * Test the module controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric\Controller\ModuleController;
@@ -37,7 +38,7 @@ class ModuleControllerTest extends TestCase
     private $testModules = [];
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
@@ -52,7 +53,7 @@ class ModuleControllerTest extends TestCase
      * Cleanup after a test runs
      */
     protected function tearDown(): void
-{
+    {
         // Cleanup test modules
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
         foreach ($this->testModules as $module) {
@@ -74,7 +75,7 @@ class ModuleControllerTest extends TestCase
         $req->setParam('moduleName', 'unit_test_module_get');
 
         $ret = $this->controller->getGetAction();
-        $this->assertEquals($module->getId(), $ret['id'], var_export($ret, true));
+        $this->assertEquals($module->getModuleId(), $ret['id'], var_export($ret, true));
     }
 
     public function testSaveAction()
@@ -94,7 +95,7 @@ class ModuleControllerTest extends TestCase
         $module->fromArray($ret);
         $this->testModules[] = $module;
 
-        $this->assertGreaterThan(0, $module->getId());
+        $this->assertGreaterThan(0, $module->getModuleId());
         $this->assertEquals($data['name'], $module->getName(), var_export($ret, true));
         $this->assertEquals($data['title'], $module->getTitle(), var_export($ret, true));
     }
@@ -109,7 +110,7 @@ class ModuleControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('id', $module->getId());
+        $req->setParam('id', $module->getModuleId());
         $ret = $this->controller->postDeleteAction();
 
         $this->assertTrue($ret, var_export($module->toArray(), true));
@@ -117,7 +118,7 @@ class ModuleControllerTest extends TestCase
 
     public function testGetGetAvailableModulesAction()
     {
-        $userId = $this->account->getUser()->getId();
+        $userId = $this->account->getUser()->getEntityId();
 
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
         $module = $moduleService->createNewModule();

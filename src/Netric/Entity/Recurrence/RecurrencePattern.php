@@ -348,7 +348,7 @@ class RecurrencePattern implements ErrorAwareInterface
      */
     public function entityIsFirst(Entity $entity)
     {
-        return ($entity->getId() && $entity->getId() == $this->firstEntityId);
+        return ($entity->getEntityId() && $entity->getEntityId() == $this->firstEntityId);
     }
 
     /**

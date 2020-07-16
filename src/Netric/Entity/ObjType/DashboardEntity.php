@@ -37,18 +37,4 @@ class DashboardEntity extends Entity implements EntityInterface
             $this->setValue("dacl", json_encode($dacl->toArray()));
         }
     }
-
-    /**
-     * Get the encoded object reference for this entity
-     *
-     * @param bool $includeName If true then name will be encoded with the reference
-     * @return string [obj_type]:[id]:[name]
-     */
-    public function getObjRef($includeName = false)
-    {
-        $objType = $this->def->getObjType();
-        $name = $this->getValue("widget_name");
-
-        return self::encodeObjRef($objType, $this->getId(), $name);
-    }
 }

@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the FileSystem service
  */
+
 namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\FileSystem;
@@ -68,7 +70,7 @@ class FileSystemTest extends TestCase
     private $testFiles = array();
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
@@ -79,7 +81,7 @@ class FileSystemTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         // Clean-up test files
         foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file, true);
@@ -125,21 +127,21 @@ class FileSystemTest extends TestCase
         // Create /testOpenSub
         $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
         $subFolder->setValue("name", "testOpenSub");
-        $subFolder->setValue("parent_id", $rootFolder->getId());
+        $subFolder->setValue("parent_id", $rootFolder->getEntityId());
         $this->dataMapper->save($subFolder);
         $this->queueFolderForCleanup($subFolder);
 
         // Create /testOpenSub/Child
         $childFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
         $childFolder->setValue("name", "Child");
-        $childFolder->setValue("parent_id", $subFolder->getId());
+        $childFolder->setValue("parent_id", $subFolder->getEntityId());
         $this->dataMapper->save($childFolder);
         $this->queueFolderForCleanup($childFolder);
 
         // Try opening /testOpenSub
         $openedFolder = $this->fileSystem->openFolder("/testOpenSub");
         $this->assertNotNull($openedFolder);
-        $this->assertEquals($openedFolder->getId(), $subFolder->getId());
+        $this->assertEquals($openedFolder->getEntityId(), $subFolder->getEntityId());
         $this->assertEquals(
             $openedFolder->getValue("name"),
             $subFolder->getValue("name")
@@ -148,7 +150,7 @@ class FileSystemTest extends TestCase
         // Try opening /testOpenSub/Child
         $openedFolder = $this->fileSystem->openFolder("/testOpenSub/Child");
         $this->assertNotNull($openedFolder);
-        $this->assertEquals($openedFolder->getId(), $childFolder->getId());
+        $this->assertEquals($openedFolder->getEntityId(), $childFolder->getEntityId());
         $this->assertEquals(
             $openedFolder->getValue("name"),
             $childFolder->getValue("name")
@@ -169,14 +171,14 @@ class FileSystemTest extends TestCase
         }
         $folder = $this->fileSystem->openFolder("/testOpenSubCreate");
         if ($folder) {
-            $origChildId = $folder->getId();
+            $origChildId = $folder->getEntityId();
             $this->dataMapper->delete($folder);
         }
 
         // Now open the folder with create flag (second)
         $openedFolder = $this->fileSystem->openFolder("/testOpenSubCreate/Child", true);
         $this->assertNotNull($openedFolder);
-        $this->assertNotEquals($origChildId, $openedFolder->getId());
+        $this->assertNotEquals($origChildId, $openedFolder->getEntityId());
 
         // Stash for cleanup
         $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenSubCreate"));
@@ -190,12 +192,12 @@ class FileSystemTest extends TestCase
     {
         $testFolder = $this->fileSystem->openFolder("/testOpenFolderById", true);
         $this->queueFolderForCleanup($testFolder);
-        $folderId = $testFolder->getId();
+        $folderId = $testFolder->getEntityId();
 
         // Try to re-open the above folder by id
         $sameFolder = $this->fileSystem->openFolderById($folderId);
         $this->assertNotNull($sameFolder);
-        $this->assertEquals($folderId, $sameFolder->getId());
+        $this->assertEquals($folderId, $sameFolder->getEntityId());
     }
 
     /**
@@ -234,7 +236,7 @@ class FileSystemTest extends TestCase
             $fileToImport,
             "/testImportFile",
             "",
-            array("id" => $file->getValue("id"), "name" => "myupdatedfile.jpg")
+            ["guid" => $file->getValue("guid"), "name" => "myupdatedfile.jpg"]
         );
 
         $this->assertNotNull($importedFile);
@@ -255,10 +257,10 @@ class FileSystemTest extends TestCase
         $importedFile = $this->fileSystem->importFile($fileToImport, "/testOpenFileById");
 
         // Test opening the file straight from the fileSystem by id
-        $openedFile = $this->fileSystem->openFileById($importedFile->getId());
+        $openedFile = $this->fileSystem->openFileById($importedFile->getEntityId());
         $this->assertNotNull($openedFile);
-        $this->assertFalse(empty($openedFile->getId()));
-        $this->assertEquals($importedFile->getId(), $openedFile->getId());
+        $this->assertFalse(empty($openedFile->getEntityId()));
+        $this->assertEquals($importedFile->getEntityId(), $openedFile->getEntityId());
 
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
@@ -311,7 +313,7 @@ class FileSystemTest extends TestCase
         $file = $this->fileSystem->createFile("/", "presentfile.txt", true);
         $this->testFiles[] = $file; // Cleanup
         $this->assertNotNull($file);
-        $this->assertFalse(empty($file->getId()));
+        $this->assertFalse(empty($file->getEntityId()));
     }
 
     public function testDeleteFile()
@@ -319,7 +321,7 @@ class FileSystemTest extends TestCase
         $testFile = $this->entityLoader->create("file");
         $testFile->setValue("name", "myfile.txt");
         $this->dataMapper->save($testFile);
-        $fileId = $testFile->getId();
+        $fileId = $testFile->getEntityId();
 
         $ret = $this->fileSystem->deleteFile($testFile, true);
         $this->assertTrue($ret);
@@ -341,7 +343,7 @@ class FileSystemTest extends TestCase
         // Create /testDeleteFolder
         $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
         $subFolder->setValue("name", "testDeleteFolder");
-        $subFolder->setValue("parent_id", $rootFolder->getId());
+        $subFolder->setValue("parent_id", $rootFolder->getEntityId());
         $this->dataMapper->save($subFolder);
 
         $ret = $this->fileSystem->deleteFolder($subFolder, true);
@@ -354,7 +356,7 @@ class FileSystemTest extends TestCase
     public function testFileIsTemp()
     {
         $fldr = $this->fileSystem->openFolder("%tmp%", true);
-        $this->assertNotNull($fldr->getId());
+        $this->assertNotNull($fldr->getEntityId());
 
         // Third param is overwrite = true
         $file = $this->fileSystem->createFile("%tmp%", "test", true);
@@ -375,7 +377,7 @@ class FileSystemTest extends TestCase
         // Try making a new file
         $file = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", true);
         $this->testFiles[] = $file; // For cleanup
-        $this->assertNotNull($file->getId());
+        $this->assertNotNull($file->getEntityId());
 
         // Now try creating same file without overwrite - causes an error
         $file2 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", false);
@@ -385,8 +387,8 @@ class FileSystemTest extends TestCase
         // Overwrite the old file with a new one
         $file3 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", true);
         $this->testFiles[] = $file3;
-        $this->assertNotNull($file3->getId());
-        $this->assertNotEquals($file->getId(), $file3->getId());
+        $this->assertNotNull($file3->getEntityId());
+        $this->assertNotEquals($file->getEntityId(), $file3->getEntityId());
     }
 
     public function testMoveFile()
@@ -394,14 +396,14 @@ class FileSystemTest extends TestCase
         // Try making a new file
         $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
         $this->testFiles[] = $file; // For cleanup
-        $this->assertNotNull($file->getId());
+        $this->assertNotNull($file->getEntityId());
 
         $fldr = $this->fileSystem->openFolder("/testFileMove", true);
         $this->queueFolderForCleanup($fldr);
         $this->fileSystem->moveFile($file, $fldr);
 
         // Test to make sure it has moved
-        $this->assertEquals($fldr->getGuid(), $file->getValue("folder_id"));
+        $this->assertEquals($fldr->getEntityId(), $file->getValue("folder_id"));
     }
 
     public function testWriteAndReadFile()

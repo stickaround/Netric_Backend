@@ -67,7 +67,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $def->revision = (int) $row["revision"];
             $def->system = ($row["f_system"] == 1) ? true : false;
             $def->systemDefinitionHash = $row['system_definition_hash'];
-            $def->setId($row["id"]);
+            $def->setEntityDefinitionId($row["id"]);
             $def->capped = (!empty($row['capped'])) ? $row['capped'] : false;
 
             if (!empty($row["default_activity_level"])) {
@@ -123,7 +123,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         }
 
         // Make sure this a valid definition
-        if (!$def->getId()) {
+        if (!$def->getEntityDefinitionId()) {
             throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $this->database->getNamespace());
         }
 
@@ -132,7 +132,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         // ------------------------------------------------------
         try {
             $sql = "select * from app_object_type_fields where type_id=:type_id order by title";
-            $result = $this->database->query($sql, ['type_id' => $def->getId()]);
+            $result = $this->database->query($sql, ['type_id' => $def->getEntityDefinitionId()]);
         } catch (DatabaseQueryException $ex) {
             throw new \RuntimeException(
                 'Could not pull type fields from db for ' . $this->getAccount()->getName() . ":" . $objType . ":" . $ex->getMessage()
@@ -140,14 +140,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         }
 
         foreach ($result->fetchAll() as $row) {
-            $objecTable = $row['subtype'];
-
-            // Fix the issue on user files not using the actual object table
-            if ($row['subtype'] == "user_files") {
-                $row['fkey_table_title'] = "name";
-                $objecTable = "objects_file_act";
-            }
-
             // Build field
             $field = new Field();
             $field->id = $row['id'];
@@ -232,6 +224,28 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     }
 
     /**
+     * Get an entity definition by id
+     *
+     * @param string $definitionTypeId
+     * @return EntityDefinition|null
+     */
+    public function fetchById(string $definitionTypeId): ?EntityDefinition
+    {
+        $sql = "SELECT name FROM app_object_types WHERE id= :id";
+        $result = $this->database->query($sql, ["id" => $definitionTypeId]);
+        // The object was not found
+        if ($result->rowCount() === 0) {
+            return null;
+        }
+
+        // Load rows and set values in the entity
+        $row = $result->fetch();
+
+        // Load by name
+        return $this->fetchByName($row['name']);
+    }
+
+    /**
      * Delete object definition
      *
      * @param EntityDefinition $def The definition to delete
@@ -245,25 +259,20 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         }
 
         // Only delete existing types of course
-        if (!$def->getId()) {
+        if (!$def->getEntityDefinitionId()) {
             return false;
         }
 
         // Delete object type entries from the database
         $this->database->delete(
             'app_object_type_fields',
-            ['type_id' => $def->getId()]
+            ['type_id' => $def->getEntityDefinitionId()]
         ); // Will cascade
 
         $this->database->delete(
             'app_object_types',
-            ['id' => $def->getId()]
+            ['id' => $def->getEntityDefinitionId()]
         );
-
-        // Remove tables
-        if ($this->database->tableExists('objects_' . $def->getObjType())) {
-            $this->database->query('DROP TABLE objects_' . $def->getObjType() . ' CASCADE');
-        }
 
         return true;
     }
@@ -301,17 +310,17 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $data[$colName] = $colValue;
         }
 
-        $appObjectTypeId = $def->getId();
+        $appObjectTypeId = $def->getEntityDefinitionId();
         if ($appObjectTypeId) {
             $this->database->update("app_object_types", $data, ['id' => $appObjectTypeId]);
         } else {
-            $appObjectTypeId = $this->database->insert("app_object_types", $data);
+            $appObjectTypeId = $this->database->insert("app_object_types", $data, 'id');
 
-            $def->setId($appObjectTypeId);
+            $def->setEntityDefinitionId($appObjectTypeId);
         }
 
         // Check to see if this dynamic object has yet to be initilized
-        $this->createObjectTable($def->getObjType(), $def->getId());
+        $this->createObjectTable($def->getObjType(), $def->getEntityDefinitionId());
 
         // Save and create fields
         $this->saveFields($def);
@@ -358,7 +367,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $fname = $field->name;
 
         $sql = "select id, use_when from app_object_type_fields where name=:name and type_id=:type_id";
-        $result = $this->database->query($sql, ['name' => $fname, 'type_id' => $def->getId()]);
+        $result = $this->database->query($sql, ['name' => $fname, 'type_id' => $def->getEntityDefinitionId()]);
         if ($result->rowCount()) {
             $row = $result->fetch();
             $fid = $row["id"];
@@ -527,7 +536,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             }
 
             $dataToInsert = [
-                "type_id" => $def->getId(),
+                "type_id" => $def->getEntityDefinitionId(),
                 "name" => $fname,
                 "title" => $field->title,
                 "type" => $field->type,
@@ -552,7 +561,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             ];
             $fid = $this->database->insert(
                 "app_object_type_fields",
-                $dataToInsert
+                $dataToInsert,
+                'id'
             );
 
             if ($fid) {
@@ -608,17 +618,14 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     private function removeField($def, $fname)
     {
-        if (!$def->getId()) {
+        if (!$def->getEntityDefinitioId()) {
             return false;
         }
 
         $this->database->delete(
             'app_object_type_fields',
-            ['name' => $fname, 'type_id' => $def->getId()]
+            ['name' => $fname, 'type_id' => $def->getEntityDefinitioId()]
         );
-
-        $tableName = strtolower($def->getTable());
-        $this->database->query("ALTER TABLE " . $tableName . " DROP COLUMN $fname;");
     }
 
 
@@ -630,6 +637,10 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     private function createObjectTable($objType, $typeId)
     {
+        // TODO: We no longer create tables for each object type
+        return;
+
+        /*
         // Make sure objType is in lower case
         $objType = strtolower($objType);
         $base = "objects_" . $objType;
@@ -696,6 +707,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 							  ON $tbl (ts_entered);");
             }
         }
+        */
     }
 
     /**
@@ -709,6 +721,13 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     public function createFieldIndex(EntityDefinition $def, Field $field)
     {
+        // TODO: We no longer do this as a standard entity defintiion rocess
+        // later we will probably handle it by looking at the number of entities
+        // that exist for a given object type, then creating index only on
+        // indexed fields (in the entity definition)
+        return true;
+
+        /*
         if (!$field) {
             return false;
         }
@@ -716,9 +735,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $colname = $field->name;
         $ftype = $field->type;
         $subtype = $field->subtype;
-        $tableName = strtolower($def->getTable());
+        $tableName = self::ENTITY_TABLE;
 
-        if ($this->database->columnExists($tableName, $colname) && $def->getId()) {
+        if ($this->database->columnExists($tableName, $colname) && $def->getEntityId()) {
             $index = ""; // set to create dynamic indexes
 
             switch ($ftype) {
@@ -792,6 +811,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         }
 
         return false;
+        */
     }
 
     /**
@@ -803,7 +823,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     public function associateWithApp(EntityDefinition $def, $applicatoinId)
     {
-        $otid = $def->getId();
+        $otid = $def->getEntityDefinitionId();
 
         $sql = "select id from application_objects where application_id=:application_id and object_type_id=:object_type_id";
         $result = $this->database->query($sql, ['application_id' => $applicatoinId, "object_type_id" => $otid]);

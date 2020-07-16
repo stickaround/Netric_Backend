@@ -1,18 +1,12 @@
 <?php
 
-/**
- * Manage entity forms
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\Entity;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Aereus\Config\Config;
 use Netric\Db\Relational\RelationalDbInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class for managing entity forms
@@ -130,14 +124,14 @@ class Forms
     public function getFormUiXml(EntityDefinition $def, UserEntity $user, $device)
     {
         // Check for user specific form
-        $sql = "SELECT form_layout_xml FROM app_object_type_frm_layouts
+        $sql = "SELECT form_layout_xml FROM entity_form
                 WHERE user_id=:user_id AND scope=:scope AND type_id=:type_id";
 
         $params = [
             "scope" => $device,
-            "type_id" => $def->getId()
+            "type_id" => $def->getEntityDefinitionId()
         ];
-        $result = $this->database->query($sql, array_merge(["user_id" => $user->getId()], $params));
+        $result = $this->database->query($sql, array_merge(["user_id" => $user->getEntityId()], $params));
 
         if ($result->rowCount()) {
             $row = $result->fetch();
@@ -148,7 +142,7 @@ class Forms
 
         // Check for team specific form
         if ($user->getValue("team_id")) {
-            $sql = "SELECT form_layout_xml FROM app_object_type_frm_layouts
+            $sql = "SELECT form_layout_xml FROM entity_form
                     WHERE team_id=:team_id AND scope=:scope AND type_id=:type_id";
 
             $result = $this->database->query($sql, array_merge(["team_id" => $user->getValue("team_id")], $params));
@@ -162,7 +156,7 @@ class Forms
         }
 
         // Check for default custom that applies to all users and teams
-        $sql = "SELECT form_layout_xml FROM app_object_type_frm_layouts
+        $sql = "SELECT form_layout_xml FROM entity_form
                 WHERE scope=:scope AND type_id=:type_id AND team_id IS NULL AND user_id IS NULL";
 
         $result = $this->database->query($sql, $params);
@@ -231,15 +225,15 @@ class Forms
      * Override the default system form for a specific user
      *
      * @param \Netric\EntityDefinition $def The object type definition
-     * @param int $userId The unique id of the user that will use this form
+     * @param string $userId The unique id of the user that will use this form
      * @param string $deviceType The type of device the form is for: small|medium|large|xlarge
      * @param string $xmlForm The UIXML representing the form
      * @return bool true on success, false on failure
      */
-    public function saveForUser(EntityDefinition $def, $userId, $deviceType, $xmlForm)
+    public function saveForUser(EntityDefinition $def, string $userId, $deviceType, $xmlForm)
     {
         // Make sure $userId is set
-        if (!is_numeric($userId)) {
+        if (!$userId) {
             throw new \InvalidArgumentException("userId is required");
         }
 
@@ -287,44 +281,43 @@ class Forms
         }
 
         // Make sure required params are set
-        if (!$def->getId()) {
+        if (!$def->getEntityDefinitionId()) {
             throw new \InvalidArgumentException("Entity definition is bad");
         }
 
         $params = [
-            "scope" => $device,
-            "type_id" => $def->getId()
+            "scope" => $deviceType,
+            "type_id" => $def->getEntityDefinitionId()
         ];
+
+        $params["user_id"] = null;
+        $params["team_id"] = null;
 
         if ($teamId) {
             $params["team_id"] = $teamId;
-        } elseif ($userId) {
+        }
+
+        if ($userId) {
             $params["user_id"] = $userId;
-        } else {
-            $params["user_id"] = null;
-            $params["team_id"] = null;
         }
 
         // Clean any existing forms that match this deviceType (used to be called scope)
-        $this->database->delete("app_object_type_frm_layouts", $params);
+        $this->database->delete("entity_form", $params);
 
         // Insert the new form if set, otherwise just leave it deleted
         if (!empty($xmlForm)) {
             $insertData = [
+                'entity_form_id' => Uuid::uuid4()->toString(),
                 "scope" => $deviceType,
                 "team_id" => $teamId,
                 "user_id" => $userId,
-                "type_id" => $def->getId(),
+                "type_id" => $def->getEntityDefinitionId(),
                 "form_layout_xml" => $xmlForm
             ];
 
-            $layoutId = $this->database->insert("app_object_type_frm_layouts", $insertData);
+            $this->database->insert("entity_form", $insertData);
 
-            if (!$layoutId) {
-                throw new \Exception("Error saving xml form in " . $def->getObjType());
-            }
-
-            return $layoutId;
+            return true;
         }
 
         return true;

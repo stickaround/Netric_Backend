@@ -211,7 +211,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      */
     public function getPrimaryKeys(string $tableName): array
     {
-        $sql .= "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+        $sql = "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
 				FROM   pg_index i
 				JOIN   pg_attribute a ON a.attrelid = i.indrelid
 									 AND a.attnum = ANY(i.indkey)
@@ -257,16 +257,6 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      */
     protected function getSequenceName(string $tableName, string $columnName): ?string
     {
-        // Check for objects_ inherited table since it should use objects_id_seq
-        // rather than $tableName_$columnName_seq
-        if (
-            strlen($tableName) >= strlen('objects_') &&
-            $columnName == 'id' &&
-            'objects_' == substr($tableName, 0, strlen('objects_'))
-        ) {
-            return 'objects_id_seq';
-        }
-
         // Default to tablename_columname_seq
         return $tableName . '_' . $columnName . '_seq';
     }

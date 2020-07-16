@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
@@ -8,6 +9,11 @@ use Netric\EntityDefinition\ObjectTypes;
 
 class StartWorkflowActionTest extends AbstractActionTests
 {
+    /**
+     * Create some test IDs - these are arbitrary
+     */
+    const TEST_WORKFLOW_ID = '8cd88c04-055f-4373-bd7d-7a61dc9b3b6e';
+
     /**
      * Test entities to delete
      *
@@ -35,7 +41,7 @@ class StartWorkflowActionTest extends AbstractActionTests
      * Cleanup entities
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }
@@ -77,11 +83,11 @@ class StartWorkflowActionTest extends AbstractActionTests
         $this->testEntities[] = $task;
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
-        $workFlowInstance = new WorkFlowInstance(123, $task);
-        
+        $workFlowInstance = new WorkFlowInstance(self::TEST_WORKFLOW_ID, $task);
+
         // Setup action
         $action = $this->getAction();
-        $action->setParam("wfid", $workFlow->getId());
+        $action->setParam("wfid", $workFlow->getWorkFlowId());
 
         $this->assertTrue($action->execute($workFlowInstance));
 

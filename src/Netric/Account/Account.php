@@ -139,7 +139,7 @@ class Account
      *
      * @return string
      */
-    public function getId()
+    public function getAccountId()
     {
         return $this->id;
     }
@@ -229,7 +229,7 @@ class Account
         }
 
         // Entity loader will be needed once we have determined a user id to load
-        $loader = $this->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
 
         /*
          * Try to get the currently logged in user from the authentication service if not provided
@@ -251,13 +251,13 @@ class Account
         if ($userId) {
             if (is_numeric($userId)) {
                 // Legacy get by ID
-                if ($loader->get(ObjectTypes::USER, $userId)) {
-                    return $loader->get(ObjectTypes::USER, $userId);
+                if ($entityLoader->getByGuid($userId)) {
+                    return $entityLoader->getByGuid($userId);
                 }
             } elseif (is_string($userId)) {
                 // New get by guid
-                if ($loader->getByGuid($userId)) {
-                    return $loader->getByGuid($userId);
+                if ($entityLoader->getByGuid($userId)) {
+                    return $entityLoader->getByGuid($userId);
                 }
             }
         } elseif ($username) {
@@ -273,7 +273,7 @@ class Account
         }
 
         // Return anonymous user
-        $anon = $loader->create(ObjectTypes::USER);
+        $anon = $entityLoader->create(ObjectTypes::USER);
         $anon->setValue("guid", UserEntity::USER_ANONYMOUS);
         $anon->setValue("uname", "anonymous");
         $anon->setValue("name", "anonymous");
@@ -289,7 +289,7 @@ class Account
      */
     public function setAccountUserEmail($username, $emailAddress)
     {
-        return $this->application->setAccountUserEmail($this->getId(), $username, $emailAddress);
+        return $this->application->setAccountUserEmail($this->getAccountId(), $username, $emailAddress);
     }
 
     /**

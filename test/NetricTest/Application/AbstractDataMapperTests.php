@@ -52,7 +52,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
         $account = new Account($this->application);
         if ($dataMapper->getAccountByName(self::TEST_ACCOUNT_NAME, $account)) {
-            $dataMapper->deleteAccount($account->getId());
+            $dataMapper->deleteAccount($account->getAccountId());
         }
     }
 

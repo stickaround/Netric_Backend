@@ -140,12 +140,12 @@ class EmailThreadEntity extends Entity implements EntityInterface
      */
     private function removeMessages($hard = false)
     {
-        if (!$this->getId()) {
+        if (!$this->getEntityId()) {
             return;
         }
 
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("thread")->equals($this->getGuid());
+        $query->where("thread")->equals($this->getEntityId());
         $results = $this->entityIndex->executeQuery($query);
         $num = $results->getTotalNum();
         for ($i = 0; $i < $num; $i++) {
@@ -156,7 +156,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
         // If we are doing a hard delete, then also get previously deleted
         if ($hard) {
             $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-            $query->where("thread")->equals($this->getGuid());
+            $query->where("thread")->equals($this->getEntityId());
             $query->andWhere("f_deleted")->equals(true);
             $results = $this->entityIndex->executeQuery($query);
             $num = $results->getTotalNum();
@@ -172,12 +172,12 @@ class EmailThreadEntity extends Entity implements EntityInterface
      */
     private function restoreMessages()
     {
-        if (!$this->getId()) {
+        if (!$this->getEntityId()) {
             return;
         }
 
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
-        $query->where("thread")->equals($this->getGuid());
+        $query->where("thread")->equals($this->getEntityId());
         $query->andWhere("f_deleted")->equals(true);
         $results = $this->entityIndex->executeQuery($query);
         $num = $results->getTotalNum();

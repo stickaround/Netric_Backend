@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Controller;
 
 use Netric;
@@ -38,7 +39,7 @@ class SetupControllerTest extends TestCase
      * @return void
      */
     protected function setUp(): void
-{
+    {
         $account = Bootstrap::getAccount();
         $this->controller = new SetupController($account->getApplication(), $account);
         $this->controller->testMode = true;
@@ -48,7 +49,7 @@ class SetupControllerTest extends TestCase
      * Cleanup after each test
      */
     protected function tearDown(): void
-{
+    {
         $account = Bootstrap::getAccount();
         foreach ($this->accountsToCleanup as $tempAccountName) {
             $account->getApplication()->deleteAccount($tempAccountName);
@@ -63,7 +64,7 @@ class SetupControllerTest extends TestCase
         $con = $this->controller;
         $request = $con->getRequest();
         // Queue to run the first script which does not really do anything
-        $request->setParam("script", "update/once/004/001/001.php");
+        $request->setParam("script", "update/once/005/001/001.php");
         $ret = $con->consoleRunAction();
         // If the return code is 0, then it executed successfully
         $this->assertEquals(0, $ret->getReturnCode());
@@ -116,8 +117,8 @@ class SetupControllerTest extends TestCase
      */
     public function testPostCreateAccountActionDuplicateName()
     {
-        // This is the same as the account created on setup
-        $tempAccountName = 'Local';
+        // This is the same as the account created on bootstrap
+        $tempAccountName = 'autotest';
 
         // Set params in the request
         $req = $this->controller->getRequest();

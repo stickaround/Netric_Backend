@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\Error\AbstractHasErrors;
@@ -155,7 +156,7 @@ class EntityMaintainerService extends AbstractHasErrors
         // Hard delete all the stale entities
         for ($i = 0; $i < $numToDelete; $i++) {
             $entity = $result->getEntity($i);
-            $toDeleteIds[] = $entity->getId();
+            $toDeleteIds[] = $entity->getEntityId();
         }
 
         /*
@@ -164,13 +165,13 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->get($def->getObjType(), $entityId);
+            $entity = $this->entityLoader->getByGuid($entityId);
             if ($entity) {
                 $this->entityLoader->delete($entity);
-                $deletedEntities[] = $entity->getId();
+                $deletedEntities[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->trimCappedForType: deleted " .
-                    count($deletedEntities) . " of " . $numToDelete . "  - " . $def->getObjType()
+                        count($deletedEntities) . " of " . $numToDelete . "  - " . $def->getObjType()
                 );
             }
         }
@@ -234,7 +235,7 @@ class EntityMaintainerService extends AbstractHasErrors
         // Hard delete all the stale entities
         for ($i = 0; $i < $totalNum; $i++) {
             $entity = $result->getEntity($i);
-            $toDeleteIds[] = $entity->getId();
+            $toDeleteIds[] = $entity->getEntityId();
         }
 
         /*
@@ -243,13 +244,13 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->get($def->getObjType(), $entityId);
+            $entity = $this->entityLoader->getByGuid($entityId);
             if ($entity) {
                 $this->entityLoader->delete($entity, true);
-                $deletedEntities[] = $entity->getId();
+                $deletedEntities[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->purgeStaleDeletedForType: deleted " .
-                    count($deletedEntities) . " of $totalNum  - " . $def->getObjType()
+                        count($deletedEntities) . " of $totalNum  - " . $def->getObjType()
                 );
             }
         }
@@ -292,7 +293,7 @@ class EntityMaintainerService extends AbstractHasErrors
         // Hard delete all the stale entities
         for ($i = 0; $i < $totalNum; $i++) {
             $entity = $result->getEntity($i);
-            $toDeleteIds[] = $entity->getId();
+            $toDeleteIds[] = $entity->getEntityId();
         }
 
         /*
@@ -301,13 +302,13 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $entityId);
+            $entity = $this->entityLoader->getByGuid($entityId);
             if ($entity) {
                 $this->entityLoader->delete($entity, true);
-                $deletedEntities[] = $entity->getId();
+                $deletedEntities[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->deleteOldSpamMessages: deleted " .
-                    count($deletedEntities) . " of $totalNum  - email_message"
+                        count($deletedEntities) . " of $totalNum  - email_message"
                 );
             }
         }
@@ -338,7 +339,7 @@ class EntityMaintainerService extends AbstractHasErrors
         }
 
         $query = new EntityQuery(ObjectTypes::FILE);
-        $query->where('folder_id')->equals($tmpFolder->getGuid());
+        $query->where('folder_id')->equals($tmpFolder->getEntityId());
         $query->andWhere("ts_entered")->isLessOrEqualTo($cutoff->getTimestamp());
         $result = $this->entityIndex->executeQuery($query);
         $totalNum = $result->getTotalNum();
@@ -349,7 +350,7 @@ class EntityMaintainerService extends AbstractHasErrors
         // Hard delete all files older than the cutoff
         for ($i = 0; $i < $totalNum; $i++) {
             $file = $result->getEntity($i);
-            $toDeleteIds[] = $file->getId();
+            $toDeleteIds[] = $file->getEntityId();
         }
 
         /*
@@ -358,13 +359,13 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->get('file', $entityId);
+            $entity = $this->entityLoader->getByGuid($entityId);
             if ($entity) {
                 $this->entityLoader->delete($entity);
-                $deletedFiles[] = $entity->getId();
+                $deletedFiles[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->cleanTempFolder: deleted " .
-                    count($deletedFiles) . " of $totalNum  - file"
+                        count($deletedFiles) . " of $totalNum  - file"
                 );
             }
         }

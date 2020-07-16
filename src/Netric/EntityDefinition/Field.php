@@ -396,7 +396,7 @@ class Field implements \ArrayAccess
 
             if ("<%userid%>" == (string) $ret) {
                 if ($user) {
-                    $ret = $user->getId();
+                    $ret = $user->getEntityId();
                 } else {
                     $ret = "";
                 }
@@ -406,7 +406,7 @@ class Field implements \ArrayAccess
         if ((($this->type == Field::TYPE_OBJECT && $this->subtype == "user")
             || ($this->type == "object" && $this->subtype == "user")) && $ret == UserEntity::USER_CURRENT) {
             if ($user) {
-                $ret = $user->getId();
+                $ret = $user->getEntityId();
             } else {
                 $ret = ""; // TODO: possibly use system or anonymous
             }

@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
@@ -26,11 +27,11 @@ class WebhookActionTest extends AbstractActionTests
 
         $adapter->setResponse(
             "HTTP/1.1 200 OK"         . "\r\n" .
-            "Content-Type: text/html" . "\r\n" .
-            "\r\n" .
-            '<html>' .
-            '  <body><p>OK</p></body>' .
-            '</html>'
+                "Content-Type: text/html" . "\r\n" .
+                "\r\n" .
+                '<html>' .
+                '  <body><p>OK</p></body>' .
+                '</html>'
         );
 
         $action = $this->getAction();
@@ -43,7 +44,7 @@ class WebhookActionTest extends AbstractActionTests
         $task->setId(321);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
-        $workFlowInstance = new WorkFlowInstance(123, $task);
+        $workFlowInstance = new WorkFlowInstance(self::TEST_WORKFLOW_ID, $task);
 
         // Now execute the action and make sure it updated the field in $task
         $this->assertTrue($action->execute($workFlowInstance));
@@ -55,11 +56,11 @@ class WebhookActionTest extends AbstractActionTests
 
         $adapter->setResponse(
             "HTTP/1.1 404 NOT FOUND" . "\r\n" .
-            "Content-Type: text/html" . "\r\n" .
-            "\r\n" .
-            '<html>' .
-            '  <body><p>Not OK</p></body>' .
-            '</html>'
+                "Content-Type: text/html" . "\r\n" .
+                "\r\n" .
+                '<html>' .
+                '  <body><p>Not OK</p></body>' .
+                '</html>'
         );
 
         $action = $this->getAction();
@@ -72,7 +73,7 @@ class WebhookActionTest extends AbstractActionTests
         $task->setId(321);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
-        $workFlowInstance = new WorkFlowInstance(123, $task);
+        $workFlowInstance = new WorkFlowInstance(self::TEST_WORKFLOW_ID, $task);
 
         // This should fail since the clinet returns 404
         $this->assertFalse($action->execute($workFlowInstance));

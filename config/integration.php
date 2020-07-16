@@ -29,7 +29,6 @@ return [
         'user' => "aereus",
         'password' => "kryptos78",
         'syshost' => "dat1-int-locsea.aereus.com",
-        'accdb' => "netricacc",
     ],
     // Files settings
     'files' => [

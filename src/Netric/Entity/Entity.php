@@ -20,13 +20,6 @@ use Netric\Entity\EntityLoader;
 class Entity implements EntityInterface
 {
     /**
-     * The unique id of this object/entity
-     *
-     * @var string
-     */
-    protected $id;
-
-    /**
      * The values for the fields of this entity
      *
      * @var array
@@ -96,14 +89,6 @@ class Entity implements EntityInterface
     }
 
     /**
-     * Clean-up the entity before closing
-     */
-    public function __destruct()
-    {
-        // Perform any clean-up here
-    }
-
-    /**
      * Get the object type of this object
      *
      * @return string
@@ -114,32 +99,13 @@ class Entity implements EntityInterface
     }
 
     /**
-     * Get unique id of this object
+     * Get the unique id of this object
      */
-    public function getId()
+    public function getEntityId(): string
     {
-        return $this->id;
-    }
-
-    /**
-     * Get the unique global id of this object
-     */
-    public function getGuid()
-    {
-        return $this->getValue("guid");
-    }
-
-    /**
-     * Set the unique id of this object
-     *
-     * @param string $id The unique id of this object instance
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        // Make sure values were set
-        $this->values['id'] = $id;
+        $guid = $this->getValue("guid");
+        // Convert null to empty string
+        return $guid ? $guid : '';
     }
 
     /**
@@ -259,10 +225,6 @@ class Entity implements EntityInterface
         }
 
         $this->values[$strName] = $value;
-
-        if ($strName == "id") {
-            $this->setId($value);
-        }
 
         if ($valueName) {
             if (is_array($valueName)) {
@@ -441,10 +403,10 @@ class Entity implements EntityInterface
 
         // If ownerGuid is not a valid guid, then we need to look for its guid
         if (!Uuid::isValid($ownerGuid) && is_numeric($ownerGuid)) {
-            $ownerEntity = $this->entityLoader->get(ObjectTypes::USER, $ownerGuid);
+            $ownerEntity = $this->entityLoader->getByGuid($ownerGuid);
 
             if ($ownerEntity) {
-                $ownerGuid = $ownerEntity->getGuid();
+                $ownerGuid = $ownerEntity->getEntityId();
             }
         }
 
@@ -804,7 +766,7 @@ class Entity implements EntityInterface
             return $this->getValue("comment");
         }
 
-        return $this->getId();
+        return $this->getEntityId();
     }
 
     /**
@@ -931,71 +893,6 @@ class Entity implements EntityInterface
     }
 
     /**
-     * Static function used to decode object reference string
-     *
-     * @param string $value The object ref string - [obj_type]:[obj_id]:[name] (last param is optional)
-     * @return array Assoc array with the following keys: obj_type, id, name
-     */
-    public static function decodeObjRef($value)
-    {
-        $cleanedValue = $value;
-
-        // Clean up the $value if the objRef is encapsulated with a square bracket
-        preg_match("/\[([^\]]*)\]/", $cleanedValue, $matches);
-
-        if (isset($matches[1]) && $matches[1]) {
-            $cleanedValue = $matches[1];
-        }
-
-        $parts = explode(":", $cleanedValue);
-        if (count($parts) > 1) {
-            $ret = array(
-                'obj_type' => $parts[0],
-                'id' => null,
-                'name' => null,
-            );
-
-            // Was encoded with obj_type:id:name (new)
-            if (count($parts) === 3) {
-                $ret['id'] = $parts[1];
-                $ret['name'] = $parts[2];
-            } else {
-                // Check for full name added after bar '|' (old)
-                $parts2 = explode("|", $parts[1]);
-                if (count($parts2) > 1) {
-                    $ret['id'] = $parts2[0];
-                    $ret['name'] = $parts2[1];
-                } else {
-                    $ret['id'] = $parts[1];
-                }
-            }
-
-            return $ret;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Statfic function used to encode an object reference string
-     *
-     * @param string $objType The type of entity being referenced
-     * @param string $id The id of the entity being referenced
-     * @param string $name The human readable name of the entity being referenced
-     * @return string Encoded object reference
-     */
-    public static function encodeObjRef($objType, $id, $name = null)
-    {
-        $ret = $objType . ":" . $id;
-
-        if ($name) {
-            $ret .= ":" . $name;
-        }
-
-        return $ret;
-    }
-
-    /**
      * Extract object references from text
      *
      * Object references are stored in the form [<obj_type>:<id>:<name>]
@@ -1028,20 +925,6 @@ class Entity implements EntityInterface
         }
 
         return $taggedReferences;
-    }
-
-    /**
-     * Get the encoded object reference for this entity
-     *
-     * @param bool $includeName If true then name will be encoded with the reference
-     * @return string [obj_type]:[id]:[name]
-     */
-    public function getObjRef($includeName = false)
-    {
-        $objType = $this->def->getObjType();
-        $name = ($includeName) ? $this->getName() : null;
-
-        return self::encodeObjRef($objType, $this->getId(), $name);
     }
 
     /**
@@ -1078,7 +961,7 @@ class Entity implements EntityInterface
                                     // Move file to a permanent directory
                                     $objDir = "/System/Entity/" . $this->getValue('guid');
                                     $fldr = $fileSystem->openFolder($objDir, true);
-                                    if ($fldr && $fldr->getId()) {
+                                    if ($fldr && $fldr->getEntityId()) {
                                         $fileSystem->moveFile($file, $fldr);
                                     }
                                 }
@@ -1106,6 +989,7 @@ class Entity implements EntityInterface
         $thisData = $this->toArray();
         $thisData['id'] = null;
         $thisData['guid'] = null;
+        $thisData['revision'] = 0;
         $toEntity->fromArray($thisData);
     }
 
@@ -1198,9 +1082,9 @@ class Entity implements EntityInterface
     private function addObjReferenceGuid(string $referenceType, string $fieldName, string $value, string $objType = "")
     {
         // Get the referenced entity
-        $referencedEntity = $this->entityLoader->getByGuidOrObjRef($value, $objType);
+        $referencedEntity = $this->entityLoader->getByGuid($value);
         if ($referencedEntity) {
-            $this->addMultiValue($referenceType, $referencedEntity->getGuid(), $referencedEntity->getName());
+            $this->addMultiValue($referenceType, $referencedEntity->getEntityId(), $referencedEntity->getName());
         }
     }
 

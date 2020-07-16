@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the WorkFlow class
  */
+
 namespace NetricTest\WorkFlow;
 
 use Netric\WorkFlow\WorkFlowFactory;
@@ -14,6 +16,12 @@ use NetricTest\Bootstrap;
 
 class WorkFlowTest extends TestCase
 {
+    /**
+     * Create some test IDs
+     */
+    const TEST_ACTION_ID = '86e9ecbf-fe4d-4a2f-b84f-b355173992c4';
+    const TEST_WORKFLOW_ID = '8cd88c04-055f-4373-bd7d-7a61dc9b3b6e';
+
     /**
      * Reference to account running for unit tests
      *
@@ -36,7 +44,7 @@ class WorkFlowTest extends TestCase
     private $sl = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($this->sl);
@@ -48,7 +56,7 @@ class WorkFlowTest extends TestCase
     public function testFromAndToArray()
     {
         $workFlowData = array(
-            "id" => 123,
+            "guid" => self::TEST_WORKFLOW_ID,
             "name" => "Test",
             "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
@@ -75,18 +83,18 @@ class WorkFlowTest extends TestCase
             ),
             "actions" => array(
                 array(
-                    "id" => 456,
+                    "id" => self::TEST_WORKFLOW_ID,
                     "name" => "my action",
                     "type" => "test",
-                    "workflow_id" => 123,
+                    "workflow_id" => self::TEST_ACTION_ID,
                     "parent_action_id" => 1,
                     "actions" => array(
                         array(
                             "id" => 567,
                             "name" => "my child action",
                             "type" => "test",
-                            "workflow_id" => 123,
-                            "parent_action_id" => 456,
+                            "workflow_id" => self::TEST_ACTION_ID,
+                            "parent_action_id" => self::TEST_WORKFLOW_ID,
                         )
                     )
                 ),
@@ -168,7 +176,7 @@ class WorkFlowTest extends TestCase
         // Now delete it
         $workFlow->removeAction($action);
         $removedActions = $workFlow->getRemovedActions();
-        $this->assertEquals($action->getId(), $removedActions[0]->getId());
+        $this->assertEquals($action->getWorkFlowActionId(), $removedActions[0]->getWorkFlowActionId());
     }
 
     public function testAddAction()

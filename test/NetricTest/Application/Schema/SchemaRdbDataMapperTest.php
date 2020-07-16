@@ -26,7 +26,7 @@ class SchemaRdbDataMapperTest extends AbstractSchemaDataMapperTests
      *
      * @param array $schemaDefinition
      * @param string $accountId THe account we will be managing the schema for
-     * @return SchemaDataMapperPgsql
+     * @return SchemaRdbDataMapper
      */
     protected function getDataMapper(array $schemaDefinition, $accountId)
     {
@@ -38,13 +38,10 @@ class SchemaRdbDataMapperTest extends AbstractSchemaDataMapperTests
 
         $this->database = new PgsqlDb(
             $config->db['host'],
-            $config->db['accdb'],
+            $config->db['dbname'],
             $config->db['user'],
             $config->db['password']
         );
-
-        // Set the schema we will be interacting with
-        $this->database->setNamespace("acc_" . $accountId);
 
         return new SchemaRdbDataMapper($this->database, $schemaDefinition);
     }

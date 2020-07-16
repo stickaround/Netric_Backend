@@ -55,8 +55,8 @@ class EmailThreadQueryPlugin implements PluginInterface
 
         // Setup background job and queue it
         // $jobData = array(
-        //     'account_id' => $sl->getAccount()->getId(),
-        //     'user_id' => $sl->getAccount()->getUser()->getId(),
+        //     'account_id' => $sl->getAccount()->getEntityId(),
+        //     'user_id' => $sl->getAccount()->getUser()->getEntityId(),
         //     'mailbox_id' => $mailboxId,
         // );
         // $workerMan = $this->getWorkerService($sl);

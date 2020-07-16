@@ -27,7 +27,7 @@ class AccountControllerTest extends TestCase
     protected $controller = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Create the controller

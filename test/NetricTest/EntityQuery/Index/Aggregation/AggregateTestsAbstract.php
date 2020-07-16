@@ -118,7 +118,7 @@ abstract class AggregateTestsAbstract extends TestCase
             $query->where('name')->equals("Unit Test Aggregates");
             $res = $index->executeQuery($query);
             if ($res->getTotalNum() > 0) {
-                $this->campaignId = $res->getEntity(0)->getId();
+                $this->campaignId = $res->getEntity(0)->getEntityId();
             }
         }
         

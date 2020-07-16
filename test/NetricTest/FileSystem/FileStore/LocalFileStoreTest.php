@@ -30,7 +30,7 @@ class LocalFileStoreTest extends AbstractFileStoreTests
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 
-        $accId = $account->getId();
+        $accId = $account->getAccountId();
         $dataPath = __DIR__ . "/tmp";
         $dataMapper = $sm->get(DataMapperFactory::class);
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\PaymentGateway;
 
 use Netric\PaymentGateway\AuthDotNetGateway;
@@ -10,6 +11,7 @@ use NetricTest\Bootstrap;
 use \net\authorize\api\constants\ANetEnvironment;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\CustomerEntity;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Integration test against authorize.net
@@ -56,7 +58,7 @@ class AuthDotNetGatewayTest extends TestCase
      * Setup authorize.net with test account
      */
     protected function setUp(): void
-{
+    {
         $this->gateway = new AuthDotNetGateway(
             self::API_LOGIN,
             self::API_TRANSACTION_KEY,
@@ -68,7 +70,7 @@ class AuthDotNetGatewayTest extends TestCase
      * Cleanup any created resrouces
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->profilesToDelete as $profileToken) {
             try {
                 $this->gateway->deleteProfile($profileToken);
@@ -91,7 +93,7 @@ class AuthDotNetGatewayTest extends TestCase
         $serviceManager = Bootstrap::getAccount()->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $customer = $entityLoader->create('customer');
-        $customer->setValue('id', time() + rand(1, 2000));
+        $customer->setValue('guid', Uuid::uuid4()->toString());
         $customer->setValue('first_name', 'Ellen');
         $customer->setValue('last_name', 'Johnson');
         $customer->setValue('company', 'Souveniropolis');

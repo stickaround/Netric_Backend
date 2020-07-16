@@ -67,7 +67,7 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
         }
 
         // We can only schedule an action that was previously saved
-        if (!$this->getId()) {
+        if (!$this->getWorkFlowActionId()) {
             throw new \RuntimeException("Cannot schedule the action because it has not been saved yet");
         }
 
@@ -76,9 +76,9 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
          * The first thing we will do is find out if we are re-executing on a previously
          * saved action. This is expected when the scheduled task finally launches.
          */
-        if ($this->workFlowDataMapper->getScheduledActionTime($workflowInstance->getId(), $this->getId())) {
+        if ($this->workFlowDataMapper->getScheduledActionTime($workflowInstance->getWorkFlowInstanceId(), $this->getWorkFlowActionId())) {
             // Delete the scheduled action since we are now finished processing it.
-            $this->workFlowDataMapper->deleteScheduledAction($workflowInstance->getId(), $this->getId());
+            $this->workFlowDataMapper->deleteScheduledAction($workflowInstance->getWorkFlowInstanceId(), $this->getWorkFlowActionId());
 
             // Return true to continue processing children.
             return true;
@@ -94,8 +94,8 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
 
         // Schedule the action for later
         $this->workFlowDataMapper->scheduleAction(
-            $workflowInstance->getId(),
-            $this->getId(),
+            $workflowInstance->getWorkFlowInstanceId(),
+            $this->getWorkFlowActionId(),
             $executeDate
         );
 

@@ -181,7 +181,7 @@ class WorkFlowManagerTest extends TestCase
         $condition->equals(true);
         $workFlow->addCondition($condition);
         $condition2 = new Where("id");
-        $condition2->equals($task->getId()); // Do not update other done tasks
+        $condition2->equals($task->getEntityId()); // Do not update other done tasks
         $workFlow->addCondition($condition2);
 
         // Setup a test action to change the name to 'automatically changed'
@@ -197,7 +197,7 @@ class WorkFlowManagerTest extends TestCase
         $this->workFlowManager->runPeriodicWorkFlows();
 
         // Make sure the entity was changed
-        $openedTask = $this->entityLoader->get(ObjectTypes::TASK, $task->getId());
+        $openedTask = $this->entityLoader->getByGuid($task->getEntityId());
         $this->assertEquals('automatically changed', $openedTask->getValue("name"));
 
         /*
@@ -209,7 +209,7 @@ class WorkFlowManagerTest extends TestCase
         $this->workFlowManager->runPeriodicWorkFlows();
 
         // Make sure that the entity was not changed since 'daily' was already run before
-        $openedTask = $this->entityLoader->get(ObjectTypes::TASK, $task->getId());
+        $openedTask = $this->entityLoader->getByGuid($task->getEntityId());
         $this->assertEquals('test', $openedTask->getValue("name"));
 
         // Cleanup
@@ -265,7 +265,7 @@ class WorkFlowManagerTest extends TestCase
         $this->workFlowManager->runScheduledActions();
 
         // Get the entity again and make sure it was changed by the above action
-        $openedTask = $this->entityLoader->get(ObjectTypes::TASK, $task->getId());
+        $openedTask = $this->entityLoader->getByGuid($task->getEntityId());
         $this->assertEquals('automatically changed', $openedTask->getValue("name"));
 
         // Make sure the scheduled action is deleted

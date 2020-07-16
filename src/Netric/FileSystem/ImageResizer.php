@@ -116,7 +116,7 @@ class ImageResizer implements ErrorAwareInterface
         // Create a new name for the resized image
         $nameResized = $source->getName()
             . '-'
-            . $source->getId()
+            . $source->getEntityId()
             . '-'
             . $source->getValue('revision')
             . '-'

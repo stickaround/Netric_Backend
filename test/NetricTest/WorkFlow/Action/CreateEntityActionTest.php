@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\WorkFlowInstance;
@@ -10,6 +11,11 @@ use Netric\EntityDefinition\ObjectTypes;
 
 class CreateEntityActionTest extends AbstractActionTests
 {
+    /**
+     * Create some test IDs - these are arbitrary
+     */
+    const TEST_WORKFLOW_ID = '8cd88c04-055f-4373-bd7d-7a61dc9b3b6e';
+
     /**
      * All action tests must construct the action
      *
@@ -34,11 +40,11 @@ class CreateEntityActionTest extends AbstractActionTests
         // Create a test task that will create another task that copies the woner
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
-        $task->setValue("owner_id", $user->getGuid());
+        $task->setValue("owner_id", $user->getEntityId());
         $task->setId(321);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
-        $workFlowInstance = new WorkFlowInstance(123, $task);
+        $workFlowInstance = new WorkFlowInstance(self::TEST_WORKFLOW_ID, $task);
 
         // Now execute the action and make sure it updated the field in $task
         $this->assertTrue($action->execute($workFlowInstance));

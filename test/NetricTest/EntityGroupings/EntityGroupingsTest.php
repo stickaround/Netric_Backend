@@ -15,10 +15,10 @@ class EntityGroupingsTest extends TestCase
     public function testGroupingPath()
     {
         $groupings = new EntityGroupings(ObjectTypes::CONTACT . "/group");
-        $this->assertEquals($groupings->path, ObjectTypes::CONTACT. "/group");
+        $this->assertEquals($groupings->path, ObjectTypes::CONTACT . "/group");
         $this->assertEquals($groupings->getObjType(), ObjectTypes::CONTACT);
         $this->assertEquals($groupings->getFieldName(), "group");
-        
+
         $groupingsWithUserGuid = new EntityGroupings(ObjectTypes::CONTACT . "/group/0000-0000-user-guid");
         $this->assertEquals($groupingsWithUserGuid->getUserGuid(), "0000-0000-user-guid");
 
@@ -51,10 +51,10 @@ class EntityGroupingsTest extends TestCase
         $group->id = 1;
         $group->name = "My Test";
         $groupings->add($group);
-        $groupings->delete($group->id);
+        $groupings->delete($group->guid);
 
         $ret = $groupings->getDeleted();
-        $this->assertEquals($group->id, $ret[0]->id);
+        $this->assertEquals($group->guid, $ret[0]->guid);
 
         $ret = $groupings->getAll();
         $this->assertEquals(0, count($ret));
@@ -67,12 +67,12 @@ class EntityGroupingsTest extends TestCase
     {
         $groupings = new EntityGroupings("test/group");
         $group = new Group();
-        $group->id = 1;
+        $group->guid = '910428e6-474f-4cc2-8935-36e84d00771d';
         $group->name = "My Test";
         $groupings->add($group);
 
-        $ret = $groupings->getById($group->id);
-        $this->assertEquals($group->id, $ret->id);
+        $ret = $groupings->getByGuid($group->guid);
+        $this->assertEquals($group->guid, $ret->guid);
     }
 
     /**
@@ -82,12 +82,12 @@ class EntityGroupingsTest extends TestCase
     {
         $groupings = new EntityGroupings("test/group");
         $group = new Group();
-        $group->id = 1;
+        $group->guid = '910428e6-474f-4cc2-8935-36e84d00771d';
         $group->name = "My Test";
         $groupings->add($group);
 
         $ret = $groupings->getByName("My Test");
-        $this->assertEquals($group->id, $ret->id);
+        $this->assertEquals($group->guid, $ret->guid);
     }
 
     /**
@@ -98,40 +98,18 @@ class EntityGroupingsTest extends TestCase
         $groupings = new EntityGroupings("test/group");
 
         $group = new Group();
-        $group->id = 1;
+        $group->guid = '910428e6-474f-4cc2-8935-36e84d00771d';
         $group->name = "My Test";
         $groupings->add($group);
 
         $group2 = new Group();
-        $group2->id = 2;
+        $group->guid = '910428e6-474f-4dd2-8935-36e84d00771d';
         $group2->parentId = $group->id;
         $group2->name = "Sub Test";
         $groupings->add($group2);
 
         $ret = $groupings->getByPath("My Test/Sub Test");
-        $this->assertEquals($group2->id, $ret->id);
-    }
-
-    /**
-     * Test adding a grouping
-     */
-    public function testGetPath()
-    {
-        $groupings = new EntityGroupings("test/group");
-
-        $group = new Group();
-        $group->id = 1;
-        $group->name = "My Test";
-        $groupings->add($group);
-
-        $group2 = new Group();
-        $group2->id = 2;
-        $group2->parentId = $group->id;
-        $group2->name = "Sub Test";
-        $groupings->add($group2);
-
-        $ret = $groupings->getPath($group2->id);
-        $this->assertEquals("My Test/Sub Test", $ret);
+        $this->assertEquals($group2->guid, $ret->guid);
     }
 
     public function testCreate()

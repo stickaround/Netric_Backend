@@ -132,7 +132,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new AnetAPI\CustomerProfileType();
         $customerProfile->setDescription($customer->getName());
-        $customerProfile->setMerchantCustomerId($customer->getId());
+        $customerProfile->setMerchantCustomerId($customer->getEntityId());
         $customerProfile->setEmail($customer->getValue('email'));
         $customerProfile->setpaymentProfiles($paymentProfiles);
 
@@ -163,7 +163,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         
         // E00039 means the customer already exists
         if ($errorMessages[0]->getCode() == "E00039") {
-            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer->getId());
+            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer->getEntityId());
         }
         
         return ''; // empty on failure
@@ -212,8 +212,8 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new AnetAPI\CustomerProfileType();
         $customerProfile->setDescription($customer->getName());
-        if ($customer->getId()) {
-            $customerProfile->setMerchantCustomerId($customer->getId());
+        if ($customer->getEntityId()) {
+            $customerProfile->setMerchantCustomerId($customer->getEntityId());
         }
         $customerProfile->setEmail($customer->getValue('email'));
         $customerProfile->setpaymentProfiles($paymentProfiles);
@@ -391,7 +391,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // Set the customer's identifying information
         $customerData = new AnetAPI\CustomerDataType();
         $customerData->setType("individual");
-        $customerData->setId($customer->getId());
+        $customerData->setId($customer->getEntityId());
         $customerData->setEmail($customer->getValue('email'));
 
         // Add values for transaction settings

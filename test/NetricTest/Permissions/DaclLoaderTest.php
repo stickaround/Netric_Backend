@@ -104,7 +104,7 @@ class DaclLoaderTest extends TestCase
             "entries" => array(
                 array(
                     "name" => Dacl::PERM_VIEW,
-                    "users" => [$this->user->getId()]
+                    "users" => [$this->user->getEntityId()]
                 ),
             ),
         );
@@ -133,7 +133,7 @@ class DaclLoaderTest extends TestCase
             "entries" => array(
                 array(
                     "name" => Dacl::PERM_VIEW,
-                    "users" => [$this->user->getId()]
+                    "users" => [$this->user->getEntityId()]
                 ),
             ),
         );
@@ -143,7 +143,7 @@ class DaclLoaderTest extends TestCase
 
         // New file that is a child of the parent
         $file = $entityLoader->create(ObjectTypes::FILE);
-        $file->setValue("folder_id", $folder->getid());
+        $file->setValue("folder_id", $folder->getEntityId());
         $file->setValue("name", "myFiletest.txt");
         $entityLoader->save($file);
         $this->testEntities[] = $file;
@@ -172,7 +172,7 @@ class DaclLoaderTest extends TestCase
         // Set the DACL for the entity type
         $def = $file->getDefinition();
         $defDacl = new Dacl();
-        $defDacl->allowUser($this->user->getId(), Dacl::PERM_FULL);
+        $defDacl->allowUser($this->user->getEntityId(), Dacl::PERM_FULL);
         $def->setDacl($defDacl);
 
         $dacl = $this->daclLoader->getForEntity($file);
@@ -192,7 +192,7 @@ class DaclLoaderTest extends TestCase
         // New file with no DACL
         $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
-        $file->setValue("owner_id", $this->user->getGuid());
+        $file->setValue("owner_id", $this->user->getEntityId());
         $entityLoader->save($file);
         $this->testEntities[] = $file;
 

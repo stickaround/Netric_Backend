@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\WorkFlow\Action;
 
 use Netric\Entity\EntityInterface;
@@ -69,7 +71,7 @@ class SendEmailAction extends AbstractAction implements ActionInterface
 
         // Check if we are using an html_template id for loading a template
         if (isset($params['fid'])) {
-            $template = $this->entityLoader->get(ObjectTypes::HTML_TEMPLATE, $params['fid']);
+            $template = $this->entityLoader->getByGuid($params['fid']);
             $templateBody = $template->getValue("body_html");
             $templateSubject = ($template->getValue("subject")) ? $template->getValue("subject") : $template->getValue("name");
 

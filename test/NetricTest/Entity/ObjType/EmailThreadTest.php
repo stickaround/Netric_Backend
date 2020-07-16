@@ -3,6 +3,7 @@
 /**
  * Test entity email thread class
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
@@ -47,7 +48,7 @@ class EmailThreadTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -56,7 +57,7 @@ class EmailThreadTest extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
@@ -86,7 +87,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $thread;
 
         $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $message->setValue("thread", $thread->getGuid());
+        $message->setValue("thread", $thread->getEntityId());
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
 
@@ -94,7 +95,7 @@ class EmailThreadTest extends TestCase
         $entityLoader->delete($thread);
 
         // Check to make sure the message was soft-deleted as well
-        $reloadedMessage = $entityLoader->getByGuid($message->getGuid());
+        $reloadedMessage = $entityLoader->getByGuid($message->getEntityId());
         $this->assertTrue($reloadedMessage->getValue("f_deleted"));
     }
 
@@ -112,7 +113,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $thread;
 
         $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $message->setValue("thread", $thread->getGuid());
+        $message->setValue("thread", $thread->getEntityId());
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
 
@@ -124,7 +125,7 @@ class EmailThreadTest extends TestCase
         $entityLoader->save($thread);
 
         // Check to make sure the message was soft-deleted as well
-        $reloadedMessage = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $eid);
+        $reloadedMessage = $entityLoader->getByGuid($eid);
         $this->assertFalse($reloadedMessage->getValue("f_deleted"));
     }
 
@@ -142,7 +143,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $thread;
 
         $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $message->setValue("thread", $thread->getGuid());
+        $message->setValue("thread", $thread->getEntityId());
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
 
@@ -150,7 +151,7 @@ class EmailThreadTest extends TestCase
         $entityLoader->delete($thread, true);
 
         // Make sure message was also purged
-        $this->assertNull($entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $eid));
+        $this->assertNull($entityLoader->getByGuid($eid));
     }
 
     public function testAddToSenders()

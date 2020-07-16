@@ -122,8 +122,8 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
             ),
         );
 
-        $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
-        $this->assertTrue($dataMapper->update($account->getId()));
+        $dataMapper = $this->getDataMapper($testDefinition, $account->getAccountId());
+        $this->assertTrue($dataMapper->update($account->getAccountId()));
 
         // Now test reading and writing data
         $data = array(
@@ -169,8 +169,8 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
             "password"
         );
 
-        $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
-        $dataMapper->update($account->getId());
+        $dataMapper = $this->getDataMapper($testDefinition, $account->getAccountId());
+        $dataMapper->update($account->getAccountId());
         // A schema should have been set on the last application (if it exists)
         $this->assertNotEmpty($dataMapper->getLastAppliedSchemaHash());
     }
@@ -204,8 +204,8 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
             "test@test.com",
             "password"
         );
-        $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
-        $dataMapper->update($account->getId());
+        $dataMapper = $this->getDataMapper($testDefinition, $account->getAccountId());
+        $dataMapper->update($account->getAccountId());
         $dataMapper->setLastAppliedSchemaHash('test');
         $this->assertEquals('test', $dataMapper->getLastAppliedSchemaHash());
     }
@@ -235,7 +235,7 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
             "test@test.com",
             "password"
         );
-        $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
+        $dataMapper = $this->getDataMapper($testDefinition, $account->getAccountId());
 
         $this->assertEquals($dataMapper->checkIfColumnExist("unit_test_schema", "field_data"), true);
         $this->assertEquals($dataMapper->checkIfColumnExist("unit_test_schema", "ts_entered"), false);

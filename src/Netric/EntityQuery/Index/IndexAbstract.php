@@ -185,9 +185,9 @@ abstract class IndexAbstract
     {
         $ret = array($oid);
 
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $ent = $loader->get($objType, $oid);
-        $ret[] = $ent->getId();
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $ent = $entityLoader->getByGuid($oid);
+        $ret[] = $ent->getEntityId();
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
@@ -220,8 +220,8 @@ abstract class IndexAbstract
         $ret = array($entityGuid);
         $aProtectCircular[] = $entityGuid;
 
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $ent = $loader->getByGuid($entityGuid);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $ent = $entityLoader->getByGuid($entityGuid);
 
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
@@ -229,11 +229,11 @@ abstract class IndexAbstract
             if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
                 $index = $this->account->getServiceManager()->get(IndexFactory::class);
                 $query = new EntityQuery($field->subtype);
-                $query->where($ent->getDefinition()->parentField)->equals($ent->getGuid());
+                $query->where($ent->getDefinition()->parentField)->equals($ent->getEntityId());
                 $res = $index->executeQuery($query);
                 for ($i = 0; $i < $res->getTotalNum(); $i++) {
                     $subEnt = $res->getEntity($i);
-                    $children = $this->getHeiarchyDownObj($objType, $subEnt->getGuid(), $aProtectCircular);
+                    $children = $this->getHeiarchyDownObj($objType, $subEnt->getEntityId(), $aProtectCircular);
                     if (count($children)) {
                         $ret = array_merge($ret, $children);
                     }
@@ -289,7 +289,7 @@ abstract class IndexAbstract
         if ($user) {
             // Replace current user
             if ($value == UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
-                return $user->getGuid();
+                return $user->getEntityId();
             }
 
             /*
@@ -310,7 +310,7 @@ abstract class IndexAbstract
             if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
                 && $value == "user:" . UserEntity::USER_CURRENT
             ) {
-                return $user->getGuid();
+                return $user->getEntityId();
             }
         }
 
@@ -328,18 +328,6 @@ abstract class IndexAbstract
                 return;
         }
          */
-
-        // If querying an object type then only leave the number if the value has the object type
-        if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && $field->subtype) {
-            $objRefParts = Entity::decodeObjRef($value);
-            if ($objRefParts) {
-
-                // We need to retrieve the actual entity so we can get its guid.
-                $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-                $entity = $entityLoader->get($field->subtype, $objRefParts['id']);
-                return $entity->getGuid();
-            }
-        }
 
         return $value;
     }

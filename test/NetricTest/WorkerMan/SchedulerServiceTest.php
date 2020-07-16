@@ -79,7 +79,7 @@ class SchedulerServiceTest extends TestCase
         // Add the job to the queue
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
 
         $this->assertNotNull($id);
     }
@@ -97,7 +97,7 @@ class SchedulerServiceTest extends TestCase
             RecurrencePattern::RECUR_DAILY,
             1
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
 
         $this->assertNotNull($id);
     }
@@ -110,7 +110,7 @@ class SchedulerServiceTest extends TestCase
         // Create a scheduled job to run now
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
 
         $jobs = $this->scheduler->getScheduledToRun();
 
@@ -136,7 +136,7 @@ class SchedulerServiceTest extends TestCase
             RecurrencePattern::RECUR_DAILY,
             1
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
 
         // Get scheduled jobs for the next three days
         $runTo = new DateTime();
@@ -159,7 +159,7 @@ class SchedulerServiceTest extends TestCase
     {
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
-        $jobEntity = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
+        $jobEntity = $this->entityLoader->getByGuid($id);
         $this->tempEntitiesToDelete[] = $jobEntity;
 
         // Set a scheduled job as completed

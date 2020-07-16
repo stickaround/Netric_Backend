@@ -81,13 +81,13 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
         );
 
         // Compose either an update or insert statement
-        if ($module->getId()) {
-            $this->db->update('applications', $data, ['id' => $module->getId()]);
+        if ($module->getModuleId()) {
+            $this->db->update('applications', $data, ['id' => $module->getModuleId()]);
             return true;
         }
 
-        $id = $this->db->insert('applications', $data);
-        $module->setId($id);
+        $id = $this->db->insert('applications', $data, 'id');
+        $module->setModuleId($id);
         return true;
     }
 
@@ -151,11 +151,11 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             return false;
         }
 
-        if (!$module->getId()) {
+        if (!$module->getModuleId()) {
             throw new \InvalidArgumentException("Missing ID - cannot delete an unsaved module");
         }
 
-        $this->db->delete('applications', ['id' => $module->getId()]);
+        $this->db->delete('applications', ['id' => $module->getModuleId()]);
         return true;
     }
 
@@ -213,13 +213,13 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
 
         // Set the user name in the module if the user_id is set
         if ($module->getUserId()) {
-            $userEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::USER, $module->getUserId());
+            $userEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getByGuid($module->getUserId());
             $module->setUserName($userEntity->getName());
         }
 
         // Set the team name in the module if the team_id is set
         if ($module->getTeamId()) {
-            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::USER_TEAM, $module->getTeamId());
+            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getByGuid($module->getTeamId());
             $module->setTeamName($teamEntity->getName());
         }
     }

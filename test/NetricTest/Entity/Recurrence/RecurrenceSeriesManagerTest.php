@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test saving and loading recurrence patterns from the DataMapper
  */
+
 namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence;
@@ -67,7 +69,7 @@ class RecurrenceSeriesManagerTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
@@ -107,7 +109,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $recurrencePattern = $event->getRecurrencePattern();
 
         // Test that references was properly created
-        $this->assertEquals($recurrencePattern->getFirstEntityId(), $event->getId());
+        $this->assertEquals($recurrencePattern->getFirstEntityId(), $event->getEntityId());
         $this->assertEquals($recurrencePattern->getId(), $event->getValue($recurRules['field_recur_id']));
 
         // Create the series for +1 day from start - should create one instance
@@ -135,17 +137,17 @@ class RecurrenceSeriesManagerTest extends TestCase
         $createInstance->setAccessible(true);
 
         // Save a new entity with the recurrence pattern
-        $entityData = array(
+        $entityData = [
             "name" => 'my recurring event',
             "ts_start" => strtotime("2016-01-01 08:00:00 PST"),
             "ts_end" => strtotime("2016-01-01 09:00:00 PST"),
-            "recurrence_pattern" => array(
+            "recurrence_pattern" => [
                 "recur_type" => RecurrencePattern::RECUR_DAILY,
                 "interval" => 1,
                 "date_start" => "2016-01-01",
                 "date_end" => "2016-01-05",
-            )
-        );
+            ]
+        ];
         $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $this->entityDataMapper->save($event);
@@ -157,7 +159,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertNotEmpty($eid);
 
         // Open the new entity
-        $event2 = $this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $eid);
+        $event2 = $this->entityLoader->getByGuid($eid);
         $this->assertEquals($event->getName(), $event2->getName());
 
         // Make sure the dates are different but the times are the same
@@ -182,17 +184,17 @@ class RecurrenceSeriesManagerTest extends TestCase
     public function testRemoveSeries()
     {
         // Save a new entity with the recurrence pattern
-        $entityData = array(
+        $entityData = [
             "name" => 'my recurring event',
             "ts_start" => strtotime("2016-01-01 08:00:00 PST"),
             "ts_end" => strtotime("2016-01-01 09:00:00 PST"),
-            "recurrence_pattern" => array(
+            "recurrence_pattern" => [
                 "recur_type" => RecurrencePattern::RECUR_DAILY,
                 "interval" => 1,
                 "date_start" => "2016-01-01",
                 "date_end" => "2016-01-05",
-            )
-        );
+            ]
+        ];
         $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $eventId = $this->entityDataMapper->save($event);
@@ -207,7 +209,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertTrue($ret);
 
         // Try to open the original and make sure it is deleted
-        $this->assertTrue($this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $eventId)->isDeleted());
+        $this->assertTrue($this->entityLoader->getByGuid($eventId)->isDeleted());
 
         // Make sure the recurring pattern was also deleted
         $this->assertNull($this->recurIndentityMapper->getById($recurId));

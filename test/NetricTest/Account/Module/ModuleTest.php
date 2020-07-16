@@ -42,7 +42,7 @@ class ModuleTest extends TestCase
         $module = new Module();
         $module->fromArray($data);
 
-        $this->assertEquals($data['id'], $module->getId());
+        $this->assertEquals($data['id'], $module->getModuleId());
         $this->assertEquals($data['name'], $module->getName());
         $this->assertEquals($data['title'], $module->getTitle());
         $this->assertEquals($data['short_title'], $module->getShortTitle());
@@ -59,7 +59,7 @@ class ModuleTest extends TestCase
     public function testToArray()
     {
         $module = new Module();
-        $module->setId(123);
+        $module->setModuleId(123);
         $module->setName("tester");
         $module->setTitle("My Tester Module");
         $module->setShortTitle("Tester");
@@ -89,7 +89,7 @@ class ModuleTest extends TestCase
             ));
 
         $data = $module->toArray();
-        $this->assertEquals($data['id'], $module->getId());
+        $this->assertEquals($data['id'], $module->getModuleId());
         $this->assertEquals($data['name'], $module->getName());
         $this->assertEquals($data['title'], $module->getTitle());
         $this->assertEquals($data['short_title'], $module->getShortTitle());
@@ -106,7 +106,7 @@ class ModuleTest extends TestCase
     public function testSetNavigationDirty()
     {
         $module = new Module();
-        $module->setId(123);
+        $module->setModuleId(123);
         $module->setName("tester");
         $module->setNavigation(array(
                 array(
@@ -127,7 +127,7 @@ class ModuleTest extends TestCase
     public function testConvertNavigationToXml()
     {
         $module = new Module();
-        $module->setId(1);
+        $module->setModuleId(1);
         $module->setName("tester");
         $module->setNavigation(array(
                 array(
@@ -148,7 +148,7 @@ class ModuleTest extends TestCase
     public function testConvertXmlToNavigation()
     {
         $module = new Module();
-        $module->setId(1);
+        $module->setModuleId(1);
         $module->setName("tester");
 
         $xmlNavigation = "<?xml version=\"1.0\"?>

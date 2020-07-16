@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\WorkFlow\Action;
 
 use PHPUnit\Framework\TestCase;
@@ -17,6 +18,12 @@ use Netric\WorkFlow\Action\Exception\CircularChildActionsException;
  */
 abstract class AbstractActionTests extends TestCase
 {
+    /**
+     * Create some test IDs
+     */
+    const TEST_ACTION_ID = '86e9ecbf-fe4d-4a2f-b84f-b355173992c4';
+    const TEST_WORKFLOW_ID = '8cd88c04-055f-4373-bd7d-7a61dc9b3b6e';
+
     /**
      * Reference to account running for unit tests
      *
@@ -99,17 +106,17 @@ abstract class AbstractActionTests extends TestCase
     public function testFromAndToArray()
     {
         $actionData = array(
-            "id" => 456,
+            "guid" => self::TEST_ACTION_ID,
             "name" => "my action",
-            "workflow_id" => 123,
+            "workflow_id" => self::TEST_WORKFLOW_ID,
             "parent_action_id" => 1,
             "actions" => array(
                 array(
                     "id" => 789,
                     "type" => "test",
                     "name" => "my action",
-                    "workflow_id" => 123,
-                    "parent_action_id" => 456,
+                    "workflow_id" => self::TEST_WORKFLOW_ID,
+                    "parent_action_id" => self::TEST_ACTION_ID,
                 ),
             ),
         );
@@ -153,7 +160,7 @@ abstract class AbstractActionTests extends TestCase
         // Create an entity
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
-        $task->setValue("owner_id", $user->getGuid(), $user->getName());
+        $task->setValue("owner_id", $user->getEntityId(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);
@@ -181,7 +188,7 @@ abstract class AbstractActionTests extends TestCase
         // Create an entity
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
-        $task->setValue("owner_id", $user->getGuid(), $user->getName());
+        $task->setValue("owner_id", $user->getEntityId(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);
@@ -236,7 +243,7 @@ abstract class AbstractActionTests extends TestCase
         // Create an entity
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
-        $task->setValue("owner_id", $user->getGuid(), $user->getName());
+        $task->setValue("owner_id", $user->getEntityId(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);
@@ -291,7 +298,7 @@ abstract class AbstractActionTests extends TestCase
 
         // Create an entity
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setId(123);
+        $task->setValue('guid', self::TEST_ACTION_ID);
         $task->setValue("name", "ut-action-test-task");
 
         // Setup reflection object to access protected function
@@ -302,7 +309,7 @@ abstract class AbstractActionTests extends TestCase
         // Check that params are processed
         $params = $getParams->invoke($action, $task);
         $this->assertEquals(
-            "Work on 123",
+            "Work on " . self::TEST_ACTION_ID,
             $params['subject']
         );
     }
@@ -325,8 +332,8 @@ abstract class AbstractActionTests extends TestCase
 
         // Create an entity with a user to send to
         $task = $this->entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("owner_id", $user->getGuid(), $user->getName());
-        $task->setValue("creator_id", $user->getGuid(), $user->getName());
+        $task->setValue("owner_id", $user->getEntityId(), $user->getName());
+        $task->setValue("creator_id", $user->getEntityId(), $user->getName());
 
         // Setup reflection object to access protected function
         $refAction = new \ReflectionObject($action);
@@ -380,7 +387,7 @@ abstract class AbstractActionTests extends TestCase
         // Now delete it
         $action->removeAction($childAction);
         $removedActions = $action->getRemovedActions();
-        $this->assertEquals($childAction->getId(), $removedActions[0]->getId());
+        $this->assertEquals($childAction->getWorkFlowActionId(), $removedActions[0]->getWorkFlowActionId());
     }
 
     public function testAddAction()

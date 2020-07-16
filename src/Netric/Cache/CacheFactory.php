@@ -7,23 +7,22 @@
  */
 namespace Netric\Cache;
 
-use Netric\ServiceManager;
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\ServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Create a Cache service
  */
-class CacheFactory implements AccountServiceFactoryInterface
+class CacheFactory implements ServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
      * @return CacheInterface
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $sl)
     {
-        return $sl->getAccount()->getApplication()->getCache();
+        return $sl->getApplication()->getCache();
     }
 }

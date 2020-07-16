@@ -26,7 +26,7 @@ class LocalFileStoreFactory implements ServiceManager\AccountServiceFactoryInter
     {
         $config = $sl->get(ConfigFactory::class);
         $dataPath = $config->data_path;
-        $accountId = $sl->getAccount()->getId();
+        $accountId = $sl->getAccount()->getAccountId();
         $dataMapper = $sl->get(DataMapperFactory::class);
 
         return new LocalFileStore($accountId, $dataPath, $dataMapper);

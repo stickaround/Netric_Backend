@@ -129,7 +129,7 @@ class SchedulerService
      */
     public function setJobAsExecuted(WorkerJobEntity $scheduledJob)
     {
-        if (!$scheduledJob->getId()) {
+        if (!$scheduledJob->getEntityId()) {
             throw new \RuntimeException("Cannot mark an unsaved job as complete");
         }
 

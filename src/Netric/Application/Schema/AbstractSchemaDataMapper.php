@@ -30,13 +30,6 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
      */
     abstract protected function applyBucketDefinition($bucketName, array $bucketDefinition);
 
-    /**
-     * Make sure a database/namespace/schema or whatever the data store uses for multi tenancy exists
-     *
-     * @param int $accountId The unique account id to create a schema for
-     * @return bool true on success, false on failure with $this->getLastError set
-     */
-    abstract protected function createSchemaIfNotExists($accountId);
 
     /**
      * Create the initial schema for an account
@@ -46,25 +39,6 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
      */
     public function update($accountId = null)
     {
-        // TODO: We are no longer using schemas per account
-        // First make sure the schema exists
-        // if ($accountId) {
-        //     /*
-        //      * If no $accountId has been passed then we can assume this is updating the
-        //      * system account. Otherwise, if an accountId has been passed we need to make
-        //      * sure the schema/database for that specific account exists before we try
-        //      * to update it.
-        //      *
-        //      * In the case of the main system Application database, it MUST be created prior
-        //      * to running update on the schema. This is normally done by running
-        //      * ./bin netric install from the command line if netric is running in stand alone mode
-        //      * otherwise we can assume the administrator should have setup the application.
-        //      */
-        //     if (!$this->createSchemaIfNotExists($accountId)) {
-        //         return false;
-        //     }
-        // }
-
         // Make sure the this->schemaDefinition is applied to the new schema
         if (!$this->processDefinition()) {
             // Something went wrong, get more details with $this->getLastError

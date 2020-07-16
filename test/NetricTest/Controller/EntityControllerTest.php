@@ -3,6 +3,7 @@
 /**
  * Test the entity controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
@@ -42,7 +43,7 @@ class EntityControllerTest extends TestCase
      *
      * @var array
      */
-    private $testGroups = array();
+    private $testGroups = [];
 
     /**
      * Test entities that should be cleaned up on tearDown
@@ -59,7 +60,7 @@ class EntityControllerTest extends TestCase
     private $testDefinitions = [];
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Create the controller
@@ -71,15 +72,15 @@ class EntityControllerTest extends TestCase
      * Cleanup after a test runs
      */
     protected function tearDown(): void
-{
+    {
         // Delete the added groups
         foreach ($this->testGroups as $groupId) {
-            $dataRemove = array(
+            $dataRemove = [
                 'action' => "delete",
                 'obj_type' => ObjectTypes::NOTE,
                 'field_name' => 'groups',
                 'id' => $groupId
-            );
+            ];
 
             // Set params in the request
             $req = $this->controller->getRequest();
@@ -113,11 +114,11 @@ class EntityControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setBody(json_encode(array(
             'obj_type' => ObjectTypes::DASHBOARD,
-            'id' => $dashboardEntity->getId()
+            'guid' => $dashboardEntity->getEntityId()
         )));
 
         $ret = $this->controller->getGetAction();
-        $this->assertEquals($dashboardEntity->getId(), $ret['id'], var_export($ret, true));
+        $this->assertEquals($dashboardEntity->getEntityId(), $ret['guid'], var_export($ret, true));
     }
 
     public function testPostGetEntityActionDashboardUname()
@@ -127,7 +128,7 @@ class EntityControllerTest extends TestCase
         $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
         $dashboardName =  "activity-test" . uniqid();
         $dashboardEntity->setValue("name", $dashboardName);
-        $dashboardEntity->setValue("owner_id", $this->account->getUser()->getGuid());
+        $dashboardEntity->setValue("owner_id", $this->account->getUser()->getEntityId());
         $loader->save($dashboardEntity);
         $this->testEntities[] = $dashboardEntity;
 
@@ -137,7 +138,7 @@ class EntityControllerTest extends TestCase
             'obj_type' => ObjectTypes::DASHBOARD,
             'uname' => $dashboardEntity->getValue("uname"),
             'uname_conditions' => [
-                'owner_id' => $this->account->getUser()->getGuid(),
+                'owner_id' => $this->account->getUser()->getEntityId(),
             ],
         );
         $req = $this->controller->getRequest();
@@ -145,7 +146,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $dashboardEntity = $loader->get(ObjectTypes::DASHBOARD, $ret['id']);
+        $dashboardEntity = $loader->getByGuid($ret['guid']);
         $this->assertEquals($dashboardEntity->getValue("name"), $dashboardName);
     }
 
@@ -160,7 +161,7 @@ class EntityControllerTest extends TestCase
 
         $data = array(
             'obj_type' => ObjectTypes::CONTACT,
-            'id' => $customer->getId(),
+            'guid' => $customer->getEntityId(),
         );
 
         // Set params in the request
@@ -169,7 +170,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $this->assertEquals($customer->getId(), $ret['id'], var_export($ret, true));
+        $this->assertEquals($customer->getEntityId(), $ret['guid'], var_export($ret, true));
     }
 
     public function testPostGetEntityActionUname()
@@ -183,7 +184,7 @@ class EntityControllerTest extends TestCase
 
         $page = $loader->create("cms_page");
         $page->setValue("name", "testPostGetEntityAction");
-        $page->setValue("site_id", $site->getGuid());
+        $page->setValue("site_id", $site->getEntityId());
         $loader->save($page);
         $this->testEntities[] = $page;
 
@@ -191,7 +192,7 @@ class EntityControllerTest extends TestCase
             'obj_type' => "cms_page",
             'uname' => $page->getValue("uname"),
             'uname_conditions' => [
-                'site_id' => $site->getGuid(),
+                'site_id' => $site->getEntityId(),
             ],
         );
 
@@ -201,7 +202,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $this->assertEquals($page->getId(), $ret['id'], var_export($ret, true));
+        $this->assertEquals($page->getEntityId(), $ret['guid'], var_export($ret, true));
     }
 
     /**
@@ -267,7 +268,7 @@ class EntityControllerTest extends TestCase
         $entity->setValue("name", "Test");
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $dm->save($entity);
-        $entityId = $entity->getId();
+        $entityId = $entity->getEntityId();
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -288,29 +289,6 @@ class EntityControllerTest extends TestCase
         $ret = $this->controller->getGetGroupingsAction();
         $this->assertFalse(isset($ret['error']));
         $this->assertTrue(count($ret) > 0);
-    }
-
-    public function testSavePendingObjectMultiObjects()
-    {
-        $data = array(
-            'obj_type' => ObjectTypes::CALENDAR_EVENT,
-            'name' => "Test",
-            'attendees_new' => [
-                ['name' => '[user:1:test]'],
-                ['name' => '[user:2:test2]']
-            ],
-        );
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($data));
-
-        $ret = $this->controller->postSaveAction();
-
-        $this->assertNotNull($ret['attendees'][0]);
-        $this->assertNotNull($ret['attendees'][1]);
-        $this->assertEquals($data['attendees_new'][0]['name'], $ret['attendees_fval'][$ret['attendees'][0]]);
-        $this->assertEquals($data['attendees_new'][1]['name'], $ret['attendees_fval'][$ret['attendees'][1]]);
     }
 
     public function testGetAllDefinitionsAction()
@@ -464,7 +442,7 @@ class EntityControllerTest extends TestCase
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
-        $groupings = $groupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->account->getUser()->getGuid());
+        $groupings = $groupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->account->getUser()->getEntityId());
 
         $group1 = new Group();
         $group2 = new Group();
@@ -473,7 +451,7 @@ class EntityControllerTest extends TestCase
         $groupings->add($group1);
         $groupings->add($group2);
         $groupingsLoader->save($groupings);
-        
+
         $this->testGroups[] = $group1->id;
         $this->testGroups[] = $group2->id;
 
@@ -482,16 +460,16 @@ class EntityControllerTest extends TestCase
         $entity1->setValue("body", "Note 1");
         $entity1->addMultiValue("groups", $group1->guid, $group1->name);
         $dm->save($entity1);
-        $entityGuid1 = $entity1->getGuid();
+        $entityGuid1 = $entity1->getEntityId();
         $this->testEntities[] = $entity1;
 
         $entity2 = $loader->create(ObjectTypes::NOTE);
         $entity2->setValue("body", "Note 2");
         $entity2->addMultiValue("groups", $group2->guid, $group2->name);
         $dm->save($entity2);
-        $entityGuid2 = $entity2->getGuid();
+        $entityGuid2 = $entity2->getEntityId();
         $this->testEntities[] = $entity2;
-        
+
         $groupData[$group1->guid] = $group1->name;
         $groupData[$group2->guid] = $group2->name;
 
@@ -534,7 +512,7 @@ class EntityControllerTest extends TestCase
         $entity1->setValue("website", "website 1");
         $entity1->addMultiValue("groups", 1, "note group 1");
         $dm->save($entity1);
-        $entityId1 = $entity1->getId();
+        $entityId1 = $entity1->getEntityId();
 
         $entity2 = $loader->create(ObjectTypes::NOTE);
         $entity2->setValue("body", "body 2");
@@ -543,7 +521,7 @@ class EntityControllerTest extends TestCase
         $entity2->setValue("website", "website 2");
         $entity2->addMultiValue("groups", 2, "note group 2");
         $dm->save($entity2);
-        $entityId2 = $entity2->getId();
+        $entityId2 = $entity2->getEntityId();
 
         $entity3 = $loader->create(ObjectTypes::NOTE);
         $entity3->setValue("body", "body 3");
@@ -553,7 +531,7 @@ class EntityControllerTest extends TestCase
         $entity3->addMultiValue("groups", 3, "note group 3");
         $entity3->addMultiValue("groups", 33, "note group 33");
         $dm->save($entity3);
-        $entityId3 = $entity3->getId();
+        $entityId3 = $entity3->getEntityId();
 
         // Setup the merge data
         $data = array(
@@ -622,7 +600,7 @@ class EntityControllerTest extends TestCase
         $this->assertTrue($retGroup['id'] > 0);
         $this->assertEquals($retGroup['name'], $dataGroup['name']);
         $this->assertEquals($retGroup['color'], $dataGroup['color']);
-        
+
         // Setup the save group data with parent
         $dataWithParent = array(
             'action' => "add",
@@ -642,7 +620,7 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($retWithParent['name'], $dataWithParent['name']);
         $this->assertEquals($retWithParent['color'], $dataWithParent['color']);
         $this->assertEquals($retWithParent['parent_id'], $retGroup['id']);
-        
+
         // Test the edit function of SaveGroup
         $dataEdit = array(
             'action' => "edit",
@@ -690,7 +668,7 @@ class EntityControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setParam('obj_type', 'NonExistingDefinition');
         $ret = $this->controller->getGetDefinitionAction();
-        
+
         // Test that error was being returned
         $this->assertNotEmpty($ret['error']);
     }
@@ -724,7 +702,7 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
 
         // Setting an alpha numeric id when calling getGetAction and it should return an error
-        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK,'id' => 'invalidId123')));
+        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK, 'id' => 'invalidId123')));
         $ret = $this->controller->getGetAction();
         $this->assertEquals($ret['error'], 'invalidId123 is not a valid entity id');
     }
@@ -741,7 +719,7 @@ class EntityControllerTest extends TestCase
     public function testPostUpdateEntityDefActionToReturnError()
     {
         $req = $this->controller->getRequest();
-        
+
         // Saving an entity definition without providing an object type should return an error
         $req->setBody(json_encode(array('name' => 'DefWithNoType')));
         $ret = $this->controller->postUpdateEntityDefAction();

@@ -1,22 +1,14 @@
 <?php
+
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\UserEntity;
 
 return array(
-    "id" => array(
-        'title' => "Local ID",
-        'type' => Field::TYPE_NUMBER,
-        'id' => "0",
-        'subtype' => "",
-        'readonly' => true,
-        'system' => true,
-    ),
     "guid" => array(
-        'title' => "Global ID",
+        'title' => "ID",
         'type' => Field::TYPE_UUID,
-        'id' => "0",
         'subtype' => "",
         'readonly' => true,
         'system' => true,
@@ -77,17 +69,17 @@ return array(
         'system' => true,
     ),
     'owner_id' => array(
-        'title'=>'Assigned To',
-        'type'=>Field::TYPE_OBJECT,
-        'subtype'=>'user',
-        'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
+        'title' => 'Assigned To',
+        'type' => Field::TYPE_OBJECT,
+        'subtype' => 'user',
+        'default' => array("value" => UserEntity::USER_CURRENT, "on" => "null")
     ),
     'creator_id' => array(
-        'title'=>'Creator',
-        'type'=>Field::TYPE_OBJECT,
-        'subtype'=>'user',
-        'readonly'=>true,
-        'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
+        'title' => 'Creator',
+        'type' => Field::TYPE_OBJECT,
+        'subtype' => 'user',
+        'readonly' => true,
+        'default' => array("value" => UserEntity::USER_CURRENT, "on" => "null")
     ),
 
     // Default is true on null for this so not every entity is marked as unseen (annoying)

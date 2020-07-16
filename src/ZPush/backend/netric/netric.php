@@ -168,10 +168,9 @@ class BackendNetric implements IBackend
              * This should work because it will step through the same logic
              * as the main netric app does - third.level.domain > config.default_account...
              */
-            $account = $application->getAccount();
-            $db = $account->getServiceManager()->get(RelationalDbFactory::class);
-            $cache = $account->getServiceManager()->get(CacheFactory::class);
-            $settings = $account->getServiceManager()->get(SettingsFactory::class);
+            $db = $application->getServiceManager()->get(RelationalDbFactory::class);
+            $cache = $application->getServiceManager()->get(CacheFactory::class);
+            $settings = $application->getServiceManager()->get(SettingsFactory::class);
             $this->stateMachine = new NetricStateMachine($log, $db, $cache, $settings);
         }
 
@@ -796,7 +795,7 @@ class BackendNetric implements IBackend
                         "blogic" => Where::COMBINED_BY_AND,
                         "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue" => $this->user->getGuid()
+                        "condValue" => $this->user->getEntityId()
                     )
                 );
                 break;
@@ -820,7 +819,7 @@ class BackendNetric implements IBackend
                         "blogic" => Where::COMBINED_BY_AND,
                         "field"=>"owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getGuid()
+                        "condValue"=>$this->user->getEntityId()
                     ),
                 );
 
@@ -833,7 +832,7 @@ class BackendNetric implements IBackend
                         "blogic" => Where::COMBINED_BY_AND,
                         "field"=>"owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getGuid()
+                        "condValue"=>$this->user->getEntityId()
                     )
                 );
                 break;
@@ -845,7 +844,7 @@ class BackendNetric implements IBackend
                         "blogic" => Where::COMBINED_BY_AND,
                         "field"=>"owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getGuid()
+                        "condValue"=>$this->user->getEntityId()
                     ),
                     array(
                         "blogic" => Where::COMBINED_BY_AND,

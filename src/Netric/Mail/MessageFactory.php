@@ -1,8 +1,4 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 
 namespace Netric\Mail;
 
@@ -16,7 +12,7 @@ class MessageFactory
      */
     public static function getInstance($options = [])
     {
-        if (! is_array($options) && ! $options instanceof Traversable) {
+        if (!is_array($options) && !$options instanceof Traversable) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '"%s" expects an array or Traversable; received "%s"',
                 __METHOD__,

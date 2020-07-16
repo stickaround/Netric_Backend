@@ -61,7 +61,7 @@ interface ActionInterface
      *
      * @return id
      */
-    public function getId();
+    public function getWorkFlowActionId();
 
     /**
      * Set id of action

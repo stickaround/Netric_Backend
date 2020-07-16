@@ -81,7 +81,7 @@ class ModuleServiceTest extends TestCase
         // Get a system module that will always exist
         $module = $this->moduleService->getByName("knowledge");
         $this->assertNotNull($module);
-        $this->assertNotEmpty($module->getId());
+        $this->assertNotEmpty($module->getModuleId());
     }
 
     public function testGetById()
@@ -89,11 +89,11 @@ class ModuleServiceTest extends TestCase
         // First get by name
         $module = $this->moduleService->getByName("knowledge");
         $this->assertNotNull($module);
-        $this->assertNotEmpty($module->getId());
+        $this->assertNotEmpty($module->getModuleId());
 
         // Now try to get by id
-        $module2 = $this->moduleService->getById($module->getId());
-        $this->assertEquals($module->getId(), $module2->getId());
+        $module2 = $this->moduleService->getById($module->getModuleId());
+        $this->assertEquals($module->getModuleId(), $module2->getModuleId());
     }
 
     public function testGetForUser()
@@ -112,6 +112,6 @@ class ModuleServiceTest extends TestCase
     public function testCreateNewModule()
     {
         $module = $this->moduleService->createNewModule();
-        $this->assertEquals($module->getId(), null);
+        $this->assertEquals($module->getModuleId(), null);
     }
 }

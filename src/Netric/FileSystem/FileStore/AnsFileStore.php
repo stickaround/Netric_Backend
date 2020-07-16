@@ -216,7 +216,7 @@ class AnsFileStore implements FileStoreInterface
         $size = filesize($localPath);
 
         // Generate a unique id for the file
-        $key = $this->accountId . "/" . $file->getGuid() . "/";
+        $key = $this->accountId . "/" . $file->getEntityId() . "/";
         $key .= $file->getValue("revision") . "/" . $file->getName();
 
         // Construct the full request with all params
@@ -291,7 +291,7 @@ class AnsFileStore implements FileStoreInterface
         }
 
         // Delete all past revisions
-        $revisions = $this->entityDataMapper->getRevisions("file", $file->getId());
+        $revisions = $this->entityDataMapper->getRevisions("file", $file->getEntityId());
         foreach ($revisions as $fileRev) {
             if ($fileRev->getValue("dat_ans_key")) {
                 try {
@@ -375,6 +375,6 @@ class AnsFileStore implements FileStoreInterface
      */
     private function getTempName(FileEntity $file)
     {
-        return "file-" . $this->accountId . "-" . $file->getId() . "-" . $file->getValue('revision');
+        return "file-" . $this->accountId . "-" . $file->getEntityId() . "-" . $file->getValue('revision');
     }
 }

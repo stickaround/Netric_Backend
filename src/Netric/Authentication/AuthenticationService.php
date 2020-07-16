@@ -162,8 +162,8 @@ class AuthenticationService
         if ($token && $token->tokenIsValid()) {
             $userGuid = $token->getUserGuid();
             $user = $this->userLoader->getByGuid($userGuid);
-            $this->validatedIdentityUid = $user->getId();
-            return $user->getId();
+            $this->validatedIdentityUid = $user->getEntityId();
+            return $user->getEntityId();
         }
 
         /*
@@ -261,10 +261,10 @@ class AuthenticationService
         }
 
         // Cache for future calls to getIdentity because validation can be expensive
-        $this->validatedIdentityUid = $user->getId();
+        $this->validatedIdentityUid = $user->getEntityId();
 
         // Create a session string
-        return $this->getSignedSession($user->getId(), $this->getExpiresTs(), $hashedPass, $salt);
+        return $this->getSignedSession($user->getEntityId(), $this->getExpiresTs(), $hashedPass, $salt);
     }
 
     /**

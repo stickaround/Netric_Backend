@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Sync collection interface
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\EntitySync\Collection;
 
 interface CollectionInterface
@@ -15,6 +17,13 @@ interface CollectionInterface
      * @return string
      */
     public function getId();
+
+    /**
+     * Set the id of this collection
+     *
+     * @param string $id
+     */
+    public function setId($collectionId);
 
     /**
      * Get a stats list of what has changed locally since the last sync

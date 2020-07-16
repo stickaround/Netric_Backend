@@ -39,7 +39,7 @@ class MogileFileStoreTest extends AbstractFileStoreTests
 
         $this->tmpPath = __DIR__ . "/tmp";
 
-        $accId = $account->getId();
+        $accId = $account->getAccountId();
         $entityLoader = $sm->get(EntityLoaderFactory::class);
 
         $config = $sm->get(ConfigFactory::class);

@@ -62,7 +62,7 @@ class AccountManager
         $account = $this->getAccount(null, $accountName);
 
         // Delete the account if it is valid
-        if ($account->getId()) {
+        if ($account->getAccountId()) {
             return $this->accountsIdentityMapper->deleteAccount($account);
         }
 

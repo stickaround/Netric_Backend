@@ -33,6 +33,7 @@
 namespace Netric\Mvc;
 
 use Netric\Application\Response\ResponseInterface;
+use Netric\Account\Account;
 use Netric\Request\RequestInterface;
 use Netric\Request\ConsoleRequest;
 use Netric\Application\Application;
@@ -67,6 +68,13 @@ class Router
     private $application = null;
 
     /**
+     * Current account we are routing for
+     *
+     * @var Account
+     */
+    private $account = null;
+
+    /**
      * Determines if the class is run by unit test
      *
      * @var Boolean
@@ -78,9 +86,10 @@ class Router
      *
      * @param Application $application Instance of application
      */
-    public function __construct(Application $application)
+    public function __construct(Application $application, Account $account = null)
     {
         $this->application = $application;
+        $this->account = ($account) ? $account : $application->getAccount();
     }
 
     /**
@@ -126,7 +135,7 @@ class Router
         // Create new instance of class if it does not exist
         $factoryClassName = $this->className . "Factory";
         $factoryClass = new $factoryClassName;
-        $this->controllerClass = $factoryClass->get($this->application->getAccount()->getServiceManager());
+        $this->controllerClass = $factoryClass->get($this->account->getServiceManager());
 
         // Make sure the action function exists
         if (!method_exists($this->controllerClass, $fName)) {
@@ -172,7 +181,7 @@ class Router
         // Create new instance of class if it does not exist
         if ($this->className && !$this->controllerClass && class_exists($this->className)) {
             $clsname = $this->className;
-            $this->controllerClass = new $clsname($this->application, $this->application->getAccount());
+            $this->controllerClass = new $clsname($this->application, $this->account);
 
             if (isset($this->controllerClass->testMode)) {
                 $this->controllerClass->testMode = $this->testMode;
@@ -313,7 +322,7 @@ class Router
         $dacl = $this->controllerClass->getAccessControlList();
 
         // Get the currently authenticated user
-        $user = $this->application->getAccount()->getUser();
+        $user = $this->account->getUser();
 
         // Check if the user can access this resource and return the result
         return $dacl->isAllowed($user);

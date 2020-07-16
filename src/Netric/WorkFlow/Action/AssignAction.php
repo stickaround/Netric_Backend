@@ -115,7 +115,7 @@ class AssignAction extends AbstractAction implements ActionInterface
         $num = $result->getTotalNum();
         $getIndex = mt_rand(0, ($num-1));
         $user = $result->getEntity($getIndex);
-        return $user->getGuid();
+        return $user->getEntityId();
     }
 
     /**
@@ -132,7 +132,7 @@ class AssignAction extends AbstractAction implements ActionInterface
         $num = $result->getTotalNum();
         $getIndex = mt_rand(0, ($num-1));
         $user = $result->getEntity($getIndex);
-        return $user->getGuid();
+        return $user->getEntityId();
     }
 
     /**

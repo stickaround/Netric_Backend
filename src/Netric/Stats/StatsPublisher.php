@@ -82,9 +82,6 @@ class StatsPublisher
                 static::$port = $port;
             }
         } else {
-            // Pull from global config
-            //$config = Config::getInstance();
-
             $configLoader = new ConfigLoader();
             $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 

@@ -173,7 +173,7 @@ class BrowserViewService
         }
 
         // Add user specific views
-        $userViews = $this->getUserViews($objType, $user->getGuid());
+        $userViews = $this->getUserViews($objType, $user->getEntityId());
 
         $mergedViews = array_merge($systemViews, $accountViews, $teamViews, $userViews);
         return $mergedViews;
@@ -230,10 +230,10 @@ class BrowserViewService
      * Get team views that are saved to the database for teams only
      *
      * @param string $objType The object type to get browser views for
-     * @param int $teamId The team id which we will get the views
+     * @param string $teamId The team id which we will get the views
      * @return BrowserView[]
      */
-    public function getTeamViews(string $objType, int $teamId)
+    public function getTeamViews(string $objType, string $teamId)
     {
         // If we have not loaded views from the database then do that now
         if (!isset($this->views[$objType])) {
@@ -336,10 +336,10 @@ class BrowserViewService
         $saveViewData = [
             "name" => $data['name'],
             "description" => $data['description'],
-            "team_id" => $data['team_id'],
-            "object_type_id" => $def->getId(),
+            "team_id" => ($data['team_id']) ? $data['team_id'] : null,
+            "object_type_id" => $def->getEntityDefinitionId(),
             "f_default" => $data['default'],
-            "owner_id" => $data['owner_id'],
+            "owner_id" => ($data['owner_id']) ? $data['owner_id'] : null,
             "group_first_order_by" => $data['group_first_order_by'],
             "conditions_data" => json_encode($data['conditions']),
             "order_by_data" => json_encode($data['order_by']),
@@ -349,7 +349,7 @@ class BrowserViewService
         if ($viewId && is_numeric($viewId)) {
             $this->database->update("app_object_views", $saveViewData, ['id' => $viewId]);
         } else {
-            $viewId = $this->database->insert("app_object_views", $saveViewData);
+            $viewId = $this->database->insert("app_object_views", $saveViewData, 'id');
             $view->setId($viewId);
         }
 
@@ -480,7 +480,7 @@ class BrowserViewService
                     group_first_order_by
                 FROM app_object_views WHERE object_type_id=:object_type_id";
 
-        $result = $this->database->query($sql, ["object_type_id" => $def->getId()]);
+        $result = $this->database->query($sql, ["object_type_id" => $def->getEntityDefinitionId()]);
         foreach ($result->fetchAll() as $row) {
             $viewData = [
                 'id' => $row['id'],

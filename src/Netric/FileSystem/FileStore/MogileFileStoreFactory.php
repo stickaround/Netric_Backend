@@ -19,7 +19,7 @@ class MogileFileStoreFactory implements ServiceManager\AccountServiceFactoryInte
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $accountId = $sl->getAccount()->getId();
+        $accountId = $sl->getAccount()->getAccountId();
         $entityLoader = $sl->get(EntityLoaderFactory::class);
 
         $config = $sl->get(ConfigFactory::class);

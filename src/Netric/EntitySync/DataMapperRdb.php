@@ -42,7 +42,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         if ($partner->getId()) {
             $this->database->update("object_sync_partners", $data, ["id" => $partner->getId()]);
         } else {
-            $partnerId = $this->database->insert("object_sync_partners", $data);
+            $partnerId = $this->database->insert("object_sync_partners", $data, 'id');
             $partner->setId($partnerId);
         }
 
@@ -262,7 +262,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         if ($collection->getId()) {
             $this->database->update("object_sync_partner_collections", $data, ["id" => $collection->getId()]);
         } else {
-            $collectionId = $this->database->insert("object_sync_partner_collections", $data);
+            $collectionId = $this->database->insert("object_sync_partner_collections", $data, 'id');
             $collection->setId($collectionId);
         }
 

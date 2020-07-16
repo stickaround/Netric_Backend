@@ -45,10 +45,8 @@ class AccountIdentityMapperTest extends TestCase
     protected function setUp(): void
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-
         $this->cache = $this->account->getServiceManager()->get(CacheFactory::class);
         $this->dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-
         $this->mapper = new Netric\Account\AccountIdentityMapper($this->dataMapper, $this->cache);
     }
 
@@ -57,7 +55,7 @@ class AccountIdentityMapperTest extends TestCase
         $application = $this->account->getApplication();
 
         // First reset cache to make sure the mapper is setting it correctly
-        $this->cache->delete("netric/account/" . $this->account->getId());
+        $this->cache->delete("netric/account/" . $this->account->getAccountId());
         
         // Setup Reflection Methods
         $refIm = new \ReflectionObject($this->mapper);
@@ -71,23 +69,23 @@ class AccountIdentityMapperTest extends TestCase
         $propAppDm->setAccessible(true);
 
         // Make sure cache initially returns false
-        $args = array($this->account->getId(), &$this->account);
+        $args = array($this->account->getAccountId(), &$this->account);
         $this->assertFalse($loadFromCache->invokeArgs($this->mapper, $args));
 
         // Make sure memory initially returns false
-        $args = array($this->account->getId(), &$this->account);
+        $args = array($this->account->getAccountId(), &$this->account);
         $this->assertFalse($loadFromMemory->invokeArgs($this->mapper, $args));
 
         // Test loading existing account which should cache it
-        $testAccount = $this->mapper->loadById($this->account->getId(), $application);
-        $this->assertEquals($this->account->getId(), $testAccount->getId());
+        $testAccount = $this->mapper->loadById($this->account->getAccountId(), $application);
+        $this->assertEquals($this->account->getAccountId(), $testAccount->getAccountId());
 
         // Make sure cache returns true
-        $args = array($this->account->getId(), &$this->account);
+        $args = array($this->account->getAccountId(), &$this->account);
         $this->assertTrue($loadFromCache->invokeArgs($this->mapper, $args));
 
         // Make sure memory returns true
-        $args = array($this->account->getId(), &$this->account);
+        $args = array($this->account->getAccountId(), &$this->account);
         $this->assertNotNull($loadFromMemory->invokeArgs($this->mapper, $args));
 
         // Unset the datamapper so we can test memory and cache
@@ -95,16 +93,16 @@ class AccountIdentityMapperTest extends TestCase
 
         // Make sure we are loading from memory by disabling the cache
         $propCache->setValue($this->mapper, null);
-        $testAccount =$this->mapper->loadById($this->account->getId(), $application);
-        $this->assertEquals($this->account->getId(), $testAccount->getId());
+        $testAccount =$this->mapper->loadById($this->account->getAccountId(), $application);
+        $this->assertEquals($this->account->getAccountId(), $testAccount->getAccountId());
         $propCache->setValue($this->mapper, $this->cache); // re-enable
 
         // Make sure the cache is working by disabling the loadedAccounts
         $loadedAccounts = $refIm->getProperty("loadedAccounts");
         $loadedAccounts->setAccessible(true);
         $loadedAccounts->setValue($this->mapper, null);
-        $testAccount = $this->mapper->loadById($this->account->getId(), $application);
-        $this->assertEquals($this->account->getId(), $testAccount->getId());
+        $testAccount = $this->mapper->loadById($this->account->getAccountId(), $application);
+        $this->assertEquals($this->account->getAccountId(), $testAccount->getAccountId());
     }
 
     public function testLoadByName()
@@ -116,13 +114,13 @@ class AccountIdentityMapperTest extends TestCase
 
         // Test loading existing account which should cache it
         $testAccount = $this->mapper->loadByName($this->account->getName(), $application);
-        $this->assertEquals($this->account->getId(), $testAccount->getId());
+        $this->assertEquals($this->account->getAccountId(), $testAccount->getAccountId());
 
         // Check local memory map
         $propNameToIdMap = new \ReflectionProperty($this->mapper, "nameToIdMap");
         $propNameToIdMap->setAccessible(true);
         $vals = $propNameToIdMap->getValue($this->mapper);
-        $this->assertEquals($this->account->getId(), $vals[$this->account->getName()]);
+        $this->assertEquals($this->account->getAccountId(), $vals[$this->account->getName()]);
 
         // Unset the datamapper so we can test memory and cache
         $propAppDm = new \ReflectionProperty($this->mapper, "appDm");
@@ -134,13 +132,13 @@ class AccountIdentityMapperTest extends TestCase
         $propCache->setAccessible(true);
         $propCache->setValue($this->mapper, null);
         $testAccount = $this->mapper->loadByName($this->account->getName(), $application);
-        $this->assertEquals($this->account->getId(), $testAccount->getId());
+        $this->assertEquals($this->account->getAccountId(), $testAccount->getAccountId());
 
         // Make sure the cache is working by disabling local memory cache
         $propCache->setValue($this->mapper, $this->cache);
         $propNameToIdMap->setValue($this->mapper, null);
         $testAccount = $this->mapper->loadByName($this->account->getName(), $application);
-        $this->assertEquals($this->account->getId(), $testAccount->getId());
+        $this->assertEquals($this->account->getAccountId(), $testAccount->getAccountId());
     }
 
     public function testDeleteAccount()
@@ -170,13 +168,13 @@ class AccountIdentityMapperTest extends TestCase
         // Make sure loadFromCache returns false
         $loadFromCache = new \ReflectionMethod($this->mapper, "loadFromCache");
         $loadFromCache->setAccessible(true);
-        $args = array($testAccount->getId(), &$this->account);
+        $args = array($testAccount->getAccountId(), &$this->account);
         $this->assertFalse($loadFromCache->invokeArgs($this->mapper, $args));
 
         // Make sure loadFromMemory returns false
         $loadFromMemory = new \ReflectionMethod($this->mapper, "loadFromMemory");
         $loadFromMemory->setAccessible(true);
-        $this->assertFalse($loadFromMemory->invokeArgs($this->mapper, array($testAccount->getId())));
+        $this->assertFalse($loadFromMemory->invokeArgs($this->mapper, array($testAccount->getAccountId())));
 
         // Check local memory map for id to name
         $propNameToIdMap = new \ReflectionProperty($this->mapper, "nameToIdMap");

@@ -50,7 +50,7 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Save it
         $dataMapper->save($module);
-        $this->assertNotEmpty($module->getId());
+        $this->assertNotEmpty($module->getModuleId());
         $this->testModules[] = $module; // For cleanup
 
         // Re-open and check
@@ -90,7 +90,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Get a system module that will always exist
         $module = $dataMapper->get("home");
         $this->assertNotNull($module);
-        $this->assertNotEmpty($module->getId());
+        $this->assertNotEmpty($module->getModuleId());
 
         // Make sure that the navigation set is an array
         $this->assertTrue(is_array($module->getNavigation()));

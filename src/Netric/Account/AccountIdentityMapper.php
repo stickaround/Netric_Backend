@@ -129,8 +129,8 @@ class AccountIdentityMapper implements ErrorAwareInterface
             $this->setCache($account);
 
             // Save the maps
-            $this->nameToIdMap[$name] = $account->getId();
-            $this->cache->set("netric/account/nametoidmap/$name", $account->getId());
+            $this->nameToIdMap[$name] = $account->getAccountId();
+            $this->cache->set("netric/account/nametoidmap/$name", $account->getAccountId());
             return $account;
         }
 
@@ -147,11 +147,11 @@ class AccountIdentityMapper implements ErrorAwareInterface
     public function deleteAccount(Account $account): bool
     {
         // Make sure this account is valid with an ID
-        if (!$account->getId()) {
+        if (!$account->getAccountId()) {
             throw new \RuntimeException("Cannot delete an account that does not exist");
         }
 
-        $accountId = $account->getId();
+        $accountId = $account->getAccountId();
         $accountName = $account->getName();
         if ($this->appDm->deleteAccount($accountId)) {
             // Clear cache
@@ -255,7 +255,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      */
     private function setLocalMemory(Account &$account)
     {
-        $this->loadedAccounts[$account->getId()] = $account;
+        $this->loadedAccounts[$account->getAccountId()] = $account;
     }
 
     /**
@@ -266,6 +266,6 @@ class AccountIdentityMapper implements ErrorAwareInterface
      */
     private function setCache(Account &$account)
     {
-        return $this->cache->set("netric/account/" . $account->getId(), $account->toArray());
+        return $this->cache->set("netric/account/" . $account->getAccountId(), $account->toArray());
     }
 }

@@ -109,7 +109,7 @@ class ActivityLog
         if (($objType == ObjectTypes::COMMENT) && $objReference) {
 
             // Get the referenced entity
-            $entityReferenced = $this->entityLoader->getByGuidOrObjRef($objReference);
+            $entityReferenced = $this->entityLoader->getByGuid($objReference);
             
             if ($entityReferenced) {
                 // Only if the entity exists
@@ -142,7 +142,7 @@ class ActivityLog
         $actEntity->setValue("f_private", $objDef->isPrivate);
 
         // In most cases we reference the object being acted on
-        $actEntity->setValue("obj_reference", $object->getGuid());
+        $actEntity->setValue("obj_reference", $object->getEntityId());
 
         /*
          * obj_reference is a reference to the entity object being acted on.
@@ -159,10 +159,10 @@ class ActivityLog
         $actEntity->setValue("type_id", $group->guid, $group->name);
 
         // Log which entity performed the action
-        $actEntity->setValue("subject", $subject->getGuid(), $subject->getName());
+        $actEntity->setValue("subject", $subject->getEntityId(), $subject->getName());
 
         // Add referenced entity to activity associations
-        $actEntity->addMultiValue("associations", $object->getGuid(), $object->getName());
+        $actEntity->addMultiValue("associations", $object->getEntityId(), $object->getName());
 
         /*
          * Copy associations from the referenced object so that
@@ -184,10 +184,10 @@ class ActivityLog
         foreach ($fields as $field) {
             $objReference = $object->getValue($field->name);
             if ($field->type == FIELD::TYPE_OBJECT && $objReference) {
-                $referencedEntity = $this->entityLoader->getByGuidOrObjRef($objReference);
+                $referencedEntity = $this->entityLoader->getByGuid($objReference);
 
                 if ($referencedEntity) {
-                    $actEntity->addMultiValue("associations", $referencedEntity->getGuid(), $referencedEntity->getName());
+                    $actEntity->addMultiValue("associations", $referencedEntity->getEntityId(), $referencedEntity->getName());
                 }
             }
         }
@@ -196,7 +196,7 @@ class ActivityLog
         if ($this->currentUser) {
             $actEntity->addMultiValue(
                 "associations",
-                $this->currentUser->getGuid(),
+                $this->currentUser->getEntityId(),
                 $this->currentUser->getName()
             );
         }

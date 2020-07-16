@@ -56,7 +56,7 @@ class FormsTest extends TestCase
         $def = $defLoader->get(ObjectTypes::COMMENT);
 
         // Save new small form
-        $this->formService->saveForUser($def, $this->user->getId(), "test", $testXml);
+        $this->formService->saveForUser($def, $this->user->getEntityId(), "test", $testXml);
 
         // Get the form for the account and see if it matches what we just saved
         $testSaveXml = $this->formService->getFormUiXml($def, $this->user, "test");
@@ -66,7 +66,7 @@ class FormsTest extends TestCase
         $deviceForms = $this->formService->getDeviceForms($def, $this->user);
 
         // Cleanup by setting it to null
-        $this->formService->saveForUser($def, $this->user->getId(), "test", null);
+        $this->formService->saveForUser($def, $this->user->getEntityId(), "test", null);
     }
 
     public function testCreateForAccount()

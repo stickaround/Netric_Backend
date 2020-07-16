@@ -74,7 +74,6 @@ return [
         'password' => "kryptos78",
         'dbname' => 'netric',
         'syshost' => "10.4.26.26",
-        'accdb' => "netric",
     ],
     // Files settings
     'files' => [

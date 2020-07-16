@@ -6,7 +6,6 @@ namespace NetricTest;
 include(__DIR__ . "/../init_autoloader.php");
 
 use Zend\Loader\StandardAutoloader;
-use Netric\Entity\ObjType\UserEntity;
 use Aereus\Config\ConfigLoader;
 use Netric\Application\Application;
 use Netric\Entity\EntityLoaderFactory;
@@ -39,11 +38,28 @@ class Bootstrap
         // Initialize account
         static::$account = $application->getAccount(null, 'autotest');
         if (!static::$account) {
-            static::$account = $application->createAccount('autotest', "automated_test", "automated_test@netric.com", 'password');
+            static::$account = $application->createAccount(
+                'autotest',
+                "automated_test",
+                "automated_test@netric.com",
+                'password'
+            );
         }
 
         // Get or create an administrator user so permissions are not limiting
         $user = self::$account->getUser(null, "automated_test");
+
+        if (!$user) {
+            // Create the default account
+            $entityLoader = static::$account->getServiceManager()->get(EntityLoaderFactory::class);
+            $adminUser = $entityLoader->create(ObjectTypes::USER);
+            $adminUser->setValue("name", 'automated_test');
+            $adminUser->setValue("email", 'automated_test@netric.com');
+            $adminUser->setValue("password", 'password');
+            $adminUser->setIsAdmin(true);
+            $entityLoader->save($adminUser);
+        }
+
         static::$user = $user;
         static::$account->setCurrentUser($user);
     }
@@ -57,7 +73,6 @@ class Bootstrap
 
     protected static function initAutoloader()
     {
-
         $autoLoader = new StandardAutoloader(array(
             'namespaces' => array(
                 __NAMESPACE__ => __DIR__ . '/' . __NAMESPACE__,

@@ -86,11 +86,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * Set this object as having been moved to another object
      *
      * @param EntityDefinition $def The defintion of this object type
-     * @param string $fromId The id to move
-     * @param stirng $toId The unique id of the object this was moved to
-     * @return bool true on succes, false on failure
+     * @param string $fromGuid The id to move
+     * @param stirng $toGuid The unique id of the object this was moved to
+     * @return bool true on succces, false on failure
      */
-    abstract public function setEntityMovedTo(EntityDefinition $def, $fromId, $toId);
+    abstract public function setEntityMovedTo(EntityDefinition $def, string $fromGuid, string $toGuid);
 
     /**
      * Update the old references when moving an entity
@@ -154,7 +154,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param string $id The id of the object that no longer exists - may have moved
      * @return string|bool New entity id if moved, otherwise false
      */
-    abstract protected function entityHasMoved($def, $id);
+    abstract protected function entityHasMoved($def, string $id);
 
     /**
      * Save revision snapshot
@@ -208,7 +208,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         }
 
         // Set defaults including ts_updated
-        $event = ($entity->getId()) ? "update" : "create";
+        $event = ($revision > 1) ? "update" : "create";
         $entity->setFieldsDefault($event, $user);
 
         // Create a unique name if the entity supports it
@@ -250,11 +250,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         // Save data to EntityQuery Index
         $serviceManager->get(IndexFactory::class)->save($entity);
 
-        // Clear cache in the EntityLoader
-        $serviceManager->get(EntityLoaderFactory::class)->clearCache($def->getObjType(), $entity->getId());
-
         // Clear cache for guid
-        $serviceManager->get(EntityLoaderFactory::class)->clearCacheByGuid($entity->getGuid());
+        $serviceManager->get(EntityLoaderFactory::class)->clearCacheByGuid($entity->getEntityId());
 
         // Log the change in entity sync
         if ($ret && $lastCommitId && $commitId) {
@@ -303,7 +300,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     public function getById(EntityInterface $entity, $id, $skipObjRefUpdate = false)
     {
-        if (!empty($id) && !is_numeric($id)) {
+        if (empty($id)) {
             throw new \InvalidArgumentException("$id is not a valid entity id");
         }
 
@@ -352,6 +349,22 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         $entity = $entityFactory->create($data['obj_type']);
         $entity->fromArray($data);
+
+        // Load a recurrence pattern if set
+        if ($entity->getDefinition()->recurRules) {
+            // If we have a recurrence pattern id then load it
+            $recurId = $entity->getValue($entity->getDefinition()->recurRules['field_recur_id']);
+            if ($recurId) {
+                $recurPattern = $this->recurIdentityMapper->getById($recurId);
+                if ($recurPattern) {
+                    $entity->setRecurrencePattern($recurPattern);
+                }
+            }
+        }
+
+        // Reset dirty flag and changelog since we just loaded
+        $entity->resetIsDirty();
+
         return $entity;
     }
 
@@ -410,7 +423,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     return null;
                 }
 
-                $parentFieldCondition[$def->parentField] = $parentEntity->getGuid();
+                $parentFieldCondition[$def->parentField] = $parentEntity->getEntityId();
             }
         }
 
@@ -418,8 +431,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $matches = $this->getIdsFromFieldValues($objType, $filterValues);
 
         if (count($matches) == 1) {
-            $entity = $entityFactory->create($objType);
-            $this->getById($entity, $matches[0]);
+            $entity = $this->getByGuid($matches[0]);
             return $entity;
         }
 
@@ -451,7 +463,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getTotalNum(); $i++) {
             $entity = $result->getEntity($i);
-            $entityIds[] = $entity->getId();
+            $entityIds[] = $entity->getEntityId();
         }
 
         return $entityIds;
@@ -533,7 +545,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         }
 
         // Clear cache in the EntityLoader
-        $serviceManager->get(EntityLoaderFactory::class)->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
+        $serviceManager->get(EntityLoaderFactory::class)->clearCacheByGuid($entity->getEntityId());
 
         return $ret;
     }
@@ -561,14 +573,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
             // Make sure that the owner_id was set
             if ($entity->getValue("owner_id")) {
-                $userEntity = $entityLoader->get(ObjectTypes::USER, $entity->getValue("owner_id"));
+                $userEntity = $entityLoader->getByGuid($entity->getValue("owner_id"));
             }
 
             if ($userEntity) {
-                $userGuidPath = "/" . $userEntity->getGuid();
+                $userGuidPath = "/" . $userEntity->getEntityId();
             } else {
                 // If we do not find the owner_id, then let's use the current user id.
-                $userGuidPath = "/" . $this->getAccount()->getUser()->getGuid();
+                $userGuidPath = "/" . $this->getAccount()->getUser()->getEntityId();
             }
         }
 
@@ -589,22 +601,17 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                         continue;
                     }
 
-                    // If this entity is trying to add itself as object reference, then we will not allow it.
-                    if ($entity->getObjRef() == $value || ($entity->getId() == $value && $entity->getObjType() == $field->subtype)) {
-                        continue;
-                    }
-
                     // Get the referenced entity
-                    $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype);
+                    $referencedEntity = $entityLoader->getByGuid($value);
 
-                    // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
+                    // If we haven't found the referenced entity, chances are it was already removed, so we need to clear the value
                     if (!$referencedEntity) {
                         $entity->setValue($field->name, null);
                         continue;
                     }
 
                     // Since we have found the referenced entity, then add it in the entity
-                    $entity->setValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
+                    $entity->setValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
                     break;
 
                 case Field::TYPE_OBJECT_MULTI:
@@ -617,13 +624,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                                 continue;
                             }
 
-                            // If this entity is trying to add itself as object reference, then we will not allow it.
-                            if ($entity->getObjRef() == $id || ($entity->getId() == $id && $entity->getObjType() == $field->subtype)) {
-                                continue;
-                            }
-
                             // Get the referenced entity
-                            $referencedEntity = $entityLoader->getByGuidOrObjRef($id, $field->subtype);
+                            $referencedEntity = $entityLoader->getByGuid($id);
 
                             // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
                             if (!$referencedEntity) {
@@ -632,7 +634,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                             }
 
                             // Since we have found the referenced entity, then add it in the entity
-                            $entity->addMultiValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
+                            $entity->addMultiValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
                         }
                     }
 
@@ -758,8 +760,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $query->where("uname")->equals($uname);
 
         // Exclude this object from the query because of course it will be a duplicate
-        if ($entity->getId()) {
-            $query->andWhere("id")->doesNotEqual($entity->getId());
+        if ($entity->getEntityId()) {
+            $query->andWhere("guid")->doesNotEqual($entity->getEntityId());
         }
 
         /*

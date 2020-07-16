@@ -7,12 +7,10 @@ use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\Db\DbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Db\Relational\RelationalDbFactory;
@@ -20,7 +18,6 @@ use Netric\Entity\Entity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
-use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -28,6 +25,13 @@ use Ramsey\Uuid\Uuid;
  */
 class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterface
 {
+    /**
+     * Name of the tables where entity data is saved
+     */
+    const ENTITY_TABLE = 'entity';
+    const ENTITY_REVISION_TABLE = 'entity_revision';
+    const ENTITY_MOVED_TABLE = 'entity_moved';
+
     /**
      * Handle to database
      *
@@ -50,13 +54,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var string $id The Id of the object
      * @return bool true on success, false on failure
      */
-    protected function fetchById($entity, $id, $skipObjRefUpdate = false)
+    protected function fetchById($entity, $entityId, $skipObjRefUpdate = false)
     {
-        $def = $entity->getDefinition();
+        $sql = 'SELECT guid, object_type_id, field_data FROM ' . self::ENTITY_TABLE . ' WHERE guid=:id';
+        $result = $this->database->query($sql, ['guid' => $entityId]);
 
-        $sql = "SELECT guid, field_data FROM {$def->getTable()} WHERE field_data->>'id' = :id";
-        $result = $this->database->query($sql, ["id" => $id]);
-        // The object was not found
+        // The entity was not found
         if ($result->rowCount() === 0) {
             return false;
         }
@@ -64,10 +67,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // Load rows and set values in the entity
         $row = $result->fetch();
         $entityData = json_decode($row['field_data'], true);
-        $entityData['guid'] = $row['guid'];
+
+        $def = $entity->getDefinition();
         $allFields = $def->getFields();
         foreach ($allFields as $field) {
-
             // Sanitize the entity value.
             $value = $this->sanitizeDbValuesToEntityFieldValue($field, $entityData[$field->name]);
 
@@ -81,16 +84,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
 
         // Make sure that we are now using guid for object references
-        if (!$skipObjRefUpdate) {
-            $this->updatObjectReferencesToGuid($entity);
-        }
+        //        if (!$skipObjRefUpdate) {
+        //            $this->updatObjectReferencesToGuid($entity);
+        //        }
 
         return true;
     }
 
     /**
      * Update the object references to guid instead of just an id.
-     * 
+     *
      * @param EntityInterface $entity The entity to update its object references
      */
     private function updatObjectReferencesToGuid(Entity $entity)
@@ -107,21 +110,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_GROUPING_MULTI:
                     $fieldValue = $entity->getValue($field->name);
                     $ownerGuid = $entity->getOwnerGuid();
-
-                    // If the entity's owner id not guid, then we need to get its guid value
-                    if ($ownerGuid && !Uuid::isValid($ownerGuid)) {
-
-                        // If the current $entity is the owner, then we just get it right away to avoid infinite loop
-                        if ($ownerGuid == $entity->getId()) {
-                            $ownerGuid = $entity->getGuid();
-                        } else {
-                            $ownerEntity = $entityLoader->get(ObjectTypes::USER, $ownerGuid);
-
-                            if ($ownerEntity) {
-                                $ownerGuid = $ownerEntity->getGuid();
-                            }
-                        }
-                    }
 
                     // Since we do not know if the group saved is a private grouping, we will just query both groupings and look for its id
                     $publicGroupings = $groupingLoader->get($entity->getObjType() . "/{$field->name}");
@@ -183,17 +171,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case Field::TYPE_OBJECT:
                     $objValue = $entity->getValue($field->name);
 
-                    // If this entity is trying to add itself as object reference, then we will not allow it.
-                    if ($entity->getObjRef() == $objValue || ($entity->getId() == $objValue && $entity->getObjType() == $field->subtype)) {
-                        continue;
-                    }
-
                     if ($objValue) {
                         // Get the referenced entity
-                        $referencedEntity = $entityLoader->getByGuidOrObjRef($objValue, $field->subtype);
+                        $referencedEntity = $entityLoader->getByGuid($objValue);
 
                         if ($referencedEntity) {
-                            $entity->setValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
+                            $entity->setValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
                         }
                     }
                     break;
@@ -205,14 +188,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     if (is_array($refValues)) {
                         foreach ($refValues as $value) {
 
-                            // If this entity is trying to add itself as object reference, then we will not allow it.
-                            if ($entity->getObjRef() == $value || ($entity->getId() == $value && $entity->getObjType() == $field->subtype)) {
-                                continue;
-                            }
-
                             if ($value) {
                                 // Get the referenced entity
-                                $referencedEntity = $entityLoader->getByGuidOrObjRef($value, $field->subtype, $entity->getObjType() . ":" . $entity->getId() . ":" . $entity->getName());
+                                $referencedEntity = $entityLoader->getByGuid($value);
 
                                 // If we have successfully loaded the referenced entity, then we will add its guid
                                 if ($referencedEntity) {
@@ -220,7 +198,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                                     $entity->removeMultiValue($field->name, $value);
 
                                     // Now that we have already removed the old object id, we can now add the new object's guid
-                                    $entity->addMultiValue($field->name, $referencedEntity->getGuid(), $referencedEntity->getName());
+                                    $entity->addMultiValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
                                 }
                             }
                         }
@@ -243,7 +221,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchDataByGuid(string $guid): ?array
     {
-        $sql = "SELECT guid, field_data FROM objects where guid = :guid";
+        $sql = 'SELECT guid, field_data FROM ' . self::ENTITY_TABLE . ' where guid = :guid';
         $result = $this->database->query($sql, ['guid' => $guid]);
 
         // The object was not found
@@ -260,10 +238,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * Some of these may be generated at update/insert so they could have
          * changed after the entity was exported and saved to the column
          */
-        $entityData['id'] = $entityData['id'];
         $entityData['guid'] = $row['guid'];
-        $entityData['ts_entered'] = $entityData['ts_entered'];
-        $entityData['ts_updated'] = $entityData['ts_updated'];
         return $entityData;
     }
 
@@ -315,7 +290,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     protected function deleteHard($entity)
     {
         // Only delete existing objects
-        if (!$entity->getId()) {
+        if (!$entity->getEntityId()) {
             return false;
         }
 
@@ -323,14 +298,14 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Remove revision history
         $this->database->query(
-            'DELETE FROM object_revisions WHERE object_id=:object_id ' .
-                'AND object_type_id=:object_type_id',
-            ['object_id' => $entity->getId(), 'object_type_id' => $def->getId()]
+            'DELETE FROM ' . self::ENTITY_REVISION_TABLE . ' WHERE entity_id=:entity_id',
+            ['entity_id' => $entity->getEntityId()]
         );
 
         // Delete the object from the object table
-        $sql = "DELETE FROM " . $def->getTable() . " WHERE field_data->>'id' = :id";
-        $result = $this->database->query($sql, ['id' => $entity->getId()]);
+        // TODO: Change guid to entity_id
+        $sql = "DELETE FROM " . self::ENTITY_TABLE . " WHERE guid=:id";
+        $result = $this->database->query($sql, ['id' => $entity->getEntityId()]);
 
         // We just need to make sure the main object was deleted
         return ($result->rowCount() > 0);
@@ -367,87 +342,21 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $all_fields = $def->getFields();
 
         // Set typei_id to correctly build the sql statement based on custom table definitions
-        $data["object_type_id"] = $def->getId();
+        $data["object_type_id"] = $def->getEntityDefinitionId();
 
         // Set data as JSON (we are replacing columns with this for custom fields)
         $data['field_data'] = json_encode($entity->toArray());
 
-        $targetTable = $def->getTable();
+        $targetTable = self::ENTITY_TABLE;
 
-        // Determine if we are looking at the deleted or active partition
-        $targetTable .= ($entity->isDeleted()) ? "_del" : "_act";
 
-        /*
-         * If the deleted status has not changed then update row.
-         * The last condition checks if update is greater than 1, since 1 will be the value
-         * of the very first save. It is possible that a user set a specific ID of an entity
-         * when creating it. This will not matter at all for partitioned tables since it will
-         * automatically delete before inserting, but for custom tables it could cause a bug
-         * where it tried to update an ID that does not exist.
-         */
-        if (!empty($entity->getId()) && !$entity->fieldValueChanged("f_deleted") && $entity->getValue("revision") > 1) {
+        if ($entity->getValue("revision") > 1) {
             $this->updateEntityData($targetTable, $entity);
         } else {
-            // Clean out old record if it exists in a different partition
-            if ($entity->getId()) {
-                $sql = "DELETE FROM {$def->getTable()} WHERE guid = :entity_guid";
-                $this->database->query($sql, ['entity_guid' => $entity->getValue('guid')]);
-            }
-
-            // Now try saving the entity
-            try {
-                $entityId = $this->database->insert($targetTable, $data);
-
-                // Id is not set yet since we are inserting a new entity in the table
-                if (!$entity->getId()) {
-                    // Set the id for the newly created entity
-                    $entity->setValue('id', $entityId);
-
-                    // We need to update the field_data->>'id' field since it was set as null when creating a new entity
-                    $this->updateEntityData($targetTable, $entity);
-                }
-            } catch (DatabaseQueryException $ex) {
-                throw new \RuntimeException(
-                    'Could not insert entity due to a database error: ' . $ex->getMessage() .
-                        ', data: ' . var_export($data, true)
-                );
-            }
+            $this->database->insert($targetTable, $data);
         }
 
-        // If we were unable to save the ID then return false (should probably be an exception?)
-        if (!$entity->getId()) {
-            return false;
-        }
-
-        // Handle autocreate folders - only has to fire the very first time
-        // TODO: We should either move this into an abstract function since it is non-db-specific
-        //       business logic, or better yet - delete it if we can retire autocreatename
-        //       in exchange for using the more generic attachments field that every entity has
-        foreach ($all_fields as $fname => $fdef) {
-            if (
-                $fdef->type == "object" && $fdef->subtype == "folder"
-                && $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
-                && !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)
-            ) {
-                // Make a folder for the entity
-                $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
-
-                // TODO: We should automatically set the path for entity folders
-                $folder = $fileSystem->openFolder(
-                    $fdef->autocreatebase . "/" . $entity->getValue($fdef->autocreatename),
-                    true
-                );
-
-                // Update the entity and table
-                if ($folder->getId()) {
-                    $entity->setValue($fname, $folder->getId());
-
-                    $this->updateEntityData($targetTable, $entity);
-                }
-            }
-        }
-
-        return $entity->getId();
+        return $entity->getEntityId();
     }
 
     /**
@@ -483,7 +392,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
              * Most of the entity data are already stored in field_data column
              * So there is no need to build a data array for entity values
              */
-            if (!$this->database->columnExists($entity->getDefinition()->object_table, $fname)) {
+            if (!$this->database->columnExists(self::ENTITY_TABLE, $fname)) {
                 continue;
             }
 
@@ -607,21 +516,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @param string $id The id of the object that no longer exists - may have moved
      * @return string new Entity id if moved, otherwise false
      */
-    protected function entityHasMoved($def, $id)
+    protected function entityHasMoved($def, string $guid)
     {
-        if (!$id) {
-            return false;
-        }
-
-        $sql = 'SELECT moved_to FROM objects_moved WHERE ' .
-            'object_type_id=:object_type_id AND object_id=:object_id';
+        $sql = 'SELECT new_guid FROM ' . self::ENTITY_MOVED_TABLE . '  WHERE ' .
+            'old_guid=:old_guid';
         $result = $this->database->query($sql, [
-            'object_type_id' => $def->getId(),
-            'object_id' => $id
+            'old_guid' => $guid
         ]);
         if ($result->rowCount() > 0) {
             $row = $result->fetch();
-            return $row['moved_to'];
+            return $row['new_guid'];
         }
 
         return false;
@@ -630,27 +534,25 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     /**
      * Set this object as having been moved to another object
      *
-     * @param EntityDefinition $def The defintion of this object type
      * @param string $fromId The id to move
      * @param string $toId The unique id of the object this was moved to
      * @return bool true on succes, false on failure
      * @throws DatabaseQueryException if query fails
      */
-    public function setEntityMovedTo(EntityDefinition $def, $fromId, $toId)
+    public function setEntityMovedTo(EntityDefinition $def, string $fromGuid, string $toGuid)
     {
-        if (!$fromId || $fromId == $toId) { // never allow circular reference or blank values
+        if (!$fromGuid || $fromGuid == $toGuid) { // never allow circular reference or blank values
             return false;
         }
 
         $data = [
-            'object_type_id' => $def->getId(),
-            'object_id' => $fromId,
-            'moved_to' => $toId,
+            'old_guid' => $fromGuid,
+            'new_guid' => $toGuid,
         ];
-        $this->database->insert('objects_moved', $data);
+        $this->database->insert(self::ENTITY_MOVED_TABLE, $data);
 
         // Update the referenced entities
-        $this->updateOldReferences($def, $fromId, $toId);
+        $this->updateOldReferences($def, $fromGuid, $toGuid);
 
         // If it fails an exception will be thrown
         return true;
@@ -669,7 +571,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
         $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
 
-        $toEntity = $entityLoader->get($def->getObjType(), $toId);
+        $toEntity = $entityLoader->getByGuid($toId);
         $definitions = $entityDefinitionLoader->getAll();
 
         // Loop thru all the entity definitions and check if we have fields that needs to update the reference
@@ -690,7 +592,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 // Check if field subtype is the same as the $def objtype and if field is not multivalue
                 if ($field->subtype == $def->getObjType()) {
                     $oldFieldValue = $fromId;
-                    $newFieldValue = $toEntity->getGuid();
+                    $newFieldValue = $toEntity->getEntityId();
                 }
 
 
@@ -737,18 +639,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     {
         $def = $entity->getDefinition();
 
-        if ($entity->getValue("revision") && $entity->getId() && $def->getId()) {
+        if ($entity->getValue("revision") && $entity->getEntityId() && $def->getEntityDefinitionId()) {
             $insertData = [
-                'object_id' => $entity->getId(),
-                'object_type_id' => $def->getId(),
+                'entity_id' => $entity->getEntityId(),
                 'revision' => $entity->getValue("revision"),
                 'ts_updated' => 'now',
-                'data' => $data = serialize($entity->toArray()),
+                'field_data' => json_encode($entity->toArray()),
             ];
-            $this->database->insert('object_revisions', $insertData);
+            $this->database->insert('entity_revision', $insertData);
         }
     }
-
 
     /**
      * Get Revisions for this object
@@ -772,13 +672,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $ret = [];
 
         $results = $this->database->query(
-            'SELECT id, revision, data FROM object_revisions ' .
-                'WHERE object_type_id=:object_type_id AND object_id=:object_id',
-            ['object_type_id' => $def->getId(), 'object_id' => $id]
+            'SELECT entity_revision_id, revision, field_data FROM entity_revision WHERE entity_id=:id',
+            ['id' => $id]
         );
         foreach ($results->fetchAll() as $row) {
             $ent = $this->getAccount()->getServiceManager()->get(EntityFactoryFactory::class)->create($objType);
-            $ent->fromArray(unserialize($row['data']));
+            $ent->fromArray(json_decode($row['field_data'], true));
             $ret[$row['revision']] = $ent;
         }
 

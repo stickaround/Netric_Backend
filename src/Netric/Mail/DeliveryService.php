@@ -117,10 +117,10 @@ class DeliveryService extends AbstractHasErrors
         }
 
         // Get user entity from email account
-        $user = $this->entityLoader->get(ObjectTypes::USER, $emailAccount->getOwnerGuid());
+        $user = $this->entityLoader->getByGuid($emailAccount->getOwnerGuid());
 
         // Get Inbox for user
-        $mailboxGroups = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getGuid());
+        $mailboxGroups = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
         $inboxGroup = $mailboxGroups->getByPath('Inbox');
         if (!$inboxGroup) {
             // User exists, we need to create the inbox
@@ -187,8 +187,8 @@ class DeliveryService extends AbstractHasErrors
 
         // Cleanup resources
         $parser = null;
-        $emailEntity->setValue("email_account", $emailAccount->getGuid());
-        $emailEntity->setValue("owner_id", $user->getGuid());
+        $emailEntity->setValue("email_account", $emailAccount->getEntityId());
+        $emailEntity->setValue("owner_id", $user->getEntityId());
         $emailEntity->setValue("mailbox_id", $mailboxId);
         $emailEntity->setValue("message_uid", $uniqueId);
         $emailEntity->setValue("flag_seen", false);
@@ -226,7 +226,7 @@ class DeliveryService extends AbstractHasErrors
         // Stream the temp file into the fileSystem
         $file = $this->fileSystem->createFile("%tmp%", $parserAttach->getFilename(), true);
         $result = $this->fileSystem->writeFile($file, $tmpFile);
-        $email->addMultiValue("attachments", $file->getGuid(), $file->getName());
+        $email->addMultiValue("attachments", $file->getEntityId(), $file->getName());
     }
 
     /**
@@ -258,9 +258,9 @@ class DeliveryService extends AbstractHasErrors
     private function createInbox(EmailAccountEntity $emailAccount): Group
     {
         // Get user entity from email account
-        $user = $this->entityLoader->get(ObjectTypes::USER, $emailAccount->getOwnerGuid());
+        $user = $this->entityLoader->getByGuid($emailAccount->getOwnerGuid());
 
-        $groupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getGuid());
+        $groupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
 
         $inbox = new Group();
         $inbox->name = "Inbox";

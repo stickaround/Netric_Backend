@@ -52,8 +52,8 @@ class PermissionController extends Mvc\AbstractAccountController
         $dacl = $daclLoader->getForEntityDefinition($def);
 
         // If id is set, then we will update the dacl and retrieve the entity by id
-        if (!empty($objData['id'])) {
-            $entity = $entityLoader->get($objData['obj_type'], $objData['id']);
+        if (!empty($objData['guid'])) {
+            $entity = $entityLoader->getByGuid($objData['guid']);
             $dacl = $daclLoader->getForEntity($entity);
         }
 
@@ -64,7 +64,7 @@ class PermissionController extends Mvc\AbstractAccountController
         $users = $dacl->getUsers();
         // Get the user details
         foreach ($users as $userId) {
-            $userEntity = $entityLoader->get(ObjectTypes::USER, $userId);
+            $userEntity = $entityLoader->getByGuid($userId);
 
             if ($userEntity) {
                 $retData["user_names"][$userId] = $userEntity->getName();
@@ -121,7 +121,7 @@ class PermissionController extends Mvc\AbstractAccountController
 
         // Retrieve the entity by id amd return the result
         if (!empty($objData['entity_id'])) {
-            $entity = $entityLoader->get($objData['obj_type'], $objData['entity_id']);
+            $entity = $entityLoader->getByGuid($objData['entity_id']);
             $dacl = $daclLoader->getForEntity($entity);
             $dacl->fromArray($objData);
             $entity->setValue("dacl", json_encode($dacl->toArray()));

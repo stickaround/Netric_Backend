@@ -20,14 +20,8 @@ interface EntityInterface
     /**
      * Get unique id of this object
      */
-    public function getId();
+    public function getEntityId(): string;
 
-    /**
-     * Set the unique id of this object
-     *
-     * @param string $id The unique id of this object instance
-     */
-    public function setId($id);
 
     /**
      * Get definition

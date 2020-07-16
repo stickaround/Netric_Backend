@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test saving and loading recurrence patterns from the DataMapper
  */
+
 namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence\RecurrenceRdbDataMapper;
@@ -15,6 +17,11 @@ use Netric\EntityDefinition\ObjectTypes;
 
 class RecurrenceDataMapperTest extends TestCase
 {
+    /**
+     * Arbitrary test ID(s)
+     */
+    const TEST_ENTITY_ID = '14e6e6b6-d345-4e7c-b8d0-67cccc71e152';
+
     /**
      * Tennant account
      *
@@ -47,7 +54,7 @@ class RecurrenceDataMapperTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
@@ -69,7 +76,7 @@ class RecurrenceDataMapperTest extends TestCase
      * Cleanup any test entities we created
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testRecurrence as $rp) {
             $this->dataMapper->delete($rp);
         }
@@ -102,7 +109,7 @@ class RecurrenceDataMapperTest extends TestCase
         $rid = $this->dataMapper->save($rp);
         $this->assertNotNull($rid);
 
-        $result = $this->dataMapper->updateParentObjectId($rid, 1);
+        $result = $this->dataMapper->updateParentEntityId($rid, self::TEST_ENTITY_ID);
         $this->assertTrue($result);
     }
 

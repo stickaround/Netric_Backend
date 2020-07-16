@@ -203,7 +203,7 @@ class BackendNetricTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "My Unit Test Task");
-        $task->setValue("owner_id", $this->user->getGuid());
+        $task->setValue("owner_id", $this->user->getEntityId());
         $task->setValue("start_date", date("m/d/Y"));
         $task->setValue("date_completed", date("m/d/Y"));
         $task->setValue("deadline", date("m/d/Y"));
@@ -293,7 +293,7 @@ class BackendNetricTest extends TestCase
     {
         // Get inbox - it was created in $this->setUp
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
         $group = $groupings->create('test-' . rand());
         $group->user_id = $this->user->getId();
         $groupings->add($group);

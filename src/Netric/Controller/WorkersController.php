@@ -205,7 +205,7 @@ class WorkersController extends Mvc\AbstractController
                  * us distribute the load. If ScheduledWork is taking too long, we
                  * can simply add more worker machines to the cluster
                  */
-                $jobData = ['account_id'=>$account->getId()];
+                $jobData = ['account_id'=>$account->getAccountId()];
                 $this->workerService->doWorkBackground("ScheduleRunner", $jobData);
             }
 

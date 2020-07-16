@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Permissions;
 
 use Netric\Entity\EntityInterface;
@@ -21,7 +23,7 @@ class DaclLoader
      * @var EntityLoader
      */
     private $entityLoader = null;
-    
+
     /**
      * Class constructor
      *
@@ -58,7 +60,7 @@ class DaclLoader
         if ($objDef->parentField) {
             $fieldDef = $objDef->getField($objDef->parentField);
             if ($entity->getValue($objDef->parentField) && $fieldDef->subtype) {
-                $parentEntity = $this->entityLoader->get($fieldDef->subtype, $entity->getValue($objDef->parentField));
+                $parentEntity = $this->entityLoader->getByGuid($entity->getValue($objDef->parentField));
                 if ($parentEntity) {
                     $dacl = $this->getForEntity($parentEntity, false);
                     if ($dacl) {

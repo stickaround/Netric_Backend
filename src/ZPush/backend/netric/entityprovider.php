@@ -200,7 +200,6 @@ class EntityProvider
                         "but that is not supported"
                 );
                 return false;
-
         }
     }
 
@@ -373,7 +372,7 @@ class EntityProvider
         switch ($folder['type']) {
             case self::FOLDER_TYPE_EMAIL:
                 $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-                $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getGuid());
+                $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
 
                 $group = $groupings->getById($folder['id']);
 
@@ -408,7 +407,6 @@ class EntityProvider
                 );
                 // Not supported
                 return false;
-
         }
     }
 
@@ -508,7 +506,7 @@ class EntityProvider
          */
         $serviceManager = $this->account->getServiceManager();
         $gloader = $serviceManager->get(GroupingLoaderFactory::class);
-        $groupings = $gloader->get(ObjectTypes::EMAIL_MESSAGE .  "/mailbox_id/" . $this->user->getGuid());
+        $groupings = $gloader->get(ObjectTypes::EMAIL_MESSAGE .  "/mailbox_id/" . $this->user->getEntityId());
 
         /*
          * For now we are just limiting this to the inbox because apparently the
@@ -655,7 +653,7 @@ class EntityProvider
 
         // Setup the query
         $query = new Netric\EntityQuery(ObjectTypes::CALENDAR);
-        $query->where("owner_id")->equals($this->user->getGuid());
+        $query->where("owner_id")->equals($this->user->getEntityId());
 
         // Check fi we are only supposed to get a single calendar
         if ($id)
@@ -1104,7 +1102,7 @@ class EntityProvider
 
                     $attachment->displayname = $file->getValue("name");
                     //$attachment->attname = $folderid . ":" . $id . ":" . $n;
-                    $attachment->attname = $file->getValue('id');
+                    $attachment->attname = $file->getEntityId();
                     $attachment->attmethod = 1;
                     // For some reason the below totally broke the iphone, it has been fixed now
                     //$attachment->attoid = isset($part->headers['content-id']) ? $part->headers['content-id'] : "";
@@ -1134,7 +1132,7 @@ class EntityProvider
             $entity = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL);
         }
 
-        $entity->setValue('owner_id', $this->user->getGuid());
+        $entity->setValue('owner_id', $this->user->getEntityId());
         $entity->setValue('first_name', $syncContact->firstname);
         $entity->setValue('last_name', $syncContact->lastname);
         $entity->setValue('middle_name', $syncContact->middlename);
@@ -1203,14 +1201,14 @@ class EntityProvider
             $entity = $this->entityLoader->create(ObjectTypes::NOTE);
         }
 
-        $entity->setValue('owner_id', $this->user->getGuid());
+        $entity->setValue('owner_id', $this->user->getEntityId());
         $entity->setValue('name', $syncNote->subject);
 
         if (isset($syncNote->categories)) {
 
             $sm = $this->account->getServiceManager();
             $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
-            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getGuid());
+            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId());
 
             foreach ($syncNote->categories as $catName) {
                 // See if there is a grouping with this category name
@@ -1224,9 +1222,11 @@ class EntityProvider
         }
 
 
-        if (isset($syncNote->asbody) &&
+        if (
+            isset($syncNote->asbody) &&
             isset($syncNote->asbody->type) &&
-            isset($syncNote->asbody->data)) {
+            isset($syncNote->asbody->data)
+        ) {
             $bodyContent = stream_get_contents($syncNote->asbody->data);
             $this->log->debug("ZPUSH->EntityProvider->saveNote ");
             switch ($syncNote->asbody->type) {
@@ -1291,7 +1291,7 @@ class EntityProvider
             $entity = $this->entityLoader->create(ObjectTypes::TASK);
         }
 
-        $entity->setValue('owner_id', $this->user->getGuid());
+        $entity->setValue('owner_id', $this->user->getEntityId());
         $entity->setValue('name', $syncTask->subject);
         $entity->setValue('notes', $syncTask->body);
         if ($syncTask->startdate)
@@ -1338,9 +1338,11 @@ class EntityProvider
          * nokia sends an yearly event with 0 mins duration but as all day event,
          * so make it end next day
          */
-        if ($syncAppointment->starttime == $syncAppointment->endtime
+        if (
+            $syncAppointment->starttime == $syncAppointment->endtime
             && isset($syncAppointment->alldayevent)
-            && $syncAppointment->alldayevent) {
+            && $syncAppointment->alldayevent
+        ) {
             $duration = 1440;
             $syncAppointment->endtime = $syncAppointment->starttime + 24 * 60 * 60;
             $localend = $localstart + 24 * 60 * 60;
@@ -1350,7 +1352,7 @@ class EntityProvider
         $entity->setValue("location", $syncAppointment->location);
         $entity->setValue("notes", $syncAppointment->body);
         $entity->setValue("sharing", 1);
-        $entity->setValue("owner_id", $this->user->getGuid());
+        $entity->setValue("owner_id", $this->user->getEntityId());
         $entity->setValue("all_day", ($syncAppointment->alldayevent) ? 't' : 'f');
         $entity->setValue(ObjectTypes::CALENDAR, $calendarId);
         if ($syncAppointment->starttime)
@@ -1404,44 +1406,44 @@ class EntityProvider
             }
 
             switch ($syncAppointment->recurrence->type) {
-                // Daily
+                    // Daily
                 case 0:
                     $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
                     break;
 
-                // Weekly
+                    // Weekly
                 case 1:
                     $rp->setRecurType(RecurrencePattern::RECUR_WEEKLY);
                     $this->setRecurDayOfWeekMask($rp, $syncAppointment->recurrence->dayofweek);
                     break;
 
-                // Monthly
+                    // Monthly
                 case 2:
                     $rp->setRecurType(Netric\Entity\Recurrence\RecurrencePattern::RECUR_MONTHLY);
                     $rp->setDayOfMonth($syncAppointment->recurrence->dayofmonth);
                     break;
 
-                // Monthly(nth)
+                    // Monthly(nth)
                 case 3:
                     $rp->setRecurType(Netric\Entity\Recurrence\RecurrencePattern::RECUR_MONTHNTH);
                     $rp->setInstance($syncAppointment->recurrence->weekofmonth);
                     $this->setRecurDayOfWeekMask($rp, $syncAppointment->recurrence->dayofweek);
                     break;
 
-                // Yearly
+                    // Yearly
                 case 5:
                     $rp->setRecurType(Netric\Entity\Recurrence\RecurrencePattern::RECUR_YEARLY);
                     $this->setRecurDayOfWeekMask($rp, $syncAppointment->recurrence->dayofweek);
                     $rp->setMonthOfYear($syncAppointment->recurrence->monthofyear);
                     break;
 
-                // YearlyNth
+                    // YearlyNth
                 case 6:
                     $rp->setRecurType(Netric\Entity\Recurrence\RecurrencePattern::RECUR_YEARNTH);
                     $this->setRecurDayOfWeekMask($rp, $syncAppointment->recurrence->dayofweek);
                     break;
 
-                // Not supported
+                    // Not supported
                 default:
                     return null;
             }
@@ -1708,7 +1710,7 @@ class EntityProvider
             return $gmttime;
 
         if ($this->isDST($gmttime - $tz["bias"] * 60, $tz)) // may bug around the switch time because it may have to be 'gmttime - bias - dstbias'
-        return $gmttime - $tz["bias"] * 60 - $tz["dstbias"] * 60;
+            return $gmttime - $tz["bias"] * 60 - $tz["dstbias"] * 60;
         else
             return $gmttime - $tz["bias"] * 60;
     }
@@ -1724,10 +1726,12 @@ class EntityProvider
      */
     private function isDST($localtime, $tz)
     {
-        if (!isset($tz) || !is_array($tz) ||
+        if (
+            !isset($tz) || !is_array($tz) ||
             !isset($tz["dstbias"]) || $tz["dstbias"] == 0 ||
             !isset($tz["dststartmonth"]) || $tz["dststartmonth"] == 0 ||
-            !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0)
+            !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0
+        )
             return false;
 
         $year = gmdate("Y", $localtime);

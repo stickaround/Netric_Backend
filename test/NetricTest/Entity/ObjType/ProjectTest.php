@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity project class
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
@@ -36,7 +38,7 @@ class ProjectTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -69,7 +71,7 @@ class ProjectTest extends TestCase
         // Add task to project 1
         $task->setValue("name", "Project One");
         $task->setValue("deadline", "1/7/2013"); // 1 week later
-        $task->setValue(ObjectTypes::PROJECT, $proj1->getGuid());
+        $task->setValue(ObjectTypes::PROJECT, $proj1->getEntityId());
         $tid = $entityLoader->save($task);
 
         // Create a new project and clone the references
@@ -82,7 +84,7 @@ class ProjectTest extends TestCase
 
         // Get the new task
         $query = new EntityQuery(ObjectTypes::TASK);
-        $query->where('project')->equals($proj1->getGuid());
+        $query->where('project')->equals($proj1->getEntityId());
 
         $queryIndex = new EntityQueryIndexRdb($this->account);
         $res = $queryIndex->executeQuery($query);

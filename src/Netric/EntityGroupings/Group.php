@@ -10,15 +10,8 @@ namespace Netric\EntityGroupings;
 class Group
 {
     /**
-     * Unique id of this grouping
-     *
-     * @var string
-     */
-    public $id = "";
-
-    /**
      * The global unique identifier of this group
-     * 
+     *
      * @var uuid
      */
     public $guid = "";
@@ -111,7 +104,6 @@ class Group
     public function toArray()
     {
         $data = array(
-            "id" => $this->id,
             "guid" => $this->guid,
             "name" => $this->name,
             "f_system" => $this->isSystem,
@@ -139,10 +131,6 @@ class Group
      */
     public function fromArray($data)
     {
-        if (isset($data['id'])) {
-            $this->id = $data['id'];
-        }
-
         if (isset($data['guid'])) {
             $this->guid = $data['guid'];
         }
@@ -196,8 +184,8 @@ class Group
     public function setValue($fname, $fval)
     {
         switch ($fname) {
-            case "id":
-                $this->id = $fval;
+            case "guid":
+                $this->guid = $fval;
                 break;
             case "name":
                 $this->name = $fval;
@@ -233,8 +221,8 @@ class Group
     public function getValue($fname)
     {
         switch ($fname) {
-            case "id":
-                return $this->id;
+            case "guid":
+                return $this->guid;
             case "name":
                 return $this->name;
             case "isHeiarch":
@@ -323,7 +311,7 @@ class Group
      */
     public function isDirty()
     {
-        if (!$this->id) {
+        if (!$this->guid) {
             return true;
         }
 

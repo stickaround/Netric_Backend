@@ -89,10 +89,10 @@ class RecurrenceIdentityMapper
         $recurPattern = $entity->getRecurrencePattern();
         $def = $entity->getDefinition();
 
-        if ($entity->getId() && $recurPattern) {
+        if ($entity->getEntityId() && $recurPattern) {
             // Move first entity to current entity
-            if ($recurPattern->getFirstEntityId() != $entity->getId()) {
-                $recurPattern->setFirstEntityId($entity->getId());
+            if ($recurPattern->getFirstEntityId() != $entity->getEntityId()) {
+                $recurPattern->setFirstEntityId($entity->getEntityId());
             }
 
             // Make sure the object type is correct for validation of fields
@@ -110,24 +110,6 @@ class RecurrenceIdentityMapper
 
             // Set the last date the recurrence pattern was processed to
             $recurPattern->setDateProcessedTo(new \DateTime(date("Y-m-d", $curStart)));
-
-            // Delete all future objects in this series if event is pre-existing
-            /*
-            if ($this->id)
-            {
-                $objList = new CAntObjectList($dbh, $obj->object_type, $obj->user);
-                $objList->addCondition("and", $obj->def->recurRules['field_recur_id'], "is_equal", $this->id);
-                $objList->addCondition("and", $obj->def->recurRules['field_date_start'], "is_greater", $this->dateProcessedTo);
-                $objList->addCondition("and", "id", "is_not_equal", $this->parentId); // just to be safe, never delete parent object
-                $objList->getObjects();
-                for ($i = 0; $i < $objList->getNumObjects(); $i++)
-                {
-                    $objInst = $objList->getObject($i);
-                    $objInst->recurrenceException = true; // Prevent loops
-                    $objInst->removeHard(); // purge objects
-                }
-            }
-            */
 
             // Make sure this succeeds, it should never fail
             if ($this->save($recurPattern, $useId)) {

@@ -91,7 +91,7 @@ class EntityValidator implements Error\ErrorAwareInterface
         }
 
         // Check to see if the uname was previously checked
-        if ($entity->getId() && !$entity->fieldValueChanged('uname')) {
+        if ($entity->getEntityid() && !$entity->fieldValueChanged('uname')) {
             return true;
         }
 
