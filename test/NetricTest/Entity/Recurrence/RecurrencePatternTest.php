@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test recurrence for entities
  */
+
 namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence\RecurrencePattern;
@@ -17,20 +19,19 @@ class RecurrencePatternTest extends TestCase
      * @var \Netric\Account\Account
      */
     private $account = null;
-    
+
     /**
      * Administrative user
      *
      * @var \Netric\User
      */
     private $user = null;
-    
 
     /**
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -62,7 +63,7 @@ class RecurrencePatternTest extends TestCase
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/1/2010"));
         $rp->setDateEnd(new \DateTime("3/1/2010"));
-        
+
         // First instance should be today
         $tsNext = $rp->getNextStart();
         $this->assertEquals($tsNext, new \DateTime("01/01/2010"));
@@ -70,7 +71,7 @@ class RecurrencePatternTest extends TestCase
         // Next instance should be tomorrow
         $tsNext = $rp->getNextStart();
         $this->assertEquals($tsNext, new \DateTime("01/02/2010"));
-        
+
         // Change interval to skip a day and rewind to set
         $rp->setInterval(2);
         $tsNext = $rp->getNextStart();
@@ -183,7 +184,7 @@ class RecurrencePatternTest extends TestCase
         $tsNext = $rp->getNextStart();
         $this->assertFalse($tsNext); // Past the dateEnd
     }
-    
+
     public function testGetNextStart_YearNth()
     {
         $rp = new RecurrencePattern();
@@ -218,7 +219,7 @@ class RecurrencePatternTest extends TestCase
             "date_start" => "2015-01-01",
             "date_end" => "2015-02-01",
             "f_active" => true,
-            "obj_type" => "task",
+            "object_type_id" => "b47baf14-a758-4d83-ab71-89732c9a4d59", // Fake uuid
             "first_entity_id" => 444,
             "date_processed_to" => "2015-03-01",
             "field_date_start" => "deadline",

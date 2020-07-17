@@ -380,8 +380,8 @@ class Entity implements EntityInterface
      */
     public function setRecurrencePattern(RecurrencePattern $recurrencePattern)
     {
-        if ($recurrencePattern->getObjType() != $this->getDefinition()->getObjType()) {
-            $recurrencePattern->setObjType($this->getDefinition()->getObjType());
+        if ($recurrencePattern->getObjTypeId() != $this->getDefinition()->getEntityDefinitionId()) {
+            $recurrencePattern->setObjTypeId($this->getDefinition()->getEntityDefinitionId());
         }
         $this->recurrencePattern = $recurrencePattern;
     }
@@ -514,7 +514,7 @@ class Entity implements EntityInterface
         if (isset($data['recurrence_pattern']) && is_array($data['recurrence_pattern'])) {
             $this->recurrencePattern = new RecurrencePattern();
             $this->recurrencePattern->fromArray($data['recurrence_pattern']);
-            $this->recurrencePattern->setObjType($this->getDefinition()->getObjType());
+            $this->recurrencePattern->setObjTypeId($this->getDefinition()->getEntityDefinitionId());
         }
 
         if (isset($data['recurrence_exception'])) {
