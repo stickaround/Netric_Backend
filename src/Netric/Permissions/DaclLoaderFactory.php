@@ -1,8 +1,10 @@
 <?php
+
 namespace Netric\Permissions;
 
 use Netric\ServiceManager;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a DaclLoader
@@ -18,6 +20,7 @@ class DaclLoaderFactory implements ServiceManager\ApplicationServiceFactoryInter
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        return new DaclLoader($entityLoader);
+        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
+        return new DaclLoader($entityLoader, $groupingLoader);
     }
 }

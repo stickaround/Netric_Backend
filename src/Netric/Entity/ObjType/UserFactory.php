@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Default entity type
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\ObjType;
 
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
@@ -12,6 +14,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new default object type entity
@@ -28,6 +31,7 @@ class UserFactory implements Entity\EntityFactoryInterface
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        return new UserEntity($def, $entityLoader);
+        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
+        return new UserEntity($def, $entityLoader, $groupingLoader);
     }
 }

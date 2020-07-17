@@ -93,7 +93,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // At the very least we required that the guid of a saved message be set to send it
         if (!isset($objData['entity_id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write("guid is a required param");
+            $response->write("entity_id is a required param");
             return $response;
         }
 
@@ -103,7 +103,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // Return 404 if message was not found to send
         if ($emailMessage === null) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
-            $response->write("No message guid {$objData['entity_id']} was found");
+            $response->write("No message id {$objData['entity_id']} was found");
             return $response;
         }
 

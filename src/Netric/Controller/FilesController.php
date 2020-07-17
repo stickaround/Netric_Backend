@@ -19,6 +19,7 @@ use Netric\Permissions\Dacl;
 use DateTime;
 use Netric\Config\ConfigFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Class FilesController
@@ -51,16 +52,23 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
     private $dataPath = null;
 
     /**
-     * Get Allowed Groups
+     * User groups
      *
-     * @var int[]
+     * @var EntityGroupings
      */
-    private $allowedGroups = [
-        UserEntity::GROUP_ADMINISTRATORS,
-        UserEntity::GROUP_CREATOROWNER,
-        UserEntity::GROUP_USERS,
-        UserEntity::GROUP_EVERYONE
-    ];
+    private $userGroups = null;
+
+    // /**
+    //  * Get Allowed Groups
+    //  *
+    //  * @var string[]
+    //  */
+    // private $allowedGroups = [
+    //     UserEntity::GROUP_ADMINISTRATORS,
+    //     UserEntity::GROUP_CREATOROWNER,
+    //     UserEntity::GROUP_USERS,
+    //     UserEntity::GROUP_EVERYONE
+    // ];
 
     /**
      * Override initialization
@@ -79,6 +87,10 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Set resizer if we are working with images
         $this->imageResizer = $sl->get(ImageResizerFactory::class);
+
+        // Get user groupings
+        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
+        $this->userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups');
     }
 
     /**
@@ -199,24 +211,6 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             $folderEntity = $this->fileSystem->openFolder($folderPath);
 
             if ($folderEntity) {
-                $daclData = array(
-                    "entries" => array(
-                        array(
-                            "name" => Dacl::PERM_VIEW,
-                            "groups" => $this->allowedGroups
-                        ),
-                        array(
-                            "name" => Dacl::PERM_EDIT,
-                            "groups" => $this->allowedGroups
-                        ),
-                        array(
-                            "name" => Dacl::PERM_DELETE,
-                            "groups" => $this->allowedGroups
-                        ),
-                    ),
-                );
-
-                $folderEntity->setValue("dacl", json_encode($daclData));
                 $dacl = $daclLoader->getForEntity($folderEntity);
                 if (!$dacl->isAllowed($user)) {
                     // Log a warning to flag repeat offenders
@@ -242,7 +236,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
                 $uploadedFile['tmp_name'],
                 $folderPath,
                 $uploadedFile["name"],
-                array("id" => $fileId, "name" => $fileName)
+                ["entity_id" => $fileId, "name" => $fileName]
             );
 
             if ($file) {
@@ -301,16 +295,6 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Make sure the current user has access
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $fileEntity->setValue("dacl", json_encode($daclData));
         $dacl = $daclLoader->getForEntity($fileEntity);
         if (!$dacl->isAllowed($user, Dacl::PERM_VIEW)) {
             $log->warning(
@@ -362,7 +346,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         $response->setLastModified($dateLastModified);
 
         // Allow caching if everyone has access
-        if ($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW)) {
+        if ($dacl->groupIsAllowed($this->userGroups->getByName(UserEntity::GROUP_EVERYONE), Dacl::PERM_VIEW)) {
             $response->setCacheable(
                 md5($this->account->getName() .
                     ".file." . $fileEntity->getEntityId() .

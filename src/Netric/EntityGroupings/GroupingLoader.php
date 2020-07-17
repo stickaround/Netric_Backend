@@ -53,9 +53,9 @@ class GroupingLoader
      * Get the entity grouping using a unique path
      *
      * @param string $path The path of the grouping that we are going to load
-     * @return Entity
+     * @return EntityGroupings
      */
-    public function get(string $path)
+    public function get(string $path): ?EntityGroupings
     {
         if (!$path) {
             throw new Exception('$path is a required param');

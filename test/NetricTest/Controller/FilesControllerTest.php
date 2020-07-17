@@ -19,6 +19,8 @@ use Netric\EntityQuery;
 
 /**
  * Test calling the files controller
+ * 
+ * @group iso
  */
 class FilesControllerTest extends TestCase
 {
@@ -64,17 +66,6 @@ class FilesControllerTest extends TestCase
      */
     private $testFiles = [];
 
-    /**
-     * Get Allowed Groups
-     *
-     * @var int[]
-     */
-    private $allowedGroups = [
-        UserEntity::GROUP_ADMINISTRATORS,
-        UserEntity::GROUP_CREATOROWNER,
-        UserEntity::GROUP_USERS,
-        UserEntity::GROUP_EVERYONE
-    ];
     /**
      * Common constants used
      *
@@ -155,12 +146,19 @@ class FilesControllerTest extends TestCase
         $tempFile = __DIR__ . "/fixtures/files-upload-test-tmp.txt";
         copy($sourceFile, $tempFile);
 
+        // Create folder with permissions that allow the user to upload
+        $folderEntity = $this->fileSystem->openFolder("/testUpload");
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+        $dacl = $daclLoader->getForEntity($folderEntity);
+        $dacl->allowUser($this->user);
+
+        // Setup the request
         $req = $this->controller->getRequest();
         $testUploadedFiles = array(
             array("tmp_name" => $tempFile, "name" => "files-upload-test.txt")
         );
         $req->setParam("files", $testUploadedFiles);
-        $req->setParam("path", "/testUpload");
+        $req->setParam("path", "/testUpload"); // Will copy permissions
 
         /*
          * Now upload the file which should import the temp file,
@@ -179,37 +177,8 @@ class FilesControllerTest extends TestCase
         // Make sure we cleaned up the temp file
         $this->assertFalse(file_exists($tempFile));
 
-        // Set created folder so we make sure we purge it
-        $folderEntity = $this->fileSystem->openFolder("/testUpload");
-
-        // Set allowed enties for dacl field
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_EDIT,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_DELETE,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $folderEntity->setValue("dacl", json_encode($daclData));
-        $this->testFolders[] = $folderEntity;
-
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
-
-        // Test if user is allowed to access folder/file
-        $this->assertEquals($dacl->isAllowed($this->user), true);
-
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
         $this->testFiles[] = $file; // For tearDown Cleanup
 
         // Test file
@@ -273,23 +242,6 @@ class FilesControllerTest extends TestCase
         $folderEntity = $this->fileSystem->openFolder("/testUpload");
 
         // Set allowed enties for dacl field
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_EDIT,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_DELETE,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $folderEntity->setValue("dacl", json_encode($daclData));
         $this->testFolders[] = $folderEntity;
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
@@ -359,25 +311,6 @@ class FilesControllerTest extends TestCase
 
         // Set created folder so we make sure we purge it
         $folderEntity = $this->fileSystem->openFolder("/testUpload");
-
-        // Set allowed enties for dacl field
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_EDIT,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_DELETE,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $folderEntity->setValue("dacl", json_encode($daclData));
         $this->testFolders[] = $folderEntity;
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
@@ -457,25 +390,6 @@ class FilesControllerTest extends TestCase
 
         // Set created folder so we make sure we purge it
         $folderEntity = $this->fileSystem->openFolder("/testUpload");
-
-        // Set allowed enties for dacl field
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_EDIT,
-                    "groups" => $this->allowedGroups
-                ),
-                array(
-                    "name" => Dacl::PERM_DELETE,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $folderEntity->setValue("dacl", json_encode($daclData));
         $this->testFolders[] = $folderEntity;
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
@@ -565,15 +479,6 @@ class FilesControllerTest extends TestCase
         $folderEntity = $this->fileSystem->openFolder("/testdownload");
 
         // Set allowed enties for dacl field
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $folderEntity->setValue("dacl", json_encode($daclData));
         $this->testFolders[] = $folderEntity;
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
@@ -631,15 +536,6 @@ class FilesControllerTest extends TestCase
         $folderEntity = $this->fileSystem->openFolder("/testdownload");
 
         // Set allowed enties for dacl field
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $folderEntity->setValue("dacl", json_encode($daclData));
         $this->testFolders[] = $folderEntity;
 
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);

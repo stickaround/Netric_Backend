@@ -11,6 +11,7 @@ use Netric\Mail\SenderService;
 use Netric\Mail\DeliveryService;
 use Netric\Request\HttpRequest;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Test calling the email controller
@@ -45,7 +46,7 @@ class EmailControllerTest extends TestCase
         // Make sure send is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['guid' => uniqid()]));
+        $request->setBody(json_encode(['entity_id' => Uuid::uuid4()->toString()]));
         $response = $controller->postSendAction($request);
         $this->assertEquals(['result' => true], $response->getOutputBuffer());
     }

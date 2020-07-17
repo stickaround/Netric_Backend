@@ -7,7 +7,6 @@
 namespace NetricTest\Controller;
 
 use Netric\Controller\BrowserViewController;
-use Netric\Entity\BrowserView\BrowserView;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;

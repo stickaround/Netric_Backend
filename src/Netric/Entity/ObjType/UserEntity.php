@@ -18,6 +18,8 @@ use Netric\Permissions\DaclLoaderFactory;
 use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Description of User
@@ -31,21 +33,28 @@ class UserEntity extends Entity implements EntityInterface
      *
      * @const string
      */
-    const USER_ADMINISTRATOR = '935b5810-831d-11e8-adc0-fa7ae01bbebc';
-    const USER_CURRENT = '935b5cb6-831d-11e8-adc0-fa7ae01bbebc';
-    const USER_ANONYMOUS = '935b5e28-831d-11e8-adc0-fa7ae01bbebc';
-    const USER_SYSTEM = '935b5f54-831d-11e8-adc0-fa7ae01bbebc';
-    const USER_WORKFLOW = '935b6076-831d-11e8-adc0-fa7ae01bbebc';
+    //const USER_CURRENT = '935b5cb6-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_CURRENT = 'current.user';
+    //const USER_ANONYMOUS = '935b5e28-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_ANONYMOUS = 'anonymous';
+    //const USER_SYSTEM = '935b5f54-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_SYSTEM = 'system';
+    //const USER_WORKFLOW = '935b6076-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_WORKFLOW = 'workflow';
 
     /**
      * System groups
      *
-     * @const int
+     * @const string
      */
-    const GROUP_USERS = -4; // Authenticated users
-    const GROUP_EVERYONE = -3;
-    const GROUP_CREATOROWNER = -2;
-    const GROUP_ADMINISTRATORS = -1;
+    //const GROUP_USERS = -4; // Authenticated users
+    const GROUP_USERS = 'Users';
+    //const GROUP_EVERYONE = -3;
+    const GROUP_EVERYONE = 'Everyone';
+    //const GROUP_CREATOROWNER = -2;
+    const GROUP_CREATOROWNER = 'Creator Owner';
+    //const GROUP_ADMINISTRATORS = -1;
+    const GROUP_ADMINISTRATORS = 'Administrators';
 
     /**
      * The loader for a specific entity
@@ -55,16 +64,24 @@ class UserEntity extends Entity implements EntityInterface
     private $entityLoader = null;
 
     /**
+     * Grouping loader used to get user groups
+     *
+     * @var GroupingLoader
+     */
+    private $groupingLoader = null;
+
+    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader The loader for a specific entity
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader, GroupingLoader $groupingLoader)
     {
         parent::__construct($def, $entityLoader);
 
         $this->entityLoader = $entityLoader;
+        $this->groupingLoader = $groupingLoader;
     }
 
     /**
@@ -161,14 +178,18 @@ class UserEntity extends Entity implements EntityInterface
             $groups = [];
         }
 
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+
         // Add to authenticated users group if we have determined this is a valid user
-        if ($this->getEntityId() &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups)) {
-            $groups[] = self::GROUP_USERS;
+        $groupUser = $userGroups->getByName(self::GROUP_USERS);
+        if ($this->getEntityId() &&  !$this->isAnonymous() && !in_array($groupUser->getGroupId(), $groups)) {
+            $groups[] = $groupUser->getGroupId();
         }
 
         // Of course every user is part of everyone
-        if (!in_array(self::GROUP_EVERYONE, $groups)) {
-            $groups[] = self::GROUP_EVERYONE;
+        $groupEveryone = $userGroups->getByName(self::GROUP_EVERYONE);
+        if (!in_array($groupEveryone->getGroupId(), $groups)) {
+            $groups[] = $groupEveryone->getGroupId();
         }
 
         return $groups;
@@ -179,7 +200,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isAnonymous()
     {
-        return ($this->getValue('entity_id') == self::USER_ANONYMOUS);
+        return ($this->getValue('uname') == self::USER_ANONYMOUS);
     }
 
     /**
@@ -187,7 +208,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isSystem()
     {
-        return ($this->getValue('entity_id') == self::USER_SYSTEM);
+        return ($this->getValue('uname') == self::USER_SYSTEM);
     }
 
     /**
@@ -197,10 +218,12 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function setIsAdmin($isAdmin = true)
     {
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         if ($isAdmin) {
-            $this->addMultiValue("groups", self::GROUP_ADMINISTRATORS, "Administrators");
+            $this->addMultiValue("groups", $adminGroup->getGroupId(), "Administrators");
         } else {
-            $this->removeMultiValue("groups", self::GROUP_ADMINISTRATORS);
+            $this->removeMultiValue("groups", $adminGroup->getGroupId());
         }
     }
 
@@ -211,9 +234,11 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isAdmin()
     {
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         $groups = $this->getGroups();
         foreach ($groups as $group) {
-            if ($group == self::GROUP_ADMINISTRATORS) {
+            if ($group == $adminGroup->getGroupId()) {
                 return true;
             }
         }

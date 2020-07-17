@@ -5,8 +5,8 @@ namespace data\account;
 use Netric\Entity\ObjType\UserEntity;
 
 return [
-    ["id" => UserEntity::GROUP_USERS, "name" => "Users", "f_admin" => 'f'],
-    ["id" => UserEntity::GROUP_EVERYONE, "name" => "Everyone", "f_admin" => 'f'],
-    ["id" => UserEntity::GROUP_CREATOROWNER, "name" => "Creator Owner", "f_admin" => 'f'],
-    ["id" => UserEntity::GROUP_ADMINISTRATORS, "name" => "Administrators", "f_admin" => 't'],
+    ['name' => UserEntity::GROUP_USERS, 'f_admin' => 'f'],
+    ['name' => UserEntity::GROUP_EVERYONE, 'f_admin' => 'f'],
+    ['name' => UserEntity::GROUP_CREATOROWNER, 'f_admin' => 'f'],
+    ['name' => UserEntity::GROUP_ADMINISTRATORS, 'f_admin' => 't'],
 ];

@@ -21,7 +21,6 @@ $groupings = $groupingsLoader->get(ObjectTypes::USER . "/groups");
 foreach ($groupsData as $groupData) {
     if (!$groupings->getByName($groupData['name'])) {
         $group = new Group();
-        $group->id = $groupData['id'];
         $group->name = $groupData['name'];
         $group->setDirty(); // Force update
         $groupings->add($group);

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Manage dynamic settings for users and accounts
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Settings;
 
 use Netric\Account\Account;
@@ -60,7 +62,7 @@ class Settings
      * @param string $name
      * @return string
      */
-    public function get(string $name) : ?string
+    public function get(string $name): ?string
     {
         // First try to get from cache (it's much faster that way)
         $ret = $this->getCached($name);
@@ -78,7 +80,7 @@ class Settings
      * @param [type] $name
      * @return void
      */
-    public function getNoCache(string $name) : ?string
+    public function getNoCache(string $name): ?string
     {
         return $this->getDb($name);
     }
@@ -196,7 +198,7 @@ class Settings
         if ($userId) {
             $cachedKey .= "/users/" . $userId;
         }
-        
+
         $cachedKey .= "/settings";
 
         return $cachedKey . "/" . $name;
@@ -207,11 +209,11 @@ class Settings
      *
      * @param string $name The unique setting name
      * @param string $value The value to save
-     * @param int $userId Optional user id to save the setting for
-     * @param int $teamId Optional team id to save the setting for
+     * @param string $userId Optional user id to save the setting for
+     * @param string $teamId Optional team id to save the setting for
      * @return bool true on success, false on failure
      */
-    private function saveDb(string $name = null, string $value = null, int $userId = null, int $teamId = null)
+    private function saveDb(string $name = '', string $value = '', string $userId = '', string $teamId = '')
     {
         // Set the parameters
         $params = ["name" => $name];
@@ -220,7 +222,7 @@ class Settings
         $sql = "SELECT id FROM settings WHERE name=:name";
 
         // Either add a user or explicitely exclude it
-        if (is_numeric($userId)) {
+        if ($userId) {
             $sql .= " AND user_id=:user_id";
             $params["user_id"] = $userId;
         } else {
@@ -242,17 +244,17 @@ class Settings
      * Get a value from the account database
      *
      * @param string $name The unique setting name
-     * @param int $userId Optional user id to save the setting for
-     * @param int $teamId Optional team id to save the setting for
+     * @param string $userId Optional user id to save the setting for
+     * @param string $teamId Optional team id to save the setting for
      * @return null
      */
-    private function getDb(string $name, int $userId = null, int $teamId = null)
+    private function getDb(string $name, string $userId = null, string $teamId = null)
     {
         $params = ["name" => $name];
         $sql = "SELECT value FROM settings WHERE name=:name";
 
         // Either add a user or explicitely exclude it
-        if (is_numeric($userId)) {
+        if ($userId) {
             $sql .= " AND user_id=:user_id";
             $params["user_id"] = $userId;
         } else {

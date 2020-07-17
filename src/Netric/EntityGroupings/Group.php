@@ -317,4 +317,25 @@ class Group
 
         return $this->dirty;
     }
+
+    /**
+     * Get the id of this group
+     *
+     * @return string
+     */
+    public function getGroupId(): string
+    {
+        return $this->guid;
+    }
+
+    /**
+     * Set the id of this group
+     *
+     * @param string $groupId
+     * @return void
+     */
+    public function setGroupId(string $groupId): void
+    {
+        $this->guid = $groupId;
+    }
 }

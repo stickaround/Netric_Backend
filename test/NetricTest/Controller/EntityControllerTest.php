@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Test the entity controller
- */
-
 namespace NetricTest\Controller;
 
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
@@ -79,7 +75,7 @@ class EntityControllerTest extends TestCase
                 'action' => "delete",
                 'obj_type' => ObjectTypes::NOTE,
                 'field_name' => 'groups',
-                'id' => $groupId
+                'guid' => $groupId
             ];
 
             // Set params in the request
@@ -273,7 +269,7 @@ class EntityControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setParam("obj_type", ObjectTypes::NOTE);
-        $req->setParam("id", $entityId);
+        $req->setParam("entity_id", $entityId);
 
         // Try to delete
         $ret = $this->controller->postRemoveAction();
@@ -307,7 +303,7 @@ class EntityControllerTest extends TestCase
         }
 
         $this->assertNotNull($entityDefData);
-        $this->assertTrue($entityDefData['id'] > 0);
+        $this->assertNotNull($entityDefData['entity_id']);
 
         // Make sure the small form was loaded
         $this->assertFalse(empty($entityDefData['forms']['small']));
@@ -346,7 +342,7 @@ class EntityControllerTest extends TestCase
         $this->testDefinitions[] = $testDef;
 
         // Test that the new entity definition was created
-        $this->assertEquals($testDef->id, $ret['id']);
+        $this->assertEquals($testDef->id, $ret['entity_id']);
         $this->assertEquals($testDef->getTitle(), "Unit Test Customer");
         $this->assertEquals($testDef->revision, 1);
 
@@ -355,7 +351,7 @@ class EntityControllerTest extends TestCase
 
         // Remove the custom test field added
         $data = array(
-            'id' => $testDef->id,
+            'entity_id' => $testDef->id,
             'obj_type' => $objType,
             'deleted_fields' => array("test_field")
         );
@@ -372,7 +368,7 @@ class EntityControllerTest extends TestCase
 
         // Test the updating of entity definition
         $data = array(
-            'id' => $testDef->id,
+            'entity_id' => $testDef->getEntityDefinitionId(),
             'obj_type' => $objType,
             'title' => "Updated Definition Title",
         );
@@ -418,7 +414,7 @@ class EntityControllerTest extends TestCase
         $this->testDefinitions[] = $testDef;
 
         // Test that the new entity definition was created
-        $this->assertEquals($testDef->id, $ret['id']);
+        $this->assertEquals($testDef->getEntityDefinitionId(), $ret['id']);
         $this->assertEquals($testDef->getTitle(), "Unit Test Customer");
         $this->assertEquals($testDef->revision, 1);
 
@@ -452,8 +448,8 @@ class EntityControllerTest extends TestCase
         $groupings->add($group2);
         $groupingsLoader->save($groupings);
 
-        $this->testGroups[] = $group1->id;
-        $this->testGroups[] = $group2->id;
+        $this->testGroups[] = $group1->guid;
+        $this->testGroups[] = $group2->guid;
 
         // First create entities to save
         $entity1 = $loader->create(ObjectTypes::NOTE);

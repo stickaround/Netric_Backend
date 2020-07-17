@@ -3,6 +3,7 @@
 /**
  * Test the permission controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric\Controller\PermissionController;
@@ -53,7 +54,7 @@ class PermissionControllerTest extends TestCase
     private $testDefinitions = [];
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
@@ -68,7 +69,7 @@ class PermissionControllerTest extends TestCase
      * Cleanup after a test runs
      */
     protected function tearDown(): void
-{
+    {
         // Cleanup any test entities
         $loader = $this->serviceManager->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
@@ -157,7 +158,7 @@ class PermissionControllerTest extends TestCase
 
         // Should get objtype dacl for this entity
         $this->assertNotNull($ret);
-        $this->assertTrue(in_array($user->getEntityId(), $ret['entries'][Dacl::PERM_VIEW]['users']));
+        $this->assertTrue(in_array($user->getEntityId(), $ret['entries'][Dacl::PERM_VIEW]['users']), var_export($ret, true));
         $this->assertEquals($ret['user_names'][$user->getEntityId()], $user->getName());
     }
 
@@ -190,7 +191,7 @@ class PermissionControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
         $req->setParam('content-type', 'application/json');
-        
+
         $ret = $this->controller->postSaveDaclEntriesAction();
 
         // Should get default dacl for this entity since we did not set any dacl yet

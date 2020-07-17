@@ -34,10 +34,6 @@ foreach ($defaultGroups as $objType => $fields) {
                 // Required data
                 $group->name = $groupData['name'];
 
-                if (isset($groupData['id'])) {
-                    $group->id = $groupData['id'];
-                }
-
                 if (isset($groupData['color'])) {
                     $group->color = $groupData['color'];
                 }

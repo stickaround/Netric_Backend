@@ -183,7 +183,7 @@ class EntityController extends Mvc\AbstractAccountController
             } else {
                 return $this->sendOutput(
                     array(
-                        "error" => "guid or uname are required params.",
+                        "error" => "entity_id or uname are required params.",
                         "params" => $params
                     )
                 );
@@ -643,7 +643,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Check if we have id. If it is not defined, then return an error
         if (!isset($objData['entity_id'])) {
-            return $this->sendOutput(array("error" => "guid is a required param"));
+            return $this->sendOutput(array("error" => "entity_id is a required param"));
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
@@ -682,7 +682,7 @@ class EntityController extends Mvc\AbstractAccountController
                     // Return the entities that were updated
                     $ret[] = $entity->toArray();
                 } else {
-                    $ret["error"][] = "Invalid guid was provided during mass edit action. Guid: $guid.";
+                    $ret["error"][] = "Invalid entity_id was provided during mass edit action: $guid.";
                 }
             }
         } catch (\Exception $ex) {
@@ -895,7 +895,7 @@ class EntityController extends Mvc\AbstractAccountController
             $def = $defLoader->get($objType);
             $path = "$objType/$fieldName";
 
-            // If this is a private object then add the user guid in the unique path
+            // If this is a private object then add the user entity_id in the unique path
             if ($def->isPrivate) {
                 $path .= "/" . $this->account->getUser()->getEntityId();
             }

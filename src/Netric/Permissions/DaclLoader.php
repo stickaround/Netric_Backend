@@ -11,6 +11,8 @@ use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Identity mapper for DACLs to make sure we are only loading each one once
@@ -25,13 +27,21 @@ class DaclLoader
     private $entityLoader = null;
 
     /**
+     * Entity grouping loader for getting user groups
+     *
+     * @var GroupingLoader
+     */
+    private $groupingLoader = null;
+
+    /**
      * Class constructor
      *
      * @param EntityLoader $entityLoader The loader for the entity
      */
-    public function __construct(EntityLoader $entityLoader)
+    public function __construct(EntityLoader $entityLoader, GroupingLoader $groupingLoader)
     {
         $this->entityLoader = $entityLoader;
+        $this->groupingLoader = $groupingLoader;
     }
 
     /**
@@ -107,37 +117,12 @@ class DaclLoader
      */
     private function createDefaultDacl()
     {
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
         $default = new Dacl();
-        $default->allowGroup(UserEntity::GROUP_ADMINISTRATORS, Dacl::PERM_FULL);
-        $default->allowGroup(UserEntity::GROUP_CREATOROWNER, Dacl::PERM_FULL);
+        $$groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
+        $default->allowGroup($$groupAdmin->getGroupId(), Dacl::PERM_FULL);
+        $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
+        $default->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
         return $default;
-    }
-
-    /**
-     * Get an access controll list by name
-     *
-     * @param string $key The name of list to pull
-     * @return Dacl
-     */
-    public function byName($key, $cache = true)
-    {
-        /* Old code... should now get from $this->dm
-        $key = $this->dbh->dbname . "/" . $key;
-
-        if (isset($this->dacls[$key]) && $cache)
-            return $this->dacls[$key];
-
-        // Not yet loaded, create then store
-        if ($cache)
-        {
-            $this->dacls[$key] = new Dacl($this->dbh, $key);
-            return $this->dacls[$key];
-        }
-        else
-        {
-            $dacl = new Dacl($this->dbh, $key);
-            return $dacl;
-        }
-         */
     }
 }

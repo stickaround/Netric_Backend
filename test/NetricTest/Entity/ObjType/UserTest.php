@@ -18,6 +18,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Ramsey\Uuid\Uuid;
 
 class UserTest extends TestCase
@@ -46,6 +47,13 @@ class UserTest extends TestCase
     const TEST_EMAIL = "entity_objtype_test@netric.com";
 
     /**
+     * User groups
+     *
+     * @var EntityGroupings
+     */
+    private $userGroups = null;
+
+    /**
      * Setup each test
      */
     protected function setUp(): void
@@ -72,6 +80,9 @@ class UserTest extends TestCase
         $user->setValue("password", self::TEST_USER_PASS);
         $dm->save($user);
         $this->user = $user;
+
+        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $this->userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups');
     }
 
     protected function tearDown(): void
@@ -168,23 +179,28 @@ class UserTest extends TestCase
 
     public function testGetGroups()
     {
-        $this->user->addMultiValue("groups", Entity\ObjType\UserEntity::GROUP_ADMINISTRATORS);
+        $adminGroup = $this->userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
+        $this->user->addMultiValue("groups", $adminGroup->getGroupId());
 
         $groups = $this->user->getGroups();
 
         // Make sure administrators was added
-        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_ADMINISTRATORS, $groups));
+        $this->assertTrue(in_array($adminGroup->getGroupId(), $groups));
 
         // Make sure default users was also added
-        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_USERS, $groups));
+        $userGroup = $this->userGroups->getByName(UserEntity::GROUP_USERS);
+        $this->assertTrue(in_array($userGroup->getGroupId(), $groups));
     }
 
     // Test before adding any groups that the default USERS groups was added
     public function testGetGroupsDefault()
     {
+        $usersGroup = $this->userGroups->getByName(UserEntity::GROUP_USERS);
+        $everyoneGroup = $this->userGroups->getByName(UserEntity::GROUP_EVERYONE);
+
         $groups = $this->user->getGroups();
-        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_USERS, $groups));
-        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_EVERYONE, $groups));
+        $this->assertTrue(in_array($usersGroup->getGroupId(), $groups));
+        $this->assertTrue(in_array($everyoneGroup->getGroupId(), $groups));
     }
 
     /**

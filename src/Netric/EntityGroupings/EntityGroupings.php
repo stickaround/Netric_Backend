@@ -190,9 +190,9 @@ class EntityGroupings
      *
      * @param string $nameValue The unique value of the group to retrieve
      * @param int $paren Optional parent id for querying unique names of sub-groupings
-     * @return array See getGroupingData return value for definition of grouping data entries
+     * @return Group See getGroupingData return value for definition of grouping data entries
      */
-    public function getByName($nameValue, $parent = null)
+    public function getByName($nameValue, $parent = null): ?Group
     {
         foreach ($this->groups as $grp) {
             if ($grp->name == $nameValue) {
@@ -200,13 +200,13 @@ class EntityGroupings
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
      * Get groups
      *
-     * @return \Netric\EntityGroupings\Group[]
+     * @return Group[]
      */
     public function getAll()
     {
@@ -216,9 +216,9 @@ class EntityGroupings
     /**
      * Recurrsively return all as an array
      *
-     * @return arrray
+     * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         $ret = [];
 
