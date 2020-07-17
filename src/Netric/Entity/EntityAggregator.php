@@ -74,7 +74,7 @@ class EntityAggregator
         $aggregates = $def->aggregates;
 
         // Check to see if this entity has any aggregates
-        if (count($aggregates) < 0) {
+        if (count($aggregates) < 1) {
             return;
         }
 
@@ -89,8 +89,7 @@ class EntityAggregator
 
                 // Make sure we are referencing the same entity
                 $query->where($agg->field)->equals($entity->getValue($agg->field));
-
-                // Initialize an aggregate
+                // Initialize an aggregate<= 0
                 $queryAgg = null;
 
                 // Create new aggregate based on type

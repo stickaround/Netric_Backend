@@ -161,7 +161,7 @@ class EntityController extends Mvc\AbstractAccountController
         if ($rawBody) {
             $body = json_decode($rawBody, true);
             $params['obj_type'] = (isset($body['obj_type'])) ? $body['obj_type'] : null;
-            $params['guid'] = (isset($body['guid'])) ? $body['guid'] : null;
+            $params['entity_id'] = (isset($body['entity_id'])) ? $body['entity_id'] : null;
             $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
             $params['uname_conditions'] = (isset($body['uname_conditions'])) ? $body['uname_conditions'] : [];
         }
@@ -170,9 +170,9 @@ class EntityController extends Mvc\AbstractAccountController
         $entity = null;
 
         try {
-            if (!empty($params['guid'])) {
+            if (!empty($params['entity_id'])) {
                 // Retrieve the entity by guid
-                $entity = $entityLoader->getByGuid($params['guid']);
+                $entity = $entityLoader->getByGuid($params['entity_id']);
             } elseif (!empty($params['uname'])) {
                 // Retrieve the entity by a unique name and optional condition
                 $entity = $entityLoader->getByUniqueName(
@@ -202,7 +202,7 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(
                 array(
                     "error" => "You do not have permission to view this.",
-                    "guid" => $entity->getValue('guid'),
+                    "entity_id" => $entity->getValue('entity_id'),
                     "params" => $params
                 )
             );
@@ -240,8 +240,8 @@ class EntityController extends Mvc\AbstractAccountController
             $entity = $entityLoader->create($objData['obj_type']);
 
             // If editing an existing etity, then load it rather than using the new entity
-            if (isset($objData['guid']) && !empty($objData['guid'])) {
-                $entity = $entityLoader->getByGuid($objData['guid']);
+            if (isset($objData['entity_id']) && !empty($objData['entity_id'])) {
+                $entity = $entityLoader->getByGuid($objData['entity_id']);
             }
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
@@ -642,7 +642,7 @@ class EntityController extends Mvc\AbstractAccountController
         $objData = json_decode($rawBody, true);
 
         // Check if we have id. If it is not defined, then return an error
-        if (!isset($objData['guid'])) {
+        if (!isset($objData['entity_id'])) {
             return $this->sendOutput(array("error" => "guid is a required param"));
         }
 
@@ -654,7 +654,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entityData = $objData['entity_data'];
 
         // IDs can either be a single entry or an array
-        $guids = $objData['guid'];
+        $guids = $objData['entity_id'];
 
         // Convert a single id to an array so we can handle them all the same way
         if (!is_array($guids) && $guids) {

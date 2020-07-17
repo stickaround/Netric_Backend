@@ -160,10 +160,10 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->id);
+        $groupingsStat->delete($statGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
 
-        $groupingsGroups->delete($groupsGrp->id);
+        $groupingsGroups->delete($groupsGrp->guid);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -178,13 +178,13 @@ abstract class DmTestsAbstract extends TestCase
         $customer = $this->createCustomer();
         $customer->setValue('name', 'tester');
         $dm->save($customer, $this->user);
-        $guid = $customer->getValue('guid');
+        $entityId = $customer->getEntityId();
 
         // Queue for cleanup
         $this->testEntities[] = $customer;
 
         // Load the entity by guid (no need for obj_type)
-        $loadedCustomer = $dm->getByGuid($guid);
+        $loadedCustomer = $dm->getByGuid($entityId);
         $this->assertEquals($customer->getEntityId(), $loadedCustomer->getEntityId());
     }
 
@@ -329,7 +329,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $cmsSite;
 
         // Make sure the guid was set when saved
-        $this->assertNotEmpty($cmsSite->getValue('guid'));
+        $this->assertNotEmpty($cmsSite->getEntityId());
     }
 
     /**

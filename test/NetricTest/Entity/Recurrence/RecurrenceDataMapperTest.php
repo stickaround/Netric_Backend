@@ -51,6 +51,13 @@ class RecurrenceDataMapperTest extends TestCase
     private $testRecurrence = [];
 
     /**
+     * Entity definition for tasks
+     * 
+     * @var EntityDefinition
+     */
+    private $taskEntityDefintion = null;
+
+    /**
      * Setup each test
      */
     protected function setUp(): void
@@ -65,6 +72,9 @@ class RecurrenceDataMapperTest extends TestCase
         $entDefLoader = $sm->get(EntityDefinitionLoaderFactory::class);
         $database = $sm->get(RelationalDbFactory::class);
         $this->dataMapper = new RecurrenceRdbDataMapper($database, $entDefLoader);
+
+        // Create entity definition for tasks
+        $this->taskEntityDefintion = $entDefLoader->get(ObjectTypes::TASK);
     }
 
     public function testConstruct()
@@ -85,7 +95,7 @@ class RecurrenceDataMapperTest extends TestCase
     public function testSave()
     {
         $rp = new RecurrencePattern();
-        $rp->setObjType(ObjectTypes::TASK);
+        $rp->setObjTypeId($this->taskEntityDefintion->getEntityDefinitionId());
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/1/2010"));
@@ -100,7 +110,7 @@ class RecurrenceDataMapperTest extends TestCase
     public function testUpdateParentObjectId()
     {
         $rp = new RecurrencePattern();
-        $rp->setObjType(ObjectTypes::TASK);
+        $rp->setObjTypeId($this->taskEntityDefintion->getEntityDefinitionId());
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/1/2010"));
@@ -117,7 +127,7 @@ class RecurrenceDataMapperTest extends TestCase
     {
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_WEEKLY,
-            "obj_type" => ObjectTypes::TASK,
+            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01",
@@ -135,7 +145,6 @@ class RecurrenceDataMapperTest extends TestCase
 
         $this->assertTrue($opened->getId() > 0);
         $this->assertEquals($data['recur_type'], $opened->getRecurType());
-        $this->assertEquals($data['obj_type'], $opened->getObjType());
         $this->assertEquals($data['interval'], $opened->getInterval());
         $this->assertEquals(new \DateTime($data['date_start']), $opened->getDateStart());
         $this->assertEquals(new \DateTime($data['date_end']), $opened->getDateEnd());
@@ -154,7 +163,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "obj_type" => ObjectTypes::TASK,
+            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
@@ -176,7 +185,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "obj_type" => ObjectTypes::TASK,
+            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
@@ -204,7 +213,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "obj_type" => ObjectTypes::TASK,
+            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-02-01",
             "date_end" => "2015-03-01",

@@ -91,19 +91,19 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         $objData = json_decode($rawBody, true);
 
         // At the very least we required that the guid of a saved message be set to send it
-        if (!isset($objData['guid'])) {
+        if (!isset($objData['entity_id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write("guid is a required param");
             return $response;
         }
 
         // Get the email entity to send
-        $emailMessage = $this->entityLoader->getByGuid($objData['guid']);
+        $emailMessage = $this->entityLoader->getByGuid($objData['entity_id']);
 
         // Return 404 if message was not found to send
         if ($emailMessage === null) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
-            $response->write("No message guid {$objData['guid']} was found");
+            $response->write("No message guid {$objData['entity_id']} was found");
             return $response;
         }
 
@@ -154,7 +154,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         try {
             $messageGuid = $this->deliveryService->deliverMessageFromFile($recipient, $files['message']['tmp_name']);
             $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
-            $response->write(['result' => true, 'guid' => $messageGuid]);
+            $response->write(['result' => true, 'entity_id' => $messageGuid]);
             return $response;
         } catch (RuntimeException $exception) {
             $this->log->error(

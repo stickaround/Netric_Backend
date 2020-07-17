@@ -247,7 +247,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
             if ($file) {
                 $ret[] = array(
-                    "guid" => $file->getEntityId(),
+                    "entity_id" => $file->getEntityId(),
                     "name" => $file->getValue("name"),
                     "ts_updated" => $file->getValue("ts_updated")
                 );

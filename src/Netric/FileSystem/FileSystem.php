@@ -126,8 +126,8 @@ class FileSystem implements Error\ErrorAwareInterface
         }
 
         // Check first if we have $fileId, if so then we will just load that file id
-        if ($fileEntityData && isset($fileEntityData["guid"]) && !empty($fileEntityData["guid"])) {
-            $file = $this->entityLoader->getByGuid($fileEntityData["guid"]);
+        if ($fileEntityData && isset($fileEntityData["entity_id"]) && !empty($fileEntityData["entity_id"])) {
+            $file = $this->entityLoader->getByGuid($fileEntityData["entity_id"]);
             $file->setValue("name", $fileEntityData["name"]);
         } else {
             // Create a new file that will represent the file data

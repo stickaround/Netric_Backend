@@ -56,8 +56,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchById($entity, $entityId, $skipObjRefUpdate = false)
     {
-        $sql = 'SELECT guid, object_type_id, field_data FROM ' . self::ENTITY_TABLE . ' WHERE guid=:id';
-        $result = $this->database->query($sql, ['guid' => $entityId]);
+        $sql = 'SELECT entity_id, object_type_id, field_data FROM ' . self::ENTITY_TABLE . ' WHERE entity_id=:id';
+        $result = $this->database->query($sql, ['entity_id' => $entityId]);
 
         // The entity was not found
         if ($result->rowCount() === 0) {
@@ -221,8 +221,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchDataByGuid(string $guid): ?array
     {
-        $sql = 'SELECT guid, field_data FROM ' . self::ENTITY_TABLE . ' where guid = :guid';
-        $result = $this->database->query($sql, ['guid' => $guid]);
+        $sql = 'SELECT entity_id, field_data FROM ' . self::ENTITY_TABLE . ' where entity_id = :entity_id';
+        $result = $this->database->query($sql, ['entity_id' => $guid]);
 
         // The object was not found
         if ($result->rowCount() === 0) {
@@ -238,7 +238,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * Some of these may be generated at update/insert so they could have
          * changed after the entity was exported and saved to the column
          */
-        $entityData['guid'] = $row['guid'];
+        $entityData['entity_id'] = $row['entity_id'];
         return $entityData;
     }
 
@@ -304,7 +304,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Delete the object from the object table
         // TODO: Change guid to entity_id
-        $sql = "DELETE FROM " . self::ENTITY_TABLE . " WHERE guid=:id";
+        $sql = "DELETE FROM " . self::ENTITY_TABLE . " WHERE entity_id=:id";
         $result = $this->database->query($sql, ['id' => $entity->getEntityId()]);
 
         // We just need to make sure the main object was deleted
@@ -361,17 +361,17 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
     /**
      * Update the entity data
-     * 
+     *
      * @param $targetTable Table that we will be using to update the entity (deleted or active partition)
      * @param $entity The entity that will be updated
      */
     private function updateEntityData(string $targetTable, Entity $entity)
     {
-        $sql = "UPDATE $targetTable SET field_data = :field_data, f_deleted = :f_deleted WHERE guid = :guid";
+        $sql = "UPDATE $targetTable SET field_data = :field_data, f_deleted = :f_deleted WHERE entity_id=:entity_id";
         $this->database->query($sql, [
             "field_data" => json_encode($entity->toArray()),
             "f_deleted" => $entity->getValue('f_deleted'),
-            "guid" => $entity->getValue('guid')
+            "entity_id" => $entity->getValue('entity_id')
         ]);
     }
 
@@ -397,11 +397,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             }
 
             $val = $entity->getValue($fname);
-
-            // Skip over an empty id field - we won't want to try and set it
-            if ($fname === 'id' && empty($val)) {
-                continue;
-            }
 
             switch ($fdef->type) {
                 case 'auto':
@@ -518,14 +513,14 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function entityHasMoved($def, string $guid)
     {
-        $sql = 'SELECT new_guid FROM ' . self::ENTITY_MOVED_TABLE . '  WHERE ' .
-            'old_guid=:old_guid';
+        $sql = 'SELECT new_id FROM ' . self::ENTITY_MOVED_TABLE . '  WHERE ' .
+            'old_id=:old_id';
         $result = $this->database->query($sql, [
-            'old_guid' => $guid
+            'old_id' => $guid
         ]);
         if ($result->rowCount() > 0) {
             $row = $result->fetch();
-            return $row['new_guid'];
+            return $row['new_id'];
         }
 
         return false;
@@ -546,8 +541,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
 
         $data = [
-            'old_guid' => $fromGuid,
-            'new_guid' => $toGuid,
+            'old_id' => $fromGuid,
+            'new_id' => $toGuid,
         ];
         $this->database->insert(self::ENTITY_MOVED_TABLE, $data);
 

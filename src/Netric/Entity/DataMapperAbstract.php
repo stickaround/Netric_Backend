@@ -761,7 +761,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         // Exclude this object from the query because of course it will be a duplicate
         if ($entity->getEntityId()) {
-            $query->andWhere("guid")->doesNotEqual($entity->getEntityId());
+            $query->andWhere("entity_id")->doesNotEqual($entity->getEntityId());
         }
 
         /*
@@ -797,9 +797,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     public function setGlobalId(EntityInterface $entity)
     {
-        if (!$entity->getValue('guid')) {
+        if (!$entity->getValue('entity_id')) {
             $uuid4 = Uuid::uuid4();
-            $entity->setValue('guid', $uuid4->toString());
+            $entity->setValue('entity_id', $uuid4->toString());
         }
     }
 

@@ -111,9 +111,9 @@ class RecurrencePattern implements ErrorAwareInterface
     /**
      * Name of the object type associated with this recurrence
      *
-     * @var string Name of EntityDefintion
+     * @var string ID of EntityDefintion
      */
-    private $objType = null;
+    private $objTypeId = null;
 
     /**
      * ID of originating entity - orginal event or task where recur was started
@@ -255,8 +255,8 @@ class RecurrencePattern implements ErrorAwareInterface
             $this->fAllDay = $data['f_active'];
         }
 
-        if (isset($data['obj_type'])) {
-            $this->objType = $data['obj_type'];
+        if (isset($data['object_type_id'])) {
+            $this->objTypeId = $data['object_type_id'];
         }
 
         if (isset($data['first_entity_id'])) {
@@ -308,7 +308,7 @@ class RecurrencePattern implements ErrorAwareInterface
             "date_start" => $dateStart,
             "date_end" => $dateEnd,
             "f_active" => $this->fActive,
-            "obj_type" => $this->objType,
+            "object_type_id" => $this->objTypeId,
             "first_entity_id" => $this->firstEntityId,
             "date_processed_to" => $dateProcessedTo,
             "ep_locked" => $this->epLocked,
@@ -376,9 +376,9 @@ class RecurrencePattern implements ErrorAwareInterface
      *
      * @param string $objType
      */
-    public function setObjType($objType)
+    public function setObjTypeId($objTypeId)
     {
-        $this->objType = $objType;
+        $this->objTypeId = $objTypeId;
     }
 
     /**
@@ -386,9 +386,9 @@ class RecurrencePattern implements ErrorAwareInterface
      *
      * @return string
      */
-    public function getObjType()
+    public function getObjTypeId()
     {
-        return $this->objType;
+        return $this->objTypeId;
     }
 
     /**

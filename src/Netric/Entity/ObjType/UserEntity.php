@@ -179,7 +179,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isAnonymous()
     {
-        return ($this->getValue('guid') == self::USER_ANONYMOUS);
+        return ($this->getValue('entity_id') == self::USER_ANONYMOUS);
     }
 
     /**
@@ -187,7 +187,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isSystem()
     {
-        return ($this->getValue('guid') == self::USER_SYSTEM);
+        return ($this->getValue('entity_id') == self::USER_SYSTEM);
     }
 
     /**

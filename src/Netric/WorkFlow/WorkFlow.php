@@ -33,16 +33,9 @@ class WorkFlow
     /**
      * Unique ID of this workflow
      *
-     * @var int
-     */
-    private $id = null;
-
-    /**
-     * Unique Global ID of this workflow
-     *
      * @var string
      */
-    private $guid = null;
+    private $entityId = '';
 
     /**
      * Textual name
@@ -187,12 +180,8 @@ class WorkFlow
      */
     public function fromArray($data)
     {
-        if (isset($data['id'])) {
-            $this->id = $data['id'];
-        }
-
-        if (isset($data['guid'])) {
-            $this->guid = $data['guid'];
+        if (isset($data['entity_id'])) {
+            $this->entityId = $data['entity_id'];
         }
 
         if (isset($data['name'])) {
@@ -306,9 +295,8 @@ class WorkFlow
      */
     public function toArray()
     {
-        $ret = array(
-            "id" => $this->id,
-            "guid" => $this->guid,
+        $ret = [
+            "entity_id" => $this->entityId,
             "name" => $this->name,
             "notes" => $this->notes,
             "obj_type" => $this->objType,
@@ -322,7 +310,7 @@ class WorkFlow
             "allow_manual" => $this->allowManual,
             "last_run" => ($this->lastRun) ? $this->lastRun->format("Y-m-d H:i:s T") : null,
             "only_on_conditions_unmet" => $this->onlyOnConditionsUnmet,
-        );
+        ];
 
         // Set conditions
         $ret['conditions'] = [];
@@ -340,41 +328,23 @@ class WorkFlow
     }
 
     /**
-     * Get the global id of this workflow
-     *
-     * @return int
-     */
-    public function getGuid()
-    {
-        return $this->guid;
-    }
-
-    /**
-     * Get the global id of this workflow
-     */
-    public function setGuid($guid)
-    {
-        $this->guid = $guid;
-    }
-
-    /**
      * Get the id of this workflow
      *
-     * @return int
+     * @return string
      */
-    public function getWorkFlowId()
+    public function getWorkFlowId(): string
     {
-        return $this->id;
+        return $this->entityId;
     }
 
     /**
      * Set the id of this workflow
      *
-     * @param int $id
+     * @param string $entityId
      */
-    public function setId($id)
+    public function setWorkflowId(string $entityId)
     {
-        $this->id = $id;
+        $this->entityId = $entityId;
     }
 
     /**

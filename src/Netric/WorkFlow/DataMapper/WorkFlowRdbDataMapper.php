@@ -6,8 +6,6 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\Error\ErrorAwareInterface;
-use Netric\Error\Error;
 use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\Action\ActionFactory;
@@ -103,17 +101,17 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
         // Set conditions
         if (count($data['conditions'])) {
-            $workflowEntity->setValue("conditions", json_encode($data['conditions']));
-        } else {
-            $workflowEntity->setValue("conditions", "");
+            $workflowEntity->setValue(
+                "conditions",
+                json_encode($data['conditions'])
+            );
         }
 
         // Save the entity
         $workflowId = $this->entityLoader->save($workflowEntity);
 
         // Set the id
-        $workFlow->setId($workflowId);
-        $workFlow->setGuid($workflowEntity->getEntityId());
+        $workFlow->setWorkflowId($workflowEntity->getEntityId());
 
         // Save actions
         $this->saveActions($workFlow->getActions(), $workFlow->getRemovedActions(), $workFlow->getWorkFlowId());
@@ -283,8 +281,8 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
         // Create data array to import
         $importData = array(
-            "id" => $row['id'],
-            "guid" => $row['guid'],
+            "id" => $row['entity_id'],
+            "guid" => $row['entity_id'],
             "name" => $row['name'],
             "obj_type" => $row['object_type'],
             "notes" => $row['notes'],
@@ -299,7 +297,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             "last_run" => $row['ts_lastrun'],
             "only_on_conditions_unmet" => $row['f_condition_unmet'],
             "conditions" => ($row['conditions']) ? json_decode($row['conditions'], true) : null,
-            "actions" => $this->getActionsArray($row['guid']),
+            "actions" => $this->getActionsArray($row['entity_id']),
         );
 
         // Set the data from the row
@@ -693,11 +691,9 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             throw new \InvalidArgumentException("First param is required to load an action");
         }
 
-        $sql = "SELECT * FROM entities WHERE id=:id";
-        $result = $this->database->query($sql, ["id" => $actionId]);
-
-        if ($result->rowCount()) {
-            $workflowData = $result->fetch();
+        $actionEntity = $this->entityLoader->getByGuid($actionId);
+        if ($actionEntity) {
+            $workflowData = $actionEntity->toArray();
 
             /*
              * If we have field_data in our result, it means that we have already implemented the new definiton schema

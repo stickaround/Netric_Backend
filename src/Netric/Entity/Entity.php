@@ -103,7 +103,7 @@ class Entity implements EntityInterface
      */
     public function getEntityId(): string
     {
-        $guid = $this->getValue("guid");
+        $guid = $this->getValue("entity_id");
         // Convert null to empty string
         return $guid ? $guid : '';
     }
@@ -620,9 +620,9 @@ class Entity implements EntityInterface
         $this->processTempFiles($sm->get(FileSystemFactory::class));
 
         // Set permissions for entity folder (if we have attachments)
-        $folderPath = '/System/Entity/' . $this->getValue('guid');
+        $folderPath = '/System/Entity/' . $this->getValue('entity_id');
         $entityFolder = $sm->get(FileSystemFactory::class)->openFolder($folderPath);
-        if ($entityFolder && $entityFolder->getValue('guid')) {
+        if ($entityFolder && $entityFolder->getValue('entity_id')) {
             $dacl = $sm->get(DaclLoaderFactory::class)->getForEntity($this);
             if ($dacl) {
                 $sm->get(FileSystemFactory::class)->setFolderDacl($entityFolder, $dacl);
@@ -959,7 +959,7 @@ class Entity implements EntityInterface
                             if ($file) {
                                 if ($fileSystem->fileIsTemp($file)) {
                                     // Move file to a permanent directory
-                                    $objDir = "/System/Entity/" . $this->getValue('guid');
+                                    $objDir = "/System/Entity/" . $this->getValue('entity_id');
                                     $fldr = $fileSystem->openFolder($objDir, true);
                                     if ($fldr && $fldr->getEntityId()) {
                                         $fileSystem->moveFile($file, $fldr);
@@ -988,7 +988,7 @@ class Entity implements EntityInterface
     {
         $thisData = $this->toArray();
         $thisData['id'] = null;
-        $thisData['guid'] = null;
+        $thisData['entity_id'] = null;
         $thisData['revision'] = 0;
         $toEntity->fromArray($thisData);
     }

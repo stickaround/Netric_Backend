@@ -92,7 +92,7 @@ class ProjectEntity extends Entity implements EntityInterface
         parent::cloneTo($toEntity);
 
         // Assign back the $toEntity Id since it was set to null when cloning this project using ::cloneTo().
-        $toEntity->setValue('guid', $toEntityId);
+        $toEntity->setValue('entity_id', $toEntityId);
 
         // Query the tasks of this project entity
         $query = new EntityQuery(ObjectTypes::TASK);

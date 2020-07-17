@@ -52,8 +52,8 @@ class PermissionController extends Mvc\AbstractAccountController
         $dacl = $daclLoader->getForEntityDefinition($def);
 
         // If id is set, then we will update the dacl and retrieve the entity by id
-        if (!empty($objData['guid'])) {
-            $entity = $entityLoader->getByGuid($objData['guid']);
+        if (!empty($objData['entity_id'])) {
+            $entity = $entityLoader->getByGuid($objData['entity_id']);
             $dacl = $daclLoader->getForEntity($entity);
         }
 

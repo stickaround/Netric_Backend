@@ -16,6 +16,11 @@ use Netric\Db\Relational\Exception\DatabaseQueryException;
 class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements EntityDefinitionDataMapperInterface
 {
     /**
+     * Entity type table
+     */
+    const ENTITY_TYPE_TABLE = 'entity_type';
+
+    /**
      * Handle to database
      *
      * @var RelationalDbInterface
@@ -56,8 +61,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             default_activity_level, is_private, store_revisions,
             recur_rules, inherit_dacl_ref, parent_field, uname_settings,
             list_title, icon, system_definition_hash
-			from app_object_types where name=:app_object_types";
-        $result = $this->database->query($sql, ['app_object_types' => $objType]);
+			from " . self::ENTITY_TYPE_TABLE . " where name=:name";
+        $result = $this->database->query($sql, ['name' => $objType]);
 
 
         if ($result->rowCount()) {
@@ -231,7 +236,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     public function fetchById(string $definitionTypeId): ?EntityDefinition
     {
-        $sql = "SELECT name FROM app_object_types WHERE id= :id";
+        $sql = 'SELECT name FROM ' . self::ENTITY_TYPE_TABLE . ' WHERE id= :id';
         $result = $this->database->query($sql, ["id" => $definitionTypeId]);
         // The object was not found
         if ($result->rowCount() === 0) {
@@ -270,7 +275,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         ); // Will cascade
 
         $this->database->delete(
-            'app_object_types',
+            self::ENTITY_TYPE_TABLE,
             ['id' => $def->getEntityDefinitionId()]
         );
 
@@ -312,9 +317,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
         $appObjectTypeId = $def->getEntityDefinitionId();
         if ($appObjectTypeId) {
-            $this->database->update("app_object_types", $data, ['id' => $appObjectTypeId]);
+            $this->database->update(self::ENTITY_TYPE_TABLE, $data, ['id' => $appObjectTypeId]);
         } else {
-            $appObjectTypeId = $this->database->insert("app_object_types", $data, 'id');
+            $appObjectTypeId = $this->database->insert(self::ENTITY_TYPE_TABLE, $data, 'id');
 
             $def->setEntityDefinitionId($appObjectTypeId);
         }
@@ -846,7 +851,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     public function getAllObjectTypes()
     {
-        $sql = "select name from app_object_types";
+        $sql = "select name from " . self::ENTITY_TYPE_TABLE;
         $result = $this->database->query($sql);
 
         foreach ($result->fetchAll() as $row) {

@@ -70,7 +70,7 @@ class ApplicationTest extends TestCase
         );
 
         // Get accounts associated with the amil addres(or username if the same)
-        $accounts = $this->application->getAccountsByEmail("test@test.com");
+        $accounts = $this->application->getAccountsByEmail("automated_test@netric.com");
 
         // Make sure the above user was associated with at least one account
         $this->assertGreaterThanOrEqual(1, count($accounts));

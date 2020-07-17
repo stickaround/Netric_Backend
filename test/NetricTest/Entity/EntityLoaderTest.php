@@ -69,20 +69,20 @@ class EntityLoaderTest extends TestCase
         $dataMapper->save($cust);
 
         // Use the laoder to get the object
-        $ent = $loader->getByGuid($cust->getValue('guid'));
-        $this->assertEquals($cust->getValue('guid'), $ent->getValue('guid'));
+        $ent = $loader->getByGuid($cust->getEntityId());
+        $this->assertEquals($cust->getEntityId(), $ent->getEntityId());
 
         // Test to see if the isLoaded function indicates the entity has been loaded and cached locally
         $refIm = new \ReflectionObject($loader);
         $isLoaded = $refIm->getMethod("isLoaded");
         $isLoaded->setAccessible(true);
-        $this->assertTrue($isLoaded->invoke($loader, "guid", $cust->getValue('guid')));
+        $this->assertTrue($isLoaded->invoke($loader, $cust->getEntityId()));
 
         // Test to see if it is cached
         $refIm = new \ReflectionObject($loader);
         $getCached = $refIm->getMethod("getCached");
         $getCached->setAccessible(true);
-        $this->assertTrue(is_array($getCached->invoke($loader, "guid", $cust->getValue('guid'))));
+        $this->assertTrue(is_array($getCached->invoke($loader, $cust->getEntityId())));
 
         // Cleanup
         $dataMapper->delete($cust, true);
@@ -108,34 +108,5 @@ class EntityLoaderTest extends TestCase
         $entity = $loader->getByUniqueName(ObjectTypes::TASK, "my_test");
 
         $this->assertEquals($task, $entity);
-    }
-
-    /**
-     * Reload makes sure than an entity is refreshed with the latest version
-     */
-    public function testReload()
-    {
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-
-        // Create a new entity which will save it in cache
-        $task1 = $entityLoader->create(ObjectTypes::TASK);
-        $task1->setValue("name", 'test_reload');
-        $entityLoader->save($task1);
-        $this->testEntities[] = $task1; // cleanup
-
-        // Now save changes directly to the database bypassing the cache
-        $task2 = $dataMapper->getByGuid($task1->getEntityId());
-        $task2->setValue("name", "test_reload_edited");
-        $dataMapper->save($task2);
-
-        // First assert that they are different
-        $this->assertNotEquals($task2->getValue("name"), $task1->getValue("name"));
-
-        // Now reload task 1
-        $entityLoader->reload($task1);
-
-        // Make sure the values match what was in the database
-        $this->assertEquals($task2->getValue("name"), $task1->getValue("name"));
     }
 }

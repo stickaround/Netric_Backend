@@ -96,8 +96,8 @@ class RecurrenceIdentityMapper
             }
 
             // Make sure the object type is correct for validation of fields
-            if ($recurPattern->getObjType() != $def->getObjType()) {
-                $recurPattern->setObjType($def->getObjType());
+            if ($recurPattern->getObjTypeId() != $def->getEntityDefinitionId()) {
+                $recurPattern->setObjTypeId($def->getEntityDefinitionId());
             }
 
             // Get the start date which is required for all recurring patterns

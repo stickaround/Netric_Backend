@@ -305,8 +305,8 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      */
     private function createInstance(RecurrencePattern $recurrencePattern, \DateTime $date)
     {
-        $objType = $recurrencePattern->getObjType();
         $firstEntity = $this->entityLoader->getByGuid($recurrencePattern->getFirstEntityId());
+        $objType = $firstEntity->getDefinition()->getObjType();
         // If the first entity no longer exists then we should cancel this recurrence pattern
         if (!$firstEntity) {
             return false;

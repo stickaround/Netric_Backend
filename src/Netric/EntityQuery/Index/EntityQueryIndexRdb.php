@@ -67,7 +67,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $sql = "UPDATE $tableName
                 SET tsv_fulltext=to_tsvector('english', :full_text_terms)
-                WHERE guid=:id";
+                WHERE entity_id=:id";
 
         /*
          * We will be using rdb::query() here instead of rdb::update()
@@ -679,7 +679,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case FIELD::TYPE_GROUPING_MULTI:
                 // Make sure that the grouping value is provided
                 if ($value) {
-                    $conditionString = "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$fieldName}' @> jsonb_build_array('$value'))";
+                    $conditionString = "entity_id NOT IN (SELECT entity_id FROM $objectTable WHERE field_data->'{$fieldName}' @> jsonb_build_array('$value'))";
                 } else {
                     $conditionString = "(field_data->'$fieldName' != 'null'::jsonb OR field_data->'$fieldName' != '[]'::jsonb)";
                 }
@@ -773,7 +773,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         if ($operator == Where::OPERATOR_EQUAL_TO) {
             $conditionString = "field_data->'{$field->name}' @> jsonb_build_array('$value')";
         } else {
-            $conditionString = "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM $objectTable WHERE field_data->'{$field->name}' @> jsonb_build_array('$value'))";
+            $conditionString = "entity_id NOT IN (SELECT entity_id FROM $objectTable WHERE field_data->'{$field->name}' @> jsonb_build_array('$value'))";
         }
 
         return $conditionString;
@@ -790,7 +790,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function queryAggregation(EntityDefinition $entityDefinition, AggregationInterface $agg, Results $results, $conditionQuery)
     {
-        $objectTable = self::ENTITY_TABLE;
         $fieldName = $agg->getField();
         $aggTypeName = $agg->getTypeName();
 
@@ -812,12 +811,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $orderBy = "GROUP BY $fieldName";
         }
 
+        $sql = 'SELECT ' . $queryFields . ' FROM ' . self::ENTITY_TABLE;
+
         // Add "and" operator in the $conditionQuery if it is not empty
         if ($conditionQuery) {
-            $conditionQuery = "AND ($conditionQuery)";
+            $sql .= " WHERE $conditionQuery";
         }
 
-        $sql = "SELECT $queryFields FROM $objectTable WHERE field_data->>'id' IS NOT NULL $conditionQuery $orderBy";
+        $sql .= " $orderBy";
 
         $result = $this->database->query($sql);
 

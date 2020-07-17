@@ -257,7 +257,6 @@ class EntityTest extends TestCase
         $cust->cloneTo($cloned);
 
         $this->assertEmpty($cloned->getEntityId());
-        $this->assertEmpty($cloned->getValue('guid'));
         $this->assertEquals($cust->getValue("name"), $cloned->getValue("name"));
         $this->assertEquals($cust->getValue("f_nocall"), $cloned->getValue("f_nocall"));
         $this->assertEquals($cust->getValue("owner_id"), $cloned->getValue("owner_id"));
@@ -488,7 +487,7 @@ class EntityTest extends TestCase
         // We will now create a query to get document with is_rootspace set to true
         $query = new EntityQuery(ObjectTypes::DOCUMENT);
         $query->where('is_rootspace')->equals(true);
-        $query->where('guid')->equals($document->getEntityId());
+        $query->where('entity_id')->equals($document->getEntityId());
         $res = $index->executeQuery($query);
 
         // This should return 1 result since we have created a document with is_rootspace field set to true

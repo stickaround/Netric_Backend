@@ -240,9 +240,6 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         $groupData["path"] = $path;
 
-        // Since we are saving a new group, then we need to unset the id
-        unset($groupData['id']);
-
         // Default to inserting
         $this->database->insert("object_groupings", $groupData);
         return true;

@@ -128,7 +128,7 @@ class EntityDefinitionLoader
     private function loadDefinition(string $objType)
     {
         // First try to load from cache
-        $def = $this->getCached($objType);
+        //$def = $this->getCached($objType);
 
         // No cache, then load from dataMapper
         if (!$def) {

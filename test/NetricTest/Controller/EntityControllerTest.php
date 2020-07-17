@@ -219,11 +219,11 @@ class EntityControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(['guid' => $site->getValue('guid')]));
+        $req->setBody(json_encode(['entity_id' => $site->getEntityId]));
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $this->assertEquals($site->getValue('guid'), $ret['guid'], var_export($ret, true));
+        $this->assertEquals($site->getEntityId, $ret['guid'], var_export($ret, true));
     }
 
     public function testGetDefinitionForms()

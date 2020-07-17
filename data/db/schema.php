@@ -156,7 +156,7 @@ return [
 
     "entity_form" => [
         "PROPERTIES" => [
-            'entity_form_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'entity_form_id' => ['type' => SchemaProperty::TYPE_UUID],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
             'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'team_id' => ['type' => SchemaProperty::TYPE_UUID],
@@ -173,7 +173,7 @@ return [
         ]
     ],
 
-    "entity_types" => [
+    "entity_type" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ["type" => SchemaProperty::TYPE_CHAR_256],
@@ -286,7 +286,7 @@ return [
             'old_id' => ['type' => SchemaProperty::TYPE_UUID],
             'new_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
         ],
-        'PRIMARY_KEY' => ["old_guid"],
+        'PRIMARY_KEY' => ["old_id"],
     ],
 
     /**
@@ -311,6 +311,7 @@ return [
      */
     "entity_recurrence" => [
         "PROPERTIES" => [
+            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'entity_recurrence_id' => ['type' => SchemaProperty::TYPE_UUID],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
             'type' => ['type' => SchemaProperty::TYPE_SMALLINT],

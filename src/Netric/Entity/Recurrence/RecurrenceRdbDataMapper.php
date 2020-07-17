@@ -7,6 +7,7 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Error;
 use Netric\DataMapperAbstract;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Relational Database DataMapper for recurrence pattern
@@ -39,7 +40,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     /**
      * Define table names
      */
-    const ENTITY_RECUR_TABLE = 'object_recurrence';
+    const ENTITY_RECUR_TABLE = 'entity_recurrence';
 
     /**
      * Class constructor to set up dependencies
@@ -76,16 +77,17 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $data = $recurPattern->toArray();
         $dayOfWeekMask = $recurPattern->getDayOfWeekMask();
 
-        if (!$data['obj_type']) {
+        if (!$data['object_type_id']) {
             throw new \InvalidArgumentException("No object type set for recurring pattern");
         }
 
-        // Get object type id
-        $def = $this->entityDefinitionLoader->get($data['obj_type']);
+        // get/set entity_recurrence_id
+        $entityRecurrenceId = isset($data['entity_recurrence_id'])
+            ? $data['entity_recurrence_id'] : Uuid::uuid4()->toString();
 
         $recurrenceData = [
-            'object_type_id' => $def->getEntityDefinitionId(),
-            'object_type' => $data['obj_type'],
+            'entity_recurrence_id' => $entityRecurrenceId,
+            'object_type_id' => $data['object_type_id'],
             'date_processed_to' => $data['date_processed_to'],
             'parent_entity_id' => $data['first_entity_id'],
             'type' => $data['recur_type'],
@@ -171,7 +173,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         // If the recurrence pattern do not have an Id, then we will get the last inserted id
         if (!$recurPattern->getId()) {
             // Get the last inserted id in the table
-            $recurrenceId = $this->database->getLastInsertId("object_recurrence_id_seq");
+            $recurrenceId = $this->database->getLastInsertId(self::ENTITY_RECUR_TABLE . "_id_seq");
             $recurPattern->setId($recurrenceId);
         }
 
@@ -185,7 +187,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      */
     public function getNextId()
     {
-        $sql = "select nextval('object_recurrence_id_seq') as id";
+        $sql = "select nextval('" . self::ENTITY_RECUR_TABLE . "_id_seq') as id";
         $result = $this->database->query($sql);
 
         if ($result->rowCount()) {
@@ -205,7 +207,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      */
     public function load($recurId)
     {
-        $sql = "SELECT id, object_type_id, object_type, date_processed_to, parent_entity_id,
+        $sql = "SELECT id, object_type_id, date_processed_to, parent_entity_id,
                     type, interval, date_start,
 					date_end, dayofmonth, instance, monthofyear, ep_locked,
 					dayofweekmask[1] as day1, dayofweekmask[2] as day2, dayofweekmask[3] as day3,
@@ -221,7 +223,6 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             $recurrenceData = [
                 "id" => $row['id'],
                 "recur_type" => $row['type'],
-                "obj_type" => $row['object_type'],
                 "date_processed_to" => $row['date_processed_to'],
                 "first_entity_id" => $row['parent_entity_id'],
                 "interval" => $row['interval'],
@@ -234,12 +235,14 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             ];
 
             // Load recurrence rules
-            if ($row['object_type']) {
-                $def = $this->entityDefinitionLoader->get($row['object_type']);
-                $recurrenceData['field_date_start'] = $def->recurRules['field_date_start'];
-                $recurrenceData['field_time_start'] = $def->recurRules['field_time_start'];
-                $recurrenceData['field_date_end'] = $def->recurRules['field_date_end'];
-                $recurrenceData['field_time_end'] = $def->recurRules['field_time_end'];
+            if ($row['object_type_id']) {
+                $def = $this->entityDefinitionLoader->getById($row['object_type_id']);
+                if ($this->entityDefinitionLoader->getById($row['object_type_id'])) {
+                    $recurrenceData['field_date_start'] = $def->recurRules['field_date_start'];
+                    $recurrenceData['field_time_start'] = $def->recurRules['field_time_start'];
+                    $recurrenceData['field_date_end'] = $def->recurRules['field_date_end'];
+                    $recurrenceData['field_time_end'] = $def->recurRules['field_time_end'];
+                }
             }
 
             // Create recurrence pattern to return
@@ -296,7 +299,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         }
 
         $result = $this->database->update(
-            "object_recurrence",
+            self::ENTITY_RECUR_TABLE,
             ["parent_entity_id" => $entityId],
             ["id" => $recurrenceId]
         );
@@ -327,7 +330,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     public function deleteById($recurId)
     {
 
-        $result = $this->database->delete("object_recurrence", ["id" => $recurId]);
+        $result = $this->database->delete(self::ENTITY_RECUR_TABLE, ["id" => $recurId]);
         return ($result) ? true : false;
     }
 
@@ -362,7 +365,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $def = $this->entityDefinitionLoader->get($objType);
         $dateToString = $dateTo->format("Y-m-d");
 
-        $sql = "SELECT id FROM object_recurrence
+        $sql = "SELECT id FROM " . self::ENTITY_RECUR_TABLE . "
 				  WHERE f_active is true AND
 				  date_processed_to<:date_to_string
 				  AND (date_end is null or date_end>=:date_to_string)

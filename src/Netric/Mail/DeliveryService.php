@@ -193,7 +193,7 @@ class DeliveryService extends AbstractHasErrors
         $emailEntity->setValue("message_uid", $uniqueId);
         $emailEntity->setValue("flag_seen", false);
         $this->entityLoader->save($emailEntity);
-        return $emailEntity->getValue('guid');
+        return $emailEntity->getEntityId();
     }
 
     /**

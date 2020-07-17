@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity activity class
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
@@ -26,7 +28,7 @@ class UserTest extends TestCase
      * @var \Netric\Account\Account
      */
     private $account = null;
-    
+
     /**
      * Test user
      *
@@ -47,12 +49,12 @@ class UserTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        
+
         // Setup entity datamapper for handling users
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
-        
+
         // Make sure old test user does not exist
         $query = new EntityQuery(ObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
@@ -73,7 +75,7 @@ class UserTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         if ($this->user) {
             $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
             $dm->delete($this->user, true);
@@ -167,7 +169,7 @@ class UserTest extends TestCase
     public function testGetGroups()
     {
         $this->user->addMultiValue("groups", Entity\ObjType\UserEntity::GROUP_ADMINISTRATORS);
-        
+
         $groups = $this->user->getGroups();
 
         // Make sure administrators was added
@@ -194,7 +196,7 @@ class UserTest extends TestCase
         $user = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
 
         $userGuid = Uuid::uuid4()->toString();
-        $user->setValue('guid', $userGuid);
+        $user->setValue('entity_id', $userGuid);
         $user->setValue('owner_id', Uuid::uuid4()->toString());
 
         // Normally the entity would return the owner_id, but users always return themselves

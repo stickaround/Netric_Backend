@@ -220,7 +220,6 @@ abstract class AbstractAction implements ErrorAwareInterface
     public function toArray()
     {
         $data = array(
-            "id" => $this->id,
             "guid" => $this->guid,
             "name" => $this->name,
             "type" => $this->type,

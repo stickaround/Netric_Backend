@@ -6,7 +6,7 @@ use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\UserEntity;
 
 return array(
-    "guid" => array(
+    "entity_id" => array(
         'title' => "ID",
         'type' => Field::TYPE_UUID,
         'subtype' => "",

@@ -72,16 +72,12 @@ class EntityLoader
     /**
      * Determine if an entity is already cached in memory
      *
-     * @param string $id
+     * @param string $entityId
      * @return bool true if the entity was already loaded into memory, false if not
      */
-    private function isLoaded($objType, $id)
+    private function isLoaded(string $entityId)
     {
-        if (isset($this->loadedEntities[$objType][$id]) && $this->loadedEntities[$objType][$id] != null) {
-            return true;
-        }
-
-        return false;
+        return (!empty($this->loadedEntities[$entityId])) ? true : false;
     }
 
     /**
@@ -91,9 +87,9 @@ class EntityLoader
      * @param string $id
      * @return array|bool Array of data if cached or false if nut found
      */
-    private function getCached($objType, $id)
+    private function getCached(string $entityId)
     {
-        $key = $this->dataMapper->getAccount()->getName() . "/objects/$objType/$id";
+        $key = $this->dataMapper->getAccount()->getName() . "/entity/" . $entityId;
         return $this->cache->get($key);
     }
 
@@ -166,12 +162,12 @@ class EntityLoader
      */
     public function getByGuid(string $guid): ?EntityInterface
     {
-        if ($this->isLoaded('guid', $guid)) {
-            return $this->loadedEntities['guid'][$guid];
+        if ($this->isLoaded($guid)) {
+            return $this->loadedEntities[$guid];
         }
 
         // First check to see if the object is cached
-        $data = $this->getCached('guid', $guid);
+        $data = $this->getCached($guid);
         if ($data && isset($data['obj_type'])) {
             $entity = $this->create($data['obj_type']);
             $entity->fromArray($data);
@@ -180,7 +176,7 @@ class EntityLoader
                 $entity->resetIsDirty();
 
                 // Save in loadedEntities so we don't hit the cache again
-                $this->loadedEntities['guid'][$guid] = $entity;
+                $this->loadedEntities[$guid] = $entity;
 
                 // Stat a cache hit
                 StatsPublisher::increment("entity.cache.hit");
@@ -195,9 +191,9 @@ class EntityLoader
         // Load from datamapper
         $entity = $this->dataMapper->getByGuid($guid);
         if ($entity) {
-            $this->loadedEntities['guid'][$guid] = $entity;
+            $this->loadedEntities[$guid] = $entity;
             $this->cache->set(
-                $this->dataMapper->getAccount()->getName() . "/objects/guid/$guid",
+                $this->dataMapper->getAccount()->getName() . "/entity/" . $guid,
                 $entity->toArray()
             );
             return $entity;
@@ -274,30 +270,15 @@ class EntityLoader
 
     /**
      * Clear cache by guid
-     * 
+     *
      * @param string $guid The guid of an entity
      */
     public function clearCacheByGuid(string $guid)
     {
         if ($guid) {
-            $this->loadedEntities['guid'][$guid] = null;
-            $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/guid/$guid");
+            $this->loadedEntities[$guid] = null;
+            $this->cache->remove($this->dataMapper->getAccount()->getName() . "/entity/$guid");
         }
-    }
-
-    /**
-     * Clear any cache and reload from the database to make sure we have the latest version
-     *
-     * @param EntityInterface $entity The entity to refresh
-     * @throws \RuntimeException If an invalid entity was passed in
-     */
-    public function reload(EntityInterface $entity)
-    {
-        if (!$entity->getObjType() || !$entity->getEntityId()) {
-            throw new \RuntimeException("Cannot refresh an entity that was not saved - no obj_type or ID");
-        }
-        $this->clearCacheByGuid($entity->getEntityId());
-        $this->getByGuid($entity->getEntityId(), $entity);
     }
 
     /**
