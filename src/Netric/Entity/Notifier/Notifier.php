@@ -91,20 +91,7 @@ class Notifier
 
         // user, changed status, status value
         $description = $entity->getChangeLogDescription();
-        /*
-         * Get the object reference which is the entity this notice is about.
-         * If this is a comment we are adding a notification for, then update
-         * the object reference of the notification to point to the entity being
-         * commented on rather than the comment itself. That way when the user
-         * clicks on the link for the notification, it will take them to the
-         * entity being commented on.
-         */
-        if ($objType == ObjectTypes::COMMENT) {
-            $objReference = $entity->getValue("obj_reference");
-            $ownerName = $entity->getValueName("owner_id");
-            $description = "$ownerName added a comment: " . $entity->getValue("comment");
-        }
-
+        
         // Get a human-readable name to use for this notification
         $name = $this->getNameFromEventVerb($event, $entity->getDefinition()->getTitle());
 
@@ -124,6 +111,27 @@ class Notifier
                 if ($userEntity) {
                     $userGuid = $userEntity->getEntityId();
                 }
+            }
+
+            /*
+             * Get the object reference which is the entity this notice is about.
+             * If this is a comment we are adding a notification for, then update
+             * the object reference of the notification to point to the entity being
+             * commented on rather than the comment itself. That way when the user
+             * clicks on the link for the notification, it will take them to the
+             * entity being commented on.
+             */
+            if ($objType == ObjectTypes::COMMENT) {
+                $objReference = $entity->getValue("obj_reference");
+                $ownerName = $entity->getValueName("owner_id");
+                $followerName = $entity->getValueName('followers', $userGuid);
+                $comment = $entity->getValue("comment");
+                $description = "$ownerName added a comment: $comment";
+
+                // Check if the user is being called out in the comment, if so, then let's change the description.
+                if (preg_match('/(@' . $followerName . ')/', $comment)) {   
+                    $description = "$ownerName directed a comment at you: $comment";
+                }                
             }
 
             /*
