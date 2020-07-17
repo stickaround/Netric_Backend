@@ -9,8 +9,8 @@ services:
     environment:
       APPLICATION_ENV: development
       RUN_SETUP_INSTALL: 1
-      XDEBUG_CONFIG: "remote_host=local remote_enable=1 remote_connect_back=0 remote_autostart=0"
-      PHP_IDE_CONFIG: "serverName=localhost"
+      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1 remote_connect_back=0 remote_autostart=0"
+      PHP_IDE_CONFIG: "serverName=php.ide.config"
     volumes:
       - .:/var/www/html/
     depends_on:
@@ -21,20 +21,20 @@ services:
       - mogilestore
     entrypoint: 'bash -c "composer install && /start.sh"'
 
-#  netric_daemon:
-#     build: .
-#     entrypoint: /start-daemon.sh
-#     volumes:
-#       - ./:/var/www/html/
-#     environment:
-#       APPLICATION_ENV: development
-#       APPLICATION_VER: daemon-dev
-#     depends_on:
-#       - memcached
-#       - gearmand
-#       - db1
-#       - mogilefs
-#       - mogilestore
+  #  netric_daemon:
+  #     build: .
+  #     entrypoint: /start-daemon.sh
+  #     volumes:
+  #       - ./:/var/www/html/
+  #     environment:
+  #       APPLICATION_ENV: development
+  #       APPLICATION_VER: daemon-dev
+  #     depends_on:
+  #       - memcached
+  #       - gearmand
+  #       - db1
+  #       - mogilefs
+  #       - mogilestore
 
   memcached:
     image: memcached

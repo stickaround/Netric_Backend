@@ -1,12 +1,7 @@
 <?php
 
-/**
- * Test entity activity class
- */
-
 namespace NetricTest\Entity\ObjType;
 
-use Netric\Entity;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
@@ -16,6 +11,9 @@ use Netric\Entity\ObjType\CommentEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
+/**
+ * Test entity activity class
+ */
 class CommentTest extends TestCase
 {
     /**

@@ -138,6 +138,13 @@ interface EntityInterface
     public function isDirty();
 
     /**
+     * Determine if this entity is unsaved / new
+     *
+     * @return bool true if the entity was previously saved to persistent storage
+     */
+    public function isSaved(): bool;
+
+    /**
      * Get name of this object based on common name fields
      *
      * @return string The name/label of this object

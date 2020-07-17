@@ -3,6 +3,7 @@
 /**
  * Test the browser view controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric\Controller\BrowserViewController;
@@ -39,7 +40,7 @@ class BrowserViewControllerTest extends TestCase
     private $testBrowserViews = [];
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser();
 
@@ -55,7 +56,7 @@ class BrowserViewControllerTest extends TestCase
      * Cleanup after a test runs
      */
     protected function tearDown(): void
-{
+    {
         // Cleanup test browser views
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
         foreach ($this->testBrowserViews as $browserView) {
@@ -105,7 +106,7 @@ class BrowserViewControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array ("id" => $browserViewId)));
+        $req->setBody(json_encode(array("id" => $browserViewId)));
         $ret = $this->controller->postDeleteViewAction();
 
         $this->assertTrue($ret, var_export($browserView->toArray(), true));
@@ -139,18 +140,18 @@ class BrowserViewControllerTest extends TestCase
     }
 
     public function testPostSaveActionToReturnError()
-    {   
+    {
         $data = array(
             'id' => 'my_contact',
             'name' => "unit_test_view_default",
             'description' => "Unit Test Browser View Default",
         );
-        
+
         // Set params in the request without obj_type key field
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
         $ret = $this->controller->postSaveAction();
-        
+
         // It should return an error
         $this->assertEquals($ret['error'], 'obj_type is a required param');
 
@@ -162,6 +163,5 @@ class BrowserViewControllerTest extends TestCase
 
         // It should return an error
         $this->assertEquals(0, strpos($ret['error'], 'Error saving browser view: SQLSTATE[22P02]'));
-       
     }
 }

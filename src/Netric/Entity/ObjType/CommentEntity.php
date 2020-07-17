@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Provides extensions for the Comment object
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\Entity\ObjType;
 
 use Netric\EntityDefinition\Field;
@@ -25,7 +18,7 @@ class CommentEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
     public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
@@ -37,7 +30,8 @@ class CommentEntity extends Entity implements EntityInterface
         // Set comments associations to all directly associated objects if new
         if ($entityCommentedOn) {
             // Update the num_comments field of the entity we are commenting on
-            if (!$this->getEntityId() || ($this->isDeleted() && $this->fieldValueChanged('f_deleted'))) {
+            // Only if the comment is new and/or just deleted
+            if ($this->getValue('revision') <= 1 || ($this->isDeleted() && $this->fieldValueChanged('f_deleted'))) {
                 // Determine if we should increment or decrement
                 $added = ($this->isDeleted()) ? false : true;
                 $entityCommentedOn->setHasComments($added);
