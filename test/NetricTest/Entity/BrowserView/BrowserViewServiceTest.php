@@ -60,7 +60,7 @@ class BrowserViewServiceTest extends TestCase
         $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->browserViewService = $sm->get(BrowserViewServiceFactory::class);
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**

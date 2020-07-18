@@ -460,7 +460,7 @@ class AuthenticationService
         list($methodName, $token) = explode(" ", $fullAuthHeader);
         switch ($methodName) {
             case self::METHOD_PRIVATE_KEY:
-                return new PrivateKeyToken($this->privateKey, $token);
+                return new PrivateKeyToken($this->privateKey, $token, $this->userLoader);
                 break;
         }
 

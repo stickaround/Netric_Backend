@@ -71,7 +71,7 @@ class RecurrenceSeriesManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
 
         $sm = $this->account->getServiceManager();
         $this->entityDataMapper = $sm->get(DataMapperFactory::class);

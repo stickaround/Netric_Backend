@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test a browser view object
  */
+
 namespace NetricTest\Entity\BrowserView;
 
 use Netric\Entity\BrowserView\BrowserView;
@@ -41,11 +43,11 @@ class BrowserViewTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->formService = $sm->get(FormsFactory::class);
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**

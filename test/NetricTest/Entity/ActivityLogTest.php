@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the entity activity log
  */
+
 namespace NetricTest\Entity;
 
 use Netric;
@@ -49,9 +51,9 @@ class ActivityLogTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
         $this->activityLog = $this->account->getServiceManager()->get(ActivityLogFactory::class);
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
     }

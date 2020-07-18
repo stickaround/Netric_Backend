@@ -48,7 +48,7 @@ class EntityTest extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -285,22 +285,25 @@ class EntityTest extends TestCase
      */
     public function testGetTaggedObjRef()
     {
-        $test1 = "Hey [user:123:Sky] this is my test";
+        $uuid1 = "1680d153-600b-44f2-8143-540c2d91276f";
+        $uuid2 = "b0c297c0-d6e7-489c-9e45-7f16d652dfb7";
+
+        $test1 = "Hey [user:$uuid1:Sky] this is my test";
         $taggedReferences = Entity::getTaggedObjRef($test1);
         $this->assertEquals(1, count($taggedReferences));
-        $this->assertEquals(array("obj_type" => "user", "id" => 123, "name" => "Sky"), $taggedReferences[0]);
+        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid1, "name" => "Sky"), $taggedReferences[0]);
 
-        $test2 = "This would test multiple [user:123:Sky] and [user:456:John]";
+        $test2 = "This would test multiple [user:$uuid1:Sky] and [user:$uuid2:John]";
         $taggedReferences = Entity::getTaggedObjRef($test2);
         $this->assertEquals(2, count($taggedReferences));
-        $this->assertEquals(array("obj_type" => "user", "id" => 123, "name" => "Sky"), $taggedReferences[0]);
-        $this->assertEquals(array("obj_type" => "user", "id" => 456, "name" => "John"), $taggedReferences[1]);
+        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid1, "name" => "Sky"), $taggedReferences[0]);
+        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid2, "name" => "John"), $taggedReferences[1]);
 
         // Test unicode = John in Chinese
-        $test1 = "Hey [user:123:约翰·] this is my test";
+        $test1 = "Hey [user:$uuid1:约翰·] this is my test";
         $taggedReferences = Entity::getTaggedObjRef($test1);
         $this->assertEquals(1, count($taggedReferences));
-        $this->assertEquals(array("obj_type" => "user", "id" => 123, "name" => "约翰·"), $taggedReferences[0]);
+        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid1, "name" => "约翰·"), $taggedReferences[0]);
     }
 
     /**
@@ -332,7 +335,7 @@ class EntityTest extends TestCase
         $entity->setValue("owner_id", $userGuid1, $user1->getName());
         $entity->setValue("notes", "Hey [user:$userGuid2:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
 
-        // Saving this entity will call the Entity::beforeSave() which will update the followers
+        // Saving this entity will call the Entity::beforeSagetNameve() which will update the followers
         $entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
@@ -342,8 +345,9 @@ class EntityTest extends TestCase
         $this->assertTrue(in_array($userGuid1, $followers));
         $this->assertTrue(in_array($userGuid2, $followers));
 
-        // Should only have 3 followers including the owner_id. Since the other 2 followers ([user:0:invalidId] and [user:abc:nonNumericId]) are invalid
-        $this->assertEquals(3, count($followers));
+        // Should only have 2 followers 
+        // Since the other 2 followers ([user:0:invalidId] and [user:abc:nonNumericId]) are invalid
+        $this->assertEquals(2, count($followers));
     }
 
     /**

@@ -82,7 +82,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("groups");
         $condition->doesNotEqual(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "field_data->>'guid' NOT IN (SELECT field_data->>'guid' FROM objects_note WHERE field_data->'groups' @> jsonb_build_array('1'))");
+        $this->assertEquals($conditionString, "entity_id NOT IN (SELECT entity_id FROM entity WHERE field_data->'groups' @> jsonb_build_array('1'))");
 
         // Test Not Equal on null value
         $condition = new Where("groups");

@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Request\ConsoleRequest;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Request\RequestFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\Mvc\Exception\NotAuthorizedForRouteException;
 
 /**
@@ -45,7 +45,7 @@ class RouterTest extends TestCase
         // Setup anonymous user which should be blocked
         $origCurrentUser = $account->getUser();
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->getByGuid(UserEntity::USER_ANONYMOUS);
+        $user = $loader->getByUniqueName(ObjectTypes::class, UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 
         $request = new HttpRequest();
@@ -72,7 +72,7 @@ class RouterTest extends TestCase
         // Setup anonymous user which should be blocked
         $origCurrentUser = $account->getUser();
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->getByGuid(UserEntity::USER_ANONYMOUS);
+        $user = $loader->getByUname(ObjectTypes::USER, UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 
         $request = new ConsoleRequest();

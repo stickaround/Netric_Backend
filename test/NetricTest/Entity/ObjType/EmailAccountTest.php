@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test EmailAccount entity
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Crypt\VaultServiceFactory;
@@ -36,9 +38,9 @@ class EmailAccountEntityTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**

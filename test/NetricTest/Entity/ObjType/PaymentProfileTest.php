@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Entity\ObjType;
 
 use PHPUnit\Framework\TestCase;
@@ -29,9 +30,9 @@ class PaymentProfileTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**

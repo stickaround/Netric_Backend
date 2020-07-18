@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test workflow entity
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
@@ -34,9 +36,9 @@ class WorkflowTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**

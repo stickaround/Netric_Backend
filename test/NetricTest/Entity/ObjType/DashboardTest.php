@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity dashboard class
  */
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
@@ -23,22 +25,22 @@ class dashboardTest extends TestCase
      * @var \Netric\Account\Account
      */
     private $account = null;
-    
+
     /**
      * Administrative user
      *
      * @var \Netric\User
      */
     private $user = null;
-    
+
 
     /**
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**

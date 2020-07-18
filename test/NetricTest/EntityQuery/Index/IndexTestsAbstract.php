@@ -61,7 +61,7 @@ abstract class IndexTestsAbstract extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
 
         $this->defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $this->index = $this->account->getServiceManager()->get(IndexFactory::class);
@@ -140,7 +140,7 @@ abstract class IndexTestsAbstract extends TestCase
         $groupingLoader->save($groupings);
 
         // Add to queue to cleanup on tearDown
-        $this->testGroupings[] = array("obj_type" => $objType, "field" => $field, "id" => $group->id);
+        $this->testGroupings[] = array("obj_type" => $objType, "field" => $field, "guid" => $group->guid);
 
         return $group->toArray();
     }
@@ -371,7 +371,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($testObjType);
         $query->where('status_id')->equals($customer1->getValue("status_id"));
         $query->orwhere('name')->equals($customer2->getValue("name"));
-        $query->orWhere('guid')->equals($customer3->getValue("guid"));
+        $query->orWhere('entity_id')->equals($customer3->getValue("entity_id"));
         $query->orWhere('groups')->equals($customer4->getValue("groups")[0]);
         $res = $index->executeQuery($query);
 
@@ -890,7 +890,7 @@ abstract class IndexTestsAbstract extends TestCase
         $case->setValue("customer_id", "");
         $dm->save($case);
         $query = new EntityQuery($case->getObjType());
-        $query->where('guid')->equals($case->getEntityId());
+        $query->where('entity_id')->equals($case->getEntityId());
         $query->where('customer_id')->equals("");
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -964,7 +964,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Query the null condition
         $query = new EntityQuery($notification->getDefinition()->getObjType());
-        $query->where('guid')->equals($notification->getEntityId());
+        $query->where('entity_id')->equals($notification->getEntityId());
         $query->where('obj_reference')->equals("");
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1627,7 +1627,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumDays(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1635,7 +1635,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Day - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumDays(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1648,7 +1648,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumWeeks(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1656,7 +1656,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Week - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumWeeks(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1669,7 +1669,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumMonths(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1677,7 +1677,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Month - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumMonths(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1690,7 +1690,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumYears(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1698,7 +1698,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Year - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->lastNumYears(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1723,7 +1723,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumDays(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1733,7 +1733,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Day - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumDays(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1744,7 +1744,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumWeeks(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1754,7 +1754,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Week - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumWeeks(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1765,7 +1765,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumMonths(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1775,7 +1775,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Month - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumMonths(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1786,7 +1786,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumYears(3);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -1796,7 +1796,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Year - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
-        $query->where('guid')->equals($testEnt->getEntityId());
+        $query->where('entity_id')->equals($testEnt->getEntityId());
         $query->where('last_contacted')->nextNumYears(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
@@ -1844,13 +1844,13 @@ abstract class IndexTestsAbstract extends TestCase
 
         // First test regular query without f_deleted flag set
         $query = new EntityQuery(ObjectTypes::TASK);
-        $query->where('guid')->equals($oid);
+        $query->where('entity_id')->equals($oid);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
 
         // Test deleted flag set should return with deleted customer
         $query = new EntityQuery(ObjectTypes::TASK);
-        $query->where('guid')->equals($oid);
+        $query->where('entity_id')->equals($oid);
         $query->where('f_deleted')->equals(true);
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -2042,7 +2042,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Now query the customer's reminder using the obj reference used
         $query = new Netric\EntityQuery(ObjectTypes::REMINDER);
         $query->where("obj_reference")->equals($customer->getEntityId());
-        $query->where("id")->equals($rid);
+        $query->where("entity_id")->equals($rid);
 
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         // Execute the query
@@ -2199,7 +2199,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->testEntities[] = $task;
 
         $query = new EntityQuery(ObjectTypes::TASK);
-        $query->where('guid')->equals($taskId);
+        $query->where('entity_id')->equals($taskId);
 
         $agg = new Min("test");
         $agg->setField("cost_actual");

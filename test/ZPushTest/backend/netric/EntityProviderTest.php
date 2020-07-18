@@ -529,7 +529,6 @@ class EntityProviderTest extends TestCase
         $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId());
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        //$newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
         $newGroup->user_id = $this->user->getId();
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);

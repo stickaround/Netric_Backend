@@ -169,28 +169,28 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the entity utilizing whatever params were passed in
         $entity = null;
 
-        try {
-            if (!empty($params['entity_id'])) {
-                // Retrieve the entity by guid
-                $entity = $entityLoader->getByGuid($params['entity_id']);
-            } elseif (!empty($params['uname'])) {
-                // Retrieve the entity by a unique name and optional condition
-                $entity = $entityLoader->getByUniqueName(
-                    $params['obj_type'],
-                    $params['uname'],
-                    $params['uname_conditions']
-                );
-            } else {
-                return $this->sendOutput(
-                    array(
-                        "error" => "entity_id or uname are required params.",
-                        "params" => $params
-                    )
-                );
-            }
-        } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+        //try {
+        if (!empty($params['entity_id']) && Uuid::isValid($params['entity_id'])) {
+            // Retrieve the entity by guid
+            $entity = $entityLoader->getByGuid($params['entity_id']);
+        } elseif (!empty($params['uname']) && !empty($params['obj_type'])) {
+            // Retrieve the entity by a unique name and optional condition
+            $entity = $entityLoader->getByUniqueName(
+                $params['obj_type'],
+                $params['uname'],
+                $params['uname_conditions']
+            );
+        } else {
+            return $this->sendOutput(
+                array(
+                    "error" => "entity_id or uname are required params.",
+                    "params" => $params
+                )
+            );
         }
+        // } catch (\Exception $ex) {
+        //     return $this->sendOutput(array("error" => $ex->getMessage()));
+        // }
 
         // Entity Could not be found - we might want to change this to a 404 status code
         if (!$entity) {
@@ -292,7 +292,7 @@ class EntityController extends Mvc\AbstractAccountController
         // objType is a required to determine what exactly we are deleting
         $objType = $this->request->getParam("obj_type");
         // IDs can either be a single entry or an array
-        $ids = $this->request->getParam("id");
+        $ids = $this->request->getParam("entity_id");
 
         // Check if raw body was sent
         if (!$objType && !$ids) {
@@ -306,7 +306,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Convert a single id to an array so we can handle them all the same way
         if (!is_array($ids) && $ids) {
-            $ids = array($ids);
+            $ids = [$ids];
         }
 
         if (!$objType) {
@@ -329,6 +329,10 @@ class EntityController extends Mvc\AbstractAccountController
                     if ($dataMapper->delete($entity)) {
                         $ret[] = $did;
                     }
+                } else {
+                    return $this->sendOutput(
+                        ["error" => 'You do not have permissions to delete this entity: ' . $entity->getEntityId()]
+                    );
                 }
             }
         } catch (\RuntimeException $ex) {
@@ -843,9 +847,9 @@ class EntityController extends Mvc\AbstractAccountController
 
                 break;
             case 'edit':
-                // $objData['id'] is the Group Id where we need to check it first before updating the group
-                if (isset($objData['id']) && !empty($objData['id'])) {
-                    $group = $groupings->getById($objData['id']);
+                // $objData['guid'] is the Group Id where we need to check it first before updating the group
+                if (isset($objData['guid']) && !empty($objData['guid'])) {
+                    $group = $groupings->getById($objData['guid']);
                 } else {
                     return $this->sendOutput(array("error" => "Edit action needs group id to update the group."));
                 }
@@ -855,15 +859,15 @@ class EntityController extends Mvc\AbstractAccountController
 
                 break;
             case 'delete':
-                // $objData['id'] is the Group Id where we need to check it first before deleting the group
-                if (isset($objData['id']) && !empty($objData['id'])) {
-                    $group = $groupings->getById($objData['id']);
+                // $objData['guid'] is the Group Id where we need to check it first before deleting the group
+                if (isset($objData['guid']) && !empty($objData['guid'])) {
+                    $group = $groupings->getById($objData['guid']);
                 } else {
                     return $this->sendOutput(array("error" => "Delete action needs group id to update the group."));
                 }
 
                 // Now flag the group as deleted
-                $groupings->delete($objData['id']);
+                $groupings->delete($objData['guid']);
                 break;
             default:
                 return $this->sendOutput(array("error" => "No action made for entity group."));

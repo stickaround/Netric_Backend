@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Account\Account;
@@ -43,17 +44,17 @@ class EntityValidatorTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->validator = $this->account->getServiceManager()->get(EntityValidatorFactory::class);
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**
      * Cleanup test entities
      */
     protected function tearDown(): void
-{
+    {
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         foreach ($this->testEntities as $entityToDelete) {
             $dataMapper->delete($entityToDelete, true);

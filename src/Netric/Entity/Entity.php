@@ -389,11 +389,11 @@ class Entity implements EntityInterface
     /**
      * Get the owner of this entity
      *
-     * @return int
+     * @return string
      */
     public function getOwnerGuid()
     {
-        $ownerGuid = 0;
+        $ownerGuid = '';
 
         if ($this->getValue('creator_id')) {
             $ownerGuid = $this->getValue('creator_id');
@@ -930,13 +930,11 @@ class Entity implements EntityInterface
             if ($matches[1][$i] && $matches[2][$i] && $matches[3][$i]) {
                 $taggedReferences[] = array(
                     "obj_type" => $matches[1][$i],
-                    "id" => $matches[2][$i],
+                    "entity_id" => $matches[2][$i],
                     "name" => $matches[3][$i],
                 );
             }
         }
-
-        return $taggedReferences;
     }
 
     /**
@@ -1049,8 +1047,8 @@ class Entity implements EntityInterface
                     foreach ($tagged as $objRef) {
                         // We need to have a valid uid, before we add it as follower
                         if ($objRef['obj_type'] === 'user') {
-                            if (Uuid::isValid($objRef['id']) || ($objRef['id'] && is_numeric($objRef['id']) && $objRef['id'] > 0)) {
-                                $this->addMultiValue("followers", $objRef['id'], $objRef['name']);
+                            if (Uuid::isValid($objRef['entity_id'])) {
+                                $this->addMultiValue("followers", $objRef['entity_id'], $objRef['name']);
                             }
                         }
                     }

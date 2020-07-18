@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Common Collection Tests
  */
+
 namespace NetricTest\EntitySync\Collection;
 
 use PHPUnit\Framework\TestCase;
@@ -16,6 +18,7 @@ use Netric\EntitySync\Collection\CollectionInterface;
 /*
  * @group integration
  */
+
 abstract class AbstractCollectionTests extends TestCase
 {
     /**
@@ -24,7 +27,7 @@ abstract class AbstractCollectionTests extends TestCase
      * @var \Netric\Account\Account
      */
     protected $account = null;
-    
+
     /**
      * Administrative user
      *
@@ -52,15 +55,15 @@ abstract class AbstractCollectionTests extends TestCase
      * @var EntitySync\Partner
      */
     protected $partner = null;
-    
+
 
     /**
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
         $this->esDataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $this->commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
 
@@ -72,13 +75,13 @@ abstract class AbstractCollectionTests extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         $this->deleteLocal();
 
         // Cleanup partner
         $this->esDataMapper->deletePartner($this->partner, true);
     }
-    
+
     /**
      * Get a collection object to perform common tests
      *
@@ -113,7 +116,7 @@ abstract class AbstractCollectionTests extends TestCase
     public function testConstruct()
     {
         $coll = $this->getCollection();
-        
+
         $this->assertInstanceOf(CollectionInterface::class, $coll);
     }
 
@@ -183,7 +186,7 @@ abstract class AbstractCollectionTests extends TestCase
     public function testSetAndGetConditions()
     {
         $conditions = array(
-            array("blogic"=>"and", "field"=>"groups", "operator"=>"is_equal", "condValue"=>1)
+            array("blogic" => "and", "field" => "groups", "operator" => "is_equal", "condValue" => 1)
         );
 
         $coll = $this->getCollection();
@@ -208,8 +211,8 @@ abstract class AbstractCollectionTests extends TestCase
 
         // Import original group of changes
         $customers = array(
-            array('remote_id'=>'test1', 'remote_revision'=>1),
-            array('remote_id'=>'test2', 'remote_revision'=>1),
+            array('remote_id' => 'test1', 'remote_revision' => 1),
+            array('remote_id' => 'test2', 'remote_revision' => 1),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), count($customers));
@@ -224,15 +227,15 @@ abstract class AbstractCollectionTests extends TestCase
 
         // Change the revision of one of the objects
         $customers = array(
-            array('remote_id'=>'test1', 'remote_revision'=>2),
-            array('remote_id'=>'test2', 'remote_revision'=>1),
+            array('remote_id' => 'test1', 'remote_revision' => 2),
+            array('remote_id' => 'test2', 'remote_revision' => 1),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 1);
 
         // Remove one of the objects
         $customers = array(
-            array('remote_id'=>'test2', 'remote_revision'=>1),
+            array('remote_id' => 'test2', 'remote_revision' => 1),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 1);
@@ -240,8 +243,8 @@ abstract class AbstractCollectionTests extends TestCase
 
         // Change both revisions
         $customers = array(
-            array('remote_id'=>'test1', 'remote_revision'=>2),
-            array('remote_id'=>'test2', 'remote_revision'=>2),
+            array('remote_id' => 'test1', 'remote_revision' => 2),
+            array('remote_id' => 'test2', 'remote_revision' => 2),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 2);
@@ -298,8 +301,8 @@ abstract class AbstractCollectionTests extends TestCase
 
         // Import original group of changes
         $customers = array(
-            array('remote_id'=>'test1', 'remote_revision'=>1),
-            array('remote_id'=>'test2', 'remote_revision'=>1),
+            array('remote_id' => 'test1', 'remote_revision' => 1),
+            array('remote_id' => 'test2', 'remote_revision' => 1),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), count($customers));

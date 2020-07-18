@@ -56,7 +56,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchById($entity, $entityId, $skipObjRefUpdate = false)
     {
-        $sql = 'SELECT entity_id, object_type_id, field_data FROM ' . self::ENTITY_TABLE . ' WHERE entity_id=:id';
+        $sql = 'SELECT entity_id, object_type_id, field_data FROM ' . self::ENTITY_TABLE . ' WHERE entity_id=:entity_id';
         $result = $this->database->query($sql, ['entity_id' => $entityId]);
 
         // The entity was not found

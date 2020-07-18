@@ -55,7 +55,7 @@ class FileTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $this->entityDataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**

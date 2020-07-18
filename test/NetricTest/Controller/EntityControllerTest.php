@@ -110,11 +110,11 @@ class EntityControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setBody(json_encode(array(
             'obj_type' => ObjectTypes::DASHBOARD,
-            'guid' => $dashboardEntity->getEntityId()
+            'entity_id' => $dashboardEntity->getEntityId()
         )));
 
         $ret = $this->controller->getGetAction();
-        $this->assertEquals($dashboardEntity->getEntityId(), $ret['guid'], var_export($ret, true));
+        $this->assertEquals($dashboardEntity->getEntityId(), $ret['entity_id'], var_export($ret, true));
     }
 
     public function testPostGetEntityActionDashboardUname()
@@ -142,7 +142,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $dashboardEntity = $loader->getByGuid($ret['guid']);
+        $dashboardEntity = $loader->getByGuid($ret['entity_id']);
         $this->assertEquals($dashboardEntity->getValue("name"), $dashboardName);
     }
 
@@ -157,7 +157,7 @@ class EntityControllerTest extends TestCase
 
         $data = array(
             'obj_type' => ObjectTypes::CONTACT,
-            'guid' => $customer->getEntityId(),
+            'entity_id' => $customer->getEntityId(),
         );
 
         // Set params in the request
@@ -166,7 +166,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $this->assertEquals($customer->getEntityId(), $ret['guid'], var_export($ret, true));
+        $this->assertEquals($customer->getEntityId(), $ret['entity_id'], var_export($ret, true));
     }
 
     public function testPostGetEntityActionUname()
@@ -198,7 +198,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $this->assertEquals($page->getEntityId(), $ret['guid'], var_export($ret, true));
+        $this->assertEquals($page->getEntityId(), $ret['entity_id'], var_export($ret, true));
     }
 
     /**
@@ -219,7 +219,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $this->assertEquals($site->getEntityId, $ret['guid'], var_export($ret, true));
+        $this->assertEquals($site->getEntityId, $ret['entity_id'], var_export($ret, true));
     }
 
     public function testGetDefinitionForms()
@@ -273,7 +273,7 @@ class EntityControllerTest extends TestCase
 
         // Try to delete
         $ret = $this->controller->postRemoveAction();
-        $this->assertEquals($entityId, $ret[0]);
+        $this->assertEquals($entityId, $ret[0], var_export($ret, true));
     }
 
     public function testGetGroupings()
@@ -471,7 +471,7 @@ class EntityControllerTest extends TestCase
 
         // Setup the data
         $data = array(
-            'guid' => array($entityGuid1, $entityGuid2, "invalid-guid"),
+            'entity_id' => array($entityGuid1, $entityGuid2, "invalid-guid"),
             'entity_data' => array(
                 "body" => "test mass edit",
                 "groups" => array($group1->guid, $group2->guid),
@@ -532,7 +532,7 @@ class EntityControllerTest extends TestCase
         // Setup the merge data
         $data = array(
             'obj_type' => ObjectTypes::NOTE,
-            'id' => array($entityId1, $entityId2, $entityId3),
+            'entity_id' => array($entityId1, $entityId2, $entityId3),
             'merge_data' => array(
                 $entityId1 => array("body"),
                 $entityId2 => array("path", "website"),
@@ -547,7 +547,7 @@ class EntityControllerTest extends TestCase
         $ret = $this->controller->postMergeEntitiesAction();
 
         // Test the results
-        $this->assertFalse(empty($ret['id']));
+        $this->assertFalse(empty($ret['entity_id']));
         $this->assertEquals($ret['body'], $entity1->getValue("body"));
         $this->assertEquals($ret['path'], $entity2->getValue("path"));
         $this->assertEquals($ret['website'], $entity2->getValue("website"));
@@ -558,13 +558,13 @@ class EntityControllerTest extends TestCase
 
         // Test that the entities that were merged have been moved
         $mId1 = $dm->checkEntityHasMoved($entity1->getDefinition(), $entityId1);
-        $this->assertEquals($mId1, $ret['id']);
+        $this->assertEquals($mId1, $ret['entity_id']);
 
         $mId2 = $dm->checkEntityHasMoved($entity2->getDefinition(), $entityId2);
-        $this->assertEquals($mId2, $ret['id']);
+        $this->assertEquals($mId2, $ret['entity_id']);
 
         $mId3 = $dm->checkEntityHasMoved($entity3->getDefinition(), $entityId3);
-        $this->assertEquals($mId3, $ret['id']);
+        $this->assertEquals($mId3, $ret['entity_id']);
 
         // Lets load the actual entities and check if they are deleted
         $originalEntity1 = $loader->get(ObjectTypes::NOTE, $entityId1);
@@ -593,7 +593,7 @@ class EntityControllerTest extends TestCase
         $req->setBody(json_encode($dataGroup));
         $retGroup = $this->controller->postSaveGroupAction();
 
-        $this->assertTrue($retGroup['id'] > 0);
+        $this->assertNotEmpty($retGroup['guid']);
         $this->assertEquals($retGroup['name'], $dataGroup['name']);
         $this->assertEquals($retGroup['color'], $dataGroup['color']);
 
@@ -612,17 +612,17 @@ class EntityControllerTest extends TestCase
         $req->setBody(json_encode($dataWithParent));
         $retWithParent = $this->controller->postSaveGroupAction();
 
-        $this->assertTrue($retWithParent['id'] > 0);
+        $this->assertNotEmpty($retWithParent['guid']);
         $this->assertEquals($retWithParent['name'], $dataWithParent['name']);
         $this->assertEquals($retWithParent['color'], $dataWithParent['color']);
-        $this->assertEquals($retWithParent['parent_id'], $retGroup['id']);
+        $this->assertEquals($retWithParent['parent_id'], $retGroup['guid']);
 
         // Test the edit function of SaveGroup
         $dataEdit = array(
             'action' => "edit",
             'obj_type' => ObjectTypes::NOTE,
             'field_name' => 'groups',
-            'id' => $retGroup['id'],
+            'guid' => $retGroup['guid'],
             'name' => 'test edit group save',
             'color' => 'green'
         );
@@ -632,12 +632,12 @@ class EntityControllerTest extends TestCase
         $req->setBody(json_encode($dataEdit));
         $retEdit = $this->controller->postSaveGroupAction();
 
-        $this->assertEquals($retEdit['id'], $retGroup['id']);
+        $this->assertEquals($retEdit['guid'], $retGroup['guid']);
         $this->assertEquals($retEdit['name'], $dataEdit['name']);
         $this->assertEquals($retEdit['color'], $dataEdit['color']);
 
         // Set the added groups here to be deleted later in the tearDown
-        $this->testGroups = array($retWithParent['id'], $retGroup['id']);
+        $this->testGroups = array($retWithParent['guid'], $retGroup['guid']);
     }
 
     public function testDeleteEntityDef()
@@ -671,36 +671,22 @@ class EntityControllerTest extends TestCase
 
     public function testGetActionToReturnError()
     {
-        // Calling getGetAction without any parameters should return an empty array 
-        $ret = $this->controller->getGetAction();
-        $this->assertEquals($ret, []);
-
         $req = $this->controller->getRequest();
 
         // Setting an empty guid should return an error
-        $req->setBody(json_encode(array('guid' => '')));
+        $req->setBody(json_encode(['entity_id' => '']));
         $ret = $this->controller->getGetAction();
-        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
+        $this->assertNotEmpty($ret['error']);
 
         // Setting a object type only should return an error
-        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK)));
+        $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK]));
         $ret = $this->controller->getGetAction();
-        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
-
-        // Setting entity id only should return an error
-        $req->setBody(json_encode(array('id' => 1)));
-        $ret = $this->controller->getGetAction();
-        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
+        $this->assertNotEmpty($ret['error']);
 
         // Setting empty uname should return an error
-        $req->setBody(json_encode(array('uname' => '')));
+        $req->setBody(json_encode(['uname' => '']));
         $ret = $this->controller->getGetAction();
-        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
-
-        // Setting an alpha numeric id when calling getGetAction and it should return an error
-        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK, 'id' => 'invalidId123')));
-        $ret = $this->controller->getGetAction();
-        $this->assertEquals($ret['error'], 'invalidId123 is not a valid entity id');
+        $this->assertNotEmpty($ret['error']);
     }
 
     public function testPostDeleteEntityDefActionToReturnError()
@@ -741,9 +727,9 @@ class EntityControllerTest extends TestCase
         $this->assertNotEmpty($ret['error']);
 
         // Saving an entity with invalid id should return an error
-        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK, 'id' => 'invalidId123')));
+        $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK, 'entity_id' => 'invalidId123']));
         $ret = $this->controller->postSaveAction();
-        $this->assertEquals($ret['error'], 'invalidId123 is not a valid entity id');
+        $this->assertNotEmpty($ret['error']);
     }
 
     public function testGetRemoveActionToReturnError()

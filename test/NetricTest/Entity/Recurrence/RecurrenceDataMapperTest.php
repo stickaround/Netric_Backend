@@ -63,7 +63,7 @@ class RecurrenceDataMapperTest extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
 
         // Get service manager for locading dependencies
         $sm = $this->account->getServiceManager();

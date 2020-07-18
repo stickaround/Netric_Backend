@@ -15,6 +15,7 @@ class CreateEntityActionTest extends AbstractActionTests
      * Create some test IDs - these are arbitrary
      */
     const TEST_WORKFLOW_ID = '8cd88c04-055f-4373-bd7d-7a61dc9b3b6e';
+    const TEST_TASK_ID = '8cd88c04-055f-4373-bd7d-7r61df9b3b6d';
 
     /**
      * All action tests must construct the action
@@ -35,13 +36,13 @@ class CreateEntityActionTest extends AbstractActionTests
         $action->setParam('owner_id', '<%owner_id%>'); // Copy from parent task
 
         // Get user
-        $user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
 
         // Create a test task that will create another task that copies the woner
         $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setValue("owner_id", $user->getEntityId());
-        $task->setId(321);
+        $task->setEntityId(self::TEST_TASK_ID);
 
         // Create a fake WorkFlowInstance since the action does not a saved workflow or instance
         $workFlowInstance = new WorkFlowInstance(self::TEST_WORKFLOW_ID, $task);

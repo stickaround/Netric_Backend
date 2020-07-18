@@ -128,7 +128,7 @@ class EmailControllerTest extends TestCase
         $request->setParam('recipient', 'test@netric.com');
 
         $response = $controller->postReceiveAction($request);
-        $this->assertEquals(['result' => true, 'guid' => $mockGuid], $response->getOutputBuffer());
+        $this->assertEquals(['result' => true, 'entity_id' => $mockGuid], $response->getOutputBuffer());
     }
 
     /**

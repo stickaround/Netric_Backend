@@ -19,8 +19,6 @@ use Netric\EntityQuery;
 
 /**
  * Test calling the files controller
- * 
- * @group iso
  */
 class FilesControllerTest extends TestCase
 {

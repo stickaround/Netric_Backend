@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Make sure related entity fields are aggregated
  */
+
 namespace NetricTest\Entity;
 
 use Netric\Entity;
@@ -57,10 +59,10 @@ class EntityAggregatorTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
         $this->entityAggregator = $sm->get(EntityAggregatorFactory::class);
         $this->entityLoader = $sm->get(EntityLoaderFactory::class);
     }
@@ -69,7 +71,7 @@ class EntityAggregatorTest extends TestCase
      * Cleanup any created entities
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

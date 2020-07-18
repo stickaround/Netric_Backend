@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\EntityGroupings\DataMapper;
 
 use Netric\Entity\Entity;
@@ -42,16 +43,16 @@ abstract class AbstractDataMapperTests extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     /**
      * Cleanup any test entities
      */
     protected function tearDown(): void
-{
+    {
         $dm = $this->getDataMapper();
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
 
@@ -184,10 +185,10 @@ abstract class AbstractDataMapperTests extends TestCase
     public function testCommitIncrement()
     {
         $dm = $this->getDataMapper();
-        
+
         // No filter grouping
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
-        
+
         // Save new
         $newGroup = $groupings->create();
         $newGroup->name = "UTEST.DM.testGetGroupings";

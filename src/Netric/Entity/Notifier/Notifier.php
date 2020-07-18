@@ -91,7 +91,7 @@ class Notifier
 
         // user, changed status, status value
         $description = $entity->getChangeLogDescription();
-        
+
         // Get a human-readable name to use for this notification
         $name = $this->getNameFromEventVerb($event, $entity->getDefinition()->getTitle());
 
@@ -129,9 +129,9 @@ class Notifier
                 $description = "$ownerName added a comment: $comment";
 
                 // Check if the user is being called out in the comment, if so, then let's change the description.
-                if (preg_match('/(@' . $followerName . ')/', $comment)) {   
+                if (preg_match('/(@' . $followerName . ')/', $comment)) {
                     $description = "$ownerName directed a comment at you: $comment";
-                }                
+                }
             }
 
             /*

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Define common tests that will need to be run with all data mappers.
  *
@@ -6,6 +7,7 @@
  * to extend this class and create a getDataMapper class that returns the
  * datamapper to be tested
  */
+
 namespace NetricTest\EntitySync;
 
 use Netric\EntitySync;
@@ -28,24 +30,24 @@ abstract class AbstractDataMapperTests extends TestCase
      * @var \Netric\Account\Account
      */
     protected $account = null;
-    
+
     /**
      * Administrative user
      *
      * @var \Netric\User
      */
     protected $user = null;
-    
+
 
     /**
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
-    
+
     /**
      * Setup datamapper for the parent DataMapperTests class
      *
@@ -105,7 +107,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $partnerId = "UTEST-DEVICE-SAVEANDLOADPARTNERENTITYCOLLECITON";
         $dm = $this->getDataMapper();
         $testConditions = array(
-            array("blogic"=>"and", "field"=>"name", "operator"=>"is_equal", "condValue"=>"test")
+            array("blogic" => "and", "field" => "name", "operator" => "is_equal", "condValue" => "test")
         );
 
         // Create a partner
@@ -144,7 +146,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $partnerId = "UTEST-DEVICE-SAVEAUPLOADPARTNERENTITYCOLLECITON";
         $dm = $this->getDataMapper();
         $testConditions = array(
-            array("blogic"=>"and", "field"=>"name", "operator"=>"is_equal", "condValue"=>"test")
+            array("blogic" => "and", "field" => "name", "operator" => "is_equal", "condValue" => "test")
         );
 
         // Create a partner

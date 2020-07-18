@@ -1,9 +1,11 @@
 <?php
+
 /**
  * Test the forms factory for getting and setting entity forms for the UI
  *
  * We use the comment type entity since we do not allow the user to customize it
  */
+
 namespace NetricTest\Entity;
 
 use Netric\Entity;
@@ -42,11 +44,11 @@ class FormsTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->formService = $sm->get(FormsFactory::class);
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
     public function testCreateForUser()
