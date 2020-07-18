@@ -623,13 +623,13 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     private function removeField($def, $fname)
     {
-        if (!$def->getEntityDefinitioId()) {
+        if (!$def->getEntityDefinitionId()) {
             return false;
         }
 
         $this->database->delete(
             'app_object_type_fields',
-            ['name' => $fname, 'type_id' => $def->getEntityDefinitioId()]
+            ['name' => $fname, 'type_id' => $def->getEntityDefinitionId()]
         );
     }
 

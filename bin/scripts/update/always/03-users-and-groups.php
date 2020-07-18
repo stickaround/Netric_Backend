@@ -35,11 +35,7 @@ $usersData = require(__DIR__ . "/../../../../data/account/users.php");
 $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
 
 foreach ($usersData as $userData) {
-    $query = new EntityQuery(ObjectTypes::USER);
-    $query->where('name')->equals($userData['name']);
-    $index = $account->getServiceManager()->get(IndexFactory::class);
-    $res = $index->executeQuery($query);
-    if (!$res->getTotalNum()) {
+    if (!$entityLoader->getByUniqueName(ObjectTypes::USER, $userData['name'])) {
         $user = $entityLoader->create(ObjectTypes::USER);
         $user->fromArray($userData);
         $entityLoader->save($user);

@@ -935,6 +935,8 @@ class Entity implements EntityInterface
                 );
             }
         }
+
+        return $taggedReferences;
     }
 
     /**

@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the authentication service
  */
+
 namespace NetricTest\Authentication;
 
 use Netric;
@@ -20,7 +22,7 @@ class AuthenticationServiceFactoryTest extends TestCase
     protected $account = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
     }
 

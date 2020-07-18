@@ -113,7 +113,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param string $localFilePath Path to a local file to import
      * @param string $remoteFolderPath The folder to import the new file into
      * @param string $fileNameOverride Optional alternate name to use other than the imported file name
-     * @param string $fileEntityData Optional If we have a $fileEntityData, then we will be updating an existing file instead of creating a new file
+     * @param array $fileEntityData Optional If we have a $fileEntityData, then we will be updating an existing file instead of creating a new file
      * @return FileEntity The imported file
      * @throws \RuntimeException if it cannot open the folder path specified
      */

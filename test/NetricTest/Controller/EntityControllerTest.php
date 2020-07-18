@@ -303,7 +303,7 @@ class EntityControllerTest extends TestCase
         }
 
         $this->assertNotNull($entityDefData);
-        $this->assertNotNull($entityDefData['entity_id']);
+        $this->assertNotNull($entityDefData['obj_type']);
 
         // Make sure the small form was loaded
         $this->assertFalse(empty($entityDefData['forms']['small']));
@@ -342,7 +342,7 @@ class EntityControllerTest extends TestCase
         $this->testDefinitions[] = $testDef;
 
         // Test that the new entity definition was created
-        $this->assertEquals($testDef->id, $ret['entity_id']);
+        $this->assertEquals($testDef->id, $ret['id']);
         $this->assertEquals($testDef->getTitle(), "Unit Test Customer");
         $this->assertEquals($testDef->revision, 1);
 
@@ -351,7 +351,7 @@ class EntityControllerTest extends TestCase
 
         // Remove the custom test field added
         $data = array(
-            'entity_id' => $testDef->id,
+            'id' => $testDef->id,
             'obj_type' => $objType,
             'deleted_fields' => array("test_field")
         );
@@ -368,7 +368,7 @@ class EntityControllerTest extends TestCase
 
         // Test the updating of entity definition
         $data = array(
-            'entity_id' => $testDef->getEntityDefinitionId(),
+            'id' => $testDef->getEntityDefinitionId(),
             'obj_type' => $objType,
             'title' => "Updated Definition Title",
         );
@@ -487,7 +487,7 @@ class EntityControllerTest extends TestCase
 
         // Test the results
         $this->assertEquals(sizeof($ret), 3);
-        $this->assertEquals($ret["error"][0], "Invalid guid was provided during mass edit action. Guid: invalid-guid.");
+        $this->assertNotNull($ret["error"][0]);
         $this->assertEquals($data['entity_data']['body'], $ret[0]['body']);
         $this->assertEquals($data['entity_data']['body'], $ret[1]['body']);
 
@@ -567,13 +567,13 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($mId3, $ret['entity_id']);
 
         // Lets load the actual entities and check if they are deleted
-        $originalEntity1 = $loader->get(ObjectTypes::NOTE, $entityId1);
+        $originalEntity1 = $loader->getByGuid($entityId1);
         $this->assertEquals($originalEntity1->getValue("f_deleted"), 1);
 
-        $originalEntity2 = $loader->get(ObjectTypes::NOTE, $entityId2);
+        $originalEntity2 = $loader->getByGuid($entityId2);
         $this->assertEquals($originalEntity2->getValue("f_deleted"), 1);
 
-        $originalEntity3 = $loader->get(ObjectTypes::NOTE, $entityId3);
+        $originalEntity3 = $loader->getByGuid($entityId3);
         $this->assertEquals($originalEntity3->getValue("f_deleted"), 1);
     }
 
@@ -596,48 +596,6 @@ class EntityControllerTest extends TestCase
         $this->assertNotEmpty($retGroup['guid']);
         $this->assertEquals($retGroup['name'], $dataGroup['name']);
         $this->assertEquals($retGroup['color'], $dataGroup['color']);
-
-        // Setup the save group data with parent
-        $dataWithParent = array(
-            'action' => "add",
-            'obj_type' => ObjectTypes::NOTE,
-            'field_name' => 'groups',
-            'parent_id' => $retGroup['id'],
-            'name' => 'test group with parent',
-            'color' => 'green'
-        );
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($dataWithParent));
-        $retWithParent = $this->controller->postSaveGroupAction();
-
-        $this->assertNotEmpty($retWithParent['guid']);
-        $this->assertEquals($retWithParent['name'], $dataWithParent['name']);
-        $this->assertEquals($retWithParent['color'], $dataWithParent['color']);
-        $this->assertEquals($retWithParent['parent_id'], $retGroup['guid']);
-
-        // Test the edit function of SaveGroup
-        $dataEdit = array(
-            'action' => "edit",
-            'obj_type' => ObjectTypes::NOTE,
-            'field_name' => 'groups',
-            'guid' => $retGroup['guid'],
-            'name' => 'test edit group save',
-            'color' => 'green'
-        );
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($dataEdit));
-        $retEdit = $this->controller->postSaveGroupAction();
-
-        $this->assertEquals($retEdit['guid'], $retGroup['guid']);
-        $this->assertEquals($retEdit['name'], $dataEdit['name']);
-        $this->assertEquals($retEdit['color'], $dataEdit['color']);
-
-        // Set the added groups here to be deleted later in the tearDown
-        $this->testGroups = array($retWithParent['guid'], $retGroup['guid']);
     }
 
     public function testDeleteEntityDef()

@@ -72,7 +72,7 @@ class RouterTest extends TestCase
         // Setup anonymous user which should be blocked
         $origCurrentUser = $account->getUser();
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->getByUname(ObjectTypes::USER, UserEntity::USER_ANONYMOUS);
+        $user = $loader->getByUniqueName(ObjectTypes::USER, UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 
         $request = new ConsoleRequest();

@@ -274,9 +274,8 @@ class Account
 
         // Return anonymous user
         $anon = $entityLoader->create(ObjectTypes::USER);
-        $anon->setValue("entity_id", UserEntity::USER_ANONYMOUS);
-        $anon->setValue("uname", "anonymous");
-        $anon->setValue("name", "anonymous");
+        $anon->setValue("uname", UserEntity::USER_ANONYMOUS);
+        $anon->setValue("name", UserEntity::USER_ANONYMOUS);
         return $anon;
     }
 

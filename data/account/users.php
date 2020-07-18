@@ -10,19 +10,19 @@ use Netric\Entity\ObjType\UserEntity;
 
 return [
     [
-        "name" => "anonymous",
+        "name" => UserEntity::USER_ANONYMOUS,
         "full_name" => "Anonymous"
     ],
     [
-        "name" => "current.user",
+        "name" => UserEntity::USER_CURRENT,
         "full_name" => "Current User"
     ],
     [
-        "name" => "system",
+        "name" => UserEntity::USER_SYSTEM,
         "full_name" => "System"
     ],
     [
-        "name" => "workflow",
+        "name" => UserEntity::USER_WORKFLOW,
         "full_name" => "Workflow"
     ],
 ];

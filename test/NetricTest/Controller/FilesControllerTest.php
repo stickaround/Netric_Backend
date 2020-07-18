@@ -145,7 +145,7 @@ class FilesControllerTest extends TestCase
         copy($sourceFile, $tempFile);
 
         // Create folder with permissions that allow the user to upload
-        $folderEntity = $this->fileSystem->openFolder("/testUpload");
+        $folderEntity = $this->fileSystem->openFolder("/testUpload", true);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity);
         $dacl->allowUser($this->user);
@@ -168,7 +168,7 @@ class FilesControllerTest extends TestCase
         // Results are returned in an array
         $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
         $this->assertNotEquals(-1, $ret[0]); // error
-        $this->assertTrue(isset($ret[0]['id']));
+        $this->assertTrue(isset($ret[0]['entity_id']));
         $this->assertTrue(isset($ret[0]['name']));
         $this->assertTrue(isset($ret[0]['ts_updated']));
 
@@ -228,7 +228,7 @@ class FilesControllerTest extends TestCase
         // Results are returned in an array
         $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
         $this->assertNotEquals(-1, $ret[0]); // error
-        $this->assertTrue(isset($ret[0]['id']));
+        $this->assertTrue(isset($ret[0]['entity_id']));
         $this->assertTrue(isset($ret[0]['name']));
         $this->assertTrue(isset($ret[0]['ts_updated']));
         $this->assertEquals($ret[0]['name'], "myupdatedfile.jpg");
@@ -242,14 +242,8 @@ class FilesControllerTest extends TestCase
         // Set allowed enties for dacl field
         $this->testFolders[] = $folderEntity;
 
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
-
-        // Test if user is allowed to access folder/file
-        $this->assertEquals($dacl->isAllowed($this->user), true);
-
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
         $this->testFiles[] = $file; // For tearDown Cleanup
 
         // Test file
@@ -300,7 +294,7 @@ class FilesControllerTest extends TestCase
         // Results are returned in an array
         $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
         $this->assertNotEquals(-1, $ret[0]); // error
-        $this->assertTrue(isset($ret[0]['id']));
+        $this->assertTrue(isset($ret[0]['entity_id']));
         $this->assertTrue(isset($ret[0]['name']));
         $this->assertTrue(isset($ret[0]['ts_updated']));
 
@@ -311,14 +305,8 @@ class FilesControllerTest extends TestCase
         $folderEntity = $this->fileSystem->openFolder("/testUpload");
         $this->testFolders[] = $folderEntity;
 
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
-
-        // Test if user is allowed to access folder/file
-        $this->assertEquals($dacl->isAllowed($this->user), true);
-
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
         $this->testFiles[] = $file; // For tearDown Cleanup
 
         // Test file
@@ -372,13 +360,13 @@ class FilesControllerTest extends TestCase
         // Results are returned in an array
         $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
         $this->assertNotEquals(-1, $ret[0]); // error
-        $this->assertTrue(isset($ret[0]['id']));
+        $this->assertTrue(isset($ret[0]['entity_id']));
         $this->assertTrue(isset($ret[0]['name']));
         $this->assertTrue(isset($ret[0]['ts_updated']));
 
         // Check the result for the second file
         $this->assertNotEquals(-1, $ret[1]); // error
-        $this->assertTrue(isset($ret[1]['id']));
+        $this->assertTrue(isset($ret[1]['entity_id']));
         $this->assertTrue(isset($ret[1]['name']));
         $this->assertTrue(isset($ret[1]['ts_updated']));
 
@@ -390,18 +378,12 @@ class FilesControllerTest extends TestCase
         $folderEntity = $this->fileSystem->openFolder("/testUpload");
         $this->testFolders[] = $folderEntity;
 
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
-
-        // Test if user is allowed to access folder/file
-        $this->assertEquals($dacl->isAllowed($this->user), true);
-
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
         $this->testFiles[] = $file; // For tearDown
 
         // Clean up for the second file
-        $file2 = $this->fileSystem->openFileById($ret[1]['id']);
+        $file2 = $this->fileSystem->openFileById($ret[1]['entity_id']);
         $this->testFiles[] = $file2; // For tearDown Cleanup Cleanup
 
         // Test file
@@ -424,24 +406,7 @@ class FilesControllerTest extends TestCase
         $this->testFiles[] = $importedFile;
         // Set created folder so we make sure we purge it
         $folderEntity = $this->fileSystem->openFolder("/testdownload");
-
-        // Set allowed enties for dacl field
-        $daclData = array(
-            "entries" => array(
-                array(
-                    "name" => Dacl::PERM_VIEW,
-                    "groups" => $this->allowedGroups
-                ),
-            ),
-        );
-        $folderEntity->setValue("dacl", json_encode($daclData));
         $this->testFolders[] = $folderEntity;
-
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
-
-        // Test if user is allowed to access folder/file
-        $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set which file to download in the request
         $req = $this->controller->getRequest();
@@ -478,12 +443,6 @@ class FilesControllerTest extends TestCase
 
         // Set allowed enties for dacl field
         $this->testFolders[] = $folderEntity;
-
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
-
-        // Test if user is allowed to access folder/file
-        $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
@@ -535,12 +494,6 @@ class FilesControllerTest extends TestCase
 
         // Set allowed enties for dacl field
         $this->testFolders[] = $folderEntity;
-
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
-
-        // Test if user is allowed to access folder/file
-        $this->assertEquals($dacl->isAllowed($this->user, Dacl::PERM_VIEW), true);
 
         // Set the newly imported file as the user's profile pic
         $this->user->setValue('image_id', $importedFile->getEntityId());

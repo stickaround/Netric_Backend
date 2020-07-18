@@ -19,6 +19,8 @@ use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionData
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * @group integration
@@ -53,12 +55,20 @@ class PermissionControllerTest extends TestCase
      */
     private $testDefinitions = [];
 
+    /**
+     * Entity loader to get groupings
+     *
+     * @var GroupingLoader
+     */
+    private $groupingLoader = null;
+
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
         $this->serviceManager = $this->account->getServiceManager();
+        $this->groupingLoader = $this->serviceManager->get(GroupingLoaderFactory::class);
 
         // Create the controller
         $this->controller = new PermissionController($this->account->getApplication(), $this->account);
@@ -92,11 +102,15 @@ class PermissionControllerTest extends TestCase
 
         $ret = $this->controller->getGetDaclForEntityAction();
 
+        // Get creator owner group to test
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $creatorGroup = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
+
         // We should get the default dacl data for this object type
         $this->assertNotNull($ret);
         $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['entries']);
         $this->assertEquals(Dacl::PERM_VIEW, $ret['entries'][Dacl::PERM_VIEW]['name']);
-        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['entries'][Dacl::PERM_VIEW]['groups']));
+        $this->assertTrue(in_array($creatorGroup->getGroupId(), $ret['entries'][Dacl::PERM_VIEW]['groups']));
     }
 
     public function testGetGetDaclForEntityAction()
@@ -115,11 +129,15 @@ class PermissionControllerTest extends TestCase
 
         $ret = $this->controller->getGetDaclForEntityAction();
 
+        // Get creator owner group to test
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $creatorGroup = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
+
         // Should get default dacl for this entity since we did not set any dacl yet
         $this->assertNotNull($ret);
         $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['entries']);
         $this->assertEquals(Dacl::PERM_VIEW, $ret['entries'][Dacl::PERM_VIEW]['name']);
-        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['entries'][Dacl::PERM_VIEW]['groups']));
+        $this->assertTrue(in_array($creatorGroup->getGroupId(), $ret['entries'][Dacl::PERM_VIEW]['groups']));
     }
 
     public function testGetGetDaclForEntityActionForObjType()
