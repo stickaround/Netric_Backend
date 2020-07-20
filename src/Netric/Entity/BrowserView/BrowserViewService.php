@@ -531,7 +531,7 @@ class BrowserViewService
                 if ($group) {
 
                     //We will update the condition's value with the group id
-                    $condition->value = $group->guid;
+                    $condition->value = $group->getGroupId();
                 }
             }
         }

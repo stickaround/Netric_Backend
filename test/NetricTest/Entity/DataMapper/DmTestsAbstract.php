@@ -136,9 +136,9 @@ abstract class DmTestsAbstract extends TestCase
         // Create an entity and initialize values
         $customer = $this->createCustomer();
         // fkey
-        $customer->setValue("status_id", $statGrp->guid, $statGrp->name);
+        $customer->setValue("status_id", $statGrp->getGroupId(), $statGrp->getName());
         // fkey_multi - groups
-        $customer->addMultiValue("groups", $groupsGrp->guid, $groupsGrp->name);
+        $customer->addMultiValue("groups", $groupsGrp->getGroupId(), $groupsGrp->getName());
         // Cache returned time
         $contactedTime = $customer->getValue("last_contacted");
         $cid = $dm->save($customer, $this->user);
@@ -153,17 +153,17 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertTrue($ent->getValue("f_nocall"));
         $this->assertEquals($ent->getValue("owner_id"), $this->user->getEntityId());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
-        $this->assertEquals($ent->getValue("status_id"), $statGrp->guid);
+        $this->assertEquals($ent->getValue("status_id"), $statGrp->getGroupId());
         $this->assertEquals($ent->getValueName("status_id"), "Unit Test Status");
-        $this->assertEquals($ent->getValue("groups"), [$groupsGrp->guid]);
+        $this->assertEquals($ent->getValue("groups"), [$groupsGrp->getGroupId()]);
         $this->assertEquals($ent->getValueName("groups"), "Unit Test Group");
         $this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->guid);
+        $groupingsStat->delete($statGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsStat);
 
-        $groupingsGroups->delete($groupsGrp->guid);
+        $groupingsGroups->delete($groupsGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -211,9 +211,9 @@ abstract class DmTestsAbstract extends TestCase
         // Create an entity and initialize values
         $customer = $this->createCustomer();
         // fkey
-        $customer->setValue("status_id", $statGrp->guid, $statGrp->name);
+        $customer->setValue("status_id", $statGrp->getGroupId(), $statGrp->getName());
         // fkey_multi - groups
-        $customer->addMultiValue("groups", $groupsGrp->guid, $groupsGrp->name);
+        $customer->addMultiValue("groups", $groupsGrp->getGroupId(), $groupsGrp->getName());
         // Cache returned time
         $contactedTime = $customer->getValue("last_contacted");
         $cid = $dm->save($customer, $this->user);
@@ -229,16 +229,16 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertTrue($ent->getValue("f_nocall"));
         $this->assertEquals($ent->getValue("owner_id"), $this->user->getEntityId());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
-        $this->assertEquals($ent->getValue("status_id"), $statGrp->guid);
-        $this->assertEquals($ent->getValueName("status_id"), $statGrp->name);
-        $this->assertEquals($ent->getValue("groups"), array($groupsGrp->guid));
-        $this->assertEquals($ent->getValueName("groups"), $groupsGrp->name);
+        $this->assertEquals($ent->getValue("status_id"), $statGrp->getGroupId());
+        $this->assertEquals($ent->getValueName("status_id"), $statGrp->getName());
+        $this->assertEquals($ent->getValue("groups"), array($groupsGrp->getGroupId()));
+        $this->assertEquals($ent->getValueName("groups"), $groupsGrp->getName());
         $this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->guid);
+        $groupingsStat->delete($statGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsStat);
-        $groupingsGroups->delete($groupsGrp->guid);
+        $groupingsGroups->delete($groupsGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -287,7 +287,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Create an entity and initialize values
         $customer = $this->createCustomer();
-        $customer->addMultiValue("groups", $groupsGrp->guid, $groupsGrp->name);
+        $customer->addMultiValue("groups", $groupsGrp->getGroupId(), $groupsGrp->getName());
         // Cache returned time
         $cid = $dm->save($customer, $this->user);
         $this->assertNotEquals(false, $cid);
@@ -307,9 +307,9 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals('', $ent->getValueName("groups"));
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->guid);
+        $groupingsStat->delete($statGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsStat);
-        $groupingsGroups->delete($groupsGrp->guid);
+        $groupingsGroups->delete($groupsGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -735,9 +735,9 @@ abstract class DmTestsAbstract extends TestCase
         // Create an entity and initialize values
         $customer = $this->createCustomer();
         // fkey with no label (third param)
-        $customer->setValue("status_id", $statGrp->guid);
+        $customer->setValue("status_id", $statGrp->getGroupId());
         // fkey_multi with no label (third param)
-        $customer->addMultiValue("groups", $groupsGrp->guid);
+        $customer->addMultiValue("groups", $groupsGrp->getGroupId());
         // object with no label (third param)
         $customer->setValue("owner_id", $this->user->getEntityId());
         // Setting object_multi field with array values of null and empty string should not throw an error
@@ -755,14 +755,14 @@ abstract class DmTestsAbstract extends TestCase
         $ent = $dm->getByGuid($cid);
 
         // Make sure the fvals for references are updated
-        $this->assertEquals($ent->getValueName("status_id", $statGrp->guid), $statGrp->name, var_export($ent->getValue('status_id_fkey'), true));
-        $this->assertEquals($ent->getValueName("groups", $groupsGrp->guid), $groupsGrp->name);
+        $this->assertEquals($ent->getValueName("status_id", $statGrp->getGroupId()), $statGrp->getName(), var_export($ent->getValue('status_id_fkey'), true));
+        $this->assertEquals($ent->getValueName("groups", $groupsGrp->getGroupId()), $groupsGrp->getName());
         $this->assertEquals($ent->getValueName("owner_id", $this->user->getEntityId()), $this->user->getName());
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->guid);
+        $groupingsStat->delete($statGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsStat);
-        $groupingsGroups->delete($groupsGrp->guid);
+        $groupingsGroups->delete($groupsGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
     }
 
@@ -954,7 +954,7 @@ abstract class DmTestsAbstract extends TestCase
         // Save a new customer and save it with the wrong label for group
         $customer = $this->createCustomer();
         $customer->setValue("name", 'testObjectGroupingRefreshOnSave');
-        $customer->setValue("status_id", $statGrp->guid, [$statGrp->guid => 'wrong']);
+        $customer->setValue("status_id", $statGrp->getGroupId(), [$statGrp->getGroupId() => 'wrong']);
         $cid = $dm->save($customer, $this->user);
         $this->testEntities[] = $customer;
 
@@ -962,7 +962,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($statGrp->name, $customer->getValueName('status_id'));
 
         // Cleanup groupings
-        $groupingsStat->delete($statGrp->guid);
+        $groupingsStat->delete($statGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsStat);
     }
 }

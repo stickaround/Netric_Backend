@@ -671,7 +671,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                             $entity->removeMultiValue($field->name, $id);
                             $group = $grouping->getByGuidOrGroupId($id);
                             if ($group) {
-                                $entity->addMultiValue($field->name, $group->guid, $group->name);
+                                $entity->addMultiValue($field->name, $group->getGroupId(), $group->name);
                             }
                         }
                     }

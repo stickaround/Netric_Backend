@@ -104,8 +104,8 @@ class Group
     public function toArray()
     {
         $data = array(
-            "guid" => $this->guid,
-            "name" => $this->name,
+            "guid" => $this->getGroupId(),
+            "name" => $this->getName(),
             "f_system" => $this->isSystem,
             "parent_id" => $this->parentId,
             "color" => $this->color,
@@ -132,7 +132,7 @@ class Group
     public function fromArray($data)
     {
         if (isset($data['guid'])) {
-            $this->guid = $data['guid'];
+            $this->setGroupId($data['guid']);
         }
 
         if (isset($data['name'])) {
@@ -185,7 +185,7 @@ class Group
     {
         switch ($fname) {
             case "guid":
-                $this->guid = $fval;
+                $this->setGroupId($fval);
                 break;
             case "name":
                 $this->name = $fval;
@@ -222,7 +222,7 @@ class Group
     {
         switch ($fname) {
             case "guid":
-                return $this->guid;
+                return $this->getGroupId();
             case "name":
                 return $this->name;
             case "isHeiarch":
@@ -337,5 +337,45 @@ class Group
     public function setGroupId(string $groupId): void
     {
         $this->guid = $groupId;
+    }
+
+    /**
+     * Get the name of this group
+     * 
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set the name of this group
+     * 
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get the commit id if this group was saved
+     *
+     * @return int
+     */
+    public function getCommitId(): int
+    {
+        return $this->commitId;
+    }
+
+    /**
+     * Set the commit id of the last save on this group
+     * 
+     * @param int $commitId
+     */
+    public function setCommitId(int $commitId): void
+    {
+        $this->commitId = $commitId;
     }
 }

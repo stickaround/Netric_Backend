@@ -87,7 +87,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
         $group = $groupings->getByName($newGroup->name);
-        $this->assertNotEquals($group->guid, "");
+        $this->assertNotEquals($group->getGroupId(), "");
         $this->testObjectGroupings[] = $newGroup->id;
 
         // Save existing
@@ -98,7 +98,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $group->name = $name2;
         $group->setDirty(true);
         $dm->saveGroupings($groupings);
-        $gid = $group->guid;
+        $gid = $group->getGroupId();
 
         unset($groupings);
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
@@ -132,8 +132,8 @@ abstract class AbstractDataMapperTests extends TestCase
         // Reload the groupings and make sure the above was saved
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
         $group = $groupings->getByName($newGroup->name);
-        $this->assertNotEmpty($group->guid);
-        $this->testObjectGroupings[] = $group->guid;
+        $this->assertNotEmpty($group->getGroupId());
+        $this->testObjectGroupings[] = $group->getGroupId();
     }
 
     /**

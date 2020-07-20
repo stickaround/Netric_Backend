@@ -448,33 +448,33 @@ class EntityControllerTest extends TestCase
         $groupings->add($group2);
         $groupingsLoader->save($groupings);
 
-        $this->testGroups[] = $group1->guid;
-        $this->testGroups[] = $group2->guid;
+        $this->testGroups[] = $group1->getGroupId();
+        $this->testGroups[] = $group2->getGroupId();
 
         // First create entities to save
         $entity1 = $loader->create(ObjectTypes::NOTE);
         $entity1->setValue("body", "Note 1");
-        $entity1->addMultiValue("groups", $group1->guid, $group1->name);
+        $entity1->addMultiValue("groups", $group1->getGroupId(), $group1->getName());
         $dm->save($entity1);
         $entityGuid1 = $entity1->getEntityId();
         $this->testEntities[] = $entity1;
 
         $entity2 = $loader->create(ObjectTypes::NOTE);
         $entity2->setValue("body", "Note 2");
-        $entity2->addMultiValue("groups", $group2->guid, $group2->name);
+        $entity2->addMultiValue("groups", $group2->getGroupId(), $group2->getName());
         $dm->save($entity2);
         $entityGuid2 = $entity2->getEntityId();
         $this->testEntities[] = $entity2;
 
-        $groupData[$group1->guid] = $group1->name;
-        $groupData[$group2->guid] = $group2->name;
+        $groupData[$group1->getGroupId()] = $group1->getName();
+        $groupData[$group2->getGroupId()] = $group2->getName();
 
         // Setup the data
         $data = array(
             'entity_id' => array($entityGuid1, $entityGuid2, "invalid-guid"),
             'entity_data' => array(
                 "body" => "test mass edit",
-                "groups" => array($group1->guid, $group2->guid),
+                "groups" => array($group1->getGroupId(), $group2->getGroupId()),
                 "groups_fval" => $groupData
             )
         );

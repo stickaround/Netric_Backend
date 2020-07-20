@@ -1,10 +1,5 @@
 <?php
-/**
- * WorkFlow manager service
- *
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
- */
+
 namespace Netric\WorkFlow;
 
 use Netric\EntityQuery\Index\IndexInterface;
@@ -118,7 +113,7 @@ class WorkFlowManager extends AbstractHasErrors
         if ($workFlow->getObjType() != $entity->getDefinition()->getObjType()) {
             throw new \RuntimeException(
                 "WorkFlow id $wid only runs against objType '" . $workFlow->getObjType() . "'" .
-                " and '" . $entity->getDefinition()->getObjType() . "' was passed"
+                    " and '" . $entity->getDefinition()->getObjType() . "' was passed"
             );
         }
 

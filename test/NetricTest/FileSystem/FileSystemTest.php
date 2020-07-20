@@ -236,7 +236,7 @@ class FileSystemTest extends TestCase
             $fileToImport,
             "/testImportFile",
             "",
-            ["guid" => $file->getValue("guid"), "name" => "myupdatedfile.jpg"]
+            ["entity_id" => $file->getValue("entity_id"), "name" => "myupdatedfile.jpg"]
         );
 
         $this->assertNotNull($importedFile);

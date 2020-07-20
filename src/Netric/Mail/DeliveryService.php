@@ -126,7 +126,7 @@ class DeliveryService extends AbstractHasErrors
             // User exists, we need to create the inbox
             $inboxGroup = $this->createInbox($emailAccount);
         }
-        $mailboxId = $inboxGroup->guid;
+        $mailboxId = $inboxGroup->getGroupId();
 
         // Ready to deliver the message, create a parser and point it to the email message file
         $parser = new PhpMimeMailParser\Parser();

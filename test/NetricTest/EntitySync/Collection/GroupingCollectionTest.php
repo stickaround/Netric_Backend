@@ -88,8 +88,8 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $this->groupingDataMapper->saveGroupings($this->groupings);
         $group = $this->groupings->getByName($newGroup->name);
 
-        $this->testObjectGroupings[] = $newGroup->guid;
-        return ["id" => $group->guid, "revision" => $group->commitId];
+        $this->testObjectGroupings[] = $newGroup->getGroupId();
+        return ["id" => $group->getGroupId(), "revision" => $group->getCommitId()];
     }
 
     protected function changeLocal($id)

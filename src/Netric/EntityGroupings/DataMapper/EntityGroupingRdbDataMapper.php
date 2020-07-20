@@ -108,11 +108,11 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         foreach ($toDelete as $grp) {
             $this->database->query(
                 'DELETE FROM object_groupings WHERE guid=:guid',
-                ['guid' => $grp->guid]
+                ['guid' => $grp->getGroupId()]
             );
 
             // Log here
-            $ret['deleted'][$grp->guid] = $grp->commitId;
+            $ret['deleted'][$grp->getGroupId()] = $grp->getCommitId();
         }
 
         $toSave = $groupings->getChanged();
@@ -127,7 +127,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
                 $grp->setDirty(false);
 
                 // Log here
-                $ret['changed'][$grp->guid] = $lastCommitId;
+                $ret['changed'][$grp->getGroupId()] = $lastCommitId;
             }
         }
 
@@ -220,15 +220,15 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         $groupData = $grp->toArray();
 
-        if (!empty($grp->guid)) {
+        if (!empty($grp->getGroupId())) {
             // Update if existing
-            $this->database->update("object_groupings", $groupData, ['guid' => $grp->guid]);
+            $this->database->update("object_groupings", $groupData, ['guid' => $grp->getGroupId()]);
             return true;
         }
 
         // Additional data when creating a new group
-        $grp->guid = Uuid::uuid4()->toString();
-        $groupData["guid"] = $grp->guid;
+        $grp->setGroupId(Uuid::uuid4()->toString());
+        $groupData["guid"] = $grp->getGroupId();
         $groupData['object_type_id'] = $def->getEntityDefinitionId();
         $groupData['field_id'] = $field->id;
 

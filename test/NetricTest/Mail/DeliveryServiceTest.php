@@ -109,7 +109,7 @@ class DeliveryServiceTest extends TestCase
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
-        $groupings->delete($this->inbox->guid);
+        $groupings->delete($this->inbox->getGroupId());
         $groupingsLoader->save($groupings);
 
         // Delete any test entities

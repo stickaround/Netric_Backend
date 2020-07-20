@@ -146,7 +146,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                                     $entity->removeMultiValue($field->name, $value);
 
                                     // Now that we have already removed the old group id, we can now add the new group's guid
-                                    $entity->addMultiValue($field->name, $group->guid, $group->name);
+                                    $entity->addMultiValue($field->name, $group->getGroupId(), $group->name);
                                 }
                             }
                         }
@@ -163,7 +163,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                         // Make sure that we have retrieved the group
                         if ($group) {
-                            $entity->setValue($field->name, $group->guid, $group->name);
+                            $entity->setValue($field->name, $group->getGroupId(), $group->name);
                         }
                     }
                     break;

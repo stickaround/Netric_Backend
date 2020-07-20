@@ -90,13 +90,13 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
             for ($i = 0; $i < count($grps); $i++) {
                 $grp = $grps[$i];
 
-                if ($grp->commitId > $lastCollectionCommit || !$grp->commitId) {
+                if ($grp->getCommitId() > $lastCollectionCommit || !$grp->getCommitId()) {
                     // First make sure we didn't just import this
                     $skipStat = false;
                     foreach ($imports as $imported) {
                         if (
-                            $imported['local_id'] == $grp->guid
-                            && $imported['local_revision'] == $grp->commitId
+                            $imported['local_id'] == $grp->getGroupId()
+                            && $imported['local_revision'] == $grp->getCommitId()
                         ) {
                             // Skip over this export because we just imported it
                             $skipStat = true;
@@ -106,7 +106,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
                     if (!$skipStat) {
                         $retStats[] = array(
-                            "id" => $grp->guid,
+                            "id" => $grp->getGroupId(),
                             "action" => 'change',
                             "commit_id" => $grp->commitId
                         );
@@ -118,8 +118,8 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
                         // Save to exported log
                         $logRet = $this->logExported(
-                            $grp->guid,
-                            $grp->commitId
+                            $grp->getGroupId(),
+                            $grp->getCommitId()
                         );
                     }
                 }

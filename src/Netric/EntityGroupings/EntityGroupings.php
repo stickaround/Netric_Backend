@@ -150,7 +150,7 @@ class EntityGroupings
         // Loop through the path and get the last entry
         foreach ($parts as $grpname) {
             if ($grpname) {
-                $parent = ($ret) ? $ret->guid : "";
+                $parent = ($ret) ? $ret->getGroupId() : "";
                 $ret = $this->getByName($grpname, $parent);
             }
         }
@@ -241,8 +241,8 @@ class EntityGroupings
         foreach ($this->groups as $grp) {
             if ($grp->parentId == $parentId) {
                 // If existing group, then get the children setting parent to group id
-                if ($grp->guid) {
-                    $grp->children = $this->getHeirarch($grp->guid);
+                if ($grp->getGroupId()) {
+                    $grp->children = $this->getHeirarch($grp->getGroupId());
                 }
 
                 $ret[] = $grp;
@@ -269,8 +269,8 @@ class EntityGroupings
                 $ret[] = $grp;
 
                 // If existing group, then get the children setting parent to group id
-                if ($grp->guid) {
-                    $this->getChildren($grp->guid, $ret);
+                if ($grp->getGroupId()) {
+                    $this->getChildren($grp->getGroupId(), $ret);
                 }
             }
         }
@@ -341,7 +341,7 @@ class EntityGroupings
     public function getByGuid($guid)
     {
         foreach ($this->groups as $grp) {
-            if ($grp->guid == $guid) {
+            if ($grp->getGroupId() == $guid) {
                 return $grp;
             }
         }
@@ -373,7 +373,7 @@ class EntityGroupings
     public function delete($entryId)
     {
         for ($i = 0; $i < count($this->groups); $i++) {
-            if ($this->groups[$i]->guid == $entryId) {
+            if ($this->groups[$i]->getGroupId() == $entryId) {
                 // Move to deleted queue
                 $this->deleted[] = $this->groups[$i];
 

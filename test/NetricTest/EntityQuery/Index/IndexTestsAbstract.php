@@ -140,7 +140,11 @@ abstract class IndexTestsAbstract extends TestCase
         $groupingLoader->save($groupings);
 
         // Add to queue to cleanup on tearDown
-        $this->testGroupings[] = array("obj_type" => $objType, "field" => $field, "guid" => $group->guid);
+        $this->testGroupings[] = [
+            "obj_type" => $objType,
+            "field" => $field,
+            "guid" => $group->getGroupId()
+        ];
 
         return $group->toArray();
     }

@@ -317,21 +317,21 @@ class Dacl
              * access, unless of course there were no entries at all,
              */
             return (count($this->entries) > 0) ? true : false;
-        } else {
-            if (isset($this->entries[$permission])) {
-                // Test users
-                foreach ($this->entries[$permission]->users as $uid) {
-                    if ($uid == $user->getEntityId()) {
-                        return true;
-                    }
-                }
+        }
 
-                // Test groups
-                $groups = $user->getGroups();
-                foreach ($this->entries[$permission]->groups as $gid) {
-                    if (in_array($gid, $groups)) {
-                        return true;
-                    }
+        if (isset($this->entries[$permission])) {
+            // Test users
+            foreach ($this->entries[$permission]->users as $uid) {
+                if ($uid == $user->getEntityId()) {
+                    return true;
+                }
+            }
+
+            // Test groups
+            $groups = $user->getGroups();
+            foreach ($this->entries[$permission]->groups as $gid) {
+                if (in_array($gid, $groups)) {
+                    return true;
                 }
             }
         }

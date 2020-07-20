@@ -6,6 +6,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity;
 
 use Netric\EntityDefinition\Field;
@@ -110,7 +111,7 @@ class ActivityLog
 
             // Get the referenced entity
             $entityReferenced = $this->entityLoader->getByGuid($objReference);
-            
+
             if ($entityReferenced) {
                 // Only if the entity exists
                 $name = $entityReferenced->getName();
@@ -156,7 +157,7 @@ class ActivityLog
         // Get the type of activity which is just a grouping entiry for the objType
         $group = $this->getActivityTypeGroup($objDef);
 
-        $actEntity->setValue("type_id", $group->guid, $group->name);
+        $actEntity->setValue("type_id", $group->getGroupId(), $group->name);
 
         // Log which entity performed the action
         $actEntity->setValue("subject", $subject->getEntityId(), $subject->getName());
