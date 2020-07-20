@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
  */
+
 namespace NetricTest\EntitySync;
 
 use Netric\EntitySync;
@@ -58,7 +60,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
         // Save a the partner because it is required for saving a colleciton
         $partner = new EntitySync\Partner($dm);
         $partner->setPartnerId("UTEST-DEVICE-SAVEANDLOAD");
-        $partner->setOwnerId($this->user->getId());
+        $partner->setOwnerId($this->user->getEntityId());
         $ret = $dm->savePartner($partner);
 
         // Create a new collection and save it
@@ -81,7 +83,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
         $this->assertEquals(ObjectTypes::TASK, $collection->getObjType());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner);
 
         $deleteCollection = $refIm->getMethod("deleteCollection");
         $deleteCollection->setAccessible(true);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Z-Push backend for netric
  *
@@ -6,7 +7,7 @@
  * so we stick with it to be consistent.
  */
 
-$zPushRoot = dirname(__FILE__) ."/../../";
+$zPushRoot = dirname(__FILE__) . "/../../";
 
 // Interfaces we are extending
 require_once($zPushRoot . 'lib/interface/ibackend.php');
@@ -323,7 +324,7 @@ class BackendNetric implements IBackend
      */
     public function GetImporter($folderid = false)
     {
-         $this->log->info("ZPUSH->BackendNetric->GetImporter For $folderid");
+        $this->log->info("ZPUSH->BackendNetric->GetImporter For $folderid");
         return new ImportChangesNetric(
             $this->log,
             $this->getSyncCollection($folderid),
@@ -344,7 +345,7 @@ class BackendNetric implements IBackend
     public function GetExporter($folderid = false)
     {
         if ($folderid) {
-             $this->log->info("ZPUSH->BackendNetric->GetExporter Got entity exporter for $folderid");
+            $this->log->info("ZPUSH->BackendNetric->GetExporter Got entity exporter for $folderid");
             return new ExportChangeNetric(
                 $this->log,
                 $this->getSyncCollection($folderid),
@@ -352,7 +353,7 @@ class BackendNetric implements IBackend
                 $folderid
             );
         } else {
-             $this->log->info("ZPUSH->BackendNetric->GetExporter Got folder exporter");
+            $this->log->info("ZPUSH->BackendNetric->GetExporter Got folder exporter");
             return new ExportFolderChangeNetric(
                 $this->log,
                 $this->entityProvider
@@ -449,7 +450,7 @@ class BackendNetric implements IBackend
         // Create a new EmailMessage entity from the mail message
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $emailEntity = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
-        $emailEntity->setValue("owner_id", $this->user->getId());
+        $emailEntity->setValue("owner_id", $this->user->getEntityId());
 
         // Import the mail message into the entity
         $emailEntity->fromMailMessage($message);
@@ -480,7 +481,7 @@ class BackendNetric implements IBackend
      */
     public function Fetch($folderid, $id, $contentParameters)
     {
-         $this->log->info("ZPUSH->Fetch: $folderid, $id");
+        $this->log->info("ZPUSH->Fetch: $folderid, $id");
         return $this->entityProvider->getSyncObject($folderid, $id, $contentParameters);
     }
 
@@ -532,8 +533,7 @@ class BackendNetric implements IBackend
         }
 
         $attachment = new SyncItemOperationsAttachment();
-        $attachment->data = $fileSystem->openFileStreamById($fileId);
-        ;
+        $attachment->data = $fileSystem->openFileStreamById($fileId);;
         $attachment->contenttype = $file->getMimeType();
         return $attachment;
     }
@@ -607,7 +607,7 @@ class BackendNetric implements IBackend
         $notifications = array();
         $stopat = time() + $timeout - 1;
 
-        while ($stopat > time() && count($notifications)==0) {
+        while ($stopat > time() && count($notifications) == 0) {
             foreach ($this->sinkFolders as $folderId) {
                 $collection = $this->getSyncCollection($folderId);
 
@@ -617,12 +617,12 @@ class BackendNetric implements IBackend
                 }
             }
 
-            if (count($notifications)==0) {
+            if (count($notifications) == 0) {
                 sleep(5);
             }
         }
 
-         $this->log->info("ZPUSH->ChangeSync: returning with " . count($notifications) . " changed folders");
+        $this->log->info("ZPUSH->ChangeSync: returning with " . count($notifications) . " changed folders");
         return $notifications;
     }
 
@@ -766,7 +766,7 @@ class BackendNetric implements IBackend
             $entitySync = $serviceManager->get(EntitySyncFactory::class);
             $this->partnership = $entitySync->getPartner($this->deviceId);
             if (!$this->partnership) {
-                $this->partnership = $entitySync->createPartner($this->deviceId, $this->user->getId());
+                $this->partnership = $entitySync->createPartner($this->deviceId, $this->user->getEntityId());
             }
         }
 
@@ -817,9 +817,9 @@ class BackendNetric implements IBackend
                 $cond = array(
                     array(
                         "blogic" => Where::COMBINED_BY_AND,
-                        "field"=>"owner_id",
+                        "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getEntityId()
+                        "condValue" => $this->user->getEntityId()
                     ),
                 );
 
@@ -830,9 +830,9 @@ class BackendNetric implements IBackend
                 $cond = array(
                     array(
                         "blogic" => Where::COMBINED_BY_AND,
-                        "field"=>"owner_id",
+                        "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getEntityId()
+                        "condValue" => $this->user->getEntityId()
                     )
                 );
                 break;
@@ -842,9 +842,9 @@ class BackendNetric implements IBackend
                 $cond = array(
                     array(
                         "blogic" => Where::COMBINED_BY_AND,
-                        "field"=>"owner_id",
+                        "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
-                        "condValue"=>$this->user->getEntityId()
+                        "condValue" => $this->user->getEntityId()
                     ),
                     array(
                         "blogic" => Where::COMBINED_BY_AND,
@@ -1003,7 +1003,7 @@ class BackendNetric implements IBackend
         if ($this->partnership) {
             $serviceManager = $this->account->getServiceManager();
             $serviceManager->get(DataMapperFactory::class)->savePartner($this->partnership);
-             $this->log->info("ZPUSH->Saved partnership: " . $this->partnership->getId());
+            $this->log->info("ZPUSH->Saved partnership: " . $this->partnership->getId());
         }
     }
 

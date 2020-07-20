@@ -1,10 +1,6 @@
 <?php
-/**
- * Abstract DataMapper for sync library
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
+
+declare(strict_types=1);
 
 namespace Netric\EntitySync;
 

@@ -444,7 +444,7 @@ return [
         ]
     ],
 
-    "object_sync_export" => [
+    "entity_sync_export" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'collection_id' => ['type' => SchemaProperty::TYPE_BIGINT],

@@ -1,9 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
+namespace Netric\EntitySync\Commit\DataMapper;
+
 /**
  * Abstract commit datamapper that uses relational database
  */
-namespace Netric\EntitySync\Commit\DataMapper;
-
 class DataMapperRdb extends DataMapperAbstract
 {
     /**
@@ -27,7 +30,7 @@ class DataMapperRdb extends DataMapperAbstract
      *
      * @return int
      */
-    public function getNextCommitId()
+    public function getNextCommitId(): int
     {
         $cid = $this->database->getNextVal($this->sSequenceName);
 
@@ -49,7 +52,7 @@ class DataMapperRdb extends DataMapperAbstract
      * @param int $cid
      * @return bool true on success, false on failure
      */
-    public function saveHead(string $key, int $cid)
+    public function saveHead(string $key, int $cid): bool
     {
         $headData = ["head_commit_id" => $cid];
         $whereData = ["type_key" => $key];
@@ -73,7 +76,7 @@ class DataMapperRdb extends DataMapperAbstract
      * @param string $key
      * @return int
      */
-    public function getHead(string $key)
+    public function getHead(string $key): int
     {
         $sql = "SELECT head_commit_id FROM object_sync_commit_heads WHERE type_key=:type_key";
         $result = $this->database->query($sql, ["type_key" => $key]);
@@ -81,8 +84,8 @@ class DataMapperRdb extends DataMapperAbstract
         if ($result->rowCount()) {
             $row = $result->fetch();
             return $row["head_commit_id"];
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 }

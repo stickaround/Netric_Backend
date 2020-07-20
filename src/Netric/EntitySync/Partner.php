@@ -1,11 +1,6 @@
 <?php
 
-/**
- * Sync partner represents a foreign datastore and/or device to import and export data to
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\EntitySync;
 
@@ -80,7 +75,7 @@ class Partner
      */
     public function __construct(
         \Netric\EntitySync\DataMapperInterface $syncDm,
-        $partnerId = null
+        int $partnerId = null
     ) {
         $this->dataMapper = $syncDm;
         $this->partnerId = $partnerId;

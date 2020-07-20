@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Search provider for finding entities
  *
  * The reason all the files are lowercase in here is because that is the z-push standard
  * so we stick with it to be consistent.
  */
-$zPushRoot = dirname(__FILE__) ."/../../";
+$zPushRoot = dirname(__FILE__) . "/../../";
 
 // Interfaces we are extending
 require_once($zPushRoot . 'lib/interface/isearchprovider.php');
@@ -62,8 +63,7 @@ class EntitySearchProvider implements ISearchProvider
     public function __construct(
         Account $account,
         UserEntity $user
-    )
-    {
+    ) {
         if (!$account) {
             throw new StatusException("Cannot setup search without an account");
         }
@@ -138,7 +138,7 @@ class EntitySearchProvider implements ISearchProvider
 
             // Skip if the user does not have an email address
             if (!$user->getValue("email")) {
-                $this->log->info("ZPUSH->EntitySearchProvider->GetGALSearchResults: User " . $user->getId() . " does not have an email address and will be ignored.");
+                $this->log->info("ZPUSH->EntitySearchProvider->GetGALSearchResults: User " . $user->getEntityId() . " does not have an email address and will be ignored.");
                 continue;
             }
 

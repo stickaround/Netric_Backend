@@ -1,10 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Collection factory interface
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\EntitySync\Collection;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;

@@ -1,10 +1,7 @@
 <?php
-/**
- * Service factory for the Entity Sync Commit DataMapper
- *
- * @author Marl Tumulak <marl.tumulak@aereus.com>
- * @copyright 2016 Aereus
- */
+
+declare(strict_types=1);
+
 namespace Netric\EntitySync\Commit\DataMapper;
 
 use Netric\Db\Relational\RelationalDbFactory;
@@ -19,12 +16,12 @@ class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return DataMapperInterface
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $database = $sl->get(RelationalDbFactory::class);
-        return new DataMapperRdb($sl->getAccount(), $database);
+        $database = $serviceLocator->get(RelationalDbFactory::class);
+        return new DataMapperRdb($serviceLocator->getAccount(), $database);
     }
 }

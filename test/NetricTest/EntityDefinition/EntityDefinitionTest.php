@@ -48,9 +48,9 @@ class EntityDefinitionTest extends TestCase
         // Constructor add default fields
         $entDef = new EntityDefinition(ObjectTypes::CONTACT);
 
-        $field = $entDef->getField("id");
-        $this->assertEquals("id", $field->name);
-        $this->assertEquals("number", $field->type);
+        $field = $entDef->getField("entity_id");
+        $this->assertEquals("entity_id", $field->name);
+        $this->assertEquals("uuid", $field->type);
         $this->assertEquals(true, $field->system);
     }
 

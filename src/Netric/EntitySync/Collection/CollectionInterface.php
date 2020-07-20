@@ -1,35 +1,35 @@
 <?php
 
-/**
- * Sync collection interface
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
+use DateTime;
+
+/**
+ * Sync collection interface
+ */
 interface CollectionInterface
 {
     /**
      * Get a id if it is saved
      *
-     * @return string
+     * @return int
      */
-    public function getId();
+    public function getId(): int;
 
     /**
      * Set the id of this collection
      *
-     * @param string $id
+     * @param int $id
      */
-    public function setId($collectionId);
+    public function setId(int $collectionId);
 
     /**
      * Get a stats list of what has changed locally since the last sync
      *
      * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
-     * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
+     * @param DateTime $limitUpdatesAfter If set, only pull updates after a specific date
      * @return array of associative array [
      *      [
      *          "id", // Unique id of local object
@@ -38,7 +38,10 @@ interface CollectionInterface
      *      ]
      *  ]
      */
-    public function getExportChanged($autoFastForward = true, \DateTime $limitUpdatesAfter = null);
+    public function getExportChanged(
+        $autoFastForward = true,
+        DateTime $limitUpdatesAfter = null
+    );
 
     /**
      * Get a stats of the difference between an import and what is stored locally
@@ -71,54 +74,59 @@ interface CollectionInterface
      *
      * @param string $objType
      */
-    public function setObjType($objType);
+    public function setObjType(string $objType);
 
     /**
      * Get the object type if applicable
      *
      * @return string
      */
-    public function getObjType();
+    public function getObjType(): string;
 
     /**
      * Set conditions with array
      *
      * @param array $conditions array(array("blogic", "field", "operator", "condValue"))
      */
-    public function setConditions($conditions);
+    public function setConditions(array $conditions);
 
     /**
      * Get conditions
      *
      * @return array(array("blogic", "field", "operator", "condValue"))
      */
-    public function getConditions();
+    public function getConditions(): array;
 
     /**
      * Set the last commit id synchronized
      *
-     * @param string $commitId
+     * @param int $commitId
      */
-    public function setLastCommitId($commitId);
+    public function setLastCommitId(int $commitId);
 
     /**
      * Log that a commit was exported from this collection
      *
-     * @param int $uniqueId The unique id of the object we sent
+     * @param string $uniqueId The unique id of the object we sent
      * @param int $commitId The unique id of the commit we sent
      * @return bool
      */
-    public function logExported($uniqueId, $commitId);
+    public function logExported(string $uniqueId, int $commitId);
 
     /**
      * Log an imported object
      *
      * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
-     * @param int $localId If imported to a local object then record the id, if null the delete
+     * @param string $localId If imported to a local object then record the id, if null the delete
      * @param int $localRevision The revision of the local object
      * @return bool true if imported false if failure
      * @throws \InvalidArgumentException
      */
-    public function logImported($remoteId, $remoteRevision = null, $localId = null, $localRevision = null);
+    public function logImported(
+        string $remoteId,
+        int $remoteRevision = null,
+        string $localId = null,
+        int $localRevision = null
+    );
 }

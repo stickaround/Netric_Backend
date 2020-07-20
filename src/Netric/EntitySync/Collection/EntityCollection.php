@@ -1,13 +1,6 @@
 <?php
 
-/**
- * Sync collection for entities
- *
- * @category  AntObjectSync
- * @package   Collection
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
@@ -124,7 +117,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 $skipStat = false;
                 foreach ($imports as $imported) {
                     if (
-                        $imported['local_id'] == $ent->getId() &&
+                        $imported['local_id'] == $ent->getEntityId() &&
                         $imported['local_revision'] == $ent->getValue("commit_id")
                     ) {
                         // Skip over this export because we just imported it
@@ -135,7 +128,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 
                 if (!$skipStat) {
                     $retStats[] = array(
-                        "id" => $ent->getId(),
+                        "id" => $ent->getEntityId(),
                         "action" => (($ent->isDeleted()) ? 'delete' : 'change'),
                         "commit_id" => $ent->getValue("commit_id")
                     );
@@ -155,7 +148,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 
                     // Save to exported log
                     $this->logExported(
-                        $ent->getId(),
+                        $ent->getEntityId(),
                         $ent->getValue("commit_id")
                     );
                 }
@@ -176,7 +169,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 if ($autoFastForward) {
                     foreach ($retStats as $stale) {
                         // Save to exported log with no commit deletes the export
-                        $this->logExported($stale['id'], null);
+                        $this->logExported($stale['id']);
                     }
                 }
             }

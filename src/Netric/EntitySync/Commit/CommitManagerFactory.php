@@ -1,10 +1,7 @@
 <?php
-/**
- * Service factory for the Entity Sync Commit Manager
- *
- * @author Marl Tumulak <marl.tumulak@aereus.com>
- * @copyright 2016 Aereus
- */
+
+declare(strict_types=1);
+
 namespace Netric\EntitySync\Commit;
 
 use Netric\ServiceManager;

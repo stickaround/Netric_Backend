@@ -409,13 +409,6 @@ return [
             'ts_last_sync' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
         ],
         'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            [
-                "property" => 'owner_id',
-                'references_bucket' => 'users',
-                'references_property' => 'id',
-            ],
-        ],
         "INDEXES" => [
             ['properties' => ["pid"]],
         ]
@@ -463,7 +456,7 @@ return [
             'collection_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
             // Local object id once imported
-            'object_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'object_id' => ['type' => SchemaProperty::TYPE_UUID],
             // Revision of the local object
             'revision' => ['type' => SchemaProperty::TYPE_INT],
             // This field is depricated and should eventually be deleted
@@ -500,14 +493,14 @@ return [
         ]
     ],
 
-    "object_sync_export" => [
+    "entity_sync_export" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'collection_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'collection_type' => ['type' => SchemaProperty::TYPE_SMALLINT],
             'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'new_commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
-            'unique_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'unique_id' => ['type' => SchemaProperty::TYPE_UUID],
         ],
         "KEYS" => [
             [

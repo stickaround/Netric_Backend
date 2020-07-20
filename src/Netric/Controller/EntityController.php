@@ -849,7 +849,7 @@ class EntityController extends Mvc\AbstractAccountController
             case 'edit':
                 // $objData['guid'] is the Group Id where we need to check it first before updating the group
                 if (isset($objData['guid']) && !empty($objData['guid'])) {
-                    $group = $groupings->getById($objData['guid']);
+                    $group = $groupings->getByGuidOrGroupId($objData['guid']);
                 } else {
                     return $this->sendOutput(array("error" => "Edit action needs group id to update the group."));
                 }
@@ -861,7 +861,7 @@ class EntityController extends Mvc\AbstractAccountController
             case 'delete':
                 // $objData['guid'] is the Group Id where we need to check it first before deleting the group
                 if (isset($objData['guid']) && !empty($objData['guid'])) {
-                    $group = $groupings->getById($objData['guid']);
+                    $group = $groupings->getByGuidOrGroupId($objData['guid']);
                 } else {
                     return $this->sendOutput(array("error" => "Delete action needs group id to update the group."));
                 }

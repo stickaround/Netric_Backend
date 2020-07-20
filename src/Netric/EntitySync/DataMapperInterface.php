@@ -1,11 +1,6 @@
 <?php
 
-/**
- * Interface defining what an EntitySync must implement
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\EntitySync;
 
@@ -19,7 +14,7 @@ interface DataMapperInterface
      * @param string $partnerId Netric unique partner id
      * @return Partner or null if id does not exist
      */
-    public function getPartnerById(string $partnerId);
+    public function getPartnerById(string $partnerId): Partner;
 
     /**
      * Get a partner by the remote partner id
@@ -29,7 +24,7 @@ interface DataMapperInterface
      * @param string $partnerId Remotely provided unique ident
      * @return Partner or null if id does not exist
      */
-    public function getPartnerByPartnerId(string $partnerId);
+    public function getPartnerByPartnerId(string $partnerId): Partner;
 
     /**
      * Get a partner by id
@@ -39,36 +34,44 @@ interface DataMapperInterface
      * @param Partner $partner Will set the id if new partner
      * @return bool true on success, false on failure
      */
-    public function savePartner(Partner $partner);
+    public function savePartner(Partner $partner): bool;
 
     /**
      * Delete a partner
      *
      * @param Partner $partner The partner to delete
-     * @param bool $byPartnerId Option to delete by partner id which is useful for purging duplicates
      * @return bool true on success, false on failure
      */
-    public function deletePartner(Partner $partner, bool $byPartnerId = false);
+    public function deletePartner(Partner $partner): bool;
 
     /**
      * Mark a commit as stale for all sync collections
      *
      * @param int $colType Type from EntitySync::COLL_TYPE_*
-     * @param string $lastCommitId
-     * @param string $newCommitId
+     * @param int $lastCommitId
+     * @param int $newCommitId
      */
-    public function setExportedStale(int $collType, string $lastCommitId, string $newCommitId);
+    public function setExportedStale(
+        int $collType,
+        int $lastCommitId,
+        int $newCommitId
+    );
 
     /**
      * Log that a commit was exported from this collection
      *
      * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
      * @param int $collectionId The unique id of the collection we exported for
-     * @param int $uniqueId Unique id of the object sent
+     * @param string $uniqueId Unique id of the object sent
      * @param int $commitId The commit id synchronized, if null then delete the entry
      * @return bool true on success, false on failure
      */
-    public function logExported(int $collType = null, int $collectionId = null, int $uniqueId = null, int $commitId = null);
+    public function logExported(
+        int $collType,
+        int $collectionId,
+        string $uniqueId,
+        int $commitId = null
+    );
 
     /**
      * Log that a commit was exported from this collection
@@ -84,7 +87,7 @@ interface DataMapperInterface
         int $collectionId,
         string $remoteId,
         int $remoteRevision = null,
-        int $localId = null,
+        string $localId = null,
         int $localRevision = null
     );
 
@@ -116,36 +119,4 @@ interface DataMapperInterface
      * @return array(array('uid', 'local_id', 'revision'))
      */
     public function getImported(int $collectionId);
-
-    /**
-     * Get listening partnership for this object type
-     *
-     * @param string $fieldName If the fieldname is set then try to find devices listening for an object grouping change
-     * @return AntObjectSync_Device[]
-     */
-    //public function getListeningPartners($fieldName=null);
-    /*
-    {
-        $ret = [];
-
-        $field = ($fieldName) ? $this->obj->def->getField($fieldName) : false;
-
-        $sql = "SELECT pid from object_sync_partners WHERE id IN (";
-        $sql .= "SELECT partner_id FROM object_sync_partner_collections WHERE ";
-        if (is_array($field)) // field id is unique so no object type is needed
-            $sql .= " field_id='" . $field['id'] . "'";
-        else
-            $sql .= " object_type_id='" . $this->obj->object_type_id . "'";
-        $sql .= ");";
-
-        $result = $this->dbh->Query($sql);
-        $num = $this->dbh->GetNumberRows($result);
-        for ($i = 0; $i < $num; $i++)
-        {
-            $ret[] = new AntObjectSync_Partner($this->dbh, $this->dbh->GetValue($result, $i, "pid"), $this->user);
-        }
-
-        return $ret;
-    }
-    */
 }

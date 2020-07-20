@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity/object class
  */
+
 namespace NetricTest\EntitySync\Collection;
 
 use Netric\EntitySync;
@@ -39,13 +41,13 @@ class EntityCollectionTest extends AbstractCollectionTests
         $newEnt->setValue("name", "EntityEyncTests");
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($newEnt);
         $this->newCreated[] = $newEnt;
-        return array("id"=>$newEnt->getId(), "revision"=>$newEnt->getValue("commit_id"));
+        return array("id" => $newEnt->getEntityId(), "revision" => $newEnt->getValue("commit_id"));
     }
 
     protected function changeLocal($id)
     {
         foreach ($this->newCreated as $createdEnt) {
-            if ($createdEnt->getId() == $id) {
+            if ($createdEnt->getEntityId() == $id) {
                 // Record object change
                 $createdEnt->setValue("name", "EntityEyncTests_2");
                 $this->account->getServiceManager()->get(DataMapperFactory::class)->save($createdEnt);
@@ -56,7 +58,7 @@ class EntityCollectionTest extends AbstractCollectionTests
     protected function deleteLocal($id = null)
     {
         foreach ($this->newCreated as $createdEnt) {
-            if ($id == $createdEnt->getId() || $id==null) {
+            if ($id == $createdEnt->getEntityId() || $id == null) {
                 $this->account->getServiceManager()->get(DataMapperFactory::class)->delete($createdEnt, true);
             }
         }
@@ -77,7 +79,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         // Create and save partner with one collection watching customers
         $partner = new EntitySync\Partner($this->esDataMapper);
         $partner->setPartnerId($pid);
-        $partner->setOwnerId($this->user->getId());
+        $partner->setOwnerId($this->user->getEntityId());
         $collection = $this->getCollection();
         $collection->setObjType(ObjectTypes::CONTACT);
         $this->esDataMapper->savePartner($partner);
@@ -98,10 +100,10 @@ class EntityCollectionTest extends AbstractCollectionTests
         // Make sure the one change is now returned
         $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
-        $this->assertEquals($stats[0]['id'], $customer->getId());
+        $this->assertEquals($stats[0]['id'], $customer->getEntityId());
 
         // Cleanup
-        $this->esDataMapper->deletePartner($partner, true);
+        $this->esDataMapper->deletePartner($partner);
         $this->account->getServiceManager()->get(DataMapperFactory::class)->delete($customer, true);
     }
 
@@ -116,12 +118,12 @@ class EntityCollectionTest extends AbstractCollectionTests
         $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $customer->setValue("name", "EntityEyncTests");
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($customer);
-        $customerId = $customer->getId();
-        
+        $customerId = $customer->getEntityId();
+
         // Create and save partner with one collection watching customers
         $partner = new EntitySync\Partner($this->esDataMapper);
         $partner->setPartnerId($pid);
-        $partner->setOwnerId($this->user->getId());
+        $partner->setOwnerId($this->user->getEntityId());
         $collection = $this->getCollection();
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
@@ -150,7 +152,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         $this->assertEquals(0, count($stats));
 
         // Cleanup
-        $this->esDataMapper->deletePartner($partner, true);
+        $this->esDataMapper->deletePartner($partner);
         $this->account->getServiceManager()->get(DataMapperFactory::class)->delete($customer, true);
     }
 }

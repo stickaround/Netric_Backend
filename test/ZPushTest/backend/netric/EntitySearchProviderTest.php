@@ -125,7 +125,7 @@ class EntitySearchProviderTest extends TestCase
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
-            $inbox->user_id = $user->getId();
+            $inbox->user_id = $user->getEntityId();
             $groupings->add($inbox);
             $groupingsLoader->save($groupings);
         }
@@ -134,7 +134,7 @@ class EntitySearchProviderTest extends TestCase
         // Create a calendar for the user to test
         $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UTest provider");
-        $calendar->setValue("user_id", $this->user->getId());
+        $calendar->setValue("user_id", $this->user->getEntityId());
         $this->entityLoader->save($calendar);
         $this->testEntities[] = $calendar;
         $this->testCalendar = $calendar;
@@ -183,7 +183,7 @@ class EntitySearchProviderTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email->setValue("subject", "test message");
-        $email->setValue("owner_id", $this->user->getId());
+        $email->setValue("owner_id", $this->user->getEntityId());
         $email->setValue("mailbox_id", $this->groupInbox->id);
         $entityLoader->save($email);
         $this->testEntities[] = $email;

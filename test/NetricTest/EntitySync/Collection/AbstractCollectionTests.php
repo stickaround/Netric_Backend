@@ -70,7 +70,7 @@ abstract class AbstractCollectionTests extends TestCase
         // Create a new partner
         $this->partner = new Partner($this->esDataMapper);
         $this->partner->setPartnerId("AbstractCollectionTests");
-        $this->partner->setOwnerId($this->user->getId());
+        $this->partner->setOwnerId($this->user->getEntityId());
         $this->esDataMapper->savePartner($this->partner);
     }
 
@@ -79,7 +79,7 @@ abstract class AbstractCollectionTests extends TestCase
         $this->deleteLocal();
 
         // Cleanup partner
-        $this->esDataMapper->deletePartner($this->partner, true);
+        $this->esDataMapper->deletePartner($this->partner);
     }
 
     /**
@@ -205,7 +205,7 @@ abstract class AbstractCollectionTests extends TestCase
         // Create and save partner with one collection watching customers
         $partner = new Partner($this->esDataMapper);
         $partner->setPartnerId("AbstractCollectionTests::testGetImportChanged");
-        $partner->setOwnerId($this->user->getId());
+        $partner->setOwnerId($this->user->getEntityId());
         $partner->addCollection($collection);
         $this->esDataMapper->savePartner($partner);
 
@@ -252,7 +252,7 @@ abstract class AbstractCollectionTests extends TestCase
         $this->assertEquals($stats[1]['action'], 'change');
 
         // Cleanup
-        $this->esDataMapper->deletePartner($partner, true);
+        $this->esDataMapper->deletePartner($partner);
     }
 
     /**
@@ -285,7 +285,7 @@ abstract class AbstractCollectionTests extends TestCase
         // Make sure the one change is now returned
         $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
-        $this->assertEquals($stats[0]['id'], $localId);
+        $this->assertEquals($localId, $stats[0]['id'], var_export($stats, true));
     }
 
     /**

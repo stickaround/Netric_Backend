@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the the custom netric backend for ActiveSync
  */
+
 namespace ZPushTest\backend\netric;
 
 use PHPUnit\Framework\TestCase;
@@ -72,7 +74,7 @@ class BackendNetricTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
@@ -83,8 +85,7 @@ class BackendNetricTest extends TestCase
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
             $dm->delete($user, true);
         }
@@ -102,7 +103,7 @@ class BackendNetricTest extends TestCase
         $this->testEntities[] = $user; // cleanup automatically
 
         // Initialize zpush - copied from zpush index file
-        if (!defined ( 'REAL_BASE_PATH' )) {
+        if (!defined('REAL_BASE_PATH')) {
             \ZPush::CheckConfig();
         }
 
@@ -130,7 +131,7 @@ class BackendNetricTest extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
@@ -295,7 +296,7 @@ class BackendNetricTest extends TestCase
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
         $group = $groupings->create('test-' . rand());
-        $group->user_id = $this->user->getId();
+        $group->user_id = $this->user->getEntityId();
         $groupings->add($group);
         $groupingsLoader->save($groupings);
 
@@ -319,7 +320,7 @@ class BackendNetricTest extends TestCase
         $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email->setValue("subject", "Test message");
         $email->setValue("flag_seen", 'f');
-        $email->setValue("owner_id", $this->user->getId());
+        $email->setValue("owner_id", $this->user->getEntityId());
         $email->setValue("mailbox_id", $group->id);
         $entityLoader->save($email);
         $this->testEntities[] = $email;

@@ -119,7 +119,7 @@ class EntityProviderTest extends TestCase
         $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
-            $inbox->user_id = $user->getId();
+            $inbox->user_id = $user->getEntityId();
             $groupings->add($inbox);
             $groupingsLoader->save($groupings);
         }
@@ -234,7 +234,7 @@ class EntityProviderTest extends TestCase
          * TODO: We have removed the ability to have multiple folders and just return the inbox
         $newGroup = $groupings->create();
         $newGroup->name = "utttest mailbox";
-        $newGroup->user_id = $this->user->getId();
+        $newGroup->user_id = $this->user->getEntityId();
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest mailbox");
@@ -529,7 +529,7 @@ class EntityProviderTest extends TestCase
         $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId());
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        $newGroup->user_id = $this->user->getId();
+        $newGroup->user_id = $this->user->getEntityId();
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest");
@@ -732,7 +732,7 @@ class EntityProviderTest extends TestCase
         $group = $groupings->getByName("Test");
         if (!$group) {
             $group = $groupings->create("Test");
-            $group->user_id = $this->user->getId();
+            $group->user_id = $this->user->getEntityId();
             $groupings->add($group);
             $groupingsLoader->save($groupings);
         }

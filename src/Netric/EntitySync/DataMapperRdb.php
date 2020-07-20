@@ -1,8 +1,6 @@
 <?php
 
-/**
- * Relational database datamapper for synchronization library
- */
+declare(strict_types=1);
 
 namespace Netric\EntitySync;
 
@@ -11,6 +9,10 @@ use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Collection\CollectionInterface;
 use DateTime;
 
+
+/**
+ * Relational database datamapper for synchronization library
+ */
 class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
 {
 
@@ -20,7 +22,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param Partner $partner The partner that we will be saving
      * @return bool true on success, false on failure
      */
-    public function savePartner(Partner $partner)
+    public function savePartner(Partner $partner): bool
     {
         // PartnerID is a required param
         if (!$partner->getPartnerId()) {
@@ -88,7 +90,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param string $partnerId Netric unique partner id
      * @return Partner or null if id does not exist
      */
-    public function getPartnerById(string $partnerId)
+    public function getPartnerById(string $partnerId): Partner
     {
         return $this->getPartner($partnerId, null);
     }
@@ -99,7 +101,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param string $partnerId Remotely provided unique ident
      * @return Partner or null if id does not exist
      */
-    public function getPartnerByPartnerId(string $partnerId)
+    public function getPartnerByPartnerId(string $partnerId): Partner
     {
         return $this->getPartner(null, $partnerId);
     }
@@ -111,7 +113,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param string $partnerId Device id
      * @return Partner or null if id does not exist
      */
-    private function getPartner(string $systemId = null, string $partnerId = null)
+    private function getPartner(string $systemId = null, string $partnerId = null): Partner
     {
         // Make sure we have at least one id to pull from
         if (null == $systemId && null == $partnerId) {
@@ -163,15 +165,11 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param bool $byPartnerId Option to delete by partner id which is useful for purging duplicates
      * @return bool true on success, false on failure
      */
-    public function deletePartner(Partner $partner, bool $byPartnerId = false)
+    public function deletePartner(Partner $partner): bool
     {
         if ($partner->getId()) {
             $params = [];
-            if ($byPartnerId) {
-                $params["id"] = $partner->getId();
-            } else {
-                $params["pid"] = $partner->getPartnerId();
-            }
+            $params["id"] = $partner->getId();
 
             $this->database->delete("object_sync_partners", $params);
             return true;
@@ -289,21 +287,24 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Mark a commit as stale for all sync collections
      *
      * @param int $colType Type from EntitySync::COLL_TYPE_*
-     * @param string $lastCommitId
-     * @param string $newCommitId
+     * @param int $lastCommitId
+     * @param int $newCommitId
      */
-    public function setExportedStale(int $collType, string $lastCommitId, string $newCommitId)
-    {
+    public function setExportedStale(
+        int $collType,
+        int $lastCommitId,
+        int $newCommitId
+    ) {
         $data = ["new_commit_id" => $newCommitId];
 
         // Set previously exported commits as stale
-        $this->database->update("object_sync_export", $data, [
+        $this->database->update("entity_sync_export", $data, [
             "collection_type" => $collType,
             "commit_id" => $lastCommitId
         ]);
 
         // Set previously stale commits as even more stale
-        $this->database->update("object_sync_export", $data, [
+        $this->database->update("entity_sync_export", $data, [
             "collection_type" => $collType,
             "new_commit_id" => $lastCommitId
         ]);
@@ -314,18 +315,22 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      *
      * @param int $colType Type from EntitySync::COLL_TYPE_*
      * @param int $collectionId The unique id of the collection we exported for
-     * @param int $uniqueId Unique id of the object sent
+     * @param string $uniqueId Unique id of the object sent
      * @param int $commitId The commit id synchronized, if null then delete the entry
      * @return bool true on success, false on failure
      */
-    public function logExported(int $collType = null, int $collectionId = null, int $uniqueId = null, int $commitId = null)
-    {
+    public function logExported(
+        int $collType,
+        int $collectionId,
+        string $uniqueId,
+        int $commitId = null
+    ) {
         $whereParams = [
             "collection_id" => $collectionId,
             "unique_id" => $uniqueId
         ];
 
-        $sql = "SELECT unique_id FROM object_sync_export
+        $sql = "SELECT unique_id FROM entity_sync_export
     				  WHERE collection_id=:collection_id
     				  	AND unique_id=:unique_id";
 
@@ -334,9 +339,9 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         if ($result->rowCount()) {
             if ($commitId) {
                 $updateData = ["commit_id" => $commitId, "new_commit_id" => null];
-                $this->database->update("object_sync_export", $updateData, $whereParams);
+                $this->database->update("entity_sync_export", $updateData, $whereParams);
             } else {
-                $this->database->delete("object_sync_export", $whereParams);
+                $this->database->delete("entity_sync_export", $whereParams);
             }
         } else {
             $insertData = array_merge([
@@ -344,7 +349,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
                 "commit_id" => $commitId
             ], $whereParams);
 
-            $this->database->insert("object_sync_export", $insertData);
+            $this->database->insert("entity_sync_export", $insertData);
         }
 
         return true;
@@ -378,7 +383,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         $staleStats = [];
 
         // Get everything from the exported log that is set as stale
-        $sql = "SELECT unique_id FROM object_sync_export 
+        $sql = "SELECT unique_id FROM entity_sync_export 
     			WHERE collection_id=:collection_id
     				AND new_commit_id IS NOT NULL LIMIT 1000;";
 
@@ -430,7 +435,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param int $collectionId The id of the collection we are logging changes to
      * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
-     * @param int $localId If imported to a local object then record the id, if null the delete
+     * @param string $localId If imported to a local object then record the id, if null the delete
      * @param int $localRevision The revision of the local object
      * @return bool true if imported false if failure
      */
@@ -438,7 +443,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         int $collectionId,
         string $remoteId,
         int $remoteRevision = null,
-        int $localId = null,
+        string $localId = null,
         int $localRevision = null
     ) {
         if (!$remoteId) {

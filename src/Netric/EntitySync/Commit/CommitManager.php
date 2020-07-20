@@ -1,10 +1,6 @@
 <?php
-/*
- * Commit manager handles creating commit records enabling incremental diffs
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
+
+declare(strict_types=1);
 
 namespace Netric\EntitySync\Commit;
 
@@ -12,8 +8,6 @@ use Netric\EntitySync\Commit\DataMapper\DataMapperInterface;
 
 /**
  * Manage handles creating, getting, and working with commits
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  */
 class CommitManager
 {
@@ -22,28 +16,28 @@ class CommitManager
      *
      * @var DataMapperInterface
      */
-    private $dm = null;
+    private $commitDataMapper = null;
 
     /**
      * Class constructor
      *
-     * @param DataMapperInterface $dm
+     * @param DataMapperInterface $commitDataMapper
      */
-    public function __construct(DataMapperInterface $dm)
+    public function __construct(DataMapperInterface $commitDataMapper)
     {
-        $this->dm = $dm;
+        $this->commitDataMapper = $commitDataMapper;
     }
 
     /**
      * Generate a new commit id for a collection
      *
      * @param string $key A unique key representing the collection
-     * @return bigint A unique and incremental commit id
+     * @return int A unique and incremental commit id
      */
-    public function createCommit($key)
+    public function createCommit(string $key): int
     {
-        $cid = $this->dm->getNextCommitId();
-        $this->dm->saveHead($key, $cid);
+        $cid = $this->commitDataMapper->getNextCommitId();
+        $this->commitDataMapper->saveHead($key, $cid);
         return $cid;
     }
 
@@ -51,10 +45,10 @@ class CommitManager
      * Get the last commit id for a collection name
      *
      * @param string The name of the collection to get the head commit for
-     * @return bigint The last commit id for an object type
+     * @return int The last commit id for an object type
      */
-    public function getHeadCommit($key)
+    public function getHeadCommit($key): int
     {
-        return $this->dm->getHead($key);
+        return $this->commitDataMapper->getHead($key);
     }
 }

@@ -1,13 +1,6 @@
 <?php
 
-/**
- * Sync collection for entity groupings
- *
- * @category  AntObjectSync
- * @package   Collection
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
@@ -18,6 +11,7 @@ use Netric\EntitySync\Commit;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\EntitySync\Commit\CommitManager;
+use DateTime;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -39,14 +33,14 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      * @param EntityGroupingDataMapperInterface $groupingDataMapper Entity DataMapper
      */
     public function __construct(
-        DataMapperInterface $dm,
+        DataMapperInterface $dataMapper,
         CommitManager $commitManager,
         EntityGroupingDataMapperInterface $groupingDataMapper
     ) {
         $this->groupingDataMapper = $groupingDataMapper;
 
         // Pass datamapper to parent
-        parent::__construct($dm, $commitManager);
+        parent::__construct($dataMapper, $commitManager);
     }
 
     /**
@@ -62,8 +56,10 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      *      ]
      *  ]
      */
-    public function getExportChanged($autoFastForward = true, \DateTime $limitUpdatesAfter = null)
-    {
+    public function getExportChanged(
+        $autoFastForward = true,
+        DateTime $limitUpdatesAfter = null
+    ) {
         if (!$this->getObjType()) {
             throw new \InvalidArgumentException("Object type not set! Cannot export changes.");
         }
@@ -78,11 +74,11 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
         // Get the current commit for this collection
         $lastCollectionCommit = $this->getLastCommitId();
         if ($this->isBehindHead()) {
+            $imports = [];
+
             // Get previously imported so we do not try to export a recent import
             if ($this->getId()) {
                 $imports = $this->dataMapper->getImported($this->getId());
-            } else {
-                $imports = [];
             }
 
             // Get groupings
@@ -122,7 +118,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
                         // Save to exported log
                         $logRet = $this->logExported(
-                            $grp->id,
+                            $grp->guid,
                             $grp->commitId
                         );
                     }

@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\Commit;
 use Netric\Entity\EntityInterface;
 use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\Commit\CommitManager;
+use DateTime;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -57,28 +60,29 @@ abstract class AbstractCollection
     /**
      * Last sync time
      *
-     * @var \DateTime
+     * @var DateTime
      */
     protected $lastSync = null;
 
     /**
      * Last commit id that was exported from this colleciton
      *
-     * @var string
+     * @var int
      */
-    protected $lastCommitId = null;
+    protected $lastCommitId = 0;
 
     /**
      * Conditions array
      *
-     * @var array(array("blogic", "field", "operator", "condValue"));
+     * @var array
+     *  (array("blogic", "field", "operator", "condValue"));
      */
     protected $conditions = [];
 
     /**
      * Cache change results in a revision increment
      *
-     * @var double
+     * @var int
      */
     protected $revision = 1;
 
@@ -112,9 +116,9 @@ abstract class AbstractCollection
     /**
      * Set the last commit id synchronized
      *
-     * @param string $commitId
+     * @param int $commitId
      */
-    public function setLastCommitId($commitId)
+    public function setLastCommitId(int $commitId)
     {
         $this->lastCommitId = $commitId;
     }
@@ -122,9 +126,9 @@ abstract class AbstractCollection
     /**
      * Get the last commit ID that was syncrhonzied/exported from this collection
      *
-     * @return string
+     * @return int|null
      */
-    public function getLastCommitId()
+    public function getLastCommitId(): int
     {
         return $this->lastCommitId;
     }
@@ -132,9 +136,9 @@ abstract class AbstractCollection
     /**
      * Set the id of this collection
      *
-     * @param string $id
+     * @param int $id
      */
-    public function setId($id)
+    public function setId(int $id)
     {
         $this->id = $id;
     }
@@ -142,9 +146,9 @@ abstract class AbstractCollection
     /**
      * Get the unique id of this collection
      *
-     * @return string
+     * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -154,7 +158,7 @@ abstract class AbstractCollection
      *
      * @param string $pid
      */
-    public function setPartnerId($pid)
+    public function setPartnerId(string $pid)
     {
         $this->partnerId = $pid;
     }
@@ -174,7 +178,7 @@ abstract class AbstractCollection
      *
      * @param string $objType
      */
-    public function setObjType($objType)
+    public function setObjType(string $objType)
     {
         $this->objType = $objType;
     }
@@ -184,7 +188,7 @@ abstract class AbstractCollection
      *
      * @return string
      */
-    public function getObjType()
+    public function getObjType(): string
     {
         return $this->objType;
     }
@@ -194,7 +198,7 @@ abstract class AbstractCollection
      *
      * @param string $fieldName Name of field to set
      */
-    public function setFieldName($fieldName)
+    public function setFieldName(string $fieldName)
     {
         $this->fieldName = $fieldName;
     }
@@ -204,7 +208,7 @@ abstract class AbstractCollection
      *
      * @return string
      */
-    public function getFieldName()
+    public function getFieldName(): string
     {
         return $this->fieldName;
     }
@@ -212,9 +216,9 @@ abstract class AbstractCollection
     /**
      * Set last sync timestamp
      *
-     * @param \DateTime $timestamp When the partnership was last synchronized
+     * @param DateTime $timestamp When the partnership was last synchronized
      */
-    public function setLastSync(\DateTime $timestamp)
+    public function setLastSync(DateTime $timestamp)
     {
         $this->lastSync = $timestamp;
     }
@@ -222,9 +226,9 @@ abstract class AbstractCollection
     /**
      * Set the revision
      *
-     * @param string $revision
+     * @param int $revision
      */
-    public function setRevision($revision)
+    public function setRevision(int $revision)
     {
         $this->revision = $revision;
     }
@@ -232,9 +236,9 @@ abstract class AbstractCollection
     /**
      * Get the revision
      *
-     * @return string
+     * @return int
      */
-    public function getRevision()
+    public function getRevision(): int
     {
         return $this->revision;
     }
@@ -244,7 +248,7 @@ abstract class AbstractCollection
      *
      * @param array $conditions array(array("blogic", "field", "operator", "condValue"))
      */
-    public function setConditions($conditions)
+    public function setConditions(array $conditions)
     {
         $this->conditions = $conditions;
     }
@@ -254,7 +258,7 @@ abstract class AbstractCollection
      *
      * @return array(array("blogic", "field", "operator", "condValue"))
      */
-    public function getConditions()
+    public function getConditions(): array
     {
         return $this->conditions;
     }
@@ -280,7 +284,7 @@ abstract class AbstractCollection
      *
      * @return bool true if behind, false if no changes have been made since last sync
      */
-    public function isBehindHead()
+    public function isBehindHead(): bool
     {
         // Get last commit id for this collection
         $headCommit = $this->getCollectionTypeHeadCommit();
@@ -294,11 +298,11 @@ abstract class AbstractCollection
     /**
      * Log that a commit was exported from this collection
      *
-     * @param int $uniqueId The unique id of the object we sent
+     * @param string $uniqueId The unique id of the object we sent
      * @param int $commitId The unique id of the commit we sent
      * @return bool
      */
-    public function logExported($uniqueId, $commitId)
+    public function logExported(string $uniqueId, int $commitId = null)
     {
         if (!$this->getId()) {
             return false;
@@ -416,13 +420,17 @@ abstract class AbstractCollection
      *
      * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
-     * @param int $localId If imported to a local object then record the id, if null the delete
+     * @param string $localId If imported to a local object then record the id, if null the delete
      * @param int $localRevision The revision of the local object
      * @return bool true if imported false if failure
      * @throws \InvalidArgumentException
      */
-    public function logImported($remoteId, $remoteRevision = null, $localId = null, $localRevision = null)
-    {
+    public function logImported(
+        string $remoteId,
+        int $remoteRevision = null,
+        string $localId = null,
+        int $localRevision = null
+    ) {
         if (!$this->getId()) {
             return false;
         }

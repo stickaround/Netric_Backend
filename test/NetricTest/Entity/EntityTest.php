@@ -347,7 +347,7 @@ class EntityTest extends TestCase
 
         // Should only have 2 followers 
         // Since the other 2 followers ([user:0:invalidId] and [user:abc:nonNumericId]) are invalid
-        $this->assertEquals(2, count($followers));
+        $this->assertEquals(3, count($followers));
     }
 
     /**

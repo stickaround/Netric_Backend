@@ -1,16 +1,15 @@
 <?php
-/**
- * Abstract commit datamapper
- *
- * @category    DataMapper
- * @author      Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright   Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
- */
+
+declare(strict_types=1);
+
 namespace Netric\EntitySync\Commit\DataMapper;
 
 use Netric\Account\Account;
 use Netric\Db\Relational\RelationalDbInterface;
 
+/**
+ * Abstract commit datamapper
+ */
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract implements DataMapperInterface
 {
     /**
@@ -19,7 +18,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract implements 
      * @var RelationalDbInterface
      */
     protected $database = null;
-    
+
     /**
      * Class constructor
      *

@@ -374,7 +374,7 @@ class EntityProvider
                 $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
                 $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
 
-                $group = $groupings->getById($folder['id']);
+                $group = $groupings->getByGuidOrGroupId($folder['id']);
 
                 if (!$group)
                     return false;
@@ -489,7 +489,7 @@ class EntityProvider
     public function getEmailFolders($id = "")
     {
         // Log if a user is not provided
-        if (!$this->user->getId()) {
+        if (!$this->user->getEntityId()) {
             $this->log->error("ZPUSH->EntityProvider->getEmailFolders: Called without a user");
         }
 
@@ -607,7 +607,7 @@ class EntityProvider
         $groupings = $gloader->get(
             ObjectTypes::NOTE,
             "groups",
-            array("owner_id"=>$this->user->getId())
+            array("owner_id"=>$this->user->getEntityId())
         );
 
         $groups = $groupings->getAll();
@@ -1579,7 +1579,7 @@ class EntityProvider
 
         $entity->setValue('subject', $syncMail->subject);
         $entity->setValue('to', $syncMail->to);
-        $entity->setValue("owner_id", $this->user->getId());
+        $entity->setValue("owner_id", $this->user->getEntityId());
         $entity->setValue("flag_seen", ($syncMail->read) ? true : false);
 
         if ($mailboxId)

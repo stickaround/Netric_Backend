@@ -77,7 +77,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertEquals($partner->getPartnerId(), $partner2->getPartnerId());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner);
     }
 
     public function testDeletePartner()
@@ -92,7 +92,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $ret = $dm->savePartner($partner);
 
         // Now delete it
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner);
 
         // Try to load the partner and verify it was not found
         $partner2 = $dm->getPartnerById($partner->getId());
@@ -181,7 +181,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertEquals("categories", $collections[0]->getFieldName());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner);
     }
 
     /**
@@ -217,13 +217,13 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertEquals(0, count($partner3->getCOllections()));
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner);
     }
 
     public function testLogExportedCommit()
     {
         $partnerId = "UTEST-DEVICE-SAVEANDLOADPARTNERENTITYCOLLECITON";
-        $uniqueId = 1234;
+        $uniqueId = '5eb4d21c-1234-4c1a-be72-4524b4711455';
         $commitId1 = 1;
 
         $dm = $this->getDataMapper();
@@ -237,7 +237,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
-        $collection->setPartnerId($partner->getEntityId());
+        $collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
         $dm->savePartner($partner);
@@ -247,13 +247,13 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertTrue($ret);
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner);
     }
 
     public function testSetAndGetExportedCommitStale()
     {
         $partnerId = "UTEST-DEVICE-SAVEANDLOADPARTNERENTITYCOLLECITON";
-        $uniqueId = 1234;
+        $uniqueId = '5eb4d21c-1234-4c1a-be72-4524b4711455';
         $commitId1 = 1;
         $commitId2 = 2;
 
@@ -262,7 +262,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create a partner
         $partner = new EntitySync\Partner($dm);
         $partner->setPartnerId($partnerId);
-        $partner->setOwnerId($this->user->getId());
+        $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection and save
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
@@ -283,6 +283,6 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertEquals($uniqueId, $staleStats[0]);
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner);
     }
 }

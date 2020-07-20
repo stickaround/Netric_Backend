@@ -3,6 +3,7 @@
 /**
  * Test entity/object class
  */
+
 namespace NetricTest\EntitySync\Collection;
 
 use Netric\EntitySync;
@@ -39,7 +40,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
      * Setup datamapper
      */
     protected function setUp(): void
-{
+    {
         // Make sure we don't override parent tearDown
         parent::setUp();
 
@@ -50,7 +51,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         // Make sure we don't override parent tearDown
         parent::tearDown();
 
@@ -87,13 +88,13 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $this->groupingDataMapper->saveGroupings($this->groupings);
         $group = $this->groupings->getByName($newGroup->name);
 
-        $this->testObjectGroupings[] = $newGroup->id;
-        return array("id" => $group->id, "revision" => $group->commitId);
+        $this->testObjectGroupings[] = $newGroup->guid;
+        return ["id" => $group->guid, "revision" => $group->commitId];
     }
 
     protected function changeLocal($id)
     {
-        $group = $this->groupings->getById($id);
+        $group = $this->groupings->getByGuidOrGroupId($id);
         // Record a change to the grouping
         $group->name = "UTEST CS::testGetExportChanged" . rand();
         $group->setDirty(true);

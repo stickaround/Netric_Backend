@@ -1,8 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\Commit\CommitManagerFactory;
@@ -70,9 +74,9 @@ class CollectionFactory implements CollectionFactoryInterface
                 break;
             default:
                 throw \Exception("Unrecognized type of entity!");
-            break;
+                break;
         }
-        
+
         // Initialize data if set
         if ($data && $collection) {
             if ($data['id']) {

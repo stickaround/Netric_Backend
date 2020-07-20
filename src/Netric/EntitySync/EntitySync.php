@@ -1,9 +1,6 @@
 <?php
 
-/**
- * The main idea is that this class should return a list of entities
- * that have been added, changed or deleted since the last sync.
- */
+declare(strict_types=1);
 
 namespace Netric\EntitySync;
 
