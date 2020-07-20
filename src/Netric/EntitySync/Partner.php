@@ -84,19 +84,19 @@ class Partner
     /**
      * Set the internal id of this partner
      *
-     * @param string $id Unique id
+     * @param int $id Unique id
      */
-    public function setId($id)
+    public function setId(int $partnerId)
     {
-        $this->id = $id;
+        $this->id = $partnerId;
     }
 
     /**
      * Get the internal id of this partner
      *
-     * @return string Unique id of this partner if it has one
+     * @return int Unique id of this partner if it has one
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -106,7 +106,7 @@ class Partner
      *
      * @param string $partnerId Unique id (from the client) of this partner
      */
-    public function setPartnerId($partnerId)
+    public function setRemotePartnerId(string $partnerId)
     {
         $this->partnerId = $partnerId;
     }
@@ -116,7 +116,7 @@ class Partner
      *
      * @return string Unique id of this partner
      */
-    public function getPartnerId()
+    public function getRemotePartnerId(): string
     {
         return $this->partnerId;
     }

@@ -79,8 +79,8 @@ class PartnerTest extends TestCase
      */
     public function testSetAndGetPartnerId()
     {
-        $this->partner->setPartnerId("123");
-        $this->assertEquals("123", $this->partner->getPartnerId());
+        $this->partner->setRemotePartnerId("123");
+        $this->assertEquals("123", $this->partner->getRemotePartnerId());
     }
 
     /**
@@ -145,7 +145,7 @@ class PartnerTest extends TestCase
         // Configure the type to be entity.
         $collection->method('getType')->willReturn(1);
         // Make site it returns an id so remove will know to store it in a removed array for saving
-        $collection->method('getId')->willReturn(1001);
+        $collection->method('getCollectionId')->willReturn(1001);
 
         // Add the colleciton
         $this->partner->addCollection($collection);

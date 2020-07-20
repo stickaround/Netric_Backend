@@ -60,7 +60,7 @@ class EntitySync
 
         // First get cached partners because we do not want to load them twice
         if ($this->partner) {
-            if ($this->partner->getPartnerId() == $pid) {
+            if ($this->partner->getRemotePartnerId() == $pid) {
                 return $this->partner;
             }
         }
@@ -81,7 +81,7 @@ class EntitySync
     public function createPartner($pid, $ownerId)
     {
         $partner = new Partner($this->dataMapper);
-        $partner->setPartnerId($pid);
+        $partner->setRemotePartnerId($pid);
         $partner->setOwnerId($ownerId);
         $this->dataMapper->savePartner($partner);
         return $partner;
@@ -145,7 +145,7 @@ class EntitySync
             $collections = $partner->getGroupingCollections($this->obj->object_type, $fieldName);
             foreach ($collections as $coll) {
                 $coll->updateGroupingStat($fieldVal, $action);
-                $ret[] = $coll->id;
+                $ret[] = $coll->getCollectionId();
             }
         }
 

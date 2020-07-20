@@ -69,7 +69,7 @@ abstract class AbstractCollectionTests extends TestCase
 
         // Create a new partner
         $this->partner = new Partner($this->esDataMapper);
-        $this->partner->setPartnerId("AbstractCollectionTests");
+        $this->partner->setRemotePartnerId("AbstractCollectionTests");
         $this->partner->setOwnerId($this->user->getEntityId());
         $this->esDataMapper->savePartner($this->partner);
     }
@@ -204,7 +204,7 @@ abstract class AbstractCollectionTests extends TestCase
 
         // Create and save partner with one collection watching customers
         $partner = new Partner($this->esDataMapper);
-        $partner->setPartnerId("AbstractCollectionTests::testGetImportChanged");
+        $partner->setRemotePartnerId("AbstractCollectionTests::testGetImportChanged");
         $partner->setOwnerId($this->user->getEntityId());
         $partner->addCollection($collection);
         $this->esDataMapper->savePartner($partner);
@@ -218,7 +218,12 @@ abstract class AbstractCollectionTests extends TestCase
         $this->assertEquals(count($stats), count($customers));
         foreach ($stats as $ostat) {
             $this->assertEquals('change', $ostat['action']);
-            $collection->logImported($ostat['remote_id'], $ostat['remote_revision'], 1001, 1);
+            $collection->logImported(
+                $ostat['remote_id'],
+                $ostat['remote_revision'],
+                '48d54ed0-9fc4-40f6-b22b-cdef1d07bc51', // test UUID
+                1
+            );
         }
 
         // Try again with no changes
@@ -273,7 +278,6 @@ abstract class AbstractCollectionTests extends TestCase
         // Initial pull should start with all objects
         $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
-
 
         // Should be no changes now
         $stats = $collection->getExportChanged();

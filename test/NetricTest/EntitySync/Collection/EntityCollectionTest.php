@@ -78,7 +78,7 @@ class EntityCollectionTest extends AbstractCollectionTests
 
         // Create and save partner with one collection watching customers
         $partner = new EntitySync\Partner($this->esDataMapper);
-        $partner->setPartnerId($pid);
+        $partner->setRemotePartnerId($pid);
         $partner->setOwnerId($this->user->getEntityId());
         $collection = $this->getCollection();
         $collection->setObjType(ObjectTypes::CONTACT);
@@ -122,7 +122,7 @@ class EntityCollectionTest extends AbstractCollectionTests
 
         // Create and save partner with one collection watching customers
         $partner = new EntitySync\Partner($this->esDataMapper);
-        $partner->setPartnerId($pid);
+        $partner->setRemotePartnerId($pid);
         $partner->setOwnerId($this->user->getEntityId());
         $collection = $this->getCollection();
         $collection->setObjType(ObjectTypes::CONTACT);

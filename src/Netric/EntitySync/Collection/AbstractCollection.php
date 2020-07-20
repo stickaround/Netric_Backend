@@ -39,9 +39,9 @@ abstract class AbstractCollection
     /**
      * Partner id
      *
-     * @var string
+     * @var int
      */
-    protected $partnerId = '';
+    protected $partnerId = 0;
 
     /**
      * Object type name
@@ -156,19 +156,19 @@ abstract class AbstractCollection
     /**
      * Set the partner id of this collection
      *
-     * @param string $pid
+     * @param int $partnerId
      */
-    public function setPartnerId(string $pid)
+    public function setPartnerId(int $partnerId)
     {
-        $this->partnerId = $pid;
+        $this->partnerId = $partnerId;
     }
 
     /**
      * Get the partner id of this collection
      *
-     * @return string
+     * @return int
      */
-    public function getPartnerId()
+    public function getPartnerId(): ?int
     {
         return $this->partnerId;
     }

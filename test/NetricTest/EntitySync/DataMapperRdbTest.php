@@ -59,7 +59,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
 
         // Save a the partner because it is required for saving a colleciton
         $partner = new EntitySync\Partner($dm);
-        $partner->setPartnerId("UTEST-DEVICE-SAVEANDLOAD");
+        $partner->setRemotePartnerId("UTEST-DEVICE-SAVEANDLOAD");
         $partner->setOwnerId($this->user->getEntityId());
         $ret = $dm->savePartner($partner);
 

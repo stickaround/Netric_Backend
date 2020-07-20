@@ -25,7 +25,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
     public function savePartner(Partner $partner): bool
     {
         // PartnerID is a required param
-        if (!$partner->getPartnerId()) {
+        if (!$partner->getRemotePartnerId()) {
             return $this->returnError("Partner id is a required param", __FILE__, __LINE__);
         }
 
@@ -36,7 +36,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
 
         // Save partnership info
         $data = array(
-            "pid" => $partner->getPartnerId(),
+            "pid" => $partner->getRemotePartnerId(),
             "owner_id" => $partner->getOwnerId(),
             "ts_last_sync" => $partner->getLastSync("Y-m-d H:i:s"),
         );
@@ -45,7 +45,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             $this->database->update("object_sync_partners", $data, ["id" => $partner->getId()]);
         } else {
             $partnerId = $this->database->insert("object_sync_partners", $data, 'id');
-            $partner->setId($partnerId);
+            $partner->setId(intval($partnerId));
         }
 
         // Save collections
@@ -68,7 +68,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         $collections = $partner->getCollections();
         for ($i = 0; $i < count($collections); $i++) {
             // If this collection was just added to the partner then it may not have the partner id set yet.
-            if ($collections[$i]->getPartnerId() === null) {
+            if (!$collections[$i]->getPartnerId()) {
                 $collections[$i]->setPartnerId($partner->getId());
             }
 
@@ -141,7 +141,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
 
             $partner = new Partner($this);
             $partner->setId($row['id']);
-            $partner->setPartnerId($row['pid']);
+            $partner->setRemotePartnerId($row['pid']);
             $partner->setOwnerId($row['owner_id']);
 
             if ($row['ts_last_sync']) {

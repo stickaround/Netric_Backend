@@ -65,7 +65,7 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Save the partner
         $partner = new Partner($dm);
-        $partner->setPartnerId($partnerId);
+        $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
         $ret = $dm->savePartner($partner);
         $this->assertTrue($ret, $dm->getLastError());
@@ -74,7 +74,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Load the partner in another object and test
         $partner2 = $dm->getPartnerById($partner->getId());
         $this->assertEquals($partner->getId(), $partner2->getId());
-        $this->assertEquals($partner->getPartnerId(), $partner2->getPartnerId());
+        $this->assertEquals($partner->getRemotePartnerId(), $partner2->getRemotePartnerId());
 
         // Cleanup by partner id (second param)
         $dm->deletePartner($partner);
@@ -87,7 +87,7 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Save the partner
         $partner = new Partner($dm);
-        $partner->setPartnerId($partnerId);
+        $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
         $ret = $dm->savePartner($partner);
 
@@ -112,14 +112,13 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Create a partner
         $partner = new EntitySync\Partner($dm);
-        $partner->setPartnerId($partnerId);
+        $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
-        $collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $collection->setConditions($testConditions);
         $partner->addCollection($collection);
@@ -151,14 +150,13 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Create a partner
         $partner = new EntitySync\Partner($dm);
-        $partner->setPartnerId($partnerId);
+        $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
-        $collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
 
@@ -194,14 +192,14 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Create a partner
         $partner = new EntitySync\Partner($dm);
-        $partner->setPartnerId($partnerId);
+        $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection and save
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
-        $collection->setPartnerId($partner->getId());
+        //$collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
         $dm->savePartner($partner);
@@ -230,14 +228,14 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Create a partner
         $partner = new EntitySync\Partner($dm);
-        $partner->setPartnerId($partnerId);
+        $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection and save
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
-        $collection->setPartnerId($partner->getId());
+        //$collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
         $dm->savePartner($partner);
@@ -261,14 +259,13 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Create a partner
         $partner = new EntitySync\Partner($dm);
-        $partner->setPartnerId($partnerId);
+        $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection and save
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
-        $collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
         $dm->savePartner($partner);
