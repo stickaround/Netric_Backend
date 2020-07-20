@@ -12,7 +12,7 @@ class Group
     /**
      * The global unique identifier of this group
      *
-     * @var uuid
+     * @var string
      */
     public $guid = "";
 
@@ -41,7 +41,7 @@ class Group
     /**
      * Deprecated - Marl 01/20/20
      * If heiarchial then parent may be used to define parent-child groupings
-     * 
+     *
      * @var int
      */
     public $parentId = null;

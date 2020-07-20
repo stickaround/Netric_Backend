@@ -114,10 +114,10 @@ class Dacl
      */
     public function toArray()
     {
-        $ret = array(
+        $ret = [
             'name' => $this->name,
             'entries' => []
-        );
+        ];
 
         foreach ($this->entries as $key => $entry) {
             $ret['entries'][$key] = $entry->toArray();

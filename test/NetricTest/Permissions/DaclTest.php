@@ -10,6 +10,9 @@ use Netric\Permissions\Dacl;
 use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\Group;
+use Netric\EntityGroupings\GroupingLoaderFactory;
+
 use Ramsey\Uuid\Uuid;
 
 class DaclTest extends TestCase
@@ -35,15 +38,28 @@ class DaclTest extends TestCase
      */
     private $testEntities = [];
 
+    /**
+     * Users group
+     * 
+     * @var Group
+     */
+    private $userGroup = null;
+
+    /**
+     * Setup a DACL
+     */
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $gropingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $userGroups = $gropingsLoader->get(ObjectTypes::USER . '/groups');
+        $this->userGroup = $userGroups->getByName(UserEntity::GROUP_USERS);
 
         // Create a temporary user
         $this->user = $entityLoader->create(ObjectTypes::USER);
         $this->user->setValue("name", "utest-email-receiver-" . rand());
-        $this->user->addMultiValue("groups", UserEntity::GROUP_USERS);
+        $this->user->addMultiValue("groups", $this->userGroup->getGroupId());
         $entityLoader->save($this->user);
         $this->testEntities[] = $this->user;
     }
@@ -80,7 +96,7 @@ class DaclTest extends TestCase
         $this->assertFalse($dacl->isAllowed($this->user));
 
         // Add USERS group and then test again
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        $dacl->allowGroup($this->userGroup->getGroupId());
 
         $this->assertTrue($dacl->isAllowed($this->user));
     }
@@ -103,11 +119,11 @@ class DaclTest extends TestCase
         $dacl = new Dacl();
 
         // Add user which should cause it to pass
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        $dacl->allowGroup($this->userGroup->getGroupId());
         $this->assertTrue($dacl->isAllowed($this->user));
 
         // Remove the user which should cause it to fail
-        $dacl->denyGroup(UserEntity::GROUP_USERS);
+        $dacl->denyGroup($this->userGroup->getGroupId());
         $this->assertFalse($dacl->isAllowed($this->user));
     }
 
@@ -117,7 +133,7 @@ class DaclTest extends TestCase
             "entries" => array(
                 array(
                     "name" => Dacl::PERM_VIEW,
-                    "groups" => [UserEntity::GROUP_USERS],
+                    "groups" => [$this->userGroup->getGroupId()],
                     "users" => [$this->user->getEntityId()]
                 ),
             ),
@@ -133,7 +149,7 @@ class DaclTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $user2 = $entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "utest-dacl-" . rand());
-        $user2->addMultiValue("groups", UserEntity::GROUP_USERS);
+        $user2->addMultiValue("groups", $this->userGroup->getGroupId());
         $entityLoader->save($user2);
         $this->testEntities[] = $user2;
 
@@ -144,11 +160,11 @@ class DaclTest extends TestCase
     public function testToArray()
     {
         $dacl = new Dacl();
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        $dacl->allowGroup($this->userGroup->getGroupId());
         $dacl->allowUser($this->user->getEntityId());
 
         $exported = $dacl->toArray();
-        $this->assertEquals([UserEntity::GROUP_USERS], $exported['entries']['View']['groups']);
+        $this->assertEquals([$this->userGroup->getGroupId()], $exported['entries']['View']['groups']);
     }
 
     public function testGetUsers()
@@ -164,23 +180,23 @@ class DaclTest extends TestCase
     public function testGetGroups()
     {
         $dacl = new Dacl();
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        $dacl->allowGroup($this->userGroup->getGroupId());
 
         $groups = $dacl->getGroups();
         $this->assertEquals(1, count($groups));
-        $this->assertEquals([UserEntity::GROUP_USERS], $groups);
+        $this->assertEquals([$this->userGroup->getGroupId()], $groups);
     }
 
     public function testGroupIsAllowed()
     {
         $dacl = new Dacl();
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        $dacl->allowGroup($this->userGroup->getGroupId());
 
         // Make sure anonymous access is not allowed if only authenticated users were given access
         $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW));
 
         // Make sure users group is allowed
-        $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_USERS, Dacl::PERM_VIEW));
+        $this->assertTrue($dacl->groupIsAllowed($this->userGroup->getGroupId(), Dacl::PERM_VIEW));
 
         // Now give everyone view only access and test
         $dacl->allowGroup(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW);
@@ -194,10 +210,10 @@ class DaclTest extends TestCase
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $user = $entityLoader->create(ObjectTypes::USER);
-        $user->setValue("guid", Uuid::uuid4()->toString());
+        $user->setValue("entity_id", Uuid::uuid4()->toString());
 
         $userOwner = $entityLoader->create(ObjectTypes::USER);
-        $userOwner->setValue("guid", Uuid::uuid4()->toString());
+        $userOwner->setValue("entity_id", Uuid::uuid4()->toString());
 
         $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue('owner_id', $userOwner->getEntityId());
@@ -207,7 +223,7 @@ class DaclTest extends TestCase
 
         // This should be false since the $userNotAssigned is not assigned in the task
         $userNotAssigned = $entityLoader->create(ObjectTypes::USER);
-        $userNotAssigned->setValue("guid", Uuid::uuid4()->toString());
+        $userNotAssigned->setValue("entity_id", Uuid::uuid4()->toString());
         $this->assertFalse($dacl->isAllowed($userNotAssigned, null, $task));
     }
 }
