@@ -209,7 +209,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Now load the parter and delete the collection
         $partner2 = $dm->getPartnerById($partner->getId());
         $collections = $partner2->getCollections();
-        $partner2->removeCollection($collections[0]->getId());
+        $partner2->removeCollection($collections[0]->getCollectionId());
         $dm->savePartner($partner2);
 
         // Load it once more and make sure there are no collections
@@ -243,7 +243,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm->savePartner($partner);
 
         // Add new exported entry
-        $ret = $dm->logExported($collection->getType(), $collection->getId(), $uniqueId, $commitId1);
+        $ret = $dm->logExported($collection->getType(), $collection->getCollectionId(), $uniqueId, $commitId1);
         $this->assertTrue($ret);
 
         // Cleanup by partner id (second param)
@@ -274,11 +274,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm->savePartner($partner);
 
         // Add new exported entry then mark it as stale
-        $dm->logExported($collection->getType(), $collection->getId(), $uniqueId, $commitId1);
+        $dm->logExported($collection->getType(), $collection->getCollectionId(), $uniqueId, $commitId1);
         $dm->setExportedStale($collection->getType(), $commitId1, $commitId2);
 
         // Make sure the stale stat is returned when called
-        $staleStats = $dm->getExportedStale($collection->getId());
+        $staleStats = $dm->getExportedStale($collection->getCollectionId());
         $this->assertEquals(1, count($staleStats));
         $this->assertEquals($uniqueId, $staleStats[0]);
 

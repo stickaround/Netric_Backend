@@ -80,7 +80,7 @@ class CollectionFactory implements CollectionFactoryInterface
         // Initialize data if set
         if ($data && $collection) {
             if ($data['id']) {
-                $collection->setId($data['id']);
+                $collection->setCollectionId($data['id']);
             }
             //if ($data['object_type_id'])
             //  $collection->setObjTypeId($data['object_type_id']);

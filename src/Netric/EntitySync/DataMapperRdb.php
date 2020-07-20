@@ -90,7 +90,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param string $partnerId Netric unique partner id
      * @return Partner or null if id does not exist
      */
-    public function getPartnerById(string $partnerId): Partner
+    public function getPartnerById(string $partnerId): ?Partner
     {
         return $this->getPartner($partnerId, null);
     }
@@ -101,7 +101,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param string $partnerId Remotely provided unique ident
      * @return Partner or null if id does not exist
      */
-    public function getPartnerByPartnerId(string $partnerId): Partner
+    public function getPartnerByPartnerId(string $partnerId): ?Partner
     {
         return $this->getPartner(null, $partnerId);
     }
@@ -113,7 +113,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param string $partnerId Device id
      * @return Partner or null if id does not exist
      */
-    private function getPartner(string $systemId = null, string $partnerId = null): Partner
+    private function getPartner(string $systemId = null, string $partnerId = null): ?Partner
     {
         // Make sure we have at least one id to pull from
         if (null == $systemId && null == $partnerId) {
@@ -257,11 +257,11 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             "conditions" => serialize($collection->getConditions())
         ];
 
-        if ($collection->getId()) {
-            $this->database->update("object_sync_partner_collections", $data, ["id" => $collection->getId()]);
+        if ($collection->getCollectionId()) {
+            $this->database->update("object_sync_partner_collections", $data, ["id" => $collection->getCollectionId()]);
         } else {
             $collectionId = $this->database->insert("object_sync_partner_collections", $data, 'id');
-            $collection->setId($collectionId);
+            $collection->setCollectionId(intval($collectionId));
         }
 
         return true;

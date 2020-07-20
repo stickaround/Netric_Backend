@@ -77,8 +77,8 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
             $imports = [];
 
             // Get previously imported so we do not try to export a recent import
-            if ($this->getId()) {
-                $imports = $this->dataMapper->getImported($this->getId());
+            if ($this->getCollectionId()) {
+                $imports = $this->dataMapper->getImported($this->getCollectionId());
             }
 
             // Get groupings

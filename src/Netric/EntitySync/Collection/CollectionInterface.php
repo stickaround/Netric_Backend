@@ -16,14 +16,14 @@ interface CollectionInterface
      *
      * @return int
      */
-    public function getId(): int;
+    public function getCollectionId(): int;
 
     /**
      * Set the id of this collection
      *
-     * @param int $id
+     * @param int $collectionId
      */
-    public function setId(int $collectionId);
+    public function setCollectionId(int $collectionId);
 
     /**
      * Get a stats list of what has changed locally since the last sync

@@ -34,28 +34,28 @@ abstract class AbstractCollection
      *
      * @var int
      */
-    protected $id = null;
+    protected $collectionId = 0;
 
     /**
      * Partner id
      *
      * @var string
      */
-    protected $partnerId = null;
+    protected $partnerId = '';
 
     /**
      * Object type name
      *
      * @var string
      */
-    protected $objType = null;
+    protected $objType = '';
 
     /**
      * Object type name
      *
      * @var string
      */
-    protected $fieldName = null;
+    protected $fieldName = '';
 
     /**
      * Last sync time
@@ -136,11 +136,11 @@ abstract class AbstractCollection
     /**
      * Set the id of this collection
      *
-     * @param int $id
+     * @param int $collectionId
      */
-    public function setId(int $id)
+    public function setCollectionId(int $collectionId)
     {
-        $this->id = $id;
+        $this->collectionId = $collectionId;
     }
 
     /**
@@ -148,9 +148,9 @@ abstract class AbstractCollection
      *
      * @return int
      */
-    public function getId(): int
+    public function getCollectionId(): int
     {
-        return $this->id;
+        return $this->collectionId;
     }
 
     /**
@@ -304,11 +304,11 @@ abstract class AbstractCollection
      */
     public function logExported(string $uniqueId, int $commitId = null)
     {
-        if (!$this->getId()) {
+        if (!$this->getCollectionId()) {
             return false;
         }
 
-        $ret = $this->dataMapper->logExported($this->getType(), $this->getId(), $uniqueId, $commitId);
+        $ret = $this->dataMapper->logExported($this->getType(), $this->getCollectionId(), $uniqueId, $commitId);
 
         // Check if there was a problem because that should never happen
         if (!$ret) {
@@ -334,13 +334,13 @@ abstract class AbstractCollection
      */
     public function getExportedStale()
     {
-        if (!$this->getId()) {
+        if (!$this->getCollectionId()) {
             return [];
         }
 
         $staleStats = [];
 
-        $stale = $this->dataMapper->getExportedStale($this->getId());
+        $stale = $this->dataMapper->getExportedStale($this->getCollectionId());
         foreach ($stale as $oid) {
             $staleStats[] = array(
                 "id" => $oid,
@@ -365,13 +365,13 @@ abstract class AbstractCollection
      */
     public function getImportChanged(array $importList)
     {
-        if (!$this->getId()) {
+        if (!$this->getCollectionId()) {
             return [];
         }
 
         // Get previously imported list and set the default action to delete
         // --------------------------------------------------------------------
-        $changes = $this->dataMapper->getImported($this->getId());
+        $changes = $this->dataMapper->getImported($this->getCollectionId());
         $numChanges = count($changes);
         for ($i = 0; $i < $numChanges; $i++) {
             $changes[$i]['action'] = 'delete';
@@ -431,7 +431,7 @@ abstract class AbstractCollection
         string $localId = null,
         int $localRevision = null
     ) {
-        if (!$this->getId()) {
+        if (!$this->getCollectionId()) {
             return false;
         }
 
@@ -449,7 +449,7 @@ abstract class AbstractCollection
 
         // Log the import and return the results
         return $this->dataMapper->logImported(
-            $this->getId(),
+            $this->getCollectionId(),
             $remoteId,
             $remoteRevision,
             $localId,

@@ -142,8 +142,8 @@ abstract class AbstractCollectionTests extends TestCase
     public function testSetAndGetId()
     {
         $coll = $this->getCollection();
-        $coll->setId(123);
-        $this->assertEquals(123, $coll->getId());
+        $coll->setCollectionId(123);
+        $this->assertEquals(123, $coll->getCollectionId());
     }
 
     public function testSetAndGetPartnerId()
@@ -210,10 +210,10 @@ abstract class AbstractCollectionTests extends TestCase
         $this->esDataMapper->savePartner($partner);
 
         // Import original group of changes
-        $customers = array(
-            array('remote_id' => 'test1', 'remote_revision' => 1),
-            array('remote_id' => 'test2', 'remote_revision' => 1),
-        );
+        $customers = [
+            ['remote_id' => 'test1', 'remote_revision' => 1],
+            ['remote_id' => 'test2', 'remote_revision' => 1],
+        ];
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), count($customers));
         foreach ($stats as $ostat) {
@@ -226,26 +226,26 @@ abstract class AbstractCollectionTests extends TestCase
         $this->assertEquals(count($stats), 0);
 
         // Change the revision of one of the objects
-        $customers = array(
-            array('remote_id' => 'test1', 'remote_revision' => 2),
-            array('remote_id' => 'test2', 'remote_revision' => 1),
-        );
+        $customers = [
+            ['remote_id' => 'test1', 'remote_revision' => 2],
+            ['remote_id' => 'test2', 'remote_revision' => 1],
+        ];
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 1);
 
         // Remove one of the objects
-        $customers = array(
-            array('remote_id' => 'test2', 'remote_revision' => 1),
-        );
+        $customers = [
+            ['remote_id' => 'test2', 'remote_revision' => 1],
+        ];
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 1);
         $this->assertEquals($stats[0]['action'], 'delete');
 
         // Change both revisions
-        $customers = array(
-            array('remote_id' => 'test1', 'remote_revision' => 2),
-            array('remote_id' => 'test2', 'remote_revision' => 2),
-        );
+        $customers = [
+            ['remote_id' => 'test1', 'remote_revision' => 2],
+            ['remote_id' => 'test2', 'remote_revision' => 2],
+        ];
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 2);
         $this->assertEquals($stats[0]['action'], 'change');
@@ -300,10 +300,10 @@ abstract class AbstractCollectionTests extends TestCase
         $collection->fastForwardToHead();
 
         // Import original group of changes
-        $customers = array(
-            array('remote_id' => 'test1', 'remote_revision' => 1),
-            array('remote_id' => 'test2', 'remote_revision' => 1),
-        );
+        $customers = [
+            ['remote_id' => 'test1', 'remote_revision' => 1],
+            ['remote_id' => 'test2', 'remote_revision' => 1],
+        ];
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), count($customers));
         foreach ($stats as $ostat) {

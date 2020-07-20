@@ -325,8 +325,8 @@ class Partner
     {
         // Log each collection that was previously saved with an id for saving later
         foreach ($this->collections as $collection) {
-            if ($collection->getId()) {
-                $this->removedCollections[] = $collection->getId();
+            if ($collection->getCollectionId()) {
+                $this->removedCollections[] = $collection->getCollectionId();
             }
         }
 
@@ -346,7 +346,7 @@ class Partner
         for ($i = 0; $i < $num; $i++) {
             $collection = $this->collections[$i];
 
-            if ($collection->getId() && $collection->getId() == $collectionId) {
+            if ($collection->getCollectionId() && $collection->getCollectionId() == $collectionId) {
                 // Log the removal for saving later
                 $this->removedCollections[] = $collectionId;
 

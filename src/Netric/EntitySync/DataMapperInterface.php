@@ -14,7 +14,7 @@ interface DataMapperInterface
      * @param string $partnerId Netric unique partner id
      * @return Partner or null if id does not exist
      */
-    public function getPartnerById(string $partnerId): Partner;
+    public function getPartnerById(string $partnerId): ?Partner;
 
     /**
      * Get a partner by the remote partner id
@@ -24,7 +24,7 @@ interface DataMapperInterface
      * @param string $partnerId Remotely provided unique ident
      * @return Partner or null if id does not exist
      */
-    public function getPartnerByPartnerId(string $partnerId): Partner;
+    public function getPartnerByPartnerId(string $partnerId): ?Partner;
 
     /**
      * Get a partner by id

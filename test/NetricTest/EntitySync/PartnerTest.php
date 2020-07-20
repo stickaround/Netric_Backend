@@ -152,11 +152,11 @@ class PartnerTest extends TestCase
         $this->assertEquals(1, count($this->partner->getCollections()));
 
         // Remove it and make sure it is logged
-        $this->partner->removeCollection($collection->getId());
+        $this->partner->removeCollection($collection->getCollectionId());
         $this->assertEquals(0, count($this->partner->getCollections()));
         $this->assertEquals(1, count($this->partner->getRemovedCollections()));
         $removedArray = $this->partner->getRemovedCollections();
-        $this->assertEquals($collection->getId(), $removedArray[0]);
+        $this->assertEquals($collection->getCollectionId(), $removedArray[0]);
     }
 
     public function testGetCollection()

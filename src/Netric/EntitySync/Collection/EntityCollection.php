@@ -103,8 +103,8 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
              * Get previously imported so we do not try to export a recent import.
              * Only get list if there are entities to export to save time
              */
-            if ($this->getId() && $num) {
-                $imports = $this->dataMapper->getImported($this->getId());
+            if ($this->getCollectionId() && $num) {
+                $imports = $this->dataMapper->getImported($this->getCollectionId());
             } else {
                 $imports = [];
             }
@@ -185,7 +185,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
             }
 
             // TODO: Save lastCommit if changed
-            if (count($retStats) && $autoFastForward && $this->getId()) {
+            if (count($retStats) && $autoFastForward && $this->getCollectionId()) {
                 // saveCollection is currently private, research...
                 // $this->dataMapper->saveCollection($this);
             }

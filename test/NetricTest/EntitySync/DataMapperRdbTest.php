@@ -72,14 +72,14 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
 
         $ret = $saveCollection->invoke($dm, $collection);
         $this->assertTrue($ret, $dm->getLastError());
-        $this->assertNotNull($collection->getId());
+        $this->assertNotNull($collection->getCollectionId());
         $this->assertEquals(ObjectTypes::CONTACT, $collection->getObjType());
 
         // Save changes to a collection
         $collection->setObjType(ObjectTypes::TASK);
         $ret = $saveCollection->invoke($dm, $collection);
         $this->assertTrue($ret, $dm->getLastError());
-        $this->assertNotNull($collection->getId());
+        $this->assertNotNull($collection->getCollectionId());
         $this->assertEquals(ObjectTypes::TASK, $collection->getObjType());
 
         // Cleanup by partner id (second param)
@@ -87,7 +87,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
 
         $deleteCollection = $refIm->getMethod("deleteCollection");
         $deleteCollection->setAccessible(true);
-        $ret = $deleteCollection->invoke($dm, $collection->getId());
+        $ret = $deleteCollection->invoke($dm, $collection->getCollectionId());
         $this->assertTrue($ret, $dm->getLastError());
     }
 }
