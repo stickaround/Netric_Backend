@@ -9,6 +9,7 @@ use Netric\Account\Account;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Db\Relational\Exception\DatabaseQueryException;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Load and save entity definition data to a relational database
@@ -56,7 +57,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         // Get basic object definition
         // ------------------------------------------------------
         $sql = "select
-			id, revision, title,
+			id, def_data, revision, title,
 			f_system, system_definition_hash, dacl, capped,
             default_activity_level, is_private, store_revisions,
             recur_rules, inherit_dacl_ref, parent_field, uname_settings,
@@ -64,67 +65,10 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 			from " . self::ENTITY_TYPE_TABLE . " where name=:name";
         $result = $this->database->query($sql, ['name' => $objType]);
 
-
         if ($result->rowCount()) {
             $row = $result->fetch();
-
-            $def->title = $row["title"];
-            $def->revision = (int) $row["revision"];
-            $def->system = ($row["f_system"] == 1) ? true : false;
-            $def->systemDefinitionHash = $row['system_definition_hash'];
-            $def->setEntityDefinitionId($row["id"]);
-            $def->capped = (!empty($row['capped'])) ? $row['capped'] : false;
-
-            if (!empty($row["default_activity_level"])) {
-                $def->defaultActivityLevel = $row["default_activity_level"];
-            }
-
-            if (!empty($row["is_private"])) {
-                $def->isPrivate = ($row["is_private"] == 1) ? true : false;
-            }
-
-            if (!empty($row["store_revisions"])) {
-                $def->storeRevisions = ($row["store_revisions"] == 1) ? true : false;
-            }
-
-            if (!empty($row["inherit_dacl_ref"])) {
-                $def->inheritDaclRef = $row["inherit_dacl_ref"];
-            }
-
-            if (!empty($row["parent_field"])) {
-                $def->parentField = $row["parent_field"];
-            }
-
-            if (!empty($row["uname_settings"])) {
-                $def->unameSettings = $row["uname_settings"];
-            }
-
-            if (!empty($row["list_title"])) {
-                $def->listTitle = $row["list_title"];
-            }
-
-            if (!empty($row["icon"])) {
-                $def->icon = $row["icon"];
-            }
-
-            if (!empty($row['recur_rules'])) {
-                $def->recurRules = json_decode($row['recur_rules'], true);
-            }
-
-            // Check if this definition has an access control list
-            if (!empty($row['dacl'])) {
-                $daclData = json_decode($row['dacl'], true);
-                if ($daclData) {
-                    $dacl = new Dacl($daclData);
-                    $def->setDacl($dacl);
-                }
-            }
-
-            // If this is the first load of this object type
-            // then create the object table
-            if ($def->revision <= 0) {
-                $this->save($def);
-            }
+            $defData = json_decode($row['def_data'], true);
+            $def->fromArray($defData);
         }
 
         // Make sure this a valid definition
@@ -132,101 +76,190 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $this->database->getNamespace());
         }
 
-
-        // Get field definitions
-        // ------------------------------------------------------
-        try {
-            $sql = "select * from app_object_type_fields where type_id=:type_id order by title";
-            $result = $this->database->query($sql, ['type_id' => $def->getEntityDefinitionId()]);
-        } catch (DatabaseQueryException $ex) {
-            throw new \RuntimeException(
-                'Could not pull type fields from db for ' . $this->getAccount()->getName() . ":" . $objType . ":" . $ex->getMessage()
-            );
-        }
-
-        foreach ($result->fetchAll() as $row) {
-            // Build field
-            $field = new Field();
-            $field->id = $row['id'];
-            $field->name = $row['name'];
-            $field->title = $row['title'];
-            $field->type = $row['type'];
-            $field->subtype = $row['subtype'];
-            $field->mask = $row['mask'];
-            $field->required = ($row['f_required'] == 1) ? true : false;
-            $field->system = ($row['f_system'] == 1) ? true : false;
-            $field->readonly = ($row['f_readonly'] == 1) ? true : false;
-            $field->unique = ($row['f_unique'] == 1) ? true : false;
-
-            if (!empty($row['use_when'])) {
-                $field->setUseWhen($row['use_when']);
-            }
-
-            if ($row['type'] == FIELD::TYPE_GROUPING || $row['type'] == FIELD::TYPE_OBJECT || $row['type'] == FIELD::TYPE_GROUPING_MULTI) {
-                // Autocreate
-                $field->autocreate = ($row['autocreate'] == 1) ? true : false;
-                $field->autocreatebase = $row['autocreatebase'];
-                $field->autocreatename = $row['autocreatename'];
-            }
-
-            // Check for default
-            $sql = "select * from app_object_field_defaults where field_id=:field_id";
-            $defaultResult = $this->database->query($sql, ['field_id' => $row['id']]);
-
-            foreach ($defaultResult->fetchAll() as $defaultRow) {
-                $default = array('on' => $defaultRow['on_event'], 'value' => $defaultRow['value']);
-                if ($defaultRow['coalesce']) {
-                    $default['coalesce'] = unserialize($defaultRow['coalesce']);
-                }
-                if ($defaultRow['where_cond']) {
-                    $default['where'] = unserialize($defaultRow['where_cond']);
-                }
-
-                // Make sure that coalesce does not cause a circular reference to self
-                if (!empty($default['coalesce']) && !empty($default['coalesce'])) {
-                    foreach ($default['coalesce'] as $colfld) {
-                        if (is_array($colfld)) {
-                            foreach ($colfld as $subcolfld) {
-                                if ($subcolfld == $row['name']) {
-                                    $default = null;
-                                    break;
-                                }
-                            }
-                        } elseif ($colfld == $row['name']) {
-                            $default = null;
-                            break;
-                        }
-                    }
-                }
-
-                $field->default = $default;
-            }
-
-            // Check for optional vals (drop-down)
-            $sql = "select * from app_object_field_options where field_id=:field_id";
-            $optionalResult = $this->database->query($sql, ['field_id' => $row['id']]);
-
-            foreach ($optionalResult->fetchAll() as $optionalRow) {
-                if (empty($this->fields[$row['name']]['optional_values'])) {
-                    $this->fields[$row['name']]['optional_values'] = [];
-                }
-
-                if (empty($optionalRow['key'])) {
-                    $optionalRow['key'] = $optionalRow['value'];
-                }
-
-                if (empty($field->optionalValues)) {
-                    $field->optionalValues = [];
-                }
-
-                $field->optionalValues[$optionalRow['key']] = $optionalRow['value'];
-            }
-
-            $def->addField($field);
-        }
-
         return $def;
     }
+    // public function fetchByName($objType)
+    // {
+    //     if (!$objType || !is_string($objType)) {
+    //         throw new \RuntimeException('objType is a required param');
+    //     }
+
+    //     $def = new EntityDefinition($objType);
+
+    //     // Get basic object definition
+    //     // ------------------------------------------------------
+    //     $sql = "select
+    // 		id, def_data, revision, title,
+    // 		f_system, system_definition_hash, dacl, capped,
+    //         default_activity_level, is_private, store_revisions,
+    //         recur_rules, inherit_dacl_ref, parent_field, uname_settings,
+    //         list_title, icon, system_definition_hash
+    // 		from " . self::ENTITY_TYPE_TABLE . " where name=:name";
+    //     $result = $this->database->query($sql, ['name' => $objType]);
+
+
+    //     if ($result->rowCount()) {
+    //         $row = $result->fetch();
+
+    //         $def->title = $row["title"];
+    //         $def->revision = (int) $row["revision"];
+    //         $def->system = ($row["f_system"] == 1) ? true : false;
+    //         $def->systemDefinitionHash = $row['system_definition_hash'];
+    //         $def->setEntityDefinitionId($row["id"]);
+    //         $def->capped = (!empty($row['capped'])) ? $row['capped'] : false;
+
+    //         if (!empty($row["default_activity_level"])) {
+    //             $def->defaultActivityLevel = $row["default_activity_level"];
+    //         }
+
+    //         if (!empty($row["is_private"])) {
+    //             $def->isPrivate = ($row["is_private"] == 1) ? true : false;
+    //         }
+
+    //         if (!empty($row["store_revisions"])) {
+    //             $def->storeRevisions = ($row["store_revisions"] == 1) ? true : false;
+    //         }
+
+    //         if (!empty($row["inherit_dacl_ref"])) {
+    //             $def->inheritDaclRef = $row["inherit_dacl_ref"];
+    //         }
+
+    //         if (!empty($row["parent_field"])) {
+    //             $def->parentField = $row["parent_field"];
+    //         }
+
+    //         if (!empty($row["uname_settings"])) {
+    //             $def->unameSettings = $row["uname_settings"];
+    //         }
+
+    //         if (!empty($row["list_title"])) {
+    //             $def->listTitle = $row["list_title"];
+    //         }
+
+    //         if (!empty($row["icon"])) {
+    //             $def->icon = $row["icon"];
+    //         }
+
+    //         if (!empty($row['recur_rules'])) {
+    //             $def->recurRules = json_decode($row['recur_rules'], true);
+    //         }
+
+    //         // Check if this definition has an access control list
+    //         if (!empty($row['dacl'])) {
+    //             $daclData = json_decode($row['dacl'], true);
+    //             if ($daclData) {
+    //                 $dacl = new Dacl($daclData);
+    //                 $def->setDacl($dacl);
+    //             }
+    //         }
+
+    //         // If this is the first load of this object type
+    //         // then create the object table
+    //         if ($def->revision <= 0) {
+    //             $this->save($def);
+    //         }
+    //     }
+
+    //     // Make sure this a valid definition
+    //     if (!$def->getEntityDefinitionId()) {
+    //         throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $this->database->getNamespace());
+    //     }
+
+
+    //     // Get field definitions
+    //     // ------------------------------------------------------
+    //     try {
+    //         $sql = "select * from app_object_type_fields where type_id=:type_id order by title";
+    //         $result = $this->database->query($sql, ['type_id' => $def->getEntityDefinitionId()]);
+    //     } catch (DatabaseQueryException $ex) {
+    //         throw new \RuntimeException(
+    //             'Could not pull type fields from db for ' . $this->getAccount()->getName() . ":" . $objType . ":" . $ex->getMessage()
+    //         );
+    //     }
+
+    //     foreach ($result->fetchAll() as $row) {
+    //         // Build field
+    //         $field = new Field();
+    //         $field->id = $row['id'];
+    //         $field->name = $row['name'];
+    //         $field->title = $row['title'];
+    //         $field->type = $row['type'];
+    //         $field->subtype = $row['subtype'];
+    //         $field->mask = $row['mask'];
+    //         $field->required = ($row['f_required'] == 1) ? true : false;
+    //         $field->system = ($row['f_system'] == 1) ? true : false;
+    //         $field->readonly = ($row['f_readonly'] == 1) ? true : false;
+    //         $field->unique = ($row['f_unique'] == 1) ? true : false;
+
+    //         if (!empty($row['use_when'])) {
+    //             $field->setUseWhen($row['use_when']);
+    //         }
+
+    //         if ($row['type'] == FIELD::TYPE_GROUPING || $row['type'] == FIELD::TYPE_OBJECT || $row['type'] == FIELD::TYPE_GROUPING_MULTI) {
+    //             // Autocreate
+    //             $field->autocreate = ($row['autocreate'] == 1) ? true : false;
+    //             $field->autocreatebase = $row['autocreatebase'];
+    //             $field->autocreatename = $row['autocreatename'];
+    //         }
+
+    //         // Check for default
+    //         $sql = "select * from app_object_field_defaults where field_id=:field_id";
+    //         $defaultResult = $this->database->query($sql, ['field_id' => $row['id']]);
+
+    //         foreach ($defaultResult->fetchAll() as $defaultRow) {
+    //             $default = array('on' => $defaultRow['on_event'], 'value' => $defaultRow['value']);
+    //             if ($defaultRow['coalesce']) {
+    //                 $default['coalesce'] = unserialize($defaultRow['coalesce']);
+    //             }
+    //             if ($defaultRow['where_cond']) {
+    //                 $default['where'] = unserialize($defaultRow['where_cond']);
+    //             }
+
+    //             // Make sure that coalesce does not cause a circular reference to self
+    //             if (!empty($default['coalesce']) && !empty($default['coalesce'])) {
+    //                 foreach ($default['coalesce'] as $colfld) {
+    //                     if (is_array($colfld)) {
+    //                         foreach ($colfld as $subcolfld) {
+    //                             if ($subcolfld == $row['name']) {
+    //                                 $default = null;
+    //                                 break;
+    //                             }
+    //                         }
+    //                     } elseif ($colfld == $row['name']) {
+    //                         $default = null;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+
+    //             $field->default = $default;
+    //         }
+
+    //         // Check for optional vals (drop-down)
+    //         $sql = "select * from app_object_field_options where field_id=:field_id";
+    //         $optionalResult = $this->database->query($sql, ['field_id' => $row['id']]);
+
+    //         foreach ($optionalResult->fetchAll() as $optionalRow) {
+    //             if (empty($this->fields[$row['name']]['optional_values'])) {
+    //                 $this->fields[$row['name']]['optional_values'] = [];
+    //             }
+
+    //             if (empty($optionalRow['key'])) {
+    //                 $optionalRow['key'] = $optionalRow['value'];
+    //             }
+
+    //             if (empty($field->optionalValues)) {
+    //                 $field->optionalValues = [];
+    //             }
+
+    //             $field->optionalValues[$optionalRow['key']] = $optionalRow['value'];
+    //         }
+
+    //         $def->addField($field);
+    //     }
+
+    //     return $def;
+    // }
 
     /**
      * Get an entity definition by id
@@ -269,10 +302,10 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         }
 
         // Delete object type entries from the database
-        $this->database->delete(
-            'app_object_type_fields',
-            ['type_id' => $def->getEntityDefinitionId()]
-        ); // Will cascade
+        // $this->database->delete(
+        //     'app_object_type_fields',
+        //     ['type_id' => $def->getEntityDefinitionId()]
+        // ); // Will cascade
 
         $this->database->delete(
             self::ENTITY_TYPE_TABLE,
@@ -292,9 +325,10 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     {
         // Define type update
         $data = [
+            "entity_type_id" => Uuid::uuid4()->toString(),
             "name" => $def->getObjType(),
             "title" => $def->title,
-            "revision" => $def->revision, // Increment revision in $def after updates are complete for initializing schema
+            "revision" => $def->revision,
             "f_system" => $def->system,
             "application_id" => ($def->applicationId) ? $def->applicationId : null,
             "capped" => ($def->capped) ? $def->capped : null,
@@ -308,57 +342,100 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             "uname_settings" => ($def->unameSettings) ? $def->unameSettings : null,
             "list_title" => ($def->listTitle) ? $def->listTitle : null,
             "icon" => ($def->icon) ? $def->icon : null,
-            "system_definition_hash" => ($def->systemDefinitionHash) ? $def->systemDefinitionHash : null
+            "system_definition_hash" => ($def->systemDefinitionHash) ? $def->systemDefinitionHash : null,
+            "def_data" => json_encode($def->toArray()),
         ];
-
-        foreach ($data as $colName => $colValue) {
-            $data[$colName] = $colValue;
-        }
 
         $appObjectTypeId = $def->getEntityDefinitionId();
         if ($appObjectTypeId) {
             $this->database->update(self::ENTITY_TYPE_TABLE, $data, ['id' => $appObjectTypeId]);
         } else {
             $appObjectTypeId = $this->database->insert(self::ENTITY_TYPE_TABLE, $data, 'id');
-
             $def->setEntityDefinitionId($appObjectTypeId);
         }
 
         // Check to see if this dynamic object has yet to be initilized
-        $this->createObjectTable($def->getObjType(), $def->getEntityDefinitionId());
+        // $this->createObjectTable($def->getObjType(), $def->getEntityDefinitionId());
 
-        // Save and create fields
-        $this->saveFields($def);
+        // // Save and create fields
+        // $this->saveFields($def);
 
-        // Associate with applicaiton if set
-        if ($def->applicationId) {
-            $this->associateWithApp($def, $def->applicationId);
-        }
+        // // Associate with applicaiton if set
+        // if ($def->applicationId) {
+        //     $this->associateWithApp($def, $def->applicationId);
+        // }
     }
+    // public function saveDef(EntityDefinition $def)
+    // {
+    //     // Define type update
+    //     $data = [
+    //         "name" => $def->getObjType(),
+    //         "title" => $def->title,
+    //         "revision" => $def->revision, // Increment revision in $def after updates are complete for initializing schema
+    //         "f_system" => $def->system,
+    //         "application_id" => ($def->applicationId) ? $def->applicationId : null,
+    //         "capped" => ($def->capped) ? $def->capped : null,
+    //         "dacl" => ($def->getDacl()) ? json_encode(($def->getDacl()->toArray())) : null,
+    //         "default_activity_level" => ($def->defaultActivityLevel) ? $def->defaultActivityLevel : null,
+    //         "is_private" => $def->isPrivate,
+    //         "store_revisions" => $def->storeRevisions,
+    //         "recur_rules" => ($def->recurRules) ? json_encode($def->recurRules) : null,
+    //         "inherit_dacl_ref" => ($def->inheritDaclRef) ? "'" . $def->inheritDaclRef : null,
+    //         "parent_field" => ($def->parentField) ? $def->parentField : null,
+    //         "uname_settings" => ($def->unameSettings) ? $def->unameSettings : null,
+    //         "list_title" => ($def->listTitle) ? $def->listTitle : null,
+    //         "icon" => ($def->icon) ? $def->icon : null,
+    //         "system_definition_hash" => ($def->systemDefinitionHash) ? $def->systemDefinitionHash : null
+    //     ];
 
-    /**
-     * Save fields
-     *
-     * @param EntityDefinition $def The EntityDefinition we are saving
-     */
-    private function saveFields(EntityDefinition $def)
-    {
-        // We need to include the removed fields, so it will be permanently removed from the definition
-        $fields = $def->getFields(true);
+    //     foreach ($data as $colName => $colValue) {
+    //         $data[$colName] = $colValue;
+    //     }
 
-        $sort_order = 1;
-        foreach ($fields as $fname => $field) {
-            if ($field == null) {
-                // Delete field
-                $this->removeField($def, $fname);
-            } else {
-                // Update or add field
-                $this->saveField($def, $field, $sort_order);
-            }
+    //     $appObjectTypeId = $def->getEntityDefinitionId();
+    //     if ($appObjectTypeId) {
+    //         $this->database->update(self::ENTITY_TYPE_TABLE, $data, ['id' => $appObjectTypeId]);
+    //     } else {
+    //         $appObjectTypeId = $this->database->insert(self::ENTITY_TYPE_TABLE, $data, 'id');
 
-            $sort_order++;
-        }
-    }
+    //         $def->setEntityDefinitionId($appObjectTypeId);
+    //     }
+
+    //     // Check to see if this dynamic object has yet to be initilized
+    //     $this->createObjectTable($def->getObjType(), $def->getEntityDefinitionId());
+
+    //     // Save and create fields
+    //     $this->saveFields($def);
+
+    //     // Associate with applicaiton if set
+    //     if ($def->applicationId) {
+    //         $this->associateWithApp($def, $def->applicationId);
+    //     }
+    // }
+
+    // /**
+    //  * Save fields
+    //  *
+    //  * @param EntityDefinition $def The EntityDefinition we are saving
+    //  */
+    // private function saveFields(EntityDefinition $def)
+    // {
+    //     // We need to include the removed fields, so it will be permanently removed from the definition
+    //     $fields = $def->getFields(true);
+
+    //     $sort_order = 1;
+    //     foreach ($fields as $fname => $field) {
+    //         if ($field == null) {
+    //             // Delete field
+    //             $this->removeField($def, $fname);
+    //         } else {
+    //             // Update or add field
+    //             $this->saveField($def, $field, $sort_order);
+    //         }
+
+    //         $sort_order++;
+    //     }
+    // }
 
     /**
      * Save a field
@@ -852,6 +929,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     public function getAllObjectTypes()
     {
         $sql = "select name from " . self::ENTITY_TYPE_TABLE;
+        // TODO: Add account_id column
         $result = $this->database->query($sql);
 
         foreach ($result->fetchAll() as $row) {

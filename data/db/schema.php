@@ -163,6 +163,7 @@ return [
     "entity_type" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_type_id' => ['type' => SchemaProperty::TYPE_UUID],
             'name' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'title' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'revision' => ['type' => SchemaProperty::TYPE_INT, 'default' => '1'],
@@ -182,9 +183,9 @@ return [
             'list_title' => ["type" => SchemaProperty::TYPE_CHAR_128],
             'icon' => ["type" => SchemaProperty::TYPE_CHAR_128],
             'default_activity_level' => ['type' => SchemaProperty::TYPE_INT],
-            'field_data' => ['type' => SchemaProperty::TYPE_JSON],
+            'def_data' => ['type' => SchemaProperty::TYPE_JSON],
         ],
-        'PRIMARY_KEY' => 'id',
+        'PRIMARY_KEY' => 'entity_type_id',
         "INDEXES" => [
             ['properties' => ["name"]],
             ['properties' => ["application_id"]],
