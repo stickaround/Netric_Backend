@@ -11,9 +11,9 @@ return [
     /**
      * Main accounts table
      */
-    "accounts" => [
+    "account" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'database' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'ts_started' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
@@ -21,37 +21,24 @@ return [
             'version' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'active' => ['type' => SchemaProperty::TYPE_BOOL, 'default' => 't'],
         ],
-        'PRIMARY_KEY'       => 'id',
-        // TODO: constraints for unique name
-        "INDEXES" => [
-            ['properties' => ["name"]],
-            ['properties' => ["version"]],
-        ]
+        'PRIMARY_KEY'       => 'account_id',
+        // TODO: contraints for unique name
     ],
 
     /**
      * Index of users is synchronized with the specific user in the account
      * schema. We use this to very cross-reference users by guid, email, and username.
      */
-    "account_users" => [
+    "account_user" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'guid' => ['type' => SchemaProperty::TYPE_UUID],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID],
             'email_address' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'username' => ['type' => SchemaProperty::TYPE_CHAR_256],
         ],
         'PRIMARY_KEY'       => 'id',
         // TODO: constraints for unique account_id, email_alias
-        "KEYS" => [
-            [
-                "property" => 'account_id',
-                'references_bucket' => 'accounts',
-                'references_property' => 'id',
-                'on_delete' => 'cascade',
-                'on_update' => 'cascade',
-            ]
-        ],
         "INDEXES" => [
             ['properties' => ["email_address"]],
         ]
@@ -82,7 +69,7 @@ return [
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'user_id' => ['type' => SchemaProperty::TYPE_UUID],
-            'account_id' => ['type' => SchemaProperty::TYPE_INT],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID],
         ],
         'PRIMARY_KEY' => 'id',
         "KEYS" => [
@@ -107,7 +94,7 @@ return [
             ['properties' => ["field_id"]],
         ]
     ],
-    
+
     "app_object_field_options" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -120,7 +107,7 @@ return [
             ['properties' => ["field_id"]],
         ]
     ],
-    
+
     "app_object_type_fields" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -158,7 +145,7 @@ return [
         "PROPERTIES" => [
             'entity_form_id' => ['type' => SchemaProperty::TYPE_UUID],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID],
             'team_id' => ['type' => SchemaProperty::TYPE_UUID],
             'user_id' => ['type' => SchemaProperty::TYPE_UUID],
             'scope' => ["type" => SchemaProperty::TYPE_CHAR_128],
@@ -195,6 +182,7 @@ return [
             'list_title' => ["type" => SchemaProperty::TYPE_CHAR_128],
             'icon' => ["type" => SchemaProperty::TYPE_CHAR_128],
             'default_activity_level' => ['type' => SchemaProperty::TYPE_INT],
+            'field_data' => ['type' => SchemaProperty::TYPE_JSON],
         ],
         'PRIMARY_KEY' => 'id',
         "INDEXES" => [
@@ -260,7 +248,7 @@ return [
         "PROPERTIES" => [
             // Used for inserts and internal/shorthand operations, but guid is the primary key
             'entity_id' => ['type' => SchemaProperty::TYPE_UUID],
-            'account_id' => ['type' => SchemaProperty::TYPE_BIGINT],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'uname' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'object_type_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'ts_entered' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
@@ -268,7 +256,7 @@ return [
             'f_deleted' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
             'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'field_data' => ['type' => SchemaProperty::TYPE_JSON],
-            'schema_revision' => ['type' => SchemaProperty::TYPE_INT],
+            'schema_version' => ['type' => SchemaProperty::TYPE_INT],
             'tsv_fulltext' => ['type' => SchemaProperty::TYPE_TEXT_TOKENS],
         ],
         'PRIMARY_KEY' => 'entity_id',

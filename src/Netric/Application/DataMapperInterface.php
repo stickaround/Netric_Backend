@@ -58,12 +58,12 @@ interface DataMapperInterface
     /**
      * Set account and username from email address
      *
-     * @param int $accountId The id of the account user is interacting with
+     * @param string $accountId The id of the account user is interacting with
      * @param string $username The user name - unique to the account
      * @param string $emailAddress The email address to pull from
      * @return bool true on success, false on failure
      */
-    public function setAccountUserEmail($accountId, $username, $emailAddress);
+    public function setAccountUserEmail(string $accountId, $username, $emailAddress);
 
     /**
      * Adds an account to the database
@@ -76,10 +76,10 @@ interface DataMapperInterface
     /**
      * Delete an account by id
      *
-     * @param $accountId
+     * @param string $accountId
      * @return bool true on success, false on failure - call getLastError for details
      */
-    public function deleteAccount($accountId);
+    public function deleteAccount(string $accountId): bool;
 
     /**
      * Obtain a lock so that only one instance of a process can run at once

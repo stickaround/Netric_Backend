@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test entity  loader class that is responsible for creating and initializing exisiting objects
  */
+
 namespace NetricTest\Account;
 
 use Netric;
@@ -56,7 +58,7 @@ class AccountIdentityMapperTest extends TestCase
 
         // First reset cache to make sure the mapper is setting it correctly
         $this->cache->delete("netric/account/" . $this->account->getAccountId());
-        
+
         // Setup Reflection Methods
         $refIm = new \ReflectionObject($this->mapper);
         $loadFromCache = $refIm->getMethod("loadFromCache");
@@ -93,7 +95,7 @@ class AccountIdentityMapperTest extends TestCase
 
         // Make sure we are loading from memory by disabling the cache
         $propCache->setValue($this->mapper, null);
-        $testAccount =$this->mapper->loadById($this->account->getAccountId(), $application);
+        $testAccount = $this->mapper->loadById($this->account->getAccountId(), $application);
         $this->assertEquals($this->account->getAccountId(), $testAccount->getAccountId());
         $propCache->setValue($this->mapper, $this->cache); // re-enable
 

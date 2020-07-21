@@ -5,7 +5,6 @@ namespace Netric\Application;
 use Netric\Account\Account;
 use Netric\Application\Exception;
 use Netric\Mvc\Exception\NotAuthorizedForRouteException;
-use Netric\Application\Setup\Setup;
 use Netric\Request\RequestInterface;
 use Netric\Mvc\Router;
 use Aereus\Config\Config;
@@ -21,6 +20,7 @@ use Netric\Request\RequestFactory;
 use Netric\Application\Setup\AccountUpdater;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use RuntimeException;
 
 /**
  * Main application instance class
@@ -295,12 +295,12 @@ class Application
     /**
      * Set account and username from email address
      *
-     * @param int $accountId The id of the account user is interacting with
+     * @param string $accountId The id of the account user is interacting with
      * @param string $username The user name - unique to the account
      * @param string $emailAddress The email address to pull from
      * @return bool true on success, false on failure
      */
-    public function setAccountUserEmail($accountId, $username, $emailAddress)
+    public function setAccountUserEmail(string $accountId, $username, $emailAddress)
     {
         return $this->dm->setAccountUserEmail($accountId, $username, $emailAddress);
     }
@@ -376,6 +376,11 @@ class Application
 
         // Load the newly created account
         $account = $this->accountsIdentityMapper->loadById($accountId, $this);
+
+        // Make sure it worked
+        if ($account === null) {
+            throw new RuntimeException('Account creation failed');
+        }
 
         // Run update scripts and data - set it to the latest version first so we don't run old scripts
         $updater = new AccountUpdater($account);

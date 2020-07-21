@@ -175,7 +175,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         if (!empty($conditionString)) {
             $conditionString .= " AND ";
         }
-        $conditionString .= "object_type_id='" . $entityDefinition->getEntityDefinitionId() . "'";
+
+        // Add entity type
+        $conditionString .= "object_type_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
+
+        // Add account
+        $conditionString .= "account_id='" . $this->account->getAccountId() . "'";
 
         // Get order by from $query and setup the sort order
         $sortOrder = [];

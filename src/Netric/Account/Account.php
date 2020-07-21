@@ -23,7 +23,7 @@ class Account
      *
      * @var string
      */
-    private $id = "";
+    private $id = '';
 
     /**
      * Unique account name
@@ -101,11 +101,11 @@ class Account
     public function fromArray($data)
     {
         // Check required fields
-        if (!$data['id'] || !$data['name']) {
+        if (!$data['account_id'] || !$data['name']) {
             return false;
         }
 
-        $this->id = $data['id'];
+        $this->id = $data['account_id'];
         $this->name = $data['name'];
 
         if (isset($data['database']) && $data['database']) {
@@ -127,7 +127,7 @@ class Account
     public function toArray()
     {
         return array(
-            "id" => $this->id,
+            "account_id" => $this->id,
             "name" => $this->name,
             "database" => $this->dbname,
             "description" => $this->description,
@@ -139,7 +139,7 @@ class Account
      *
      * @return string
      */
-    public function getAccountId()
+    public function getAccountId(): string
     {
         return $this->id;
     }
@@ -249,17 +249,7 @@ class Account
          * of each user object in memory.
          */
         if ($userId) {
-            if (is_numeric($userId)) {
-                // Legacy get by ID
-                if ($entityLoader->getByGuid($userId)) {
-                    return $entityLoader->getByGuid($userId);
-                }
-            } elseif (is_string($userId)) {
-                // New get by guid
-                if ($entityLoader->getByGuid($userId)) {
-                    return $entityLoader->getByGuid($userId);
-                }
-            }
+            return $entityLoader->getByGuid($userId);
         } elseif ($username) {
             $query = new EntityQuery(ObjectTypes::USER);
             $query->where('name')->equals($username);

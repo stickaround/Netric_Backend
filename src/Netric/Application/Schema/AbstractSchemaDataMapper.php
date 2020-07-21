@@ -34,10 +34,10 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
     /**
      * Create the initial schema for an account
      *
-     * @param int $accountId Optional account ID we are creating, otherwise assume system
+     * @param string $accountId Optional account ID we are creating, otherwise assume system
      * @return bool true on success, false on failure
      */
-    public function update($accountId = null)
+    public function update(string $accountId = '')
     {
         // Make sure the this->schemaDefinition is applied to the new schema
         if (!$this->processDefinition()) {

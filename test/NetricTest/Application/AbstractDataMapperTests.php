@@ -7,6 +7,7 @@ use Netric\Account\Account;
 use Netric\Application\Application;
 use Aereus\Config\ConfigLoader;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
 
 abstract class AbstractDataMapperTests extends TestCase
 {
@@ -118,7 +119,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertFalse($dataMapper->getAccountById($aid, $account));
 
         // Try deleting an account that is not existing
-        $ret = $dataMapper->deleteAccount(-123);
+        $ret = $dataMapper->deleteAccount(Uuid::uuid4()->toString());
         $this->assertFalse($ret);
 
         // Make sure that an error is logged when deleting an account that is not existing

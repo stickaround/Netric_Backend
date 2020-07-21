@@ -223,17 +223,23 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
             $default = " DEFAULT '{$columnDefinition["default"]}'";
         }
 
+        // Add constraint
+        $constraint = "";
+        if (isset($columnDefinition['notnull']) && $columnDefinition['notnull'] === true) {
+            $constraint = 'NOT NULL';
+        }
+
         /*
          * If this is a new table we do not want to run an alter, but rather just add
          * the column name so that it can be added to a create statement and return true.
          */
         if (is_array($createColumns)) {
-            $createColumns[] = "{$columnName} {$columnType} $default";
+            $createColumns[] = "{$columnName} {$columnType} $default $constraint";
             return true;
         }
 
         // Add column definition
-        $sql = "ALTER TABLE $tableName ADD COLUMN {$columnName} {$columnType} $default";
+        $sql = "ALTER TABLE $tableName ADD COLUMN {$columnName} {$columnType} $default $constraint";
 
         return ($this->database->query($sql)) ? true : false;
     }

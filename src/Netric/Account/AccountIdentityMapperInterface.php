@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Account;
 
 use Netric\Application\DataMapperInterface;
@@ -15,11 +16,11 @@ interface AccountIdentityMapperInterface
     /**
      * Load an account by id
      *
-     * @param string $id The unique id of the account to get
+     * @param string $accountId The unique id of the account to get
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadById(int $id, Application $application) : ? Account;
+    public function loadById(string $accountId, Application $application): ?Account;
 
     /**
      * Get an account by the unique name
@@ -28,7 +29,7 @@ interface AccountIdentityMapperInterface
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadByName(string $name, Application $application) : ? Account;
+    public function loadByName(string $name, Application $application): ?Account;
 
     /**
      * Delete an account
@@ -37,13 +38,13 @@ interface AccountIdentityMapperInterface
      * @return bool true on success, false on failure
      * @throws \RuntimeException If account is not a valid account with an ID
      */
-    public function deleteAccount(Account $account) : bool;
+    public function deleteAccount(Account $account): bool;
 
     /**
      * Create a new account and return the ID
      *
      * @param string $name A unique name for this account
-     * @return int Unique id of the created account, 0 on failure
+     * @return string Unique id of the created account, 0 on failure
      */
-    public function createAccount(string $name) : int;
+    public function createAccount(string $name): string;
 }

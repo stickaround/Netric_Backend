@@ -70,10 +70,10 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadById(int $id, Application $application): ?Account
+    public function loadById(string $accountId, Application $application): ?Account
     {
         // First check to see if we have it cached in local memory
-        $account = $this->loadFromMemory($id);
+        $account = $this->loadFromMemory($accountId);
 
         // Return already loaded account
         if ($account) {
@@ -84,12 +84,12 @@ class AccountIdentityMapper implements ErrorAwareInterface
         $account = new Account($application);
 
         // Try from cache if not loaded in memeory
-        if ($this->loadFromCache($id, $account)) {
+        if ($this->loadFromCache($accountId, $account)) {
             return $account;
         }
 
         // Load from the datamapper
-        $ret = $this->appDm->getAccountById($id, $account);
+        $ret = $this->appDm->getAccountById($accountId, $account);
 
         // Save the data to cache and memory
         if ($ret) {
@@ -147,7 +147,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
     public function deleteAccount(Account $account): bool
     {
         // Make sure this account is valid with an ID
-        if (!$account->getAccountId()) {
+        if (empty($account->getAccountId())) {
             throw new \RuntimeException("Cannot delete an account that does not exist");
         }
 
@@ -181,9 +181,9 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * Create a new account and return the ID
      *
      * @param string $name A unique name for this account
-     * @return int Unique id of the created account, 0 on failure
+     * @return string Unique id of the created account, 0 on failure
      */
-    public function createAccount(string $name): int
+    public function createAccount(string $name): string
     {
         return $this->appDm->createAccount($name);
     }
@@ -219,7 +219,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
     {
         $data = $this->cache->get("netric/account/$id");
         if ($data) {
-            if (isset($data["id"]) && isset($data["name"])) {
+            if (isset($data["account_id"]) && isset($data["name"])) {
                 $account->fromArray($data);
                 // Put in local memory for even faster retrieval next time
                 $this->setLocalMemory($account);

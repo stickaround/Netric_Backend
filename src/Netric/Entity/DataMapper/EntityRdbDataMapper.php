@@ -33,6 +33,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     const ENTITY_MOVED_TABLE = 'entity_moved';
 
     /**
+     * Schema version used for migration to newer schemas as needed
+     */
+    const SCHEMA_VERSION = 2;
+
+    /**
      * Handle to database
      *
      * @var RelationalDbInterface
@@ -56,8 +61,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchById($entity, $entityId, $skipObjRefUpdate = false)
     {
-        $sql = 'SELECT entity_id, object_type_id, field_data FROM ' . self::ENTITY_TABLE . ' WHERE entity_id=:entity_id';
-        $result = $this->database->query($sql, ['entity_id' => $entityId]);
+        $sql = 'SELECT entity_id, object_type_id, field_data FROM ' . self::ENTITY_TABLE .
+            ' WHERE entity_id=:entity_id AND account_id=:account_id';
+        $result = $this->database->query(
+            $sql,
+            ['entity_id' => $entityId, 'account_id' => $this->account->getAccountId()]
+        );
 
         // The entity was not found
         if ($result->rowCount() === 0) {
@@ -221,8 +230,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchDataByGuid(string $guid): ?array
     {
-        $sql = 'SELECT entity_id, field_data FROM ' . self::ENTITY_TABLE . ' where entity_id = :entity_id';
-        $result = $this->database->query($sql, ['entity_id' => $guid]);
+        $sql = 'SELECT entity_id, field_data FROM ' . self::ENTITY_TABLE .
+            ' WHERE entity_id = :entity_id AND account_id=:account_id';
+        $result = $this->database->query($sql, ['entity_id' => $guid, 'account_id' => $this->account->getAccountId()]);
 
         // The object was not found
         if ($result->rowCount() === 0) {
@@ -298,7 +308,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Remove revision history
         $this->database->query(
-            'DELETE FROM ' . self::ENTITY_REVISION_TABLE . ' WHERE entity_id=:entity_id',
+            'DELETE FROM ' . self::ENTITY_REVISION_TABLE .
+                ' WHERE entity_id=:entity_id',
             ['entity_id' => $entity->getEntityId()]
         );
 
@@ -347,13 +358,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // Set data as JSON (we are replacing columns with this for custom fields)
         $data['field_data'] = json_encode($entity->toArray());
 
-        $targetTable = self::ENTITY_TABLE;
+        // Add account ID
+        $data['account_id'] = $this->account->getAccountId();
 
+        // Schema version
+        $data['schema_version'] = self::SCHEMA_VERSION;
 
         if ($entity->getValue("revision") > 1) {
-            $this->updateEntityData($targetTable, $entity);
+            $this->updateEntityData(self::ENTITY_TABLE, $entity);
         } else {
-            $this->database->insert($targetTable, $data);
+            $this->database->insert(self::ENTITY_TABLE, $data);
         }
 
         return $entity->getEntityId();
@@ -367,11 +381,15 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     private function updateEntityData(string $targetTable, Entity $entity)
     {
-        $sql = "UPDATE $targetTable SET field_data = :field_data, f_deleted = :f_deleted WHERE entity_id=:entity_id";
+        $sql = "UPDATE $targetTable 
+                SET field_data = :field_data, f_deleted = :f_deleted, schema_version = :schema_version
+                WHERE entity_id=:entity_id AND account_id=:account_id";
         $this->database->query($sql, [
             "field_data" => json_encode($entity->toArray()),
             "f_deleted" => $entity->getValue('f_deleted'),
-            "entity_id" => $entity->getValue('entity_id')
+            "entity_id" => $entity->getValue('entity_id'),
+            "account_id" => $this->account->getAccountId(),
+            "schema_version" => self::SCHEMA_VERSION,
         ]);
     }
 

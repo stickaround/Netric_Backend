@@ -7,6 +7,7 @@ use Netric\Error\ErrorAwareInterface;
 use Netric\Error\Error;
 use Netric\Db\Relational\PgsqlDb;
 use Netric\Db\Relational\RelationalDbInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Access account data in a relational database
@@ -56,6 +57,12 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
     private $errors = [];
 
     /**
+     * Table constants
+     */
+    const TABLE_ACCOUNT = 'account';
+    const TABLE_ACCOUNT_USER = 'account_user';
+
+    /**
      * Construct and initialize dependencies
      *
      * @param string $host
@@ -97,7 +104,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             return false;
         }
 
-        $sql = "SELECT * FROM accounts WHERE id=:id";
+        $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE account_id=:id';
         $result = $this->database->query($sql, ["id" => $id]);
 
         if ($result->rowCount()) {
@@ -122,7 +129,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             return false;
         }
 
-        $sql = "SELECT * FROM accounts WHERE name=:name";
+        $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE name=:name';
         $result = $this->database->query($sql, ["name" => $name]);
 
         if ($result->rowCount()) {
@@ -154,7 +161,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $ret = [];
         $sqlParams = [];
 
-        $sql = "SELECT * FROM accounts WHERE active is not false";
+        $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE active is not false';
         if (!empty($version)) {
             $sql .= " AND version=:version";
             $sqlParams["version"] = $version;
@@ -163,7 +170,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $result = $this->database->query($sql, $sqlParams);
         foreach ($result->fetchAll() as $row) {
             $ret[] = array(
-                "id" => $row['id'],
+                "account_id" => $row['account_id'],
                 "name" => $row['name'],
                 "database" => $row['database'],
             );
@@ -183,17 +190,21 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $ret = [];
 
         // Check accounts for a username matching this address
-        $sql = "SELECT accounts.name as account, account_users.username
-                                     FROM accounts, account_users WHERE
-                                        accounts.id=account_users.account_id AND
-                                        account_users.email_address=:email_address";
+        $sql = 'SELECT 
+                    ' . self::TABLE_ACCOUNT . '.name as account, 
+                    ' . self::TABLE_ACCOUNT_USER . '.username
+                FROM 
+                    ' . self::TABLE_ACCOUNT . ', ' . self::TABLE_ACCOUNT_USER . ' 
+                WHERE
+                    ' . self::TABLE_ACCOUNT . '.account_id=' . self::TABLE_ACCOUNT_USER . '.account_id 
+                    AND ' . self::TABLE_ACCOUNT_USER . '.email_address=:email_address';
 
         $result = $this->database->query($sql, ["email_address" => strtolower($emailAddress)]);
         foreach ($result->fetchAll() as $row) {
-            $ret[] = array(
+            $ret[] = [
                 'account' => $row['account'],
                 'username' => $row['username'],
-            );
+            ];
         }
 
         return $ret;
@@ -202,30 +213,30 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
     /**
      * Set account and username from email address
      *
-     * @param int $accountId The id of the account user is interacting with
+     * @param string $accountId The id of the account user is interacting with
      * @param string $username The user name - unique to the account
      * @param string $emailAddress The email address to pull from
      * @return bool true on success, false on failure
      */
-    public function setAccountUserEmail($accountId, $username, $emailAddress)
+    public function setAccountUserEmail(string $accountId, $username, $emailAddress)
     {
         $ret = false;
 
-        if (!is_numeric($accountId) || !$username) {
+        if (empty($accountId) || empty($username)) {
             return $ret;
         }
 
         // Delete any existing entries for this user name attached to this account
-        $this->database->delete("account_users", ["account_id" => $accountId, "username" => $username]);
+        $this->database->delete(self::TABLE_ACCOUNT_USER, ["account_id" => $accountId, "username" => $username]);
 
-        // Insert into account_users table
+        // Insert into self::TABLE_ACCOUNT_USER table
         if ($emailAddress) {
             $insertData = [
                 "account_id" => $accountId,
                 "email_address" => $emailAddress,
                 "username" => $username
             ];
-            $result = $this->database->insert("account_users", $insertData, 'id');
+            $result = $this->database->insert(self::TABLE_ACCOUNT_USER, $insertData, 'id');
             $ret = ($result) ? true : false;
         }
 
@@ -240,38 +251,38 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function createAccount($name)
     {
+        $newAccoutnId = Uuid::uuid4()->toString();
+
         // Create account in antsystem
         $insertData = [
+            "account_id" => $newAccoutnId,
             "name" => $name,
             //"database" => $this->defaultAccountDatabase,
         ];
-        $ret = $this->database->insert("accounts", $insertData, 'id');
 
-        if ($ret) {
-            return $ret;
-        }
+        // If it fails for sme reason, it will throw an exception
+        $this->database->insert(self::TABLE_ACCOUNT, $insertData);
 
-        $this->errors[] = new Error("Could not create account in system database.");
-        return 0;
+        return $newAccoutnId;
     }
 
     /**
      * Delete an account by id
      *
-     * @param $accountId The id of the account user is interacting with
+     * @param string $accountId The id of the account user is interacting with
      * @return bool true on success, false on failure - call getLastError for details
      */
-    public function deleteAccount($accountId)
+    public function deleteAccount(string $accountId): bool
     {
-        if (!is_numeric($accountId)) {
-            throw new \RuntimeException("Account id must be a number");
+        if (empty($accountId)) {
+            throw new \RuntimeException("accountId must be provided");
         }
 
         // Remove any account users
-        $this->database->delete("account_users", ["account_id" => $accountId]);
+        $this->database->delete(self::TABLE_ACCOUNT_USER, ["account_id" => $accountId]);
 
         // Now delete the actual account
-        $ret = $this->database->delete("accounts", ["id" => $accountId]);
+        $ret = $this->database->delete(self::TABLE_ACCOUNT, ["account_id" => $accountId]);
 
         if ($ret) {
             return true;
