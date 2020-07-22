@@ -94,7 +94,7 @@ class ApplicationTest extends TestCase
             "test@test.com",
             "password"
         );
-        $this->assertTrue($account->getAccountId() > 0);
+        $this->assertNotEmpty($account->getAccountId());
 
         // Cleanup
         $this->application->deleteAccount(self::TEST_ACCT_NAME);

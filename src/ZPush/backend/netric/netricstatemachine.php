@@ -1,8 +1,9 @@
 <?php
+
 /**
  * StateMachine to store async states in a database rather than the default files
  */
-$zPushRoot = dirname(__FILE__) ."/../../";
+$zPushRoot = dirname(__FILE__) . "/../../";
 
 // Interfaces we are implementing
 require_once($zPushRoot . 'lib/interface/istatemachine.php');
@@ -166,7 +167,7 @@ class NetricStateMachine implements IStateMachine
 
         $this->log->debug(
             "NetricStateMachine->GetState(): devid: $devid type: $type key: $key " .
-            "counter: " . var_export($counter, true)
+                "counter: " . var_export($counter, true)
         );
 
         // If we have incremented past 0 and indicated we want to clean stale states then do it now
@@ -194,7 +195,7 @@ class NetricStateMachine implements IStateMachine
         $result = $database->query($sql, $params);
         if ($result->rowCount()) {
             $row = $result->fetch();
-            
+
             $stateData = @pg_unescape_bytea($row["state_data"]);
 
             if (is_string($stateData)) {
@@ -293,8 +294,8 @@ class NetricStateMachine implements IStateMachine
 
         $this->log->debug(
             "NetricStateMachine->CleanStates(): devid: $devid type: $type key: $key " .
-            "counter: " . var_export($counter, true) . " " .
-            "thisCounterOnly: " . var_export($thisCounterOnly, true)
+                "counter: " . var_export($counter, true) . " " .
+                "thisCounterOnly: " . var_export($thisCounterOnly, true)
         );
 
         $params = [
@@ -451,6 +452,9 @@ class NetricStateMachine implements IStateMachine
      */
     public function GetStateVersion()
     {
+        return self::SUPPORTED_STATE_VERSION;
+
+        /*
         $settings = $this->getSettings();
         $version = $settings->get("async/version");
 
@@ -463,6 +467,7 @@ class NetricStateMachine implements IStateMachine
         $this->log->debug("ZPUSH->NetricStateMachine->GetStateVersion(): supporting version '$version'");
 
         return $version;
+        */
     }
 
     /**
@@ -474,9 +479,12 @@ class NetricStateMachine implements IStateMachine
      */
     public function SetStateVersion($version)
     {
+        return true;
+        /*
         $settings = $this->getSettings();
         $this->log->debug("ZPUSH->NetricStateMachine->SetStateVersion(): version '$version'");
         return $settings->set("async/version", $version);
+        */
     }
 
     /**

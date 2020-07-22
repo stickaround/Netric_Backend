@@ -77,7 +77,7 @@ class EntityGroupings
         $this->fieldName = $parts[1];
         $path = "{$this->objType}/{$this->fieldName}";
 
-        // If we have 3 parts of path, then we set it as our user guid
+        // If we have 3 parts of path, then we set it as our user id
         if (isset($parts[2])) {
             $this->userGuid = $parts[2];
             $path .= "/{$this->userGuid}";
@@ -129,7 +129,7 @@ class EntityGroupings
     }
 
     /**
-     * Get the user guid of this groupings if it is a private grouping
+     * Get the user id of this groupings if it is a private grouping
      */
     public function getUserGuid()
     {
@@ -334,14 +334,14 @@ class EntityGroupings
     }
 
     /**
-     * Get the grouping entry by guid
+     * Get the grouping entry by id
      *
-     * @param strin $guid the id to delete
+     * @param strin $groupId the id to delete
      */
-    public function getByGuid($guid)
+    public function getByGuid($groupId)
     {
         foreach ($this->groups as $grp) {
-            if ($grp->getGroupId() == $guid) {
+            if ($grp->getGroupId() == $groupId) {
                 return $grp;
             }
         }
@@ -422,7 +422,7 @@ class EntityGroupings
      */
     public function getByGuidOrGroupId(string $value)
     {
-        // If group guid is provided, then we need to use getByGuid
+        // If group id is provided, then we need to use getByGuid
         if (Uuid::isValid($value)) {
             return $this->getByGuid($value);
         }

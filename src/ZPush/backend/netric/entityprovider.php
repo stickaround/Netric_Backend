@@ -170,7 +170,7 @@ class EntityProvider
 
         switch ($oldFolder['type']) {
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
+                $entity = $entityLoader->getByGuid($id);
 
                 if (!$entity)
                     return false;
@@ -180,7 +180,7 @@ class EntityProvider
                 return true;
 
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
+                $entity = $entityLoader->getByGuid($id);
 
                 if (!$entity)
                     return false;
@@ -219,7 +219,7 @@ class EntityProvider
         // Return the stat
         if ($entity) {
             return array(
-                "id" => $entity->getId(),
+                "id" => $entity->getEntityId(),
                 "mod" => $entity->getValue("commit_id"),
                 "flags" => ($entity->getValue("f_seen") == 't') ? 1 : 0,
                 "revision" => $entity->getValue("revision")
@@ -244,19 +244,19 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->get(ObjectTypes::TASK, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->get(ObjectTypes::NOTE, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             default:
                 // Not supported
@@ -283,19 +283,19 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->get(ObjectTypes::TASK, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->get(ObjectTypes::NOTE, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             default:
                 // Not supported
@@ -330,19 +330,19 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->get(ObjectTypes::TASK, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->get(ObjectTypes::NOTE, $id);
+                $entity = $entityLoader->getByGuid($id);
                 break;
             default:
                 // Not supported
@@ -390,7 +390,7 @@ class EntityProvider
 
             case self::FOLDER_TYPE_CALENDAR:
                 $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-                $entity = $entityLoader->get(ObjectTypes::CALENDAR, $folder['id']);
+                $entity = $entityLoader->getByGuid($folder['id']);
 
                 if (!$entity)
                     return false;
@@ -667,7 +667,7 @@ class EntityProvider
         for ($i = 0; $i < $num; $i++) {
             $calendar = $results->getEntity($i);
             $folder = new SyncFolder();
-            $folder->serverid = $this->packFolderId(self::FOLDER_TYPE_CALENDAR, $calendar->getId());
+            $folder->serverid = $this->packFolderId(self::FOLDER_TYPE_CALENDAR, $calendar->getEntityId());
             $folder->parentid = "0";
             $folder->displayname = mb_convert_encoding($calendar->getName(), "UTF-8", "UTF-7");
             $folder->type = SYNC_FOLDER_TYPE_APPOINTMENT;
@@ -687,7 +687,7 @@ class EntityProvider
     private function getContact($id, $contentParameters)
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $contactEntity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
+        $contactEntity = $entityLoader->getByGuid($id);
 
         $contact = new SyncContact();
         $contact->email1address = $contactEntity->getValue('email');
@@ -722,7 +722,7 @@ class EntityProvider
         $contact->bodytruncated = 0;
          */
 
-        $this->log->info("ZPUSH->EntityProvider->getContact: returning " . $contactEntity->getId());
+        $this->log->info("ZPUSH->EntityProvider->getContact: returning " . $contactEntity->getEntityId());
 
         return $contact;
     }
@@ -743,7 +743,7 @@ class EntityProvider
         $pulltz = 'utc';
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $entityEvent = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
+        $entityEvent = $entityLoader->getByGuid($id);
 
         if (!$entityEvent->getValue("ts_end") || !$entityEvent->getValue("ts_start"))
             return false;
@@ -859,7 +859,7 @@ class EntityProvider
             }
         }
 
-        $this->log->info("ZPUSH->EntityProvider:getAppointment returning " . $entityEvent->getId());
+        $this->log->info("ZPUSH->EntityProvider:getAppointment returning " . $entityEvent->getEntityId());
 
         return $appt;
     }
@@ -874,7 +874,7 @@ class EntityProvider
     private function getTask($id, $contentParameters)
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $taskEntity = $entityLoader->get(ObjectTypes::TASK, $id);
+        $taskEntity = $entityLoader->getByGuid($id);
         $task = new SyncTask();
         $task->subject = $taskEntity->getValue('name');
         $task->body = $taskEntity->getValue('notes');
@@ -886,7 +886,7 @@ class EntityProvider
         if ($taskEntity->getValue('start_date'))
             $task->startdate = $taskEntity->getValue('start_date');
 
-        $this->log->info("ZPUSH->EntityProvider:getTask returning " . $taskEntity->getId());
+        $this->log->info("ZPUSH->EntityProvider:getTask returning " . $taskEntity->getEntityId());
 
         return $task;
     }
@@ -901,7 +901,7 @@ class EntityProvider
     private function getNote($id, $contentParameters)
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $noteEntity = $entityLoader->get(ObjectTypes::NOTE, $id);
+        $noteEntity = $entityLoader->getByGuid($id);
         $syncNote = new SyncNote();
         $syncNote->messageclass = "IPM.Note";
         $syncNote->subject = $noteEntity->getValue('name');
@@ -932,7 +932,7 @@ class EntityProvider
             }
         }
 
-        $this->log->info("ZPUSH->EntityProvider->getNote returning " . $noteEntity->getId());
+        $this->log->info("ZPUSH->EntityProvider->getNote returning " . $noteEntity->getEntityId());
 
         return $syncNote;
     }
@@ -951,7 +951,7 @@ class EntityProvider
         $bodypreference = $contentParameters->GetBodyPreference(); /* fmbiete's contribution r1528, ZP-320 */
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailEntity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
+        $emailEntity = $entityLoader->getByGuid($id);
 
         $output = new SyncMail();
 
@@ -1127,7 +1127,7 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
+            $entity = $this->entityLoader->getByGuid($id);
         } else {
             $entity = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL);
         }
@@ -1177,7 +1177,7 @@ class EntityProvider
              */
         }
 
-        $this->log->info("ZPUSH->EntityProvider->saveContact: returning " . $entity->getId() . ':' . $entity->getName());
+        $this->log->info("ZPUSH->EntityProvider->saveContact: returning " . $entity->getEntityId() . ':' . $entity->getName());
 
         return $this->entityLoader->save($entity);
     }
@@ -1196,7 +1196,7 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get(ObjectTypes::NOTE, $id);
+            $entity = $this->entityLoader->getByGuid($id);
         } else {
             $entity = $this->entityLoader->create(ObjectTypes::NOTE);
         }
@@ -1268,7 +1268,7 @@ class EntityProvider
             $entity->setValue("name", $firstLine);
         }
 
-        $this->log->info("ZPUSH->EntityProvider->saveNote: returning " . $entity->getId());
+        $this->log->info("ZPUSH->EntityProvider->saveNote: returning " . $entity->getEntityId());
 
         return $this->entityLoader->save($entity);
     }
@@ -1286,7 +1286,7 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get(ObjectTypes::TASK, $id);
+            $entity = $this->entityLoader->getByGuid($id);
         } else {
             $entity = $this->entityLoader->create(ObjectTypes::TASK);
         }
@@ -1299,7 +1299,7 @@ class EntityProvider
         if ($syncTask->duedate)
             $entity->setValue('deadline', date("Y-m-d", $syncTask->duedate));
 
-        $this->log->info("ZPUSH->EntityProvider->saveTask: returning " . $entity->getId());
+        $this->log->info("ZPUSH->EntityProvider->saveTask: returning " . $entity->getEntityId());
 
         return $this->entityLoader->save($entity);
     }
@@ -1318,7 +1318,7 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
+            $entity = $this->entityLoader->getByGuid($id);
         } else {
             $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         }
@@ -1509,7 +1509,7 @@ class EntityProvider
             $entity->setRecurrencePattern($rp);
         }
 
-        $this->log->info("ZPUSH->EntityProvider->saveAppointment: returning " . $entity->getId());
+        $this->log->info("ZPUSH->EntityProvider->saveAppointment: returning " . $entity->getEntityId());
 
         return $this->entityLoader->save($entity);
     }
@@ -1572,7 +1572,7 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
+            $entity = $this->entityLoader->getByGuid($id);
         } else {
             $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         }
@@ -1754,63 +1754,6 @@ class EntityProvider
 
         return $dst;
     }
-
-    /**
-     * Get local timezone object
-    public function getLocalTzObj()
-    {
-    $tz = new DateTimeZone($this->user->timezoneName);
-    $isDst = $this->timezoneDoesDST($tz);
-    $isDstNow = date("I", time());
-    if ($isDst)
-    {
-    $offset = (int)$tz->getOffset(new DateTime("now", $tz))/60;
-    $offset = (-1 * $offset);
-    if ($isDstNow==1)
-    $offset = $offset + 60;
-    //$date_dst_start = strtotime("Second Sunday March 0");
-    //$date_dst_end = strtotime("First Sunday November 0");
-    }
-    else
-    {
-    $offset = $tz->getOffset(new DateTime("now", $tz))/60;
-    $offset = (-1 * $offset);
-    }
-
-    $tzObject = array();
-    $tzObject["bias"]             = $offset;
-    $tzObject["name"]             = $tz->getName();
-    //$tzObject["stdname"]          = ''; // $tz->getName()
-    $tzObject["dstendyear"]       = 0;
-    $tzObject["dstendmonth"]      = 11; //(isset($date_dst_end)) ?  date("m", $date_dst_end): 0;
-    $tzObject["dstendday"]        = 0; //(isset($date_dst_end)) ?  date("d", $date_dst_end) : 0;
-    $tzObject["dstendweek"]       = 1; //(isset($date_dst_end)) ?  date("W", $date_dst_end) : 0;
-    $tzObject["dstendhour"]       = 2;
-    $tzObject["dstendminute"]     = 0;
-    $tzObject["dstendsecond"]     = 0;
-    $tzObject["dstendmillis"]     = 0;
-    $tzObject["stdbias"]          = 0;
-    //$tzObject["dstname"]          = '';
-    $tzObject["dststartyear"]     = 0;
-    $tzObject["dststartmonth"]    = 3; //(isset($date_dst_start)) ?  date("m", $date_dst_start): 0;
-    $tzObject["dststartday"]      = 0; //(isset($date_dst_start)) ?  date("d", $date_dst_start) : 0;
-    $tzObject["dststartweek"]     = 2; //(isset($date_dst_start)) ?  date("W", $date_dst_start) : 0;
-    $tzObject["dststarthour"]     = 2;
-    $tzObject["dststartminute"]   = 0;
-    $tzObject["dststartsecond"]   = 0;
-    $tzObject["dststartmillis"]   = 0;
-    $tzObject["dstbias"]          = -60;
-
-    //if ($tzObject["dstendweek"] == -1 ) $tzObject["dstendweek"] = 5;
-    //if ($tzObject["dststartweek"] == -1 ) $tzObject["dststartweek"] = 5;
-
-    // Make the structure compatible with class.recurrence.php
-    $tzObject["timezone"] = $tzObject["bias"];
-    $tzObject["timezonedst"] = $tzObject["dstbias"];
-
-    return $tzObject;
-    }
-     */
 
     /**
      * Returns the local timestamp for the $week'th $wday of $month in $year at $hour:$minute:$second

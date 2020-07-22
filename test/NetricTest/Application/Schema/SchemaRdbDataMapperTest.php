@@ -56,7 +56,7 @@ class SchemaRdbDataMapperTest extends AbstractSchemaDataMapperTests
     protected function insertIntoBucket($bucketName, array $data)
     {
         // Return true if we were able to insert successfully
-        return ($this->database->insert($bucketName, $data)) ? true : false;
+        return ($this->database->insert($bucketName, $data, 'id')) ? true : false;
     }
 
     /**

@@ -359,7 +359,11 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         } else {
             // Create new uuid
             $data["entity_definition_id"] = Uuid::uuid4()->toString();
-            $appObjectTypeId = $this->database->insert(self::ENTITY_TYPE_TABLE, $data, 'id');
+            $appObjectTypeId = $this->database->insert(
+                self::ENTITY_TYPE_TABLE,
+                $data,
+                'id'
+            );
             $def->setEntityDefinitionId($appObjectTypeId);
         }
 

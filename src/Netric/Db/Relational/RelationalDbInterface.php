@@ -33,11 +33,11 @@ interface RelationalDbInterface
      *
      * @param string $tableName
      * @param array $params Associative array where key = columnName
-     * @param string $primaryKeyColumn Set which column is the primary key to get the id from
+     * @param string $sequenceForNextId Set which column is the primary key to get the next id from
      * @throws DatabaseQueryException from $this->query if the query fails
      * @return int ID created for the primary key (if exists) otherwize 0
      */
-    public function insert(string $tableName, array $params, string $primaryKeyColumn = "id");
+    public function insert(string $tableName, array $params, string $sequenceForNextId = "");
 
     /**
      * Update a table row by matching conditional params

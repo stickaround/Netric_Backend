@@ -104,7 +104,7 @@ class Notifier
         }
 
         foreach ($followers as $userGuid) {
-            // If the follower guid is not a valid guid, then we try to look for its user entity
+            // If the follower id is not a valid id, then we try to look for its user entity
             if (!Uuid::isValid($userGuid)) {
                 $userEntity = $this->entityLoader->getByGuid($userGuid);
 
@@ -192,8 +192,8 @@ class Notifier
     /**
      * Either get an existing notification if unseen, or create a new one for $objReference
      *
-     * @param string $objReference The guid of the entity reference
-     * @param string $userGuid The guid of the user
+     * @param string $objReference The id of the entity reference
+     * @param string $userGuid The id of the user
      * @return EntityInterface
      */
     private function getNotification(string $objReference, string $userGuid)

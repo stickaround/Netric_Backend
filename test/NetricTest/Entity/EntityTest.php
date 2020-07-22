@@ -250,7 +250,7 @@ class EntityTest extends TestCase
         // timestamp
         $cust->setValue("last_contacted", time());
         // Set a fake id just to make sure it does not get copied
-        $cust->setValue('guid', '82d264a2-8070-11e8-adc0-fa7ae01bbebc');
+        $cust->setValue('entity_id', '82d264a2-8070-11e8-adc0-fa7ae01bbebc');
 
         // Clone it
         $cloned = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);

@@ -171,7 +171,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         //try {
         if (!empty($params['entity_id']) && Uuid::isValid($params['entity_id'])) {
-            // Retrieve the entity by guid
+            // Retrieve the entity by id
             $entity = $entityLoader->getByGuid($params['entity_id']);
         } elseif (!empty($params['uname']) && !empty($params['obj_type'])) {
             // Retrieve the entity by a unique name and optional condition
@@ -849,9 +849,8 @@ class EntityController extends Mvc\AbstractAccountController
 
                 break;
             case 'edit':
-                // $objData['guid'] is the Group Id where we need to check it first before updating the group
-                if (isset($objData['guid']) && !empty($objData['guid'])) {
-                    $group = $groupings->getByGuidOrGroupId($objData['guid']);
+                if (isset($objData['group_id']) && !empty($objData['group_id'])) {
+                    $group = $groupings->getByGuidOrGroupId($objData['group_id']);
                 } else {
                     return $this->sendOutput(array("error" => "Edit action needs group id to update the group."));
                 }
@@ -861,15 +860,15 @@ class EntityController extends Mvc\AbstractAccountController
 
                 break;
             case 'delete':
-                // $objData['guid'] is the Group Id where we need to check it first before deleting the group
-                if (isset($objData['guid']) && !empty($objData['guid'])) {
-                    $group = $groupings->getByGuidOrGroupId($objData['guid']);
+                // $objData['group_id'] is the Group Id where we need to check it first before deleting the group
+                if (isset($objData['group_id']) && !empty($objData['group_id'])) {
+                    $group = $groupings->getByGuidOrGroupId($objData['group_id']);
                 } else {
                     return $this->sendOutput(array("error" => "Delete action needs group id to update the group."));
                 }
 
                 // Now flag the group as deleted
-                $groupings->delete($objData['guid']);
+                $groupings->delete($objData['group_id']);
                 break;
             default:
                 return $this->sendOutput(array("error" => "No action made for entity group."));

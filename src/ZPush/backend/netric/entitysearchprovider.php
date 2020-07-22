@@ -250,7 +250,7 @@ class EntitySearchProvider implements ISearchProvider
             $email = $results->getEntity($i);
             $items[] = array(
                 'class' => 'Email',
-                'longid' => $email->getId(),
+                'longid' => $email->getEntityId(),
                 'folderid' => \EntityProvider::FOLDER_TYPE_EMAIL . "-" . $email->getValue("mailbox_id")
             );
         }

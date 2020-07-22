@@ -90,7 +90,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        // At the very least we required that the guid of a saved message be set to send it
+        // At the very least we required that the id of a saved message be set to send it
         if (!isset($objData['entity_id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write("entity_id is a required param");

@@ -14,7 +14,7 @@ class Group
      *
      * @var string
      */
-    public $guid = "";
+    public $groupId = "";
 
     /**
      * The title of this grouping
@@ -104,7 +104,7 @@ class Group
     public function toArray()
     {
         $data = array(
-            "guid" => $this->getGroupId(),
+            "group_id" => $this->getGroupId(),
             "name" => $this->getName(),
             "f_system" => $this->isSystem,
             "parent_id" => $this->parentId,
@@ -131,8 +131,8 @@ class Group
      */
     public function fromArray($data)
     {
-        if (isset($data['guid'])) {
-            $this->setGroupId($data['guid']);
+        if (isset($data['group_id'])) {
+            $this->setGroupId($data['group_id']);
         }
 
         if (isset($data['name'])) {
@@ -184,7 +184,8 @@ class Group
     public function setValue($fname, $fval)
     {
         switch ($fname) {
-            case "guid":
+            case "group_id":
+            case "groupId":
                 $this->setGroupId($fval);
                 break;
             case "name":
@@ -221,7 +222,8 @@ class Group
     public function getValue($fname)
     {
         switch ($fname) {
-            case "guid":
+            case "groupId":
+            case "group_id":
                 return $this->getGroupId();
             case "name":
                 return $this->name;
@@ -311,7 +313,7 @@ class Group
      */
     public function isDirty()
     {
-        if (!$this->guid) {
+        if (!$this->groupId) {
             return true;
         }
 
@@ -325,7 +327,7 @@ class Group
      */
     public function getGroupId(): string
     {
-        return $this->guid;
+        return $this->groupId;
     }
 
     /**
@@ -336,7 +338,7 @@ class Group
      */
     public function setGroupId(string $groupId): void
     {
-        $this->guid = $groupId;
+        $this->groupId = $groupId;
     }
 
     /**

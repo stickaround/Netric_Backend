@@ -110,8 +110,8 @@ abstract class IndexTestsAbstract extends TestCase
         $customer->setValue("f_nocall", true);
         $customer->setValue("type_id", $typeId);
         $customer->setValue("last_contacted", time());
-        $customer->setValue("status_id", $statusG['guid'], $statusG['name']);
-        $customer->addMultiValue("groups", $groupsG['guid'], $groupsG['name']);
+        $customer->setValue("status_id", $statusG['group_id'], $statusG['name']);
+        $customer->addMultiValue("groups", $groupsG['group_id'], $groupsG['name']);
         $loader->save($customer);
         $this->testEntities[] = $customer;
 
@@ -143,7 +143,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->testGroupings[] = [
             "obj_type" => $objType,
             "field" => $field,
-            "guid" => $group->getGroupId()
+            "group_id" => $group->getGroupId()
         ];
 
         return $group->toArray();

@@ -93,7 +93,7 @@ class BackendNetric implements IBackend
      *
      * @var array
      */
-    private $sinkFolders = array();
+    private $sinkFolders = [];
 
     /**
      * Provider to inetract with netric entities

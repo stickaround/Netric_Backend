@@ -114,7 +114,8 @@ abstract class AbstractRelationalDbTests extends TestCase
 
         $lastId = $database->insert(
             'utest_people',
-            ['name' => 'sky']
+            ['name' => 'sky'],
+            'id'
         );
 
         $this->assertGreaterThan(0, $lastId);
@@ -149,7 +150,7 @@ abstract class AbstractRelationalDbTests extends TestCase
         // Insert a few rows to make sure conditions limit
         $database->insert('utest_people', ['name' => 'Name1']);
         $database->insert('utest_people', ['name' => 'Name2']);
-        $lastId = $database->insert('utest_people', ['name' => 'Name3']);
+        $lastId = $database->insert('utest_people', ['name' => 'Name3'], 'id');
 
         $data = ['name' => 'Sky'];
         $conditions = ['id' => $lastId];
@@ -171,7 +172,7 @@ abstract class AbstractRelationalDbTests extends TestCase
         // Insert a few rows to make sure conditions limit
         $database->insert('utest_people', ['name' => 'Name1']);
         $database->insert('utest_people', ['name' => 'Name2']);
-        $lastId = $database->insert('utest_people', ['name' => 'Name3']);
+        $lastId = $database->insert('utest_people', ['name' => 'Name3'], 'id');
 
         $conditions = ['id' => $lastId];
         $numDeleted = $database->delete('utest_people', $conditions);
@@ -213,7 +214,7 @@ abstract class AbstractRelationalDbTests extends TestCase
     {
         $database = $this->getDatabase();
 
-        $lastId = $database->insert('utest_people', ['id' => 1000, 'name' => 'Name1']);
+        $lastId = $database->insert('utest_people', ['id' => 1000, 'name' => 'Name1'], 'id');
 
         // It should have returned the ID that was manually passed rather than the sequence
         $this->assertEquals(1000, $lastId);

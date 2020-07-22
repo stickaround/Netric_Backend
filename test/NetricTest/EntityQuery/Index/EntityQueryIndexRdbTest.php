@@ -47,7 +47,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $groupings = $groupingLoader->get(ObjectTypes::TASK . "/status_id");
 
         $completedGroup = $groupings->getByName("Completed");
-        $compledtedId = $completedGroup->getValue("guid");
+        $compledtedId = $completedGroup->getGroupId();
 
         // Test Not Equal
         $condition = new Where("status_id");

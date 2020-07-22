@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\WorkerMan\Queue;
 
 use Netric\WorkerMan\Worker\TestWorker;
@@ -26,7 +27,7 @@ abstract class AbstractQueueTests extends TestCase
     protected $actionFactory = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
     }
@@ -35,9 +36,9 @@ abstract class AbstractQueueTests extends TestCase
      * Cleanup any leftover tasks in the queue
      */
     protected function tearDown(): void
-{
+    {
         $queue = $this->getQueue();
-        //$queue->clearWorkerQueue("Test");
+        $queue->clearWorkerQueue("Test");
     }
 
     /**
@@ -72,7 +73,7 @@ abstract class AbstractQueueTests extends TestCase
         $queue->addWorker("Test", $worker);
 
         // This will queue the job
-        $queue->doWorkBackground("Test", ["mystring"=>"test"]);
+        $queue->doWorkBackground("Test", ["mystring" => "test"]);
 
         // Dispatch the job
         $queue->dispatchJobs();
@@ -97,7 +98,7 @@ abstract class AbstractQueueTests extends TestCase
         $queue = $this->getQueue();
 
         // This will queue the job
-        $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
+        $queue->doWorkBackground("Test", ["mystring" => "dispatch"]);
 
         // Now add a worker which will process the queue
         $worker = new TestWorker($this->account->getApplication());
@@ -114,8 +115,8 @@ abstract class AbstractQueueTests extends TestCase
         $queue = $this->getQueue();
 
         // This will queue the job
-        $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
-        $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
+        $queue->doWorkBackground("Test", ["mystring" => "dispatch"]);
+        $queue->doWorkBackground("Test", ["mystring" => "dispatch"]);
 
         // Add a worker that should never be called
         $worker = new TestWorker($this->account->getApplication());

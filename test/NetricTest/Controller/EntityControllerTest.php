@@ -75,7 +75,7 @@ class EntityControllerTest extends TestCase
                 'action' => "delete",
                 'obj_type' => ObjectTypes::NOTE,
                 'field_name' => 'groups',
-                'guid' => $groupId
+                'group_id' => $groupId
             ];
 
             // Set params in the request
@@ -593,7 +593,7 @@ class EntityControllerTest extends TestCase
         $req->setBody(json_encode($dataGroup));
         $retGroup = $this->controller->postSaveGroupAction();
 
-        $this->assertNotEmpty($retGroup['guid']);
+        $this->assertNotEmpty($retGroup['group_id']);
         $this->assertEquals($retGroup['name'], $dataGroup['name']);
         $this->assertEquals($retGroup['color'], $dataGroup['color']);
     }

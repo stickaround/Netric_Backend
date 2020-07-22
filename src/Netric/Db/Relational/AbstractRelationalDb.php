@@ -265,11 +265,11 @@ abstract class AbstractRelationalDb
      *
      * @param string $tableName
      * @param array $params Associative array where key = columnName
-     * @param string $primaryKeyColumn Set which column is the primary key to get the id from
+     * @param string $sequenceForNextId Set which column is the primary key to get the id from
      * @throws DatabaseQueryException from $this->query if the query fails
      * @return int ID created for the primary key (if exists) otherwize 0
      */
-    public function insert(string $tableName, array $params, string $primaryKeyColumn = "id")
+    public function insert(string $tableName, array $params, string $sequenceForNextId = "")
     {
         // Get all columns param keys and add to insert statement
         $columns = array_keys($params);
@@ -281,12 +281,12 @@ abstract class AbstractRelationalDb
         $this->query($sql, $params);
 
         // If the primary key was set in the params already, return it
-        $insertedId = (empty($params[$primaryKeyColumn])) ? null : $params[$primaryKeyColumn];
+        $insertedId = (empty($params[$sequenceForNextId])) ? null : $params[$sequenceForNextId];
 
         // Wrap get last id in try catch since we do not know if the table has a serial id
         try {
-            if ($insertedId === null) {
-                $sequenceName = $this->getSequenceName($tableName, $primaryKeyColumn);
+            if ($insertedId === null && $sequenceForNextId) {
+                $sequenceName = $this->getSequenceName($tableName, $sequenceForNextId);
                 $insertedId = $this->getLastInsertId($sequenceName);
             }
         } catch (DatabaseException $ex) {

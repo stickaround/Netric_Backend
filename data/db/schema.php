@@ -21,7 +21,7 @@ return [
             'version' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'active' => ['type' => SchemaProperty::TYPE_BOOL, 'default' => 't'],
         ],
-        'PRIMARY_KEY'       => 'account_id',
+        'PRIMARY_KEY' => 'account_id',
         // TODO: contraints for unique name
     ],
 
@@ -37,7 +37,7 @@ return [
             'email_address' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'username' => ['type' => SchemaProperty::TYPE_CHAR_256],
         ],
-        'PRIMARY_KEY'       => 'id',
+        'PRIMARY_KEY' => 'id',
         // TODO: constraints for unique account_id, email_alias
         "INDEXES" => [
             ['properties' => ["email_address"]],
@@ -113,7 +113,6 @@ return [
         "PROPERTIES" => [
             'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID],
             'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'title' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'revision' => ['type' => SchemaProperty::TYPE_INT, 'default' => '1'],
@@ -254,7 +253,6 @@ return [
      */
     "entity_recurrence" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'entity_recurrence_id' => ['type' => SchemaProperty::TYPE_UUID],
             'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
@@ -282,10 +280,9 @@ return [
         ]
     ],
 
-    "entity_grouping" => [
+    "entity_group" => [
         "PROPERTIES" => [
-            'guid' => ['type' => SchemaProperty::TYPE_UUID],
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'group_id' => ['type' => SchemaProperty::TYPE_UUID],
             'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
@@ -301,7 +298,7 @@ return [
             'filter_values' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'path' => ['type' => SchemaProperty::TYPE_CHAR_256],
         ],
-        'PRIMARY_KEY' => ['id'],
+        'PRIMARY_KEY' => ['group_id'],
         "INDEXES" => [
             ['properties' => ["object_type_id"]],
             ['properties' => ["field_id"]],
@@ -440,7 +437,7 @@ return [
 
     "entity_sync_export" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_sync_export_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'collection_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'collection_type' => ['type' => SchemaProperty::TYPE_SMALLINT],
             'commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],

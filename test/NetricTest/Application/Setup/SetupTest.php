@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test account setup functions
  */
+
 namespace NetricTest\Application\Setup;
 
 use Netric\Account\Account;
@@ -55,10 +57,10 @@ class SetupTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->application = $this->account->getApplication();
-        $serviceManager =$this->account->getServiceManager();
+        $serviceManager = $this->account->getServiceManager();
 
         $this->cache = $serviceManager->get(CacheFactory::class);
         $dataMapper = $serviceManager->get(DataMapperFactory::class);

@@ -62,7 +62,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     /**
      * Grouping table
      */
-    const TABLE_GROUPINGS = 'entity_grouping';
+    const TABLE_GROUPINGS = 'entity_group';
 
     /**
      * Class constructor
@@ -112,8 +112,8 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
             $this->database->query(
-                'DELETE FROM ' . self::TABLE_GROUPINGS . ' WHERE guid=:guid',
-                ['guid' => $grp->getGroupId()]
+                'DELETE FROM ' . self::TABLE_GROUPINGS . ' WHERE group_id=:group_id',
+                ['group_id' => $grp->getGroupId()]
             );
 
             // Log here
@@ -227,13 +227,13 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         if (!empty($grp->getGroupId())) {
             // Update if existing
-            $this->database->update(self::TABLE_GROUPINGS, $groupData, ['guid' => $grp->getGroupId()]);
+            $this->database->update(self::TABLE_GROUPINGS, $groupData, ['group_id' => $grp->getGroupId()]);
             return true;
         }
 
         // Additional data when creating a new group
         $grp->setGroupId(Uuid::uuid4()->toString());
-        $groupData["guid"] = $grp->getGroupId();
+        $groupData["group_id"] = $grp->getGroupId();
         $groupData['object_type_id'] = $def->getEntityDefinitionId();
         $groupData['account_id'] = $this->account->getAccountId();
 

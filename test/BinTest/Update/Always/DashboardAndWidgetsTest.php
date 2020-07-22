@@ -59,13 +59,13 @@ class DashboardAndWidgetsTest extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         $dashboardEntity = $entityLoader->getByUniqueName(ObjectTypes::DASHBOARD, "activity");
-        $this->assertNotNull($dashboardEntity->getValue("guid"));
+        $this->assertNotNull($dashboardEntity->getEntityId());
 
         $widgetEntity = $entityLoader->getByUniqueName(ObjectTypes::DASHBOARD_WIDGET, "", array(
             "dashboard_id" => $dashboardEntity->getEntityId(),
             "widget_name" => "activity"
         ));
 
-        $this->assertNotNull($widgetEntity->getValue("guid"));
+        $this->assertNotNull($widgetEntity->getEntityId()));
     }
 }

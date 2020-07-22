@@ -266,7 +266,7 @@ class Application
 
         $accounts = [];
         foreach ($accountsData as $data) {
-            $accounts[] = $this->accountsIdentityMapper->loadById($data['id'], $this);
+            $accounts[] = $this->accountsIdentityMapper->loadById($data['account_id'], $this);
         }
 
         return $accounts;
