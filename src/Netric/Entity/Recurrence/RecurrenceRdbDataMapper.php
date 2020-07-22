@@ -89,7 +89,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $data = $recurPattern->toArray();
         $dayOfWeekMask = $recurPattern->getDayOfWeekMask();
 
-        if (!$data['object_type_id']) {
+        if (!$data['entity_definition_id']) {
             throw new \InvalidArgumentException("No object type set for recurring pattern");
         }
 
@@ -100,7 +100,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $recurrenceData = [
             'entity_recurrence_id' => $entityRecurrenceId,
             'account_id' => $this->accountId,
-            'object_type_id' => $data['object_type_id'],
+            'entity_definition_id' => $data['entity_definition_id'],
             'date_processed_to' => $data['date_processed_to'],
             'parent_entity_id' => $data['first_entity_id'],
             'type' => $data['recur_type'],
@@ -125,8 +125,10 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $recurrenceId = null;
         if ($recurPattern->getId()) {
             $recurrenceId = $recurPattern->getId();
-            $sql = 'SELECT id FROM ' . self::ENTITY_RECUR_TABLE . ' WHERE id=:id';
-            $result = $this->database->query($sql, ["id" => $recurrenceId]);
+            $sql = 'SELECT entity_recurrence_id FROM ' .
+                self::ENTITY_RECUR_TABLE .
+                ' WHERE entity_recurrence_id=:entity_recurrence_id';
+            $result = $this->database->query($sql, ["entity_recurrence_id" => $recurrenceId]);
 
             if ($result->rowCount()) {
                 /*
@@ -135,7 +137,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                  * case we will need to make sure we include the id in the insert statement
                  * because we cannot ever assume that if it already has an id that it was previously saved.
                  */
-                $recurrenceData['id'] = $recurrenceId;
+                $recurrenceData['entity_recurrence_id'] = $recurrenceId;
 
                 // Add update statements for recurrence fields
                 $updateStatements = [];
@@ -152,10 +154,10 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
                 $sql = 'UPDATE ' . self::ENTITY_RECUR_TABLE . ' SET ';
                 $sql .= implode(',', $updateStatements);
-                $sql .= " WHERE id=:cond_id";
+                $sql .= " WHERE entity_recurrence_id=:entity_recurrence_id";
 
                 // Run the update and return the id as the result
-                $updateParams["cond_id"] = $recurrenceId;
+                $updateParams["entity_recurrence_id"] = $recurrenceId;
                 $result = $this->database->query($sql, $updateParams);
 
                 return $recurrenceId;
@@ -164,7 +166,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
         // Override the recurrence id if the $useId is set
         if ($useId) {
-            $recurrenceData["id"] = $useId;
+            $recurrenceData["entity_recurrence_id"] = $useId;
             $recurrenceId = $useId;
         }
 
@@ -196,19 +198,20 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     /**
      * Secure a unique id to use before it is saved
      *
-     * @return int|bool false if fails
+     * @return string
      */
-    public function getNextId()
+    public function getNextId(): string
     {
-        $sql = "select nextval('" . self::ENTITY_RECUR_TABLE . "_id_seq') as id";
-        $result = $this->database->query($sql);
+        return Uuid::uuid4()->toString();
+        // $sql = "select nextval('" . self::ENTITY_RECUR_TABLE . "_id_seq') as id";
+        // $result = $this->database->query($sql);
 
-        if ($result->rowCount()) {
-            $row = $result->fetch();
-            return $row["id"];
-        }
+        // if ($result->rowCount()) {
+        //     $row = $result->fetch();
+        //     return $row["id"];
+        // }
 
-        return false;
+        // return false;
     }
 
     /**
@@ -220,21 +223,21 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      */
     public function load($recurId)
     {
-        $sql = "SELECT id, object_type_id, date_processed_to, parent_entity_id,
+        $sql = "SELECT entity_recurrence_id, entity_definition_id, date_processed_to, parent_entity_id,
                     type, interval, date_start,
 					date_end, dayofmonth, instance, monthofyear, ep_locked,
 					dayofweekmask[1] as day1, dayofweekmask[2] as day2, dayofweekmask[3] as day3,
 					dayofweekmask[4] as day4, dayofweekmask[5] as day5, dayofweekmask[6] as day6,
 					dayofweekmask[7] as day7
-				  FROM " . self::ENTITY_RECUR_TABLE . " WHERE id=:id";
+				  FROM " . self::ENTITY_RECUR_TABLE . " WHERE entity_recurrence_id=:entity_recurrence_id";
 
-        $result = $this->database->query($sql, ["id" => $recurId]);
+        $result = $this->database->query($sql, ["entity_recurrence_id" => $recurId]);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
 
             $recurrenceData = [
-                "id" => $row['id'],
+                "entity_recurrence_id" => $row['entity_recurrence_id'],
                 "recur_type" => $row['type'],
                 "date_processed_to" => $row['date_processed_to'],
                 "first_entity_id" => $row['parent_entity_id'],
@@ -245,13 +248,13 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                 "month_of_year" => $row['monthofyear'],
                 "instance" => $row['instance'],
                 "ep_locked" => $row['ep_locked'],
-                'object_type_id' => $row['object_type_id'],
+                'entity_definition_id' => $row['entity_definition_id'],
             ];
 
             // Load recurrence rules
-            if ($row['object_type_id']) {
-                $def = $this->entityDefinitionLoader->getById($row['object_type_id']);
-                if ($this->entityDefinitionLoader->getById($row['object_type_id'])) {
+            if ($row['entity_definition_id']) {
+                $def = $this->entityDefinitionLoader->getById($row['entity_definition_id']);
+                if ($this->entityDefinitionLoader->getById($row['entity_definition_id'])) {
                     $recurrenceData['field_date_start'] = $def->recurRules['field_date_start'];
                     $recurrenceData['field_time_start'] = $def->recurRules['field_time_start'];
                     $recurrenceData['field_date_end'] = $def->recurRules['field_date_end'];
@@ -298,11 +301,11 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     /**
      * Function that will update the parent object id of the recurrence
      *
-     * @param int $recurrenceId The id of the recurrence that we will be updating
+     * @param string $recurrenceId The id of the recurrence that we will be updating
      * @param string $entityId The id of the entity that we will set as parent object id
      * @return bool
      */
-    public function updateParentEntityId(int $recurrenceId, string $entityId)
+    public function updateParentEntityId(string $recurrenceId, string $entityId)
     {
         if (!$recurrenceId) {
             throw new \InvalidArgumentException("Cannot update recurrence parent object id. Invalid recurrence id.");
@@ -315,7 +318,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $result = $this->database->update(
             self::ENTITY_RECUR_TABLE,
             ["parent_entity_id" => $entityId],
-            ["id" => $recurrenceId]
+            ["entity_recurrence_id" => $recurrenceId]
         );
 
         return ($result) ? true : false;
@@ -379,22 +382,22 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $def = $this->entityDefinitionLoader->get($objType);
         $dateToString = $dateTo->format("Y-m-d");
 
-        $sql = "SELECT id FROM " . self::ENTITY_RECUR_TABLE . "
+        $sql = "SELECT entity_recurrence_id FROM " . self::ENTITY_RECUR_TABLE . "
 				  WHERE f_active is true AND
 				  date_processed_to<:date_to_string
 				  AND (date_end is null or date_end>=:date_to_string)
-                  AND object_type_id=:object_type_id
+                  AND entity_definition_id=:entity_definition_id
                   AND account_id=:account_id";
 
         $result = $this->database->query($sql, [
             "date_to_string" => $dateToString,
-            "object_type_id" => $def->getEntityDefinitionId(),
+            "entity_definition_id" => $def->getEntityDefinitionId(),
             'account_id' => $this->accountId,
         ]);
 
         if ($result->rowCount()) {
             foreach ($result->fetchAll() as $row) {
-                $ret[] = $row["id"];
+                $ret[] = $row["entity_recurrence_id"];
             }
         }
 

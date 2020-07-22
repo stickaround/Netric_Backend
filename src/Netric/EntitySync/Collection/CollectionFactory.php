@@ -82,8 +82,6 @@ class CollectionFactory implements CollectionFactoryInterface
             if ($data['id']) {
                 $collection->setCollectionId($data['id']);
             }
-            //if ($data['object_type_id'])
-            //  $collection->setObjTypeId($data['object_type_id']);
             if ($data['object_type']) {
                 $collection->setObjType($data['object_type']);
             }

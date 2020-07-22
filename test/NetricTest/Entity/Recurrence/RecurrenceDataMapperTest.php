@@ -128,7 +128,7 @@ class RecurrenceDataMapperTest extends TestCase
     {
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_WEEKLY,
-            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
+            "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01",
@@ -156,7 +156,7 @@ class RecurrenceDataMapperTest extends TestCase
     {
         $lastId = $this->dataMapper->getNextId();
         $nextId = $this->dataMapper->getNextId();
-        $this->assertEquals(++$lastId, $nextId);
+        $this->assertNotEquals($lastId, $nextId);
     }
 
     public function testDelete()
@@ -164,7 +164,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
+            "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
@@ -186,7 +186,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
+            "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
@@ -214,7 +214,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "object_type_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
+            "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-02-01",
             "date_end" => "2015-03-01",

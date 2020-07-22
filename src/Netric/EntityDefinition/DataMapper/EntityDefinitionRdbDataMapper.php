@@ -58,7 +58,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         // Get basic object definition
         // ------------------------------------------------------
         $sql = "select
-			id, def_data, revision, title,
+            entity_definition_id, def_data, revision, title,
 			f_system, system_definition_hash, dacl, capped,
             default_activity_level, is_private, store_revisions,
             recur_rules, inherit_dacl_ref, parent_field, uname_settings,
@@ -75,8 +75,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $defData = json_decode($row['def_data'], true);
             $def->fromArray($defData);
 
-            if ($row['id'] && !$def->getEntityDefinitionId()) {
-                $def->setEntityDefinitionId($row['id']);
+            if ($row['entity_definition_id'] && !$def->getEntityDefinitionId()) {
+                $def->setEntityDefinitionId($row['entity_definition_id']);
             }
 
             return $def;
@@ -275,8 +275,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     public function fetchById(string $definitionTypeId): ?EntityDefinition
     {
-        $sql = 'SELECT name FROM ' . self::ENTITY_TYPE_TABLE . ' WHERE id= :id';
-        $result = $this->database->query($sql, ["id" => $definitionTypeId]);
+        $sql = 'SELECT name FROM ' . self::ENTITY_TYPE_TABLE . ' WHERE entity_definition_id=:entity_definition_id';
+        $result = $this->database->query($sql, ["entity_definition_id" => $definitionTypeId]);
         // The object was not found
         if ($result->rowCount() === 0) {
             return null;
@@ -355,16 +355,15 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
         $appObjectTypeId = $def->getEntityDefinitionId();
         if ($appObjectTypeId) {
-            $this->database->update(self::ENTITY_TYPE_TABLE, $data, ['id' => $appObjectTypeId]);
+            $this->database->update(self::ENTITY_TYPE_TABLE, $data, ['entity_definition_id' => $appObjectTypeId]);
         } else {
             // Create new uuid
             $data["entity_definition_id"] = Uuid::uuid4()->toString();
-            $appObjectTypeId = $this->database->insert(
+            $this->database->insert(
                 self::ENTITY_TYPE_TABLE,
-                $data,
-                'id'
+                $data
             );
-            $def->setEntityDefinitionId($appObjectTypeId);
+            $def->setEntityDefinitionId($data["entity_definition_id"]);
         }
 
         // Check to see if this dynamic object has yet to be initilized
@@ -753,7 +752,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $query = "CREATE TABLE " . $tables[0] . "
 						(
 							CONSTRAINT " . $tables[0] . "_pkey PRIMARY KEY (guid),
-							CHECK(object_type_id='" . $typeId . "' and f_deleted='f')
+							CHECK(entity_definition_id='" . $typeId . "' and f_deleted='f')
 						)
 						INHERITS ($base);";
             $this->database->query($query);
@@ -767,7 +766,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $query = "CREATE TABLE " . $tables[1] . "
 						(
 							CONSTRAINT " . $tables[1] . "_pkey PRIMARY KEY (guid),
-							CHECK(object_type_id='" . $typeId . "' and f_deleted='t')
+							CHECK(entity_definition_id='" . $typeId . "' and f_deleted='t')
 						)
 						INHERITS ($base);";
             $this->database->query($query);
@@ -920,15 +919,15 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     {
         $otid = $def->getEntityDefinitionId();
 
-        $sql = "select id from application_objects where application_id=:application_id and object_type_id=:object_type_id";
-        $result = $this->database->query($sql, ['application_id' => $applicatoinId, "object_type_id" => $otid]);
+        $sql = "select id from application_objects where application_id=:application_id and entity_definition_id=:entity_definition_id";
+        $result = $this->database->query($sql, ['application_id' => $applicatoinId, "entity_definition_id" => $otid]);
 
         if ($result->rowCount()) {
             $this->database->insert(
                 "application_objects",
                 [
                     "application_id" => $applicatoinId,
-                    "object_type_id" => $otid
+                    "entity_definition_id" => $otid
                 ]
             );
         }

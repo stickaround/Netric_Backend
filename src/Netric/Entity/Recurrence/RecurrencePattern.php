@@ -136,9 +136,9 @@ class RecurrencePattern implements ErrorAwareInterface
     /**
      * The unique id of this recurrence pattern
      *
-     * @var int
+     * @var string
      */
-    private $id = null;
+    private $entityRecurrenceId = '';
 
     /**
      * The entity field name used set the start for each instance
@@ -206,8 +206,8 @@ class RecurrencePattern implements ErrorAwareInterface
         /*
          * Set properties with public setters
          */
-        if (isset($data['id'])) {
-            $this->setId($data['id']);
+        if (isset($data['entity_recurrence_id'])) {
+            $this->setId($data['entity_recurrence_id']);
         }
 
         if (isset($data['recur_type'])) {
@@ -255,8 +255,8 @@ class RecurrencePattern implements ErrorAwareInterface
             $this->fAllDay = $data['f_active'];
         }
 
-        if (isset($data['object_type_id'])) {
-            $this->objTypeId = $data['object_type_id'];
+        if (isset($data['entity_definition_id'])) {
+            $this->objTypeId = $data['entity_definition_id'];
         }
 
         if (isset($data['first_entity_id'])) {
@@ -298,7 +298,7 @@ class RecurrencePattern implements ErrorAwareInterface
         $dateProcessedTo = ($this->dateProcessedTo) ? $this->dateProcessedTo->format("Y-m-d") : null;
 
         return array(
-            "id" => $this->id,
+            "entity_recurrence_id" => $this->entityRecurrenceId,
             "recur_type" => $this->recurType,
             "interval" => $this->interval,
             "instance" => $this->instance,
@@ -308,7 +308,7 @@ class RecurrencePattern implements ErrorAwareInterface
             "date_start" => $dateStart,
             "date_end" => $dateEnd,
             "f_active" => $this->fActive,
-            "object_type_id" => $this->objTypeId,
+            "entity_definition_id" => $this->objTypeId,
             "first_entity_id" => $this->firstEntityId,
             "date_processed_to" => $dateProcessedTo,
             "ep_locked" => $this->epLocked,

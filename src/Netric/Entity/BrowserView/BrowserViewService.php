@@ -337,7 +337,7 @@ class BrowserViewService
             "name" => $data['name'],
             "description" => $data['description'],
             "team_id" => ($data['team_id']) ? $data['team_id'] : null,
-            "object_type_id" => $def->getEntityDefinitionId(),
+            "entity_definition_id" => $def->getEntityDefinitionId(),
             "f_default" => $data['default'],
             "owner_id" => ($data['owner_id']) ? $data['owner_id'] : null,
             "group_first_order_by" => $data['group_first_order_by'],
@@ -475,12 +475,12 @@ class BrowserViewService
 
         // Now get all views from the DB
         $sql = "SELECT id, name, scope, description, filter_key,
-                    object_type_id, f_default, team_id,
+                    entity_definition_id, f_default, team_id,
                     owner_id, conditions_data, order_by_data, table_columns_data,
                     group_first_order_by
-                FROM app_object_views WHERE object_type_id=:object_type_id";
+                FROM app_object_views WHERE entity_definition_id=:entity_definition_id";
 
-        $result = $this->database->query($sql, ["object_type_id" => $def->getEntityDefinitionId()]);
+        $result = $this->database->query($sql, ["entity_definition_id" => $def->getEntityDefinitionId()]);
         foreach ($result->fetchAll() as $row) {
             $viewData = [
                 'id' => $row['id'],

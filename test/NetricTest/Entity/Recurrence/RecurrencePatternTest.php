@@ -10,6 +10,7 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
+use Ramsey\Uuid\Uuid;
 
 class RecurrencePatternTest extends TestCase
 {
@@ -209,7 +210,7 @@ class RecurrencePatternTest extends TestCase
     public function testToAndFromArray()
     {
         $import = array(
-            "id" => 123,
+            "entity_recurrence_id" => Uuid::uuid4()->toString(),
             "recur_type" => RecurrencePattern::RECUR_MONTHLY,
             "interval" => 2,
             "instance" => RecurrencePattern::NTH_1ST,
@@ -219,7 +220,7 @@ class RecurrencePatternTest extends TestCase
             "date_start" => "2015-01-01",
             "date_end" => "2015-02-01",
             "f_active" => true,
-            "object_type_id" => "b47baf14-a758-4d83-ab71-89732c9a4d59", // Fake uuid
+            "entity_definition_id" => "b47baf14-a758-4d83-ab71-89732c9a4d59", // Fake uuid
             "first_entity_id" => 444,
             "date_processed_to" => "2015-03-01",
             "field_date_start" => "deadline",
@@ -235,7 +236,7 @@ class RecurrencePatternTest extends TestCase
         // Convert back to an array and test
         $exported = $recur->toArray();
 
-        $this->assertEquals($import['id'], $exported['id']);
+        $this->assertEquals($import['entity_recurrence_id'], $exported['entity_recurrence_id']);
         $this->assertEquals($import['recur_type'], $exported['recur_type']);
         $this->assertEquals($import['interval'], $exported['interval']);
         $this->assertEquals($import['instance'], $exported['instance']);

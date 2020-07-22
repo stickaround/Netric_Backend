@@ -324,7 +324,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
         // Setup column values to set
         $workflowData = array(
             "workflow_id" => $workFlowInstance->getWorkFlowLegacyId(),
-            "object_type_id" => $workFlowInstance->getObjTypeId(),
+            "entity_definition_id" => $workFlowInstance->getObjTypeId(),
             "object_type" => $workFlowInstance->getObjType(),
             "object_uid" => $workFlowInstance->getEntityId(),
             "ts_started" => $workFlowInstance->getTimeStarted()->format("Y-m-d H:i:s T"),

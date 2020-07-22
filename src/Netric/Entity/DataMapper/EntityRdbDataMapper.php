@@ -61,7 +61,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchById($entity, $entityId, $skipObjRefUpdate = false)
     {
-        $sql = 'SELECT entity_id, object_type_id, field_data FROM ' . self::ENTITY_TABLE .
+        $sql = 'SELECT entity_id, entity_definition_id, field_data FROM ' . self::ENTITY_TABLE .
             ' WHERE entity_id=:entity_id AND account_id=:account_id';
         $result = $this->database->query(
             $sql,
@@ -353,7 +353,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $all_fields = $def->getFields();
 
         // Set typei_id to correctly build the sql statement based on custom table definitions
-        $data["object_type_id"] = $def->getEntityDefinitionId();
+        $data["entity_definition_id"] = $def->getEntityDefinitionId();
 
         // Set data as JSON (we are replacing columns with this for custom fields)
         $data['field_data'] = json_encode($entity->toArray());

@@ -171,13 +171,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $conditionString .= "((nullif(field_data->>'f_deleted', ''))$castType = false OR field_data->>'f_deleted' IS NULL)";
         }
 
-        // Add object_type_id constraint
+        // Add entity_definition_id constraint
         if (!empty($conditionString)) {
             $conditionString .= " AND ";
         }
 
         // Add entity type
-        $conditionString .= "object_type_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
+        $conditionString .= "entity_definition_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
 
         // Add account
         $conditionString .= "account_id='" . $this->account->getAccountId() . "'";

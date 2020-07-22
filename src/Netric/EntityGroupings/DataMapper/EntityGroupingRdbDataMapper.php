@@ -188,7 +188,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      */
     public function getGroupingsByObjType($definition, $fieldName)
     {
-        $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE object_type_id = :definition_id ORDER BY sort_order, name LIMIT 10000';
+        $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE entity_definition_id = :definition_id ORDER BY sort_order, name LIMIT 10000';
         $result = $this->database->query($sql, ["definition_id" => $definition->getEntityDefinitionId()]);
 
         $groupings = new EntityGroupings("{$definition->getObjType()}/$fieldName");
@@ -234,7 +234,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         // Additional data when creating a new group
         $grp->setGroupId(Uuid::uuid4()->toString());
         $groupData["group_id"] = $grp->getGroupId();
-        $groupData['object_type_id'] = $def->getEntityDefinitionId();
+        $groupData['entity_definition_id'] = $def->getEntityDefinitionId();
         $groupData['account_id'] = $this->account->getAccountId();
 
         $path = $def->getObjType() . "/" . $field->name;
