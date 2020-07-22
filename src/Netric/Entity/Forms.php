@@ -30,15 +30,24 @@ class Forms
     private $config = null;
 
     /**
+     * Unique account ID
+     *
+     * @var string
+     */
+    private $accountId = "";
+
+    /**
      * Class constructor to set up dependencies
      *
      * @param RelationalDbInterface $database Handles to database actions
      * @param Config $config Contains the configuration info
+     * @param string $accountId the ID of the account we are managing forms for
      */
-    public function __construct(RelationalDbInterface $database, Config $config)
+    public function __construct(RelationalDbInterface $database, Config $config, string $accountId)
     {
         $this->database = $database;
         $this->config = $config;
+        $this->accountId = $accountId;
     }
 
     /**
@@ -312,7 +321,8 @@ class Forms
                 "team_id" => $teamId,
                 "user_id" => $userId,
                 "type_id" => $def->getEntityDefinitionId(),
-                "form_layout_xml" => $xmlForm
+                "form_layout_xml" => $xmlForm,
+                "account_id" => $this->accountId,
             ];
 
             $this->database->insert("entity_form", $insertData);

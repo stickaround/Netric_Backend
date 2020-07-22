@@ -102,8 +102,8 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
     {
         $dacl = new Dacl();
 
-        // By default allow authenticated users to access a controller
-        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
+        // By default allow everyone and let each controller action handle permissions
+        $dacl->allowEveryone();
 
         return $dacl;
     }

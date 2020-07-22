@@ -681,6 +681,7 @@ class EntityControllerTest extends TestCase
         $req = $this->controller->getRequest();
 
         // Saving an entity without providing any data should return an error
+        $req->setBody('');
         $ret = $this->controller->putSaveAction();
         $this->assertNotEmpty($ret['error']);
 

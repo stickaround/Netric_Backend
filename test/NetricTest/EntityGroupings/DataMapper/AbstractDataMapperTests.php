@@ -33,7 +33,7 @@ abstract class AbstractDataMapperTests extends TestCase
     protected $user = null;
 
     /**
-     * Groups to clean up inside the object_groupings table
+     * Groups to clean up inside the groupings table
      *
      * @var groupId[]
      */
@@ -56,7 +56,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm = $this->getDataMapper();
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
 
-        // Cleanup the test groupings in object_groupings table
+        // Cleanup the test groupings in groupings table
         foreach ($this->testObjectGroupings as $groupId) {
             $groupings->delete($groupId);
         }

@@ -93,7 +93,7 @@ class AuthDotNetGatewayTest extends TestCase
         $serviceManager = Bootstrap::getAccount()->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $customer = $entityLoader->create('customer');
-        $customer->setValue('guid', Uuid::uuid4()->toString());
+        $customer->setValue('entity_id', Uuid::uuid4()->toString());
         $customer->setValue('first_name', 'Ellen');
         $customer->setValue('last_name', 'Johnson');
         $customer->setValue('company', 'Souveniropolis');

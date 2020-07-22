@@ -16,6 +16,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Error;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use RuntimeException;
 
 /**
  * Class creates and deletes entities from a RecurrencePattern series
@@ -306,6 +307,10 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
     private function createInstance(RecurrencePattern $recurrencePattern, \DateTime $date)
     {
         $firstEntity = $this->entityLoader->getByGuid($recurrencePattern->getFirstEntityId());
+        if (!$firstEntity) {
+            throw new RuntimeException('First entity in recurrence not found ' . $recurrencePattern->getFirstEntityId());
+        }
+
         $objType = $firstEntity->getDefinition()->getObjType();
         // If the first entity no longer exists then we should cancel this recurrence pattern
         if (!$firstEntity) {

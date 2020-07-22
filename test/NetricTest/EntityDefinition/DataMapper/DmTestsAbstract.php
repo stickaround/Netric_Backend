@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Define common tests that will need to be run with all data mappers.
  *
@@ -6,12 +7,14 @@
  * to extend this class and create a getDataMapper class that returns the
  * datamapper to be tested
  */
+
 namespace NetricTest\EntityDefinition\DataMapper;
 
 use Netric;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\Field;
 use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
@@ -44,7 +47,7 @@ abstract class DmTestsAbstract extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
     }
 
@@ -52,7 +55,7 @@ abstract class DmTestsAbstract extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         $dm = $this->getDataMapper();
         foreach ($this->testDefinitions as $def) {
             $dm->delete($def);
@@ -87,11 +90,10 @@ abstract class DmTestsAbstract extends TestCase
 
         // Test fkey_multi
         $field = $entDef->getField("groups");
-        $this->assertFalse(empty($field->id));
-        
+        $this->assertInstanceOf(Field::class, $field);
+
         // Test object reference with autocreate
         $field = $entDef->getField("folder_id");
-        $this->assertFalse(empty($field->id));
         $this->assertEquals("object", $field->type);
         $this->assertEquals("folder", $field->subtype);
         $this->assertEquals('/System/Customer Files', $field->autocreatebase);
@@ -144,11 +146,8 @@ abstract class DmTestsAbstract extends TestCase
         // Delete
         $dataMapper->delete($def);
 
-        // Expect an exception if we try to load this again
-        $this->expectException(\RuntimeException::class);
-
         // Try to reload
-        $dataMapper->fetchByName("utest_delete");
+        $this->assertNull($dataMapper->fetchByName("utest_delete"));
     }
 
     /**
@@ -171,11 +170,8 @@ abstract class DmTestsAbstract extends TestCase
         // Delete
         $dataMapper->deleteByName('utest_delete_by_name1');
 
-        // Expect an exception if we try to load this again
-        $this->expectException(\RuntimeException::class);
-
         // Try to reload
-        $result = $dataMapper->fetchByName("utest_delete_by_name1");
+        $this->assertNull($dataMapper->fetchByName("utest_delete_by_name1"));
     }
 
     /**

@@ -495,7 +495,7 @@ class EntityDefinition
         }
 
         if (isset($data['system_definition_hash'])) {
-            $this->systemDefitionHash = $data['system_definition_hash'];
+            $this->systemDefinitionHash = $data['system_definition_hash'];
         }
 
         if (isset($data['capped']) && is_numeric($data['capped'])) {

@@ -38,6 +38,13 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     private $lastError = "";
 
     /**
+     * The unique account ID we are getting recurrence for
+     *
+     * @var string
+     */
+    private $accountId = "";
+
+    /**
      * Define table names
      */
     const ENTITY_RECUR_TABLE = 'entity_recurrence';
@@ -47,11 +54,16 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      *
      * @param RelationalDbInterface $database Handles to database actions
      * @param EntityDefinitionLoader $entityDefinitionLoader Used to get the id of objType
+     * @param string $accountId The unique account ID to get recurrence for
      */
-    public function __construct(RelationalDbInterface $database, EntityDefinitionLoader $entityDefinitionLoader)
-    {
+    public function __construct(
+        RelationalDbInterface $database,
+        EntityDefinitionLoader $entityDefinitionLoader,
+        string $accountId
+    ) {
         $this->database = $database;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
+        $this->accountId = $accountId;
     }
 
     /**
@@ -87,6 +99,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
         $recurrenceData = [
             'entity_recurrence_id' => $entityRecurrenceId,
+            'account_id' => $this->accountId,
             'object_type_id' => $data['object_type_id'],
             'date_processed_to' => $data['date_processed_to'],
             'parent_entity_id' => $data['first_entity_id'],
@@ -232,6 +245,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                 "month_of_year" => $row['monthofyear'],
                 "instance" => $row['instance'],
                 "ep_locked" => $row['ep_locked'],
+                'object_type_id' => $row['object_type_id'],
             ];
 
             // Load recurrence rules
@@ -369,11 +383,13 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 				  WHERE f_active is true AND
 				  date_processed_to<:date_to_string
 				  AND (date_end is null or date_end>=:date_to_string)
-				  AND object_type_id=:object_type_id";
+                  AND object_type_id=:object_type_id
+                  AND account_id=:account_id";
 
         $result = $this->database->query($sql, [
             "date_to_string" => $dateToString,
-            "object_type_id" => $def->getEntityDefinitionId()
+            "object_type_id" => $def->getEntityDefinitionId(),
+            'account_id' => $this->accountId,
         ]);
 
         if ($result->rowCount()) {

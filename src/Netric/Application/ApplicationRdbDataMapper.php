@@ -3,10 +3,13 @@
 namespace Netric\Application;
 
 use Netric\Account\Account;
+use Netric\Account\Module\DataMapper\ModuleRdbDataMapper;
 use Netric\Error\ErrorAwareInterface;
 use Netric\Error\Error;
 use Netric\Db\Relational\PgsqlDb;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionRdbDataMapper;
+use Netric\Entity\DataMapper\EntityRdbDataMapper;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -148,10 +151,10 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
     /**
      * Get an array of accounts
      *
-     * @param string $version If set the only get accounts that are at a current version
      * @return array
+     *  [['account_id'=>ID, 'name'=>NAME]]
      */
-    public function getAccounts($version = "")
+    public function getAccounts(): array
     {
         // Check first if we have database connection before getting the account data
         if (!$this->checkDbConnection()) {
@@ -162,10 +165,6 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $sqlParams = [];
 
         $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE active is not false';
-        if (!empty($version)) {
-            $sql .= " AND version=:version";
-            $sqlParams["version"] = $version;
-        }
 
         $result = $this->database->query($sql, $sqlParams);
         foreach ($result->fetchAll() as $row) {
@@ -278,8 +277,17 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             throw new \RuntimeException("accountId must be provided");
         }
 
-        // Remove any account users
-        $this->database->delete(self::TABLE_ACCOUNT_USER, ["account_id" => $accountId]);
+        // Tables with account_id column to cleanup before deleting the account
+        // TODO: we can probably just iterate through /data/db/schema.php for this
+        $cleanup = [
+            self::TABLE_ACCOUNT_USER,
+            EntityDefinitionRdbDataMapper::ENTITY_TYPE_TABLE,
+            EntityRdbDataMapper::ENTITY_TABLE,
+            ModuleRdbDataMapper::TABLE_MODULES,
+        ];
+        foreach ($cleanup as $table) {
+            $this->database->delete($table, ["account_id" => $accountId]);
+        }
 
         // Now delete the actual account
         $ret = $this->database->delete(self::TABLE_ACCOUNT, ["account_id" => $accountId]);

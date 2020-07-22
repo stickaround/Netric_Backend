@@ -1,7 +1,9 @@
 <?php
+
 /**
  * This is just a simple test controller
  */
+
 namespace Netric\Controller;
 
 use Netric\Mvc\ControllerInterface;
@@ -29,7 +31,7 @@ class TestController extends AbstractFactoriedController implements ControllerIn
         $response = new HttpResponse($request);
         // Buffer the output since it is small and this function is used in tests
         $response->suppressOutput(true);
-        $response->write(['param'=>'test']);
+        $response->write(['param' => 'test']);
         return $response;
     }
 

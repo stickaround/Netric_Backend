@@ -106,7 +106,7 @@ class SetupControllerTest extends TestCase
         $output = $response->getOutputBuffer();
 
         // Make sure the accounts
-        $this->assertNotEmpty($output['id']);
+        $this->assertNotEmpty($output['account_id']);
         $this->assertEquals($tempAccountName, $output['name']);
     }
 
@@ -135,7 +135,7 @@ class SetupControllerTest extends TestCase
         $this->accountsToCleanup[] = $output['name'];
 
         // Make sure the accounts
-        $this->assertNotEmpty($output['id']);
+        $this->assertNotEmpty($output['account_id']);
         $this->assertNotEquals('local', $output['name']);
     }
 }

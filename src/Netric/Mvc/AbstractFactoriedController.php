@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Mvc;
 
 use Netric\Permissions\Dacl;
@@ -23,8 +24,8 @@ abstract class AbstractFactoriedController
     {
         $dacl = new Dacl();
 
-        // By default allow authenticated users to access a controller
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        // By default allow everyone to access this controller and let the controller/action handle permissions
+        $dacl->allowEveryone();
 
         return $dacl;
     }

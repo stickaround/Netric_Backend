@@ -1,22 +1,14 @@
 <?php
 
-/**
- * A DataMapper is responsible for writing and reading data from a persistant store
- *
- * TODO: we are currently porting this over to v4 framework from v3
- * So far it has just been copied and the namespace replaced the prefix name
- *
- * @category    DataMapper
- * @author      Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright   Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
- */
-
 namespace Netric\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Config\ConfigFactory;
 
+/**
+ * A DataMapper is responsible for writing and reading data from a persistant store
+ */
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
     /**

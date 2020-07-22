@@ -30,7 +30,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
     private $groupings = null;
 
     /**
-     * Groups to clean up inside the object_groupings table
+     * Groups to clean up inside the groupings table
      *
      * @var groupId[]
      */
@@ -58,7 +58,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $dm = $this->groupingDataMapper;
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
 
-        // Cleanup the test groupings in object_groupings table
+        // Cleanup the test groupings in groupings table
         foreach ($this->testObjectGroupings as $groupId) {
             $groupings->delete($groupId);
         }

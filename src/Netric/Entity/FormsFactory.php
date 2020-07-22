@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
@@ -20,6 +21,7 @@ class FormsFactory implements ServiceManager\AccountServiceFactoryInterface
     {
         $database = $sl->get(RelationalDbFactory::class);
         $config = $sl->get(ConfigFactory::class);
-        return new Forms($database, $config);
+        $accountId = $sl->getAccount()->getAccountId();
+        return new Forms($database, $config, $accountId);
     }
 }

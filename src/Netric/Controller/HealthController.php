@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Controller;
 
 use Netric\Mvc\AbstractController;
@@ -24,7 +25,7 @@ class HealthController extends AbstractController
         // By default allow anonymous access to this controller
         // Since only health/ping is accessible via http
         $dacl = new Dacl();
-        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
+        $dacl->allowEveryone();
         return $dacl;
     }
 

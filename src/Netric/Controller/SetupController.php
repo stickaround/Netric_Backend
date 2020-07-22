@@ -219,7 +219,7 @@ class SetupController extends Mvc\AbstractController
     public function getAccessControlList()
     {
         $dacl = new Dacl();
-        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
+        $dacl->allowEveryone();
         return $dacl;
     }
 }

@@ -43,6 +43,11 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     private $account = null;
 
     /**
+     * Table where we store module data
+     */
+    const TABLE_MODULES = 'applications';
+
+    /**
      * Construct and initialize dependencies
      *
      * @param RelationalDbInterface $db
@@ -65,7 +70,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     public function save(Module $module)
     {
         // Setup data for the database columns
-        $data = array(
+        $data = [
             "name" => $module->getName(),
             "title" => $module->getTitle(),
             "short_title" => $module->getShortTitle(),
@@ -77,16 +82,17 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             "icon" => $module->getIcon(),
             "default_route" => $module->getDefaultRoute(),
             "navigation_data" => json_encode($module->getNavigation()),
-            "xml_navigation" => $module->getXmlNavigation()
-        );
+            "xml_navigation" => $module->getXmlNavigation(),
+            'account_id' => $this->account->getAccountId(),
+        ];
 
         // Compose either an update or insert statement
         if ($module->getModuleId()) {
-            $this->db->update('applications', $data, ['id' => $module->getModuleId()]);
+            $this->db->update(self::TABLE_MODULES, $data, ['id' => $module->getModuleId()]);
             return true;
         }
 
-        $id = $this->db->insert('applications', $data, 'id');
+        $id = $this->db->insert(self::TABLE_MODULES, $data, 'id');
         $module->setModuleId($id);
         return true;
     }
@@ -99,8 +105,8 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
      */
     public function get($name)
     {
-        $sql = 'SELECT * FROM applications WHERE name=:name';
-        $result = $this->db->query($sql, ['name' => $name]);
+        $sql = 'SELECT * FROM ' . self::TABLE_MODULES . ' WHERE name=:name AND account_id=:account_id';
+        $result = $this->db->query($sql, ['name' => $name, 'account_id' => $this->account->getAccountId()]);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
@@ -121,14 +127,17 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     {
         $modules = [];
 
-        $sql = 'SELECT * FROM applications ';
-        $whereCond = [];
+        $sql = 'SELECT * FROM ' . self::TABLE_MODULES;
+        $sql .= ' WHERE account_id=:account_id';
+        $whereCond = [
+            'account_id' => $this->account->getAccountId()
+        ];
         if ($scope) {
-            $sql .= 'WHERE scope=:scope ';
+            $sql .= ' AND scope=:scope';
             $whereCond['scope'] = $scope;
         }
 
-        $sql .= 'ORDER BY sort_order';
+        $sql .= ' ORDER BY sort_order';
         $result = $this->db->query($sql, $whereCond);
 
         foreach ($result->fetchAll() as $row) {

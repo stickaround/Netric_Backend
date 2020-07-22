@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\WorkerMan;
 
 use DateTime;
@@ -104,7 +105,7 @@ class SchedulerService
 
         $query = new EntityQuery(ObjectTypes::WORKER_JOB);
         $query->where('ts_scheduled')->isLessOrEqualTo($toDate->getTimestamp());
-        
+
         // If we are looking for a specific worker name then add it to the filter
         if ($workerName) {
             $query->andWhere('worker_name')->equals($workerName);

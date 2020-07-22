@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\WorkerMan;
 
 use NetricTest\Bootstrap;
@@ -51,7 +52,7 @@ class SchedulerServiceTest extends TestCase
      * Setup the service
      */
     protected function setUp(): void
-{
+    {
         // Get globally setup account
         $serviceLocator = Bootstrap::getAccount()->getServiceManager();
 
@@ -65,7 +66,7 @@ class SchedulerServiceTest extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->tempEntitiesToDelete as $entity) {
             $this->entityLoader->delete($entity, true);
         }
@@ -116,7 +117,7 @@ class SchedulerServiceTest extends TestCase
 
         $jobFound = false;
         foreach ($jobs as $job) {
-            if ($job->getId() == $id) {
+            if ($job->getEntityId() == $id) {
                 $jobFound = true;
                 break;
             }

@@ -16,8 +16,6 @@ use DateTime;
 
 /**
  * Description of DataMapperInterface
- *
- * @author Sky Stebnicki
  */
 interface DataMapperInterface
 {
@@ -45,7 +43,7 @@ interface DataMapperInterface
      * @param string $version If set the only get accounts that are at a current version
      * @return array
      */
-    public function getAccounts($version = "");
+    public function getAccounts(): array;
 
     /**
      * Get account and username from email address

@@ -94,6 +94,10 @@ class Settings
      */
     public function set($name, $value)
     {
+        if ($value === null) {
+            $value = '';
+        }
+
         // First save to the database and make sure it was a success
         $ret = $this->saveDb($name, $value);
 

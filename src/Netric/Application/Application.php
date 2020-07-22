@@ -262,7 +262,7 @@ class Application
     public function getAccounts()
     {
         $config = $this->getConfig();
-        $accountsData = $this->dm->getAccounts($config->version);
+        $accountsData = $this->dm->getAccounts();
 
         $accounts = [];
         foreach ($accountsData as $data) {

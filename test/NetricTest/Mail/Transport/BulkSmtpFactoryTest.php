@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the bulk Smtp service factory
  */
+
 namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\BulkSmtpFactory;
@@ -23,19 +25,19 @@ class BulkSmtpFactoryTest extends TestCase
     private $oldSettings = array();
 
     protected function setUp(): void
-{
+    {
         $account = \NetricTest\Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
-        $this->oldSettings = array(
+        $this->oldSettings = [
             'smtp_bulk_host' => $settings->get("email/smtp_bulk_host"),
             'smtp_bulk_user' => $settings->get("email/smtp_bulk_user"),
             'smtp_bulk_password' => $settings->get("email/smtp_bulk_password"),
             'smtp_bulk_port' => $settings->get("email/smtp_bulk_port"),
-        );
+        ];
     }
 
     protected function tearDown(): void
-{
+    {
         // Restore cached old settings
         $account = \NetricTest\Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
@@ -83,7 +85,7 @@ class BulkSmtpFactoryTest extends TestCase
         $this->assertEquals($testPort, $options->getPort());
         $this->assertEquals('login', $options->getConnectionClass());
         $this->assertEquals(
-            array('username'=>$testUser, 'password'=>$testPassword),
+            array('username' => $testUser, 'password' => $testPassword),
             $options->getConnectionConfig()
         );
     }

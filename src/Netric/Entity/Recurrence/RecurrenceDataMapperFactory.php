@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Service factory for the recurrence datamapper
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\Recurrence;
 
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
@@ -26,6 +28,7 @@ class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceFactor
     {
         $entityDefinitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
         $database = $sl->get(RelationalDbFactory::class);
-        return new RecurrenceRdbDataMapper($database, $entityDefinitionLoader);
+        $accountId = $sl->getAccount()->getAccountId();
+        return new RecurrenceRdbDataMapper($database, $entityDefinitionLoader, $accountId);
     }
 }

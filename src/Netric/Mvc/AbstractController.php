@@ -8,6 +8,7 @@
  *
  * @copyright Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\Mvc;
 
 use Netric\Account\Account;
@@ -17,6 +18,9 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Request\RequestFactory;
 use Netric\Request\RequestInterface;
 use Netric\Application\Response\HttpResponse;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Main abstract class for controllers in netric
@@ -119,7 +123,12 @@ abstract class AbstractController
         $dacl = new Dacl();
 
         // By default allow authenticated users to access a controller
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        if ($this->account) {
+            $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+            $userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups');
+            $usersGroup = $userGroups->getByName(UserEntity::GROUP_USERS);
+            $dacl->allowGroup($usersGroup->getGroupId());
+        }
 
         return $dacl;
     }
@@ -238,12 +247,12 @@ abstract class AbstractController
                 break;
             case 'json':
                 header('Cache-Control: no-cache, must-revalidate');
-            //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+                //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
                 header('Content-type: application/json');
                 break;
 
             default:
-            // Use the php defaults if no type or html is set
+                // Use the php defaults if no type or html is set
         }
     }
 

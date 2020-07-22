@@ -23,8 +23,8 @@ class AuthenticationController extends Mvc\AbstractAccountController
     {
         $dacl = new Dacl();
 
-        // By default allow authenticated users to access a controller
-        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
+        // By default allow everyone and let the controller handle authentication
+        $dacl->allowEveryone();
 
         return $dacl;
     }

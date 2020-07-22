@@ -40,9 +40,17 @@ class Dacl
     private $entries = [];
 
     /**
+     * Flag used as an override that allows everyone access by default
+     *
+     * @var bool
+     */
+    private $everyoneAllowed = false;
+
+    /**
      * The default permission to check if none is supplied
      */
     const PERM_DEFAULT = "View";
+
 
     /**
      * Permission entry constants
@@ -243,6 +251,18 @@ class Dacl
     }
 
     /**
+     * Used to make a generic DACL that always allows everyone by default
+     * 
+     * Note: This is a read-only runtime property and will not be saved.
+     *
+     * @return void
+     */
+    public function allowEveryone(): void
+    {
+        $this->everyoneAllowed = true;
+    }
+
+    /**
      * Remove a user from a specific permission
      *
      * @param int $userId The user id to remove
@@ -295,6 +315,11 @@ class Dacl
     public function isAllowed(UserEntity $user, $permission = self::PERM_FULL, $entity = null)
     {
         $userGuid = $user->getEntityId();
+
+        // First check to see if this is a wide-open DACL
+        if ($this->everyoneAllowed) {
+            return true;
+        }
 
         /*
          * If $entity is provided and if the $user is the owner/creator of $entity or if $user was assigned to $entity

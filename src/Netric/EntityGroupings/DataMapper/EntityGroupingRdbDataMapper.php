@@ -60,6 +60,11 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     protected $account = "";
 
     /**
+     * Grouping table
+     */
+    const TABLE_GROUPINGS = 'entity_grouping';
+
+    /**
      * Class constructor
      *
      * @param Account $account Current netric account loaded
@@ -107,7 +112,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
             $this->database->query(
-                'DELETE FROM object_groupings WHERE guid=:guid',
+                'DELETE FROM ' . self::TABLE_GROUPINGS . ' WHERE guid=:guid',
                 ['guid' => $grp->getGroupId()]
             );
 
@@ -159,7 +164,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      */
     public function getGroupings(string $path): EntityGroupings
     {
-        $sql = "SELECT * FROM object_groupings WHERE path = :path ORDER BY sort_order, name LIMIT 10000";
+        $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE path = :path ORDER BY sort_order, name LIMIT 10000';
         $result = $this->database->query($sql, ["path" => $path]);
 
         $groupings = new EntityGroupings($path);
@@ -183,7 +188,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      */
     public function getGroupingsByObjType($definition, $fieldName)
     {
-        $sql = "SELECT * FROM object_groupings WHERE object_type_id = :definition_id ORDER BY sort_order, name LIMIT 10000";
+        $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE object_type_id = :definition_id ORDER BY sort_order, name LIMIT 10000';
         $result = $this->database->query($sql, ["definition_id" => $definition->getEntityDefinitionId()]);
 
         $groupings = new EntityGroupings("{$definition->getObjType()}/$fieldName");
@@ -222,7 +227,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         if (!empty($grp->getGroupId())) {
             // Update if existing
-            $this->database->update("object_groupings", $groupData, ['guid' => $grp->getGroupId()]);
+            $this->database->update(self::TABLE_GROUPINGS, $groupData, ['guid' => $grp->getGroupId()]);
             return true;
         }
 
@@ -230,7 +235,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $grp->setGroupId(Uuid::uuid4()->toString());
         $groupData["guid"] = $grp->getGroupId();
         $groupData['object_type_id'] = $def->getEntityDefinitionId();
-        $groupData['field_id'] = $field->id;
+        $groupData['account_id'] = $this->account->getAccountId();
 
         $path = $def->getObjType() . "/" . $field->name;
         if ($userGuid) {
@@ -241,7 +246,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $groupData["path"] = $path;
 
         // Default to inserting
-        $this->database->insert("object_groupings", $groupData);
+        $this->database->insert(self::TABLE_GROUPINGS, $groupData);
         return true;
     }
 }

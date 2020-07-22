@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Controller;
 
 use Netric\Mvc;
@@ -24,7 +26,7 @@ class WorkersController extends Mvc\AbstractController
      * @var WorkerService
      */
     private $workerService = null;
-    
+
     /**
      * Since the only methods in this class are console then we allow for anonymous
      *
@@ -33,7 +35,7 @@ class WorkersController extends Mvc\AbstractController
     public function getAccessControlList()
     {
         $dacl = new Dacl();
-        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
+        $dacl->allowEveryone();
         return $dacl;
     }
 
@@ -205,7 +207,7 @@ class WorkersController extends Mvc\AbstractController
                  * us distribute the load. If ScheduledWork is taking too long, we
                  * can simply add more worker machines to the cluster
                  */
-                $jobData = ['account_id'=>$account->getAccountId()];
+                $jobData = ['account_id' => $account->getAccountId()];
                 $this->workerService->doWorkBackground("ScheduleRunner", $jobData);
             }
 

@@ -33,7 +33,7 @@ return [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'guid' => ['type' => SchemaProperty::TYPE_UUID],
-            'account_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'email_address' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'username' => ['type' => SchemaProperty::TYPE_CHAR_256],
         ],
@@ -43,6 +43,10 @@ return [
             ['properties' => ["email_address"]],
         ]
     ],
+
+    /**
+     * Used to lock a worker job so we can assure only one instance is running
+     */
     "worker_process_lock" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
@@ -80,72 +84,14 @@ return [
         ]
     ],
 
-    "app_object_field_defaults" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'field_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
-            'on_event' => ['type' => SchemaProperty::TYPE_CHAR_32, 'notnull' => true],
-            'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT, 'notnull' => true],
-            'coalesce' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-            'where_cond' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["field_id"]],
-        ]
-    ],
-
-    "app_object_field_options" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'field_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
-            'key' => ['type' => SchemaProperty::TYPE_CHAR_TEXT, 'notnull' => true],
-            'value' => ['type' => SchemaProperty::TYPE_CHAR_TEXT, 'notnull' => true],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["field_id"]],
-        ]
-    ],
-
-    "app_object_type_fields" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'title' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'type' => ['type' => SchemaProperty::TYPE_CHAR_32],
-            'subtype' => ['type' => SchemaProperty::TYPE_CHAR_32],
-            'fkey_table_key' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'fkey_multi_tbl' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'fkey_multi_this' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'fkey_multi_ref' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'fkey_table_title' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'sort_order' => ['type' => SchemaProperty::TYPE_INT, "default" => '0'],
-            'parent_field' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'autocreatebase' => ["type" => SchemaProperty::TYPE_CHAR_TEXT],
-            'autocreatename' => ['type' => SchemaProperty::TYPE_CHAR_256],
-            'mask' => ['type' => SchemaProperty::TYPE_CHAR_64],
-            'f_readonly' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'autocreate' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_system' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'f_required' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-            'filter' => ["type" => SchemaProperty::TYPE_CHAR_TEXT],
-            'use_when' => ["type" => SchemaProperty::TYPE_CHAR_TEXT],
-            'f_indexed' => ["type" => SchemaProperty::TYPE_BOOL],
-            'f_unique' => ["type" => SchemaProperty::TYPE_BOOL],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => [
-            ['properties' => ["type_id"]],
-        ]
-    ],
-
+    /**
+     * Forms the UI will use
+     */
     "entity_form" => [
         "PROPERTIES" => [
             'entity_form_id' => ['type' => SchemaProperty::TYPE_UUID],
             'type_id' => ['type' => SchemaProperty::TYPE_INT],
-            'account_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'team_id' => ['type' => SchemaProperty::TYPE_UUID],
             'user_id' => ['type' => SchemaProperty::TYPE_UUID],
             'scope' => ["type" => SchemaProperty::TYPE_CHAR_128],
@@ -160,10 +106,14 @@ return [
         ]
     ],
 
-    "entity_type" => [
+    /**
+     * Types of entities - entity defintion
+     */
+    "entity_definition" => [
         "PROPERTIES" => [
+            'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'entity_type_id' => ['type' => SchemaProperty::TYPE_UUID],
             'name' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'title' => ["type" => SchemaProperty::TYPE_CHAR_256],
             'revision' => ['type' => SchemaProperty::TYPE_INT, 'default' => '1'],
@@ -185,7 +135,7 @@ return [
             'default_activity_level' => ['type' => SchemaProperty::TYPE_INT],
             'def_data' => ['type' => SchemaProperty::TYPE_JSON],
         ],
-        'PRIMARY_KEY' => 'entity_type_id',
+        'PRIMARY_KEY' => 'entity_definition_id',
         "INDEXES" => [
             ['properties' => ["name"]],
             ['properties' => ["application_id"]],
@@ -218,9 +168,13 @@ return [
         ]
     ],
 
+    /**
+     * Where we store all the modules
+     */
     "applications" => [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'short_title' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'title' => ['type' => SchemaProperty::TYPE_CHAR_512, 'notnull' => true],
@@ -243,7 +197,7 @@ return [
     ],
 
     /**
-     * New entities table for storing all entities
+     * Where all entities are stored
      */
     "entity" => [
         "PROPERTIES" => [
@@ -268,7 +222,7 @@ return [
     ],
 
     /**
-     * Table stores reference of moved entities (like when merged)
+     * Reference of moved entities (like when merged)
      */
     "entity_moved" => [
         "PROPERTIES" => [
@@ -302,6 +256,7 @@ return [
         "PROPERTIES" => [
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'entity_recurrence_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT, 'notnull' => true],
             'type' => ['type' => SchemaProperty::TYPE_SMALLINT],
             'interval' => ['type' => SchemaProperty::TYPE_SMALLINT],
@@ -327,10 +282,11 @@ return [
         ]
     ],
 
-    "object_groupings" => [
+    "entity_grouping" => [
         "PROPERTIES" => [
             'guid' => ['type' => SchemaProperty::TYPE_UUID],
             'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'object_type_id' => ['type' => SchemaProperty::TYPE_INT],
             'field_id' => ['type' => SchemaProperty::TYPE_INT],

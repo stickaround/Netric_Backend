@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\PaymentGateway;
 
 use Netric\Entity\ObjType\CustomerEntity;
@@ -88,7 +89,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * @return string
      */
-    public function getLastError() : string
+    public function getLastError(): string
     {
         return $this->lastErrorMessage;
     }
@@ -103,11 +104,11 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param CreditCard $card Credit card
      * @return string
      */
-    public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card) : string
+    public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card): string
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
-        
+
         // Set the transaction's refId
         $refId = 'ref' . time();
         // Set credit card information for payment profile
@@ -132,7 +133,9 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new AnetAPI\CustomerProfileType();
         $customerProfile->setDescription($customer->getName());
-        $customerProfile->setMerchantCustomerId($customer->getEntityId());
+        $customerProfile->setMerchantCustomerId(
+            $this->getUniqueIdFromCustomer($customer)
+        );
         $customerProfile->setEmail($customer->getValue('email'));
         $customerProfile->setpaymentProfiles($paymentProfiles);
 
@@ -156,16 +159,16 @@ class AuthDotNetGateway implements PaymentGatewayInterface
                 $paymentProfiles[0]
             );
         }
-    
+
         // The response was not a success or it would have returned above
         $errorMessages = $response->getMessages()->getMessage();
         $this->lastErrorMessage = $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
-        
+
         // E00039 means the customer already exists
         if ($errorMessages[0]->getCode() == "E00039") {
-            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer->getEntityId());
+            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer);
         }
-        
+
         return ''; // empty on failure
     }
 
@@ -179,11 +182,11 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param BankAccount $bankAccount Bank account details such as routing number and account number
      * @return string
      */
-    public function createPaymentProfileBankAccount(CustomerEntity $customer, BankAccount $bankAccount) : string
+    public function createPaymentProfileBankAccount(CustomerEntity $customer, BankAccount $bankAccount): string
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
-                
+
         // Set the transaction's refId
         $refId = 'ref' . time();
         // Create a Customer Profile Request
@@ -213,7 +216,9 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $customerProfile = new AnetAPI\CustomerProfileType();
         $customerProfile->setDescription($customer->getName());
         if ($customer->getEntityId()) {
-            $customerProfile->setMerchantCustomerId($customer->getEntityId());
+            $customerProfile->setMerchantCustomerId(
+                $this->getUniqueIdFromCustomer($customer)
+            );
         }
         $customerProfile->setEmail($customer->getValue('email'));
         $customerProfile->setpaymentProfiles($paymentProfiles);
@@ -284,14 +289,14 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param float $amount Amount to charge the customer
      * @return ChargeResponse
      */
-    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : ChargeResponse
+    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount): ChargeResponse
     {
         // Get profile IDs from the token
         $profiles = $this->decodeProfilesFromToken($paymentProfile->getValue('token'));
 
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
-        
+
         // Set the transaction's refId
         $refId = 'ref' . time();
         $profileToCharge = new AnetAPI\CustomerProfilePaymentType();
@@ -368,13 +373,14 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param float $amount
      * @return ChargeResponse
      */
-    public function chargeCard(CustomerEntity $customer, CreditCard $card, float $amount) : ChargeResponse
+    public function chargeCard(CustomerEntity $customer, CreditCard $card, float $amount): ChargeResponse
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
 
         // Set the transaction's refId
         $refId = 'ref' . time();
+
         // Create the payment data for a credit card
         $creditCard = new AnetAPI\CreditCardType();
         $creditCard->setCardNumber($card->getCardNumber());
@@ -470,20 +476,22 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     /**
      * Get an existing profile from the gateway
      *
-     * @param int $customerId
+     * @param CustomerEntity $customer
      * @return void
      */
-    private function getExistingRemoteProfile(int $customerId)
+    private function getExistingRemoteProfile(CustomerEntity $customer)
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
-            
+
         // Set the transaction's refId
         $refId = 'ref' . time();
 
         $request = new AnetAPI\GetCustomerProfileRequest();
         $request->setMerchantAuthentication($merchantAuth);
-        $request->setMerchantCustomerId($customerId);
+        $request->setMerchantCustomerId(
+            $this->getUniqueIdFromCustomer($customer)
+        );
         $controller = new AnetController\GetCustomerProfileController($request);
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
         if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
@@ -493,7 +501,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
             //echo "Profile Has " . count($paymentProfilesSelected). " Payment Profiles" . "\n";
             return $profileSelected->getCustomerProfileId();
         }
-        
+
         return 0;
         // // Get all existing customer profile ID's
         // $request = new AnetAPI\GetCustomerProfileIdsRequest();
@@ -531,7 +539,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param CustomerEntity $customer
      * @return AnetAPI\CustomerAddressType
      */
-    private function getBillingAddressFromCustomer(CustomerEntity $customer) : AnetAPI\CustomerAddressType
+    private function getBillingAddressFromCustomer(CustomerEntity $customer): AnetAPI\CustomerAddressType
     {
         $billTo = new AnetAPI\CustomerAddressType();
         if ($customer->getValue('first_name')) {
@@ -574,7 +582,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param string $paymentProfileId
      * @return string
      */
-    private function encodeProfilesIntoToken(string $customerProfileId, string $paymentProfileId) : string
+    private function encodeProfilesIntoToken(string $customerProfileId, string $paymentProfileId): string
     {
         $tokenData = [
             'customer_profile_id' => $customerProfileId,
@@ -590,7 +598,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param string $token
      * @return array Associative array with customer_profile_id and payment_profile_id
      */
-    private function decodeProfilesFromToken(string $token) : array
+    private function decodeProfilesFromToken(string $token): array
     {
         $profiles = json_decode($token, true);
         // Make sure we have profiles above and throw an exception if not
@@ -600,5 +608,17 @@ class AuthDotNetGateway implements PaymentGatewayInterface
             );
         }
         return $profiles;
+    }
+
+    /**
+     * We have to convert our 36 character uuid into a 20 char unique id
+     *
+     * @param CustomerEntity $customerEntity
+     * @return string
+     */
+    private function getUniqueIdFromCustomer(CustomerEntity $customerEntity): string
+    {
+        $uuid = $customerEntity->getEntityId();
+        return substr(md5($uuid), 0, 20);
     }
 }

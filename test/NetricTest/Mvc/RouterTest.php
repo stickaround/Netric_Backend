@@ -36,33 +36,6 @@ class RouterTest extends TestCase
     }
 
     /**
-     * Make sure that an unauthorized user cannot get to a route
-     */
-    public function testAccessControlFail()
-    {
-        $account = \NetricTest\Bootstrap::getAccount();
-
-        // Setup anonymous user which should be blocked
-        $origCurrentUser = $account->getUser();
-        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->getByUniqueName(ObjectTypes::class, UserEntity::USER_ANONYMOUS);
-        $account->setCurrentUser($user);
-
-        $request = new HttpRequest();
-        $request->setParam("controller", "test");
-        $request->setParam("function", "test");
-
-        $svr = new Netric\Mvc\Router($account->getApplication(), $account);
-        $svr->testMode = true;
-
-        $this->expectException(NotAuthorizedForRouteException::class);
-        $svr->run($request);
-
-        // Restore original
-        $account->setCurrentUser($origCurrentUser);
-    }
-
-    /**
      * The console request should be allowed to call anything
      */
     public function testAccessControl_Console()

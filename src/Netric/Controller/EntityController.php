@@ -552,22 +552,24 @@ class EntityController extends Mvc\AbstractAccountController
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
-        try {
-            // If we dont have definition id, then we will create a new entity definition
-            if (!$objData['id']) {
-                $def = new EntityDefinition($objData['obj_type']);
-            } else {
-                $def = $defLoader->get($objData['obj_type']);
+        // Load existing if it is there
+        $def = $defLoader->get($objData['obj_type']);
+
+        if (!$def) {
+            // If we are trying to edit an existing entity that could not be found, error out
+            if ($objData['id'] || $objData['entity_definition_id']) {
+                return $this->sendOutput(array("error" => 'Definition not found'));
             }
 
-            // Import the $objData into the entity definition
-            $def->fromArray($objData);
-
-            // Save the entity definition
-            $dataMapper->save($def);
-        } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            // Otherwise create a new definition object to update
+            $def = new EntityDefinition($objData['obj_type']);
         }
+
+        // Import the $objData into the entity definition
+        $def->fromArray($objData);
+
+        // Save the entity definition
+        $dataMapper->save($def);
 
         // Build the new entity definition and return the result
         $ret = $this->fillDefinitionArray($def);
@@ -608,15 +610,15 @@ class EntityController extends Mvc\AbstractAccountController
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
-        try {
-            $def = $defLoader->get($objData['obj_type']);
+        $def = $defLoader->get($objData['obj_type']);
 
-            // Delete the entity definition
-            $dataMapper->delete($def);
-            return $this->sendOutput(true);
-        } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+        if (!$def) {
+            return $this->sendOutput(array("error" => $objData['obj_type'] . ' could not be loaded'));
         }
+
+        // Delete the entity definition
+        $dataMapper->delete($def);
+        return $this->sendOutput(true);
     }
 
     /**

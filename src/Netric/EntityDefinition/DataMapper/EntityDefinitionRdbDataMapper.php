@@ -10,6 +10,7 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 
 /**
  * Load and save entity definition data to a relational database
@@ -19,7 +20,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     /**
      * Entity type table
      */
-    const ENTITY_TYPE_TABLE = 'entity_type';
+    const ENTITY_TYPE_TABLE = 'entity_definition';
 
     /**
      * Handle to database
@@ -62,21 +63,26 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             default_activity_level, is_private, store_revisions,
             recur_rules, inherit_dacl_ref, parent_field, uname_settings,
             list_title, icon, system_definition_hash
-			from " . self::ENTITY_TYPE_TABLE . " where name=:name";
-        $result = $this->database->query($sql, ['name' => $objType]);
+            from " . self::ENTITY_TYPE_TABLE . " 
+            where name=:name AND account_id=:account_id";
+        $result = $this->database->query($sql, [
+            'name' => $objType,
+            'account_id' => $this->getAccount()->getAccountId()
+        ]);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
             $defData = json_decode($row['def_data'], true);
             $def->fromArray($defData);
+
+            if ($row['id'] && !$def->getEntityDefinitionId()) {
+                $def->setEntityDefinitionId($row['id']);
+            }
+
+            return $def;
         }
 
-        // Make sure this a valid definition
-        if (!$def->getEntityDefinitionId()) {
-            throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $this->database->getNamespace());
-        }
-
-        return $def;
+        return null;
     }
     // public function fetchByName($objType)
     // {
@@ -293,7 +299,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     {
         // System objects cannot be deleted
         if ($def->system) {
-            return false;
+            throw new RuntimeException('Unable to delete a system definition');
         }
 
         // Only delete existing types of course
@@ -323,9 +329,10 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     public function saveDef(EntityDefinition $def)
     {
+
         // Define type update
         $data = [
-            "entity_type_id" => Uuid::uuid4()->toString(),
+            'account_id' => $this->getAccount()->getAccountId(),
             "name" => $def->getObjType(),
             "title" => $def->title,
             "revision" => $def->revision,
@@ -350,6 +357,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         if ($appObjectTypeId) {
             $this->database->update(self::ENTITY_TYPE_TABLE, $data, ['id' => $appObjectTypeId]);
         } else {
+            // Create new uuid
+            $data["entity_definition_id"] = Uuid::uuid4()->toString();
             $appObjectTypeId = $this->database->insert(self::ENTITY_TYPE_TABLE, $data, 'id');
             $def->setEntityDefinitionId($appObjectTypeId);
         }
@@ -444,271 +453,271 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      * @param Field $field The field definition to save
      * @param int $sort_order The order id of this field
      */
-    private function saveField(EntityDefinition $def, Field $field, $sort_order)
-    {
-        $fname = $field->name;
+    // private function saveField(EntityDefinition $def, Field $field, $sort_order)
+    // {
+    //     $fname = $field->name;
 
-        $sql = "select id, use_when from app_object_type_fields where name=:name and type_id=:type_id";
-        $result = $this->database->query($sql, ['name' => $fname, 'type_id' => $def->getEntityDefinitionId()]);
-        if ($result->rowCount()) {
-            $row = $result->fetch();
-            $fid = $row["id"];
-            $field->id = $fid;
+    //     $sql = "select id, use_when from app_object_type_fields where name=:name and type_id=:type_id";
+    //     $result = $this->database->query($sql, ['name' => $fname, 'type_id' => $def->getEntityDefinitionId()]);
+    //     if ($result->rowCount()) {
+    //         $row = $result->fetch();
+    //         $fid = $row["id"];
+    //         $field->id = $fid;
 
-            $updateFields = [];
+    //         $updateFields = [];
 
-            $updateFields["name"] = $fname;
-            $updateFields["title"] = $field->title;
-            $updateFields["type"] = $field->type;
-            $updateFields["subtype"] = $field->subtype;
+    //         $updateFields["name"] = $fname;
+    //         $updateFields["title"] = $field->title;
+    //         $updateFields["type"] = $field->type;
+    //         $updateFields["subtype"] = $field->subtype;
 
-            if (!empty($field->fkeyTable['key'])) {
-                $updateFields["fkey_table_key"] = $field->fkeyTable['key'];
-            }
+    //         if (!empty($field->fkeyTable['key'])) {
+    //             $updateFields["fkey_table_key"] = $field->fkeyTable['key'];
+    //         }
 
-            if (!empty($field->fkeyTable['title'])) {
-                $updateFields["fkey_table_title"] = $field->fkeyTable['title'];
-            }
+    //         if (!empty($field->fkeyTable['title'])) {
+    //             $updateFields["fkey_table_title"] = $field->fkeyTable['title'];
+    //         }
 
-            if (!empty($field->fkeyTable['parent'])) {
-                $updateFields["parent_field"] = $field->fkeyTable['parent'];
-            }
+    //         if (!empty($field->fkeyTable['parent'])) {
+    //             $updateFields["parent_field"] = $field->fkeyTable['parent'];
+    //         }
 
-            $updateFields["sort_order"] = $sort_order;
-            $updateFields["autocreate"] = $field->autocreate;
+    //         $updateFields["sort_order"] = $sort_order;
+    //         $updateFields["autocreate"] = $field->autocreate;
 
-            if ($field->autocreatebase) {
-                $updateFields["autocreatebase"] = $field->autocreatebase;
-            }
+    //         if ($field->autocreatebase) {
+    //             $updateFields["autocreatebase"] = $field->autocreatebase;
+    //         }
 
-            if ($field->autocreatename) {
-                $updateFields["autocreatename"] = $field->autocreatename;
-            }
+    //         if ($field->autocreatename) {
+    //             $updateFields["autocreatename"] = $field->autocreatename;
+    //         }
 
-            if ($field->getUseWhen()) {
-                $updateFields["use_when"] = $field->getUseWhen();
-            }
+    //         if ($field->getUseWhen()) {
+    //             $updateFields["use_when"] = $field->getUseWhen();
+    //         }
 
-            if ($field->mask) {
-                $updateFields["mask"] = $field->mask;
-            }
+    //         if ($field->mask) {
+    //             $updateFields["mask"] = $field->mask;
+    //         }
 
-            if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
-                $updateFields["filter"] = serialize($field->fkeyTable['filter']);
-            }
+    //         if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
+    //             $updateFields["filter"] = serialize($field->fkeyTable['filter']);
+    //         }
 
-            $updateFields["f_required"] = $field->required;
-            $updateFields["f_readonly"] = $field->readonly;
-            $updateFields["f_system"] = $field->system;
-            $updateFields["f_unique"] = $field->unique;
+    //         $updateFields["f_required"] = $field->required;
+    //         $updateFields["f_readonly"] = $field->readonly;
+    //         $updateFields["f_system"] = $field->system;
+    //         $updateFields["f_unique"] = $field->unique;
 
-            $this->database->update("app_object_type_fields", $updateFields, ['id' => $fid]);
+    //         $this->database->update("app_object_type_fields", $updateFields, ['id' => $fid]);
 
-            // Save default values
-            if ($field->id && $field->default) {
-                if (!empty($field->default['coalesce'])) {
-                    $field->default['coalesce'] = null;
-                }
+    //         // Save default values
+    //         if ($field->id && $field->default) {
+    //             if (!empty($field->default['coalesce'])) {
+    //                 $field->default['coalesce'] = null;
+    //             }
 
-                if (!empty($field->default['where'])) {
-                    $field->default['where'] = null;
-                }
+    //             if (!empty($field->default['where'])) {
+    //                 $field->default['where'] = null;
+    //             }
 
-                $this->database->delete(
-                    'app_object_field_defaults',
-                    ['field_id' => $field->id]
-                );
+    //             $this->database->delete(
+    //                 'app_object_field_defaults',
+    //                 ['field_id' => $field->id]
+    //             );
 
-                $dataToInsert = [
-                    "field_id" => $field->id,
-                    "on_event" => $field->default['on'],
-                    "value" => $field->default['value'],
-                    "coalesce" => serialize($field->default['coalesce']),
-                    "where_cond" => serialize($field->default['where'])
-                ];
-                $this->database->insert(
-                    "app_object_field_defaults",
-                    $dataToInsert
-                );
-            }
+    //             $dataToInsert = [
+    //                 "field_id" => $field->id,
+    //                 "on_event" => $field->default['on'],
+    //                 "value" => $field->default['value'],
+    //                 "coalesce" => serialize($field->default['coalesce']),
+    //                 "where_cond" => serialize($field->default['where'])
+    //             ];
+    //             $this->database->insert(
+    //                 "app_object_field_defaults",
+    //                 $dataToInsert
+    //             );
+    //         }
 
-            // Save field optional values
-            if ($field->id && $field->optionalValues) {
-                $this->database->delete(
-                    'app_object_field_options',
-                    ['field_id' => $field->id]
-                );
+    //         // Save field optional values
+    //         if ($field->id && $field->optionalValues) {
+    //             $this->database->delete(
+    //                 'app_object_field_options',
+    //                 ['field_id' => $field->id]
+    //             );
 
-                foreach ($field->optionalValues as $okey => $oval) {
-                    $dataToInsert = [
-                        "field_id" => $field->id,
-                        "key" => $okey,
-                        "value" => $oval,
-                    ];
-                    $this->database->insert(
-                        "app_object_field_options",
-                        $dataToInsert
-                    );
-                }
-            }
-        } else {
-            $key = null;
-            $fKeytitle = null;
-            $fKeyParent = null;
-            $fKeyFilter = null;
-            $fKeyRef = null;
-            $fKeyRefTable = null;
-            $fKeyRefThis = null;
-            $autocreatebase = null;
-            $autocreatename = null;
-            $mask = null;
-            $useWhen = null;
+    //             foreach ($field->optionalValues as $okey => $oval) {
+    //                 $dataToInsert = [
+    //                     "field_id" => $field->id,
+    //                     "key" => $okey,
+    //                     "value" => $oval,
+    //                 ];
+    //                 $this->database->insert(
+    //                     "app_object_field_options",
+    //                     $dataToInsert
+    //                 );
+    //             }
+    //         }
+    //     } else {
+    //         $key = null;
+    //         $fKeytitle = null;
+    //         $fKeyParent = null;
+    //         $fKeyFilter = null;
+    //         $fKeyRef = null;
+    //         $fKeyRefTable = null;
+    //         $fKeyRefThis = null;
+    //         $autocreatebase = null;
+    //         $autocreatename = null;
+    //         $mask = null;
+    //         $useWhen = null;
 
-            if (!empty($field->fkeyTable['key'])) {
-                $key = $field->fkeyTable['key'];
-            }
+    //         if (!empty($field->fkeyTable['key'])) {
+    //             $key = $field->fkeyTable['key'];
+    //         }
 
-            if (!empty($field->fkeyTable['title'])) {
-                $fKeytitle = $field->fkeyTable['title'];
-            }
+    //         if (!empty($field->fkeyTable['title'])) {
+    //             $fKeytitle = $field->fkeyTable['title'];
+    //         }
 
-            if (!empty($field->fkeyTable['parent'])) {
-                $fKeyParent = $field->fkeyTable['parent'];
-            }
+    //         if (!empty($field->fkeyTable['parent'])) {
+    //             $fKeyParent = $field->fkeyTable['parent'];
+    //         }
 
-            if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
-                $fKeyFilter = serialize($field->fkeyTable['filter']);
-            }
+    //         if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
+    //             $fKeyFilter = serialize($field->fkeyTable['filter']);
+    //         }
 
-            if ($field->autocreatebase) {
-                $autocreatebase = $field->autocreatebase;
-            }
+    //         if ($field->autocreatebase) {
+    //             $autocreatebase = $field->autocreatebase;
+    //         }
 
-            if ($field->autocreatename) {
-                $autocreatename = $field->autocreatename;
-            }
+    //         if ($field->autocreatename) {
+    //             $autocreatename = $field->autocreatename;
+    //         }
 
-            if ($field->mask) {
-                $mask = $field->mask;
-            }
+    //         if ($field->mask) {
+    //             $mask = $field->mask;
+    //         }
 
-            if ($field->getUseWhen()) {
-                $useWhen = $field->getUseWhen();
-            }
+    //         if ($field->getUseWhen()) {
+    //             $useWhen = $field->getUseWhen();
+    //         }
 
-            $autocreate = "f";
-            $required = "f";
-            $readonly = "f";
-            $unique = "f";
+    //         $autocreate = "f";
+    //         $required = "f";
+    //         $readonly = "f";
+    //         $unique = "f";
 
-            if ($field->autocreate) {
-                $autocreate = "t";
-            }
+    //         if ($field->autocreate) {
+    //             $autocreate = "t";
+    //         }
 
-            if ($field->required) {
-                $required = "t";
-            }
+    //         if ($field->required) {
+    //             $required = "t";
+    //         }
 
-            if ($field->readonly) {
-                $readonly = "t";
-            }
+    //         if ($field->readonly) {
+    //             $readonly = "t";
+    //         }
 
-            if ($field->unique) {
-                $unique = "t";
-            }
+    //         if ($field->unique) {
+    //             $unique = "t";
+    //         }
 
-            $dataToInsert = [
-                "type_id" => $def->getEntityDefinitionId(),
-                "name" => $fname,
-                "title" => $field->title,
-                "type" => $field->type,
-                "subtype" => $field->subtype,
-                "fkey_table_key" => $key,
-                "fkey_table_title" => $fKeytitle,
-                "parent_field" => $fKeyParent,
-                "fkey_multi_tbl" => $fKeyRefTable,
-                "fkey_multi_this" => $fKeyRefThis,
-                "fkey_multi_ref" => $fKeyRef,
-                "sort_order" => $sort_order,
-                "f_system" => $field->system,
-                "autocreate" => $autocreate,
-                "autocreatebase" => $autocreatebase,
-                "autocreatename" => $autocreatename,
-                "mask" => $mask,
-                "f_required" => $required,
-                "f_readonly" => $readonly,
-                "filter" => $fKeyFilter,
-                "use_when" => $useWhen,
-                "f_unique" => $unique
-            ];
-            $fid = $this->database->insert(
-                "app_object_type_fields",
-                $dataToInsert,
-                'id'
-            );
+    //         $dataToInsert = [
+    //             "type_id" => $def->getEntityDefinitionId(),
+    //             "name" => $fname,
+    //             "title" => $field->title,
+    //             "type" => $field->type,
+    //             "subtype" => $field->subtype,
+    //             "fkey_table_key" => $key,
+    //             "fkey_table_title" => $fKeytitle,
+    //             "parent_field" => $fKeyParent,
+    //             "fkey_multi_tbl" => $fKeyRefTable,
+    //             "fkey_multi_this" => $fKeyRefThis,
+    //             "fkey_multi_ref" => $fKeyRef,
+    //             "sort_order" => $sort_order,
+    //             "f_system" => $field->system,
+    //             "autocreate" => $autocreate,
+    //             "autocreatebase" => $autocreatebase,
+    //             "autocreatename" => $autocreatename,
+    //             "mask" => $mask,
+    //             "f_required" => $required,
+    //             "f_readonly" => $readonly,
+    //             "filter" => $fKeyFilter,
+    //             "use_when" => $useWhen,
+    //             "f_unique" => $unique
+    //         ];
+    //         $fid = $this->database->insert(
+    //             "app_object_type_fields",
+    //             $dataToInsert,
+    //             'id'
+    //         );
 
-            if ($fid) {
-                $fdefCoalesce = null;
-                $fdefWhere = null;
+    //         if ($fid) {
+    //             $fdefCoalesce = null;
+    //             $fdefWhere = null;
 
-                if (!empty($field->default['coalesce'])) {
-                    $fdefCoalesce = $field->default['coalesce'];
-                }
+    //             if (!empty($field->default['coalesce'])) {
+    //                 $fdefCoalesce = $field->default['coalesce'];
+    //             }
 
-                if (!empty($field->default['where'])) {
-                    $fdefWhere = $field->default['where'];
-                }
+    //             if (!empty($field->default['where'])) {
+    //                 $fdefWhere = $field->default['where'];
+    //             }
 
-                $field->id = $fid;
+    //             $field->id = $fid;
 
-                if ($fid && $field->default) {
-                    $dataToInsert = [
-                        "field_id" => $fid,
-                        "on_event" => $field->default['on'],
-                        "value" => $field->default['value'],
-                        "coalesce" => serialize($fdefCoalesce),
-                        "where_cond" => serialize($fdefWhere)
-                    ];
-                    $this->database->insert(
-                        "app_object_field_defaults",
-                        $dataToInsert
-                    );
-                }
+    //             if ($fid && $field->default) {
+    //                 $dataToInsert = [
+    //                     "field_id" => $fid,
+    //                     "on_event" => $field->default['on'],
+    //                     "value" => $field->default['value'],
+    //                     "coalesce" => serialize($fdefCoalesce),
+    //                     "where_cond" => serialize($fdefWhere)
+    //                 ];
+    //                 $this->database->insert(
+    //                     "app_object_field_defaults",
+    //                     $dataToInsert
+    //                 );
+    //             }
 
-                if ($fid && $field->optionalValues) {
-                    foreach ($field->optionalValues as $okey => $oval) {
-                        $dataToInsert = [
-                            "field_id" => $fid,
-                            "key" => $okey,
-                            "value" => $oval,
-                        ];
-                        $this->database->insert(
-                            "app_object_field_options",
-                            $dataToInsert
-                        );
-                    }
-                }
-            }
-        }
-    }
+    //             if ($fid && $field->optionalValues) {
+    //                 foreach ($field->optionalValues as $okey => $oval) {
+    //                     $dataToInsert = [
+    //                         "field_id" => $fid,
+    //                         "key" => $okey,
+    //                         "value" => $oval,
+    //                     ];
+    //                     $this->database->insert(
+    //                         "app_object_field_options",
+    //                         $dataToInsert
+    //                     );
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    /**
-     * Remove a field from the schema and definition
-     *
-     * @param EntityDefintionn $def The EntityDefinition we are editing
-     * @param string $fname The name of the field to delete
-     */
-    private function removeField($def, $fname)
-    {
-        if (!$def->getEntityDefinitionId()) {
-            return false;
-        }
+    // /**
+    //  * Remove a field from the schema and definition
+    //  *
+    //  * @param EntityDefintionn $def The EntityDefinition we are editing
+    //  * @param string $fname The name of the field to delete
+    //  */
+    // private function removeField($def, $fname)
+    // {
+    //     if (!$def->getEntityDefinitionId()) {
+    //         return false;
+    //     }
 
-        $this->database->delete(
-            'app_object_type_fields',
-            ['name' => $fname, 'type_id' => $def->getEntityDefinitionId()]
-        );
-    }
+    //     $this->database->delete(
+    //         'app_object_type_fields',
+    //         ['name' => $fname, 'type_id' => $def->getEntityDefinitionId()]
+    //     );
+    // }
 
 
     /**

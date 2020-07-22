@@ -71,7 +71,8 @@ class RecurrenceDataMapperTest extends TestCase
         // Setup the recurrence datamapper
         $entDefLoader = $sm->get(EntityDefinitionLoaderFactory::class);
         $database = $sm->get(RelationalDbFactory::class);
-        $this->dataMapper = new RecurrenceRdbDataMapper($database, $entDefLoader);
+        $accountId = $this->account->getAccountId();
+        $this->dataMapper = new RecurrenceRdbDataMapper($database, $entDefLoader, $accountId);
 
         // Create entity definition for tasks
         $this->taskEntityDefintion = $entDefLoader->get(ObjectTypes::TASK);
