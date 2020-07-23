@@ -30,6 +30,7 @@ return [
                 'value' => TaskEntity::STATUS_COMPLETED
             ],
         ],
+        'filter_key' => 'project',
         'group_first_order_by' => true,
         'order_by' => [
             'status_id' => [
