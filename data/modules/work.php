@@ -44,6 +44,14 @@ return [
             "icon" => "DoneAllIcon",
         ],
         [
+            "title" => "Task Board",
+            "type" => "board-view",
+            "browser_view" => "my_task",
+            "route" => "board-view",
+            "objType" => "task",
+            "icon" => "ViewColumnIcon",
+        ],
+        [
             "type" => "list-subheader",
             "title" => "Projects",
             "route" => "projects"
