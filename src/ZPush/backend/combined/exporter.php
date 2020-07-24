@@ -28,7 +28,8 @@
  * It combines the changes from all backends and prepends all folderids with the backendid
  */
 
-class ExportChangesCombined implements IExportChanges {
+class ExportChangesCombined implements IExportChanges
+{
     private $backend;
     private $syncstates;
     private $movestateSrc;
@@ -37,9 +38,10 @@ class ExportChangesCombined implements IExportChanges {
     private $importer;
     private $importwraps;
 
-    public function __construct(&$backend) {
+    public function __construct(&$backend)
+    {
         $this->backend =& $backend;
-        $this->exporters = array();
+        $this->exporters = [];
         $this->movestateSrc = false;
         $this->movestateDst = false;
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined constructed");
@@ -54,15 +56,16 @@ class ExportChangesCombined implements IExportChanges {
      * @access public
      * @return boolean      status flag
      */
-    public function Config($syncstate, $flags = 0) {
+    public function Config($syncstate, $flags = 0)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->Config(...)");
         $this->syncstates = $syncstate;
-        if(!is_array($this->syncstates)){
-            $this->syncstates = array();
+        if (!is_array($this->syncstates)) {
+            $this->syncstates = [];
         }
 
-        foreach($this->backend->backends as $i => $b){
-            if(isset($this->syncstates[$i])){
+        foreach ($this->backend->backends as $i => $b) {
+            if (isset($this->syncstates[$i])) {
                 $state = $this->syncstates[$i];
             } else {
                 $state = '';
@@ -80,10 +83,11 @@ class ExportChangesCombined implements IExportChanges {
      * @access public
      * @return int
      */
-    public function GetChangeCount() {
+    public function GetChangeCount()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->GetChangeCount()");
         $c = 0;
-        foreach($this->exporters as $i => $e){
+        foreach ($this->exporters as $i => $e) {
             $c += $this->exporters[$i]->GetChangeCount();
         }
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->GetChangeCount() success");
@@ -96,10 +100,11 @@ class ExportChangesCombined implements IExportChanges {
      * @access public
      * @return array        with status information
      */
-    public function Synchronize() {
+    public function Synchronize()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->Synchronize()");
-        foreach($this->exporters as $i => $e){
-            if(!empty($this->backend->config['backends'][$i]['subfolder']) && !isset($this->syncstates[$i])){
+        foreach ($this->exporters as $i => $e) {
+            if (!empty($this->backend->config['backends'][$i]['subfolder']) && !isset($this->syncstates[$i])) {
                 // first sync and subfolder backend
                 $f = new SyncFolder();
                 $f->serverid = $i.$this->backend->config['delimiter'].'0';
@@ -108,7 +113,7 @@ class ExportChangesCombined implements IExportChanges {
                 $f->type = SYNC_FOLDER_TYPE_OTHER;
                 $this->importer->ImportFolderChange($f);
             }
-            while(is_array($this->exporters[$i]->Synchronize()));
+            while (is_array($this->exporters[$i]->Synchronize()));
         }
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->Synchronize() success");
         return true;
@@ -120,9 +125,10 @@ class ExportChangesCombined implements IExportChanges {
      * @access public
      * @return string
      */
-    public function GetState() {
+    public function GetState()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->GetState()");
-        foreach($this->exporters as $i => $e){
+        foreach ($this->exporters as $i => $e) {
             $this->syncstates[$i] = $this->exporters[$i]->GetState();
         }
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->GetState() success");
@@ -138,9 +144,10 @@ class ExportChangesCombined implements IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ConfigContentParameters($contentparameters) {
+    public function ConfigContentParameters($contentparameters)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->ConfigContentParameters()");
-        foreach($this->exporters as $i => $e){
+        foreach ($this->exporters as $i => $e) {
             //call the ConfigContentParameters() of each exporter
             $e->ConfigContentParameters($contentparameters);
         }
@@ -156,10 +163,11 @@ class ExportChangesCombined implements IExportChanges {
      * @access public
      * @return boolean
      */
-    public function InitializeExporter(&$importer) {
+    public function InitializeExporter(&$importer)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->InitializeExporter(...)");
         foreach ($this->exporters as $i => $e) {
-            if(!isset($this->importwraps[$i])){
+            if (!isset($this->importwraps[$i])) {
                 $this->importwraps[$i] = new ImportHierarchyChangesCombinedWrap($i, $this->backend, $importer);
             }
             $e->InitializeExporter($this->importwraps[$i]);
@@ -177,11 +185,12 @@ class ExportChangesCombined implements IExportChanges {
      * @access public
      * @return boolean
      */
-    public function SetMoveStates($srcState, $dstState = null) {
+    public function SetMoveStates($srcState, $dstState = null)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->SetMoveStates()");
         // Set the move states equally to every sub exporter.
         // By default they are false or null, we know that they've changed, if the exporter will return a different value.
-        foreach($this->exporters as $i => $e){
+        foreach ($this->exporters as $i => $e) {
             $e->SetMoveStates($srcState, $dstState);
         }
         // let's remember what we sent down
@@ -196,13 +205,14 @@ class ExportChangesCombined implements IExportChanges {
      * @access public
      * @return array(0 => $srcState, 1 => $dstState)
     */
-    public function GetMoveStates() {
+    public function GetMoveStates()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->GetMoveStates()");
-        foreach($this->exporters as $i => $e){
+        foreach ($this->exporters as $i => $e) {
             list($srcState, $dstState) = $this->exporters[$i]->GetMoveStates();
             if ($srcState != $this->movestateSrc || $dstState != $this->movestateDst) {
                 ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->GetMoveStates() success (returned states from exporter $i)");
-                return array($srcState, $dstState);
+                return [$srcState, $dstState];
             }
         }
         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangesCombined->GetMoveStates() success (no movestate)");

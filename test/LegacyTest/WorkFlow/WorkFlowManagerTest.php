@@ -29,7 +29,7 @@ class WorkFlowManagerTest extends TestCase
      *
      * @var EntityInterface
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
 
     /**
@@ -62,7 +62,7 @@ class WorkFlowManagerTest extends TestCase
 
     /**
      * ServiceLocator for injecting dependencies
-     * 
+     *
      * @var AccountServiceManagerInterface
      */
     private $sl = null;
@@ -75,7 +75,7 @@ class WorkFlowManagerTest extends TestCase
     private $workFlowDataMapper = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($this->sl);
@@ -85,7 +85,7 @@ class WorkFlowManagerTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

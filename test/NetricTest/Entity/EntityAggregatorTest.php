@@ -53,7 +53,7 @@ class EntityAggregatorTest extends TestCase
      *
      * @var Entity[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Setup each test

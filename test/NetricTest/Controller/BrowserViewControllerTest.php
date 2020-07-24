@@ -65,11 +65,11 @@ class BrowserViewControllerTest extends TestCase
 
     public function testSaveAction()
     {
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::CONTACT,
             'name' => "unit_test_view",
             'description' => "Unit Test Browser View",
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -88,11 +88,11 @@ class BrowserViewControllerTest extends TestCase
 
     public function testDeleteAction()
     {
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::CONTACT,
             'name' => "unit_test_view_delete",
             'description' => "Unit Test Browser View Delete",
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -105,7 +105,7 @@ class BrowserViewControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array("id" => $browserViewId)));
+        $req->setBody(json_encode(["id" => $browserViewId]));
         $ret = $this->controller->postDeleteViewAction();
 
         $this->assertTrue($ret, var_export($browserView->toArray(), true));
@@ -113,11 +113,11 @@ class BrowserViewControllerTest extends TestCase
 
     public function testSetDefaultViewAction()
     {
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::CONTACT,
             'name' => "unit_test_view_default",
             'description' => "Unit Test Browser View Default",
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -140,11 +140,11 @@ class BrowserViewControllerTest extends TestCase
 
     public function testPostSaveActionToReturnError()
     {
-        $data = array(
+        $data = [
             'id' => 'my_contact',
             'name' => "unit_test_view_default",
             'description' => "Unit Test Browser View Default",
-        );
+        ];
 
         // Set params in the request without obj_type key field
         $req = $this->controller->getRequest();

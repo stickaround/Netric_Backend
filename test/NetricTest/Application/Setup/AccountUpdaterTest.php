@@ -30,7 +30,7 @@ class AccountUpdaterTest extends TestCase
     const TEST_ACCOUNT_NAME = 'ut_acct_updater';
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Cleanup if there's any left-overs from a failed test
@@ -42,7 +42,7 @@ class AccountUpdaterTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         // Cleanup if there's any left-overs from a failed test
         $application = $this->account->getApplication();
         $accountToDelete = $application->getAccount(null, self::TEST_ACCOUNT_NAME);

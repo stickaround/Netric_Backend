@@ -42,11 +42,11 @@ class ResultsTest extends TestCase
         // Should push us to the second page
         $ent = $results->getEntity(2);
         $this->assertEquals(2, $results->getOffset());
-        
+
         // Should push us to the last
         $ent = $results->getEntity(4);
         $this->assertEquals(4, $results->getOffset());
-        
+
         // Now rewind back to the first page
         $ent = $results->getEntity(0);
         $this->assertEquals(0, $results->getOffset());

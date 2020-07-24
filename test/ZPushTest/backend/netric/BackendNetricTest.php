@@ -68,7 +68,7 @@ class BackendNetricTest extends TestCase
      *
      * @var \Netric\Entity\EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Setup each test
@@ -228,7 +228,7 @@ class BackendNetricTest extends TestCase
     public function testGetUserDetails()
     {
         $this->assertEquals(
-            array('emailaddress' => self::TEST_USER_EMAIL, 'fullname' => self::TEST_USER_FULL_NAME),
+            ['emailaddress' => self::TEST_USER_EMAIL, 'fullname' => self::TEST_USER_FULL_NAME],
             $this->backend->GetUserDetails(self::TEST_USER)
         );
     }

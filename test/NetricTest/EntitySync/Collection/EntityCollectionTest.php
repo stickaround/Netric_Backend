@@ -21,7 +21,7 @@ class EntityCollectionTest extends AbstractCollectionTests
      *
      * @var \Netric\Entity[]
      */
-    private $newCreated = array();
+    private $newCreated = [];
 
     /**
      * @return Collection\EntityCollection
@@ -41,7 +41,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         $newEnt->setValue("name", "EntityEyncTests");
         $this->account->getServiceManager()->get(DataMapperFactory::class)->save($newEnt);
         $this->newCreated[] = $newEnt;
-        return array("id" => $newEnt->getEntityId(), "revision" => $newEnt->getValue("commit_id"));
+        return ["id" => $newEnt->getEntityId(), "revision" => $newEnt->getValue("commit_id")];
     }
 
     protected function changeLocal($id)

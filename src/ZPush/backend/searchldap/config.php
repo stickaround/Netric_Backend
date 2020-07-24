@@ -41,7 +41,7 @@ define("LDAP_SEARCH_FILTER", "(|(cn=*SEARCHVALUE*)(mail=*SEARCHVALUE*))");
 // LDAP field mapping.
 // values correspond to an inetOrgPerson class
 global $ldap_field_map;
-$ldap_field_map = array(
+$ldap_field_map = [
                     SYNC_GAL_DISPLAYNAME    => 'cn',
                     SYNC_GAL_PHONE          => 'telephonenumber',
                     SYNC_GAL_OFFICE         => '',
@@ -53,4 +53,4 @@ $ldap_field_map = array(
                     SYNC_GAL_HOMEPHONE      => 'homephone',
                     SYNC_GAL_MOBILEPHONE    => 'mobile',
                     SYNC_GAL_EMAILADDRESS   => 'mail',
-                );
+                ];

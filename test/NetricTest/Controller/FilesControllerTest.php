@@ -152,9 +152,9 @@ class FilesControllerTest extends TestCase
 
         // Setup the request
         $req = $this->controller->getRequest();
-        $testUploadedFiles = array(
-            array("tmp_name" => $tempFile, "name" => "files-upload-test.txt")
-        );
+        $testUploadedFiles = [
+            ["tmp_name" => $tempFile, "name" => "files-upload-test.txt"]
+        ];
         $req->setParam("files", $testUploadedFiles);
         $req->setParam("path", "/testUpload"); // Will copy permissions
 
@@ -210,9 +210,9 @@ class FilesControllerTest extends TestCase
         copy($sourceFile, $tempFile);
 
         $req = $this->controller->getRequest();
-        $testUploadedFiles = array(
-            array("tmp_name" => $tempFile, "name" => "files-upload-existing-test.txt")
-        );
+        $testUploadedFiles = [
+            ["tmp_name" => $tempFile, "name" => "files-upload-existing-test.txt"]
+        ];
         $req->setParam("files", $testUploadedFiles);
         $req->setParam("path", "/testUpload");
         $req->setParam("file_id", $file->getEntityId());
@@ -271,13 +271,13 @@ class FilesControllerTest extends TestCase
         $req = $this->controller->getRequest();
 
         // We are using files array index, since this is the post data format sent by the client side
-        $testUploadedFiles['files'] = array(
+        $testUploadedFiles['files'] = [
             "name" => "files-upload-test.txt",
             "tmp_name" => $tempFile,
             "type" => "text/plain",
             "size" => "100",
             "error" => 0
-        );
+        ];
 
         $req->setParam("files", $testUploadedFiles);
         $req->setParam("path", "/testUpload");
@@ -339,13 +339,13 @@ class FilesControllerTest extends TestCase
         $req = $this->controller->getRequest();
 
         // We are using files array index, since this is the post data format sent by the client side
-        $testUploadedFiles['files'] = array(
-            "name" => array("files-upload-test.txt", "files-upload-test2.txt"),
-            "tmp_name" => array($tempFile, $tempFile2),
-            "type" => array("text/plain", "text/plain"),
-            "size" => array("100", "100"),
-            "error" => array(0, 0)
-        );
+        $testUploadedFiles['files'] = [
+            "name" => ["files-upload-test.txt", "files-upload-test2.txt"],
+            "tmp_name" => [$tempFile, $tempFile2],
+            "type" => ["text/plain", "text/plain"],
+            "size" => ["100", "100"],
+            "error" => [0, 0]
+        ];
 
         $req->setParam("files", $testUploadedFiles);
         $req->setParam("path", "/testUpload");

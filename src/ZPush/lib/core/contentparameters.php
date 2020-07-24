@@ -25,8 +25,9 @@
 ************************************************/
 
 
-class ContentParameters extends StateObject {
-    protected $unsetdata = array(   'contentclass' => false,
+class ContentParameters extends StateObject
+{
+    protected $unsetdata = [   'contentclass' => false,
                                     'foldertype' => '',
                                     'conflict' => false,
                                     'deletesasmoves' => true,
@@ -35,7 +36,7 @@ class ContentParameters extends StateObject {
                                     'rtftruncation' => false,
                                     'mimesupport' => false,
                                     'conversationmode' => false,
-                                );
+                                ];
 
     private $synckeyChanged = false;
 
@@ -59,9 +60,11 @@ class ContentParameters extends StateObject {
      * @access public
      * @return mixed
      */
-    public function __call($name, $arguments) {
-        if ($name === "BodyPreference")
+    public function __call($name, $arguments)
+    {
+        if ($name === "BodyPreference") {
             return $this->BodyPreference($arguments[0]);
+        }
 
         return parent::__call($name, $arguments);
     }
@@ -75,13 +78,15 @@ class ContentParameters extends StateObject {
      * @access public
      * @return int/boolean          returns false if value is not defined
      */
-    public function BodyPreference($type) {
-        if (!isset($this->bodypref))
-            $this->bodypref = array();
+    public function BodyPreference($type)
+    {
+        if (!isset($this->bodypref)) {
+            $this->bodypref = [];
+        }
 
-        if (isset($this->bodypref[$type]))
+        if (isset($this->bodypref[$type])) {
             return $this->bodypref[$type];
-        else {
+        } else {
             $asb = new BodyPreference();
             $arr = (array)$this->bodypref;
             $arr[$type] = $asb;
@@ -96,7 +101,8 @@ class ContentParameters extends StateObject {
      *  @access public
      *  @return array/boolean       returns false if the client's body preference is not available
      */
-    public function GetBodyPreference() {
+    public function GetBodyPreference()
+    {
         if (!isset($this->bodypref) || !(is_array($this->bodypref) || empty($this->bodypref))) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("ContentParameters->GetBodyPreference(): bodypref is empty or not set"));
             return false;
@@ -110,11 +116,13 @@ class ContentParameters extends StateObject {
      * @access protected
      * @return boolean
      */
-    protected function preSerialize() {
+    protected function preSerialize()
+    {
         parent::preSerialize();
 
-        if ($this->changed === true && $this->synckeyChanged)
+        if ($this->changed === true && $this->synckeyChanged) {
             $this->lastsynctime = time();
+        }
 
         return true;
     }

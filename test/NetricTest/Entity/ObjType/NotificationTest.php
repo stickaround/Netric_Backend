@@ -55,7 +55,7 @@ class NotificationTest extends TestCase
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Setup each test

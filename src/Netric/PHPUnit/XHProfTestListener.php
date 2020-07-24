@@ -157,9 +157,9 @@ class XHProfTestListener implements TestListener
                 $flags += constant($flag);
             }
         }
-        xhprof_enable($flags, array(
+        xhprof_enable($flags, [
             'ignored_functions' => explode(',', $this->options['xhprofIgnore'])
-        ));
+        ]);
     }
 
     /**
@@ -239,7 +239,7 @@ class XHProfTestListener implements TestListener
             print("\n\nXHProf runs for tests exceeding threshold: ");
             print(count($this->runs) . "\n");
             foreach ($this->runs as $test => $run) {
-                print(' * ' . $test . " - " . round($run['timeinms']/1000, 0) . "s\n   " . $run['file'] . "\n\n");
+                print(' * ' . $test . " - " . round($run['timeinms'] / 1000, 0) . "s\n   " . $run['file'] . "\n\n");
             }
             print("\n");
         }

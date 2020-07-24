@@ -282,7 +282,7 @@ class Log implements LogInterface
             $backtrace = $exc->getTrace();
         }
 
-        $errorType = array(
+        $errorType = [
             E_ERROR          => 'ERROR',
             E_WARNING        => 'WARNING',
             E_PARSE          => 'PARSING ERROR',
@@ -296,7 +296,7 @@ class Log implements LogInterface
             E_USER_NOTICE    => 'USER NOTICE',
             E_STRICT         => 'STRICT NOTICE',
             E_RECOVERABLE_ERROR  => 'RECOVERABLE ERROR',
-        );
+        ];
 
         // create error message
         $err = 'UNHANDLED ERROR';
@@ -427,7 +427,7 @@ class Log implements LogInterface
     {
         switch (strtolower(gettype($arg))) {
             case 'string':
-                return ('"' . str_replace(array("\n"), array(''), $arg) . '"');
+                return ('"' . str_replace(["\n"], [''], $arg) . '"');
 
             case 'boolean':
                 return (bool) $arg;

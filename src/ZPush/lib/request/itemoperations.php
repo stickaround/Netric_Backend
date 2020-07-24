@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class ItemOperations extends RequestProcessor {
+class ItemOperations extends RequestProcessor
+{
 
     /**
      * Handles the ItemOperations command
@@ -34,40 +35,41 @@ class ItemOperations extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle($commandCode) {
+    public function Handle($commandCode)
+    {
         // Parse input
-        if(!self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_ITEMOPERATIONS))
+        if (!self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_ITEMOPERATIONS)) {
             return false;
+        }
 
-        $itemoperations = array();
+        $itemoperations = [];
         //ItemOperations can either be Fetch, EmptyFolderContents or Move
         WBXMLDecoder::ResetInWhile("itemOperationsActions");
-        while(WBXMLDecoder::InWhile("itemOperationsActions")) {
+        while (WBXMLDecoder::InWhile("itemOperationsActions")) {
             //TODO check if multiple item operations are possible in one request
             $el = self::$decoder->getElement();
 
-            if($el[EN_TYPE] != EN_TYPE_STARTTAG)
+            if ($el[EN_TYPE] != EN_TYPE_STARTTAG) {
                 return false;
+            }
 
             $fetch = $efc = $move = false;
-            $operation = array();
-            if($el[EN_TAG] == SYNC_ITEMOPERATIONS_FETCH) {
+            $operation = [];
+            if ($el[EN_TAG] == SYNC_ITEMOPERATIONS_FETCH) {
                 $fetch = true;
                 $operation['operation'] = SYNC_ITEMOPERATIONS_FETCH;
                 self::$topCollector->AnnounceInformation("Fetch", true);
-            }
-            else if($el[EN_TAG] == SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS) {
+            } elseif ($el[EN_TAG] == SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS) {
                 $efc = true;
                 $operation['operation'] = SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS;
                 self::$topCollector->AnnounceInformation("Empty Folder", true);
-            }
-            else if($el[EN_TAG] == SYNC_ITEMOPERATIONS_MOVE) {
+            } elseif ($el[EN_TAG] == SYNC_ITEMOPERATIONS_MOVE) {
                 $move = true;
                 $operation['operation'] = SYNC_ITEMOPERATIONS_MOVE;
                 self::$topCollector->AnnounceInformation("Move", true);
             }
 
-            if(!$fetch && !$efc && !$move) {
+            if (!$fetch && !$efc && !$move) {
                 ZLog::Write(LOGLEVEL_DEBUG, "Unknown item operation:".print_r($el, 1));
                 self::$topCollector->AnnounceInformation("Unknown operation", true);
                 return false;
@@ -75,39 +77,44 @@ class ItemOperations extends RequestProcessor {
 
             // process operation
             WBXMLDecoder::ResetInWhile("itemOperationsOperation");
-            while(WBXMLDecoder::InWhile("itemOperationsOperation")) {
+            while (WBXMLDecoder::InWhile("itemOperationsOperation")) {
                 if ($fetch) {
-                    if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_STORE)) {
+                    if (self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_STORE)) {
                         $operation['store'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
+                        if (!self::$decoder->getElementEndTag()) {
                             return false;//SYNC_ITEMOPERATIONS_STORE
+                        }
                     }
 
-                    if(self::$decoder->getElementStartTag(SYNC_SEARCH_LONGID)) {
+                    if (self::$decoder->getElementStartTag(SYNC_SEARCH_LONGID)) {
                         $operation['longid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
+                        if (!self::$decoder->getElementEndTag()) {
                             return false;//SYNC_SEARCH_LONGID
+                        }
                     }
 
-                    if(self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
+                    if (self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
                         $operation['folderid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
+                        if (!self::$decoder->getElementEndTag()) {
                             return false;//SYNC_FOLDERID
+                        }
                     }
 
-                    if(self::$decoder->getElementStartTag(SYNC_SERVERENTRYID)) {
+                    if (self::$decoder->getElementStartTag(SYNC_SERVERENTRYID)) {
                         $operation['serverid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
+                        if (!self::$decoder->getElementEndTag()) {
                             return false;//SYNC_SERVERENTRYID
+                        }
                     }
 
-                    if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_FILEREFERENCE)) {
+                    if (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_FILEREFERENCE)) {
                         $operation['filereference'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
+                        if (!self::$decoder->getElementEndTag()) {
                             return false;//SYNC_AIRSYNCBASE_FILEREFERENCE
+                        }
                     }
 
-                    if(($el = self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) && ($el[EN_FLAGS] & EN_FLAGS_CONTENT)) {
+                    if (($el = self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) && ($el[EN_FLAGS] & EN_FLAGS_CONTENT)) {
                         //TODO other options
                         //schema
                         //range
@@ -119,58 +126,64 @@ class ItemOperations extends RequestProcessor {
                         // Save all OPTIONS into a ContentParameters object
                         $operation["cpo"] = new ContentParameters();
                         WBXMLDecoder::ResetInWhile("itemOperationsOptions");
-                        while(WBXMLDecoder::InWhile("itemOperationsOptions")) {
+                        while (WBXMLDecoder::InWhile("itemOperationsOptions")) {
                             while (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_BODYPREFERENCE)) {
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TYPE)) {
+                                if (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TYPE)) {
                                     $bptype = self::$decoder->getElementContent();
                                     $operation["cpo"]->BodyPreference($bptype);
-                                    if(!self::$decoder->getElementEndTag()) {
+                                    if (!self::$decoder->getElementEndTag()) {
                                         return false;
                                     }
                                 }
 
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TRUNCATIONSIZE)) {
+                                if (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_TRUNCATIONSIZE)) {
                                     $operation["cpo"]->BodyPreference($bptype)->SetTruncationSize(self::$decoder->getElementContent());
-                                    if(!self::$decoder->getElementEndTag())
+                                    if (!self::$decoder->getElementEndTag()) {
                                         return false;
+                                    }
                                 }
 
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_ALLORNONE)) {
+                                if (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_ALLORNONE)) {
                                     $operation["cpo"]->BodyPreference($bptype)->SetAllOrNone(self::$decoder->getElementContent());
-                                    if(!self::$decoder->getElementEndTag())
+                                    if (!self::$decoder->getElementEndTag()) {
                                         return false;
+                                    }
                                 }
 
-                                if(self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_PREVIEW)) {
+                                if (self::$decoder->getElementStartTag(SYNC_AIRSYNCBASE_PREVIEW)) {
                                     $operation["cpo"]->BodyPreference($bptype)->SetPreview(self::$decoder->getElementContent());
-                                    if(!self::$decoder->getElementEndTag())
+                                    if (!self::$decoder->getElementEndTag()) {
                                         return false;
+                                    }
                                 }
 
-                                if(!self::$decoder->getElementEndTag())
+                                if (!self::$decoder->getElementEndTag()) {
                                     return false;//SYNC_AIRSYNCBASE_BODYPREFERENCE
+                                }
                             }
 
-                            if(self::$decoder->getElementStartTag(SYNC_MIMESUPPORT)) {
+                            if (self::$decoder->getElementStartTag(SYNC_MIMESUPPORT)) {
                                 $operation["cpo"]->SetMimeSupport(self::$decoder->getElementContent());
-                                if(!self::$decoder->getElementEndTag())
+                                if (!self::$decoder->getElementEndTag()) {
                                     return false;
+                                }
                             }
 
-                            if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_RANGE)) {
+                            if (self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_RANGE)) {
                                 $operation["range"] = self::$decoder->getElementContent();
-                                if(!self::$decoder->getElementEndTag())
+                                if (!self::$decoder->getElementEndTag()) {
                                     return false;
+                                }
                             }
 
-                            if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_SCHEMA)) {
+                            if (self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_SCHEMA)) {
                                 // read schema tags
                                 WBXMLDecoder::ResetInWhile("itemOperationsSchema");
-                                while(WBXMLDecoder::InWhile("itemOperationsSchema")) {
+                                while (WBXMLDecoder::InWhile("itemOperationsSchema")) {
                                     // TODO save elements
                                     $el = self::$decoder->getElement();
                                     $e = self::$decoder->peek();
-                                    if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
+                                    if ($e[EN_TYPE] == EN_TYPE_ENDTAG) {
                                         self::$decoder->getElementEndTag();
                                         break;
                                     }
@@ -179,7 +192,7 @@ class ItemOperations extends RequestProcessor {
 
                             //break if it reached the endtag
                             $e = self::$decoder->peek();
-                            if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
+                            if ($e[EN_TYPE] == EN_TYPE_ENDTAG) {
                                 self::$decoder->getElementEndTag();
                                 break;
                             }
@@ -188,18 +201,20 @@ class ItemOperations extends RequestProcessor {
                 } // end if fetch
 
                 if ($efc) {
-                    if(self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
+                    if (self::$decoder->getElementStartTag(SYNC_FOLDERID)) {
                         $operation['folderid'] = self::$decoder->getElementContent();
-                        if(!self::$decoder->getElementEndTag())
+                        if (!self::$decoder->getElementEndTag()) {
                             return false;//SYNC_FOLDERID
+                        }
                     }
-                    if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) {
-                        if(self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_DELETESUBFOLDERS)) {
+                    if (self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_OPTIONS)) {
+                        if (self::$decoder->getElementStartTag(SYNC_ITEMOPERATIONS_DELETESUBFOLDERS)) {
                             $operation['deletesubfolders'] = true;
                             if (($dsf = self::$decoder->getElementContent()) !== false) {
                                 $operation['deletesubfolders'] = (bool)$dsf;
-                                if(!self::$decoder->getElementEndTag())
+                                if (!self::$decoder->getElementEndTag()) {
                                     return false;
+                                }
                             }
                         }
                         self::$decoder->getElementEndTag();
@@ -210,7 +225,7 @@ class ItemOperations extends RequestProcessor {
 
                 //break if it reached the endtag SYNC_ITEMOPERATIONS_FETCH or SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS or SYNC_ITEMOPERATIONS_MOVE
                 $e = self::$decoder->peek();
-                if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
+                if ($e[EN_TYPE] == EN_TYPE_ENDTAG) {
                     self::$decoder->getElementEndTag();
                     break;
                 }
@@ -224,7 +239,7 @@ class ItemOperations extends RequestProcessor {
             $itemoperations[] = $operation;
             //break if it reached the endtag
             $e = self::$decoder->peek();
-            if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
+            if ($e[EN_TYPE] == EN_TYPE_ENDTAG) {
                 self::$decoder->getElementEndTag(); //SYNC_ITEMOPERATIONS_ITEMOPERATIONS
                 break;
             }
@@ -251,7 +266,6 @@ class ItemOperations extends RequestProcessor {
         foreach ($itemoperations as $operation) {
             // fetch response
             if ($operation['operation'] == SYNC_ITEMOPERATIONS_FETCH) {
-
                 $status = SYNC_ITEMOPERATIONSSTATUS_SUCCESS;
 
                 // retrieve the data
@@ -260,25 +274,20 @@ class ItemOperations extends RequestProcessor {
                     try {
                         self::$topCollector->AnnounceInformation("Get attachment data from backend with file reference");
                         $data = self::$backend->GetAttachmentData($operation['filereference']);
-                    }
-                    catch (StatusException $stex) {
+                    } catch (StatusException $stex) {
                         $status = $stex->getCode();
                     }
-
-                }
-                else {
+                } else {
                     try {
                         if (isset($operation['folderid']) && isset($operation['serverid'])) {
                             self::$topCollector->AnnounceInformation("Fetching data from backend with item and folder id");
                             $data = self::$backend->Fetch($operation['backendfolderid'], $operation['serverid'], $operation["cpo"]);
-                        }
-                        else if (isset($operation['longid'])) {
+                        } elseif (isset($operation['longid'])) {
                             self::$topCollector->AnnounceInformation("Fetching data from backend with long id");
                             $tmp = explode(":", $operation['longid']);
                             $data = self::$backend->Fetch(self::$deviceManager->GetBackendIdForFolderId($tmp[0]), $tmp[1], $operation["cpo"]);
                         }
-                    }
-                    catch (StatusException $stex) {
+                    } catch (StatusException $stex) {
                         // the only option to return is that we could not retrieve it
                         $status = SYNC_ITEMOPERATIONSSTATUS_CONVERSIONFAILED;
                     }
@@ -290,56 +299,55 @@ class ItemOperations extends RequestProcessor {
                     self::$encoder->content($status);
                     self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
 
-                    if (isset($operation['folderid']) && isset($operation['serverid'])) {
-                        self::$encoder->startTag(SYNC_FOLDERID);
-                        self::$encoder->content($operation['folderid']);
-                        self::$encoder->endTag(); // end SYNC_FOLDERID
+                if (isset($operation['folderid']) && isset($operation['serverid'])) {
+                    self::$encoder->startTag(SYNC_FOLDERID);
+                    self::$encoder->content($operation['folderid']);
+                    self::$encoder->endTag(); // end SYNC_FOLDERID
 
-                        self::$encoder->startTag(SYNC_SERVERENTRYID);
-                        self::$encoder->content($operation['serverid']);
-                        self::$encoder->endTag(); // end SYNC_SERVERENTRYID
+                    self::$encoder->startTag(SYNC_SERVERENTRYID);
+                    self::$encoder->content($operation['serverid']);
+                    self::$encoder->endTag(); // end SYNC_SERVERENTRYID
 
-                        self::$encoder->startTag(SYNC_FOLDERTYPE);
-                        self::$encoder->content("Email");
-                        self::$encoder->endTag();
-                    }
+                    self::$encoder->startTag(SYNC_FOLDERTYPE);
+                    self::$encoder->content("Email");
+                    self::$encoder->endTag();
+                }
 
-                    if (isset($operation['longid'])) {
-                        self::$encoder->startTag(SYNC_SEARCH_LONGID);
-                        self::$encoder->content($operation['longid']);
-                        self::$encoder->endTag(); // end SYNC_FOLDERID
+                if (isset($operation['longid'])) {
+                    self::$encoder->startTag(SYNC_SEARCH_LONGID);
+                    self::$encoder->content($operation['longid']);
+                    self::$encoder->endTag(); // end SYNC_FOLDERID
 
-                        self::$encoder->startTag(SYNC_FOLDERTYPE);
-                        self::$encoder->content("Email");
-                        self::$encoder->endTag();
-                    }
+                    self::$encoder->startTag(SYNC_FOLDERTYPE);
+                    self::$encoder->content("Email");
+                    self::$encoder->endTag();
+                }
 
-                    if (isset($operation['filereference'])) {
-                        self::$encoder->startTag(SYNC_AIRSYNCBASE_FILEREFERENCE);
-                        self::$encoder->content($operation['filereference']);
-                        self::$encoder->endTag(); // end SYNC_AIRSYNCBASE_FILEREFERENCE
-                    }
+                if (isset($operation['filereference'])) {
+                    self::$encoder->startTag(SYNC_AIRSYNCBASE_FILEREFERENCE);
+                    self::$encoder->content($operation['filereference']);
+                    self::$encoder->endTag(); // end SYNC_AIRSYNCBASE_FILEREFERENCE
+                }
 
-                    if (isset($data)) {
-                        self::$topCollector->AnnounceInformation("Streaming data");
+                if (isset($data)) {
+                    self::$topCollector->AnnounceInformation("Streaming data");
 
-                        self::$encoder->startTag(SYNC_ITEMOPERATIONS_PROPERTIES);
-                        $data->Encode(self::$encoder);
-                        self::$encoder->endTag(); //SYNC_ITEMOPERATIONS_PROPERTIES
-                    }
+                    self::$encoder->startTag(SYNC_ITEMOPERATIONS_PROPERTIES);
+                    $data->Encode(self::$encoder);
+                    self::$encoder->endTag(); //SYNC_ITEMOPERATIONS_PROPERTIES
+                }
 
                 self::$encoder->endTag();//SYNC_ITEMOPERATIONS_FETCH
             }
             // empty folder contents operation
-            else if ($operation['operation'] == SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS) {
+            elseif ($operation['operation'] == SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS) {
                 try {
                     self::$topCollector->AnnounceInformation("Emptying folder");
 
                     // send request to backend
                     self::$backend->EmptyFolder($operation['backendfolderid'], $operation['deletesubfolders']);
-                }
-                catch (StatusException $stex) {
-                   $status = $stex->getCode();
+                } catch (StatusException $stex) {
+                    $status = $stex->getCode();
                 }
 
                 self::$encoder->startTag(SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS);
@@ -348,11 +356,11 @@ class ItemOperations extends RequestProcessor {
                     self::$encoder->content($status);
                     self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
 
-                    if (isset($operation['folderid'])) {
-                        self::$encoder->startTag(SYNC_FOLDERID);
-                        self::$encoder->content($operation['folderid']);
-                        self::$encoder->endTag(); // end SYNC_FOLDERID
-                    }
+                if (isset($operation['folderid'])) {
+                    self::$encoder->startTag(SYNC_FOLDERID);
+                    self::$encoder->content($operation['folderid']);
+                    self::$encoder->endTag(); // end SYNC_FOLDERID
+                }
                 self::$encoder->endTag();//SYNC_ITEMOPERATIONS_EMPTYFOLDERCONTENTS
             }
             // TODO implement ItemOperations Move
@@ -367,7 +375,6 @@ class ItemOperations extends RequestProcessor {
                     self::$encoder->endTag();//SYNC_ITEMOPERATIONS_STATUS
                 self::$encoder->endTag();//SYNC_ITEMOPERATIONS_MOVE
             }
-
         }
         self::$encoder->endTag();//SYNC_ITEMOPERATIONS_RESPONSE
         self::$encoder->endTag();//SYNC_ITEMOPERATIONS_ITEMOPERATIONS

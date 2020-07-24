@@ -42,20 +42,22 @@ define('WBXML_DEBUGGING', true);
 define('WBXML_DEBUG', true);
 define("LOGLEVEL_WBXML", "wbxml");
 define("LOGLEVEL_DEBUG", "debug");
-class ZLog {
-    static public function Write($level, $msg, $truncate = false) {
+class ZLog
+{
+    public static function Write($level, $msg, $truncate = false)
+    {
         // we only care about the wbxml
         if ($level == "wbxml") {
-            if (substr($msg,0,1) == "I") {
-                echo substr($msg,1) . "\n";
-            }
-            else {
+            if (substr($msg, 0, 1) == "I") {
+                echo substr($msg, 1) . "\n";
+            } else {
                 echo $msg . "\n";
             }
         }
     }
 
-    static public function IsWbxmlDebugEnabled() {
+    public static function IsWbxmlDebugEnabled()
+    {
         return true;
     }
 }

@@ -23,9 +23,10 @@
 *
 * Consult LICENSE file for details
 ************************************************/
-include ('lib/utils/zpushadmin.php');
+include('lib/utils/zpushadmin.php');
 
-class WebserviceUsers {
+class WebserviceUsers
+{
 
     /**
      * Returns a list of all known devices
@@ -33,7 +34,8 @@ class WebserviceUsers {
      * @access public
      * @return array
      */
-    public function ListDevices() {
+    public function ListDevices()
+    {
         return ZPushAdmin::ListDevices(false);
     }
 
@@ -43,15 +45,17 @@ class WebserviceUsers {
      * @access public
      * @return array
      */
-    public function ListDevicesAndUsers() {
+    public function ListDevicesAndUsers()
+    {
         $devices = ZPushAdmin::ListDevices(false);
-        $output = array();
+        $output = [];
 
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceUsers::ListDevicesAndUsers(): found %d devices", count($devices)));
         ZPush::GetTopCollector()->AnnounceInformation(sprintf("Retrieved details of %d devices and getting users", count($devices)), true);
 
-        foreach ($devices as $devid)
+        foreach ($devices as $devid) {
             $output[$devid] = ZPushAdmin::ListUsers($devid);
+        }
 
         return $output;
     }
@@ -62,15 +66,16 @@ class WebserviceUsers {
      * @access public
      * @return array
      */
-    public function ListDevicesDetails() {
+    public function ListDevicesDetails()
+    {
         $devices = ZPushAdmin::ListDevices(false);
-        $output = array();
+        $output = [];
 
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceUsers::ListLastSync(): found %d devices", count($devices)));
         ZPush::GetTopCollector()->AnnounceInformation(sprintf("Retrieved details of %d devices and getting users", count($devices)), true);
 
         foreach ($devices as $deviceId) {
-            $output[$deviceId] = array();
+            $output[$deviceId] = [];
             $users = ZPushAdmin::ListUsers($deviceId);
             foreach ($users as $user) {
                 $output[$deviceId][$user] = ZPushAdmin::GetDeviceDetails($deviceId, $user);

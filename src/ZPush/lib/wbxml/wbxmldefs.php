@@ -23,41 +23,42 @@
 * Consult LICENSE file for details
 ************************************************/
 
-define('EN_TYPE',               1);
-define('EN_TAG',                2);
-define('EN_CONTENT',            3);
-define('EN_FLAGS',              4);
-define('EN_ATTRIBUTES',         5);
+define('EN_TYPE', 1);
+define('EN_TAG', 2);
+define('EN_CONTENT', 3);
+define('EN_FLAGS', 4);
+define('EN_ATTRIBUTES', 5);
 
-define('EN_TYPE_STARTTAG',      1);
-define('EN_TYPE_ENDTAG',        2);
-define('EN_TYPE_CONTENT',       3);
+define('EN_TYPE_STARTTAG', 1);
+define('EN_TYPE_ENDTAG', 2);
+define('EN_TYPE_CONTENT', 3);
 
-define('EN_FLAGS_CONTENT',      1);
-define('EN_FLAGS_ATTRIBUTES',   2);
+define('EN_FLAGS_CONTENT', 1);
+define('EN_FLAGS_ATTRIBUTES', 2);
 
-class WBXMLDefs {
+class WBXMLDefs
+{
 
     const WBXML_SWITCH_PAGE = 0x00;
-    const WBXML_END =         0x01;
-    const WBXML_ENTITY =      0x02; //not used in ActiveSync
-    const WBXML_STR_I =       0x03;
-    const WBXML_LITERAL =     0x04; //not used in ActiveSync
-    const WBXML_EXT_I_0 =     0x40; //not used in ActiveSync
-    const WBXML_EXT_I_1 =     0x41; //not used in ActiveSync
-    const WBXML_EXT_I_2 =     0x42; //not used in ActiveSync
-    const WBXML_PI =          0x43; //not used in ActiveSync
-    const WBXML_LITERAL_C =   0x44; //not used in ActiveSync
-    const WBXML_EXT_T_0 =     0x80; //not used in ActiveSync
-    const WBXML_EXT_T_1 =     0x81; //not used in ActiveSync
-    const WBXML_EXT_T_2 =     0x82; //not used in ActiveSync
-    const WBXML_STR_T =       0x83; //not used in ActiveSync
-    const WBXML_LITERAL_A =   0x84; //not used in ActiveSync
-    const WBXML_EXT_0 =       0xC0; //not used in ActiveSync
-    const WBXML_EXT_1 =       0xC1; //not used in ActiveSync
-    const WBXML_EXT_2 =       0xC2; //not used in ActiveSync
-    const WBXML_OPAQUE =      0xC3;
-    const WBXML_LITERAL_AC =  0xC4; //not used in ActiveSync
+    const WBXML_END = 0x01;
+    const WBXML_ENTITY = 0x02; //not used in ActiveSync
+    const WBXML_STR_I = 0x03;
+    const WBXML_LITERAL = 0x04; //not used in ActiveSync
+    const WBXML_EXT_I_0 = 0x40; //not used in ActiveSync
+    const WBXML_EXT_I_1 = 0x41; //not used in ActiveSync
+    const WBXML_EXT_I_2 = 0x42; //not used in ActiveSync
+    const WBXML_PI = 0x43; //not used in ActiveSync
+    const WBXML_LITERAL_C = 0x44; //not used in ActiveSync
+    const WBXML_EXT_T_0 = 0x80; //not used in ActiveSync
+    const WBXML_EXT_T_1 = 0x81; //not used in ActiveSync
+    const WBXML_EXT_T_2 = 0x82; //not used in ActiveSync
+    const WBXML_STR_T = 0x83; //not used in ActiveSync
+    const WBXML_LITERAL_A = 0x84; //not used in ActiveSync
+    const WBXML_EXT_0 = 0xC0; //not used in ActiveSync
+    const WBXML_EXT_1 = 0xC1; //not used in ActiveSync
+    const WBXML_EXT_2 = 0xC2; //not used in ActiveSync
+    const WBXML_OPAQUE = 0xC3;
+    const WBXML_LITERAL_AC = 0xC4; //not used in ActiveSync
 
     const WBXML_WITH_ATTRIBUTES = 0x80; //not used in ActiveSync
     const WBXML_WITH_CONTENT = 0x40;
@@ -65,9 +66,9 @@ class WBXMLDefs {
     /**
      * The WBXML DTDs
      */
-    protected $dtd = array(
-                "codes" => array (
-                    0 => array (
+    protected $dtd = [
+                "codes" => [
+                    0 => [
                         0x05 => "Synchronize",
                         0x06 => "Replies", //Responses
                         0x07 => "Add",
@@ -105,8 +106,8 @@ class WBXMLDefs {
                         0x27 => "ConversationMode", //14.0
                         0x28 => "MaxItems", //14.0
                         0x29 => "HeartbeatInterval", //14.0 Either this tag or the Wait tag can be present, but not both.
-                    ),
-                    1 => array (
+                    ],
+                    1 => [
                         0x05 => "Anniversary",
                         0x06 => "AssistantName",
                         0x07 => "AssistnamePhoneNumber", //AssistantTelephoneNumber
@@ -165,8 +166,8 @@ class WBXMLDefs {
                         0x3c => "Picture",
                         0x3d => "Alias", //14.0
                         0x3e => "WeightedRank" //14.0
-                    ),
-                    2 => array (
+                    ],
+                    2 => [
                         0x05 => "Attachment", //2.5, 12.0, 12.1 and 14.0
                         0x06 => "Attachments", //2.5, 12.0, 12.1 and 14.0
                         0x07 => "AttName", //2.5, 12.0, 12.1 and 14.0
@@ -226,8 +227,8 @@ class WBXMLDefs {
                         0x3d => "FlagType", //12.0, 12.1 and 14.0
                         0x3e => "CompleteTime", //14.0
                         0x3f => "DisallowNewTimeProposal", //14.0
-                    ),
-                    3 => array ( //Code page 3 is no longer in use, however, tokens 05 through 17 have been defined. 20100501
+                    ],
+                    3 => [ //Code page 3 is no longer in use, however, tokens 05 through 17 have been defined. 20100501
                         0x05 => "Notify",
                         0x06 => "Notification",
                         0x07 => "Version",
@@ -247,8 +248,8 @@ class WBXMLDefs {
                         0x14 => "Id",
                         0x15 => "Expiry",
                         0x16 => "NotifyGUID",
-                    ),
-                    4 => array (
+                    ],
+                    4 => [
                         0x05 => "Timezone", //2.5, 12.0, 12.1 and 14.0
                         0x06 => "AllDayEvent", //2.5, 12.0, 12.1 and 14.0
                         0x07 => "Attendees", //2.5, 12.0, 12.1 and 14.0
@@ -304,8 +305,8 @@ class WBXMLDefs {
                         0x39 => "FirstDayOfWeek", //post 14.0 20100501
                         0x3a => "OnlineMeetingInternalLink", //post 14.0 20100501
                         0x3b => "OnlineMeetingExternalLink", //post 14.0 20120630
-                    ),
-                    5 => array (
+                    ],
+                    5 => [
                         0x05 => "Moves",
                         0x06 => "Move",
                         0x07 => "SrcMsgId",
@@ -314,8 +315,8 @@ class WBXMLDefs {
                         0x0a => "Response",
                         0x0b => "Status",
                         0x0c => "DstMsgId",
-                    ),
-                    6 => array (
+                    ],
+                    6 => [
                         0x05 => "GetItemEstimate",
                         0x06 => "Version", //only 12.1 20100501
                         0x07 => "Folders", //Collections
@@ -326,8 +327,8 @@ class WBXMLDefs {
                         0x0c => "Estimate",
                         0x0d => "Response",
                         0x0e => "Status",
-                    ),
-                    7 => array (
+                    ],
+                    7 => [
                         0x05 => "Folders", //2.0
                         0x06 => "Folder", //2.0
                         0x07 => "DisplayName",
@@ -348,8 +349,8 @@ class WBXMLDefs {
                         0x16 => "FolderSync",
                         0x17 => "Count",
                         0x18 => "Version", //2.0 - not defined in 20100501
-                    ),
-                    8 => array (
+                    ],
+                    8 => [
                         0x05 => "CalendarId",
                         0x06 => "FolderId", //CollectionId
                         0x07 => "MeetingResponse",
@@ -360,8 +361,8 @@ class WBXMLDefs {
                         0x0c => "UserResponse",
                         0x0d => "Version", //2.0 - not defined in 20100501
                         0x0e => "InstanceId" // first in 20100501
-                    ),
-                    9 => array (
+                    ],
+                    9 => [
                         0x05 => "Body", //2.5, but is in code page 17 in ActiveSync versions 12.0, 12.1, and 14.0
                         0x06 => "BodySize", //2.5, but is in code page 17 as the EstimatedDataSize tag in ActiveSync versions 12.0, 12.1 and 14.0
                         0x07 => "BodyTruncated", //2.5, but is in code page 17 as the Truncated tag in ActiveSync versions 12.0, 12.1, and 14.0
@@ -396,8 +397,8 @@ class WBXMLDefs {
                         0x24 => "CalendarType", //14.0
                         0x25 => "IsLeapMonth", //14.0
                         0x26 => "FirstDayOfWeek", // first in 20100501 post 14.0
-                    ),
-                    0xa => array (
+                    ],
+                    0xa => [
                         0x05 => "ResolveRecipients",
                         0x06 => "Response",
                         0x07 => "Status",
@@ -423,16 +424,16 @@ class WBXMLDefs {
                         0x1B => "MaxSize", // first in 20100501 post 14.0
                         0x1C => "Data", // first in 20100501 post 14.0
                         0x1D => "MaxPictures", // first in 20100501 post 14.0
-                    ),
-                    0xb => array (
+                    ],
+                    0xb => [
                         0x05 => "ValidateCert",
                         0x06 => "Certificates",
                         0x07 => "Certificate",
                         0x08 => "CertificateChain",
                         0x09 => "CheckCRL",
                         0x0a => "Status",
-                    ),
-                    0xc => array (
+                    ],
+                    0xc => [
                         0x05 => "CustomerId",
                         0x06 => "GovernmentId",
                         0x07 => "IMAddress",
@@ -443,8 +444,8 @@ class WBXMLDefs {
                         0x0c => "AccountName",
                         0x0d => "NickName",
                         0x0e => "MMS",
-                    ),
-                    0xd => array (
+                    ],
+                    0xd => [
                         0x05 => "Ping",
                         0x06 => "AutdState", //(Not used by protocol)
                         0x07 => "Status",
@@ -455,8 +456,8 @@ class WBXMLDefs {
                         0x0c => "FolderType", //Class
                         0x0d => "MaxFolders",
                         0x0e => "Version" //not defined in 20100501
-                    ),
-                    0xe => array (
+                    ],
+                    0xe => [
                         0x05 => "Provision", //2.5, 12.0, 12.1 and 14.0
                         0x06 => "Policies", //2.5, 12.0, 12.1 and 14.0
                         0x07 => "Policy", //2.5, 12.0, 12.1 and 14.0
@@ -512,8 +513,8 @@ class WBXMLDefs {
                         0x38 => "ApplicationName", //12.1 and 14.0
                         0x39 => "ApprovedApplicationList", //12.1 and 14.0
                         0x3A => "Hash", //12.1 and 14.0
-                    ),
-                    0xf => array(
+                    ],
+                    0xf => [
                         0x05 => "Search", //12.0, 12.1 and 14.0
                         0x07 => "Store", //12.0, 12.1 and 14.0
                         0x08 => "Name", //12.0, 12.1 and 14.0
@@ -543,8 +544,8 @@ class WBXMLDefs {
                         0x21 => "Picture", // first in 20100501 post 14.0
                         0x22 => "MaxSize", // first in 20100501 post 14.0
                         0x23 => "MaxPictures", // first in 20100501 post 14.0
-                    ),
-                    0x10 => array(
+                    ],
+                    0x10 => [
                         0x05 => "DisplayName",
                         0x06 => "Phone",
                         0x07 => "Office",
@@ -559,8 +560,8 @@ class WBXMLDefs {
                         0x10 => "Picture", // first in 20100501 post 14.0
                         0x11 => "Status", // first in 20100501 post 14.0
                         0x12 => "Data", // first in 20100501 post 14.0
-                    ),
-                    0x11 => array( //12.0, 12.1 and 14.0
+                    ],
+                    0x11 => [ //12.0, 12.1 and 14.0
                         0x05 => "BodyPreference",
                         0x06 => "Type",
                         0x07 => "TruncationSize",
@@ -583,8 +584,8 @@ class WBXMLDefs {
                         0x19 => "BodyPartPreference", // first in 20100501 post 14.0
                         0x1A => "BodyPart", // first in 20100501 post 14.0
                         0x1B => "Status", // first in 20100501 post 14.0
-                    ),
-                    0x12 => array( //12.0, 12.1 and 14.0
+                    ],
+                    0x12 => [ //12.0, 12.1 and 14.0
                         0x05 => "Settings", //12.0, 12.1 and 14.0
                         0x06 => "Status", //12.0, 12.1 and 14.0
                         0x07 => "Get", //12.0, 12.1 and 14.0
@@ -623,8 +624,8 @@ class WBXMLDefs {
                         0x28 => "UserDisplayName", // first in 20100501 post 14.0
                         0x29 => "SendDisabled", // first in 20100501 post 14.0
                         0x2B => "ihsManagementInformation", // first in 20100501 post 14.0
-                    ),
-                    0x13 => array( //12.0, 12.1 and 14.0
+                    ],
+                    0x13 => [ //12.0, 12.1 and 14.0
                         0x05 => "LinkId",
                         0x06 => "DisplayName",
                         0x07 => "IsFolder",
@@ -633,8 +634,8 @@ class WBXMLDefs {
                         0x0A => "IsHidden",
                         0x0B => "ContentLength",
                         0x0C => "ContentType",
-                    ),
-                    0x14 => array( //12.0, 12.1 and 14.0
+                    ],
+                    0x14 => [ //12.0, 12.1 and 14.0
                         0x05 => "ItemOperations",
                         0x06 => "Fetch",
                         0x07 => "Store",
@@ -656,8 +657,8 @@ class WBXMLDefs {
                         0x17 => "DstFldId", //14.0
                         0x18 => "ConversationId", //14.0
                         0x19 => "MoveAlways", //14.0
-                    ),
-                    0x15 => array( //14.0
+                    ],
+                    0x15 => [ //14.0
                         0x05 => "SendMail",
                         0x06 => "SmartForward",
                         0x07 => "SmartReply",
@@ -673,8 +674,8 @@ class WBXMLDefs {
                         0x11 => "ClientId",
                         0x12 => "Status",
                         0x13 => "AccountId", // first in 20100501 post 14.0
-                    ),
-                    0x16 => array( // 14.0
+                    ],
+                    0x16 => [ // 14.0
                         0x05 => "UmCallerId",
                         0x06 => "UmUserNotes",
                         0x07 => "UmAttDuration",
@@ -690,15 +691,15 @@ class WBXMLDefs {
                         0x11 => "AccountId", // first in 20100501 post 14.0
                         0x12 => "FirstDayOfWeek", // first in 20100501 post 14.0
                         0x13 => "MeetingMessageType", // first in 20100501 post 14.0
-                    ),
-                    0x17 => array( //14.0
+                    ],
+                    0x17 => [ //14.0
                         0x05 => "Subject",
                         0x06 => "MessageClass",
                         0x07 => "LastModifiedDate",
                         0x08 => "Categories",
                         0x09 => "Category",
-                    ),
-                    0x18 => array( // post 14.0
+                    ],
+                    0x18 => [ // post 14.0
                         0x05 => "RightsManagementSupport",
                         0x06 => "RightsManagementTemplates",
                         0x07 => "RightsManagementTemplate",
@@ -719,9 +720,9 @@ class WBXMLDefs {
                         0x16 => "TemplateDescription",
                         0x17 => "ContentOwner",
                         0x18 => "RemoveRightsManagementDistribution",
-                    ),
-              ),
-              "namespaces" => array(
+                    ],
+                ],
+                "namespaces" => [
                   //0 => "AirSync", //
                   1 => "POOMCONTACTS",
                   2 => "POOMMAIL",
@@ -747,6 +748,6 @@ class WBXMLDefs {
                   0x16 => "POOMMAIL2", //14.0
                   0x17 => "Notes", //14.0
                   0x18 => "RightsManagement",
-              )
-          );
+                ]
+          ];
 }

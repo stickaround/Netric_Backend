@@ -306,8 +306,8 @@ abstract class AbstractController
     private function escapeXml($string)
     {
         return str_replace(
-            array("&", "<", ">", "\"", "'"),
-            array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;"),
+            ["&", "<", ">", "\"", "'"],
+            ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"],
             $string
         );
     }

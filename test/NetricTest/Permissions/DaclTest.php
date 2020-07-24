@@ -40,7 +40,7 @@ class DaclTest extends TestCase
 
     /**
      * Users group
-     * 
+     *
      * @var Group
      */
     private $userGroup = null;
@@ -129,15 +129,15 @@ class DaclTest extends TestCase
 
     public function testFromArray()
     {
-        $data = array(
-            "entries" => array(
-                array(
+        $data = [
+            "entries" => [
+                [
                     "name" => Dacl::PERM_VIEW,
                     "groups" => [$this->userGroup->getGroupId()],
                     "users" => [$this->user->getEntityId()]
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $dacl = new Dacl();
         $dacl->fromArray($data);

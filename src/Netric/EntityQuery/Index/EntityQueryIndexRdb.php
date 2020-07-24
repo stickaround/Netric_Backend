@@ -292,8 +292,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                if (
-                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
+                if ($fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
                     || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
@@ -425,8 +424,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     case FIELD::TYPE_TEXT:
                         break;
                     case FIELD::TYPE_OBJECT:
-                        if (
-                            !empty($field->subtype)
+                        if (!empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
                             && is_numeric($value)
                         ) {
@@ -884,7 +882,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
     /**
      * Function that will adds nullif in the fieldName that will be used in jsonb queries
-     * 
+     *
      * @param string $fieldName The name of the field that we will be setting as nullif
      */
     private function castNullIfInteger($fieldName)

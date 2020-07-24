@@ -28,7 +28,8 @@
  *
  * @return string
  */
-function getDefaultFromValue($username, $domain) {
+function getDefaultFromValue($username, $domain)
+{
     $v = "";
 
     if (defined('IMAP_DEFAULTFROM')) {
@@ -63,7 +64,8 @@ function getDefaultFromValue($username, $domain) {
  * @param string     $username          Username
  * @return string
  */
-function getDefaultFullNameValue($username, $domain) {
+function getDefaultFullNameValue($username, $domain)
+{
     $v = $username;
 
     if (defined('IMAP_DEFAULTFROM')) {
@@ -92,7 +94,8 @@ function getDefaultFullNameValue($username, $domain) {
  * @params boolean  $encode      if the result should be encoded as a header
  * @return string
  */
-function getIdentityFromLdap($username, $domain, $identity, $encode = true) {
+function getIdentityFromLdap($username, $domain, $identity, $encode = true)
+{
     $ret_value = $username;
 
     $ldap_conn = null;
@@ -120,20 +123,16 @@ function getIdentityFromLdap($username, $domain, $identity, $encode = true) {
                     if ($encode) {
                         $ret_value = encodeFrom($ret_value);
                     }
-                }
-                else {
+                } else {
                     ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->getIdentityFromLdap() - No entry found in LDAP"));
                 }
-            }
-            else {
+            } else {
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->getIdentityFromLdap() - Not authenticated in LDAP server"));
             }
-        }
-        else {
+        } else {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->getIdentityFromLdap() - Not connected to LDAP server"));
         }
-    }
-    catch(Exception $ex) {
+    } catch (Exception $ex) {
         ZLog::Write(LOGLEVEL_WARN, sprintf("BackendIMAP->getIdentityFromLdap() - Error getting From value from LDAP server: %s", $ex));
     }
 
@@ -152,7 +151,8 @@ function getIdentityFromLdap($username, $domain, $identity, $encode = true) {
  * @params string   $domain      domain value
  * @return string
  */
-function getIdentityFromSql($username, $domain, $identity, $encode = true) {
+function getIdentityFromSql($username, $domain, $identity, $encode = true)
+{
     $ret_value = $username;
 
     $dbh = $sth = $record = null;
@@ -174,12 +174,10 @@ function getIdentityFromSql($username, $domain, $identity, $encode = true) {
             if ($encode) {
                 $ret_value = encodeFrom($ret_value);
             }
-        }
-        else {
+        } else {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->getIdentityFromSql() - No entry found in SQL Database"));
         }
-    }
-    catch(PDOException $ex) {
+    } catch (PDOException $ex) {
         ZLog::Write(LOGLEVEL_WARN, sprintf("BackendIMAP->getIdentityFromSql() - Error getting From value from SQL Database: %s", $ex));
     }
 
@@ -195,7 +193,8 @@ function getIdentityFromSql($username, $domain, $identity, $encode = true) {
  * @params string   $domain      domain value
  * @return string
  */
-function getIdentityFromPasswd($username, $domain, $identity, $encode = true) {
+function getIdentityFromPasswd($username, $domain, $identity, $encode = true)
+{
     $ret_value = $username;
 
     try {
@@ -226,8 +225,7 @@ function getIdentityFromPasswd($username, $domain, $identity, $encode = true) {
         } else {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->getIdentityFromPasswd() - No entry found in Password database"));
         }
-    }
-    catch(Exception $ex) {
+    } catch (Exception $ex) {
         ZLog::Write(LOGLEVEL_WARN, sprintf("BackendIMAP->getIdentityFromPasswd() - Error getting From value from passwd database: %s", $ex));
     }
 
@@ -241,7 +239,8 @@ function getIdentityFromPasswd($username, $domain, $identity, $encode = true) {
  * @param string    $from   From value
  * @return string
  */
-function encodeFrom($from) {
+function encodeFrom($from)
+{
     $items = explode("<", $from);
     $name = trim($items[0]);
     return "=?UTF-8?B?" . base64_encode($name) . "?= <" . $items[1];

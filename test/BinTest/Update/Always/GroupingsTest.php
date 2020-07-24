@@ -27,7 +27,7 @@ class GroupingsTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/02-groupings.php";
     }

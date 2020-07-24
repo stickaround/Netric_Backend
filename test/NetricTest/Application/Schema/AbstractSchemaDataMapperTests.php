@@ -107,29 +107,29 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
         );
 
         // Create a test definition with all the goodies for testing
-        $testDefinition = array(
-            "unit_test_schema" => array(
-                "PROPERTIES" => array(
-                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type' => SchemaProperty::TYPE_INT),
-                    'some_unique'   => array('type' => SchemaProperty::TYPE_CHAR_128)
-                ),
+        $testDefinition = [
+            "unit_test_schema" => [
+                "PROPERTIES" => [
+                    'id'            => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+                    'name'          => ['type' => SchemaProperty::TYPE_CHAR_128],
+                    'value'         => ['type' => SchemaProperty::TYPE_INT],
+                    'some_unique'   => ['type' => SchemaProperty::TYPE_CHAR_128]
+                ],
                 'PRIMARY_KEY'       => 'id',
-                "INDEXES" => array(
-                    array('properties' => array('name'))
-                )
-            ),
-        );
+                "INDEXES" => [
+                    ['properties' => ['name']]
+                ]
+            ],
+        ];
 
         $dataMapper = $this->getDataMapper($testDefinition, $account->getAccountId());
         $this->assertTrue($dataMapper->update($account->getAccountId()));
 
         // Now test reading and writing data
-        $data = array(
+        $data = [
             "name" => 'my test value',
             "value" => 100,
-        );
+        ];
         $this->assertTrue($this->insertIntoBucket("unit_test_schema", $data));
 
         // Make sure the primary key was setup
@@ -147,20 +147,20 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
     public function testGetLastAppliedSchemaHash()
     {
         // Create a test definition with all the goodies for testing
-        $testDefinition = array(
-            "unit_test_schema" => array(
-                "PROPERTIES" => array(
-                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type' => SchemaProperty::TYPE_INT),
-                    'some_unique'   => array('type' => SchemaProperty::TYPE_CHAR_128)
-                ),
+        $testDefinition = [
+            "unit_test_schema" => [
+                "PROPERTIES" => [
+                    'id'            => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+                    'name'          => ['type' => SchemaProperty::TYPE_CHAR_128],
+                    'value'         => ['type' => SchemaProperty::TYPE_INT],
+                    'some_unique'   => ['type' => SchemaProperty::TYPE_CHAR_128]
+                ],
                 'PRIMARY_KEY'       => 'id',
-                "INDEXES" => array(
-                    array('properties' => array('name'))
-                )
-            ),
-        );
+                "INDEXES" => [
+                    ['properties' => ['name']]
+                ]
+            ],
+        ];
 
         $account = $this->application->createAccount(
             self::TEST_ACCOUNT_NAME,
@@ -183,20 +183,20 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
     public function testSetLastAppliedSchemaHash()
     {
         // Create a test definition with all the goodies for testing
-        $testDefinition = array(
-            "unit_test_schema" => array(
-                "PROPERTIES" => array(
-                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type' => SchemaProperty::TYPE_INT),
-                    'some_unique'   => array('type' => SchemaProperty::TYPE_CHAR_128)
-                ),
+        $testDefinition = [
+            "unit_test_schema" => [
+                "PROPERTIES" => [
+                    'id'            => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+                    'name'          => ['type' => SchemaProperty::TYPE_CHAR_128],
+                    'value'         => ['type' => SchemaProperty::TYPE_INT],
+                    'some_unique'   => ['type' => SchemaProperty::TYPE_CHAR_128]
+                ],
                 'PRIMARY_KEY'       => 'id',
-                "INDEXES" => array(
-                    array('properties' => array('name'))
-                )
-            ),
-        );
+                "INDEXES" => [
+                    ['properties' => ['name']]
+                ]
+            ],
+        ];
 
         $account = $this->application->createAccount(
             self::TEST_ACCOUNT_NAME,
@@ -218,16 +218,16 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
     public function testCheckIfColumnExist()
     {
         // Create a test definition with all the goodies for testing
-        $testDefinition = array(
-            "unit_test_schema" => array(
-                "PROPERTIES" => array(
-                    'id'            => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-                    'name'          => array('type' => SchemaProperty::TYPE_CHAR_128),
-                    'value'         => array('type' => SchemaProperty::TYPE_INT),
-                    'field_data'    => array('type' => SchemaProperty::TYPE_JSON),
-                ),
-            ),
-        );
+        $testDefinition = [
+            "unit_test_schema" => [
+                "PROPERTIES" => [
+                    'id'            => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+                    'name'          => ['type' => SchemaProperty::TYPE_CHAR_128],
+                    'value'         => ['type' => SchemaProperty::TYPE_INT],
+                    'field_data'    => ['type' => SchemaProperty::TYPE_JSON],
+                ],
+            ],
+        ];
 
         $account = $this->application->createAccount(
             self::TEST_ACCOUNT_NAME,

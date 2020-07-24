@@ -26,7 +26,7 @@ class ScheduleRunnerWorker extends AbstractWorker
      * @var WOrkerService
      */
     private $workerService = null;
-    
+
     /**
      * Extend constructor in order to provide dependency injection for tests
      *

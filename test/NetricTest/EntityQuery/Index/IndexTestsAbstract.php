@@ -46,14 +46,14 @@ abstract class IndexTestsAbstract extends TestCase
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Test groupings to delete
      *
      * @var array(array('obj_type', 'field', 'grouping_id'))
      */
-    private $testGroupings = array();
+    private $testGroupings = [];
 
     /**
      * Setup each test

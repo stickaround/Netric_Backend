@@ -24,6 +24,7 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class NotImplementedException extends ZPushException {
+class NotImplementedException extends ZPushException
+{
     protected $defaultLogLevel = LOGLEVEL_ERROR;
 }

@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncContact {
+class SyncContact
+{
     // ContactObject variable           MAPI Property                               Default LDAP parameter
     public $accountname;                // PR_ACCOUNT                               username
     public $firstname;                  // PR_GIVEN_NAME                            givenName
@@ -111,7 +112,8 @@ class SyncContact {
      * @access public
      * @return string
      */
-    public function GetHash() {
+    public function GetHash()
+    {
         if (!isset($this->hash) || $this->hash == "") {
             $this->hash = md5(serialize($this));
         }
@@ -124,7 +126,8 @@ class SyncContact {
      * @access public
      * @return array
      */
-    public function getUnsetVars() {
-        return array();
+    public function getUnsetVars()
+    {
+        return [];
     }
 }

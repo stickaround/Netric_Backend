@@ -199,8 +199,7 @@ class Results
      */
     public function getEntity($offset = 0)
     {
-        if (
-            $offset >= ($this->getOffset() + $this->query->getLimit()) ||
+        if ($offset >= ($this->getOffset() + $this->query->getLimit()) ||
             $offset < $this->getOffset()
         ) {
             // Get total number of pages

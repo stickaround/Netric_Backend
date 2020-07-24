@@ -38,7 +38,7 @@ class FileTest extends TestCase
      *
      * @var Entity\ObjType\FileEntity[]
      */
-    private $testFiles = array();
+    private $testFiles = [];
 
     /**
      * Entity DataMapper for creating, updating, and deleting files entities
@@ -91,7 +91,8 @@ class FileTest extends TestCase
         $file = $loader->create(ObjectTypes::FILE);
         $file->setValue("name", "test.txt");
         $this->entityDataMapper->save($file);
-        $this->testFiles[] = $file;;
+        $this->testFiles[] = $file;
+        ;
 
         // Write data to the file
         $fileStore->writeFile($file, "my test data");

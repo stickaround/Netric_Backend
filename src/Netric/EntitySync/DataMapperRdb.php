@@ -9,7 +9,6 @@ use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Collection\CollectionInterface;
 use DateTime;
 
-
 /**
  * Relational database datamapper for synchronization library
  */
@@ -35,11 +34,11 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         }
 
         // Save partnership info
-        $data = array(
+        $data = [
             "pid" => $partner->getRemotePartnerId(),
             "owner_id" => $partner->getOwnerId(),
             "ts_last_sync" => $partner->getLastSync("Y-m-d H:i:s"),
-        );
+        ];
 
         if ($partner->getId()) {
             $this->database->update("entity_sync_partner", $data, ["entity_sync_partner_id" => $partner->getId()]);

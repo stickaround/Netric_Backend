@@ -13,7 +13,7 @@ class UpdateFieldActionTest extends AbstractActionTests
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Cleanup entities

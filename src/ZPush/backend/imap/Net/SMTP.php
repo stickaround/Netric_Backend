@@ -92,7 +92,7 @@ class Net_SMTP
      *
      * @var array
      */
-    public $auth_methods = array();
+    public $auth_methods = [];
 
     /**
      * Use SMTP command pipelining (specified in RFC 2920) if the SMTP
@@ -162,7 +162,7 @@ class Net_SMTP
      *
      * @var array
      */
-    protected $_arguments = array();
+    protected $_arguments = [];
 
     /**
      * Stores the SMTP server's greeting string.
@@ -176,7 +176,7 @@ class Net_SMTP
      *
      * @var array
      */
-    protected $_esmtp = array();
+    protected $_esmtp = [];
 
     /**
      * Require verification of SSL certificate used.
@@ -220,11 +220,17 @@ class Net_SMTP
      * @param boolean $verify_peer_name Require verification of peer name
      * @param boolean $allow_self_signed Allow self-signed certificates. Requires verify_peer
      */
-    public function __construct($host = null, $port = null, $localhost = null,
-                                $pipelining = false, $timeout = 0,
-                                $socket_options = null,
-                                $verify_peer = true, $verify_peer_name = true, $allow_self_signed = false)
-    {
+    public function __construct(
+        $host = null,
+        $port = null,
+        $localhost = null,
+        $pipelining = false,
+        $timeout = 0,
+        $socket_options = null,
+        $verify_peer = true,
+        $verify_peer_name = true,
+        $allow_self_signed = false
+    ) {
         if (isset($host)) {
             $this->host = $host;
         }
@@ -241,17 +247,20 @@ class Net_SMTP
 
         // SSL connection, we need to modify the socket_options
         if (strpos($this->host, "ssl://") === 0) {
-            if ($this->_socket_options == null)
-                $this->_socket_options = array();
+            if ($this->_socket_options == null) {
+                $this->_socket_options = [];
+            }
 
-            if (!array_key_exists('ssl', $this->_socket_options))
-                $this->_socket_options['ssl'] = array();
+            if (!array_key_exists('ssl', $this->_socket_options)) {
+                $this->_socket_options['ssl'] = [];
+            }
 
             $this->_socket_options['ssl']['verify_peer'] = $verify_peer;
             $this->_socket_options['ssl']['allow_self_signed'] = $allow_self_signed;
             // This option was introduced in 5.6
-            if (version_compare(phpversion(), "5.6.0", ">="))
+            if (version_compare(phpversion(), "5.6.0", ">=")) {
                 $this->_socket_options['ssl']['verify_peer_name'] = $verify_peer_name;
+            }
         }
 
         $this->_timeout = $timeout;
@@ -263,12 +272,12 @@ class Net_SMTP
 
         /* Include the Auth_SASL package.  If the package is available, we
          * enable the authentication methods that depend upon it. */
-        $this->setAuthMethod('CRAM-MD5', array($this, '_authCram_MD5'));
-        $this->setAuthMethod('DIGEST-MD5', array($this, '_authDigest_MD5'));
+        $this->setAuthMethod('CRAM-MD5', [$this, '_authCram_MD5']);
+        $this->setAuthMethod('DIGEST-MD5', [$this, '_authDigest_MD5']);
 
         /* These standard authentication methods are always available. */
-        $this->setAuthMethod('LOGIN', array($this, '_authLogin'), false);
-        $this->setAuthMethod('PLAIN', array($this, '_authPlain'), false);
+        $this->setAuthMethod('LOGIN', [$this, '_authLogin'], false);
+        $this->setAuthMethod('PLAIN', [$this, '_authPlain'], false);
     }
 
     /**
@@ -302,8 +311,10 @@ class Net_SMTP
     {
         if ($this->_debug) {
             if ($this->_debug_handler) {
-                call_user_func_array($this->_debug_handler,
-                                     array(&$this, $message));
+                call_user_func_array(
+                    $this->_debug_handler,
+                    [&$this, $message]
+                );
             } else {
                 ZLog::Write(LOGLEVEL_DEBUG, "Net_SMTP DEBUG: ". $message);
             }
@@ -378,7 +389,7 @@ class Net_SMTP
     protected function _parseResponse($valid, $later = false)
     {
         $this->_code = -1;
-        $this->_arguments = array();
+        $this->_arguments = [];
 
         if ($later) {
             ++$this->_pipelined_commands;
@@ -392,9 +403,12 @@ class Net_SMTP
                 /* If we receive an empty line, the connection was closed. */
                 if (empty($line)) {
                     $this->disconnect();
-                    return Net_SMTP::raiseError('Connection was closed',
-//                                            null, PEAR_ERROR_RETURN);
-                                            null, 1);
+                    return Net_SMTP::raiseError(
+                        'Connection was closed',
+                        //                                            null, PEAR_ERROR_RETURN);
+                        null,
+                        1
+                    );
                 }
 
                 /* Read the code and store the rest in the arguments array. */
@@ -424,9 +438,12 @@ class Net_SMTP
             return;
         }
 
-        return Net_SMTP::raiseError('Invalid response code received from server',
-//                                $this->_code, PEAR_ERROR_RETURN);
-                                $this->_code, 1);
+        return Net_SMTP::raiseError(
+            'Invalid response code received from server',
+            //                                $this->_code, PEAR_ERROR_RETURN);
+            $this->_code,
+            1
+        );
     }
 
     /**
@@ -462,7 +479,7 @@ class Net_SMTP
      */
     public function getResponse()
     {
-        return array($this->_code, join("\n", $this->_arguments));
+        return [$this->_code, join("\n", $this->_arguments)];
     }
 
     /**
@@ -489,9 +506,13 @@ class Net_SMTP
     public function connect($timeout = null, $persistent = false)
     {
         $this->_greeting = null;
-        $result = $this->_socket->connect($this->host, $this->port,
-                                          $persistent, $timeout,
-                                          $this->_socket_options);
+        $result = $this->_socket->connect(
+            $this->host,
+            $this->port,
+            $persistent,
+            $timeout,
+            $this->_socket_options
+        );
         //if (PEAR::isError($result)) {
         if ($result === false) {
 //            return Net_SMTP::raiseError('Failed to connect socket: ' .
@@ -574,9 +595,12 @@ class Net_SMTP
             }
             //if (PEAR::isError($this->_parseResponse(250))) {
             if (($this->_parseResponse(250)) === false) {
-                return Net_SMTP::raiseError('HELO was not accepted: ', $this->_code,
-//                                        PEAR_ERROR_RETURN);
-                                        1);
+                return Net_SMTP::raiseError(
+                    'HELO was not accepted: ',
+                    $this->_code,
+                    //                                        PEAR_ERROR_RETURN);
+                    1
+                );
             }
 
             return true;
@@ -584,8 +608,11 @@ class Net_SMTP
 
         foreach ($this->_arguments as $argument) {
             $verb = strtok($argument, ' ');
-            $arguments = substr($argument, strlen($verb) + 1,
-                                strlen($argument) - strlen($verb) - 1);
+            $arguments = substr(
+                $argument,
+                strlen($verb) + 1,
+                strlen($argument) - strlen($verb) - 1
+            );
             $this->_esmtp[$verb] = $arguments;
         }
 
@@ -614,9 +641,12 @@ class Net_SMTP
             }
         }
 
-        return Net_SMTP::raiseError('No supported authentication methods',
-//                                null, PEAR_ERROR_RETURN);
-                                null, 1);
+        return Net_SMTP::raiseError(
+            'No supported authentication methods',
+            //                                null, PEAR_ERROR_RETURN);
+            null,
+            1
+        );
     }
 
     /**
@@ -693,9 +723,9 @@ class Net_SMTP
             list($object, $method) = $this->auth_methods[$method];
             $result = $object->{$method}($uid, $pwd, $authz, $this);
         } else {
-            $func =  $this->auth_methods[$method];
+            $func = $this->auth_methods[$method];
             $result = $func($uid, $pwd, $authz, $this);
-         }
+        }
 
         /* If an error was encountered, return the PEAR_Error object. */
         //if (PEAR::isError($result)) {
@@ -736,8 +766,10 @@ class Net_SMTP
         }
 
         if ($prepend) {
-            $this->auth_methods = array_merge(array($name => $callback),
-                                              $this->auth_methods);
+            $this->auth_methods = array_merge(
+                [$name => $callback],
+                $this->auth_methods
+            );
         } else {
             $this->auth_methods[$name] = $callback;
         }
@@ -773,9 +805,14 @@ class Net_SMTP
 
         $challenge = base64_decode($this->_arguments[0]);
         $digest = Auth_SASL::factory('digest-md5');
-        $auth_str = base64_encode($digest->getResponse($uid, $pwd, $challenge,
-                                                       $this->host, "smtp",
-                                                       $authz));
+        $auth_str = base64_encode($digest->getResponse(
+            $uid,
+            $pwd,
+            $challenge,
+            $this->host,
+            "smtp",
+            $authz
+        ));
 
         //if (PEAR::isError($error = $this->_put($auth_str))) {
         if (($error = $this->_put($auth_str)) === false) {
@@ -1022,7 +1059,7 @@ class Net_SMTP
             return $error;
         }
         //if (PEAR::isError($error = $this->_parseResponse(array(250, 251), $this->pipelining))) {
-        if (($error = $this->_parseResponse(array(250, 251), $this->pipelining)) === false) {
+        if (($error = $this->_parseResponse([250, 251], $this->pipelining)) === false) {
             return $error;
         }
 
@@ -1047,8 +1084,8 @@ class Net_SMTP
          * Also: change Unix (\n) and Mac (\r) linefeeds into CRLF's
          * (\r\n). */
         $data = preg_replace(
-            array('/^\./m', '/(?:\r\n|\n|\r(?!\n))/'),
-            array('..', "\r\n"),
+            ['/^\./m', '/(?:\r\n|\n|\r(?!\n))/'],
+            ['..', "\r\n"],
             $data
         );
     }
@@ -1281,7 +1318,7 @@ class Net_SMTP
             return $error;
         }
         //if (PEAR::isError($error = $this->_parseResponse(array(250, 252)))) {
-        if (($error = $this->_parseResponse(array(250, 252))) === false) {
+        if (($error = $this->_parseResponse([250, 252])) === false) {
             return $error;
         }
 
@@ -1315,7 +1352,8 @@ class Net_SMTP
      * @return boolean always false as there was an error
      * @access private
      */
-    static function raiseError($message) {
+    static function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "Net_SMTP error: ". $message);
         return false;
     }

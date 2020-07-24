@@ -36,23 +36,22 @@
 function makeGuid($guid)
 {
     // remove the { and } from the string and explode it into an array
-    $guidArray = explode('-', substr($guid, 1,strlen($guid)-2));
+    $guidArray = explode('-', substr($guid, 1, strlen($guid) - 2));
 
     // convert to hex!
-    $data1[0] = intval(substr($guidArray[0], 0, 4),16); // we need to split the unsigned long
-    $data1[1] = intval(substr($guidArray[0], 4, 4),16);
+    $data1[0] = intval(substr($guidArray[0], 0, 4), 16); // we need to split the unsigned long
+    $data1[1] = intval(substr($guidArray[0], 4, 4), 16);
     $data2 = intval($guidArray[1], 16);
     $data3 = intval($guidArray[2], 16);
 
-    $data4[0] = intval(substr($guidArray[3], 0, 2),16);
-    $data4[1] = intval(substr($guidArray[3], 2, 2),16);
+    $data4[0] = intval(substr($guidArray[3], 0, 2), 16);
+    $data4[1] = intval(substr($guidArray[3], 2, 2), 16);
 
-    for($i=0; $i < 6; $i++)
-    {
-        $data4[] = intval(substr($guidArray[4], $i*2, 2),16);
+    for ($i = 0; $i < 6; $i++) {
+        $data4[] = intval(substr($guidArray[4], $i * 2, 2), 16);
     }
 
-    return pack("vvvvCCCCCCCC", $data1[1], $data1[0], $data2, $data3, $data4[0],$data4[1],$data4[2],$data4[3],$data4[4],$data4[5],$data4[6],$data4[7]);
+    return pack("vvvvCCCCCCCC", $data1[1], $data1[0], $data2, $data3, $data4[0], $data4[1], $data4[2], $data4[3], $data4[4], $data4[5], $data4[6], $data4[7]);
 }
 
 /**
@@ -61,9 +60,9 @@ function makeGuid($guid)
  *@param int $errcode the MAPI error code, if not given, we use mapi_last_hresult
  *@return string The defined name for the MAPI error code
  */
-function get_mapi_error_name($errcode=null)
+function get_mapi_error_name($errcode = null)
 {
-    if ($errcode === null){
+    if ($errcode === null) {
         $errcode = mapi_last_hresult();
     }
 
@@ -105,36 +104,36 @@ function get_mapi_error_name($errcode=null)
  */
 function getPropIdsFromStrings($store, $mapping)
 {
-    $props = array();
+    $props = [];
 
-    $ids = array("name"=>array(), "id"=>array(), "guid"=>array(), "type"=>array()); // this array stores all the information needed to retrieve a named property
+    $ids = ["name" => [], "id" => [], "guid" => [], "type" => []]; // this array stores all the information needed to retrieve a named property
     $num = 0;
 
     // caching
-    $guids = array();
+    $guids = [];
 
-    foreach($mapping as $name=>$val){
-        if(is_string($val)) {
+    foreach ($mapping as $name => $val) {
+        if (is_string($val)) {
             $split = explode(":", $val);
 
-            if(count($split) != 3){ // invalid string, ignore
-                trigger_error(sprintf("Invalid property: %s \"%s\"",$name,$val), E_USER_NOTICE);
+            if (count($split) != 3) { // invalid string, ignore
+                trigger_error(sprintf("Invalid property: %s \"%s\"", $name, $val), E_USER_NOTICE);
                 continue;
             }
 
-            if(substr($split[2], 0, 2) == "0x") {
+            if (substr($split[2], 0, 2) == "0x") {
                 $id = hexdec(substr($split[2], 2));
             } else {
                 $id = $split[2];
             }
 
             // have we used this guid before?
-            if (!defined($split[1])){
-                if (!array_key_exists($split[1], $guids)){
+            if (!defined($split[1])) {
+                if (!array_key_exists($split[1], $guids)) {
                     $guids[$split[1]] = makeguid($split[1]);
                 }
                 $guid = $guids[$split[1]];
-            }else{
+            } else {
                 $guid = constant($split[1]);
             }
 
@@ -144,19 +143,19 @@ function getPropIdsFromStrings($store, $mapping)
             $ids["guid"][$num] = $guid;
             $ids["type"][$num] = $split[0];
             $num++;
-        }else{
+        } else {
             // not a named property
             $props[$name] = $val;
         }
     }
 
-    if (empty($ids["id"])){
+    if (empty($ids["id"])) {
         return $props;
     }
 
     // get the ids
     $named = mapi_getidsfromnames($store, $ids["id"], $ids["guid"]);
-    foreach($named as $num=>$prop){
+    foreach ($named as $num => $prop) {
         $props[$ids["name"][$num]] = mapi_prop_tag(constant($ids["type"][$num]), mapi_prop_id($prop));
     }
 
@@ -187,22 +186,26 @@ function propIsError($property, $propArray)
 /**
  * check addressbook object is a remote mailuser
  */
-function DTE_IS_REMOTE_VALID($value) {
+function DTE_IS_REMOTE_VALID($value)
+{
     return !!($value & DTE_FLAG_REMOTE_VALID);
 }
 
 /**
  * check addressbook object is able to receive permissions
  */
-function DTE_IS_ACL_CAPABLE($value) {
+function DTE_IS_ACL_CAPABLE($value)
+{
     return !!($value & DTE_FLAG_ACL_CAPABLE);
 }
 
-function DTE_REMOTE($value) {
+function DTE_REMOTE($value)
+{
     return (($value & DTE_MASK_REMOTE) >> 8);
 }
 
-function DTE_LOCAL($value) {
+function DTE_LOCAL($value)
+{
     return ($value & DTE_MASK_LOCAL);
 }
 
@@ -222,16 +225,17 @@ function DTE_LOCAL($value) {
  * @param $rows array Array of rowdata as if they were returned directly from mapi_table_queryrows. Each recurring item is
  *                    expanded so that it seems that there are only many single appointments in the table.
  */
-function getCalendarItems($store, $calendar, $viewstart, $viewend, $propsrequested){
-    $result = array();
-    $properties = getPropIdsFromStrings($store, Array( "duedate" => "PT_SYSTIME:PSETID_Appointment:0x820e",
-                                               "startdate" =>  "PT_SYSTIME:PSETID_Appointment:0x820d",
+function getCalendarItems($store, $calendar, $viewstart, $viewend, $propsrequested)
+{
+    $result = [];
+    $properties = getPropIdsFromStrings($store, [ "duedate" => "PT_SYSTIME:PSETID_Appointment:0x820e",
+                                               "startdate" => "PT_SYSTIME:PSETID_Appointment:0x820d",
                                                "enddate_recurring" => "PT_SYSTIME:PSETID_Appointment:0x8236",
                                                "recurring" => "PT_BOOLEAN:PSETID_Appointment:0x8223",
                                                "recurring_data" => "PT_BINARY:PSETID_Appointment:0x8216",
                                                "timezone_data" => "PT_BINARY:PSETID_Appointment:0x8233",
                                                "label" => "PT_LONG:PSETID_Appointment:0x8214"
-                                                ));
+                                                ]);
 
     // Create a restriction that will discard rows of appointments that are definitely not in our
     // requested time frame
@@ -240,36 +244,36 @@ function getCalendarItems($store, $calendar, $viewstart, $viewend, $propsrequest
 
     $restriction =
         // OR
-        Array(RES_OR,
-                 Array(
-                       Array(RES_AND,    // Normal items: itemEnd must be after viewStart, itemStart must be before viewEnd
-                             Array(
-                                   Array(RES_PROPERTY,
-                                         Array(RELOP => RELOP_GT,
+        [RES_OR,
+                 [
+                       [RES_AND,    // Normal items: itemEnd must be after viewStart, itemStart must be before viewEnd
+                             [
+                                   [RES_PROPERTY,
+                                         [RELOP => RELOP_GT,
                                                ULPROPTAG => $properties["duedate"],
                                                VALUE => $viewstart
-                                               )
-                                         ),
-                                   Array(RES_PROPERTY,
-                                         Array(RELOP => RELOP_LT,
+                                               ]
+                                         ],
+                                   [RES_PROPERTY,
+                                         [RELOP => RELOP_LT,
                                                ULPROPTAG => $properties["startdate"],
                                                VALUE => $viewend
-                                               )
-                                         )
-                                   )
-                             ),
+                                               ]
+                                         ]
+                                   ]
+                             ],
                        // OR
-                       Array(RES_PROPERTY,
-                             Array(RELOP => RELOP_EQ,
+                       [RES_PROPERTY,
+                             [RELOP => RELOP_EQ,
                                    ULPROPTAG => $properties["recurring"],
                                    VALUE => true
-                                   )
-                             )
-                       ) // EXISTS OR
-                 );        // global OR
+                                   ]
+                             ]
+                       ] // EXISTS OR
+                 ];        // global OR
 
     // Get requested properties, plus whatever we need
-    $proplist = array(PR_ENTRYID, $properties["recurring"], $properties["recurring_data"], $properties["timezone_data"]);
+    $proplist = [PR_ENTRYID, $properties["recurring"], $properties["recurring_data"], $properties["timezone_data"]];
     $proplist = array_merge($proplist, $propsrequested);
     $propslist = array_unique($proplist);
 
@@ -277,27 +281,26 @@ function getCalendarItems($store, $calendar, $viewstart, $viewend, $propsrequest
 
     // $rows now contains all the items that MAY be in the window; a recurring item needs expansion before including in the output.
 
-    foreach($rows as $row) {
-        $items = array();
+    foreach ($rows as $row) {
+        $items = [];
 
-        if(isset($row[$properties["recurring"]]) && $row[$properties["recurring"]]) {
+        if (isset($row[$properties["recurring"]]) && $row[$properties["recurring"]]) {
             // Recurring item
             $rec = new Recurrence($store, $row);
 
             // GetItems guarantees that the item overlaps the interval <$viewstart, $viewend>
             $occurrences = $rec->getItems($viewstart, $viewend);
-            foreach($occurrences as $occurrence) {
+            foreach ($occurrences as $occurrence) {
                 // The occurrence takes all properties from the main row, but overrides some properties (like start and end obviously)
                 $item = $occurrence + $row;
                 array_push($items, $item);
             }
-
         } else {
             // Normal item, it matched the search criteria and therefore overlaps the interval <$viewstart, $viewend>
             array_push($items, $row);
         }
 
-        $result = array_merge($result,$items);
+        $result = array_merge($result, $items);
     }
 
     // All items are guaranteed to overlap the interval <$viewstart, $viewend>. Note that we may be returning a few extra

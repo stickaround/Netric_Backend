@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class MAPIProvider {
+class MAPIProvider
+{
     private $session;
     private $store;
     private $zRFC822;
@@ -42,7 +43,8 @@ class MAPIProvider {
      *
      * @access public
      */
-    function __construct($session, $store) {
+    function __construct($session, $store)
+    {
         $this->session = $session;
         $this->store = $store;
     }
@@ -62,25 +64,28 @@ class MAPIProvider {
      * @access public
      * @return SyncObject
      */
-    public function GetMessage($mapimessage, $contentparameters) {
+    public function GetMessage($mapimessage, $contentparameters)
+    {
         // Gets the Sync object from a MAPI object according to its message class
 
-        $props = mapi_getprops($mapimessage, array(PR_MESSAGE_CLASS));
-        if(isset($props[PR_MESSAGE_CLASS]))
+        $props = mapi_getprops($mapimessage, [PR_MESSAGE_CLASS]);
+        if (isset($props[PR_MESSAGE_CLASS])) {
             $messageclass = $props[PR_MESSAGE_CLASS];
-        else
+        } else {
             $messageclass = "IPM";
+        }
 
-        if(strpos($messageclass,"IPM.Contact") === 0)
+        if (strpos($messageclass, "IPM.Contact") === 0) {
             return $this->getContact($mapimessage, $contentparameters);
-        else if(strpos($messageclass,"IPM.Appointment") === 0)
+        } elseif (strpos($messageclass, "IPM.Appointment") === 0) {
             return $this->getAppointment($mapimessage, $contentparameters);
-        else if(strpos($messageclass,"IPM.Task") === 0 && strpos($messageclass, "IPM.TaskRequest") === false)
+        } elseif (strpos($messageclass, "IPM.Task") === 0 && strpos($messageclass, "IPM.TaskRequest") === false) {
             return $this->getTask($mapimessage, $contentparameters);
-        else if(strpos($messageclass,"IPM.StickyNote") === 0)
+        } elseif (strpos($messageclass, "IPM.StickyNote") === 0) {
             return $this->getNote($mapimessage, $contentparameters);
-        else
+        } else {
             return $this->getEmail($mapimessage, $contentparameters);
+        }
     }
 
     /**
@@ -92,7 +97,8 @@ class MAPIProvider {
      * @access private
      * @return SyncContact
      */
-    private function getContact($mapimessage, $contentparameters) {
+    private function getContact($mapimessage, $contentparameters)
+    {
         $message = new SyncContact();
 
         // Standard one-to-one mappings first
@@ -110,10 +116,10 @@ class MAPIProvider {
             // Add attachments
             $attachtable = mapi_message_getattachmenttable($mapimessage);
             mapi_table_restrict($attachtable, MAPIUtils::GetContactPicRestriction());
-            $rows = mapi_table_queryallrows($attachtable, array(PR_ATTACH_NUM, PR_ATTACH_SIZE));
+            $rows = mapi_table_queryallrows($attachtable, [PR_ATTACH_NUM, PR_ATTACH_SIZE]);
 
-            foreach($rows as $row) {
-                if(isset($row[PR_ATTACH_NUM])) {
+            foreach ($rows as $row) {
+                if (isset($row[PR_ATTACH_NUM])) {
                     $mapiattach = mapi_message_openattach($mapimessage, $row[PR_ATTACH_NUM]);
                     $message->picture = base64_encode(mapi_attach_openbin($mapiattach, PR_ATTACH_DATA_BIN));
                 }
@@ -132,7 +138,8 @@ class MAPIProvider {
      * @access private
      * @return SyncTask
      */
-    private function getTask($mapimessage, $contentparameters) {
+    private function getTask($mapimessage, $contentparameters)
+    {
         $message = new SyncTask();
 
         // Standard one-to-one mappings first
@@ -147,7 +154,7 @@ class MAPIProvider {
 
         //task with deadoccur is an occurrence of a recurring task and does not need to be handled as recurring
         //webaccess does not set deadoccur for the initial recurring task
-        if(isset($messageprops[$taskproperties["isrecurringtag"]]) &&
+        if (isset($messageprops[$taskproperties["isrecurringtag"]]) &&
             $messageprops[$taskproperties["isrecurringtag"]] &&
             (!isset($messageprops[$taskproperties["deadoccur"]]) ||
             (isset($messageprops[$taskproperties["deadoccur"]]) &&
@@ -158,12 +165,14 @@ class MAPIProvider {
         }
 
         // when set the task to complete using the WebAccess, the dateComplete property is not set correctly
-        if ($message->complete == 1 && !isset($message->datecompleted))
+        if ($message->complete == 1 && !isset($message->datecompleted)) {
             $message->datecompleted = time();
+        }
 
         // if no reminder is set, announce that to the mobile
-        if (!isset($message->reminderset))
+        if (!isset($message->reminderset)) {
             $message->reminderset = 0;
+        }
 
         return $message;
     }
@@ -177,7 +186,8 @@ class MAPIProvider {
      * @access private
      * @return SyncAppointment
      */
-    private function getAppointment($mapimessage, $contentparameters) {
+    private function getAppointment($mapimessage, $contentparameters)
+    {
         $message = new SyncAppointment();
 
         // Standard one-to-one mappings first
@@ -191,35 +201,36 @@ class MAPIProvider {
         $this->setMessageBody($mapimessage, $contentparameters, $message);
 
         // Set reminder time if reminderset is true
-        if(isset($messageprops[$appointmentprops["reminderset"]]) && $messageprops[$appointmentprops["reminderset"]] == true) {
-            if ($messageprops[$appointmentprops["remindertime"]] == 0x5AE980E1)
+        if (isset($messageprops[$appointmentprops["reminderset"]]) && $messageprops[$appointmentprops["reminderset"]] == true) {
+            if ($messageprops[$appointmentprops["remindertime"]] == 0x5AE980E1) {
                 $message->reminder = 15;
-            else
+            } else {
                 $message->reminder = $messageprops[$appointmentprops["remindertime"]];
+            }
         }
 
-        if(!isset($message->uid))
+        if (!isset($message->uid)) {
             $message->uid = bin2hex($messageprops[$appointmentprops["sourcekey"]]);
-        else
+        } else {
             $message->uid = Utils::GetICalUidFromOLUid($message->uid);
+        }
 
         // Always set organizer information because some devices do not work properly without it
-        if( isset($messageprops[$appointmentprops["representingentryid"]]) &&
+        if (isset($messageprops[$appointmentprops["representingentryid"]]) &&
             isset($messageprops[$appointmentprops["representingname"]])) {
-
             $message->organizeremail = w2u($this->getSMTPAddressFromEntryID($messageprops[$appointmentprops["representingentryid"]]));
             $message->organizername = w2u($messageprops[$appointmentprops["representingname"]]);
         }
 
-        if(isset($messageprops[$appointmentprops["timezonetag"]]))
+        if (isset($messageprops[$appointmentprops["timezonetag"]])) {
             $tz = $this->getTZFromMAPIBlob($messageprops[$appointmentprops["timezonetag"]]);
-        else {
+        } else {
             // set server default timezone (correct timezone should be configured!)
             $tz = TimezoneUtil::GetFullTZ();
         }
         $message->timezone = base64_encode(TimezoneUtil::GetSyncBlobFromTZ($tz));
 
-        if(isset($messageprops[$appointmentprops["isrecurring"]]) && $messageprops[$appointmentprops["isrecurring"]]) {
+        if (isset($messageprops[$appointmentprops["isrecurring"]]) && $messageprops[$appointmentprops["isrecurring"]]) {
             // Process recurrence
             $message->recurrence = new SyncRecurrence();
             $this->getRecurrence($mapimessage, $messageprops, $message, $message->recurrence, $tz);
@@ -228,7 +239,7 @@ class MAPIProvider {
         // Do attendees
         $reciptable = mapi_message_getrecipienttable($mapimessage);
         // Only get first 256 recipients, to prevent possible load issues.
-        $rows = mapi_table_queryrows($reciptable, array(PR_DISPLAY_NAME, PR_EMAIL_ADDRESS, PR_SMTP_ADDRESS, PR_ADDRTYPE, PR_RECIPIENT_TRACKSTATUS, PR_RECIPIENT_TYPE, PR_SEARCH_KEY), 0, 256);
+        $rows = mapi_table_queryrows($reciptable, [PR_DISPLAY_NAME, PR_EMAIL_ADDRESS, PR_SMTP_ADDRESS, PR_ADDRTYPE, PR_RECIPIENT_TRACKSTATUS, PR_RECIPIENT_TYPE, PR_SEARCH_KEY], 0, 256);
 
         // Exception: we do not synchronize appointments with more than 250 attendees
         if (count($rows) > 250) {
@@ -238,20 +249,22 @@ class MAPIProvider {
             throw $mbe;
         }
 
-        if(count($rows) > 0)
-            $message->attendees = array();
+        if (count($rows) > 0) {
+            $message->attendees = [];
+        }
 
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             $attendee = new SyncAttendee();
 
             $attendee->name = w2u($row[PR_DISPLAY_NAME]);
             //smtp address is always a proper email address
-            if(isset($row[PR_SMTP_ADDRESS]))
+            if (isset($row[PR_SMTP_ADDRESS])) {
                 $attendee->email = w2u($row[PR_SMTP_ADDRESS]);
-            elseif (isset($row[PR_ADDRTYPE]) && isset($row[PR_EMAIL_ADDRESS])) {
+            } elseif (isset($row[PR_ADDRTYPE]) && isset($row[PR_EMAIL_ADDRESS])) {
                 //if address type is SMTP, it's also a proper email address
-                if ($row[PR_ADDRTYPE] == "SMTP")
+                if ($row[PR_ADDRTYPE] == "SMTP") {
                     $attendee->email = w2u($row[PR_EMAIL_ADDRESS]);
+                }
                 //if address type is ZARAFA, the PR_EMAIL_ADDRESS contains username
                 elseif ($row[PR_ADDRTYPE] == "ZARAFA") {
                     $userinfo = @mapi_zarafa_getuser_by_name($this->store, $row[PR_EMAIL_ADDRESS]);
@@ -262,8 +275,7 @@ class MAPIProvider {
                     // @see https://jira.z-hub.io/browse/ZP-1178
                     elseif (isset($row[PR_SEARCH_KEY])) {
                         $attendee->email = w2u($this->getEmailAddressFromSearchKey($row[PR_SEARCH_KEY]));
-                    }
-                    else {
+                    } else {
                         ZLog::Write(LOGLEVEL_WARN, sprintf("MAPIProvider->getAppointment: The attendee '%s' of type ZARAFA can not be resolved. Code: 0x%X", $row[PR_EMAIL_ADDRESS], mapi_last_hresult()));
                     }
                 }
@@ -271,25 +283,28 @@ class MAPIProvider {
 
             //set attendee's status and type if they're available and if we are the organizer
             $storeprops = $this->GetStoreProps();
-            if (isset($row[PR_RECIPIENT_TRACKSTATUS]) && isset($messageprops[$appointmentprops["representingentryid"]]) && $messageprops[$appointmentprops["representingentryid"]] == $storeprops[PR_MAILBOX_OWNER_ENTRYID])
+            if (isset($row[PR_RECIPIENT_TRACKSTATUS]) && isset($messageprops[$appointmentprops["representingentryid"]]) && $messageprops[$appointmentprops["representingentryid"]] == $storeprops[PR_MAILBOX_OWNER_ENTRYID]) {
                 $attendee->attendeestatus = $row[PR_RECIPIENT_TRACKSTATUS];
-            if (isset($row[PR_RECIPIENT_TYPE]))
+            }
+            if (isset($row[PR_RECIPIENT_TYPE])) {
                 $attendee->attendeetype = $row[PR_RECIPIENT_TYPE];
+            }
             // Some attendees have no email or name (eg resources), and if you
             // don't send one of those fields, the phone will give an error ... so
             // we don't send it in that case.
             // also ignore the "attendee" if the email is equal to the organizers' email
-            if(isset($attendee->name) && isset($attendee->email) && $attendee->email != "" && (!isset($message->organizeremail) || (isset($message->organizeremail) && $attendee->email != $message->organizeremail)))
+            if (isset($attendee->name) && isset($attendee->email) && $attendee->email != "" && (!isset($message->organizeremail) || (isset($message->organizeremail) && $attendee->email != $message->organizeremail))) {
                 array_push($message->attendees, $attendee);
+            }
         }
 
         // Status 0 = no meeting, status 1 = organizer, status 2/3/4/5 = tentative/accepted/declined/notresponded
-        if(isset($messageprops[$appointmentprops["meetingstatus"]]) && $messageprops[$appointmentprops["meetingstatus"]] > 1) {
-            if (!isset($message->attendees) || !is_array($message->attendees))
-                $message->attendees = array();
+        if (isset($messageprops[$appointmentprops["meetingstatus"]]) && $messageprops[$appointmentprops["meetingstatus"]] > 1) {
+            if (!isset($message->attendees) || !is_array($message->attendees)) {
+                $message->attendees = [];
+            }
             // Work around iOS6 cancellation issue when there are no attendees for this meeting. Just add ourselves as the sole attendee.
-            if(count($message->attendees) == 0) {
-
+            if (count($message->attendees) == 0) {
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("MAPIProvider->getAppointment: adding ourself as an attendee for iOS6 workaround"));
                 $attendee = new SyncAttendee();
 
@@ -309,7 +324,7 @@ class MAPIProvider {
         // If it's an appointment which doesn't have any attendees, we have to make sure that
         // the user is the owner or it will not work properly with android devices
         // @see https://jira.z-hub.io/browse/ZP-1020
-        if(isset($messageprops[$appointmentprops["meetingstatus"]]) && $messageprops[$appointmentprops["meetingstatus"]] == olNonMeeting && empty($message->attendees)) {
+        if (isset($messageprops[$appointmentprops["meetingstatus"]]) && $messageprops[$appointmentprops["meetingstatus"]] == olNonMeeting && empty($message->attendees)) {
             $meinfo = mapi_zarafa_getuser_by_name($this->store, Request::GetAuthUser());
 
             if (is_array($meinfo)) {
@@ -317,13 +332,11 @@ class MAPIProvider {
                 $message->organizername = w2u($meinfo["fullname"]);
                 ZLog::Write(LOGLEVEL_DEBUG, "MAPIProvider->getAppointment(): setting ourself as the organizer for an appointment without attendees.");
             }
-
         }
 
         if (!isset($message->nativebodytype)) {
             $message->nativebodytype = MAPIUtils::GetNativeBodyType($messageprops);
-        }
-        elseif ($message->nativebodytype == SYNC_BODYPREFERENCE_UNDEFINED) {
+        } elseif ($message->nativebodytype == SYNC_BODYPREFERENCE_UNDEFINED) {
             $nbt = MAPIUtils::GetNativeBodyType($messageprops);
             ZLog::Write(LOGLEVEL_INFO, sprintf("MAPIProvider->getAppointment(): native body type is undefined. Set it to %d.", $nbt));
             $message->nativebodytype = $nbt;
@@ -354,15 +367,17 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function getRecurrence($mapimessage, $recurprops, &$syncMessage, &$syncRecurrence, $tz) {
-        if ($syncRecurrence instanceof SyncTaskRecurrence)
+    private function getRecurrence($mapimessage, $recurprops, &$syncMessage, &$syncRecurrence, $tz)
+    {
+        if ($syncRecurrence instanceof SyncTaskRecurrence) {
             $recurrence = new TaskRecurrence($this->store, $mapimessage);
-        else
+        } else {
             $recurrence = new Recurrence($this->store, $mapimessage);
+        }
 
-        switch($recurrence->recur["type"]) {
+        switch ($recurrence->recur["type"]) {
             case 10: // daily
-                switch($recurrence->recur["subtype"]) {
+                switch ($recurrence->recur["subtype"]) {
                     default:
                         $syncRecurrence->type = 0;
                         break;
@@ -377,7 +392,7 @@ class MAPIProvider {
                     $syncRecurrence->type = 1;
                 break;
             case 12: // monthly
-                switch($recurrence->recur["subtype"]) {
+                switch ($recurrence->recur["subtype"]) {
                     default:
                         $syncRecurrence->type = 2;
                         break;
@@ -387,7 +402,7 @@ class MAPIProvider {
                 }
                 break;
             case 13: // yearly
-                switch($recurrence->recur["subtype"]) {
+                switch ($recurrence->recur["subtype"]) {
                     default:
                         $syncRecurrence->type = 4;
                         break;
@@ -399,31 +414,35 @@ class MAPIProvider {
                 }
         }
         // Termination
-        switch($recurrence->recur["term"]) {
+        switch ($recurrence->recur["term"]) {
             case 0x21:
                 $syncRecurrence->until = $recurrence->recur["end"];
                 // fixes Mantis #350 : recur-end does not consider timezones - use ClipEnd if available
-                if (isset($recurprops[$recurrence->proptags["enddate_recurring"]]))
+                if (isset($recurprops[$recurrence->proptags["enddate_recurring"]])) {
                     $syncRecurrence->until = $recurprops[$recurrence->proptags["enddate_recurring"]];
+                }
                 // add one day (minus 1 sec) to the end time to make sure the last occurrence is covered
                 $syncRecurrence->until += 86399;
                 break;
             case 0x22:
-                $syncRecurrence->occurrences = $recurrence->recur["numoccur"]; break;
+                $syncRecurrence->occurrences = $recurrence->recur["numoccur"];
+                break;
             case 0x23:
                 // never ends
                 break;
         }
 
         // Correct 'alldayevent' because outlook fails to set it on recurring items of 24 hours or longer
-        if(isset($recurrence->recur["endocc"], $recurrence->recur["startocc"]) && ($recurrence->recur["endocc"] - $recurrence->recur["startocc"] >= 1440))
+        if (isset($recurrence->recur["endocc"], $recurrence->recur["startocc"]) && ($recurrence->recur["endocc"] - $recurrence->recur["startocc"] >= 1440)) {
             $syncMessage->alldayevent = true;
+        }
 
         // Interval is different according to the type/subtype
-        switch($recurrence->recur["type"]) {
+        switch ($recurrence->recur["type"]) {
             case 10:
-                if($recurrence->recur["subtype"] == 0)
+                if ($recurrence->recur["subtype"] == 0) {
                     $syncRecurrence->interval = (int)($recurrence->recur["everyn"] / 1440);  // minutes
+                }
                 break;
             case 11:
             case 12:
@@ -434,55 +453,70 @@ class MAPIProvider {
                 break; // months
         }
 
-        if(isset($recurrence->recur["weekdays"]))
+        if (isset($recurrence->recur["weekdays"])) {
             $syncRecurrence->dayofweek = $recurrence->recur["weekdays"]; // bitmask of days (1 == sunday, 128 == saturday
-        if(isset($recurrence->recur["nday"]))
+        }
+        if (isset($recurrence->recur["nday"])) {
             $syncRecurrence->weekofmonth = $recurrence->recur["nday"]; // N'th {DAY} of {X} (0-5)
-        if(isset($recurrence->recur["month"]))
+        }
+        if (isset($recurrence->recur["month"])) {
             $syncRecurrence->monthofyear = (int)($recurrence->recur["month"] / (60 * 24 * 29)) + 1; // works ok due to rounding. see also $monthminutes below (1-12)
-        if(isset($recurrence->recur["monthday"]))
+        }
+        if (isset($recurrence->recur["monthday"])) {
             $syncRecurrence->dayofmonth = $recurrence->recur["monthday"]; // day of month (1-31)
+        }
 
         // All changed exceptions are appointments within the 'exceptions' array. They contain the same items as a normal appointment
-        foreach($recurrence->recur["changed_occurences"] as $change) {
+        foreach ($recurrence->recur["changed_occurences"] as $change) {
             $exception = new SyncAppointmentException();
 
             // start, end, basedate, subject, remind_before, reminderset, location, busystatus, alldayevent, label
-            if(isset($change["start"]))
+            if (isset($change["start"])) {
                 $exception->starttime = $this->getGMTTimeByTZ($change["start"], $tz);
-            if(isset($change["end"]))
+            }
+            if (isset($change["end"])) {
                 $exception->endtime = $this->getGMTTimeByTZ($change["end"], $tz);
-            if(isset($change["basedate"])) {
+            }
+            if (isset($change["basedate"])) {
                 $exception->exceptionstarttime = $this->getGMTTimeByTZ($this->getDayStartOfTimestamp($change["basedate"]) + $recurrence->recur["startocc"] * 60, $tz);
 
                 //open body because getting only property might not work because of memory limit
                 $exceptionatt = $recurrence->getExceptionAttachment($change["basedate"]);
-                if($exceptionatt) {
+                if ($exceptionatt) {
                     $exceptionobj = mapi_attach_openobj($exceptionatt, 0);
                     $this->setMessageBodyForType($exceptionobj, SYNC_BODYPREFERENCE_PLAIN, $exception);
                 }
             }
-            if(isset($change["subject"]))
+            if (isset($change["subject"])) {
                 $exception->subject = w2u($change["subject"]);
-            if(isset($change["reminder_before"]) && $change["reminder_before"])
+            }
+            if (isset($change["reminder_before"]) && $change["reminder_before"]) {
                 $exception->reminder = $change["remind_before"];
-            if(isset($change["location"]))
+            }
+            if (isset($change["location"])) {
                 $exception->location = w2u($change["location"]);
-            if(isset($change["busystatus"]))
+            }
+            if (isset($change["busystatus"])) {
                 $exception->busystatus = $change["busystatus"];
-            if(isset($change["alldayevent"]))
+            }
+            if (isset($change["alldayevent"])) {
                 $exception->alldayevent = $change["alldayevent"];
+            }
 
             // set some data from the original appointment
-            if (isset($syncMessage->uid))
+            if (isset($syncMessage->uid)) {
                 $exception->uid = $syncMessage->uid;
-            if (isset($syncMessage->organizername))
+            }
+            if (isset($syncMessage->organizername)) {
                 $exception->organizername = $syncMessage->organizername;
-            if (isset($syncMessage->organizeremail))
+            }
+            if (isset($syncMessage->organizeremail)) {
                 $exception->organizeremail = $syncMessage->organizeremail;
+            }
 
-            if(!isset($syncMessage->exceptions))
-                $syncMessage->exceptions = array();
+            if (!isset($syncMessage->exceptions)) {
+                $syncMessage->exceptions = [];
+            }
 
             // If the user is working from a location other than the office the busystatus should be interpreted as free.
             if (isset($exception->busystatus) && $exception->busystatus == fbWorkingElsewhere) {
@@ -504,14 +538,15 @@ class MAPIProvider {
         }
 
         // Deleted appointments contain only the original date (basedate) and a 'deleted' tag
-        foreach($recurrence->recur["deleted_occurences"] as $deleted) {
+        foreach ($recurrence->recur["deleted_occurences"] as $deleted) {
             $exception = new SyncAppointmentException();
 
             $exception->exceptionstarttime = $this->getGMTTimeByTZ($this->getDayStartOfTimestamp($deleted) + $recurrence->recur["startocc"] * 60, $tz);
             $exception->deleted = "1";
 
-            if(!isset($syncMessage->exceptions))
-                $syncMessage->exceptions = array();
+            if (!isset($syncMessage->exceptions)) {
+                $syncMessage->exceptions = [];
+            }
 
             array_push($syncMessage->exceptions, $exception);
         }
@@ -530,7 +565,8 @@ class MAPIProvider {
      * @access private
      * @return SyncEmail
      */
-    private function getEmail($mapimessage, $contentparameters) {
+    private function getEmail($mapimessage, $contentparameters)
+    {
         // This workaround fixes ZP-729 and still works with Outlook.
         // FIXME: It should be properly fixed when refactoring.
         $bpReturnType = Utils::GetBodyPreferenceBestMatch($contentparameters->GetBodyPreference());
@@ -547,37 +583,40 @@ class MAPIProvider {
         $emailproperties = MAPIMapping::GetEmailProperties();
         $messageprops = $this->getProps($mapimessage, $emailproperties);
 
-        if(isset($messageprops[PR_SOURCE_KEY]))
+        if (isset($messageprops[PR_SOURCE_KEY])) {
             $sourcekey = $messageprops[PR_SOURCE_KEY];
-        else
+        } else {
             return false;
+        }
 
         //set the body according to contentparameters and supported AS version
         $this->setMessageBody($mapimessage, $contentparameters, $message);
 
         $fromname = $fromaddr = "";
 
-        if(isset($messageprops[$emailproperties["representingname"]])) {
+        if (isset($messageprops[$emailproperties["representingname"]])) {
             // remove encapsulating double quotes from the representingname
-            $fromname = preg_replace('/^\"(.*)\"$/',"\${1}", $messageprops[$emailproperties["representingname"]]);
+            $fromname = preg_replace('/^\"(.*)\"$/', "\${1}", $messageprops[$emailproperties["representingname"]]);
         }
-        if(isset($messageprops[$emailproperties["representingentryid"]]))
+        if (isset($messageprops[$emailproperties["representingentryid"]])) {
             $fromaddr = $this->getSMTPAddressFromEntryID($messageprops[$emailproperties["representingentryid"]]);
+        }
 
-        if($fromname == $fromaddr)
+        if ($fromname == $fromaddr) {
             $fromname = "";
+        }
 
-        if($fromname)
+        if ($fromname) {
             $from = "\"" . w2u($fromname) . "\" <" . w2u($fromaddr) . ">";
-        else
-            //START CHANGED dw2412 HTC shows "error" if sender name is unknown
+        } else { //START CHANGED dw2412 HTC shows "error" if sender name is unknown
             $from = "\"" . w2u($fromaddr) . "\" <" . w2u($fromaddr) . ">";
+        }
             //END CHANGED dw2412 HTC shows "error" if sender name is unknown
 
         $message->from = $from;
 
         // process Meeting Requests
-        if(isset($message->messageclass) && strpos($message->messageclass, "IPM.Schedule.Meeting") === 0) {
+        if (isset($message->messageclass) && strpos($message->messageclass, "IPM.Schedule.Meeting") === 0) {
             $message->meetingrequest = new SyncMeetingRequest();
             $this->getPropsFromMAPI($message->meetingrequest, $mapimessage, MAPIMapping::GetMeetingRequestMapping());
 
@@ -585,37 +624,36 @@ class MAPIProvider {
             $props = $this->getProps($mapimessage, $meetingrequestproperties);
 
             // Get the GOID
-            if(isset($props[$meetingrequestproperties["goidtag"]])) {
+            if (isset($props[$meetingrequestproperties["goidtag"]])) {
                 $req = new Meetingrequest($this->store, $mapimessage, $this->session);
                 $items = $req->findCalendarItems($props[$meetingrequestproperties["goidtag"]]);
                 // GlobalObjId support was removed in AS 16.0
                 if (Request::IsGlobalObjIdHexClient() && !empty($items)) {
                     $message->meetingrequest->globalobjid = strtoupper(bin2hex($props[$meetingrequestproperties["goidtag"]]));
-                }
-                else {
+                } else {
                     $message->meetingrequest->globalobjid = base64_encode($props[$meetingrequestproperties["goidtag"]]);
                 }
             }
 
             // Set Timezone
-            if(isset($props[$meetingrequestproperties["timezonetag"]]))
+            if (isset($props[$meetingrequestproperties["timezonetag"]])) {
                 $tz = $this->getTZFromMAPIBlob($props[$meetingrequestproperties["timezonetag"]]);
-            else
+            } else {
                 $tz = $this->getGMTTZ();
+            }
 
             $message->meetingrequest->timezone = base64_encode(TimezoneUtil::GetSyncBlobFromTZ($tz));
 
             // send basedate if exception
-            if(isset($props[$meetingrequestproperties["recReplTime"]]) ||
+            if (isset($props[$meetingrequestproperties["recReplTime"]]) ||
                 (isset($props[$meetingrequestproperties["lidIsException"]]) && $props[$meetingrequestproperties["lidIsException"]] == true)) {
-                if (isset($props[$meetingrequestproperties["recReplTime"]])){
+                if (isset($props[$meetingrequestproperties["recReplTime"]])) {
                     $basedate = $props[$meetingrequestproperties["recReplTime"]];
                     $message->meetingrequest->recurrenceid = $this->getGMTTimeByTZ($basedate, $this->getGMTTZ());
-                }
-                else {
-                    if (!isset($props[$meetingrequestproperties["goidtag"]]) || !isset($props[$meetingrequestproperties["recurStartTime"]]) || !isset($props[$meetingrequestproperties["timezonetag"]]))
+                } else {
+                    if (!isset($props[$meetingrequestproperties["goidtag"]]) || !isset($props[$meetingrequestproperties["recurStartTime"]]) || !isset($props[$meetingrequestproperties["timezonetag"]])) {
                         ZLog::Write(LOGLEVEL_WARN, "Missing property to set correct basedate for exception");
-                    else {
+                    } else {
                         $basedate = Utils::ExtractBaseDate($props[$meetingrequestproperties["goidtag"]], $props[$meetingrequestproperties["recurStartTime"]]);
                         $message->meetingrequest->recurrenceid = $this->getGMTTimeByTZ($basedate, $tz);
                     }
@@ -625,22 +663,22 @@ class MAPIProvider {
             // Organizer is the sender
             if (strpos($message->messageclass, "IPM.Schedule.Meeting.Resp") === 0) {
                 $message->meetingrequest->organizer = $message->to;
-            }
-            else {
+            } else {
                 $message->meetingrequest->organizer = $message->from;
             }
 
             // Process recurrence
-            if(isset($props[$meetingrequestproperties["isrecurringtag"]]) && $props[$meetingrequestproperties["isrecurringtag"]]) {
+            if (isset($props[$meetingrequestproperties["isrecurringtag"]]) && $props[$meetingrequestproperties["isrecurringtag"]]) {
                 $myrec = new SyncMeetingRequestRecurrence();
                 // get recurrence -> put $message->meetingrequest as message so the 'alldayevent' is set correctly
                 $this->getRecurrence($mapimessage, $props, $message->meetingrequest, $myrec, $tz);
-                $message->meetingrequest->recurrences = array($myrec);
+                $message->meetingrequest->recurrences = [$myrec];
             }
 
             // Force the 'alldayevent' in the object at all times. (non-existent == 0)
-            if(!isset($message->meetingrequest->alldayevent) || $message->meetingrequest->alldayevent == "")
+            if (!isset($message->meetingrequest->alldayevent) || $message->meetingrequest->alldayevent == "") {
                 $message->meetingrequest->alldayevent = 0;
+            }
 
             // Instancetype
             // 0 = single appointment
@@ -648,29 +686,34 @@ class MAPIProvider {
             // 2 = single instance of recurring appointment
             // 3 = exception of recurring appointment
             $message->meetingrequest->instancetype = 0;
-            if (isset($props[$meetingrequestproperties["isrecurringtag"]]) && $props[$meetingrequestproperties["isrecurringtag"]] == 1)
+            if (isset($props[$meetingrequestproperties["isrecurringtag"]]) && $props[$meetingrequestproperties["isrecurringtag"]] == 1) {
                 $message->meetingrequest->instancetype = 1;
-            else if ((!isset($props[$meetingrequestproperties["isrecurringtag"]]) || $props[$meetingrequestproperties["isrecurringtag"]] == 0 )&& isset($message->meetingrequest->recurrenceid))
-                if (isset($props[$meetingrequestproperties["appSeqNr"]]) && $props[$meetingrequestproperties["appSeqNr"]] == 0 )
+            } elseif ((!isset($props[$meetingrequestproperties["isrecurringtag"]]) || $props[$meetingrequestproperties["isrecurringtag"]] == 0 )&& isset($message->meetingrequest->recurrenceid)) {
+                if (isset($props[$meetingrequestproperties["appSeqNr"]]) && $props[$meetingrequestproperties["appSeqNr"]] == 0) {
                     $message->meetingrequest->instancetype = 2;
-                else
+                } else {
                     $message->meetingrequest->instancetype = 3;
+                }
+            }
 
             // Disable reminder if it is off
-            if(!isset($props[$meetingrequestproperties["reminderset"]]) || $props[$meetingrequestproperties["reminderset"]] == false)
+            if (!isset($props[$meetingrequestproperties["reminderset"]]) || $props[$meetingrequestproperties["reminderset"]] == false) {
                 $message->meetingrequest->reminder = "";
+            }
             //the property saves reminder in minutes, but we need it in secs
             else {
                 ///set the default reminder time to seconds
-                if ($props[$meetingrequestproperties["remindertime"]] == 0x5AE980E1)
+                if ($props[$meetingrequestproperties["remindertime"]] == 0x5AE980E1) {
                     $message->meetingrequest->reminder = 900;
-                else
+                } else {
                     $message->meetingrequest->reminder = $props[$meetingrequestproperties["remindertime"]] * 60;
+                }
             }
 
             // Set sensitivity to 0 if missing
-            if(!isset($message->meetingrequest->sensitivity))
+            if (!isset($message->meetingrequest->sensitivity)) {
                 $message->meetingrequest->sensitivity = 0;
+            }
 
             // If the user is working from a location other than the office the busystatus should be interpreted as free.
             if (isset($message->meetingrequest->busystatus) && $message->meetingrequest->busystatus == fbWorkingElsewhere) {
@@ -684,10 +727,10 @@ class MAPIProvider {
 
             // if a meeting request response hasn't been processed yet,
             // do it so that the attendee status is updated on the mobile
-            if(!isset($messageprops[$emailproperties["processed"]])) {
+            if (!isset($messageprops[$emailproperties["processed"]])) {
                 // check if we are not sending the MR so we can process it - ZP-581
                 $cuser = ZPush::GetBackend()->GetUserDetails(ZPush::GetBackend()->GetCurrentUsername());
-                if(isset($cuser["emailaddress"]) && $cuser["emailaddress"] != $fromaddr) {
+                if (isset($cuser["emailaddress"]) && $cuser["emailaddress"] != $fromaddr) {
                     if (!isset($req)) {
                         $req = new Meetingrequest($this->store, $mapimessage, $this->session);
                     }
@@ -704,21 +747,20 @@ class MAPIProvider {
 
         // Add attachments
         $attachtable = mapi_message_getattachmenttable($mapimessage);
-        $rows = mapi_table_queryallrows($attachtable, array(PR_ATTACH_NUM));
+        $rows = mapi_table_queryallrows($attachtable, [PR_ATTACH_NUM]);
         $entryid = bin2hex($messageprops[$emailproperties["entryid"]]);
         $parentSourcekey = bin2hex($messageprops[$emailproperties["parentsourcekey"]]);
 
-        foreach($rows as $row) {
-            if(isset($row[PR_ATTACH_NUM])) {
+        foreach ($rows as $row) {
+            if (isset($row[PR_ATTACH_NUM])) {
                 if (Request::GetProtocolVersion() >= 12.0) {
                     $attach = new SyncBaseAttachment();
-                }
-                else {
+                } else {
                     $attach = new SyncAttachment();
                 }
 
                 $mapiattach = mapi_message_openattach($mapimessage, $row[PR_ATTACH_NUM]);
-                $attachprops = mapi_getprops($mapiattach, array(PR_ATTACH_LONG_FILENAME, PR_ATTACH_FILENAME, PR_ATTACHMENT_HIDDEN, PR_ATTACH_CONTENT_ID, PR_ATTACH_CONTENT_ID_W, PR_ATTACH_MIME_TAG, PR_ATTACH_MIME_TAG_W, PR_ATTACH_METHOD, PR_DISPLAY_NAME, PR_DISPLAY_NAME_W, PR_ATTACH_SIZE));
+                $attachprops = mapi_getprops($mapiattach, [PR_ATTACH_LONG_FILENAME, PR_ATTACH_FILENAME, PR_ATTACHMENT_HIDDEN, PR_ATTACH_CONTENT_ID, PR_ATTACH_CONTENT_ID_W, PR_ATTACH_MIME_TAG, PR_ATTACH_MIME_TAG_W, PR_ATTACH_METHOD, PR_DISPLAY_NAME, PR_DISPLAY_NAME_W, PR_ATTACH_SIZE]);
                 if ((isset($attachprops[PR_ATTACH_MIME_TAG]) && strpos(strtolower($attachprops[PR_ATTACH_MIME_TAG]), 'signed') !== false) ||
                     (isset($attachprops[PR_ATTACH_MIME_TAG_W]) && strpos(strtolower($attachprops[PR_ATTACH_MIME_TAG_W]), 'signed') !== false)) {
                     continue;
@@ -728,7 +770,7 @@ class MAPIProvider {
                 $attach->displayname = w2u((isset($attachprops[PR_ATTACH_LONG_FILENAME])) ? $attachprops[PR_ATTACH_LONG_FILENAME] : ((isset($attachprops[PR_ATTACH_FILENAME])) ? $attachprops[PR_ATTACH_FILENAME] : ((isset($attachprops[PR_DISPLAY_NAME])) ? $attachprops[PR_DISPLAY_NAME] : "attachment.bin")));
                 // fix attachment name in case of inline images
                 if ($attach->displayname == "inline.txt" && (isset($attachprops[PR_ATTACH_MIME_TAG]) || $attachprops[PR_ATTACH_MIME_TAG_W])) {
-                    $mimetype = (isset($attachprops[PR_ATTACH_MIME_TAG])) ? $attachprops[PR_ATTACH_MIME_TAG]:$attachprops[PR_ATTACH_MIME_TAG_W];
+                    $mimetype = (isset($attachprops[PR_ATTACH_MIME_TAG])) ? $attachprops[PR_ATTACH_MIME_TAG] : $attachprops[PR_ATTACH_MIME_TAG_W];
                     $mime = explode("/", $mimetype);
 
                     if (count($mime) == 2 && $mime[0] == "image") {
@@ -743,8 +785,9 @@ class MAPIProvider {
 
                     // if displayname does not have the eml extension for embedde messages, android and WP devices won't open it
                     if ($attach->method == ATTACH_EMBEDDED_MSG) {
-                        if (strtolower(substr($attach->displayname, -4)) != '.eml')
+                        if (strtolower(substr($attach->displayname, -4)) != '.eml') {
                             $attach->displayname .= '.eml';
+                        }
                     }
                     // android devices require attachment size in order to display an attachment properly
                     if (!isset($attachprops[PR_ATTACH_SIZE])) {
@@ -753,33 +796,37 @@ class MAPIProvider {
                         if (mapi_last_hresult()) {
                             $embMessage = mapi_attach_openobj($mapiattach);
                             $addrbook = $this->getAddressbook();
-                            $stream = mapi_inetmapi_imtoinet($this->session, $addrbook, $embMessage, array('use_tnef' => -1));
+                            $stream = mapi_inetmapi_imtoinet($this->session, $addrbook, $embMessage, ['use_tnef' => -1]);
                         }
                         $stat = mapi_stream_stat($stream);
                         $attach->estimatedDataSize = $stat['cb'];
-                    }
-                    else {
+                    } else {
                         $attach->estimatedDataSize = $attachprops[PR_ATTACH_SIZE];
                     }
 
-                    if (isset($attachprops[PR_ATTACH_CONTENT_ID]) && $attachprops[PR_ATTACH_CONTENT_ID])
+                    if (isset($attachprops[PR_ATTACH_CONTENT_ID]) && $attachprops[PR_ATTACH_CONTENT_ID]) {
                         $attach->contentid = $attachprops[PR_ATTACH_CONTENT_ID];
+                    }
 
-                    if (!isset($attach->contentid) && isset($attachprops[PR_ATTACH_CONTENT_ID_W]) && $attachprops[PR_ATTACH_CONTENT_ID_W])
+                    if (!isset($attach->contentid) && isset($attachprops[PR_ATTACH_CONTENT_ID_W]) && $attachprops[PR_ATTACH_CONTENT_ID_W]) {
                         $attach->contentid = $attachprops[PR_ATTACH_CONTENT_ID_W];
+                    }
 
-                    if (isset($attachprops[PR_ATTACHMENT_HIDDEN]) && $attachprops[PR_ATTACHMENT_HIDDEN]) $attach->isinline = 1;
+                    if (isset($attachprops[PR_ATTACHMENT_HIDDEN]) && $attachprops[PR_ATTACHMENT_HIDDEN]) {
+                        $attach->isinline = 1;
+                    }
 
-                    if(!isset($message->asattachments))
-                        $message->asattachments = array();
+                    if (!isset($message->asattachments)) {
+                        $message->asattachments = [];
+                    }
 
                     array_push($message->asattachments, $attach);
-                }
-                else {
+                } else {
                     $attach->attsize = $attachprops[PR_ATTACH_SIZE];
                     $attach->attname = sprintf("%s:%s:%s", $entryid, $row[PR_ATTACH_NUM], $parentSourcekey);
-                    if(!isset($message->attachments))
-                        $message->attachments = array();
+                    if (!isset($message->attachments)) {
+                        $message->attachments = [];
+                    }
 
                     array_push($message->attachments, $attach);
                 }
@@ -788,11 +835,11 @@ class MAPIProvider {
 
         // Get To/Cc as SMTP addresses (this is different from displayto and displaycc because we are putting
         // in the SMTP addresses as well, while displayto and displaycc could just contain the display names
-        $message->to = array();
-        $message->cc = array();
+        $message->to = [];
+        $message->cc = [];
 
         $reciptable = mapi_message_getrecipienttable($mapimessage);
-        $rows = mapi_table_queryallrows($reciptable, array(PR_RECIPIENT_TYPE, PR_DISPLAY_NAME, PR_ADDRTYPE, PR_EMAIL_ADDRESS, PR_SMTP_ADDRESS, PR_ENTRYID, PR_SEARCH_KEY));
+        $rows = mapi_table_queryallrows($reciptable, [PR_RECIPIENT_TYPE, PR_DISPLAY_NAME, PR_ADDRTYPE, PR_EMAIL_ADDRESS, PR_SMTP_ADDRESS, PR_ENTRYID, PR_SEARCH_KEY]);
 
         foreach ($rows as $row) {
             $address = "";
@@ -800,12 +847,13 @@ class MAPIProvider {
 
             $addrtype = isset($row[PR_ADDRTYPE]) ? $row[PR_ADDRTYPE] : "";
 
-            if (isset($row[PR_SMTP_ADDRESS]))
+            if (isset($row[PR_SMTP_ADDRESS])) {
                 $address = $row[PR_SMTP_ADDRESS];
-            elseif ($addrtype == "SMTP" && isset($row[PR_EMAIL_ADDRESS]))
+            } elseif ($addrtype == "SMTP" && isset($row[PR_EMAIL_ADDRESS])) {
                 $address = $row[PR_EMAIL_ADDRESS];
-            elseif ($addrtype == "ZARAFA" && isset($row[PR_ENTRYID]))
+            } elseif ($addrtype == "ZARAFA" && isset($row[PR_ENTRYID])) {
                 $address = $this->getSMTPAddressFromEntryID($row[PR_ENTRYID]);
+            }
 
             // if the user was not found, do a fallback to PR_SEARCH_KEY
             // @see https://jira.z-hub.io/browse/ZP-1178
@@ -815,40 +863,47 @@ class MAPIProvider {
 
             $name = isset($row[PR_DISPLAY_NAME]) ? $row[PR_DISPLAY_NAME] : "";
 
-            if($name == "" || $name == $address)
+            if ($name == "" || $name == $address) {
                 $fulladdr = w2u($address);
-            else {
+            } else {
                 if (substr($name, 0, 1) != '"' && substr($name, -1) != '"') {
                     $fulladdr = "\"" . w2u($name) ."\" <" . w2u($address) . ">";
-                }
-                else {
+                } else {
                     $fulladdr = w2u($name) ."<" . w2u($address) . ">";
                 }
             }
 
-            if($row[PR_RECIPIENT_TYPE] == MAPI_TO) {
+            if ($row[PR_RECIPIENT_TYPE] == MAPI_TO) {
                 array_push($message->to, $fulladdr);
-            } else if($row[PR_RECIPIENT_TYPE] == MAPI_CC) {
+            } elseif ($row[PR_RECIPIENT_TYPE] == MAPI_CC) {
                 array_push($message->cc, $fulladdr);
             }
         }
 
-        if (is_array($message->to) && !empty($message->to)) $message->to = implode(", ", $message->to);
-        if (is_array($message->cc) && !empty($message->cc)) $message->cc = implode(", ", $message->cc);
+        if (is_array($message->to) && !empty($message->to)) {
+            $message->to = implode(", ", $message->to);
+        }
+        if (is_array($message->cc) && !empty($message->cc)) {
+            $message->cc = implode(", ", $message->cc);
+        }
 
         // without importance some mobiles assume "0" (low) - Mantis #439
-        if (!isset($message->importance))
+        if (!isset($message->importance)) {
             $message->importance = IMPORTANCE_NORMAL;
+        }
 
-        if (!isset($message->internetcpid)) $message->internetcpid = (defined('STORE_INTERNET_CPID')) ? constant('STORE_INTERNET_CPID') : INTERNET_CPID_WINDOWS1252;
+        if (!isset($message->internetcpid)) {
+            $message->internetcpid = (defined('STORE_INTERNET_CPID')) ? constant('STORE_INTERNET_CPID') : INTERNET_CPID_WINDOWS1252;
+        }
         $this->setFlag($mapimessage, $message);
         //TODO checkcontentclass
-        if (!isset($message->contentclass)) $message->contentclass = DEFAULT_EMAIL_CONTENTCLASS;
+        if (!isset($message->contentclass)) {
+            $message->contentclass = DEFAULT_EMAIL_CONTENTCLASS;
+        }
 
         if (!isset($message->nativebodytype)) {
             $message->nativebodytype = MAPIUtils::GetNativeBodyType($messageprops);
-        }
-        elseif ($message->nativebodytype == SYNC_BODYPREFERENCE_UNDEFINED) {
+        } elseif ($message->nativebodytype == SYNC_BODYPREFERENCE_UNDEFINED) {
             $nbt = MAPIUtils::GetNativeBodyType($messageprops);
             ZLog::Write(LOGLEVEL_INFO, sprintf("MAPIProvider->getEmail(): native body type is undefined. Set it to %d.", $nbt));
             $message->nativebodytype = $nbt;
@@ -871,7 +926,8 @@ class MAPIProvider {
     * @access private
     * @return SyncNote
     */
-    private function getNote($mapimessage, $contentparameters) {
+    private function getNote($mapimessage, $contentparameters)
+    {
         $message = new SyncNote();
 
         // Standard one-to-one mappings first
@@ -891,7 +947,8 @@ class MAPIProvider {
      * @access public
      * @return SyncFolder
      */
-    public function GetFolder($folderprops) {
+    public function GetFolder($folderprops)
+    {
         $folder = new SyncFolder();
 
         $storeprops = $this->GetStoreProps();
@@ -900,11 +957,11 @@ class MAPIProvider {
         if (isset($folderprops[PR_SOURCE_KEY]) && !isset($folderprops[PR_ENTRYID]) && !isset($folderprops[PR_CONTAINER_CLASS])) {
             $entryid = mapi_msgstore_entryidfromsourcekey($this->store, $folderprops[PR_SOURCE_KEY]);
             $mapifolder = mapi_msgstore_openentry($this->store, $entryid);
-            $folderprops = mapi_getprops($mapifolder, array(PR_DISPLAY_NAME, PR_PARENT_ENTRYID, PR_ENTRYID, PR_SOURCE_KEY, PR_PARENT_SOURCE_KEY, PR_CONTAINER_CLASS, PR_ATTR_HIDDEN, PR_EXTENDED_FOLDER_FLAGS));
+            $folderprops = mapi_getprops($mapifolder, [PR_DISPLAY_NAME, PR_PARENT_ENTRYID, PR_ENTRYID, PR_SOURCE_KEY, PR_PARENT_SOURCE_KEY, PR_CONTAINER_CLASS, PR_ATTR_HIDDEN, PR_EXTENDED_FOLDER_FLAGS]);
             ZLog::Write(LOGLEVEL_DEBUG, "MAPIProvider->GetFolder(): received insuffient of data from ICS. Fetching required data.");
         }
 
-        if(!isset($folderprops[PR_DISPLAY_NAME]) ||
+        if (!isset($folderprops[PR_DISPLAY_NAME]) ||
            !isset($folderprops[PR_PARENT_ENTRYID]) ||
            !isset($folderprops[PR_SOURCE_KEY]) ||
            !isset($folderprops[PR_ENTRYID]) ||
@@ -929,14 +986,13 @@ class MAPIProvider {
 
         $folder->BackendId = bin2hex($folderprops[PR_SOURCE_KEY]);
         $folder->serverid = ZPush::GetDeviceManager()->GetFolderIdForBackendId($folder->BackendId, true, DeviceManager::FLD_ORIGIN_USER, $folderprops[PR_DISPLAY_NAME]);
-        if($folderprops[PR_PARENT_ENTRYID] == $storeprops[PR_IPM_SUBTREE_ENTRYID]) {
+        if ($folderprops[PR_PARENT_ENTRYID] == $storeprops[PR_IPM_SUBTREE_ENTRYID]) {
             $folder->parentid = "0";
-        }
-        else {
+        } else {
             $folder->parentid = ZPush::GetDeviceManager()->GetFolderIdForBackendId(bin2hex($folderprops[PR_PARENT_SOURCE_KEY]));
         }
         $folder->displayname = w2u($folderprops[PR_DISPLAY_NAME]);
-        $folder->type = $this->GetFolderType($folderprops[PR_ENTRYID], isset($folderprops[PR_CONTAINER_CLASS])?$folderprops[PR_CONTAINER_CLASS]:false);
+        $folder->type = $this->GetFolderType($folderprops[PR_ENTRYID], isset($folderprops[PR_CONTAINER_CLASS]) ? $folderprops[PR_CONTAINER_CLASS] : false);
 
         return $folder;
     }
@@ -951,49 +1007,66 @@ class MAPIProvider {
      * @access public
      * @return long
      */
-    public function GetFolderType($entryid, $class = false) {
+    public function GetFolderType($entryid, $class = false)
+    {
         $storeprops = $this->GetStoreProps();
         $inboxprops = $this->getInboxProps();
 
-        if($entryid == $storeprops[PR_IPM_WASTEBASKET_ENTRYID])
+        if ($entryid == $storeprops[PR_IPM_WASTEBASKET_ENTRYID]) {
             return SYNC_FOLDER_TYPE_WASTEBASKET;
-        if($entryid == $storeprops[PR_IPM_SENTMAIL_ENTRYID])
+        }
+        if ($entryid == $storeprops[PR_IPM_SENTMAIL_ENTRYID]) {
             return SYNC_FOLDER_TYPE_SENTMAIL;
-        if($entryid == $storeprops[PR_IPM_OUTBOX_ENTRYID])
+        }
+        if ($entryid == $storeprops[PR_IPM_OUTBOX_ENTRYID]) {
             return SYNC_FOLDER_TYPE_OUTBOX;
+        }
 
         // Public folders do not have inboxprops
         // @see https://jira.z-hub.io/browse/ZP-995
         if (!empty($inboxprops)) {
-            if($entryid == $inboxprops[PR_ENTRYID])
+            if ($entryid == $inboxprops[PR_ENTRYID]) {
                 return SYNC_FOLDER_TYPE_INBOX;
-            if($entryid == $inboxprops[PR_IPM_DRAFTS_ENTRYID])
+            }
+            if ($entryid == $inboxprops[PR_IPM_DRAFTS_ENTRYID]) {
                 return SYNC_FOLDER_TYPE_DRAFTS;
-            if($entryid == $inboxprops[PR_IPM_TASK_ENTRYID])
+            }
+            if ($entryid == $inboxprops[PR_IPM_TASK_ENTRYID]) {
                 return SYNC_FOLDER_TYPE_TASK;
-            if($entryid == $inboxprops[PR_IPM_APPOINTMENT_ENTRYID])
+            }
+            if ($entryid == $inboxprops[PR_IPM_APPOINTMENT_ENTRYID]) {
                 return SYNC_FOLDER_TYPE_APPOINTMENT;
-            if($entryid == $inboxprops[PR_IPM_CONTACT_ENTRYID])
+            }
+            if ($entryid == $inboxprops[PR_IPM_CONTACT_ENTRYID]) {
                 return SYNC_FOLDER_TYPE_CONTACT;
-            if($entryid == $inboxprops[PR_IPM_NOTE_ENTRYID])
+            }
+            if ($entryid == $inboxprops[PR_IPM_NOTE_ENTRYID]) {
                 return SYNC_FOLDER_TYPE_NOTE;
-            if($entryid == $inboxprops[PR_IPM_JOURNAL_ENTRYID])
+            }
+            if ($entryid == $inboxprops[PR_IPM_JOURNAL_ENTRYID]) {
                 return SYNC_FOLDER_TYPE_JOURNAL;
+            }
         }
 
         // user created folders
-        if ($class == "IPF.Note")
+        if ($class == "IPF.Note") {
             return SYNC_FOLDER_TYPE_USER_MAIL;
-        if ($class == "IPF.Task")
+        }
+        if ($class == "IPF.Task") {
             return SYNC_FOLDER_TYPE_USER_TASK;
-        if ($class == "IPF.Appointment")
+        }
+        if ($class == "IPF.Appointment") {
             return SYNC_FOLDER_TYPE_USER_APPOINTMENT;
-        if ($class == "IPF.Contact")
+        }
+        if ($class == "IPF.Contact") {
             return SYNC_FOLDER_TYPE_USER_CONTACT;
-        if ($class == "IPF.StickyNote")
+        }
+        if ($class == "IPF.StickyNote") {
             return SYNC_FOLDER_TYPE_USER_NOTE;
-        if ($class == "IPF.Journal")
+        }
+        if ($class == "IPF.Journal") {
             return  SYNC_FOLDER_TYPE_USER_JOURNAL;
+        }
 
         return SYNC_FOLDER_TYPE_OTHER;
     }
@@ -1006,65 +1079,68 @@ class MAPIProvider {
      * @access public
      * @return boolean
      */
-    public function IsMAPIDefaultFolder($entryid) {
-        $msgstore_props = mapi_getprops($this->store, array(PR_ENTRYID, PR_DISPLAY_NAME, PR_IPM_SUBTREE_ENTRYID, PR_IPM_OUTBOX_ENTRYID, PR_IPM_SENTMAIL_ENTRYID, PR_IPM_WASTEBASKET_ENTRYID, PR_MDB_PROVIDER, PR_IPM_PUBLIC_FOLDERS_ENTRYID, PR_IPM_FAVORITES_ENTRYID, PR_MAILBOX_OWNER_ENTRYID));
+    public function IsMAPIDefaultFolder($entryid)
+    {
+        $msgstore_props = mapi_getprops($this->store, [PR_ENTRYID, PR_DISPLAY_NAME, PR_IPM_SUBTREE_ENTRYID, PR_IPM_OUTBOX_ENTRYID, PR_IPM_SENTMAIL_ENTRYID, PR_IPM_WASTEBASKET_ENTRYID, PR_MDB_PROVIDER, PR_IPM_PUBLIC_FOLDERS_ENTRYID, PR_IPM_FAVORITES_ENTRYID, PR_MAILBOX_OWNER_ENTRYID]);
 
-        $inboxProps = array();
+        $inboxProps = [];
         $inbox = mapi_msgstore_getreceivefolder($this->store);
-        if(!mapi_last_hresult())
-            $inboxProps = mapi_getprops($inbox, array(PR_ENTRYID));
+        if (!mapi_last_hresult()) {
+            $inboxProps = mapi_getprops($inbox, [PR_ENTRYID]);
+        }
 
         $root = mapi_msgstore_openentry($this->store, null); // TODO use getRootProps()
-        $rootProps = mapi_getprops($root, array(PR_IPM_APPOINTMENT_ENTRYID, PR_IPM_CONTACT_ENTRYID, PR_IPM_DRAFTS_ENTRYID, PR_IPM_JOURNAL_ENTRYID, PR_IPM_NOTE_ENTRYID, PR_IPM_TASK_ENTRYID, PR_ADDITIONAL_REN_ENTRYIDS));
+        $rootProps = mapi_getprops($root, [PR_IPM_APPOINTMENT_ENTRYID, PR_IPM_CONTACT_ENTRYID, PR_IPM_DRAFTS_ENTRYID, PR_IPM_JOURNAL_ENTRYID, PR_IPM_NOTE_ENTRYID, PR_IPM_TASK_ENTRYID, PR_ADDITIONAL_REN_ENTRYIDS]);
 
-        $additional_ren_entryids = array();
-        if(isset($rootProps[PR_ADDITIONAL_REN_ENTRYIDS]))
+        $additional_ren_entryids = [];
+        if (isset($rootProps[PR_ADDITIONAL_REN_ENTRYIDS])) {
             $additional_ren_entryids = $rootProps[PR_ADDITIONAL_REN_ENTRYIDS];
+        }
 
-        $defaultfolders = array(
-                        "inbox"                 =>      array("inbox"=>PR_ENTRYID),
-                        "outbox"                =>      array("store"=>PR_IPM_OUTBOX_ENTRYID),
-                        "sent"                  =>      array("store"=>PR_IPM_SENTMAIL_ENTRYID),
-                        "wastebasket"           =>      array("store"=>PR_IPM_WASTEBASKET_ENTRYID),
-                        "favorites"             =>      array("store"=>PR_IPM_FAVORITES_ENTRYID),
-                        "publicfolders"         =>      array("store"=>PR_IPM_PUBLIC_FOLDERS_ENTRYID),
-                        "calendar"              =>      array("root" =>PR_IPM_APPOINTMENT_ENTRYID),
-                        "contact"               =>      array("root" =>PR_IPM_CONTACT_ENTRYID),
-                        "drafts"                =>      array("root" =>PR_IPM_DRAFTS_ENTRYID),
-                        "journal"               =>      array("root" =>PR_IPM_JOURNAL_ENTRYID),
-                        "note"                  =>      array("root" =>PR_IPM_NOTE_ENTRYID),
-                        "task"                  =>      array("root" =>PR_IPM_TASK_ENTRYID),
-                        "junk"                  =>      array("additional" =>4),
-                        "syncissues"            =>      array("additional" =>1),
-                        "conflicts"             =>      array("additional" =>0),
-                        "localfailures"         =>      array("additional" =>2),
-                        "serverfailures"        =>      array("additional" =>3),
-        );
+        $defaultfolders = [
+                        "inbox"                 => ["inbox" => PR_ENTRYID],
+                        "outbox"                => ["store" => PR_IPM_OUTBOX_ENTRYID],
+                        "sent"                  => ["store" => PR_IPM_SENTMAIL_ENTRYID],
+                        "wastebasket"           => ["store" => PR_IPM_WASTEBASKET_ENTRYID],
+                        "favorites"             => ["store" => PR_IPM_FAVORITES_ENTRYID],
+                        "publicfolders"         => ["store" => PR_IPM_PUBLIC_FOLDERS_ENTRYID],
+                        "calendar"              => ["root" => PR_IPM_APPOINTMENT_ENTRYID],
+                        "contact"               => ["root" => PR_IPM_CONTACT_ENTRYID],
+                        "drafts"                => ["root" => PR_IPM_DRAFTS_ENTRYID],
+                        "journal"               => ["root" => PR_IPM_JOURNAL_ENTRYID],
+                        "note"                  => ["root" => PR_IPM_NOTE_ENTRYID],
+                        "task"                  => ["root" => PR_IPM_TASK_ENTRYID],
+                        "junk"                  => ["additional" => 4],
+                        "syncissues"            => ["additional" => 1],
+                        "conflicts"             => ["additional" => 0],
+                        "localfailures"         => ["additional" => 2],
+                        "serverfailures"        => ["additional" => 3],
+        ];
 
-        foreach($defaultfolders as $key=>$prop){
+        foreach ($defaultfolders as $key => $prop) {
             $tag = reset($prop);
             $from = key($prop);
-            switch($from){
+            switch ($from) {
                 case "inbox":
-                    if(isset($inboxProps[$tag]) && $entryid == $inboxProps[$tag]) {
+                    if (isset($inboxProps[$tag]) && $entryid == $inboxProps[$tag]) {
                         ZLog::Write(LOGLEVEL_DEBUG, sprintf("MAPIProvider->IsMAPIFolder(): Inbox found, key '%s'", $key));
                         return true;
                     }
                     break;
                 case "store":
-                    if(isset($msgstore_props[$tag]) && $entryid == $msgstore_props[$tag]) {
+                    if (isset($msgstore_props[$tag]) && $entryid == $msgstore_props[$tag]) {
                         ZLog::Write(LOGLEVEL_DEBUG, sprintf("MAPIProvider->IsMAPIFolder(): Store folder found, key '%s'", $key));
                         return true;
                     }
                     break;
                 case "root":
-                    if(isset($rootProps[$tag]) && $entryid == $rootProps[$tag]) {
+                    if (isset($rootProps[$tag]) && $entryid == $rootProps[$tag]) {
                         ZLog::Write(LOGLEVEL_DEBUG, sprintf("MAPIProvider->IsMAPIFolder(): Root folder found, key '%s'", $key));
                         return true;
                     }
                     break;
                 case "additional":
-                    if(isset($additional_ren_entryids[$tag]) && $entryid == $additional_ren_entryids[$tag]) {
+                    if (isset($additional_ren_entryids[$tag]) && $entryid == $additional_ren_entryids[$tag]) {
                         ZLog::Write(LOGLEVEL_DEBUG, sprintf("MAPIProvider->IsMAPIFolder(): Additional folder found, key '%s'", $key));
                         return true;
                     }
@@ -1087,9 +1163,10 @@ class MAPIProvider {
      * @access public
      * @return boolean
      */
-    public function SetMessage($mapimessage, $message) {
+    public function SetMessage($mapimessage, $message)
+    {
         // TODO check with instanceof
-        switch(strtolower(get_class($message))) {
+        switch (strtolower(get_class($message))) {
             case "synccontact":
                 return $this->setContact($mapimessage, $message);
             case "syncappointment":
@@ -1110,24 +1187,27 @@ class MAPIProvider {
      * @param mixed             $mapimessage
      * @param SyncMail          $message
      */
-    private function setEmail($mapimessage, $message) {
+    private function setEmail($mapimessage, $message)
+    {
         // update categories
-        if (!isset($message->categories)) $message->categories = array();
+        if (!isset($message->categories)) {
+            $message->categories = [];
+        }
         $emailmap = MAPIMapping::GetEmailMapping();
-        $this->setPropsInMAPI($mapimessage, $message, array("categories" => $emailmap["categories"]));
+        $this->setPropsInMAPI($mapimessage, $message, ["categories" => $emailmap["categories"]]);
 
         $flagmapping = MAPIMapping::GetMailFlagsMapping();
         $flagprops = MAPIMapping::GetMailFlagsProperties();
         $flagprops = array_merge($this->getPropIdsFromStrings($flagmapping), $this->getPropIdsFromStrings($flagprops));
         // flag specific properties to be set
-        $props = $delprops = array();
+        $props = $delprops = [];
         // unset message flags if:
         // flag is not set
         if (empty($message->flag) ||
             // flag status is not set
             !isset($message->flag->flagstatus) ||
             // flag status is 0 or empty
-            (isset($message->flag->flagstatus) && ($message->flag->flagstatus == 0 || $message->flag->flagstatus == "")) ) {
+            (isset($message->flag->flagstatus) && ($message->flag->flagstatus == 0 || $message->flag->flagstatus == ""))) {
             // if message flag is empty, some properties need to be deleted
             // and some set to 0 or false
 
@@ -1151,12 +1231,12 @@ class MAPIProvider {
             $delprops[] = $flagprops["completetime"];
             $delprops[] = $flagprops["flagstatus"];
             $delprops[] = $flagprops["flagicon"];
-        }
-        else {
+        } else {
             $this->setPropsInMAPI($mapimessage, $message->flag, $flagmapping);
             $props[$flagprops["todoitemsflags"]] = 1;
-            if (isset($message->subject) && str_len($message->subject) > 0)
+            if (isset($message->subject) && str_len($message->subject) > 0) {
                 $props[$flagprops["todotitle"]] = $message->subject;
+            }
             // ordinal date is utc current time
             if (!isset($message->flag->ordinaldate) || empty($message->flag->ordinaldate)) {
                 $props[$flagprops["ordinaldate"]] = time();
@@ -1197,18 +1277,20 @@ class MAPIProvider {
      * @access private
      * @return boolean
      */
-    private function setAppointment($mapimessage, $appointment) {
+    private function setAppointment($mapimessage, $appointment)
+    {
         // Get timezone info
-        if(isset($appointment->timezone))
+        if (isset($appointment->timezone)) {
             $tz = $this->getTZFromSyncBlob(base64_decode($appointment->timezone));
-        else
+        } else {
             $tz = false;
+        }
 
         // start and end time may not be set - try to get them from the existing appointment for further calculation - see https://jira.z-hub.io/browse/ZP-983
         if (!isset($appointment->starttime) || !isset($appointment->endtime)) {
             $amapping = MAPIMapping::GetAppointmentMapping();
             $amapping = $this->getPropIdsFromStrings($amapping);
-            $existingstartendpropsmap = array($amapping["starttime"], $amapping["endtime"]);
+            $existingstartendpropsmap = [$amapping["starttime"], $amapping["endtime"]];
             $existingstartendprops = $this->getProps($mapimessage, $existingstartendpropsmap);
 
             if (isset($existingstartendprops[$amapping["starttime"]]) && !isset($appointment->starttime)) {
@@ -1227,7 +1309,7 @@ class MAPIProvider {
         //calculate duration because without it some webaccess views are broken. duration is in min
         $localstart = $this->getLocaltimeByTZ($appointment->starttime, $tz);
         $localend = $this->getLocaltimeByTZ($appointment->endtime, $tz);
-        $duration = ($localend - $localstart)/60;
+        $duration = ($localend - $localstart) / 60;
 
         //nokia sends an yearly event with 0 mins duration but as all day event,
         //so make it end next day
@@ -1241,14 +1323,14 @@ class MAPIProvider {
         // if not, encapsulate the transmitted uid
         $appointment->uid = Utils::GetOLUidFromICalUid($appointment->uid);
 
-        mapi_setprops($mapimessage, array(PR_MESSAGE_CLASS => "IPM.Appointment"));
+        mapi_setprops($mapimessage, [PR_MESSAGE_CLASS => "IPM.Appointment"]);
 
         $appointmentmapping = MAPIMapping::GetAppointmentMapping();
         $this->setPropsInMAPI($mapimessage, $appointment, $appointmentmapping);
         $appointmentprops = MAPIMapping::GetAppointmentProperties();
         $appointmentprops = array_merge($this->getPropIdsFromStrings($appointmentmapping), $this->getPropIdsFromStrings($appointmentprops));
         //appointment specific properties to be set
-        $props = array();
+        $props = [];
 
         //we also have to set the responsestatus and not only meetingstatus, so we use another mapi tag
         $props[$appointmentprops["responsestatus"]] = (isset($appointment->responsestatus)) ? $appointment->responsestatus : olResponseNone;
@@ -1270,7 +1352,7 @@ class MAPIProvider {
         $props[$appointmentprops["sideeffects"]] = 369;
 
 
-        if(isset($appointment->reminder) && $appointment->reminder >= 0) {
+        if (isset($appointment->reminder) && $appointment->reminder >= 0) {
             // Set 'flagdueby' to correct value (start - reminderminutes)
             $props[$appointmentprops["flagdueby"]] = $appointment->starttime - $appointment->reminder * 60;
             $props[$appointmentprops["remindertime"]] = $appointment->reminder;
@@ -1284,7 +1366,7 @@ class MAPIProvider {
             $this->setASbody($appointment->asbody, $props, $appointmentprops);
         }
 
-        if(isset($appointment->recurrence)) {
+        if (isset($appointment->recurrence)) {
             // Set PR_ICON_INDEX to 1025 to show correct icon in category view
             $props[$appointmentprops["icon"]] = 1025;
 
@@ -1292,7 +1374,7 @@ class MAPIProvider {
             $noexceptions = true;
 
             $recurrence = new Recurrence($this->store, $mapimessage);
-            $recur = array();
+            $recur = [];
             $this->setRecurrence($appointment, $recur);
 
             // set the recurrence type to that of the MAPI
@@ -1311,53 +1393,60 @@ class MAPIProvider {
             $recur["regen"] = false;
 
             // Process exceptions. The PDA will send all exceptions for this recurring item.
-            if(isset($appointment->exceptions)) {
-                foreach($appointment->exceptions as $exception) {
+            if (isset($appointment->exceptions)) {
+                foreach ($appointment->exceptions as $exception) {
                     // we always need the base date
-                    if(!isset($exception->exceptionstarttime))
+                    if (!isset($exception->exceptionstarttime)) {
                         continue;
+                    }
 
-                    if(isset($exception->deleted) && $exception->deleted) {
+                    if (isset($exception->deleted) && $exception->deleted) {
                         // Delete exception
-                        if(!isset($recur["deleted_occurences"]))
-                            $recur["deleted_occurences"] = array();
+                        if (!isset($recur["deleted_occurences"])) {
+                            $recur["deleted_occurences"] = [];
+                        }
 
                         array_push($recur["deleted_occurences"], $this->getDayStartOfTimestamp($this->getLocaltimeByTZ($exception->exceptionstarttime, $tz)));
-                    }
-                    else {
+                    } else {
                         // Change exception
                         $basedate = $this->getDayStartOfTimestamp($exception->exceptionstarttime);
-                        $mapiexception = array("basedate" => $basedate);
+                        $mapiexception = ["basedate" => $basedate];
                         //other exception properties which are not handled in recurrence
-                        $exceptionprops = array();
+                        $exceptionprops = [];
 
-                        if(isset($exception->starttime)) {
+                        if (isset($exception->starttime)) {
                             $mapiexception["start"] = $this->getLocaltimeByTZ($exception->starttime, $tz);
                             $exceptionprops[$appointmentprops["starttime"]] = $exception->starttime;
                         }
-                        if(isset($exception->endtime)) {
+                        if (isset($exception->endtime)) {
                             $mapiexception["end"] = $this->getLocaltimeByTZ($exception->endtime, $tz);
                             $exceptionprops[$appointmentprops["endtime"]] = $exception->endtime;
                         }
-                        if(isset($exception->subject))
+                        if (isset($exception->subject)) {
                             $exceptionprops[$appointmentprops["subject"]] = $mapiexception["subject"] = u2w($exception->subject);
-                        if(isset($exception->location))
+                        }
+                        if (isset($exception->location)) {
                             $exceptionprops[$appointmentprops["location"]] = $mapiexception["location"] = u2w($exception->location);
-                        if(isset($exception->busystatus))
+                        }
+                        if (isset($exception->busystatus)) {
                             $exceptionprops[$appointmentprops["busystatus"]] = $mapiexception["busystatus"] = $exception->busystatus;
-                        if(isset($exception->reminder)) {
+                        }
+                        if (isset($exception->reminder)) {
                             $exceptionprops[$appointmentprops["reminderset"]] = $mapiexception["reminder_set"] = 1;
                             $exceptionprops[$appointmentprops["remindertime"]] = $mapiexception["remind_before"] = $exception->reminder;
                         }
-                        if(isset($exception->alldayevent))
+                        if (isset($exception->alldayevent)) {
                             $exceptionprops[$appointmentprops["alldayevent"]] = $mapiexception["alldayevent"] = $exception->alldayevent;
+                        }
 
 
-                        if(!isset($recur["changed_occurences"]))
-                            $recur["changed_occurences"] = array();
+                        if (!isset($recur["changed_occurences"])) {
+                            $recur["changed_occurences"] = [];
+                        }
 
-                        if (isset($exception->body))
+                        if (isset($exception->body)) {
                             $exceptionprops[$appointmentprops["body"]] = u2w($exception->body);
+                        }
 
                         if (isset($exception->asbody)) {
                             $this->setASbody($exception->asbody, $exceptionprops, $appointmentprops);
@@ -1370,14 +1459,12 @@ class MAPIProvider {
 
                         if (!empty($exceptionprops)) {
                             $noexceptions = false;
-                            if($recurrence->isException($basedate)){
+                            if ($recurrence->isException($basedate)) {
                                 $recurrence->modifyException($exceptionprops, $basedate);
-                            }
-                            else {
+                            } else {
                                 $recurrence->createException($exceptionprops, $basedate);
                             }
                         }
-
                     }
                 }
             }
@@ -1386,19 +1473,18 @@ class MAPIProvider {
             if ($noexceptions) {
                 $recurrence->setRecurrence($tz, $recur);
             }
-        }
-        else {
+        } else {
             $props[$appointmentprops["isrecurring"]] = false;
         }
 
         //always set the PR_SENT_REPRESENTING_* props so that the attendee status update also works with the webaccess
-        $p = array( $appointmentprops["representingentryid"], $appointmentprops["representingname"], $appointmentprops["sentrepresentingaddt"],
-                    $appointmentprops["sentrepresentingemail"], $appointmentprops["sentrepresentinsrchk"]);
+        $p = [ $appointmentprops["representingentryid"], $appointmentprops["representingname"], $appointmentprops["sentrepresentingaddt"],
+                    $appointmentprops["sentrepresentingemail"], $appointmentprops["sentrepresentinsrchk"]];
         $representingprops = $this->getProps($mapimessage, $p);
 
         if (!isset($representingprops[$appointmentprops["representingentryid"]])) {
             // TODO use GetStoreProps
-            $storeProps = mapi_getprops($this->store, array(PR_MAILBOX_OWNER_ENTRYID));
+            $storeProps = mapi_getprops($this->store, [PR_MAILBOX_OWNER_ENTRYID]);
             $props[$appointmentprops["representingentryid"]] = $storeProps[PR_MAILBOX_OWNER_ENTRYID];
             $displayname = $this->getFullnameFromEntryID($storeProps[PR_MAILBOX_OWNER_ENTRYID]);
 
@@ -1407,7 +1493,7 @@ class MAPIProvider {
             $props[$appointmentprops["sentrepresentingaddt"]] = "ZARAFA";
             $props[$appointmentprops["sentrepresentinsrchk"]] = $props[$appointmentprops["sentrepresentingaddt"]].":".$props[$appointmentprops["sentrepresentingemail"]];
 
-            if(isset($appointment->attendees) && is_array($appointment->attendees) && !empty($appointment->attendees)) {
+            if (isset($appointment->attendees) && is_array($appointment->attendees) && !empty($appointment->attendees)) {
                 $props[$appointmentprops["icon"]] = 1026;
                 // the user is the organizer
                 // set these properties to show tracking tab in webapp
@@ -1419,11 +1505,11 @@ class MAPIProvider {
         }
 
         // Do attendees
-        if(isset($appointment->attendees) && is_array($appointment->attendees)) {
-            $recips = array();
+        if (isset($appointment->attendees) && is_array($appointment->attendees)) {
+            $recips = [];
 
             // Outlook XP requires organizer in the attendee list as well
-            $org = array();
+            $org = [];
             $org[PR_ENTRYID] = isset($representingprops[$appointmentprops["representingentryid"]]) ? $representingprops[$appointmentprops["representingentryid"]] : $props[$appointmentprops["representingentryid"]];
             $org[PR_DISPLAY_NAME] = isset($representingprops[$appointmentprops["representingname"]]) ? $representingprops[$appointmentprops["representingname"]] : $props[$appointmentprops["representingname"]];
             $org[PR_ADDRTYPE] = isset($representingprops[$appointmentprops["sentrepresentingaddt"]]) ? $representingprops[$appointmentprops["sentrepresentingaddt"]] : $props[$appointmentprops["sentrepresentingaddt"]];
@@ -1436,14 +1522,14 @@ class MAPIProvider {
 
             //open addresss book for user resolve
             $addrbook = $this->getAddressbook();
-            foreach($appointment->attendees as $attendee) {
-                $recip = array();
+            foreach ($appointment->attendees as $attendee) {
+                $recip = [];
                 $recip[PR_EMAIL_ADDRESS] = u2w($attendee->email);
 
                 // lookup information in GAB if possible so we have up-to-date name for given address
-                $userinfo = array( array( PR_DISPLAY_NAME => $recip[PR_EMAIL_ADDRESS] ) );
+                $userinfo = [ [ PR_DISPLAY_NAME => $recip[PR_EMAIL_ADDRESS] ] ];
                 $userinfo = mapi_ab_resolvename($addrbook, $userinfo, EMS_AB_ADDRESS_LOOKUP);
-                if(mapi_last_hresult() == NOERROR) {
+                if (mapi_last_hresult() == NOERROR) {
                     $recip[PR_DISPLAY_NAME] = $userinfo[0][PR_DISPLAY_NAME];
                     $recip[PR_EMAIL_ADDRESS] = $userinfo[0][PR_EMAIL_ADDRESS];
                     $recip[PR_SEARCH_KEY] = $userinfo[0][PR_SEARCH_KEY];
@@ -1451,8 +1537,7 @@ class MAPIProvider {
                     $recip[PR_ENTRYID] = $userinfo[0][PR_ENTRYID];
                     $recip[PR_RECIPIENT_TYPE] = MAPI_TO;
                     $recip[PR_RECIPIENT_FLAGS] = recipSendable;
-                }
-                else {
+                } else {
                     $recip[PR_DISPLAY_NAME] = u2w($attendee->name);
                     $recip[PR_SEARCH_KEY] = "SMTP:".$recip[PR_EMAIL_ADDRESS]."\0";
                     $recip[PR_ADDRTYPE] = "SMTP";
@@ -1477,18 +1562,22 @@ class MAPIProvider {
      * @access private
      * @return boolean
      */
-    private function setContact($mapimessage, $contact) {
-        mapi_setprops($mapimessage, array(PR_MESSAGE_CLASS => "IPM.Contact"));
+    private function setContact($mapimessage, $contact)
+    {
+        mapi_setprops($mapimessage, [PR_MESSAGE_CLASS => "IPM.Contact"]);
 
         // normalize email addresses
-        if (isset($contact->email1address) && (($contact->email1address = $this->extractEmailAddress($contact->email1address)) === false))
+        if (isset($contact->email1address) && (($contact->email1address = $this->extractEmailAddress($contact->email1address)) === false)) {
             unset($contact->email1address);
+        }
 
-        if (isset($contact->email2address) && (($contact->email2address = $this->extractEmailAddress($contact->email2address)) === false))
+        if (isset($contact->email2address) && (($contact->email2address = $this->extractEmailAddress($contact->email2address)) === false)) {
             unset($contact->email2address);
+        }
 
-        if (isset($contact->email3address) && (($contact->email3address = $this->extractEmailAddress($contact->email3address)) === false))
+        if (isset($contact->email3address) && (($contact->email3address = $this->extractEmailAddress($contact->email3address)) === false)) {
             unset($contact->email3address);
+        }
 
         $contactmapping = MAPIMapping::GetContactMapping();
         $contactprops = MAPIMapping::GetContactProperties();
@@ -1501,24 +1590,29 @@ class MAPIProvider {
         $contactprops = array_merge($this->getPropIdsFromStrings($contactmapping), $this->getPropIdsFromStrings($contactprops));
 
         //contact specific properties to be set
-        $props = array();
+        $props = [];
 
         //need to be set in order to show contacts properly in outlook and wa
-        $nremails = array();
+        $nremails = [];
         $abprovidertype = 0;
 
-        if (isset($contact->email1address))
+        if (isset($contact->email1address)) {
             $this->setEmailAddress($contact->email1address, $cname, 1, $props, $contactprops, $nremails, $abprovidertype);
-        if (isset($contact->email2address))
+        }
+        if (isset($contact->email2address)) {
             $this->setEmailAddress($contact->email2address, $cname, 2, $props, $contactprops, $nremails, $abprovidertype);
-        if (isset($contact->email3address))
+        }
+        if (isset($contact->email3address)) {
             $this->setEmailAddress($contact->email3address, $cname, 3, $props, $contactprops, $nremails, $abprovidertype);
+        }
 
         $props[$contactprops["addressbooklong"]] = $abprovidertype;
         $props[$contactprops["displayname"]] = $props[$contactprops["subject"]] = $cname;
 
         //pda multiple e-mail addresses bug fix for the contact
-        if (!empty($nremails)) $props[$contactprops["addressbookmv"]] = $nremails;
+        if (!empty($nremails)) {
+            $props[$contactprops["addressbookmv"]] = $nremails;
+        }
 
 
         //set addresses
@@ -1530,12 +1624,10 @@ class MAPIProvider {
         if (isset($props[$contactprops["businessaddress"]])) {
             $props[$contactprops["mailingaddress"]] = 2;
             $this->setMailingAddress($contact->businesscity, $contact->businesscountry, $contact->businesspostalcode, $contact->businessstate, $contact->businessstreet, $props[$contactprops["businessaddress"]], $props, $contactprops);
-        }
-        elseif (isset($props[$contactprops["homeaddress"]])) {
+        } elseif (isset($props[$contactprops["homeaddress"]])) {
             $props[$contactprops["mailingaddress"]] = 1;
             $this->setMailingAddress($contact->homecity, $contact->homecountry, $contact->homepostalcode, $contact->homestate, $contact->homestreet, $props[$contactprops["homeaddress"]], $props, $contactprops);
-        }
-        elseif (isset($props[$contactprops["otheraddress"]])) {
+        } elseif (isset($props[$contactprops["otheraddress"]])) {
             $props[$contactprops["mailingaddress"]] = 3;
             $this->setMailingAddress($contact->othercity, $contact->othercountry, $contact->otherpostalcode, $contact->otherstate, $contact->otherstreet, $props[$contactprops["otheraddress"]], $props, $contactprops);
         }
@@ -1548,13 +1640,13 @@ class MAPIProvider {
             // TODO contact picture handling
             // check if contact has already got a picture. delete it first in that case
             // delete it also if it was removed on a mobile
-            $picprops = mapi_getprops($mapimessage, array($contactprops["haspic"]));
+            $picprops = mapi_getprops($mapimessage, [$contactprops["haspic"]]);
             if (isset($picprops[$contactprops["haspic"]]) && $picprops[$contactprops["haspic"]]) {
                 ZLog::Write(LOGLEVEL_DEBUG, "Contact already has a picture. Delete it");
 
                 $attachtable = mapi_message_getattachmenttable($mapimessage);
                 mapi_table_restrict($attachtable, MAPIUtils::GetContactPicRestriction());
-                $rows = mapi_table_queryallrows($attachtable, array(PR_ATTACH_NUM));
+                $rows = mapi_table_queryallrows($attachtable, [PR_ATTACH_NUM]);
                 if (isset($rows) && is_array($rows)) {
                     foreach ($rows as $row) {
                         mapi_message_deleteattach($mapimessage, $row[PR_ATTACH_NUM]);
@@ -1567,7 +1659,7 @@ class MAPIProvider {
                 $props[$contactprops["haspic"]] = true;
                 $pic = mapi_message_createattach($mapimessage);
                 // Set properties of the attachment
-                $picprops = array(
+                $picprops = [
                     PR_ATTACH_LONG_FILENAME_A => "ContactPicture.jpg",
                     PR_DISPLAY_NAME => "ContactPicture.jpg",
                     0x7FFF000B => true,
@@ -1578,7 +1670,7 @@ class MAPIProvider {
                     PR_ATTACH_NUM => 1,
                     PR_ATTACH_SIZE => $picsize,
                     PR_ATTACH_DATA_BIN => $picbinary,
-                );
+                ];
 
                 mapi_setprops($pic, $picprops);
                 mapi_savechanges($pic);
@@ -1596,8 +1688,9 @@ class MAPIProvider {
             $middlename = (isset($contact->middlename)) ? $contact->middlename : "";
             $company = (isset($contact->companyname)) ? $contact->companyname : "";
             $props[$contactprops["fileas"]] = Utils::BuildFileAs($lastname, $firstname, $middlename, $company);
+        } else {
+            ZLog::Write(LOGLEVEL_DEBUG, "FILEAS_ORDER not defined");
         }
-        else ZLog::Write(LOGLEVEL_DEBUG, "FILEAS_ORDER not defined");
 
         mapi_setprops($mapimessage, $props);
     }
@@ -1611,8 +1704,9 @@ class MAPIProvider {
      * @access private
      * @return boolean
      */
-    private function setTask($mapimessage, $task) {
-        mapi_setprops($mapimessage, array(PR_MESSAGE_CLASS => "IPM.Task"));
+    private function setTask($mapimessage, $task)
+    {
+        mapi_setprops($mapimessage, [PR_MESSAGE_CLASS => "IPM.Task"]);
 
         $taskmapping = MAPIMapping::GetTaskMapping();
         $taskprops = MAPIMapping::GetTaskProperties();
@@ -1620,14 +1714,14 @@ class MAPIProvider {
         $taskprops = array_merge($this->getPropIdsFromStrings($taskmapping), $this->getPropIdsFromStrings($taskprops));
 
         // task specific properties to be set
-        $props = array();
+        $props = [];
 
         if (isset($task->asbody)) {
             $this->setASbody($task->asbody, $props, $taskprops);
         }
 
-        if(isset($task->complete)) {
-            if($task->complete) {
+        if (isset($task->complete)) {
+            if ($task->complete) {
                 // Set completion to 100%
                 // Set status to 'complete'
                 $props[$taskprops["completion"]] = 1.0;
@@ -1643,8 +1737,9 @@ class MAPIProvider {
         if (isset($task->recurrence) && class_exists('TaskRecurrence')) {
             $deadoccur = false;
             if ((isset($task->recurrence->occurrences) && $task->recurrence->occurrences == 1) ||
-                (isset($task->recurrence->deadoccur) && $task->recurrence->deadoccur == 1)) //ios5 sends deadoccur inside the recurrence
+                (isset($task->recurrence->deadoccur) && $task->recurrence->deadoccur == 1)) { //ios5 sends deadoccur inside the recurrence
                 $deadoccur = true;
+            }
 
             // Set PR_ICON_INDEX to 1281 to show correct icon in category view
             $props[$taskprops["icon"]] = 1281;
@@ -1654,7 +1749,7 @@ class MAPIProvider {
             $props[$taskprops["isrecurringtag"]] = true;
 
             $recurrence = new TaskRecurrence($this->store, $mapimessage);
-            $recur = array();
+            $recur = [];
             $this->setRecurrence($task, $recur);
 
             // task specific recurrence properties which we need to set here
@@ -1674,17 +1769,15 @@ class MAPIProvider {
         $addrbook = $this->getAddressbook();
 
         // check if there is already an owner for the task, set current user if not
-        $p = array( $taskprops["owner"]);
+        $p = [ $taskprops["owner"]];
         $owner = $this->getProps($mapimessage, $p);
         if (!isset($owner[$taskprops["owner"]])) {
             $userinfo = mapi_zarafa_getuser($this->store, Request::GetAuthUser());
-            if(mapi_last_hresult() == NOERROR && isset($userinfo["fullname"])) {
+            if (mapi_last_hresult() == NOERROR && isset($userinfo["fullname"])) {
                 $props[$taskprops["owner"]] = $userinfo["fullname"];
             }
         }
         mapi_setprops($mapimessage, $props);
-
-
     }
 
     /**
@@ -1696,10 +1789,13 @@ class MAPIProvider {
     * @access private
     * @return boolean
     */
-    private function setNote($mapimessage, $note) {
+    private function setNote($mapimessage, $note)
+    {
         // Touchdown does not send categories if all are unset or there is none.
         // Setting it to an empty array will unset the property in KC as well
-        if (!isset($note->categories)) $note->categories = array();
+        if (!isset($note->categories)) {
+            $note->categories = [];
+        }
 
         // update icon index to correspond to the color
         if (isset($note->Color) && $note->Color > -1 && $note->Color < 5) {
@@ -1712,7 +1808,7 @@ class MAPIProvider {
         $noteprops = $this->getPropIdsFromStrings($noteprops);
 
         // note specific properties to be set
-        $props = array();
+        $props = [];
         $props[$noteprops["messageclass"]] = "IPM.StickyNote";
         // set body otherwise the note will be "broken" when editing it in outlook
         if (isset($note->asbody)) {
@@ -1735,7 +1831,8 @@ class MAPIProvider {
      * @access private
      * @return long
      */
-    private function GetTZOffset($ts) {
+    private function GetTZOffset($ts)
+    {
         $Offset = date("O", $ts);
 
         $Parity = $Offset < 0 ? -1 : 1;
@@ -1753,7 +1850,8 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    private function gmtime($time) {
+    private function gmtime($time)
+    {
         $TZOffset = $this->GetTZOffset($time);
 
         $t_time = $time - $TZOffset * 60; #Counter adjust for localtime()
@@ -1772,27 +1870,28 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function setPropsInMAPI($mapimessage, $message, $mapping) {
+    private function setPropsInMAPI($mapimessage, $message, $mapping)
+    {
         $mapiprops = $this->getPropIdsFromStrings($mapping);
         $unsetVars = $message->getUnsetVars();
-        $propsToDelete = array();
-        $propsToSet = array();
+        $propsToDelete = [];
+        $propsToSet = [];
 
         foreach ($mapiprops as $asprop => $mapiprop) {
-            if(isset($message->$asprop)) {
-
+            if (isset($message->$asprop)) {
                 // UTF8->windows1252.. this is ok for all numerical values
-                if(mapi_prop_type($mapiprop) != PT_BINARY && mapi_prop_type($mapiprop) != PT_MV_BINARY) {
-                    if(is_array($message->$asprop))
+                if (mapi_prop_type($mapiprop) != PT_BINARY && mapi_prop_type($mapiprop) != PT_MV_BINARY) {
+                    if (is_array($message->$asprop)) {
                         $value = array_map("u2wi", $message->$asprop);
-                    else
+                    } else {
                         $value = u2wi($message->$asprop);
+                    }
                 } else {
                     $value = $message->$asprop;
                 }
 
                 // Make sure the php values are the correct type
-                switch(mapi_prop_type($mapiprop)) {
+                switch (mapi_prop_type($mapiprop)) {
                     case PT_BINARY:
                     case PT_STRING8:
                         settype($value, "string");
@@ -1807,26 +1906,24 @@ class MAPIProvider {
                 }
 
                 // decode base64 value
-                if($mapiprop == PR_RTF_COMPRESSED) {
+                if ($mapiprop == PR_RTF_COMPRESSED) {
                     $value = base64_decode($value);
-                    if(strlen($value) == 0)
+                    if (strlen($value) == 0) {
                         continue; // PDA will sometimes give us an empty RTF, which we'll ignore.
+                    }
 
                     // Note that you can still remove notes because when you remove notes it gives
                     // a valid compressed RTF with nothing in it.
-
                 }
                 // if an "empty array" is to be saved, it the mvprop should be deleted - fixes Mantis #468
                 if (is_array($value) && empty($value)) {
                     $propsToDelete[] = $mapiprop;
                     ZLog::Write(LOGLEVEL_DEBUG, sprintf("MAPIProvider->setPropsInMAPI(): Property '%s' to be deleted as it is an empty array", $asprop));
-                }
-                else {
+                } else {
                     // all properties will be set at once
                     $propsToSet[$mapiprop] = $value;
                 }
-            }
-            elseif (in_array($asprop, $unsetVars)) {
+            } elseif (in_array($asprop, $unsetVars)) {
                 $propsToDelete[] = $mapiprop;
             }
         }
@@ -1853,14 +1950,14 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function setPropsIndividually(&$mapimessage, &$propsToSet, &$mapiprops) {
+    private function setPropsIndividually(&$mapimessage, &$propsToSet, &$mapiprops)
+    {
         foreach ($propsToSet as $prop => $value) {
-            mapi_setprops($mapimessage, array($prop => $value));
+            mapi_setprops($mapimessage, [$prop => $value]);
             if (mapi_last_hresult()) {
                 Zlog::Write(LOGLEVEL_ERROR, sprintf("Failed setting property [%s] with value [%s], error code was:%x", array_search($prop, $mapiprops), $value, mapi_last_hresult()));
             }
         }
-
     }
 
     /**
@@ -1873,7 +1970,8 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function getPropsFromMAPI(&$message, $mapimessage, $mapping) {
+    private function getPropsFromMAPI(&$message, $mapimessage, $mapping)
+    {
         $messageprops = $this->getProps($mapimessage, $mapping);
         foreach ($mapping as $asprop => $mapiprop) {
              // Get long strings via openproperty
@@ -1884,27 +1982,29 @@ class MAPIProvider {
                 }
             }
 
-            if(isset($messageprops[$mapiprop])) {
-                if(mapi_prop_type($mapiprop) == PT_BOOLEAN) {
+            if (isset($messageprops[$mapiprop])) {
+                if (mapi_prop_type($mapiprop) == PT_BOOLEAN) {
                     // Force to actual '0' or '1'
-                    if($messageprops[$mapiprop])
+                    if ($messageprops[$mapiprop]) {
                         $message->$asprop = 1;
-                    else
+                    } else {
                         $message->$asprop = 0;
+                    }
                 } else {
                     // Special handling for PR_MESSAGE_FLAGS
-                    if($mapiprop == PR_MESSAGE_FLAGS)
+                    if ($mapiprop == PR_MESSAGE_FLAGS) {
                         $message->$asprop = $messageprops[$mapiprop] & 1; // only look at 'read' flag
-                    else if($mapiprop == PR_RTF_COMPRESSED)
+                    } elseif ($mapiprop == PR_RTF_COMPRESSED) {
                         //do not send rtf to the mobile
                         continue;
-                    else if(is_array($messageprops[$mapiprop]))
+                    } elseif (is_array($messageprops[$mapiprop])) {
                         $message->$asprop = array_map("w2u", $messageprops[$mapiprop]);
-                    else {
-                        if(mapi_prop_type($mapiprop) != PT_BINARY && mapi_prop_type($mapiprop) != PT_MV_BINARY)
+                    } else {
+                        if (mapi_prop_type($mapiprop) != PT_BINARY && mapi_prop_type($mapiprop) != PT_MV_BINARY) {
                             $message->$asprop = w2u($messageprops[$mapiprop]);
-                        else
+                        } else {
                             $message->$asprop = $messageprops[$mapiprop];
+                        }
                     }
                 }
             }
@@ -1919,7 +2019,8 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function getPropIdsFromStrings(&$mapiprops) {
+    private function getPropIdsFromStrings(&$mapiprops)
+    {
         return getPropIdsFromStrings($this->store, $mapiprops);
     }
 
@@ -1931,7 +2032,8 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    protected function getProps($mapimessage, &$mapiproperties) {
+    protected function getProps($mapimessage, &$mapiproperties)
+    {
         $mapiproperties = $this->getPropIdsFromStrings($mapiproperties);
         return mapi_getprops($mapimessage, $mapiproperties);
     }
@@ -1942,8 +2044,9 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    private function getGMTTZ() {
-        $tz = array(
+    private function getGMTTZ()
+    {
+        $tz = [
             "bias" => 0,
             "tzname" => "",
             "dstendyear" => 0,
@@ -1965,7 +2068,7 @@ class MAPIProvider {
             "dststartsecond" => 0,
             "dststartmillis" => 0,
             "dstbias" => -60
-    );
+        ];
 
         return $tz;
     }
@@ -1978,7 +2081,8 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    private function getTZFromMAPIBlob($data) {
+    private function getTZFromMAPIBlob($data)
+    {
         $unpacked = unpack("lbias/lstdbias/ldstbias/" .
                            "vconst1/vdstendyear/vdstendmonth/vdstendday/vdstendweek/vdstendhour/vdstendminute/vdstendsecond/vdstendmillis/" .
                            "vconst2/vdststartyear/vdststartmonth/vdststartday/vdststartweek/vdststarthour/vdststartminute/vdststartsecond/vdststartmillis", $data);
@@ -1993,8 +2097,9 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    private function getTZFromSyncBlob($data) {
-        $tz = unpack(   "lbias/a64tzname/vdstendyear/vdstendmonth/vdstendday/vdstendweek/vdstendhour/vdstendminute/vdstendsecond/vdstendmillis/" .
+    private function getTZFromSyncBlob($data)
+    {
+        $tz = unpack("lbias/a64tzname/vdstendyear/vdstendmonth/vdstendday/vdstendweek/vdstendhour/vdstendminute/vdstendsecond/vdstendmillis/" .
                         "lstdbias/a64tznamedst/vdststartyear/vdststartmonth/vdststartday/vdststartweek/vdststarthour/vdststartminute/vdststartsecond/vdststartmillis/" .
                         "ldstbias", $data);
 
@@ -2013,11 +2118,32 @@ class MAPIProvider {
      * @access private
      * @return string
      */
-    private function getMAPIBlobFromTZ($tz) {
-        $packed = pack("lll" . "vvvvvvvvv" . "vvvvvvvvv",
-                      $tz["bias"], $tz["stdbias"], $tz["dstbias"],
-                      0, 0, $tz["dstendmonth"], $tz["dstendday"], $tz["dstendweek"], $tz["dstendhour"], $tz["dstendminute"], $tz["dstendsecond"], $tz["dstendmillis"],
-                      0, 0, $tz["dststartmonth"], $tz["dststartday"], $tz["dststartweek"], $tz["dststarthour"], $tz["dststartminute"], $tz["dststartsecond"], $tz["dststartmillis"]);
+    private function getMAPIBlobFromTZ($tz)
+    {
+        $packed = pack(
+            "lll" . "vvvvvvvvv" . "vvvvvvvvv",
+            $tz["bias"],
+            $tz["stdbias"],
+            $tz["dstbias"],
+            0,
+            0,
+            $tz["dstendmonth"],
+            $tz["dstendday"],
+            $tz["dstendweek"],
+            $tz["dstendhour"],
+            $tz["dstendminute"],
+            $tz["dstendsecond"],
+            $tz["dstendmillis"],
+            0,
+            0,
+            $tz["dststartmonth"],
+            $tz["dststartday"],
+            $tz["dststartweek"],
+            $tz["dststarthour"],
+            $tz["dststartminute"],
+            $tz["dststartsecond"],
+            $tz["dststartmillis"]
+        );
 
         return $packed;
     }
@@ -2031,14 +2157,17 @@ class MAPIProvider {
      * @access private
      * @return long
      */
-    private function getGMTTimeByTZ($localtime, $tz) {
-        if(!isset($tz) || !is_array($tz))
+    private function getGMTTimeByTZ($localtime, $tz)
+    {
+        if (!isset($tz) || !is_array($tz)) {
             return $localtime;
+        }
 
-        if($this->isDST($localtime, $tz))
-            return $localtime + $tz["bias"]*60 + $tz["dstbias"]*60;
-        else
-            return $localtime + $tz["bias"]*60;
+        if ($this->isDST($localtime, $tz)) {
+            return $localtime + $tz["bias"] * 60 + $tz["dstbias"] * 60;
+        } else {
+            return $localtime + $tz["bias"] * 60;
+        }
     }
 
     /**
@@ -2050,14 +2179,17 @@ class MAPIProvider {
      * @access private
      * @return long
      */
-    private function getLocaltimeByTZ($gmttime, $tz) {
-        if(!isset($tz) || !is_array($tz))
+    private function getLocaltimeByTZ($gmttime, $tz)
+    {
+        if (!isset($tz) || !is_array($tz)) {
             return $gmttime;
+        }
 
-        if($this->isDST($gmttime - $tz["bias"]*60, $tz)) // may bug around the switch time because it may have to be 'gmttime - bias - dstbias'
-            return $gmttime - $tz["bias"]*60 - $tz["dstbias"]*60;
-        else
-            return $gmttime - $tz["bias"]*60;
+        if ($this->isDST($gmttime - $tz["bias"] * 60, $tz)) { // may bug around the switch time because it may have to be 'gmttime - bias - dstbias'
+            return $gmttime - $tz["bias"] * 60 - $tz["dstbias"] * 60;
+        } else {
+            return $gmttime - $tz["bias"] * 60;
+        }
     }
 
     /**
@@ -2069,29 +2201,33 @@ class MAPIProvider {
      * @access private
      * @return boolean
      */
-    private function isDST($localtime, $tz) {
-        if( !isset($tz) || !is_array($tz) ||
+    private function isDST($localtime, $tz)
+    {
+        if (!isset($tz) || !is_array($tz) ||
             !isset($tz["dstbias"]) || $tz["dstbias"] == 0 ||
             !isset($tz["dststartmonth"]) || $tz["dststartmonth"] == 0 ||
-            !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0)
+            !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0) {
             return false;
+        }
 
         $year = gmdate("Y", $localtime);
         $start = $this->getTimestampOfWeek($year, $tz["dststartmonth"], $tz["dststartweek"], $tz["dststartday"], $tz["dststarthour"], $tz["dststartminute"], $tz["dststartsecond"]);
         $end = $this->getTimestampOfWeek($year, $tz["dstendmonth"], $tz["dstendweek"], $tz["dstendday"], $tz["dstendhour"], $tz["dstendminute"], $tz["dstendsecond"]);
 
-        if($start < $end) {
+        if ($start < $end) {
             // northern hemisphere (july = dst)
-          if($localtime >= $start && $localtime < $end)
-              $dst = true;
-          else
-              $dst = false;
+            if ($localtime >= $start && $localtime < $end) {
+                $dst = true;
+            } else {
+                $dst = false;
+            }
         } else {
             // southern hemisphere (january = dst)
-          if($localtime >= $end && $localtime < $start)
-              $dst = false;
-          else
-              $dst = true;
+            if ($localtime >= $end && $localtime < $start) {
+                $dst = false;
+            } else {
+                $dst = true;
+            }
         }
 
         return $dst;
@@ -2111,17 +2247,20 @@ class MAPIProvider {
      * @access private
      * @return long
      */
-    private function getTimestampOfWeek($year, $month, $week, $wday, $hour, $minute, $second) {
-        if ($month == 0)
+    private function getTimestampOfWeek($year, $month, $week, $wday, $hour, $minute, $second)
+    {
+        if ($month == 0) {
             return;
+        }
 
         $date = gmmktime($hour, $minute, $second, $month, 1, $year);
 
         // Find first day in month which matches day of the week
-        while(1) {
+        while (1) {
             $wdaynow = gmdate("w", $date);
-            if($wdaynow == $wday)
+            if ($wdaynow == $wday) {
                 break;
+            }
             $date += 24 * 60 * 60;
         }
 
@@ -2130,12 +2269,13 @@ class MAPIProvider {
 
         // Reverse 'overflow'. Eg week '10' will always be the last week of the month in which the
         // specified weekday exists
-        while(1) {
+        while (1) {
             $monthnow = gmdate("n", $date); // gmdate returns 1-12
-            if($monthnow > $month)
+            if ($monthnow > $month) {
                 $date = $date - (24 * 7 * 60 * 60);
-            else
+            } else {
                 break;
+            }
         }
 
         return $date;
@@ -2149,7 +2289,8 @@ class MAPIProvider {
      * @access private
      * @return long
      */
-    private function getDayStartOfTimestamp($timestamp) {
+    private function getDayStartOfTimestamp($timestamp)
+    {
         return $timestamp - ($timestamp % (60 * 60 * 24));
     }
 
@@ -2161,26 +2302,30 @@ class MAPIProvider {
      * @access private
      * @return string
      */
-    private function getSMTPAddressFromEntryID($entryid) {
+    private function getSMTPAddressFromEntryID($entryid)
+    {
         $addrbook = $this->getAddressbook();
 
         $mailuser = mapi_ab_openentry($addrbook, $entryid);
-        if(!$mailuser)
+        if (!$mailuser) {
             return "";
+        }
 
-        $props = mapi_getprops($mailuser, array(PR_ADDRTYPE, PR_SMTP_ADDRESS, PR_EMAIL_ADDRESS));
+        $props = mapi_getprops($mailuser, [PR_ADDRTYPE, PR_SMTP_ADDRESS, PR_EMAIL_ADDRESS]);
 
         $addrtype = isset($props[PR_ADDRTYPE]) ? $props[PR_ADDRTYPE] : "";
 
-        if(isset($props[PR_SMTP_ADDRESS]))
+        if (isset($props[PR_SMTP_ADDRESS])) {
             return $props[PR_SMTP_ADDRESS];
+        }
 
-        if($addrtype == "SMTP" && isset($props[PR_EMAIL_ADDRESS]))
+        if ($addrtype == "SMTP" && isset($props[PR_EMAIL_ADDRESS])) {
             return $props[PR_EMAIL_ADDRESS];
-        elseif ($addrtype == "ZARAFA" && isset($props[PR_EMAIL_ADDRESS])) {
+        } elseif ($addrtype == "ZARAFA" && isset($props[PR_EMAIL_ADDRESS])) {
             $userinfo = mapi_zarafa_getuser_by_name($this->store, $props[PR_EMAIL_ADDRESS]);
-            if (is_array($userinfo) && isset($userinfo["emailaddress"]))
+            if (is_array($userinfo) && isset($userinfo["emailaddress"])) {
                 return $userinfo["emailaddress"];
+            }
         }
 
         return "";
@@ -2192,15 +2337,16 @@ class MAPIProvider {
      * @param binary $entryid
      * @return string fullname or false on error
      */
-    private function getFullnameFromEntryID($entryid) {
+    private function getFullnameFromEntryID($entryid)
+    {
         $addrbook = $this->getAddressbook();
         $mailuser = mapi_ab_openentry($addrbook, $entryid);
-        if(!$mailuser) {
+        if (!$mailuser) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("Unable to get mailuser for getFullnameFromEntryID (0x%X)", mapi_last_hresult()));
             return false;
         }
 
-        $props = mapi_getprops($mailuser, array(PR_DISPLAY_NAME));
+        $props = mapi_getprops($mailuser, [PR_DISPLAY_NAME]);
         if (isset($props[PR_DISPLAY_NAME])) {
             return $props[PR_DISPLAY_NAME];
         }
@@ -2216,13 +2362,14 @@ class MAPIProvider {
      * @access private
      * @return string
      */
-    private function composeDisplayName(&$contact) {
+    private function composeDisplayName(&$contact)
+    {
         // Set display name and subject to a combined value of firstname and lastname
-        $cname = (isset($contact->prefix))?u2w($contact->prefix)." ":"";
+        $cname = (isset($contact->prefix)) ? u2w($contact->prefix)." " : "";
         $cname .= u2w($contact->firstname);
-        $cname .= (isset($contact->middlename))?" ". u2w($contact->middlename):"";
+        $cname .= (isset($contact->middlename)) ? " ". u2w($contact->middlename) : "";
         $cname .= " ". u2w($contact->lastname);
-        $cname .= (isset($contact->suffix))?" ". u2w($contact->suffix):"";
+        $cname .= (isset($contact->suffix)) ? " ". u2w($contact->suffix) : "";
         return trim($cname);
     }
 
@@ -2240,7 +2387,8 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function setEmailAddress($emailAddress, $displayName, $cnt, &$props, &$properties, &$nremails, &$abprovidertype){
+    private function setEmailAddress($emailAddress, $displayName, $cnt, &$props, &$properties, &$nremails, &$abprovidertype)
+    {
         if (isset($emailAddress)) {
             $name = (isset($displayName)) ? $displayName : $emailAddress;
 
@@ -2269,20 +2417,33 @@ class MAPIProvider {
      * @access private
      * @return
      */
-     private function setAddress($type, &$city, &$country, &$postalcode, &$state, &$street, &$props, &$properties) {
-        if (isset($city)) $props[$properties[$type."city"]] = $city = u2w($city);
+    private function setAddress($type, &$city, &$country, &$postalcode, &$state, &$street, &$props, &$properties)
+    {
+        if (isset($city)) {
+            $props[$properties[$type."city"]] = $city = u2w($city);
+        }
 
-        if (isset($country)) $props[$properties[$type."country"]] = $country = u2w($country);
+        if (isset($country)) {
+            $props[$properties[$type."country"]] = $country = u2w($country);
+        }
 
-        if (isset($postalcode)) $props[$properties[$type."postalcode"]] = $postalcode = u2w($postalcode);
+        if (isset($postalcode)) {
+            $props[$properties[$type."postalcode"]] = $postalcode = u2w($postalcode);
+        }
 
-        if (isset($state)) $props[$properties[$type."state"]] = $state = u2w($state);
+        if (isset($state)) {
+            $props[$properties[$type."state"]] = $state = u2w($state);
+        }
 
-        if (isset($street)) $props[$properties[$type."street"]] = $street = u2w($street);
+        if (isset($street)) {
+            $props[$properties[$type."street"]] = $street = u2w($street);
+        }
 
         //set composed address
         $address = Utils::BuildAddressString($street, $postalcode, $city, $state, $country);
-        if ($address) $props[$properties[$type."address"]] = $address;
+        if ($address) {
+            $props[$properties[$type."address"]] = $address;
+        }
     }
 
     /**
@@ -2300,13 +2461,26 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function setMailingAddress($city, $country, $postalcode,  $state, $street, $address, &$props, &$properties) {
-        if (isset($city)) $props[$properties["city"]] = $city;
-        if (isset($country)) $props[$properties["country"]] = $country;
-        if (isset($postalcode)) $props[$properties["postalcode"]] = $postalcode;
-        if (isset($state)) $props[$properties["state"]] = $state;
-        if (isset($street)) $props[$properties["street"]] = $street;
-        if (isset($address)) $props[$properties["postaladdress"]] = $address;
+    private function setMailingAddress($city, $country, $postalcode, $state, $street, $address, &$props, &$properties)
+    {
+        if (isset($city)) {
+            $props[$properties["city"]] = $city;
+        }
+        if (isset($country)) {
+            $props[$properties["country"]] = $country;
+        }
+        if (isset($postalcode)) {
+            $props[$properties["postalcode"]] = $postalcode;
+        }
+        if (isset($state)) {
+            $props[$properties["state"]] = $state;
+        }
+        if (isset($street)) {
+            $props[$properties["street"]] = $street;
+        }
+        if (isset($address)) {
+            $props[$properties["postaladdress"]] = $address;
+        }
     }
 
     /**
@@ -2318,26 +2492,29 @@ class MAPIProvider {
      * @access private
      * @return
      */
-    private function setRecurrence($message, &$recur) {
+    private function setRecurrence($message, &$recur)
+    {
         if (isset($message->complete)) {
             $recur["complete"] = $message->complete;
         }
 
-        if(!isset($message->recurrence->interval))
+        if (!isset($message->recurrence->interval)) {
             $message->recurrence->interval = 1;
+        }
 
         //set the default value of numoccur
         $recur["numoccur"] = 0;
         //a place holder for recurrencetype property
         $recur["recurrencetype"] = 0;
 
-        switch($message->recurrence->type) {
+        switch ($message->recurrence->type) {
             case 0:
                 $recur["type"] = 10;
-                if(isset($message->recurrence->dayofweek))
+                if (isset($message->recurrence->dayofweek)) {
                     $recur["subtype"] = 1;
-                else
+                } else {
                     $recur["subtype"] = 0;
+                }
 
                 $recur["everyn"] = $message->recurrence->interval * (60 * 24);
                 $recur["recurrencetype"] = 1;
@@ -2383,28 +2560,31 @@ class MAPIProvider {
         // "start" and "end" are in GMT when passing to class.recurrence
         $recur["end"] = $this->getDayStartOfTimestamp(0x7fffffff); // Maximum GMT value for end by default
 
-        if(isset($message->recurrence->until)) {
+        if (isset($message->recurrence->until)) {
             $recur["term"] = 0x21;
             $recur["end"] = $message->recurrence->until;
-        } else if(isset($message->recurrence->occurrences)) {
+        } elseif (isset($message->recurrence->occurrences)) {
             $recur["term"] = 0x22;
             $recur["numoccur"] = $message->recurrence->occurrences;
         } else {
             $recur["term"] = 0x23;
         }
 
-        if(isset($message->recurrence->dayofweek))
+        if (isset($message->recurrence->dayofweek)) {
             $recur["weekdays"] = $message->recurrence->dayofweek;
-        if(isset($message->recurrence->weekofmonth))
+        }
+        if (isset($message->recurrence->weekofmonth)) {
             $recur["nday"] = $message->recurrence->weekofmonth;
-        if(isset($message->recurrence->monthofyear)) {
+        }
+        if (isset($message->recurrence->monthofyear)) {
             // MAPI stores months as the amount of minutes until the beginning of the month in a
             // non-leapyear. Why this is, is totally unclear.
-            $monthminutes = array(0,44640,84960,129600,172800,217440,260640,305280,348480,393120,437760,480960);
-            $recur["month"] = $monthminutes[$message->recurrence->monthofyear-1];
+            $monthminutes = [0,44640,84960,129600,172800,217440,260640,305280,348480,393120,437760,480960];
+            $recur["month"] = $monthminutes[$message->recurrence->monthofyear - 1];
         }
-        if(isset($message->recurrence->dayofmonth))
+        if (isset($message->recurrence->dayofmonth)) {
             $recur["monthday"] = $message->recurrence->dayofmonth;
+        }
     }
 
     /**
@@ -2418,10 +2598,15 @@ class MAPIProvider {
      *  @access private
      *  @return string or false on error
      */
-    private function extractEmailAddress($email) {
-        if (!isset($this->zRFC822)) $this->zRFC822 = new Mail_RFC822();
+    private function extractEmailAddress($email)
+    {
+        if (!isset($this->zRFC822)) {
+            $this->zRFC822 = new Mail_RFC822();
+        }
         $parsedAddress = $this->zRFC822->parseAddressList($email);
-        if (!isset($parsedAddress[0]->mailbox) || !isset($parsedAddress[0]->host)) return false;
+        if (!isset($parsedAddress[0]->mailbox) || !isset($parsedAddress[0]->host)) {
+            return false;
+        }
 
         return $parsedAddress[0]->mailbox.'@'.$parsedAddress[0]->host;
     }
@@ -2436,7 +2621,8 @@ class MAPIProvider {
      * @access private
      * @return boolean
      */
-    private function setMessageBodyForType($mapimessage, $bpReturnType, &$message) {
+    private function setMessageBodyForType($mapimessage, $bpReturnType, &$message)
+    {
         //default value is PR_BODY
         $property = PR_BODY;
         switch ($bpReturnType) {
@@ -2448,8 +2634,9 @@ class MAPIProvider {
                 break;
             case SYNC_BODYPREFERENCE_MIME:
                 $stat = $this->imtoinet($mapimessage, $message);
-                if (isset($message->asbody))
+                if (isset($message->asbody)) {
                     $message->asbody->type = $bpReturnType;
+                }
                 return $stat;
         }
 
@@ -2457,8 +2644,7 @@ class MAPIProvider {
         if ($stream) {
             $stat = mapi_stream_stat($stream);
             $streamsize = $stat['cb'];
-        }
-        else {
+        } else {
             $streamsize = 0;
         }
 
@@ -2469,25 +2655,21 @@ class MAPIProvider {
             if ($bpReturnType == SYNC_BODYPREFERENCE_RTF) {
                 $body = $this->mapiReadStream($stream, $streamsize);
                 $message->asbody->data = StringStreamWrapper::Open(base64_encode($body));
-            }
-            elseif (isset($message->internetcpid) && $bpReturnType == SYNC_BODYPREFERENCE_HTML) {
+            } elseif (isset($message->internetcpid) && $bpReturnType == SYNC_BODYPREFERENCE_HTML) {
                 // if PR_HTML is UTF-8 we can stream it directly, else we have to convert to UTF-8 & wrap it
                 if (Utils::GetCodepageCharset($message->internetcpid) == "utf-8") {
                     $message->asbody->data = MAPIStreamWrapper::Open($stream);
-                }
-                else {
+                } else {
                     $body = $this->mapiReadStream($stream, $streamsize);
                     $message->asbody->data = StringStreamWrapper::Open(Utils::ConvertCodepageStringToUtf8($message->internetcpid, $body));
                 }
-            }
-            else {
+            } else {
                 $message->asbody->data = MAPIStreamWrapper::Open($stream);
             }
             $message->asbody->estimatedDataSize = $streamsize;
-        }
-        else {
+        } else {
             $body = $this->mapiReadStream($stream, $streamsize);
-            $message->body = str_replace("\n","\r\n", w2u(str_replace("\r", "", $body)));
+            $message->body = str_replace("\n", "\r\n", w2u(str_replace("\r", "", $body)));
             $message->bodysize = $streamsize;
             $message->bodytruncated = 0;
         }
@@ -2504,7 +2686,8 @@ class MAPIProvider {
      * @access private
      * @return string
      */
-    private function mapiReadStream($stream, $size) {
+    private function mapiReadStream($stream, $size)
+    {
         if (!$stream || $size == 0) {
             return "";
         }
@@ -2520,23 +2703,24 @@ class MAPIProvider {
      * @access private
      * @return boolean
      */
-    private function imtoinet($mapimessage, &$message) {
+    private function imtoinet($mapimessage, &$message)
+    {
         if (function_exists("mapi_inetmapi_imtoinet")) {
             $addrbook = $this->getAddressbook();
-            $stream = mapi_inetmapi_imtoinet($this->session, $addrbook, $mapimessage, array('use_tnef' => -1));
+            $stream = mapi_inetmapi_imtoinet($this->session, $addrbook, $mapimessage, ['use_tnef' => -1]);
 
             if (is_resource($stream)) {
                 $mstreamstat = mapi_stream_stat($stream);
                 $streamsize = $mstreamstat["cb"];
                 if (isset($streamsize)) {
                     if (Request::GetProtocolVersion() >= 12.0) {
-                        if (!isset($message->asbody))
+                        if (!isset($message->asbody)) {
                             $message->asbody = new SyncBaseBody();
+                        }
                         $message->asbody->data = MAPIStreamWrapper::Open($stream);
                         $message->asbody->estimatedDataSize = $streamsize;
                         $message->asbody->truncated = 0;
-                    }
-                    else {
+                    } else {
                         $message->mimedata = MAPIStreamWrapper::Open($stream);
                         $message->mimesize = $streamsize;
                         $message->mimetruncated = 0;
@@ -2558,13 +2742,14 @@ class MAPIProvider {
      * @param ContentParameters $contentparameters
      * @param SyncObject        $message
      */
-    private function setMessageBody($mapimessage, $contentparameters, &$message) {
+    private function setMessageBody($mapimessage, $contentparameters, &$message)
+    {
         //get the available body preference types
         $bpTypes = $contentparameters->GetBodyPreference();
         if ($bpTypes !== false) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("BodyPreference types: %s", implode(', ', $bpTypes)));
             //do not send mime data if the client requests it
-            if (($contentparameters->GetMimeSupport() == SYNC_MIMESUPPORT_NEVER) && ($key = array_search(SYNC_BODYPREFERENCE_MIME, $bpTypes)!== false)) {
+            if (($contentparameters->GetMimeSupport() == SYNC_MIMESUPPORT_NEVER) && ($key = array_search(SYNC_BODYPREFERENCE_MIME, $bpTypes) !== false)) {
                 unset($bpTypes[$key]);
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("Remove mime body preference type because the device required no mime support. BodyPreference types: %s", implode(', ', $bpTypes)));
             }
@@ -2577,7 +2762,7 @@ class MAPIProvider {
             // Android Blackberry expects a full mime message for signed emails
             // @see https://jira.z-hub.io/projects/ZP/issues/ZP-1154
             // @TODO change this when refactoring
-            $props = mapi_getprops($mapimessage, array(PR_MESSAGE_CLASS));
+            $props = mapi_getprops($mapimessage, [PR_MESSAGE_CLASS]);
             if (isset($props[PR_MESSAGE_CLASS]) &&
                     stripos($props[PR_MESSAGE_CLASS], 'IPM.Note.SMIME.MultipartSigned') !== false &&
                     ($key = array_search(SYNC_BODYPREFERENCE_MIME, $bpTypes) !== false)) {
@@ -2587,11 +2772,10 @@ class MAPIProvider {
 
             $this->setMessageBodyForType($mapimessage, $bpReturnType, $message);
             //only set the truncation size data if device set it in request
-            if (    $bpo->GetTruncationSize() != false &&
+            if ($bpo->GetTruncationSize() != false &&
                     $bpReturnType != SYNC_BODYPREFERENCE_MIME &&
                     $message->asbody->estimatedDataSize > $bpo->GetTruncationSize()
                 ) {
-
                 // Truncated plaintext requests are used on iOS for the preview in the email list. All images and links should be removed - see https://jira.z-hub.io/browse/ZP-1025
                 if ($bpReturnType == SYNC_BODYPREFERENCE_PLAIN) {
                     ZLog::Write(LOGLEVEL_DEBUG, "MAPIProvider->setMessageBody(): truncated plain-text body requested, stripping all links and images");
@@ -2608,19 +2792,19 @@ class MAPIProvider {
             if (Request::GetProtocolVersion() >= 14.0 && $bpo->GetPreview()) {
                 $message->asbody->preview = Utils::Utf8_truncate(MAPIUtils::readPropStream($mapimessage, PR_BODY), $bpo->GetPreview());
             }
-        }
-        else {
+        } else {
             // Override 'body' for truncation
             $truncsize = Utils::GetTruncSize($contentparameters->GetTruncation());
             $this->setMessageBodyForType($mapimessage, SYNC_BODYPREFERENCE_PLAIN, $message);
 
-            if($message->bodysize > $truncsize) {
+            if ($message->bodysize > $truncsize) {
                 $message->body = Utils::Utf8_truncate($message->body, $truncsize);
                 $message->bodytruncated = 1;
             }
 
-            if (!isset($message->body) || strlen($message->body) == 0)
+            if (!isset($message->body) || strlen($message->body) == 0) {
                 $message->body = " ";
+            }
 
             if ($contentparameters->GetMimeSupport() == SYNC_MIMESUPPORT_ALWAYS) {
                 //set the html body for iphone in AS 2.5 version
@@ -2638,9 +2822,12 @@ class MAPIProvider {
     * @access private
     * @return void
     */
-    private function setFlag($mapimessage, &$message){
+    private function setFlag($mapimessage, &$message)
+    {
         // do nothing if protocoll version is lower than 12.0 as flags haven't been defined before
-        if (Request::GetProtocolVersion() < 12.0 ) return;
+        if (Request::GetProtocolVersion() < 12.0) {
+            return;
+        }
 
         $message->flag = new SyncMailFlags();
 
@@ -2657,7 +2844,8 @@ class MAPIProvider {
      * @access private
      * @return void
      */
-    private function setASbody($asbody, &$props, $appointmentprops) {
+    private function setASbody($asbody, &$props, $appointmentprops)
+    {
         // TODO: fix checking for the length
         if (isset($asbody->type) && isset($asbody->data) /*&& strlen($asbody->data) > 0*/) {
             switch ($asbody->type) {
@@ -2674,8 +2862,7 @@ class MAPIProvider {
                 case SYNC_BODYPREFERENCE_MIME:
                     break;
             }
-        }
-        else {
+        } else {
             ZLog::Write(LOGLEVEL_DEBUG, "MAPIProvider->setASbody either type or data are not set. Setting to empty body");
             $props[$appointmentprops["body"]] = "";
         }
@@ -2687,7 +2874,8 @@ class MAPIProvider {
      * @access private
      * @return MAPIAddressbook object to be used with mapi_ab_* or false on failure
      */
-    private function getAddressbook() {
+    private function getAddressbook()
+    {
         if (isset($this->addressbook) && $this->addressbook) {
             return $this->addressbook;
         }
@@ -2706,18 +2894,19 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    public function GetStoreProps() {
+    public function GetStoreProps()
+    {
         if (!isset($this->storeProps) || empty($this->storeProps)) {
             ZLog::Write(LOGLEVEL_DEBUG, "MAPIProvider->GetStoreProps(): Getting store properties.");
-            $this->storeProps = mapi_getprops($this->store, array(PR_IPM_SUBTREE_ENTRYID, PR_IPM_OUTBOX_ENTRYID, PR_IPM_WASTEBASKET_ENTRYID, PR_IPM_SENTMAIL_ENTRYID, PR_ENTRYID, PR_IPM_PUBLIC_FOLDERS_ENTRYID, PR_IPM_FAVORITES_ENTRYID, PR_MAILBOX_OWNER_ENTRYID));
+            $this->storeProps = mapi_getprops($this->store, [PR_IPM_SUBTREE_ENTRYID, PR_IPM_OUTBOX_ENTRYID, PR_IPM_WASTEBASKET_ENTRYID, PR_IPM_SENTMAIL_ENTRYID, PR_ENTRYID, PR_IPM_PUBLIC_FOLDERS_ENTRYID, PR_IPM_FAVORITES_ENTRYID, PR_MAILBOX_OWNER_ENTRYID]);
             // make sure all properties are set
-            if(!isset($this->storeProps[PR_IPM_WASTEBASKET_ENTRYID])) {
+            if (!isset($this->storeProps[PR_IPM_WASTEBASKET_ENTRYID])) {
                 $this->storeProps[PR_IPM_WASTEBASKET_ENTRYID] = false;
             }
-            if(!isset($this->storeProps[PR_IPM_SENTMAIL_ENTRYID])) {
+            if (!isset($this->storeProps[PR_IPM_SENTMAIL_ENTRYID])) {
                 $this->storeProps[PR_IPM_SENTMAIL_ENTRYID] = false;
             }
-            if(!isset($this->storeProps[PR_IPM_OUTBOX_ENTRYID])) {
+            if (!isset($this->storeProps[PR_IPM_OUTBOX_ENTRYID])) {
                 $this->storeProps[PR_IPM_OUTBOX_ENTRYID] = false;
             }
         }
@@ -2730,33 +2919,34 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    private function getInboxProps() {
+    private function getInboxProps()
+    {
         if (!isset($this->inboxProps) || empty($this->inboxProps)) {
             ZLog::Write(LOGLEVEL_DEBUG, "MAPIProvider->getInboxProps(): Getting inbox properties.");
-            $this->inboxProps = array();
+            $this->inboxProps = [];
             $inbox = mapi_msgstore_getreceivefolder($this->store);
             if ($inbox) {
-                $this->inboxProps = mapi_getprops($inbox, array(PR_ENTRYID, PR_IPM_DRAFTS_ENTRYID, PR_IPM_TASK_ENTRYID, PR_IPM_APPOINTMENT_ENTRYID, PR_IPM_CONTACT_ENTRYID, PR_IPM_NOTE_ENTRYID, PR_IPM_JOURNAL_ENTRYID));
+                $this->inboxProps = mapi_getprops($inbox, [PR_ENTRYID, PR_IPM_DRAFTS_ENTRYID, PR_IPM_TASK_ENTRYID, PR_IPM_APPOINTMENT_ENTRYID, PR_IPM_CONTACT_ENTRYID, PR_IPM_NOTE_ENTRYID, PR_IPM_JOURNAL_ENTRYID]);
                 // make sure all properties are set
-                if(!isset($this->inboxProps[PR_ENTRYID])) {
+                if (!isset($this->inboxProps[PR_ENTRYID])) {
                     $this->inboxProps[PR_ENTRYID] = false;
                 }
-                if(!isset($this->inboxProps[PR_IPM_DRAFTS_ENTRYID])) {
+                if (!isset($this->inboxProps[PR_IPM_DRAFTS_ENTRYID])) {
                     $this->inboxProps[PR_IPM_DRAFTS_ENTRYID] = false;
                 }
-                if(!isset($this->inboxProps[PR_IPM_TASK_ENTRYID])) {
+                if (!isset($this->inboxProps[PR_IPM_TASK_ENTRYID])) {
                     $this->inboxProps[PR_IPM_TASK_ENTRYID] = false;
                 }
-                if(!isset($this->inboxProps[PR_IPM_APPOINTMENT_ENTRYID])) {
+                if (!isset($this->inboxProps[PR_IPM_APPOINTMENT_ENTRYID])) {
                     $this->inboxProps[PR_IPM_APPOINTMENT_ENTRYID] = false;
                 }
-                if(!isset($this->inboxProps[PR_IPM_CONTACT_ENTRYID])) {
+                if (!isset($this->inboxProps[PR_IPM_CONTACT_ENTRYID])) {
                     $this->inboxProps[PR_IPM_CONTACT_ENTRYID] = false;
                 }
-                if(!isset($this->inboxProps[PR_IPM_NOTE_ENTRYID])) {
+                if (!isset($this->inboxProps[PR_IPM_NOTE_ENTRYID])) {
                     $this->inboxProps[PR_IPM_NOTE_ENTRYID] = false;
                 }
-                if(!isset($this->inboxProps[PR_IPM_JOURNAL_ENTRYID])) {
+                if (!isset($this->inboxProps[PR_IPM_JOURNAL_ENTRYID])) {
                     $this->inboxProps[PR_IPM_JOURNAL_ENTRYID] = false;
                 }
             }
@@ -2770,10 +2960,11 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    private function getRootProps() {
+    private function getRootProps()
+    {
         if (!isset($this->rootProps)) {
             $root = mapi_msgstore_openentry($this->store, null);
-            $this->rootProps = mapi_getprops($root, array(PR_IPM_OL2007_ENTRYIDS));
+            $this->rootProps = mapi_getprops($root, [PR_IPM_OL2007_ENTRYIDS]);
         }
         return $this->rootProps;
     }
@@ -2784,7 +2975,8 @@ class MAPIProvider {
      * @access private
      * @return array
      */
-    private function getSpecialFoldersData() {
+    private function getSpecialFoldersData()
+    {
         // The persist data of an entry in PR_IPM_OL2007_ENTRYIDS consists of:
         //      PersistId - e.g. RSF_PID_SUGGESTED_CONTACTS (2 bytes)
         //      DataElementsSize - size of DataElements field (2 bytes)
@@ -2794,7 +2986,7 @@ class MAPIProvider {
         //              ElementDataSize - size of ElementData (2 bytes)
         //              ElementData - The data for the special folder identified by the PersistID (variable size)
         if (empty($this->specialFoldersData)) {
-            $this->specialFoldersData = array();
+            $this->specialFoldersData = [];
             $rootProps = $this->getRootProps();
             if (isset($rootProps[PR_IPM_OL2007_ENTRYIDS])) {
                 $persistData = $rootProps[PR_IPM_OL2007_ENTRYIDS];
@@ -2808,8 +3000,7 @@ class MAPIProvider {
                         $this->specialFoldersData[] = substr($persistData, 8, $unpackedData['elDataSize']);
                         // Add PersistId and DataElementsSize lenghts to the data size as they're not part of it
                         $persistData = substr($persistData, $unpackedData['dataSize'] + 4);
-                    }
-                    else {
+                    } else {
                         ZLog::Write(LOGLEVEL_INFO, "MAPIProvider->getSpecialFoldersData(): persistent data is not valid");
                         break;
                     }
@@ -2828,7 +3019,8 @@ class MAPIProvider {
      *
      * @return string
      */
-    private function getEmailAddressFromSearchKey($searchKey) {
+    private function getEmailAddressFromSearchKey($searchKey)
+    {
         if (strpos($searchKey, ':') !== false && strpos($searchKey, '@') !== false) {
             ZLog::Write(LOGLEVEL_INFO, "MAPIProvider->getEmailAddressFromSearchKey(): fall back to PR_SEARCH_KEY to resolve user and get email address");
             return trim(strtolower(explode(':', $searchKey)[1]));
@@ -2845,7 +3037,8 @@ class MAPIProvider {
      * @access public
      * @return array or false on failure
      */
-    public function GetMessageCategories($parentsourcekey, $sourcekey) {
+    public function GetMessageCategories($parentsourcekey, $sourcekey)
+    {
         $entryid = mapi_msgstore_entryidfromsourcekey($this->store, $parentsourcekey, $sourcekey);
         if (!$entryid) {
             ZLog::Write(LOGLEVEL_INFO, sprintf("MAPIProvider->GetMessageCategories(): Couldn't retrieve message, sourcekey: '%s', parentsourcekey: '%s'", bin2hex($sourcekey), bin2hex($parentsourcekey)));
@@ -2853,7 +3046,7 @@ class MAPIProvider {
         }
         $mapimessage = mapi_msgstore_openentry($this->store, $entryid);
         $emailMapping = MAPIMapping::GetEmailMapping();
-        $emailMapping = array("categories" => $emailMapping["categories"]);
+        $emailMapping = ["categories" => $emailMapping["categories"]];
         $messageCategories = $this->getProps($mapimessage, $emailMapping);
         if (isset($messageCategories[$emailMapping["categories"]]) && is_array($messageCategories[$emailMapping["categories"]])) {
             return $messageCategories[$emailMapping["categories"]];

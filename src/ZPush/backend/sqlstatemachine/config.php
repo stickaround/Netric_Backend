@@ -41,5 +41,4 @@ define('STATE_SQL_PORT', '3306');
 define('STATE_SQL_DATABASE', 'zpush');
 define('STATE_SQL_USER', 'root');
 define('STATE_SQL_PASSWORD', '');
-define('STATE_SQL_OPTIONS', serialize(array(PDO::ATTR_PERSISTENT => true)));
-
+define('STATE_SQL_OPTIONS', serialize([PDO::ATTR_PERSISTENT => true]));

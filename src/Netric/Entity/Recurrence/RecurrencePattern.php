@@ -337,7 +337,7 @@ class RecurrencePattern implements ErrorAwareInterface
      */
     public function getErrors()
     {
-        return array(new Error($this->lastError));
+        return [new Error($this->lastError)];
     }
 
     /**
@@ -630,7 +630,7 @@ class RecurrencePattern implements ErrorAwareInterface
      */
     public function resetIsChanged()
     {
-        $this->arrChangeLog = array(
+        $this->arrChangeLog = [
             "interval" => $this->interval,
             "type" => $this->recurType,
             "date_start" => $this->dateStart,
@@ -639,7 +639,7 @@ class RecurrencePattern implements ErrorAwareInterface
             "monthofyear" => $this->monthOfYear,
             "instance" => $this->instance,
             "dayofweekmask" => $this->dayOfWeekMask
-        );
+        ];
     }
 
 

@@ -48,7 +48,7 @@ class LogMessageTest extends TestCase
         $logMessage->setApplicationEnvironment($data);
         $this->assertEquals($data, $logMessage->getApplicationEnvironment());
     }
-    
+
     public function testGetAndSetApplicationVersion()
     {
         $data = 'v123';
@@ -80,10 +80,10 @@ class LogMessageTest extends TestCase
         $logMessage->setBody($data);
         $this->assertEquals($data, $logMessage->getBody());
     }
-    
+
     public function testGetAndSetBodyArray()
     {
-        $data = ['key1'=>'one', 'key2'=>'two'];
+        $data = ['key1' => 'one', 'key2' => 'two'];
         $logMessage = new LogMessage('netric_server', 'TEST');
         $logMessage->setBody($data);
         $this->assertEquals($data, $logMessage->getBody());

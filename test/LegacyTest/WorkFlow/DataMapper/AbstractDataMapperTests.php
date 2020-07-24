@@ -37,20 +37,20 @@ abstract class AbstractDataMapperTests extends TestCase
      *
      * @param WorkFlow[]
      */
-    protected $testWorkFlows = array();
+    protected $testWorkFlows = [];
 
     /**
      * Test entities
      *
      * @var EntityInterface[]
      */
-    protected $testEntities = array();
+    protected $testEntities = [];
 
     /**
      * Setup dependencies for tests
      */
     protected function setUp(): void
-{
+    {
         $account = Bootstrap::getAccount();
         $this->sm = $account->getServiceManager();
         $this->entityLoader = $this->sl->get(EntityLoaderFactory::class);
@@ -60,7 +60,7 @@ abstract class AbstractDataMapperTests extends TestCase
      * Delete any created workflows or entities
      */
     protected function tearDown(): void
-{
+    {
         $dataMapper = $this->getDataMapper();
 
         foreach ($this->testWorkFlows as $workFlow) {
@@ -87,7 +87,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Data to save and test
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Save",
             "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
@@ -98,21 +98,21 @@ abstract class AbstractDataMapperTests extends TestCase
             "singleton" => false,
             "allow_manual" => false,
             "only_on_conditions_unmet" => true,
-            "conditions" => array(
-                array(
+            "conditions" => [
+                [
                     "blogic" => Where::COMBINED_BY_AND,
                     "field_name" => "done",
                     "operator" => Where::OPERATOR_EQUAL_TO,
                     "value" => true,
-                )
-            ),
-            "actions" => array(
-                array(
+                ]
+            ],
+            "actions" => [
+                [
                     "name" => "my action",
                     "type" => "test",
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         // Create and save the workflow
         $workFlow = $this->sm->get(WorkFlowFactory::class);
@@ -158,33 +158,33 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Data to save and test
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Save",
             "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,
-            "conditions" => array(
-                array(
+            "conditions" => [
+                [
                     "blogic" => Where::COMBINED_BY_AND,
                     "field_name" => "done",
                     "operator" => Where::OPERATOR_EQUAL_TO,
                     "value" => true,
-                )
-            ),
-            "actions" => array(
-                array(
+                ]
+            ],
+            "actions" => [
+                [
                     "name" => "my action",
                     "type" => "test",
-                    "actions" => array(
-                        array(
+                    "actions" => [
+                        [
                             "name" => "my child action",
                             "type" => "test"
-                        )
-                    )
-                ),
-            ),
-        );
+                        ]
+                    ]
+                ],
+            ],
+        ];
 
         // Create and save the workflow
         $workFlow = $this->sm->get(WorkFlowFactory::class);
@@ -245,27 +245,27 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Data to save and test
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Save",
             "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,
-            "conditions" => array(
-                array(
+            "conditions" => [
+                [
                     "blogic" => Where::COMBINED_BY_AND,
                     "field_name" => "done",
                     "operator" => Where::OPERATOR_EQUAL_TO,
                     "value" => true,
-                )
-            ),
-            "actions" => array(
-                array(
+                ]
+            ],
+            "actions" => [
+                [
                     "name" => "my action",
                     "type" => "test",
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         // Create and save the workflow
         $workFlow = $this->sm->get(WorkFlowFactory::class);
@@ -287,13 +287,13 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Data to save and test
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Save",
             "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,
-        );
+        ];
 
         // Create and save the workflow
         $workFlow = $this->sm->get(WorkFlowFactory::class);
@@ -316,11 +316,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => true,
-        );
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
@@ -345,11 +345,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => true,
-        );
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
@@ -365,7 +365,7 @@ abstract class AbstractDataMapperTests extends TestCase
             }
 
             // A returned workflow should never be different than $workFlowData['obj_type']
-            if ($wf->getObjType() !=  $workFlowData['obj_type']) {
+            if ($wf->getObjType() != $workFlowData['obj_type']) {
                 $anomalyFound = true;
             }
         }
@@ -381,11 +381,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
-        );
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
@@ -410,11 +410,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
-        );
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
@@ -436,11 +436,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
-        );
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
@@ -466,11 +466,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
-        );
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
@@ -505,17 +505,17 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
-            "actions" => array(
-                array(
+            "actions" => [
+                [
                     "name" => "my action",
                     "type" => "test",
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);
@@ -543,17 +543,17 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Workflows",
             "obj_type" => ObjectTypes::TASK,
             "active" => false,
-            "actions" => array(
-                array(
+            "actions" => [
+                [
                     "name" => "my action",
                     "type" => "test",
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
         $workFlow = $this->sm->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);
         $dataMapper->save($workFlow);

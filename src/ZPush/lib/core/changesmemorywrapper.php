@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IExportChanges {
+class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IExportChanges
+{
     const CHANGE = 1;
     const DELETION = 2;
     const SOFTDELETION = 3;
@@ -40,8 +41,9 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return
      */
-    public function __construct() {
-        $this->changes = array();
+    public function __construct()
+    {
+        $this->changes = [];
         $this->step = 0;
         parent::__construct();
     }
@@ -54,10 +56,11 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function Config($state, $flags = 0) {
+    public function Config($state, $flags = 0)
+    {
         // we should never forward this changes to a backend
         if (!isset($this->destinationImporter)) {
-            foreach($state as $addKey => $addFolder) {
+            foreach ($state as $addKey => $addFolder) {
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("ChangesMemoryWrapper->Config(AdditionalFolders) : process folder '%s'", $addFolder->displayname));
                 if (isset($addFolder->NoBackendFolder) && $addFolder->NoBackendFolder == true) {
                     // check rights for readonly access only
@@ -66,8 +69,9 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
                     if (! $hasRights) {
                         // delete the folder only if it was an additional folder before, else ignore it
                         $synchedfolder = $this->GetFolder($addFolder->serverid);
-                        if (isset($synchedfolder->NoBackendFolder) && $synchedfolder->NoBackendFolder == true)
+                        if (isset($synchedfolder->NoBackendFolder) && $synchedfolder->NoBackendFolder == true) {
                             $this->ImportFolderDeletion($addFolder);
+                        }
                         continue;
                     }
                 }
@@ -111,13 +115,34 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
     /**
      * Implement interfaces which are never used
      */
-    public function GetState() { return false;}
-    public function LoadConflicts($contentparameters, $state) { return true; }
-    public function ConfigContentParameters($contentparameters) { return true; }
-    public function SetMoveStates($srcState, $dstState = null) { return true; }
-    public function GetMoveStates() { return array(false, false); }
-    public function ImportMessageReadFlag($id, $flags) { return true; }
-    public function ImportMessageMove($id, $newfolder) { return true; }
+    public function GetState()
+    {
+        return false;
+    }
+    public function LoadConflicts($contentparameters, $state)
+    {
+        return true;
+    }
+    public function ConfigContentParameters($contentparameters)
+    {
+        return true;
+    }
+    public function SetMoveStates($srcState, $dstState = null)
+    {
+        return true;
+    }
+    public function GetMoveStates()
+    {
+        return [false, false];
+    }
+    public function ImportMessageReadFlag($id, $flags)
+    {
+        return true;
+    }
+    public function ImportMessageMove($id, $newfolder)
+    {
+        return true;
+    }
 
     /**----------------------------------------------------------------------------------------------------------
      * IImportChanges & destination importer
@@ -131,7 +156,8 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function SetDestinationImporter(&$importer) {
+    public function SetDestinationImporter(&$importer)
+    {
         $this->destinationImporter = $importer;
     }
 
@@ -144,8 +170,9 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function ImportMessageChange($id, $message) {
-        $this->changes[] = array(self::CHANGE, $id);
+    public function ImportMessageChange($id, $message)
+    {
+        $this->changes[] = [self::CHANGE, $id];
         return true;
     }
 
@@ -158,12 +185,12 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function ImportMessageDeletion($id, $asSoftDelete = false) {
+    public function ImportMessageDeletion($id, $asSoftDelete = false)
+    {
         if ($asSoftDelete === true) {
-            $this->changes[] = array(self::SOFTDELETION, $id);
-        }
-        else {
-            $this->changes[] = array(self::DELETION, $id);
+            $this->changes[] = [self::SOFTDELETION, $id];
+        } else {
+            $this->changes[] = [self::DELETION, $id];
         }
         return true;
     }
@@ -176,8 +203,9 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function IsChanged($id) {
-        return (array_search(array(self::CHANGE, $id), $this->changes) === false) ? false:true;
+    public function IsChanged($id)
+    {
+        return (array_search([self::CHANGE, $id], $this->changes) === false) ? false : true;
     }
 
     /**
@@ -188,8 +216,9 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function IsDeleted($id) {
-       return !((array_search(array(self::DELETION, $id), $this->changes) === false) && (array_search(array(self::SOFTDELETION, $id), $this->changes) === false));
+    public function IsDeleted($id)
+    {
+        return !((array_search([self::DELETION, $id], $this->changes) === false) && (array_search([self::SOFTDELETION, $id], $this->changes) === false));
     }
 
     /**
@@ -200,7 +229,8 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean/SyncObject           status/object with the ath least the serverid of the folder set
      */
-    public function ImportFolderChange($folder) {
+    public function ImportFolderChange($folder)
+    {
         // if the destinationImporter is set, then this folder should be processed by another importer
         // instead of being loaded in memory.
         if (isset($this->destinationImporter)) {
@@ -287,7 +317,7 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
                 }
 
                 // load this change into memory
-                $this->changes[] = array(self::CHANGE, $folder);
+                $this->changes[] = [self::CHANGE, $folder];
 
                 // HierarchyCache: already add/update the folder so changes are not sent twice (if exported twice)
                 $this->AddFolder($folder);
@@ -305,7 +335,8 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function ImportFolderDeletion($folder) {
+    public function ImportFolderDeletion($folder)
+    {
         $id = $folder->serverid;
 
         // if the forwarder is set, then this folder should be processed by another importer
@@ -314,17 +345,16 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
             $ret = $this->destinationImporter->ImportFolderDeletion($folder);
 
             // if the operation was sucessfull, update the HierarchyCache
-            if ($ret)
+            if ($ret) {
                 $this->DelFolder($id);
+            }
 
             return $ret;
-        }
-        else {
+        } else {
             // if this folder is not in the cache, the change does not need to be streamed to the mobile
             if ($this->GetFolder($id)) {
-
                 // load this change into memory
-                $this->changes[] = array(self::DELETION, $folder);
+                $this->changes[] = [self::DELETION, $folder];
 
                 // HierarchyCache: delete the folder so changes are not sent twice (if exported twice)
                 $this->DelFolder($id);
@@ -346,7 +376,8 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function InitializeExporter(&$importer) {
+    public function InitializeExporter(&$importer)
+    {
         $this->exportImporter = $importer;
         $this->step = 0;
         return true;
@@ -358,7 +389,8 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return int
      */
-    public function GetChangeCount() {
+    public function GetChangeCount()
+    {
         return count($this->changes);
     }
 
@@ -368,14 +400,15 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return array
      */
-    public function Synchronize() {
-        if($this->step < count($this->changes) && isset($this->exportImporter)) {
-
+    public function Synchronize()
+    {
+        if ($this->step < count($this->changes) && isset($this->exportImporter)) {
             $change = $this->changes[$this->step];
 
             if ($change[0] == self::CHANGE) {
-                if (! $this->GetFolder($change[1]->serverid, true))
+                if (! $this->GetFolder($change[1]->serverid, true)) {
                     $change[1]->flags = SYNC_NEWMESSAGE;
+                }
 
                 $this->exportImporter->ImportFolderChange($change[1]);
             }
@@ -386,10 +419,10 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
             $this->step++;
 
             // return progress array
-            return array("steps" => count($this->changes), "progress" => $this->step);
-        }
-        else
+            return ["steps" => count($this->changes), "progress" => $this->step];
+        } else {
             return false;
+        }
     }
 
     /**
@@ -399,8 +432,9 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return array
      */
-    public function __wakeup() {
-        $this->changes = array();
+    public function __wakeup()
+    {
+        $this->changes = [];
         $this->step = 0;
     }
 
@@ -410,7 +444,8 @@ class ChangesMemoryWrapper extends HierarchyCache implements IImportChanges, IEx
      * @access public
      * @return boolean
      */
-    public function StripData() {
+    public function StripData()
+    {
         unset($this->changes);
         unset($this->step);
         unset($this->destinationImporter);

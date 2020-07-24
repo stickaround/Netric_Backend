@@ -24,7 +24,8 @@
 * ************************************************/
 
 
-class GABEntry {
+class GABEntry
+{
     const CONTACT = "contact";
     const GROUP = "group";
     const ROOM = "room";
@@ -59,5 +60,5 @@ class GABEntry {
     public $thumbnailPhoto;                 // PR_EMS_AB_THUMBNAIL_PHOTO                jpegPhoto
 
     // TODO
-    //PR_CHILDRENS_NAMES		                PT_MV_UNICODE	o
+    //PR_CHILDRENS_NAMES                        PT_MV_UNICODE   o
 }

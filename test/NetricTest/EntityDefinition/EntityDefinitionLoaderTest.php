@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 
-
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
  */

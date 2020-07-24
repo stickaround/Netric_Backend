@@ -6,13 +6,13 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitd6749fc2fb9944bbe86b2b7d79a7852f
 {
-    public static $files = array (
+    public static $files = [
         '158e247719544c05f5e89c414f630c24' => __DIR__ . '/../..' . '/version.php',
         '7e65a9fc8bb44d8c2fe16fa283aeaaee' => __DIR__ . '/../..' . '/lib/core/zpushdefs.php',
         'd2a63a53b4a43a2bd71de0cec5c1abfb' => __DIR__ . '/../..' . '/lib/utils/compat.php',
-    );
+    ];
 
-    public static $classMap = array (
+    public static $classMap = [
         'ASDevice' => __DIR__ . '/../..' . '/lib/core/asdevice.php',
         'Auth_SASL' => __DIR__ . '/../..' . '/backend/imap/Auth/SASL.php',
         'Auth_SASL_Anonymous' => __DIR__ . '/../..' . '/backend/imap/Auth/SASL/Anonymous.php',
@@ -198,13 +198,12 @@ class ComposerStaticInitd6749fc2fb9944bbe86b2b7d79a7852f
         'iCalProp' => __DIR__ . '/../..' . '/include/iCalendar.php',
         'iCalendar' => __DIR__ . '/../..' . '/include/iCalendar.php',
         'rtf' => __DIR__ . '/../..' . '/include/z_RTF.php',
-    );
+    ];
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->classMap = ComposerStaticInitd6749fc2fb9944bbe86b2b7d79a7852f::$classMap;
-
         }, null, ClassLoader::class);
     }
 }

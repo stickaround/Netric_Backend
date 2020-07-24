@@ -25,7 +25,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-interface IExportChanges extends IChanges {
+interface IExportChanges extends IChanges
+{
     /**
      * Sets the importer where the exporter will sent its changes to
      * This exporter should also be ready to accept calls after this

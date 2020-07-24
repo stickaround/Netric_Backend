@@ -23,4 +23,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class FatalMisconfigurationException extends FatalException {}
+class FatalMisconfigurationException extends FatalException
+{
+}

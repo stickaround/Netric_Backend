@@ -19,12 +19,12 @@ class EntiyMaintainerWorkerTest extends TestCase
 
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
     }
 
     protected function tearDown(): void
-{
+    {
         $sl = $this->account->getServiceManager();
     }
 

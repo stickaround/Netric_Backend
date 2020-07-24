@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class WBXMLDecoder extends WBXMLDefs {
+class WBXMLDecoder extends WBXMLDefs
+{
     private $in;
 
     private $inLog;
@@ -31,11 +32,11 @@ class WBXMLDecoder extends WBXMLDefs {
     private $tagcp = 0;
     private $ungetbuffer;
     private $log = false;
-    private $logStack = array();
+    private $logStack = [];
     private $inputBuffer = "";
     private $isWBXML = true;
 
-    static private $loopCounter = array();
+    private static $loopCounter = [];
     const MAXLOOP = 5000;
 
     const VERSION = 0x03;
@@ -49,11 +50,11 @@ class WBXMLDecoder extends WBXMLDefs {
      * @throws WBXMLException
      * @return boolean
      */
-    static public function InWhile($name) {
+    public static function InWhile($name)
+    {
         if (!isset(self::$loopCounter[$name])) {
             self::$loopCounter[$name] = 0;
-        }
-        else {
+        } else {
             self::$loopCounter[$name]++;
         }
 
@@ -69,7 +70,8 @@ class WBXMLDecoder extends WBXMLDefs {
      * @param String $name
      * @return boolean
      */
-    static public function ResetInWhile($name) {
+    public static function ResetInWhile($name)
+    {
         if (isset(self::$loopCounter[$name])) {
             unset(self::$loopCounter[$name]);
         }
@@ -84,29 +86,33 @@ class WBXMLDecoder extends WBXMLDefs {
      *
      * @access public
      */
-    public function __construct($input) {
+    public function __construct($input)
+    {
         $this->log = ZLog::IsWbxmlDebugEnabled();
 
         $this->in = $input;
 
         $version = $this->getByte();
-        if($version != self::VERSION) {
+        if ($version != self::VERSION) {
             $this->inputBuffer .= chr($version);
             $this->isWBXML = false;
             return;
         }
 
         $publicid = $this->getMBUInt();
-        if($publicid !== 1)
+        if ($publicid !== 1) {
             throw new WBXMLException("Wrong publicid : ".$publicid);
+        }
 
         $charsetid = $this->getMBUInt();
-        if ($charsetid !== 106)
+        if ($charsetid !== 106) {
             throw new WBXMLException("Wrong charset : ".$charsetid);
+        }
 
         $stringtablesize = $this->getMBUInt();
-        if ($stringtablesize !== 0)
+        if ($stringtablesize !== 0) {
             throw new WBXMLException("Wrong string table size : ".$stringtablesize);
+        }
     }
 
     /**
@@ -115,21 +121,22 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return element/value
      */
-    public function getElement() {
+    public function getElement()
+    {
         $element = $this->getToken();
 
-        switch($element[EN_TYPE]) {
+        switch ($element[EN_TYPE]) {
             case EN_TYPE_STARTTAG:
                 return $element;
             case EN_TYPE_ENDTAG:
                 return $element;
             case EN_TYPE_CONTENT:
                 WBXMLDecoder::ResetInWhile("decoderGetElement");
-                while(WBXMLDecoder::InWhile("decoderGetElement")) {
+                while (WBXMLDecoder::InWhile("decoderGetElement")) {
                     $next = $this->getToken();
-                    if($next == false)
+                    if ($next == false) {
                         return false;
-                    else if($next[EN_TYPE] == EN_CONTENT) {
+                    } elseif ($next[EN_TYPE] == EN_CONTENT) {
                         $element[EN_CONTENT] .= $next[EN_CONTENT];
                     } else {
                         $this->ungetElement($next);
@@ -148,7 +155,8 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return element
      */
-    public function peek() {
+    public function peek()
+    {
         $element = $this->getElement();
         $this->ungetElement($element);
         return $element;
@@ -162,13 +170,14 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return element/boolean      returns false if not available
      */
-    public function getElementStartTag($tag) {
+    public function getElementStartTag($tag)
+    {
         $element = $this->getToken();
 
-        if($element[EN_TYPE] == EN_TYPE_STARTTAG && $element[EN_TAG] == $tag)
+        if ($element[EN_TYPE] == EN_TYPE_STARTTAG && $element[EN_TAG] == $tag) {
             return $element;
-        else {
-            ZLog::Write(LOGLEVEL_WBXMLSTACK, sprintf("WBXMLDecoder->getElementStartTag(): unmatched WBXML tag: '%s' matching '%s' type '%s' flags '%s'", $tag, ((isset($element[EN_TAG]))?$element[EN_TAG]:""), ((isset($element[EN_TYPE]))?$element[EN_TYPE]:""), ((isset($element[EN_FLAGS]))?$element[EN_FLAGS]:"")));
+        } else {
+            ZLog::Write(LOGLEVEL_WBXMLSTACK, sprintf("WBXMLDecoder->getElementStartTag(): unmatched WBXML tag: '%s' matching '%s' type '%s' flags '%s'", $tag, ((isset($element[EN_TAG])) ? $element[EN_TAG] : ""), ((isset($element[EN_TYPE])) ? $element[EN_TYPE] : ""), ((isset($element[EN_FLAGS])) ? $element[EN_FLAGS] : "")));
             $this->ungetElement($element);
         }
 
@@ -181,20 +190,21 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return element/boolean      returns false if not available
      */
-    public function getElementEndTag() {
+    public function getElementEndTag()
+    {
         $element = $this->getToken();
 
-        if($element[EN_TYPE] == EN_TYPE_ENDTAG)
+        if ($element[EN_TYPE] == EN_TYPE_ENDTAG) {
             return $element;
-        else {
-            ZLog::Write(LOGLEVEL_WBXMLSTACK, sprintf("WBXMLDecoder->getElementEndTag(): unmatched WBXML tag: '%s' type '%s' flags '%s'", ((isset($element[EN_TAG]))?$element[EN_TAG]:""), ((isset($element[EN_TYPE]))?$element[EN_TYPE]:""), ((isset($element[EN_FLAGS]))?$element[EN_FLAGS]:"")));
+        } else {
+            ZLog::Write(LOGLEVEL_WBXMLSTACK, sprintf("WBXMLDecoder->getElementEndTag(): unmatched WBXML tag: '%s' type '%s' flags '%s'", ((isset($element[EN_TAG])) ? $element[EN_TAG] : ""), ((isset($element[EN_TYPE])) ? $element[EN_TYPE] : ""), ((isset($element[EN_FLAGS])) ? $element[EN_FLAGS] : "")));
 
             $bt = debug_backtrace();
             ZLog::Write(LOGLEVEL_ERROR, sprintf("WBXMLDecoder->getElementEndTag(): could not read end tag in '%s'. Please enable the LOGLEVEL_WBXML and send the log to the Z-Push dev team.", $bt[0]["file"] . ":" . $bt[0]["line"]));
 
             // log the remaining wbxml content
             $this->ungetElement($element);
-            while($el = $this->getElement());
+            while ($el = $this->getElement());
         }
 
         return false;
@@ -206,14 +216,14 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return string/boolean       returns false if not available
      */
-    public function getElementContent() {
+    public function getElementContent()
+    {
         $element = $this->getToken();
 
-        if($element[EN_TYPE] == EN_TYPE_CONTENT) {
+        if ($element[EN_TYPE] == EN_TYPE_CONTENT) {
             return $element[EN_CONTENT];
-        }
-        else {
-            ZLog::Write(LOGLEVEL_WBXMLSTACK, sprintf("WBXMLDecoder->getElementContent(): unmatched WBXML content: '%s' type '%s' flags '%s'", ((isset($element[EN_TAG]))?$element[EN_TAG]:""), ((isset($element[EN_TYPE]))?$element[EN_TYPE]:""), ((isset($element[EN_FLAGS]))?$element[EN_FLAGS]:"")));
+        } else {
+            ZLog::Write(LOGLEVEL_WBXMLSTACK, sprintf("WBXMLDecoder->getElementContent(): unmatched WBXML content: '%s' type '%s' flags '%s'", ((isset($element[EN_TAG])) ? $element[EN_TAG] : ""), ((isset($element[EN_TYPE])) ? $element[EN_TYPE] : ""), ((isset($element[EN_FLAGS])) ? $element[EN_FLAGS] : "")));
             $this->ungetElement($element);
         }
 
@@ -228,9 +238,11 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return
      */
-    public function ungetElement($element) {
-        if($this->ungetbuffer)
-            ZLog::Write(LOGLEVEL_ERROR,sprintf("WBXMLDecoder->ungetElement(): WBXML double unget on tag: '%s' type '%s' flags '%s'", ((isset($element[EN_TAG]))?$element[EN_TAG]:""), ((isset($element[EN_TYPE]))?$element[EN_TYPE]:""), ((isset($element[EN_FLAGS]))?$element[EN_FLAGS]:"")));
+    public function ungetElement($element)
+    {
+        if ($this->ungetbuffer) {
+            ZLog::Write(LOGLEVEL_ERROR, sprintf("WBXMLDecoder->ungetElement(): WBXML double unget on tag: '%s' type '%s' flags '%s'", ((isset($element[EN_TAG])) ? $element[EN_TAG] : ""), ((isset($element[EN_TYPE])) ? $element[EN_TYPE] : ""), ((isset($element[EN_FLAGS])) ? $element[EN_FLAGS] : "")));
+        }
 
         $this->ungetbuffer = $element;
     }
@@ -241,7 +253,8 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return string
      */
-    public function GetPlainInputStream() {
+    public function GetPlainInputStream()
+    {
         return $this->inputBuffer.stream_get_contents($this->in);
     }
 
@@ -251,7 +264,8 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return boolean
      */
-    public function IsWBXML() {
+    public function IsWBXML()
+    {
         return $this->isWBXML;
     }
 
@@ -261,9 +275,10 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return void
      */
-    public function readRemainingData() {
+    public function readRemainingData()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "WBXMLDecoder->readRemainingData() reading remaining data from input stream");
-        while($this->getElement());
+        while ($this->getElement());
     }
 
     /**----------------------------------------------------------------------------------------------------------
@@ -276,17 +291,19 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access private
      * @return token
      */
-    private function getToken() {
+    private function getToken()
+    {
         // See if there's something in the ungetBuffer
-        if($this->ungetbuffer) {
+        if ($this->ungetbuffer) {
             $element = $this->ungetbuffer;
             $this->ungetbuffer = false;
             return $element;
         }
 
         $el = $this->_getToken();
-        if($this->log)
+        if ($this->log) {
             $this->logToken($el);
+        }
 
         return $el;
     }
@@ -299,21 +316,23 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function logToken($el) {
+    private function logToken($el)
+    {
         $spaces = str_repeat(" ", count($this->logStack));
 
-        switch($el[EN_TYPE]) {
+        switch ($el[EN_TYPE]) {
             case EN_TYPE_STARTTAG:
-                if($el[EN_FLAGS] & EN_FLAGS_CONTENT) {
-                    ZLog::Write(LOGLEVEL_WBXML,"I " . $spaces . " <". $el[EN_TAG] . ">");
+                if ($el[EN_FLAGS] & EN_FLAGS_CONTENT) {
+                    ZLog::Write(LOGLEVEL_WBXML, "I " . $spaces . " <". $el[EN_TAG] . ">");
                     array_push($this->logStack, $el[EN_TAG]);
-                } else
-                    ZLog::Write(LOGLEVEL_WBXML,"I " . $spaces . " <" . $el[EN_TAG] . "/>");
+                } else {
+                    ZLog::Write(LOGLEVEL_WBXML, "I " . $spaces . " <" . $el[EN_TAG] . "/>");
+                }
 
                 break;
             case EN_TYPE_ENDTAG:
                 $tag = array_pop($this->logStack);
-                ZLog::Write(LOGLEVEL_WBXML,"I " . $spaces . "</" . $tag . ">");
+                ZLog::Write(LOGLEVEL_WBXML, "I " . $spaces . "</" . $tag . ">");
                 break;
             case EN_TYPE_CONTENT:
                 // as we concatenate the string here, the entire content is copied.
@@ -322,12 +341,11 @@ class WBXMLDecoder extends WBXMLDefs {
                 $messagesize = strlen($el[EN_CONTENT]);
                 if ($messagesize > 10240 && !defined('WBXML_DEBUGGING')) {
                     $content = substr($el[EN_CONTENT], 0, 10240) . sprintf(" <log message with %d bytes truncated>", $messagesize);
-                }
-                else {
+                } else {
                     $content = $el[EN_CONTENT];
                 }
                 // Log but make sure it's not truncated again (will be slightly bigger than 10KB)
-                ZLog::Write(LOGLEVEL_WBXML,"I " . $spaces . " " . $content, false);
+                ZLog::Write(LOGLEVEL_WBXML, "I " . $spaces . " " . $content, false);
                 break;
         }
     }
@@ -338,18 +356,20 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function _getToken() {
+    private function _getToken()
+    {
         // Get the data from the input stream
-        $element = array();
+        $element = [];
 
         WBXMLDecoder::ResetInWhile("decoderGetToken");
-        while(WBXMLDecoder::InWhile("decoderGetToken")) {
+        while (WBXMLDecoder::InWhile("decoderGetToken")) {
             $byte = fread($this->in, 1);
-            if($byte === "" || $byte === false)
+            if ($byte === "" || $byte === false) {
                 break;
+            }
             $byte = ord($byte);
 
-            switch($byte) {
+            switch ($byte) {
                 case self::WBXML_SWITCH_PAGE:
                     $this->tagcp = $this->getByte();
                     break;
@@ -388,8 +408,9 @@ class WBXMLDecoder extends WBXMLDefs {
                     throw new WBXMLException("Invalid token :".$byte);
 
                 default:
-                    if($byte & self::WBXML_WITH_ATTRIBUTES)
+                    if ($byte & self::WBXML_WITH_ATTRIBUTES) {
                         throw new WBXMLException("Attributes are not allowed :".$byte);
+                    }
                     $element[EN_TYPE] = EN_TYPE_STARTTAG;
                     $element[EN_TAG] = $this->getMapping($this->tagcp, $byte & 0x3f);
                     $element[EN_FLAGS] = ($byte & self::WBXML_WITH_CONTENT ? EN_FLAGS_CONTENT : 0);
@@ -404,15 +425,15 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access private
      * @return string
      */
-    private function getTermStr() {
+    private function getTermStr()
+    {
         if (defined('WBXML_DEBUGGING') && WBXML_DEBUGGING === true) {
             $str = "";
             while (1) {
                 $in = $this->getByte();
                 if ($in == 0) {
                     break;
-                }
-                else {
+                } else {
                     $str .= chr($in);
                 }
             }
@@ -436,13 +457,16 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access private
      * @return string
      */
-    private function getOpaque($len) {
+    private function getOpaque($len)
+    {
         $d = stream_get_contents($this->in, $len);
-        if ($d === false)
+        if ($d === false) {
             throw new HTTPReturnCodeException("WBXMLDecoder->getOpaque(): stream_get_contents === false", HTTP_CODE_500, null, LOGLEVEL_WARN);
+        }
         $l = strlen($d);
-        if ($l !== $len)
+        if ($l !== $len) {
             throw new HTTPReturnCodeException("WBXMLDecoder->getOpaque(): only $l byte read instead of $len", HTTP_CODE_500, null, LOGLEVEL_WARN);
+        }
         return $d;
     }
 
@@ -452,12 +476,14 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access private
      * @return int
      */
-    private function getByte() {
+    private function getByte()
+    {
         $ch = fread($this->in, 1);
-        if(strlen($ch) > 0)
+        if (strlen($ch) > 0) {
             return ord($ch);
-        else
+        } else {
             return;
+        }
     }
 
     /**
@@ -466,18 +492,20 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function getMBUInt() {
+    private function getMBUInt()
+    {
         $uint = 0;
 
-        while(1) {
-          $byte = $this->getByte();
+        while (1) {
+            $byte = $this->getByte();
 
-          $uint |= $byte & 0x7f;
+            $uint |= $byte & 0x7f;
 
-          if($byte & 0x80)
-              $uint = $uint << 7;
-          else
-              break;
+            if ($byte & 0x80) {
+                $uint = $uint << 7;
+            } else {
+                break;
+            }
         }
 
         return $uint;
@@ -492,14 +520,16 @@ class WBXMLDecoder extends WBXMLDefs {
      * @access public
      * @return string
      */
-    private function getMapping($cp, $id) {
-        if(!isset($this->dtd["codes"][$cp]) || !isset($this->dtd["codes"][$cp][$id]))
+    private function getMapping($cp, $id)
+    {
+        if (!isset($this->dtd["codes"][$cp]) || !isset($this->dtd["codes"][$cp][$id])) {
             return false;
-        else {
-            if(isset($this->dtd["namespaces"][$cp])) {
+        } else {
+            if (isset($this->dtd["namespaces"][$cp])) {
                 return $this->dtd["namespaces"][$cp] . ":" . $this->dtd["codes"][$cp][$id];
-            } else
+            } else {
                 return $this->dtd["codes"][$cp][$id];
+            }
         }
     }
 }

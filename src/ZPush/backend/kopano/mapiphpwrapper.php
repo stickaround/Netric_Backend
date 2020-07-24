@@ -36,7 +36,8 @@
  * convert the data into WBXML which is streamed to the PDA
  */
 
-class PHPWrapper {
+class PHPWrapper
+{
     private $importer;
     private $mapiprovider;
     private $store;
@@ -56,7 +57,8 @@ class PHPWrapper {
      * @access public
      * @return
      */
-    public function __construct($session, $store, $importer, $folderid) {
+    public function __construct($session, $store, $importer, $folderid)
+    {
         $this->importer = &$importer;
         $this->store = $store;
         $this->mapiprovider = new MAPIProvider($session, $this->store);
@@ -81,16 +83,23 @@ class PHPWrapper {
      * @return boolean
      * @throws StatusException
      */
-    public function ConfigContentParameters($contentparameters) {
+    public function ConfigContentParameters($contentparameters)
+    {
         $this->contentparameters = $contentparameters;
     }
 
     /**
      * Implement MAPI interface
      */
-    public function Config($stream, $flags = 0) {}
-    public function GetLastError($hresult, $ulflags, &$lpmapierror) {}
-    public function UpdateState($stream) { }
+    public function Config($stream, $flags = 0)
+    {
+    }
+    public function GetLastError($hresult, $ulflags, &$lpmapierror)
+    {
+    }
+    public function UpdateState($stream)
+    {
+    }
 
     /**
      * Imports a single message
@@ -102,13 +111,15 @@ class PHPWrapper {
      * @access public
      * @return long
      */
-    public function ImportMessageChange($props, $flags, $retmapimessage) {
+    public function ImportMessageChange($props, $flags, $retmapimessage)
+    {
         $sourcekey = $props[PR_SOURCE_KEY];
         $parentsourcekey = $props[PR_PARENT_SOURCE_KEY];
         $entryid = mapi_msgstore_entryidfromsourcekey($this->store, $parentsourcekey, $sourcekey);
 
-        if(!$entryid)
+        if (!$entryid) {
             return SYNC_E_IGNORE;
+        }
 
         $mapimessage = mapi_msgstore_openentry($this->store, $entryid);
         try {
@@ -121,19 +132,16 @@ class PHPWrapper {
                 if ($message->SupportsPrivateStripping()) {
                     ZLog::Write(LOGLEVEL_DEBUG, "PHPWrapper->ImportMessageChange(): stripping data of private message from a shared folder");
                     $message->StripData(Streamer::STRIP_PRIVATE_DATA);
-                }
-                else {
+                } else {
                     ZLog::Write(LOGLEVEL_DEBUG, "PHPWrapper->ImportMessageChange(): ignoring private message from a shared folder");
                     return SYNC_E_IGNORE;
                 }
             }
-        }
-        catch (SyncObjectBrokenException $mbe) {
+        } catch (SyncObjectBrokenException $mbe) {
             $brokenSO = $mbe->GetSyncObject();
             if (!$brokenSO) {
                 ZLog::Write(LOGLEVEL_ERROR, sprintf("PHPWrapper->ImportMessageChange(): Catched SyncObjectBrokenException but broken SyncObject available"));
-            }
-            else {
+            } else {
                 if (!isset($brokenSO->id)) {
                     $brokenSO->id = "Unknown ID";
                     ZLog::Write(LOGLEVEL_ERROR, sprintf("PHPWrapper->ImportMessageChange(): Catched SyncObjectBrokenException but no ID of object set"));
@@ -146,8 +154,11 @@ class PHPWrapper {
 
 
         // substitute the MAPI SYNC_NEW_MESSAGE flag by a z-push proprietary flag
-        if ($flags == SYNC_NEW_MESSAGE) $message->flags = SYNC_NEWMESSAGE;
-        else $message->flags = $flags;
+        if ($flags == SYNC_NEW_MESSAGE) {
+            $message->flags = SYNC_NEWMESSAGE;
+        } else {
+            $message->flags = $flags;
+        }
 
         $this->importer->ImportMessageChange($this->prefix.bin2hex($sourcekey), $message);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("PHPWrapper->ImportMessageChange(): change for: '%s'", $this->prefix.bin2hex($sourcekey)));
@@ -165,15 +176,15 @@ class PHPWrapper {
      * @access public
      * @return
      */
-    public function ImportMessageDeletion($flags, $sourcekeys) {
+    public function ImportMessageDeletion($flags, $sourcekeys)
+    {
         $amount = count($sourcekeys);
         if ($amount > 1000) {
             throw new StatusException(sprintf("PHPWrapper->ImportMessageDeletion(): Received %d remove requests from ICS for folder '%s' (max. 1000 allowed). Triggering folder re-sync.", $amount, bin2hex($this->folderid)), SYNC_STATUS_INVALIDSYNCKEY, null, LOGLEVEL_ERROR);
-        }
-        else {
+        } else {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("PHPWrapper->ImportMessageDeletion(): Received %d remove requests from ICS", $amount));
         }
-        foreach($sourcekeys as $sourcekey) {
+        foreach ($sourcekeys as $sourcekey) {
             // TODO if we would know that ICS is removing the message because it's outside the sync interval, we could send a $asSoftDelete = true to the importer. Could they pass that via $flags?
             $this->importer->ImportMessageDeletion($this->prefix.bin2hex($sourcekey));
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("PHPWrapper->ImportMessageDeletion(): delete for :'%s'", $this->prefix.bin2hex($sourcekey)));
@@ -188,8 +199,9 @@ class PHPWrapper {
      * @access public
      * @return
      */
-    public function ImportPerUserReadStateChange($readstates) {
-        foreach($readstates as $readstate) {
+    public function ImportPerUserReadStateChange($readstates)
+    {
+        foreach ($readstates as $readstate) {
             $this->importer->ImportMessageReadFlag($this->prefix.bin2hex($readstate["sourcekey"]), $readstate["flags"] & MSGFLAG_READ);
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("PHPWrapper->ImportPerUserReadStateChange(): read for :'%s'", $this->prefix.bin2hex($readstate["sourcekey"])));
         }
@@ -202,7 +214,8 @@ class PHPWrapper {
      * @access public
      * @return
      */
-    public function ImportMessageMove($sourcekeysrcfolder, $sourcekeysrcmessage, $message, $sourcekeydestmessage, $changenumdestmessage) {
+    public function ImportMessageMove($sourcekeysrcfolder, $sourcekeysrcmessage, $message, $sourcekeydestmessage, $changenumdestmessage)
+    {
         // Never called
     }
 
@@ -214,12 +227,14 @@ class PHPWrapper {
      * @access public
      * @return
      */
-    function ImportFolderChange($props) {
+    function ImportFolderChange($props)
+    {
         $folder = $this->mapiprovider->GetFolder($props);
 
         // do not import folder if there is something "wrong" with it
-        if ($folder === false)
+        if ($folder === false) {
             return 0;
+        }
 
         $this->importer->ImportFolderChange($folder);
         return 0;
@@ -234,7 +249,8 @@ class PHPWrapper {
      * @access public
      * @return
      */
-    function ImportFolderDeletion($flags, $sourcekeys) {
+    function ImportFolderDeletion($flags, $sourcekeys)
+    {
         foreach ($sourcekeys as $sourcekey) {
             $this->importer->ImportFolderDeletion(SyncFolder::GetObject(ZPush::GetDeviceManager()->GetFolderIdForBackendId(bin2hex($sourcekey))));
         }

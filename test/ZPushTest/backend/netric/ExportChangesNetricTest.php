@@ -49,7 +49,7 @@ class ExportChangesNetricTest extends TestCase
     private $folderId = null;
 
     protected function setUp(): void
-{
+    {
         $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
                           ->disableOriginalConstructor()
                           ->getMock();
@@ -63,7 +63,7 @@ class ExportChangesNetricTest extends TestCase
                                      ->getMock();
 
         // Initialize zpush - copied from zpush index file
-        if (!defined ( 'REAL_BASE_PATH' )) {
+        if (!defined('REAL_BASE_PATH')) {
             \ZPush::CheckConfig();
         }
 
@@ -100,13 +100,13 @@ class ExportChangesNetricTest extends TestCase
         $importer = new \ChangesMemoryWrapper();
 
         // Create fake sync data
-        $syncStats = array(
-            array(
+        $syncStats = [
+            [
                 "id" => 1,
                 "action" => 'change',
                 "commit_id" => 2,
-            )
-        );
+            ]
+        ];
         $this->collection->method('getExportChanged')->willReturn($syncStats);
 
         // Initialize
@@ -136,22 +136,22 @@ class ExportChangesNetricTest extends TestCase
         $importer = new \ChangesMemoryWrapper();
 
         // Create fake sync data
-        $syncStats = array(
-            array(
+        $syncStats = [
+            [
                 "id" => 1,
                 "action" => 'change',
                 "commit_id" => 2,
-            ),
-            array(
+            ],
+            [
                 "id" => 3,
                 "action" => 'delete',
                 "commit_id" => 4,
-            )
-        );
+            ]
+        ];
         $this->collection->method('getExportChanged')->willReturn($syncStats);
 
         // Config by passing a state that assumed we had previously imported id 3
-        $exporter->Config(array(array('id' => 3, 'flags' => 0, 'mod' => 2,)));
+        $exporter->Config([['id' => 3, 'flags' => 0, 'mod' => 2,]]);
 
         // Initialize
         $exporter->InitializeExporter($importer);
@@ -160,13 +160,13 @@ class ExportChangesNetricTest extends TestCase
         $result = $exporter->Synchronize();
 
         // If a change is made it should return steps and progress
-        $this->assertEquals(array("steps" => 2, "progress" => 1), $result);
+        $this->assertEquals(["steps" => 2, "progress" => 1], $result);
 
         // Synchronize again - should not get delete
         $result = $exporter->Synchronize();
 
         // If a change is made it should return steps and progress
-        $this->assertEquals(array("steps" => 2, "progress" => 2), $result);
+        $this->assertEquals(["steps" => 2, "progress" => 2], $result);
 
         // Make sure the importer was sent the change for id 1 from the collection
         $this->assertTrue($importer->IsChanged($syncStats[0]['id']));
@@ -178,14 +178,14 @@ class ExportChangesNetricTest extends TestCase
         $this->assertFalse($exporter->Synchronize());
 
         // Check that the state was updated
-        $expectedState = array(
-            array (
+        $expectedState = [
+             [
                 'type' => 'change',
                 'id' => 1,
                 'flags' => 0,
                 'mod' => 2,
-            )
-        );
+             ]
+        ];
         $this->assertEquals($expectedState, $exporter->GetState());
     }
 }

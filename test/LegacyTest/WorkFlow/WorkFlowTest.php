@@ -38,7 +38,7 @@ class WorkFlowTest extends TestCase
 
     /**
      * ServiceLocator for injecting dependencies
-     * 
+     *
      * @var AccountServiceManagerInterface
      */
     private $sl = null;
@@ -55,7 +55,7 @@ class WorkFlowTest extends TestCase
      */
     public function testFromAndToArray()
     {
-        $workFlowData = array(
+        $workFlowData = [
             "guid" => self::TEST_WORKFLOW_ID,
             "name" => "Test",
             "obj_type" => ObjectTypes::TASK,
@@ -67,39 +67,39 @@ class WorkFlowTest extends TestCase
             "singleton" => false,
             "allow_manual" => false,
             "only_on_conditions_unmet" => true,
-            "conditions" => array(
-                array(
+            "conditions" => [
+                [
                     "blogic" => Where::COMBINED_BY_AND,
                     "field_name" => "fiest_field",
                     "operator" => Where::OPERATOR_EQUAL_TO,
                     "value" => "someval",
-                ),
-                array(
+                ],
+                [
                     "blogic" => Where::COMBINED_BY_OR,
                     "field_name" => "second_field",
                     "operator" => Where::OPERATOR_NOT_EQUAL_TO,
                     "value" => "someval",
-                ),
-            ),
-            "actions" => array(
-                array(
+                ],
+            ],
+            "actions" => [
+                [
                     "id" => self::TEST_WORKFLOW_ID,
                     "name" => "my action",
                     "type" => "test",
                     "workflow_id" => self::TEST_ACTION_ID,
                     "parent_action_id" => 1,
-                    "actions" => array(
-                        array(
+                    "actions" => [
+                        [
                             "id" => 567,
                             "name" => "my child action",
                             "type" => "test",
                             "workflow_id" => self::TEST_ACTION_ID,
                             "parent_action_id" => self::TEST_WORKFLOW_ID,
-                        )
-                    )
-                ),
-            ),
-        );
+                        ]
+                    ]
+                ],
+            ],
+        ];
 
         $workFlow = $this->sl->get(WorkFlowFactory::class);
         $workFlow->fromArray($workFlowData);

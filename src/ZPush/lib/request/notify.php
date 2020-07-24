@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class Notify extends RequestProcessor {
+class Notify extends RequestProcessor
+{
 
     /**
      * Handles the Notify command
@@ -33,18 +34,23 @@ class Notify extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle($commandCode) {
-        if(!self::$decoder->getElementStartTag(SYNC_AIRNOTIFY_NOTIFY))
+    public function Handle($commandCode)
+    {
+        if (!self::$decoder->getElementStartTag(SYNC_AIRNOTIFY_NOTIFY)) {
             return false;
+        }
 
-        if(!self::$decoder->getElementStartTag(SYNC_AIRNOTIFY_DEVICEINFO))
+        if (!self::$decoder->getElementStartTag(SYNC_AIRNOTIFY_DEVICEINFO)) {
             return false;
+        }
 
-        if(!self::$decoder->getElementEndTag())
+        if (!self::$decoder->getElementEndTag()) {
             return false;
+        }
 
-        if(!self::$decoder->getElementEndTag())
+        if (!self::$decoder->getElementEndTag()) {
             return false;
+        }
 
         self::$encoder->StartWBXML();
 

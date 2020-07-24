@@ -18,14 +18,14 @@ abstract class AbstractAggregation
      * @var string
      */
     protected $_name;
-    
+
     /**
      * If a field is used, then set it here (most aggregates use fields)
      *
      * @var string
      */
     protected $_field;
-    
+
     /**
      * Class constructor
      *
@@ -55,7 +55,7 @@ abstract class AbstractAggregation
     {
         return $this->_name;
     }
-    
+
     /**
      * Set the field for this aggregation
      *
@@ -65,7 +65,7 @@ abstract class AbstractAggregation
     {
         $this->_field = $field;
     }
-    
+
     /**
      * Get the field for this aggregation
      *
@@ -75,7 +75,7 @@ abstract class AbstractAggregation
     {
         return $this->_field;
     }
-    
+
     /**
      * Tries to guess the name of the aggregate, based on its class
      * Example: \Netric\EntityQuery\Aggregations\TermsFilter => terms_filter
@@ -86,7 +86,7 @@ abstract class AbstractAggregation
     public function getTypeName()
     {
         $class = get_class($this);
-        
+
         $parts = explode('\\', $class);
         $last  = array_pop($parts);
         //$last  = preg_replace('/(Facet|Query|Filter)$/', '', $last);

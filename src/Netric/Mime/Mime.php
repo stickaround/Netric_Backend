@@ -220,7 +220,7 @@ class Mime
     ) {
         // Reduce line-length by the length of the required delimiter, charsets and encoding
         $prefix = sprintf('=?%s?Q?', $charset);
-        $lineLength = $lineLength-strlen($prefix)-3;
+        $lineLength = $lineLength - strlen($prefix) - 3;
 
         $str = self::convertToQuotedPrintable($str);
 

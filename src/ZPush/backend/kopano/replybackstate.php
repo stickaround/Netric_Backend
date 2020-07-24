@@ -24,11 +24,12 @@
  * Consult LICENSE file for details
  ************************************************/
 
-class ReplyBackState extends StateObject {
-    protected $unsetdata = array(
-            'replybackstate' => array(),
+class ReplyBackState extends StateObject
+{
+    protected $unsetdata = [
+            'replybackstate' => [],
             'icsstate' => "",
-    );
+    ];
 
     /**
      * Returns a ReplyBackState from a state.
@@ -36,14 +37,14 @@ class ReplyBackState extends StateObject {
      * @param mixed $state
      * @return ReplyBackState
      */
-    static public function FromState($state) {
+    public static function FromState($state)
+    {
         if (strpos($state, 'ReplyBackState') !== false) {
             return unserialize($state);
-        }
-        else {
+        } else {
             $s = new ReplyBackState();
             $s->SetICSState($state);
-            $s->SetReplyBackState(array());
+            $s->SetReplyBackState([]);
             return $s;
         }
     }
@@ -53,12 +54,12 @@ class ReplyBackState extends StateObject {
      *
      * @param mixed $state
      */
-    static public function ToState($state) {
+    public static function ToState($state)
+    {
         $rbs = $state->GetReplyBackState();
         if (!empty($rbs)) {
             return serialize($state);
-        }
-        else {
+        } else {
             return $state->GetICSState();
         }
     }

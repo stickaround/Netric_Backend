@@ -531,14 +531,12 @@ class BrowserViewService
 
             // We need to check if we have an invalid uuid value, then we need to sanitize it
             if ($field && $field->isGroupingReference() && !Uuid::isValid($condValue)) {
-
                 // Sanitize the value by loading the grouping data and get the value's guid
                 $groupings = $this->groupingLoader->get("$objType/$fieldName");
                 $group = $groupings->getByName($condValue);
 
                 // If we found the group by using the $condValue
                 if ($group) {
-
                     //We will update the condition's value with the group id
                     $condition->value = $group->getGroupId();
                 }

@@ -23,11 +23,13 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SimpleMutex extends InterProcessData {
+class SimpleMutex extends InterProcessData
+{
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         // initialize super parameters
         $this->allocate = 64;
         $this->type = 5173;
@@ -46,9 +48,11 @@ class SimpleMutex extends InterProcessData {
      * @access public
      * @return boolean
      */
-    public function Block() {
-        if ($this->IsActive())
+    public function Block()
+    {
+        if ($this->IsActive()) {
             return $this->blockMutex();
+        }
 
         ZLog::Write(LOGLEVEL_WARN, "Could not enter mutex as InterProcessData is not available. This is not recommended on duty systems and may result in corrupt user/device linking!");
         return true;
@@ -61,9 +65,11 @@ class SimpleMutex extends InterProcessData {
      * @access public
      * @return boolean
      */
-    public function Release() {
-        if ($this->IsActive())
+    public function Release()
+    {
+        if ($this->IsActive()) {
             return $this->releaseMutex();
+        }
 
         return true;
     }

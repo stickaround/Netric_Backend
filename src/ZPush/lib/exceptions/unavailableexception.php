@@ -24,4 +24,7 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class UnavailableException extends FatalException {}
+class UnavailableException extends FatalException
+{
+
+}

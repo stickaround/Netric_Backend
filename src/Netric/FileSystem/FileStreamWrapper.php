@@ -84,8 +84,8 @@ class FileStreamWrapper
          * and we need a different fileSystem for each account due to the database
          * being different.
          */
-        $openContext = array("filesystem"=>&$fileSystem, "file"=>&$file);
-        $context = stream_context_create(array(self::PROTOCOL => $openContext));
+        $openContext = ["filesystem" => &$fileSystem, "file" => &$file];
+        $context = stream_context_create([self::PROTOCOL => $openContext]);
         return fopen(self::PROTOCOL . "://", 'r', false, $context);
     }
 
@@ -135,7 +135,7 @@ class FileStreamWrapper
         if ($data) {
             $this->position += $len;
         }
-        
+
         return $data;
     }
 
@@ -156,10 +156,10 @@ class FileStreamWrapper
      */
     public function stream_stat()
     {
-        return array(
+        return [
             7               => $this->streamLength,
             'size'          => $this->streamLength,
-        );
+        ];
     }
 
     /**

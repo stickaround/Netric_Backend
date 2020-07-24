@@ -20,7 +20,7 @@ class HealthCheckFactoryTest extends TestCase
 
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
     }
 

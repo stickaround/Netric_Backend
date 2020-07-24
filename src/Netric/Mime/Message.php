@@ -265,8 +265,7 @@ class Message
             }
 
             // Get the body
-            if (
-                isset($properties['type']) &&
+            if (isset($properties['type']) &&
                 isset($properties['boundary']) &&
                 strtok($properties['type'], '/') == 'multipart'
             ) {

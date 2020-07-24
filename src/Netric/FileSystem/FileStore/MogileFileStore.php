@@ -231,11 +231,11 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
             } elseif (strrpos($localPath, "\\") !== false) { // windows
                 $parts = explode("\\", $localPath);
             } else {
-                $parts = array($localPath);
+                $parts = [$localPath];
             }
 
             // last entry is the file name
-            $file->setValue("name", $parts[count($parts)-1]);
+            $file->setValue("name", $parts[count($parts) - 1]);
         }
 
         $size = filesize($localPath);

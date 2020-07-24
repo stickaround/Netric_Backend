@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-function create_calendar_dav($data) {
+function create_calendar_dav($data)
+{
     ZLog::Write(LOGLEVEL_DEBUG, "BackendIMAP->create_calendar_dav(): Creating calendar event");
 
     if (defined('IMAP_MEETING_USE_CALDAV') && IMAP_MEETING_USE_CALDAV) {
@@ -32,20 +33,19 @@ function create_calendar_dav($data) {
             $etag = $caldav->CreateUpdateCalendar($data);
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->create_calendar_dav(): Calendar created with etag '%s' and data <%s>", $etag, $data));
             $caldav->Logoff();
-        }
-        else {
+        } else {
             ZLog::Write(LOGLEVEL_ERROR, "BackendIMAP->create_calendar_dav(): Error connecting with BackendCalDAV");
         }
     }
 }
 
-function delete_calendar_dav($uid) {
+function delete_calendar_dav($uid)
+{
     ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->delete_calendar_dav('%s'): Deleting calendar event", $uid));
 
     if ($uid === false) {
         ZLog::Write(LOGLEVEL_WARN, "BackendIMAP->delete_calendar_dav(): UID not found; report the full calendar object to developers");
-    }
-    else {
+    } else {
         if (defined('IMAP_MEETING_USE_CALDAV') && IMAP_MEETING_USE_CALDAV) {
             $caldav = new BackendCalDAV();
             if ($caldav->Logon(Request::GetAuthUser(), Request::GetAuthDomain(), Request::GetAuthPassword())) {
@@ -57,17 +57,14 @@ function delete_calendar_dav($uid) {
                     $res = $caldav->DeleteCalendar($href);
                     if ($res) {
                         ZLog::Write(LOGLEVEL_DEBUG, "BackendIMAP->delete_calendar_dav(): event deleted");
-                    }
-                    else {
+                    } else {
                         ZLog::Write(LOGLEVEL_ERROR, "BackendIMAP->delete_calendar_dav(): error removing event, we will end with zombie events");
                     }
                     $caldav->Logoff();
-                }
-                else {
+                } else {
                     ZLog::Write(LOGLEVEL_ERROR, "BackendIMAP->delete_calendar_dav(): event not found, we will end with zombie events");
                 }
-            }
-            else {
+            } else {
                 ZLog::Write(LOGLEVEL_ERROR, "BackendIMAP->delete_calendar_dav(): Error connecting with BackendCalDAV");
             }
         }
@@ -75,14 +72,14 @@ function delete_calendar_dav($uid) {
 }
 
 
-function update_calendar_attendee($uid, $mailto, $status) {
+function update_calendar_attendee($uid, $mailto, $status)
+{
     ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->update_calendar_attendee('%s', '%s', '%s'): Updating calendar event attendee", $uid, $mailto, $status));
     $updated = false;
 
     if ($uid === false) {
         ZLog::Write(LOGLEVEL_WARN, "BackendIMAP->update_calendar_attendee(): UID not found; report the full calendar object to developers");
-    }
-    else {
+    } else {
         if (defined('IMAP_MEETING_USE_CALDAV') && IMAP_MEETING_USE_CALDAV) {
             $caldav = new BackendCalDAV();
             if ($caldav->Logon(Request::GetAuthUser(), Request::GetAuthDomain(), Request::GetAuthPassword())) {
@@ -108,12 +105,10 @@ function update_calendar_attendee($uid, $mailto, $status) {
                     }
 
                     $caldav->Logoff();
-                }
-                else {
+                } else {
                     ZLog::Write(LOGLEVEL_ERROR, "BackendIMAP->update_calendar_attendee(): event not found or duplicated event");
                 }
-            }
-            else {
+            } else {
                 ZLog::Write(LOGLEVEL_ERROR, "BackendIMAP->update_calendar_attendee(): Error connecting with BackendCalDAV");
             }
         }
@@ -128,12 +123,12 @@ function update_calendar_attendee($uid, $mailto, $status) {
  * @param Mail_mimeDecode $message
  * @return boolean
  */
-function has_calendar_object($message) {
+function has_calendar_object($message)
+{
     if (is_calendar($message)) {
         return true;
-    }
-    else {
-        if(isset($message->parts)) {
+    } else {
+        if (isset($message->parts)) {
             for ($i = 0; $i < count($message->parts); $i++) {
                 if (is_calendar($message->parts[$i])) {
                     return true;
@@ -153,7 +148,8 @@ function has_calendar_object($message) {
  * @param Mail_mimeDecode $message
  * @return boolean
  */
-function is_calendar($message) {
+function is_calendar($message)
+{
     return isset($message->ctype_primary) && isset($message->ctype_secondary) && $message->ctype_primary == "text" && $message->ctype_secondary == "calendar";
 }
 
@@ -166,7 +162,8 @@ function is_calendar($message) {
  * @param $output           SyncMail object
  * @param $is_sent_folder   boolean
  */
-function parse_meeting_calendar($part, &$output, $is_sent_folder) {
+function parse_meeting_calendar($part, &$output, $is_sent_folder)
+{
     $ical = new iCalComponent();
     $ical->ParseFrom($part->body);
     ZLog::Write(LOGLEVEL_WBXML, sprintf("BackendIMAP->parse_meeting_calendar(): %s", $part->body));
@@ -183,8 +180,7 @@ function parse_meeting_calendar($part, &$output, $is_sent_folder) {
     if (count($props) > 0) {
         $method = strtolower($props[0]->Value());
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->parse_meeting_calendar(): Using method from vcalendar object: %s", $method));
-    }
-    else {
+    } else {
         if (isset($part->ctype_parameters["method"])) {
             $method = strtolower($part->ctype_parameters["method"]);
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendIMAP->parse_meeting_calendar(): Using method from mime part object: %s", $method));
@@ -194,8 +190,7 @@ function parse_meeting_calendar($part, &$output, $is_sent_folder) {
     if ($method === false) {
         ZLog::Write(LOGLEVEL_WARN, sprintf("BackendIMAP->parse_meeting_calendar() - No method header, please report it to the developers"));
         $output->messageclass = "IPM.Appointment";
-    }
-    else {
+    } else {
         switch ($method) {
             case "cancel":
                 $output->messageclass = "IPM.Schedule.Meeting.Canceled";
@@ -218,8 +213,7 @@ function parse_meeting_calendar($part, &$output, $is_sent_folder) {
                     if (!$is_sent_folder) {
                         // Only evaluate received replies, not sent
                         $res = update_calendar_attendee($uid, $mailto, $status);
-                    }
-                    else {
+                    } else {
                         $res = true;
                     }
                     if ($res) {
@@ -311,8 +305,7 @@ function parse_meeting_calendar($part, &$output, $is_sent_folder) {
                 $output->meetingrequest->sensitivity = "0";
                 break;
         }
-    }
-    else {
+    } else {
         ZLog::Write(LOGLEVEL_DEBUG, "BackendIMAP->parse_meeting_calendar() - No sensitivity class. Using 0");
         $output->meetingrequest->sensitivity = "0";
     }
@@ -323,8 +316,7 @@ function parse_meeting_calendar($part, &$output, $is_sent_folder) {
         // TimeZones shouldn't have dots
         $tzname = str_replace(".", "", $props[0]->Value());
         $tz = TimezoneUtil::GetFullTZFromTZName($tzname);
-    }
-    else {
+    } else {
         $tz = TimezoneUtil::GetFullTZ();
     }
     $output->meetingrequest->timezone = base64_encode(TimezoneUtil::GetSyncBlobFromTZ($tz));
@@ -348,7 +340,8 @@ function parse_meeting_calendar($part, &$output, $is_sent_folder) {
  * @param $condition_value  string
  * @return string MIME text/calendar
  */
-function reply_meeting_calendar($part, $response, $username) {
+function reply_meeting_calendar($part, $response, $username)
+{
     $status_attendee = "ACCEPTED"; // 1 or default is ACCEPTED
     $status_event = "CONFIRMED";
     switch ($response) {

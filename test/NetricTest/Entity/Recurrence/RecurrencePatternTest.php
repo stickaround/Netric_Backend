@@ -209,7 +209,7 @@ class RecurrencePatternTest extends TestCase
 
     public function testToAndFromArray()
     {
-        $import = array(
+        $import = [
             "entity_recurrence_id" => Uuid::uuid4()->toString(),
             "recur_type" => RecurrencePattern::RECUR_MONTHLY,
             "interval" => 2,
@@ -228,7 +228,7 @@ class RecurrencePatternTest extends TestCase
             "field_time_start" => "ts_start",
             "field_time_end" => "ts_end",
             "ep_locked" => time(),
-        );
+        ];
 
         $recur = new RecurrencePattern();
         $recur->fromArray($import);

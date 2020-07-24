@@ -241,7 +241,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
         $actualPkeyName = implode("_", $pKeyNames);
 
         // Check if the names are the same - have all the same columns
-        $columnNames = (is_array($columnName)) ? $columnName : array($columnName);
+        $columnNames = (is_array($columnName)) ? $columnName : [$columnName];
         asort($columnNames);
         return ($actualPkeyName == implode("_", $columnNames));
     }

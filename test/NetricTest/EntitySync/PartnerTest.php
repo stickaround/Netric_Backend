@@ -161,14 +161,14 @@ class PartnerTest extends TestCase
 
     public function testGetCollection()
     {
-        $conditions = array(
-            array(
+        $conditions = [
+            [
                 "blogic" => "and",
                 "field" => "type_id",
                 "operator" => "is_equal",
                 "condValue" => 1, // person
-            ),
-        );
+            ],
+        ];
 
         // Create a mock collection
         $collection = $this->getMockBuilder(EntityCollection::class)
@@ -176,7 +176,7 @@ class PartnerTest extends TestCase
             ->getMock();
         $collection->method('getType')->willReturn(1);
         $collection->method('getObjType')->willReturn(ObjectTypes::CONTACT);
-        $collection->method('getConditions')->willReturn(array());
+        $collection->method('getConditions')->willReturn([]);
 
         // Add the collection
         $this->partner->addCollection($collection);
@@ -201,35 +201,35 @@ class PartnerTest extends TestCase
 
     public function testGetCollectionWithCondition()
     {
-        $conditions = array(
-            array(
+        $conditions = [
+            [
                 "blogic" => "and",
                 "field" => "type_id",
                 "operator" => "is_equal",
                 "condValue" => 1, // person
-            ),
-            array(
+            ],
+            [
                 "blogic" => "and",
                 "field" => "name",
                 "operator" => "is_equal",
                 "condValue" => "john",
-            ),
-        );
+            ],
+        ];
 
-        $conditions2 = array(
-            array(
+        $conditions2 = [
+            [
                 "blogic" => "and",
                 "field" => "type_id",
                 "operator" => "is_equal",
                 "condValue" => 1,
-            ),
-            array(
+            ],
+            [
                 "blogic" => "and",
                 "field" => "name",
                 "operator" => "is_equal",
                 "condValue" => "sky",
-            ),
-        );
+            ],
+        ];
 
         // Create two mock collections
         $collection = $this->getMockBuilder(EntityCollection::class)
@@ -262,20 +262,20 @@ class PartnerTest extends TestCase
         /*
          * Try same object type with conditions that do not match
          */
-        $noMatchConditions = array(
-            array(
+        $noMatchConditions = [
+            [
                 "blogic" => "and",
                 "field" => "type_id",
                 "operator" => "is_equal",
                 "condValue" => 2, // account - should not match because the collection is only for type=person
-            ),
-            array(
+            ],
+            [
                 "blogic" => "and",
                 "field" => "name",
                 "operator" => "is_equal",
                 "condValue" => "john",
-            ),
-        );
+            ],
+        ];
         $gotColl = $getCollection->invoke($this->partner, ObjectTypes::CONTACT, null, $noMatchConditions);
         $this->assertNull($gotColl);
 

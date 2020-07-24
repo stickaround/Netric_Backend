@@ -23,7 +23,8 @@
  * Consult LICENSE file for details
  ************************************************/
 
-class FileLog extends Log {
+class FileLog extends Log
+{
 
     /**
      * @var string|bool
@@ -33,7 +34,8 @@ class FileLog extends Log {
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -42,7 +44,8 @@ class FileLog extends Log {
      * @access private
      * @return string
      */
-    private function getLogToUserFile() {
+    private function getLogToUserFile()
+    {
         if ($this->log_to_user_file === false) {
             $this->setLogToUserFile(preg_replace('/[^a-z0-9]/', '_', strtolower($this->GetAuthUser())) . '.log');
         }
@@ -57,7 +60,8 @@ class FileLog extends Log {
      * @access private
      * @return void
      */
-    private function setLogToUserFile($value) {
+    private function setLogToUserFile($value)
+    {
         $this->log_to_user_file = $value;
     }
 
@@ -70,7 +74,8 @@ class FileLog extends Log {
      * @access public
      * @return string
      */
-    public function BuildLogString($loglevel, $message) {
+    public function BuildLogString($loglevel, $message)
+    {
         $log = Utils::GetFormattedTime() . ' ' . $this->GetPidstr() . ' ' . $this->GetLogLevelString($loglevel, $loglevel >= LOGLEVEL_INFO) . ' ' . $this->GetUser();
         if (LOGLEVEL >= LOGLEVEL_DEVICEID || (LOGUSERLEVEL >= LOGLEVEL_DEVICEID && $this->IsAuthUserInSpecialLogUsers())) {
             $log .= ' ' . $this->GetDevid();
@@ -92,7 +97,8 @@ class FileLog extends Log {
      * @access protected
      * @return void
      */
-    protected function Write($loglevel, $message) {
+    protected function Write($loglevel, $message)
+    {
         $data = $this->buildLogString($loglevel, $message) . PHP_EOL;
         @file_put_contents(LOGFILE, $data, FILE_APPEND);
     }
@@ -105,7 +111,8 @@ class FileLog extends Log {
      * @access public
      * @return void
      */
-    public function WriteForUser($loglevel, $message) {
+    public function WriteForUser($loglevel, $message)
+    {
         $data = $this->buildLogString($loglevel, $message) . PHP_EOL;
         @file_put_contents(LOGFILEDIR . $this->getLogToUserFile(), $data, FILE_APPEND);
     }
@@ -117,7 +124,8 @@ class FileLog extends Log {
      * @access protected
      * @return void
      */
-    protected function afterLog($loglevel, $message) {
+    protected function afterLog($loglevel, $message)
+    {
         if ($loglevel & (LOGLEVEL_FATAL | LOGLEVEL_ERROR | LOGLEVEL_WARN)) {
             $data = $this->buildLogString($loglevel, $message) . PHP_EOL;
             @file_put_contents(LOGERRORFILE, $data, FILE_APPEND);

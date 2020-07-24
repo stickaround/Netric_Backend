@@ -30,17 +30,17 @@ class SmtpFactory implements AccountServiceFactoryInterface
         /*
          * Set the default application level email settings from the system config
          */
-        $options = array(
+        $options = [
             'host' => $config->email["server"],
-        );
+        ];
 
         // Add username and password if needed for sending messages
         if (isset($config->email['username']) && isset($config->email['password'])) {
             $options['connection_class'] = 'login';
-            $options['connection_config'] = array(
+            $options['connection_config'] = [
                 'username' => $config->email['username'],
                 'password' => $config->email['password'],
-            );
+            ];
         }
 
         // Setup the port if set in the system config
@@ -63,10 +63,10 @@ class SmtpFactory implements AccountServiceFactoryInterface
             // Check for login information
             if ($username && $password) {
                 $options['connection_class'] = 'login';
-                $options['connection_config'] = array(
+                $options['connection_config'] = [
                     'username' => $username,
                     'password' => $password,
-                );
+                ];
             } else {
                 unset($options['connection_class']);
                 unset($options['connection_config']);

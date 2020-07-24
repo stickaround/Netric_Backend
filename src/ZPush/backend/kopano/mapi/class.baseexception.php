@@ -62,7 +62,8 @@ class BaseException extends Exception
      * @param  string $displayMessage
      * @return void
      */
-    public function __construct($errorMessage, $code = 0, Exception $previous = null, $displayMessage = null) {
+    public function __construct($errorMessage, $code = 0, Exception $previous = null, $displayMessage = null)
+    {
         // assign display message
         $this->displayMessage = $displayMessage;
 
@@ -70,7 +71,7 @@ class BaseException extends Exception
             parent::__construct($errorMessage, (int) $code);
 
             // set previous exception
-            if(!is_null($previous)) {
+            if (!is_null($previous)) {
                 $this->_previous = $previous;
             }
         } else {
@@ -107,7 +108,7 @@ class BaseException extends Exception
      */
     public function getDisplayMessage()
     {
-        if(!is_null($this->displayMessage)) {
+        if (!is_null($this->displayMessage)) {
             return $this->displayMessage;
         }
 
@@ -139,7 +140,7 @@ class BaseException extends Exception
      */
     public function getBaseFile()
     {
-        if(is_null($this->baseFile)) {
+        if (is_null($this->baseFile)) {
             $this->baseFile = basename(parent::getFile());
         }
 

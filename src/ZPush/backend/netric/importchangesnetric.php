@@ -65,8 +65,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
         Netric\EntitySync\Collection\CollectionInterface $collection,
         EntityProvider $entityProvider,
         $folderId = null
-    )
-    {
+    ) {
         $this->log = $log;
         $this->collection = $collection;
         $this->provider = $entityProvider;
@@ -115,36 +114,36 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
             );
         }
 
-        if($id) {
+        if ($id) {
             // See if there's a conflict
             $conflict = $this->isConflict("change", $this->folderId, $id);
 
             // Update client state if this is an update
-            $change = array();
+            $change = [];
             $change["id"] = $id;
             $change["mod"] = 0; // dummy, will be updated later if the change succeeds
             $change["parent"] = $this->folderId;
             $change["flags"] = (isset($message->read)) ? $message->read : 0;
             $this->updateState("change", $change);
 
-            if($conflict && $this->flags == SYNC_CONFLICT_OVERWRITE_PIM) {
+            if ($conflict && $this->flags == SYNC_CONFLICT_OVERWRITE_PIM) {
                 // in these cases the status SYNC_STATUS_CONFLICTCLIENTSERVEROBJECT should be returned, so the mobile client can inform the end user
                 throw new StatusException(
                     sprintf(
                         "ImportChangesNetric->ImportMessageChange('%s','%s'): Conflict detected. Data from PIM will be dropped! Server overwrites PIM. User is informed.",
                         $id,
-                        get_class($message)),
+                        get_class($message)
+                    ),
                     SYNC_STATUS_CONFLICTCLIENTSERVEROBJECT,
                     null,
                     LOGLEVEL_INFO
                 );
             }
-
         }
 
         $id = $this->provider->saveSyncObject($this->folderId, $id, $message);
 
-        if(!$id) {
+        if (!$id) {
             throw new StatusException(
                 sprintf(
                     "ImportChangesNetric->ImportMessageChange('%s','%s'): unknown error in backend",
@@ -169,7 +168,6 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
         $this->log->info("ZPUSH->ImportChangesNetric->ImportMessageChange: $id, {$this->folderId} imported");
 
         return $id;
-
     }
 
     /**
@@ -199,7 +197,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
         $conflict = $this->isConflict("delete", $this->folderId, $id);
 
         // Update device state
-        $change = array();
+        $change = [];
         $change["id"] = $id;
         $this->updateState("delete", $change);
 
@@ -207,7 +205,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
          * If there is a conflict, and the server 'wins', then return without performing the change
          * this will cause the exporter to 'see' the overriding item as a change, and send it back to the PIM
          */
-        if($conflict && $this->flags == SYNC_CONFLICT_OVERWRITE_PIM) {
+        if ($conflict && $this->flags == SYNC_CONFLICT_OVERWRITE_PIM) {
             $this->log->info(sprintf("ImportChangesNetric->ImportMessageDeletion($id): Conflict detected. Data from PIM will be dropped! Object was deleted."));
             return false;
         }
@@ -232,11 +230,12 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
     public function ImportMessageReadFlag($id, $flags)
     {
         // Do nothing if it is a dummy folder
-        if ($this->folderId == SYNC_FOLDER_TYPE_DUMMY)
+        if ($this->folderId == SYNC_FOLDER_TYPE_DUMMY) {
             throw new StatusException(sprintf("ImportChangesNetric->ImportMessageReadFlag('%s','%s'): can not be done on a dummy folder", $id, $flags), SYNC_STATUS_SYNCCANNOTBECOMPLETED);
+        }
 
         // Update client state
-        $change = array();
+        $change = [];
         $change["id"] = $id;
         $change["flags"] = $flags;
         $this->updateState("flags", $change);
@@ -296,7 +295,6 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
             $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
             $this->log->info("ZPUSH->ImportChangesNetric->ImportMessageMove: $id from {$this->folderId} to {$newfolder}");
-
         }
 
         return $ret;
@@ -326,7 +324,8 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
         //do nothing if it is a dummy folder
         if ($parent == SYNC_FOLDER_TYPE_DUMMY) {
             throw new StatusException(
-                sprintf("ImportChangesNetric->ImportFolderChange('%s'): can not be done on a dummy folder",
+                sprintf(
+                    "ImportChangesNetric->ImportFolderChange('%s'): can not be done on a dummy folder",
                     $id
                 ),
                 SYNC_FSSTATUS_SERVERERROR
@@ -335,8 +334,8 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
 
         $id = $this->provider->saveSyncFolder($parent, $id, $displayname, $type);
 
-        if($id) {
-            $change = array();
+        if ($id) {
+            $change = [];
             $change["id"] = $id;
             $change["mod"] = $displayname;
             $change["parent"] = $parent;
@@ -396,7 +395,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
             );
         }
 
-        $change = array();
+        $change = [];
         $change["id"] = $id;
 
         $this->updateState("delete", $change);

@@ -30,12 +30,12 @@ class WhereTest extends TestCase
      */
     public function testFromArray()
     {
-        $arrCondtiion = array(
+        $arrCondtiion = [
             "blogic" => Where::COMBINED_BY_OR,
             "field_name" => "my_field",
             "operator" => Where::OPERATOR_NOT_EQUAL_TO,
             "value" => "someval",
-        );
+        ];
 
         $where = new Where();
         $where->fromArray($arrCondtiion);

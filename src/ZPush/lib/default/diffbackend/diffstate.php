@@ -30,7 +30,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class DiffState implements IChanges {
+class DiffState implements IChanges
+{
     protected $syncstate;
     protected $backend;
     protected $flags;
@@ -49,12 +50,15 @@ class DiffState implements IChanges {
      * @return boolean status flag
      * @throws StatusException
      */
-    public function Config($state, $flags = 0) {
-        if ($state == "")
-            $state = array();
+    public function Config($state, $flags = 0)
+    {
+        if ($state == "") {
+            $state = [];
+        }
 
-        if (!is_array($state))
+        if (!is_array($state)) {
             throw new StatusException("Invalid state", SYNC_FSSTATUS_CODEUNKNOWN);
+        }
 
         $this->syncstate = $state;
         $this->flags = $flags;
@@ -70,11 +74,12 @@ class DiffState implements IChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ConfigContentParameters($contentparameters) {
+    public function ConfigContentParameters($contentparameters)
+    {
         $this->contentparameters = $contentparameters;
 
         $filtertype = $contentparameters->GetFilterType();
-        switch($contentparameters->GetContentClass()) {
+        switch ($contentparameters->GetContentClass()) {
             case "Email":
             case "Calendar":
                 $this->cutoffdate = ($filtertype === false) ? 0 : Utils::GetCutOffDate($filtertype);
@@ -95,9 +100,11 @@ class DiffState implements IChanges {
      * @return string
      * @throws StatusException
      */
-    public function GetState() {
-        if (!isset($this->syncstate) || !is_array($this->syncstate))
+    public function GetState()
+    {
+        if (!isset($this->syncstate) || !is_array($this->syncstate)) {
             throw new StatusException("DiffState->GetState(): Error, state not available", SYNC_FSSTATUS_CODEUNKNOWN, null, LOGLEVEL_WARN);
+        }
 
         return $this->syncstate;
     }
@@ -112,7 +119,8 @@ class DiffState implements IChanges {
      * @access public
      * @return boolean
      */
-    public function SetMoveStates($srcState, $dstState = null) {
+    public function SetMoveStates($srcState, $dstState = null)
+    {
         $this->moveSrcState = $srcState;
         $this->moveDstState = $dstState;
         return true;
@@ -124,8 +132,9 @@ class DiffState implements IChanges {
      * @access public
      * @return array(0 => $srcState, 1 => $dstState)
     */
-    public function GetMoveStates() {
-        return array($this->moveSrcState, $this->moveDstState);
+    public function GetMoveStates()
+    {
+        return [$this->moveSrcState, $this->moveDstState];
     }
 
 
@@ -142,18 +151,19 @@ class DiffState implements IChanges {
      * @access protected
      * @return array
      */
-    protected function getDiffTo($new) {
-        $changes = $old = array();
+    protected function getDiffTo($new)
+    {
+        $changes = $old = [];
 
         // create associative array of old items with id as key
-        foreach($this->syncstate as &$item) {
+        foreach ($this->syncstate as &$item) {
             $old[$item['id']] =& $item;
         }
 
         // iterate through new items to identify new or changed items
-        foreach($new as &$item) {
+        foreach ($new as &$item) {
             $id = $item['id'];
-            $change = array("id" => $id);
+            $change = ["id" => $id];
 
             if (!isset($old[$id])) {
                 // Message in new seems to be new (add)
@@ -164,7 +174,7 @@ class DiffState implements IChanges {
                 $old_item =& $old[$id];
 
                 // Both messages are still available, compare flags and mod
-                if(isset($old_item["flags"]) && isset($item["flags"]) && $old_item["flags"] != $item["flags"]) {
+                if (isset($old_item["flags"]) && isset($item["flags"]) && $old_item["flags"] != $item["flags"]) {
                     // Flags changed
                     $change["type"] = "flags";
                     $change["flags"] = $item["flags"];
@@ -177,8 +187,7 @@ class DiffState implements IChanges {
                         $change["type"] = "change";
                         $changes[] = $change;
                     }
-                }
-                else if (isset($old_item['mod']) || isset($item['mod'])) {
+                } elseif (isset($old_item['mod']) || isset($item['mod'])) {
                     $change["type"] = "change";
                     $changes[] = $change;
                 }
@@ -189,12 +198,12 @@ class DiffState implements IChanges {
         }
 
         // now $old contains only deleted items
-        foreach($old as $id => &$item) {
+        foreach ($old as $id => &$item) {
             // Message in state seems to have disappeared (delete)
-            $changes[] = array(
+            $changes[] = [
                 "type" => "delete",
                 "id"   => $id,
-            );
+            ];
         }
 
         return $changes;
@@ -210,11 +219,12 @@ class DiffState implements IChanges {
      * @access protected
      * @return
      */
-    protected function updateState($type, $change) {
+    protected function updateState($type, $change)
+    {
         // Change can be a change or an add
-        if($type == "change") {
-            for($i=0; $i < count($this->syncstate); $i++) {
-                if($this->syncstate[$i]["id"] == $change["id"]) {
+        if ($type == "change") {
+            for ($i = 0; $i < count($this->syncstate); $i++) {
+                if ($this->syncstate[$i]["id"] == $change["id"]) {
                     $this->syncstate[$i] = $change;
                     return;
                 }
@@ -222,13 +232,13 @@ class DiffState implements IChanges {
             // Not found, add as new
             $this->syncstate[] = $change;
         } else {
-            for($i=0; $i < count($this->syncstate); $i++) {
+            for ($i = 0; $i < count($this->syncstate); $i++) {
                 // Search for the entry for this item
-                if($this->syncstate[$i]["id"] == $change["id"]) {
-                    if($type == "flags") {
+                if ($this->syncstate[$i]["id"] == $change["id"]) {
+                    if ($type == "flags") {
                         // Update flags
                         $this->syncstate[$i]["flags"] = $change["flags"];
-                    } else if($type == "delete") {
+                    } elseif ($type == "delete") {
                         // Delete item
                         array_splice($this->syncstate, $i, 1);
                     }
@@ -252,36 +262,38 @@ class DiffState implements IChanges {
      * @access protected
      * @return
      */
-    protected function isConflict($type, $folderid, $id) {
+    protected function isConflict($type, $folderid, $id)
+    {
         $stat = $this->backend->StatMessage($folderid, $id);
 
-        if(!$stat) {
+        if (!$stat) {
             // Message is gone
-            if($type == "change")
+            if ($type == "change") {
                 return true; // deleted here, but changed there
-            else
+            } else {
                 return false; // all other remote changes still result in a delete (no conflict)
+            }
         }
 
-        foreach($this->syncstate as $state) {
-            if($state["id"] == $id) {
+        foreach ($this->syncstate as $state) {
+            if ($state["id"] == $id) {
                 $oldstat = $state;
                 break;
             }
         }
 
-        if(!isset($oldstat)) {
+        if (!isset($oldstat)) {
             // New message, can never conflict
             return false;
         }
 
-        if($stat["mod"] != $oldstat["mod"]) {
+        if ($stat["mod"] != $oldstat["mod"]) {
             // Changed here
-            if($type == "delete" || $type == "change")
+            if ($type == "delete" || $type == "change") {
                 return true; // changed here, but deleted there -> conflict, or changed here and changed there -> conflict
-            else
+            } else {
                 return false; // changed here, and other remote changes (move or flags)
+            }
         }
     }
-
 }

@@ -46,20 +46,20 @@ class AuthenticationController extends Mvc\AbstractController
 
         if (!$username || !$password) {
             return $this->sendOutput(
-                array(
+                [
                     "result" => "FAIL",
                     "reason" => "Both username and password are required fields"
-                )
+                ]
             );
         }
 
         // If auth is running without an account, then fail automatically
         if (!$this->account) {
             return $this->sendOutput(
-                array(
+                [
                     "result" => "FAIL",
                     "reason" => "Invalid account",
-                )
+                ]
             );
         }
 
@@ -69,10 +69,10 @@ class AuthenticationController extends Mvc\AbstractController
         $sessionStr = $authService->authenticate($username, $password);
 
         // Assume failure
-        $ret = array(
+        $ret = [
             "result" => "FAIL",
             "reason" => $authService->getFailureReason(),
-        );
+        ];
 
         // Return the status
         if ($sessionStr) {
@@ -82,11 +82,11 @@ class AuthenticationController extends Mvc\AbstractController
             }
 
             // Return session token
-            $ret = array(
+            $ret = [
                 "result" => "SUCCESS",
                 "session_token" => $sessionStr,
                 "user_id" => $authService->getIdentity()
-            );
+            ];
         }
 
 
@@ -113,7 +113,7 @@ class AuthenticationController extends Mvc\AbstractController
             setcookie('Authentication', null, -1, '/');
         }
 
-        return $this->sendOutput(array("result" => "SUCCESS"));
+        return $this->sendOutput(["result" => "SUCCESS"]);
     }
 
     /**
@@ -136,19 +136,19 @@ class AuthenticationController extends Mvc\AbstractController
         // If auth is running without an account, then fail automatically
         if (!$this->account) {
             return $this->sendOutput(
-                array(
+                [
                     "result" => "FAIL",
                     "reason" => "Invalid account",
-                )
+                ]
             );
         }
 
         $sm = $this->account->getServiceManager();
         $authService = $sm->get(AuthenticationServiceFactory::class);
 
-        $ret = array(
+        $ret = [
             "result" => ($authService->getIdentity()) ? "OK" : "FAIL"
-        );
+        ];
 
         if (!Console::isConsole() && $ret['OK'] && !isset($_COOKIE['Authentication'])) {
             // Set the cookie for future requests to the server

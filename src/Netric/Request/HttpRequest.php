@@ -69,9 +69,9 @@ class HttpRequest implements RequestInterface
         $this->params['files'] = (isset($_FILES) && count($_FILES)) ? $_FILES : [];
 
         // Combine all sources of request data
-        $this->httpStores = array(
+        $this->httpStores = [
             $headers, $_COOKIE, $_POST, $_GET, $_SERVER,
-        );
+        ];
 
         $this->method = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : self::METHOD_GET;
         $this->path = (isset($_SERVER['PATH_INFO'])) ? $_SERVER['PATH_INFO'] : null;

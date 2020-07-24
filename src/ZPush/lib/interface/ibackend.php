@@ -27,7 +27,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-interface IBackend {
+interface IBackend
+{
     const HIERARCHYNOTIFICATION = 'hierarchynotification';
     /**
      * Returns a IStateMachine implementation used to save states

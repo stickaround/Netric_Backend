@@ -178,7 +178,7 @@ class Entity implements EntityInterface
                 }
                 return $ret;
             } elseif ($values && isset($this->fkeysValues[$strName][$values])) {
-                return array($values => $this->fkeysValues[$strName][$values]);
+                return [$values => $this->fkeysValues[$strName][$values]];
             }
         }
 
@@ -219,7 +219,7 @@ class Entity implements EntityInterface
                             $valueName = [$value => $valueName];
                         }
 
-                        $value = array($value);
+                        $value = [$value];
                     }
             }
         }
@@ -230,7 +230,7 @@ class Entity implements EntityInterface
             if (is_array($valueName)) {
                 $this->fkeysValues[$strName] = $valueName;
             } elseif (is_string($value) || is_numeric($value)) {
-                $this->fkeysValues[$strName] = array((string) $value => $valueName);
+                $this->fkeysValues[$strName] = [(string) $value => $valueName];
             } else {
                 throw new \InvalidArgumentException(
                     "Invalid value name for object or fkey: " .
@@ -312,7 +312,6 @@ class Entity implements EntityInterface
         // Loop thru the field values and look for the value that we will be removing
         foreach ($fieldMultiValues as $key => $mValue) {
             if ($value == $mValue) {
-
                 // Unset the array index and it will be removed from the field multi value
                 unset($fieldMultiValues[$key]);
                 unset($this->fkeysValues[$strName][$mValue]);
@@ -329,7 +328,7 @@ class Entity implements EntityInterface
 
     /**
      * Update a value name from a *_multi type field
-     * 
+     *
      * @param string $strName The name of the field
      * @param string|int $value The value of the field that we will update its value name
      * @param string $valueName The value name that will be using for update
@@ -397,7 +396,7 @@ class Entity implements EntityInterface
 
         if ($this->getValue('creator_id')) {
             $ownerGuid = $this->getValue('creator_id');
-        } else if ($this->getValue('owner_id')) {
+        } elseif ($this->getValue('owner_id')) {
             $ownerGuid = $this->getValue('owner_id');
         }
 
@@ -439,13 +438,13 @@ class Entity implements EntityInterface
                 $newval = $this->getValueNames($strName);
             }
 
-            $this->changelog[$strName] = array(
+            $this->changelog[$strName] = [
                 "field" => $strName,
                 "oldval" => $oldval,
                 "newval" => $newval,
                 "oldvalraw" => $oldvalraw,
                 "newvalraw" => $newvalraw
-            );
+            ];
         }
     }
 
@@ -480,7 +479,7 @@ class Entity implements EntityInterface
             // Check for fvals
             if (isset($data[$fname . "_fval"])) {
                 if (!is_array($data[$fname . "_fval"])) {
-                    $data[$fname . "_fval"] = array($data[$fname . "_fval"]);
+                    $data[$fname . "_fval"] = [$data[$fname . "_fval"]];
                 }
 
                 $valNames = $data[$fname . "_fval"];
@@ -789,8 +788,7 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if ($field->type == FIELD::TYPE_TEXT) {
-                if (
-                    $field->name == "description"
+                if ($field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
                     || $field->name == "comment"
@@ -936,11 +934,11 @@ class Entity implements EntityInterface
         for ($i = 0; $i < $numMatches; $i++) {
             // Each variables is parsed into three parts above, 1=obj_type, 2=id, and 3=name
             if ($matches[1][$i] && $matches[2][$i] && $matches[3][$i]) {
-                $taggedReferences[] = array(
+                $taggedReferences[] = [
                     "obj_type" => $matches[1][$i],
                     "entity_id" => $matches[2][$i],
                     "name" => $matches[3][$i],
-                );
+                ];
             }
         }
 
@@ -968,7 +966,7 @@ class Entity implements EntityInterface
                 if ($this->fieldValueChanged($field->name)) {
                     // Make a files array - if it's an object than an array of one
                     $files = ($field->type == FIELD::TYPE_OBJECT) ?
-                        array($this->getValue($field->name)) :
+                        [$this->getValue($field->name)] :
                         $this->getValue($field->name);
 
                     if (is_array($files)) {
@@ -1092,11 +1090,11 @@ class Entity implements EntityInterface
 
     /**
      * Add an object reference guid to a field
-     * 
+     *
      * @param string $referenceType The type object reference we are adding (associations or followers)
      * @param string $fieldName The name of the field that we will be referencing
      * @param string $value The value of the object reference. This should be the guid of the referenced entity
-     * @param string $objType Optional. For backward compatibility, if the provided object reference value is an entity id, 
+     * @param string $objType Optional. For backward compatibility, if the provided object reference value is an entity id,
      *                        then it needs the objType so we can look for the referenced entity.
      */
     private function addObjReferenceGuid(string $referenceType, string $fieldName, string $value, string $objType = "")

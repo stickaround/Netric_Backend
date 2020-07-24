@@ -136,9 +136,9 @@ define('IMAP_DEFAULTFROM', '');
 define('IMAP_FROM_SQL_DSN', '');
 define('IMAP_FROM_SQL_USER', '');
 define('IMAP_FROM_SQL_PASSWORD', '');
-define('IMAP_FROM_SQL_OPTIONS', serialize(array(PDO::ATTR_PERSISTENT => true)));
+define('IMAP_FROM_SQL_OPTIONS', serialize([PDO::ATTR_PERSISTENT => true]));
 define('IMAP_FROM_SQL_QUERY', "select first_name, last_name, mail_address from users where mail_address = '#username@#domain'");
-define('IMAP_FROM_SQL_FIELDS', serialize(array('first_name', 'last_name', 'mail_address')));
+define('IMAP_FROM_SQL_FIELDS', serialize(['first_name', 'last_name', 'mail_address']));
 define('IMAP_FROM_SQL_FROM', '#first_name #last_name <#mail_address>');
 define('IMAP_FROM_SQL_FULLNAME', '#first_name #last_name');
 
@@ -155,7 +155,7 @@ define('IMAP_FROM_LDAP_USER', 'cn=zpush,ou=servers,dc=zpush,dc=org');
 define('IMAP_FROM_LDAP_PASSWORD', 'password');
 define('IMAP_FROM_LDAP_BASE', 'dc=zpush,dc=org');
 define('IMAP_FROM_LDAP_QUERY', '(mail=#username@#domain)');
-define('IMAP_FROM_LDAP_FIELDS', serialize(array('givenname', 'sn', 'mail')));
+define('IMAP_FROM_LDAP_FIELDS', serialize(['givenname', 'sn', 'mail']));
 define('IMAP_FROM_LDAP_FROM', '#givenname #sn <#mail>');
 define('IMAP_FROM_LDAP_FULLNAME', '#givenname #sn');
 
@@ -170,7 +170,7 @@ define('IMAP_SMTP_METHOD', 'mail');
 global $imap_smtp_params;
 // SMTP Parameters
 //      mail : no params
-$imap_smtp_params = array();
+$imap_smtp_params = [];
 //      sendmail
 //$imap_smtp_params = array('sendmail_path' => '/usr/bin/sendmail', 'sendmail_args' => '-i');
 //      smtp

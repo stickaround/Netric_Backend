@@ -19,14 +19,14 @@ class StartWorkflowActionTest extends AbstractActionTests
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Test WorkFlows to cleanup
      *
      * @var WorkFlow[]
      */
-    private $testWorkFlows = array();
+    private $testWorkFlows = [];
     /**
      * All action tests must construct the action
      *

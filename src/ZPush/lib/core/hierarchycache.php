@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class HierarchyCache {
+class HierarchyCache
+{
     private $changed = false;
     protected $cacheById;
     private $cacheByIdOld;
@@ -34,8 +35,9 @@ class HierarchyCache {
      * @access public
      * @return
      */
-    public function __construct() {
-        $this->cacheById = array();
+    public function __construct()
+    {
+        $this->cacheById = [];
         $this->cacheByIdOld = $this->cacheById;
         $this->changed = true;
     }
@@ -46,7 +48,8 @@ class HierarchyCache {
      * @access public
      * @return boolean
      */
-    public function IsStateChanged() {
+    public function IsStateChanged()
+    {
         return $this->changed;
     }
 
@@ -56,7 +59,8 @@ class HierarchyCache {
      * @access public
      * @return boolean
      */
-    public function CopyOldState() {
+    public function CopyOldState()
+    {
         $this->cacheByIdOld = $this->cacheById;
         return true;
     }
@@ -71,11 +75,11 @@ class HierarchyCache {
      * @access public
      * @return SyncObject/boolean       false if not found
      */
-    public function GetFolder($serverid, $oldState = false) {
+    public function GetFolder($serverid, $oldState = false)
+    {
         if (!$oldState && array_key_exists($serverid, $this->cacheById)) {
             return $this->cacheById[$serverid];
-        }
-        else if ($oldState && array_key_exists($serverid, $this->cacheByIdOld)) {
+        } elseif ($oldState && array_key_exists($serverid, $this->cacheByIdOld)) {
             return $this->cacheByIdOld[$serverid];
         }
         return false;
@@ -89,7 +93,8 @@ class HierarchyCache {
      * @access public
      * @return boolean
      */
-    public function AddFolder($folder) {
+    public function AddFolder($folder)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "HierarchyCache: AddFolder() serverid: {$folder->serverid} displayname: {$folder->displayname}");
 
         // on update the $folder does most of the times not contain a type
@@ -114,7 +119,8 @@ class HierarchyCache {
      * @access public
      * @return boolean
      */
-    public function DelFolder($serverid) {
+    public function DelFolder($serverid)
+    {
         $ftype = $this->GetFolder($serverid);
 
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("HierarchyCache: DelFolder() serverid: '%s' - type: '%s'", $serverid, $ftype->type));
@@ -131,15 +137,18 @@ class HierarchyCache {
      * @access public
      * @return boolean
      */
-    public function ImportFolders($folders) {
-        if (!is_array($folders))
+    public function ImportFolders($folders)
+    {
+        if (!is_array($folders)) {
             return false;
+        }
 
-        $this->cacheById = array();
+        $this->cacheById = [];
 
         foreach ($folders as $folder) {
-            if (!isset($folder->type))
+            if (!isset($folder->type)) {
                 continue;
+            }
             $this->AddFolder($folder);
         }
         return true;
@@ -153,11 +162,13 @@ class HierarchyCache {
      * @access public
      * @return array
      */
-    public function ExportFolders($oldstate = false) {
-        if ($oldstate === false)
+    public function ExportFolders($oldstate = false)
+    {
+        if ($oldstate === false) {
             return $this->cacheById;
-        else
+        } else {
             return $this->cacheByIdOld;
+        }
     }
 
     /**
@@ -166,7 +177,8 @@ class HierarchyCache {
      * @access public
      * @return array        with SyncFolder objects
      */
-    public function GetDeletedFolders() {
+    public function GetDeletedFolders()
+    {
         // diffing the OldCacheById with CacheById we know if folders were deleted
         return array_diff_key($this->cacheByIdOld, $this->cacheById);
     }
@@ -177,8 +189,9 @@ class HierarchyCache {
      * @access public
      * @return string
      */
-    public function GetStat() {
-        return sprintf("HierarchyCache is %s - Cached objects: %d", ((isset($this->cacheById))?"up":"down"), ((isset($this->cacheById))?count($this->cacheById):"0"));
+    public function GetStat()
+    {
+        return sprintf("HierarchyCache is %s - Cached objects: %d", ((isset($this->cacheById)) ? "up" : "down"), ((isset($this->cacheById)) ? count($this->cacheById) : "0"));
     }
 
     /**
@@ -187,7 +200,8 @@ class HierarchyCache {
      * @access public
      * @return boolean
      */
-    public function StripData() {
+    public function StripData()
+    {
         unset($this->changed);
         unset($this->cacheByIdOld);
         foreach ($this->cacheById as $id => $folder) {
@@ -203,8 +217,8 @@ class HierarchyCache {
      * @access public
      * @return array
      */
-    public function __sleep() {
-        return array("cacheById");
+    public function __sleep()
+    {
+        return ["cacheById"];
     }
-
 }

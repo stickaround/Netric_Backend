@@ -19,7 +19,7 @@ class DependenciesFactoryTest extends TestCase
 
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
     }
 

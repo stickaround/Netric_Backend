@@ -26,7 +26,8 @@
 require_once '../vendor/autoload.php';
 require_once 'config.php';
 
-class ZPushAutodiscover {
+class ZPushAutodiscover
+{
     const ACCEPTABLERESPONSESCHEMAMOBILESYNC = 'http://schemas.microsoft.com/exchange/autodiscover/mobilesync/responseschema/2006';
     const ACCEPTABLERESPONSESCHEMAOUTLOOK = 'http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a';
     const MAXINPUTSIZE = 8192; // Bytes, the autodiscover request shouldn't exceed that value
@@ -40,7 +41,8 @@ class ZPushAutodiscover {
      *
      * @return void
      */
-    public static function DoZPushAutodiscover() {
+    public static function DoZPushAutodiscover()
+    {
         self::CheckConfig();
         ZLog::Write(LOGLEVEL_DEBUG, '-------- Start ZPushAutodiscover');
         ZLog::Write(LOGLEVEL_INFO, sprintf("Z-Push version='%s'", @constant('ZPUSH_VERSION')));
@@ -68,7 +70,8 @@ class ZPushAutodiscover {
      *
      * @return void
      */
-    public function DoAutodiscover() {
+    public function DoAutodiscover()
+    {
         $response = "";
 
         try {
@@ -84,17 +87,15 @@ class ZPushAutodiscover {
                 $response = $this->createResponse($email, $userFullname);
                 setcookie("membername", $username);
             }
-        }
-
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             // Extract any previous exception message for logging purpose.
             $exclass = get_class($ex);
             $exception_message = $ex->getMessage();
-            if($ex->getPrevious()){
+            if ($ex->getPrevious()) {
                 do {
                     $current_exception = $ex->getPrevious();
                     $exception_message .= ' -> ' . $current_exception->getMessage();
-                } while($current_exception->getPrevious());
+                } while ($current_exception->getPrevious());
             }
 
             ZLog::Write(LOGLEVEL_FATAL, sprintf('Exception: (%s) - %s', $exclass, $exception_message));
@@ -102,18 +103,17 @@ class ZPushAutodiscover {
             if ($ex instanceof AuthenticationRequiredException) {
                 if (isset($incomingXml)) {
                     // log the failed login attemt e.g. for fail2ban
-                    if (defined('LOGAUTHFAIL') && LOGAUTHFAIL != false)
+                    if (defined('LOGAUTHFAIL') && LOGAUTHFAIL != false) {
                         ZLog::Write(LOGLEVEL_WARN, sprintf("Unable to complete autodiscover because login failed for user with email '%s' from IP %s.", $incomingXml->Request->EMailAddress, $_SERVER["REMOTE_ADDR"]));
-                }
-                else {
+                    }
+                } else {
                     ZLog::Write(LOGLEVEL_ERROR, sprintf("Unable to complete autodiscover incorrect request: '%s'", $ex->getMessage()));
                 }
                 http_response_code(401);
                 header('WWW-Authenticate: Basic realm="ZPush"');
-            }
-            else if ($ex instanceof ZPushException) {
+            } elseif ($ex instanceof ZPushException) {
                 ZLog::Write(LOGLEVEL_ERROR, sprintf("Unable to complete autodiscover because of ZPushException. Error: %s", $ex->getMessage()));
-                if(!headers_sent()) {
+                if (!headers_sent()) {
                     header('HTTP/1.1 '. $ex->getHTTPCodeString());
                     foreach ($ex->getHTTPHeaders() as $h) {
                         header($h);
@@ -134,7 +134,8 @@ class ZPushAutodiscover {
      *
      * @return SimpleXMLElement
      */
-    private function getIncomingXml() {
+    private function getIncomingXml()
+    {
         if ($_SERVER['CONTENT_LENGTH'] > ZPushAutodiscover::MAXINPUTSIZE) {
             throw new ZPushException('The request input size exceeds 8kb.');
         }
@@ -155,8 +156,11 @@ class ZPushAutodiscover {
         }
 
         if (Utils::GetLocalPartFromEmail($xml->Request->EMailAddress) != Utils::GetLocalPartFromEmail($_SERVER['PHP_AUTH_USER'])) {
-            ZLog::Write(LOGLEVEL_WARN, sprintf("The local part of the server auth user is different from the local part in the XML request ('%s' != '%s')",
-                Utils::GetLocalPartFromEmail($xml->Request->EMailAddress), Utils::GetLocalPartFromEmail($_SERVER['PHP_AUTH_USER'])));
+            ZLog::Write(LOGLEVEL_WARN, sprintf(
+                "The local part of the server auth user is different from the local part in the XML request ('%s' != '%s')",
+                Utils::GetLocalPartFromEmail($xml->Request->EMailAddress),
+                Utils::GetLocalPartFromEmail($_SERVER['PHP_AUTH_USER'])
+            ));
         }
 
         if (!isset($xml->Request->AcceptableResponseSchema)) {
@@ -180,7 +184,8 @@ class ZPushAutodiscover {
      *
      * @return string $username
      */
-    private function login($backend, $incomingXml) {
+    private function login($backend, $incomingXml)
+    {
         // don't even try to login if there is no PW set
         if (!isset($_SERVER['PHP_AUTH_PW'])) {
             throw new AuthenticationRequiredException("Access denied. No password provided.");
@@ -191,8 +196,7 @@ class ZPushAutodiscover {
         if (USE_FULLEMAIL_FOR_LOGIN) {
             $username = $incomingXml->Request->EMailAddress;
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("Using the complete email address for login: '%s'", $username));
-        }
-        else {
+        } else {
             $username = Utils::GetLocalPartFromEmail($incomingXml->Request->EMailAddress);
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("Using the username only for login: '%s'", $username));
         }
@@ -219,7 +223,8 @@ class ZPushAutodiscover {
      *
      * @return string
      */
-    private function createResponse($email, $userFullname) {
+    private function createResponse($email, $userFullname)
+    {
         $xml = file_get_contents('response.xml');
         $zpushHost = defined('ZPUSH_HOST') ? ZPUSH_HOST : ( $_SERVER['HTTP_HOST'] ? : $_SERVER['SERVER_NAME']);
         $serverUrl = "https://" . $zpushHost . "/Microsoft-Server-ActiveSync";
@@ -241,7 +246,8 @@ class ZPushAutodiscover {
      *
      * @return void
      */
-    private function sendResponse($response) {
+    private function sendResponse($response)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "ZPushAutodiscover->sendResponse() sending response...");
         header("Content-type: text/html");
         $output = fopen("php://output", "w+");
@@ -258,7 +264,8 @@ class ZPushAutodiscover {
      *
      * @return String or false on error.
      */
-    private function getAttribFromUserDetails($userDetails, $attrib) {
+    private function getAttribFromUserDetails($userDetails, $attrib)
+    {
         if (isset($userDetails[$attrib]) && $userDetails[$attrib]) {
             return $userDetails[$attrib];
         }
@@ -266,7 +273,8 @@ class ZPushAutodiscover {
         return false;
     }
 
-    public static function CheckConfig() {
+    public static function CheckConfig()
+    {
         if (!defined('REAL_BASE_PATH')) {
             define('REAL_BASE_PATH', str_replace('autodiscover/', '', BASE_PATH));
         }
@@ -274,11 +282,11 @@ class ZPushAutodiscover {
 
         // set time zone
         // code contributed by Robert Scheck (rsc)
-        if(defined('TIMEZONE') ? constant('TIMEZONE') : false) {
-            if (! @date_default_timezone_set(TIMEZONE))
+        if (defined('TIMEZONE') ? constant('TIMEZONE') : false) {
+            if (! @date_default_timezone_set(TIMEZONE)) {
                 throw new FatalMisconfigurationException(sprintf("The configured TIMEZONE '%s' is not valid. Please check supported timezones at http://www.php.net/manual/en/timezones.php", constant('TIMEZONE')));
-        }
-        else if(!ini_get('date.timezone')) {
+            }
+        } elseif (!ini_get('date.timezone')) {
             date_default_timezone_set('Europe/Amsterdam');
         }
 
@@ -311,29 +319,32 @@ class ZPushAutodiscover {
             if (LOG_SYSLOG_HOST && LOG_SYSLOG_PORT <= 0) {
                 throw new FatalMisconfigurationException("LOG_SYSLOG_HOST is defined but the LOG_SYSLOG_PORT does not seem to be valid.");
             }
-        }
-        elseif (strtolower(LOGBACKEND) == 'filelog') {
+        } elseif (strtolower(LOGBACKEND) == 'filelog') {
             define('LOGBACKEND_CLASS', 'FileLog');
-            if (!defined('LOGFILEDIR'))
+            if (!defined('LOGFILEDIR')) {
                 throw new FatalMisconfigurationException("The LOGFILEDIR is not configured. Check if the config.php file is in place.");
+            }
 
-            if (substr(LOGFILEDIR, -1,1) != "/")
+            if (substr(LOGFILEDIR, -1, 1) != "/") {
                 throw new FatalMisconfigurationException("The LOGFILEDIR should terminate with a '/'");
+            }
 
-            if (!file_exists(LOGFILEDIR))
+            if (!file_exists(LOGFILEDIR)) {
                 throw new FatalMisconfigurationException("The configured LOGFILEDIR does not exist or can not be accessed.");
+            }
 
-            if ((!file_exists(LOGFILE) && !touch(LOGFILE)) || !is_writable(LOGFILE))
+            if ((!file_exists(LOGFILE) && !touch(LOGFILE)) || !is_writable(LOGFILE)) {
                 throw new FatalMisconfigurationException("The configured LOGFILE can not be modified.");
+            }
 
-            if ((!file_exists(LOGERRORFILE) && !touch(LOGERRORFILE)) || !is_writable(LOGERRORFILE))
+            if ((!file_exists(LOGERRORFILE) && !touch(LOGERRORFILE)) || !is_writable(LOGERRORFILE)) {
                 throw new FatalMisconfigurationException("The configured LOGERRORFILE can not be modified.");
+            }
 
             // check ownership on the (eventually) just created files
             Utils::FixFileOwner(LOGFILE);
             Utils::FixFileOwner(LOGERRORFILE);
-        }
-        else {
+        } else {
             define('LOGBACKEND_CLASS', LOGBACKEND);
         }
     }

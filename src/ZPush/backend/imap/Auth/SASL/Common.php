@@ -65,7 +65,7 @@ class Auth_SASL_Common
     *
     * @return string       The HMAC-MD5 digest
     */
-    function _HMAC_MD5($key, $data, $raw_output = FALSE)
+    function _HMAC_MD5($key, $data, $raw_output = false)
     {
         if (strlen($key) > 64) {
             $key = pack('H32', md5($key));
@@ -94,10 +94,10 @@ class Auth_SASL_Common
     * @author Jehan <jehan.marmottard@gmail.com>
     * @access protected
     */
-    protected function _HMAC_SHA1($key, $data, $raw_output = FALSE)
+    protected function _HMAC_SHA1($key, $data, $raw_output = false)
     {
         if (strlen($key) > 64) {
-            $key = sha1($key, TRUE);
+            $key = sha1($key, true);
         }
 
         if (strlen($key) < 64) {
@@ -111,7 +111,7 @@ class Auth_SASL_Common
         $digest = sha1($k_opad . $inner, $raw_output);
 
          return $digest;
-     }
+    }
 
 /**
      * Z-Push helper for error logging
@@ -121,7 +121,8 @@ class Auth_SASL_Common
      * @return boolean always false as there was an error
      * @access private
      */
-    function raiseError($message) {
+    function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "SCRAM error: ". $message);
         return false;
     }

@@ -27,21 +27,22 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncNote extends SyncObject {
+class SyncNote extends SyncObject
+{
     // Outlook transports note colors as categories
-    static private $colors = array(
+    private static $colors = [
             0 => "Blue Category",
             1 => "Green Category",
             2 => "Red Category",
             3 => "Yellow Category",
             4 => "White Category",
-        );
+        ];
 
     // Purple and orange are not supported in PidLidNoteColor
-    static private $unsupportedColors = array(
+    private static $unsupportedColors = [
             "Purple Category",
             "Orange Category",
-        );
+        ];
 
     public $asbody;
     public $categories;
@@ -50,29 +51,30 @@ class SyncNote extends SyncObject {
     public $subject;
     public $Color;
 
-    function __construct() {
-        $mapping = array(
-                    SYNC_AIRSYNCBASE_BODY                               => array (  self::STREAMER_VAR      => "asbody",
+    function __construct()
+    {
+        $mapping = [
+                    SYNC_AIRSYNCBASE_BODY                               => [  self::STREAMER_VAR      => "asbody",
                                                                                     self::STREAMER_TYPE     => "SyncBaseBody",
-                                                                                    self::STREAMER_RONOTIFY => true),
+                                                                                    self::STREAMER_RONOTIFY => true],
 
-                    SYNC_NOTES_CATEGORIES                               => array (  self::STREAMER_VAR      => "categories",
+                    SYNC_NOTES_CATEGORIES                               => [  self::STREAMER_VAR      => "categories",
                                                                                     self::STREAMER_ARRAY    => SYNC_NOTES_CATEGORY,
-                                                                                    self::STREAMER_RONOTIFY => true),
+                                                                                    self::STREAMER_RONOTIFY => true],
 
-                    SYNC_NOTES_LASTMODIFIEDDATE                         => array (  self::STREAMER_VAR      => "lastmodified",
+                    SYNC_NOTES_LASTMODIFIEDDATE                         => [  self::STREAMER_VAR      => "lastmodified",
                                                                                     self::STREAMER_TYPE     => self::STREAMER_TYPE_DATE,
-                                                                                    self::STREAMER_RONOTIFY => true),
+                                                                                    self::STREAMER_RONOTIFY => true],
 
-                    SYNC_NOTES_MESSAGECLASS                             => array (  self::STREAMER_VAR      => "messageclass",
-                                                                                    self::STREAMER_RONOTIFY => true),
+                    SYNC_NOTES_MESSAGECLASS                             => [  self::STREAMER_VAR      => "messageclass",
+                                                                                    self::STREAMER_RONOTIFY => true],
 
-                    SYNC_NOTES_SUBJECT                                  => array (  self::STREAMER_VAR      => "subject",
-                                                                                    self::STREAMER_RONOTIFY => true),
+                    SYNC_NOTES_SUBJECT                                  => [  self::STREAMER_VAR      => "subject",
+                                                                                    self::STREAMER_RONOTIFY => true],
 
-                    SYNC_NOTES_IGNORE_COLOR                             => array (  self::STREAMER_VAR      => "Color",
-                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE),
-                );
+                    SYNC_NOTES_IGNORE_COLOR                             => [  self::STREAMER_VAR      => "Color",
+                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE],
+                ];
 
         parent::__construct($mapping);
     }
@@ -83,14 +85,15 @@ class SyncNote extends SyncObject {
      * @access public
      * @return void
      */
-    public function SetColorFromCategory() {
+    public function SetColorFromCategory()
+    {
         if (!empty($this->categories)) {
             $result = array_intersect($this->categories, array_values(self::$colors));
             if (empty($result)) {
                 $result = array_intersect($this->categories, array_values(self::$unsupportedColors));
                 if (!empty($result)) {
                     ZLog::Write(LOGLEVEL_DEBUG, sprintf("SyncNote->SetColorFromCategory(): unsupported color '%s', setting to color white", $result[0]));
-                    $result = array("White Category");
+                    $result = ["White Category"];
                 }
             }
             if (!empty($result)) {
@@ -109,7 +112,8 @@ class SyncNote extends SyncObject {
      * @access public
      * @return boolean
      */
-    public function SetCategoryFromColor() {
+    public function SetCategoryFromColor()
+    {
         // is a color other than yellow set
         if (isset($this->Color) && $this->Color != 3 && $this->Color > -1 && $this->Color < 5) {
             // check existing categories - do not rewrite category if the category is already a supported or unsupported color
@@ -120,8 +124,8 @@ class SyncNote extends SyncObject {
                     return false;
                 }
             }
-            if(!isset($this->categories)) {
-                $this->categories = array();
+            if (!isset($this->categories)) {
+                $this->categories = [];
             }
             $this->categories[] = self::$colors[$this->Color];
             return true;

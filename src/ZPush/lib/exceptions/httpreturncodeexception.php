@@ -24,13 +24,16 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class HTTPReturnCodeException extends FatalException {
+class HTTPReturnCodeException extends FatalException
+{
     protected $defaultLogLevel = LOGLEVEL_ERROR;
     protected $showLegal = false;
 
-    public function __construct($message = "", $code = 0, $previous = NULL, $logLevel = false) {
-        if ($code)
+    public function __construct($message = "", $code = 0, $previous = null, $logLevel = false)
+    {
+        if ($code) {
             $this->httpReturnCode = $code;
+        }
         parent::__construct($message, (int) $code, $previous, $logLevel);
     }
 }

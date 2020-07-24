@@ -57,17 +57,17 @@ class BrowserViewTest extends TestCase
     {
         // Load the new view
         $view = new BrowserView();
-        $viewData = array(
+        $viewData = [
             'obj_type' => ObjectTypes::NOTE,
-            'conditions' => array(
-                array(
+            'conditions' => [
+                [
                     'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'owner_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
                     'value' => -3
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
         $view->fromArray($viewData);
 
         // Make sure toArray returns the same thing (remove null and empty first)

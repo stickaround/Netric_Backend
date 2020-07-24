@@ -185,7 +185,7 @@ class LocalFileStore implements FileStoreInterface
             } elseif (strrpos($sourcePath, "\\") !== false) { // windows
                 $parts = explode("\\", $sourcePath);
             } else {
-                $parts = array($sourcePath);
+                $parts = [$sourcePath];
             }
 
             // last entry is the file name
@@ -333,7 +333,7 @@ class LocalFileStore implements FileStoreInterface
         }
 
         // Now create namespace dir for dbname
-        $path .=  "/" . $this->accountId;
+        $path .= "/" . $this->accountId;
 
         if (!file_exists($path)) {
             mkdir($path, 0775);

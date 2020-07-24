@@ -65,30 +65,30 @@ class EntityDefinitionTest extends TestCase
         $dacl = new Dacl();
         $dacl->allowGroup(UserEntity::GROUP_USERS);
 
-        $data = array(
+        $data = [
             "revision" => 10,
             "default_activity_level" => 7,
             "is_private" => true,
-            "recur_rules" => array(
+            "recur_rules" => [
                 "field_time_start" => "ts_start",
                 "field_time_end" => "ts_end",
                 "field_date_start" => "ts_start",
                 "field_date_end" => "ts_end",
                 "field_recur_id" => "recurrence_pattern"
-            ),
+            ],
             "inherit_dacl_ref" => "project",
             "parent_field" => "parent",
             "uname_settings" => "parent:name",
             "list_title" => "subject",
             "icon" => "file",
-            "fields" => array(
-                "subject" => array(
+            "fields" => [
+                "subject" => [
                     "title" => "Subject",
                     "type" => "text",
-                ),
-            ),
+                ],
+            ],
             "dacl" => $dacl->toArray(),
-        );
+        ];
 
         $entDef->fromArray($data);
 

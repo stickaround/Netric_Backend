@@ -60,7 +60,7 @@ class ImportChangesNetricTest extends TestCase
      * Get the tests ready to run
      */
     protected function setUp(): void
-{
+    {
         $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
             ->disableOriginalConstructor()
             ->getMock();
@@ -76,7 +76,7 @@ class ImportChangesNetricTest extends TestCase
         $this->folderId = \EntityProvider::FOLDER_TYPE_TASK . "-test";
 
         // Initialize zpush - copied from zpush index file
-        if (!defined ( 'REAL_BASE_PATH' )) {
+        if (!defined('REAL_BASE_PATH')) {
             \ZPush::CheckConfig();
         }
 
@@ -99,7 +99,7 @@ class ImportChangesNetricTest extends TestCase
         $this->entityProvider->method('saveSyncObject')->willReturn(123);
 
         // Have the entity provider return a fake entity state for the fake object
-        $syncStat = array('id'=>123, 'flags'=>0, 'mod'=>2);
+        $syncStat = ['id' => 123, 'flags' => 0, 'mod' => 2];
         $this->entityProvider->method('getEntityStat')->willReturn($syncStat);
 
         // Have the entity provider return a SyncTask
@@ -109,7 +109,7 @@ class ImportChangesNetricTest extends TestCase
         $this->importer->ImportMessageChange(123, $syncTask);
 
         // Check to make sure the sync worked
-        $this->assertEquals(array($syncStat), $this->importer->GetState());
+        $this->assertEquals([$syncStat], $this->importer->GetState());
     }
 
     public function testImportMessageDeletion()
@@ -118,7 +118,7 @@ class ImportChangesNetricTest extends TestCase
         $this->entityProvider->method('deleteEntity')->willReturn(true);
 
         // Have the entity provider return a fake entity state for the fake object
-        $syncStat = array('id'=>123, 'flags'=>0, 'mod'=>2);
+        $syncStat = ['id' => 123, 'flags' => 0, 'mod' => 2];
         $this->entityProvider->method('getEntityStat')->willReturn($syncStat);
 
         $this->assertTrue($this->importer->ImportMessageDeletion(123));
@@ -152,8 +152,8 @@ class ImportChangesNetricTest extends TestCase
         $this->importer->ImportFolderChange($syncFolder);
 
         // Check to make sure the sync worked
-        $syncStat = array('id'=>123, 'flags'=>0, 'mod'=>"My Tasks", "parent"=>null);
-        $this->assertEquals(array($syncStat), $this->importer->GetState());
+        $syncStat = ['id' => 123, 'flags' => 0, 'mod' => "My Tasks", "parent" => null];
+        $this->assertEquals([$syncStat], $this->importer->GetState());
     }
 
     public function testImportFolderDeletion()

@@ -23,4 +23,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class WBXMLException extends FatalNotImplementedException {}
+class WBXMLException extends FatalNotImplementedException
+{
+}

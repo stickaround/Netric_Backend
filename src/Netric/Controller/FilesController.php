@@ -135,7 +135,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Could not create or get a parent folder. Return an error.
         if (!$folder) {
-            return $this->sendOutput(array("error" => "Could not open the folder specified"));
+            return $this->sendOutput(["error" => "Could not open the folder specified"]);
         }
 
         $folderPath = $folder->getFullPath();
@@ -168,13 +168,13 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              */
             if (is_array($file['name'])) {
                 foreach ($file['name'] as $idx => $filename) {
-                    $uploadedFiles[] = array(
+                    $uploadedFiles[] = [
                         'name' => $file['name'][$idx],
                         'type' => $file['type'][$idx],
                         'tmp_name' => $file['tmp_name'][$idx],
                         'error' => $file['error'][$idx],
                         'size' => $file['size'][$idx],
-                    );
+                    ];
                 }
             } else {
                 // Standard single file upload
@@ -196,10 +196,10 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              */
             if (!is_uploaded_file($uploadedFile['tmp_name']) && !$this->testMode) {
                 return $this->sendOutput(
-                    array(
+                    [
                         "error" => "Security Violation: " . $uploadedFile['tmp_name'] .
                             " was not uploaded via POST."
-                    )
+                    ]
                 );
             }
 
@@ -240,11 +240,11 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             );
 
             if ($file) {
-                $ret[] = array(
+                $ret[] = [
                     "entity_id" => $file->getEntityId(),
                     "name" => $file->getValue("name"),
                     "ts_updated" => $file->getValue("ts_updated")
-                );
+                ];
             } else {
                 $ret[] = -1;
             }

@@ -557,16 +557,16 @@ class HttpResponse implements ResponseInterface
 
         switch (json_last_error()) {
             case JSON_ERROR_DEPTH:
-                $bodyContent = json_encode(array("error" => "Maximum stack depth exceeded"));
+                $bodyContent = json_encode(["error" => "Maximum stack depth exceeded"]);
                 break;
             case JSON_ERROR_STATE_MISMATCH:
-                $bodyContent = json_encode(array("error" => "Underflow or the modes mismatch"));
+                $bodyContent = json_encode(["error" => "Underflow or the modes mismatch"]);
                 break;
             case JSON_ERROR_CTRL_CHAR:
-                $bodyContent = json_encode(array("error" => "Unexpected control character found"));
+                $bodyContent = json_encode(["error" => "Unexpected control character found"]);
                 break;
             case JSON_ERROR_SYNTAX:
-                $bodyContent = json_encode(array("error" => "Syntax error, malformed JSON"));
+                $bodyContent = json_encode(["error" => "Syntax error, malformed JSON"]);
                 break;
             case JSON_ERROR_UTF8:
                 // Try to fix encoding

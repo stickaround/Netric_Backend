@@ -121,7 +121,7 @@ class StatsPublisher
      **/
     public static function timing($stat, $time, $sampleRate = 1.0)
     {
-        static::queueStats(array($stat => self::num($time) . "|ms"), $sampleRate);
+        static::queueStats([$stat => self::num($time) . "|ms"], $sampleRate);
     }
 
     /**
@@ -132,7 +132,7 @@ class StatsPublisher
      */
     public static function gauge($stat, $value)
     {
-        static::queueStats(array($stat => self::num($value) . "|g"));
+        static::queueStats([$stat => self::num($value) . "|g"]);
     }
 
     /**
@@ -311,7 +311,7 @@ class StatsPublisher
             $chunkSize += $len;
             if ($chunkSize > self::MAX_PACKET_SIZE) {
                 static::sendAsUDP(implode("\n", $out));
-                $out = array($line);
+                $out = [$line];
                 $chunkSize = $len;
             } else {
                 $out[] = $line;

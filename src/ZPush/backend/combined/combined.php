@@ -34,7 +34,8 @@
 //include the CombinedBackend's own config file
 require_once("backend/combined/config.php");
 
-class BackendCombined extends Backend implements ISearchProvider {
+class BackendCombined extends Backend implements ISearchProvider
+{
     public $config;
     public $backends;
     private $activeBackend;
@@ -47,7 +48,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      *
      * @access public
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->config = BackendCombinedConfig::GetBackendCombinedConfig();
 
@@ -69,28 +71,32 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function Logon($username, $domain, $password) {
+    public function Logon($username, $domain, $password)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->Logon('%s', '%s',***))", $username, $domain));
-        if(!is_array($this->backends)){
+        if (!is_array($this->backends)) {
             return false;
         }
-        foreach ($this->backends as $i => $b){
+        foreach ($this->backends as $i => $b) {
             $u = $username;
             $d = $domain;
             $p = $password;
-            if(isset($this->config['backends'][$i]['users'])){
-                if(!isset($this->config['backends'][$i]['users'][$username])){
+            if (isset($this->config['backends'][$i]['users'])) {
+                if (!isset($this->config['backends'][$i]['users'][$username])) {
                     unset($this->backends[$i]);
                     continue;
                 }
-                if(isset($this->config['backends'][$i]['users'][$username]['username']))
+                if (isset($this->config['backends'][$i]['users'][$username]['username'])) {
                     $u = $this->config['backends'][$i]['users'][$username]['username'];
-                if(isset($this->config['backends'][$i]['users'][$username]['password']))
+                }
+                if (isset($this->config['backends'][$i]['users'][$username]['password'])) {
                     $p = $this->config['backends'][$i]['users'][$username]['password'];
-                if(isset($this->config['backends'][$i]['users'][$username]['domain']))
+                }
+                if (isset($this->config['backends'][$i]['users'][$username]['domain'])) {
                     $d = $this->config['backends'][$i]['users'][$username]['domain'];
+                }
             }
-            if($this->backends[$i]->Logon($u, $d, $p) == false){
+            if ($this->backends[$i]->Logon($u, $d, $p) == false) {
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->Logon() failed on %s ", $this->config['backends'][$i]['name']));
                 return false;
             }
@@ -121,17 +127,18 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function Setup($store, $checkACLonly = false, $folderid = false, $readonly = false) {
+    public function Setup($store, $checkACLonly = false, $folderid = false, $readonly = false)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->Setup('%s', '%s', '%s', '%s')", $store, Utils::PrintAsString($checkACLonly), $folderid, Utils::PrintAsString($readonly)));
-        if(!is_array($this->backends)){
+        if (!is_array($this->backends)) {
             return false;
         }
-        foreach ($this->backends as $i => $b){
+        foreach ($this->backends as $i => $b) {
             $u = $store;
-            if(isset($this->config['backends'][$i]['users']) && isset($this->config['backends'][$i]['users'][$store]['username'])){
+            if (isset($this->config['backends'][$i]['users']) && isset($this->config['backends'][$i]['users'][$store]['username'])) {
                 $u = $this->config['backends'][$i]['users'][$store]['username'];
             }
-            if($this->backends[$i]->Setup($u, $checkACLonly, $folderid, $readonly) == false){
+            if ($this->backends[$i]->Setup($u, $checkACLonly, $folderid, $readonly) == false) {
                 ZLog::Write(LOGLEVEL_WARN, "Combined->Setup() failed");
                 return false;
             }
@@ -146,13 +153,15 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function Logoff() {
+    public function Logoff()
+    {
         // If no Logon in done, omit Logoff
-        if (!$this->logon_done)
+        if (!$this->logon_done) {
             return true;
+        }
 
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->Logoff()");
-        foreach ($this->backends as $i => $b){
+        foreach ($this->backends as $i => $b) {
             $this->backends[$i]->Logoff();
         }
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->Logoff() success");
@@ -168,11 +177,12 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return array SYNC_FOLDER
      */
-    public function GetHierarchy(){
+    public function GetHierarchy()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->GetHierarchy()");
-        $ha = array();
-        foreach ($this->backends as $i => $b){
-            if(!empty($this->config['backends'][$i]['subfolder'])){
+        $ha = [];
+        foreach ($this->backends as $i => $b) {
+            if (!empty($this->config['backends'][$i]['subfolder'])) {
                 $f = new SyncFolder();
                 $f->serverid = $i.$this->config['delimiter'].'0';
                 $f->parentid = '0';
@@ -181,13 +191,13 @@ class BackendCombined extends Backend implements ISearchProvider {
                 $ha[] = $f;
             }
             $h = $this->backends[$i]->GetHierarchy();
-            if(is_array($h)){
-                foreach($h as $j => $f){
+            if (is_array($h)) {
+                foreach ($h as $j => $f) {
                     $h[$j]->serverid = $i.$this->config['delimiter'].$h[$j]->serverid;
-                    if($h[$j]->parentid != '0' || !empty($this->config['backends'][$i]['subfolder'])){
+                    if ($h[$j]->parentid != '0' || !empty($this->config['backends'][$i]['subfolder'])) {
                         $h[$j]->parentid = $i.$this->config['delimiter'].$h[$j]->parentid;
                     }
-                    if(isset($this->config['folderbackend'][$h[$j]->type]) && $this->config['folderbackend'][$h[$j]->type] != $i){
+                    if (isset($this->config['folderbackend'][$h[$j]->type]) && $this->config['folderbackend'][$h[$j]->type] != $i) {
                         $h[$j]->type = SYNC_FOLDER_TYPE_OTHER;
                     }
                 }
@@ -206,22 +216,23 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return object(ImportChanges)
      */
-    public function GetImporter($folderid = false) {
-        if($folderid !== false) {
+    public function GetImporter($folderid = false)
+    {
+        if ($folderid !== false) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->GetImporter() Content: ImportChangesCombined:('%s')", $folderid));
 
             // get the contents importer from the folder in a backend
             // the importer is wrapped to check foldernames in the ImportMessageMove function
             $backend = $this->GetBackend($folderid);
-            if($backend === false)
+            if ($backend === false) {
                 return false;
+            }
             $importer = $backend->GetImporter($this->GetBackendFolder($folderid));
-            if($importer){
+            if ($importer) {
                 return new ImportChangesCombined($this, $folderid, $importer);
             }
             return false;
-        }
-        else {
+        } else {
             ZLog::Write(LOGLEVEL_DEBUG, "Combined->GetImporter() -> Hierarchy: ImportChangesCombined()");
             //return our own hierarchy importer which send each change to the right backend
             return new ImportChangesCombined($this);
@@ -237,12 +248,14 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return object(ExportChanges)
      */
-    public function GetExporter($folderid = false){
+    public function GetExporter($folderid = false)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->GetExporter('%s')", $folderid));
-        if($folderid){
+        if ($folderid) {
             $backend = $this->GetBackend($folderid);
-            if($backend == false)
+            if ($backend == false) {
                 return false;
+            }
             return $backend->GetExporter($this->GetBackendFolder($folderid));
         }
         return new ExportChangesCombined($this);
@@ -258,14 +271,15 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @return boolean
      * @throws StatusException
      */
-    public function SendMail($sm) {
+    public function SendMail($sm)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->SendMail()");
         // Convert source folderid
         if (isset($sm->source->folderid)) {
             $sm->source->folderid = $this->GetBackendFolder($sm->source->folderid);
         }
-        foreach ($this->backends as $i => $b){
-            if($this->backends[$i]->SendMail($sm) == true){
+        foreach ($this->backends as $i => $b) {
+            if ($this->backends[$i]->SendMail($sm) == true) {
                 return true;
             }
         }
@@ -283,11 +297,13 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @return object(SyncObject)
      * @throws StatusException
      */
-    public function Fetch($folderid, $id, $contentparameters) {
+    public function Fetch($folderid, $id, $contentparameters)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->Fetch('%s', '%s', CPO)", $folderid, $id));
         $backend = $this->GetBackend($folderid);
-        if($backend == false)
+        if ($backend == false) {
             return false;
+        }
         return $backend->Fetch($this->GetBackendFolder($folderid), $id, $contentparameters);
     }
 
@@ -299,14 +315,16 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return string
      */
-    function GetWasteBasket(){
+    function GetWasteBasket()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->GetWasteBasket()");
 
         if (isset($this->activeBackend)) {
-            if (!$this->activeBackend->GetWasteBasket())
+            if (!$this->activeBackend->GetWasteBasket()) {
                 return false;
-            else
+            } else {
                 return $this->activeBackendID . $this->config['delimiter'] . $this->activeBackend->GetWasteBasket();
+            }
         }
 
         return false;
@@ -322,15 +340,16 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @return SyncItemOperationsAttachment
      * @throws StatusException
      */
-    public function GetAttachmentData($attname) {
+    public function GetAttachmentData($attname)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->GetAttachmentData('%s')", $attname));
         foreach ($this->backends as $i => $b) {
             try {
                 $attachment = $this->backends[$i]->GetAttachmentData($attname);
-                if ($attachment instanceof SyncItemOperationsAttachment)
+                if ($attachment instanceof SyncItemOperationsAttachment) {
                     return $attachment;
-            }
-            catch (StatusException $s) {
+                }
+            } catch (StatusException $s) {
                 // backends might throw StatusExceptions if it's not their attachment
             }
         }
@@ -348,10 +367,12 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @return string       id of the created/updated calendar obj
      * @throws StatusException
      */
-    public function MeetingResponse($requestid, $folderid, $response) {
+    public function MeetingResponse($requestid, $folderid, $response)
+    {
         $backend = $this->GetBackend($folderid);
-        if($backend === false)
+        if ($backend === false) {
             return false;
+        }
         return $backend->MeetingResponse($requestid, $this->GetBackendFolder($folderid), $response);
     }
 
@@ -368,10 +389,12 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @return boolean
      * @throws StatusException
      */
-    public function EmptyFolder($folderid, $includeSubfolders = true) {
+    public function EmptyFolder($folderid, $includeSubfolders = true)
+    {
         $backend = $this->GetBackend($folderid);
-        if($backend === false)
+        if ($backend === false) {
             return false;
+        }
         return $backend->EmptyFolder($this->GetBackendFolder($folderid), $includeSubfolders);
     }
 
@@ -383,7 +406,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function HasChangesSink() {
+    public function HasChangesSink()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendCombined->HasChangesSink()"));
 
         $this->numberChangesSink = 0;
@@ -409,11 +433,12 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return boolean      false if there is any problem with that folder
      */
-     public function ChangesSinkInitialize($folderid) {
+    public function ChangesSinkInitialize($folderid)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendCombined->ChangesSinkInitialize('%s')", $folderid));
 
         $backend = $this->GetBackend($folderid);
-        if($backend === false) {
+        if ($backend === false) {
             // if not backend is found we return true, we don't want this to cause an error
             return true;
         }
@@ -425,7 +450,7 @@ class BackendCombined extends Backend implements ISearchProvider {
 
         // if the backend doesn't support ChangesSink, we also return true so we don't get an error
         return true;
-     }
+    }
 
     /**
      * The actual ChangesSink.
@@ -438,10 +463,11 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return array
      */
-    public function ChangesSink($timeout = 30) {
+    public function ChangesSink($timeout = 30)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendCombined->ChangesSink(%d)", $timeout));
 
-        $notifications = array();
+        $notifications = [];
         if ($this->numberChangesSink == 0) {
             ZLog::Write(LOGLEVEL_DEBUG, "BackendCombined doesn't include any Sinkable backends");
         } else {
@@ -471,13 +497,16 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return object
      */
-    public function GetBackend($folderid){
+    public function GetBackend($folderid)
+    {
         $pos = strpos($folderid, $this->config['delimiter']);
-        if($pos === false)
+        if ($pos === false) {
             return false;
+        }
         $id = substr($folderid, 0, $pos);
-        if(!isset($this->backends[$id]))
+        if (!isset($this->backends[$id])) {
             return false;
+        }
 
         $this->activeBackend = $this->backends[$id];
         $this->activeBackendID = $id;
@@ -492,11 +521,13 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return string
      */
-    public function GetBackendFolder($folderid){
+    public function GetBackendFolder($folderid)
+    {
         $pos = strpos($folderid, $this->config['delimiter']);
-        if($pos === false)
+        if ($pos === false) {
             return false;
-        return substr($folderid,$pos + strlen($this->config['delimiter']));
+        }
+        return substr($folderid, $pos + strlen($this->config['delimiter']));
     }
 
     /**
@@ -507,10 +538,12 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return object
      */
-    public function GetBackendId($folderid){
+    public function GetBackendId($folderid)
+    {
         $pos = strpos($folderid, $this->config['delimiter']);
-        if($pos === false)
+        if ($pos === false) {
             return false;
+        }
         return substr($folderid, 0, $pos);
     }
 
@@ -521,7 +554,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return string       AS version constant
      */
-    public function GetSupportedASVersion() {
+    public function GetSupportedASVersion()
+    {
         $version = ZPush::ASV_14;
         foreach ($this->backends as $i => $b) {
             $subversion = $this->backends[$i]->GetSupportedASVersion();
@@ -539,7 +573,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return object       Implementation of ISearchProvider
      */
-    public function GetSearchProvider() {
+    public function GetSearchProvider()
+    {
         return $this;
     }
 
@@ -556,7 +591,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function SupportsType($searchtype) {
+    public function SupportsType($searchtype)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("Combined->SupportsType('%s')", $searchtype));
         $i = $this->getSearchBackend($searchtype);
 
@@ -573,7 +609,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return array        search results
      */
-    public function GetGALSearchResults($searchquery, $searchrange) {
+    public function GetGALSearchResults($searchquery, $searchrange)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->GetGALSearchResults()");
         $i = $this->getSearchBackend(ISearchProvider::SEARCH_GAL);
 
@@ -593,7 +630,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      *
      * @return array
      */
-    public function GetMailboxSearchResults($cpo) {
+    public function GetMailboxSearchResults($cpo)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->GetMailboxSearchResults()");
         $i = $this->getSearchBackend(ISearchProvider::SEARCH_MAILBOX);
 
@@ -615,7 +653,8 @@ class BackendCombined extends Backend implements ISearchProvider {
     *
     * @return boolean
     */
-    public function TerminateSearch($pid) {
+    public function TerminateSearch($pid)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->TerminateSearch()");
         foreach ($this->backends as $i => $b) {
             if ($this->backends[$i] instanceof ISearchProvider) {
@@ -633,7 +672,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function Disconnect() {
+    public function Disconnect()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Combined->Disconnect()");
         foreach ($this->backends as $i => $b) {
             if ($this->backends[$i] instanceof ISearchProvider) {
@@ -653,7 +693,8 @@ class BackendCombined extends Backend implements ISearchProvider {
      * @access private
      * @return string
      */
-    private function getSearchBackend($searchtype) {
+    private function getSearchBackend($searchtype)
+    {
         foreach ($this->backends as $i => $b) {
             if ($this->backends[$i] instanceof ISearchProvider) {
                 if ($this->backends[$i]->SupportsType($searchtype)) {

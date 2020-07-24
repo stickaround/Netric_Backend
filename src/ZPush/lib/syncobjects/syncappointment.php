@@ -27,7 +27,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncAppointment extends SyncObject {
+class SyncAppointment extends SyncObject
+{
     public $timezone;
     public $dtstamp;
     public $starttime;
@@ -62,55 +63,56 @@ class SyncAppointment extends SyncObject {
     public $responserequested;
 
 
-    function __construct() {
-        $mapping = array(
-                    SYNC_POOMCAL_TIMEZONE                               => array (  self::STREAMER_VAR      => "timezone",
-                                                                                    self::STREAMER_RONOTIFY => true),
+    function __construct()
+    {
+        $mapping = [
+                    SYNC_POOMCAL_TIMEZONE                               => [  self::STREAMER_VAR      => "timezone",
+                                                                                    self::STREAMER_RONOTIFY => true],
 
-                    SYNC_POOMCAL_DTSTAMP                                => array (  self::STREAMER_VAR      => "dtstamp",
+                    SYNC_POOMCAL_DTSTAMP                                => [  self::STREAMER_VAR      => "dtstamp",
                                                                                     self::STREAMER_TYPE     => self::STREAMER_TYPE_DATE,
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED       => self::STREAMER_CHECK_SETZERO)),
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED       => self::STREAMER_CHECK_SETZERO]],
 
-                    SYNC_POOMCAL_STARTTIME                              => array (  self::STREAMER_VAR      => "starttime",
+                    SYNC_POOMCAL_STARTTIME                              => [  self::STREAMER_VAR      => "starttime",
                                                                                     self::STREAMER_TYPE     => self::STREAMER_TYPE_DATE,
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPLOWER       => SYNC_POOMCAL_ENDTIME ),
-                                                                                    self::STREAMER_RONOTIFY => true ),
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPLOWER       => SYNC_POOMCAL_ENDTIME ],
+                                                                                    self::STREAMER_RONOTIFY => true ],
 
 
-                    SYNC_POOMCAL_SUBJECT                                => array (  self::STREAMER_VAR      => "subject",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED       => self::STREAMER_CHECK_SETEMPTY),
+                    SYNC_POOMCAL_SUBJECT                                => [  self::STREAMER_VAR      => "subject",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED       => self::STREAMER_CHECK_SETEMPTY],
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => self::STRIP_PRIVATE_SUBSTITUTE ),
+                                                                                    self::STREAMER_PRIVATE  => self::STRIP_PRIVATE_SUBSTITUTE ],
 
-                    SYNC_POOMCAL_UID                                    => array (  self::STREAMER_VAR      => "uid"),
-                    SYNC_POOMCAL_ORGANIZERNAME                          => array (  self::STREAMER_VAR      => "organizername", // verified below
-                                                                                    self::STREAMER_PRIVATE  => 'Undisclosed Organizer' ),
-                    SYNC_POOMCAL_ORGANIZEREMAIL                         => array (  self::STREAMER_VAR      => "organizeremail", // verified below
-                                                                                    self::STREAMER_PRIVATE  => 'undisclosed@localhost' ),
-                    SYNC_POOMCAL_LOCATION                               => array (  self::STREAMER_VAR      => "location",
+                    SYNC_POOMCAL_UID                                    => [  self::STREAMER_VAR      => "uid"],
+                    SYNC_POOMCAL_ORGANIZERNAME                          => [  self::STREAMER_VAR      => "organizername", // verified below
+                                                                                    self::STREAMER_PRIVATE  => 'Undisclosed Organizer' ],
+                    SYNC_POOMCAL_ORGANIZEREMAIL                         => [  self::STREAMER_VAR      => "organizeremail", // verified below
+                                                                                    self::STREAMER_PRIVATE  => 'undisclosed@localhost' ],
+                    SYNC_POOMCAL_LOCATION                               => [  self::STREAMER_VAR      => "location",
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => true),
-                    SYNC_POOMCAL_ENDTIME                                => array (  self::STREAMER_VAR      => "endtime",
+                                                                                    self::STREAMER_PRIVATE  => true],
+                    SYNC_POOMCAL_ENDTIME                                => [  self::STREAMER_VAR      => "endtime",
                                                                                     self::STREAMER_TYPE     => self::STREAMER_TYPE_DATE,
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER      => SYNC_POOMCAL_STARTTIME ),
-                                                                                    self::STREAMER_RONOTIFY => true ),
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER      => SYNC_POOMCAL_STARTTIME ],
+                                                                                    self::STREAMER_RONOTIFY => true ],
 
-                    SYNC_POOMCAL_RECURRENCE                             => array (  self::STREAMER_VAR      => "recurrence",
+                    SYNC_POOMCAL_RECURRENCE                             => [  self::STREAMER_VAR      => "recurrence",
                                                                                     self::STREAMER_TYPE     => "SyncRecurrence",
-                                                                                    self::STREAMER_RONOTIFY => true),
+                                                                                    self::STREAMER_RONOTIFY => true],
 
                     // Sensitivity values
                     // 0 = Normal
                     // 1 = Personal
                     // 2 = Private
                     // 3 = Confident
-                    SYNC_POOMCAL_SENSITIVITY                            => array (  self::STREAMER_VAR      => "sensitivity",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1,2,3) ),
+                    SYNC_POOMCAL_SENSITIVITY                            => [  self::STREAMER_VAR      => "sensitivity",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1,2,3] ],
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_VALUEMAP => array(   0 => "Normal",
+                                                                                    self::STREAMER_VALUEMAP => [   0 => "Normal",
                                                                                                                         1 => "Personal",
                                                                                                                         2 => "Private",
-                                                                                                                        3 => "Confident")),
+                                                                                                                        3 => "Confident"]],
 
                     // Busystatus values
                     // 0 = Free
@@ -118,30 +120,30 @@ class SyncAppointment extends SyncObject {
                     // 2 = Busy
                     // 3 = Out of office
                     // 4 = Working Elsewhere
-                    SYNC_POOMCAL_BUSYSTATUS                             => array (  self::STREAMER_VAR      => "busystatus",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED   => self::STREAMER_CHECK_SETTWO,
-                                                                                                                        self::STREAMER_CHECK_ONEVALUEOF => array(0,1,2,3,4) ),
+                    SYNC_POOMCAL_BUSYSTATUS                             => [  self::STREAMER_VAR      => "busystatus",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED   => self::STREAMER_CHECK_SETTWO,
+                                                                                                                        self::STREAMER_CHECK_ONEVALUEOF => [0,1,2,3,4] ],
                                                                                     self::STREAMER_RONOTIFY => true,
                                                                                     self::STREAMER_PRIVATE  => 2,                   // if private is stripped, value will be set to 2 (busy)
-                                                                                    self::STREAMER_VALUEMAP => array(   0 => "Free",
+                                                                                    self::STREAMER_VALUEMAP => [   0 => "Free",
                                                                                                                         1 => "Tentative",
                                                                                                                         2 => "Busy",
                                                                                                                         3 => "Out of office",
-                                                                                                                        4 => "Working Elsewhere")),
+                                                                                                                        4 => "Working Elsewhere"]],
 
-                    SYNC_POOMCAL_ALLDAYEVENT                            => array (  self::STREAMER_VAR      => "alldayevent",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ZEROORONE      => self::STREAMER_CHECK_SETZERO),
+                    SYNC_POOMCAL_ALLDAYEVENT                            => [  self::STREAMER_VAR      => "alldayevent",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ZEROORONE      => self::STREAMER_CHECK_SETZERO],
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_VALUEMAP => array(   0 => "No",
-                                                                                                                        1 => "Yes")),
+                                                                                    self::STREAMER_VALUEMAP => [   0 => "No",
+                                                                                                                        1 => "Yes"]],
 
-                    SYNC_POOMCAL_REMINDER                               => array (  self::STREAMER_VAR      => "reminder",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER      => -1),
+                    SYNC_POOMCAL_REMINDER                               => [  self::STREAMER_VAR      => "reminder",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER      => -1],
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => true ),              // if private is stripped, value will be unset (no reminder)
+                                                                                    self::STREAMER_PRIVATE  => true ],              // if private is stripped, value will be unset (no reminder)
 
-                    SYNC_POOMCAL_RTF                                    => array (  self::STREAMER_VAR      => "rtf",
-                                                                                    self::STREAMER_PRIVATE  => true),
+                    SYNC_POOMCAL_RTF                                    => [  self::STREAMER_VAR      => "rtf",
+                                                                                    self::STREAMER_PRIVATE  => true],
 
                     // Meetingstatus values
                     //  0 = is not a meeting
@@ -153,10 +155,10 @@ class SyncAppointment extends SyncObject {
                     // 11 = as 3
                     // 13 = as 5
                     // 15 = as 7
-                    SYNC_POOMCAL_MEETINGSTATUS                          => array (  self::STREAMER_VAR      => "meetingstatus",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1,3,5,7,9,11,13,15) ),
+                    SYNC_POOMCAL_MEETINGSTATUS                          => [  self::STREAMER_VAR      => "meetingstatus",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1,3,5,7,9,11,13,15] ],
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_VALUEMAP => array(   0 => "Not a meeting",
+                                                                                    self::STREAMER_VALUEMAP => [   0 => "Not a meeting",
                                                                                                                         1 => "Meeting",
                                                                                                                         3 => "Meeting received",
                                                                                                                         5 => "Meeting canceled",
@@ -164,51 +166,51 @@ class SyncAppointment extends SyncObject {
                                                                                                                         9 => "Meeting",
                                                                                                                        11 => "Meeting received",
                                                                                                                        13 => "Meeting canceled",
-                                                                                                                       15 => "Meeting canceled and received",)),
+                                                                                                                       15 => "Meeting canceled and received",]],
 
-                    SYNC_POOMCAL_ATTENDEES                              => array (  self::STREAMER_VAR      => "attendees",
+                    SYNC_POOMCAL_ATTENDEES                              => [  self::STREAMER_VAR      => "attendees",
                                                                                     self::STREAMER_TYPE     => "SyncAttendee",
                                                                                     self::STREAMER_ARRAY    => SYNC_POOMCAL_ATTENDEE,
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => true),
+                                                                                    self::STREAMER_PRIVATE  => true],
 
-                    SYNC_POOMCAL_BODY                                   => array (  self::STREAMER_VAR      => "body",
+                    SYNC_POOMCAL_BODY                                   => [  self::STREAMER_VAR      => "body",
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => true),
-                    SYNC_POOMCAL_BODYTRUNCATED                          => array (  self::STREAMER_VAR      => "bodytruncated",
-                                                                                    self::STREAMER_PRIVATE  => true),
-                    SYNC_POOMCAL_EXCEPTIONS                             => array (  self::STREAMER_VAR      => "exceptions",
+                                                                                    self::STREAMER_PRIVATE  => true],
+                    SYNC_POOMCAL_BODYTRUNCATED                          => [  self::STREAMER_VAR      => "bodytruncated",
+                                                                                    self::STREAMER_PRIVATE  => true],
+                    SYNC_POOMCAL_EXCEPTIONS                             => [  self::STREAMER_VAR      => "exceptions",
                                                                                     self::STREAMER_TYPE     => "SyncAppointmentException",
                                                                                     self::STREAMER_ARRAY    => SYNC_POOMCAL_EXCEPTION,
-                                                                                    self::STREAMER_RONOTIFY => true),
+                                                                                    self::STREAMER_RONOTIFY => true],
 
-                    SYNC_POOMCAL_CATEGORIES                             => array (  self::STREAMER_VAR      => "categories",
+                    SYNC_POOMCAL_CATEGORIES                             => [  self::STREAMER_VAR      => "categories",
                                                                                     self::STREAMER_ARRAY    => SYNC_POOMCAL_CATEGORY,
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => true),
-                );
+                                                                                    self::STREAMER_PRIVATE  => true],
+                ];
 
         if (Request::GetProtocolVersion() >= 12.0) {
-            $mapping[SYNC_AIRSYNCBASE_BODY]                             = array (   self::STREAMER_VAR      => "asbody",
+            $mapping[SYNC_AIRSYNCBASE_BODY]                             = [   self::STREAMER_VAR      => "asbody",
                                                                                     self::STREAMER_TYPE     => "SyncBaseBody",
                                                                                     self::STREAMER_RONOTIFY => true,
                                                                                     self::STREAMER_PRIVATE  => true
-                                                                          );
+                                                                          ];
 
-            $mapping[SYNC_AIRSYNCBASE_NATIVEBODYTYPE]                   = array (   self::STREAMER_VAR      => "nativebodytype");
+            $mapping[SYNC_AIRSYNCBASE_NATIVEBODYTYPE]                   = [   self::STREAMER_VAR      => "nativebodytype"];
 
             //unset these properties because airsyncbase body and attachments will be used instead
             unset($mapping[SYNC_POOMCAL_BODY], $mapping[SYNC_POOMCAL_BODYTRUNCATED]);
         }
 
-        if(Request::GetProtocolVersion() >= 14.0) {
-            $mapping[SYNC_POOMCAL_DISALLOWNEWTIMEPROPOSAL]              = array (   self::STREAMER_VAR      => "disallownewtimeprop",
+        if (Request::GetProtocolVersion() >= 14.0) {
+            $mapping[SYNC_POOMCAL_DISALLOWNEWTIMEPROPOSAL]              = [   self::STREAMER_VAR      => "disallownewtimeprop",
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => 1); // don't permit new time proposal
-            $mapping[SYNC_POOMCAL_RESPONSEREQUESTED]                    = array (   self::STREAMER_VAR      => "responserequested",
-                                                                                    self::STREAMER_RONOTIFY => true);
-            $mapping[SYNC_POOMCAL_RESPONSETYPE]                         = array (   self::STREAMER_VAR      => "responsetype",
-                                                                                    self::STREAMER_RONOTIFY => true);
+                                                                                    self::STREAMER_PRIVATE  => 1]; // don't permit new time proposal
+            $mapping[SYNC_POOMCAL_RESPONSEREQUESTED]                    = [   self::STREAMER_VAR      => "responserequested",
+                                                                                    self::STREAMER_RONOTIFY => true];
+            $mapping[SYNC_POOMCAL_RESPONSETYPE]                         = [   self::STREAMER_VAR      => "responsetype",
+                                                                                    self::STREAMER_RONOTIFY => true];
         }
 
         parent::__construct($mapping);
@@ -229,7 +231,8 @@ class SyncAppointment extends SyncObject {
      * @access public
      * @return boolean
      */
-    public function Check($logAsDebug = false) {
+    public function Check($logAsDebug = false)
+    {
         // Fix starttime and endtime if they are not set on NEW appointments - see https://jira.z-hub.io/browse/ZP-983
         if ($this->flags === SYNC_NEWMESSAGE) {
             $time = time();
@@ -268,11 +271,13 @@ class SyncAppointment extends SyncObject {
         $ret = parent::Check($logAsDebug);
 
         // semantic checks general "turn off switch"
-        if (defined("DO_SEMANTIC_CHECKS") && DO_SEMANTIC_CHECKS === false)
+        if (defined("DO_SEMANTIC_CHECKS") && DO_SEMANTIC_CHECKS === false) {
             return $ret;
+        }
 
-        if (!$ret)
+        if (!$ret) {
             return false;
+        }
 
         if ($this->meetingstatus > 0) {
             if (!isset($this->organizername) || !isset($this->organizeremail)) {

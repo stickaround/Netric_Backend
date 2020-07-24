@@ -121,7 +121,7 @@ class BackendNetric implements IBackend
      *
      * @var Netric\EntitySync\Collection\CollectionInterface[]
      */
-    private $syncCollections = array();
+    private $syncCollections = [];
 
     /**
      * Responsible for storing sync states between device sync
@@ -533,7 +533,8 @@ class BackendNetric implements IBackend
         }
 
         $attachment = new SyncItemOperationsAttachment();
-        $attachment->data = $fileSystem->openFileStreamById($fileId);;
+        $attachment->data = $fileSystem->openFileStreamById($fileId);
+        ;
         $attachment->contenttype = $file->getMimeType();
         return $attachment;
     }
@@ -604,7 +605,7 @@ class BackendNetric implements IBackend
      */
     public function ChangesSink($timeout = 30)
     {
-        $notifications = array();
+        $notifications = [];
         $stopat = time() + $timeout - 1;
 
         while ($stopat > time() && count($notifications) == 0) {
@@ -692,10 +693,10 @@ class BackendNetric implements IBackend
     {
         $user = $this->account->getUser(null, $username);
         if ($user) {
-            return array(
+            return [
                 'emailaddress' => $user->getValue('email'),
                 'fullname' => $user->getValue("full_name")
-            );
+            ];
         } else {
             return false;
         }
@@ -780,7 +781,7 @@ class BackendNetric implements IBackend
         }
 
         // Properties used to create a new collection if needed
-        $cond = array();
+        $cond = [];
         $objType = null;
 
         // Get the parts of the folderid since it is in form {type}-{id}
@@ -790,69 +791,69 @@ class BackendNetric implements IBackend
         switch ($folder['type']) {
             case EntityProvider::FOLDER_TYPE_CONTACT:
                 $objType = ObjectTypes::CONTACT_PERSONAL;
-                $cond = array(
-                    array(
+                $cond = [
+                    [
                         "blogic" => Where::COMBINED_BY_AND,
                         "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $this->user->getEntityId()
-                    )
-                );
+                    ]
+                ];
                 break;
 
             case EntityProvider::FOLDER_TYPE_CALENDAR:
                 $objType = ObjectTypes::CALENDAR_EVENT;
-                $cond = array(
-                    array(
+                $cond = [
+                    [
                         "blogic" => Where::COMBINED_BY_AND,
                         "field" => "calendar",
                         "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $folder['id']
-                    )
-                );
+                    ]
+                ];
                 break;
 
             case EntityProvider::FOLDER_TYPE_NOTE:
                 $objType = ObjectTypes::NOTE;
-                $cond = array(
-                    array(
+                $cond = [
+                    [
                         "blogic" => Where::COMBINED_BY_AND,
                         "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $this->user->getEntityId()
-                    ),
-                );
+                    ],
+                ];
 
                 break;
 
             case EntityProvider::FOLDER_TYPE_TASK:
                 $objType = ObjectTypes::TASK;
-                $cond = array(
-                    array(
+                $cond = [
+                    [
                         "blogic" => Where::COMBINED_BY_AND,
                         "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $this->user->getEntityId()
-                    )
-                );
+                    ]
+                ];
                 break;
 
             case EntityProvider::FOLDER_TYPE_EMAIL:
                 $objType = ObjectTypes::EMAIL_MESSAGE;
-                $cond = array(
-                    array(
+                $cond = [
+                    [
                         "blogic" => Where::COMBINED_BY_AND,
                         "field" => "owner_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $this->user->getEntityId()
-                    ),
-                    array(
+                    ],
+                    [
                         "blogic" => Where::COMBINED_BY_AND,
                         "field" => "mailbox_id",
                         "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $folder['id']
-                    ),
-                );
+                    ],
+                ];
                 break;
         }
 

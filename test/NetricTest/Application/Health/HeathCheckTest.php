@@ -34,7 +34,7 @@ class HeathCheckTest extends TestCase
     {
         // This will fail because the default max number of allowed errors is 3
         $mockLog = $this->getMockBuilder(LogInterface::class)->getMock();
-        $mockLog->method('getLevelStats')->willReturn(['error'=>4]);
+        $mockLog->method('getLevelStats')->willReturn(['error' => 4]);
 
         $dependency = $this->getMockBuilder(DependencyCheckInterface::class)->getMock();
         $dependency->method('isAvailable')->willReturn(true);
@@ -50,7 +50,7 @@ class HeathCheckTest extends TestCase
     {
         // This will fail because the default max number of allowed errors is 3
         $mockLog = $this->getMockBuilder(LogInterface::class)->getMock();
-        $mockLog->method('getLevelStats')->willReturn(['critical'=>1]);
+        $mockLog->method('getLevelStats')->willReturn(['critical' => 1]);
 
         $dependency = $this->getMockBuilder(DependencyCheckInterface::class)->getMock();
         $dependency->method('isAvailable')->willReturn(true);

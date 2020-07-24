@@ -342,10 +342,10 @@ abstract class AbstractCollection
 
         $stale = $this->dataMapper->getExportedStale($this->getCollectionId());
         foreach ($stale as $oid) {
-            $staleStats[] = array(
+            $staleStats[] = [
                 "id" => $oid,
                 "action" => 'delete',
-            );
+            ];
         }
 
         return $staleStats;
@@ -399,13 +399,13 @@ abstract class AbstractCollection
             }
 
             if (!$found) { // not found locally or revisions do not match
-                $changes[] = array(
+                $changes[] = [
                     "remote_id" => $item['remote_id'],
                     "remote_revision" => $item['remote_revision'],
                     "local_id" => null,
                     "local_revision" => isset($item['local_revision']) ? $item['local_revision'] : 1,
                     "action" => "change",
-                );
+                ];
 
                 // Update count so we can stay in bounds in the above loop
                 $numChanges = count($changes);

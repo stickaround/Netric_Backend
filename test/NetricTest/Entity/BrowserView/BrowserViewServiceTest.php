@@ -78,27 +78,27 @@ class BrowserViewServiceTest extends TestCase
      */
     public function testSaveView()
     {
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::CONTACT,
-            'conditions' => array(
-                array(
+            'conditions' => [
+                [
                     'blogic' => 'and',
                     'field_name' => 'name',
                     'operator' => 'is_equal',
                     'value' => 'test',
-                ),
-            ),
-            'table_columns' => array(
+                ],
+            ],
+            'table_columns' => [
                 'first_name'
-            ),
+            ],
             'group_first_order_by' => true,
-            'order_by' => array(
-                array(
+            'order_by' => [
+                [
                     "field_name" => "name",
                     "direction" => ""
-                )
-            )
-        );
+                ]
+            ]
+        ];
         $view = new BrowserView();
         $view->fromArray($data);
 
@@ -123,26 +123,26 @@ class BrowserViewServiceTest extends TestCase
      */
     public function testLoadView()
     {
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::CONTACT,
-            'conditions' => array(
-                array(
+            'conditions' => [
+                [
                     'blogic' => 'and',
                     'field_name' => 'name',
                     'operator' => 'is_equal',
                     'value' => 'test',
-                ),
-            ),
-            'table_columns' => array(
+                ],
+            ],
+            'table_columns' => [
                 'first_name'
-            ),
-            'order_by' => array(
-                array(
+            ],
+            'order_by' => [
+                [
                     "field_name" => "name",
                     "direction" => ""
-                )
-            )
-        );
+                ]
+            ]
+        ];
         $view = new BrowserView();
         $view->fromArray($data);
         $vid = $this->browserViewService->saveView($view);
@@ -397,8 +397,7 @@ class BrowserViewServiceTest extends TestCase
         $foundDoneField = false;
         foreach ($systemViews as $sysView) {
             foreach ($sysView->getConditions() as $cond) {
-
-                // If we have found a "done" field in the conditions, then 
+                // If we have found a "done" field in the conditions, then
                 if ($cond->fieldName == "done") {
                     $foundDoneField = true;
                 }
@@ -425,7 +424,6 @@ class BrowserViewServiceTest extends TestCase
             if ($sysView->getId() == "my_tasks") {
                 foreach ($sysView->getConditions() as $cond) {
                     if ($cond->fieldName == "status_id") {
-
                         // Make sure that the value is already converted to the group's guid
                         $this->assertTrue(Uuid::isValid($cond->value));
                         $foundStatusField = true;

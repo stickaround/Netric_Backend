@@ -27,7 +27,8 @@
 //include own config file
 require_once("backend/ipcmemcached/config.php");
 
-class IpcMemcachedProvider implements IIpcProvider {
+class IpcMemcachedProvider implements IIpcProvider
+{
     protected $type;
     private $typeMutex;
     private $maxWaitCycles;
@@ -51,11 +52,12 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @param int $allocate
      * @param string $class
      */
-    public function __construct($type, $allocate, $class) {
+    public function __construct($type, $allocate, $class)
+    {
         $this->type = $type;
         $this->typeMutex = $type . "MX";
-        $this->maxWaitCycles = round(MEMCACHED_MUTEX_TIMEOUT * 1000 / MEMCACHED_BLOCK_WAIT)+1;
-        $this->logWaitCycles = round($this->maxWaitCycles/5);
+        $this->maxWaitCycles = round(MEMCACHED_MUTEX_TIMEOUT * 1000 / MEMCACHED_BLOCK_WAIT) + 1;
+        $this->logWaitCycles = round($this->maxWaitCycles / 5);
 
         // not used, but required by function signature
         unset($allocate, $class);
@@ -78,9 +80,10 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access private
      * @return void
      */
-    private function init() {
+    private function init()
+    {
         $this->memcached = new Memcached(md5(MEMCACHED_SERVERS) . $this->reconnectCount++);
-        $this->memcached->setOptions(array(
+        $this->memcached->setOptions([
             // setting a short timeout, to better kope with failed nodes
             Memcached::OPT_CONNECT_TIMEOUT => MEMCACHED_TIMEOUT,
             Memcached::OPT_SEND_TIMEOUT => MEMCACHED_TIMEOUT * 1000,
@@ -97,11 +100,11 @@ class IpcMemcachedProvider implements IIpcProvider {
             Memcached::OPT_AUTO_EJECT_HOSTS => true,
             // setting a prefix for all keys
             Memcached::OPT_PREFIX_KEY => MEMCACHED_PREFIX,
-        ));
+        ]);
 
         // with persistent connections, only add servers, if they not already added!
         if (!count($this->memcached->getServerList())) {
-            foreach(explode(',', MEMCACHED_SERVERS) as $host_port) {
+            foreach (explode(',', MEMCACHED_SERVERS) as $host_port) {
                 list($host,$port) = explode(':', trim($host_port));
                 $this->memcached->addServer($host, $port);
             }
@@ -115,7 +118,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function ReInitIPC() {
+    public function ReInitIPC()
+    {
         // this is not supported in memcache
         return false;
     }
@@ -126,7 +130,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function Clean() {
+    public function Clean()
+    {
         return false;
     }
 
@@ -136,7 +141,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function IsActive() {
+    public function IsActive()
+    {
         $down = $this->isDownUntil > time();
         // reconnect if we were down but should retry now
         if (!$down && $this->wasDown) {
@@ -159,13 +165,14 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function BlockMutex() {
+    public function BlockMutex()
+    {
         if (!$this->IsActive()) {
             return false;
         }
 
         $n = 0;
-        while(!$this->memcached->add($this->typeMutex, true, MEMCACHED_MUTEX_TIMEOUT)) {
+        while (!$this->memcached->add($this->typeMutex, true, MEMCACHED_MUTEX_TIMEOUT)) {
             if (++$n % $this->logWaitCycles == 0) {
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("IpcMemcachedProvider->BlockMutex() waiting to aquire mutex for type: %s ", $this->typeMutex));
             }
@@ -177,8 +184,8 @@ class IpcMemcachedProvider implements IIpcProvider {
                 return false;
             }
         }
-        if ($n*MEMCACHED_BLOCK_WAIT > 50) {
-            ZLog::Write(LOGLEVEL_WARN, sprintf("IpcMemcachedProvider->BlockMutex() mutex aquired after waiting for %sms for type: %s", ($n*MEMCACHED_BLOCK_WAIT), $this->typeMutex));
+        if ($n * MEMCACHED_BLOCK_WAIT > 50) {
+            ZLog::Write(LOGLEVEL_WARN, sprintf("IpcMemcachedProvider->BlockMutex() mutex aquired after waiting for %sms for type: %s", ($n * MEMCACHED_BLOCK_WAIT), $this->typeMutex));
         }
         return true;
     }
@@ -190,7 +197,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function ReleaseMutex() {
+    public function ReleaseMutex()
+    {
         return $this->memcached->delete($this->typeMutex);
     }
 
@@ -202,7 +210,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function HasData($id = 2) {
+    public function HasData($id = 2)
+    {
         $this->memcached->get($this->type.':'.$id);
         return $this->memcached->getResultCode() === Memcached::RES_SUCCESS;
     }
@@ -215,7 +224,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return mixed
      */
-    public function GetData($id = 2) {
+    public function GetData($id = 2)
+    {
         return $this->memcached->get($this->type.':'.$id);
     }
 
@@ -229,7 +239,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function SetData($data, $id = 2) {
+    public function SetData($data, $id = 2)
+    {
         return $this->memcached->set($this->type.':'.$id, $data);
     }
 
@@ -240,15 +251,15 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access private
      * @return long
      */
-    private function getIsDownUntil() {
+    private function getIsDownUntil()
+    {
         if (file_exists(MEMCACHED_DOWN_LOCK_FILE)) {
             $timestamp = file_get_contents(MEMCACHED_DOWN_LOCK_FILE);
             // is the lock file expired?
             if ($timestamp > time()) {
                 ZLog::Write(LOGLEVEL_WARN, sprintf("IpcMemcachedProvider(): Memcache service is marked as down until %s.", strftime("%d.%m.%Y %H:%M:%S", $timestamp)));
                 return $timestamp;
-            }
-            else {
+            } else {
                 @unlink(MEMCACHED_DOWN_LOCK_FILE);
             }
         }
@@ -261,7 +272,8 @@ class IpcMemcachedProvider implements IIpcProvider {
      * @access private
      * @return boolean
      */
-    private function markAsDown() {
+    private function markAsDown()
+    {
         ZLog::Write(LOGLEVEL_WARN, sprintf("IpcMemcachedProvider(): Marking memcache service as down for %d seconds.", MEMCACHED_DOWN_LOCK_EXPIRATION));
         $downUntil = time() + MEMCACHED_DOWN_LOCK_EXPIRATION;
         $this->isDownUntil = $downUntil;

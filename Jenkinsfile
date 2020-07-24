@@ -164,28 +164,26 @@ pipeline {
             }
         }
 
-        // TODOO: Hold off on deploying for now, we just want to get setup working
-        // stage('Production') {
-        //     when {
-        //         // Do not publish
-        //         expression {
-        //             return !params.DIFF_ID
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             script {
-        //                 deployToSwarm(
-        //                     environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
-        //                     stackName: PROJECT_NAME,
-        //                     imageTag: APPLICATION_VERSION,
-        //                     serviceDomain: '*.netric.com'
-        //                 )
-        //             }
-        //         }
-        //     }
-        // }
-
+        stage('Production') {
+            when {
+                // Do not publish
+                expression {
+                    return !params.DIFF_ID
+                }
+            }
+            steps {
+                script {
+                    script {
+                        deployToSwarm(
+                            environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
+                            stackName: PROJECT_NAME,
+                            imageTag: APPLICATION_VERSION,
+                            serviceDomain: '*.netric.com'
+                        )
+                    }
+                }
+            }
+        }
     }
     post {
         always {

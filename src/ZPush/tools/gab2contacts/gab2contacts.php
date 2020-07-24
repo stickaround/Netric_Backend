@@ -31,50 +31,52 @@ define('PATH_TO_ZPUSH', '../../src/');
 /************************************************
  * MAIN
  */
-    define('BASE_PATH_CLI',  dirname(__FILE__) ."/");
+    define('BASE_PATH_CLI', dirname(__FILE__) ."/");
     set_include_path(get_include_path() . PATH_SEPARATOR . BASE_PATH_CLI . PATH_SEPARATOR . PATH_TO_ZPUSH);
     include_once("vendor/autoload.php");
 
-    if (!defined('CONTACT_CONFIG')) define('CONTACT_CONFIG', 'config.php');
+if (!defined('CONTACT_CONFIG')) {
+    define('CONTACT_CONFIG', 'config.php');
+}
     include_once(CONTACT_CONFIG);
 
-    try {
-        GAB2ContactsCLI::CheckEnv();
-        GAB2ContactsCLI::CheckOptions();
+try {
+    GAB2ContactsCLI::CheckEnv();
+    GAB2ContactsCLI::CheckOptions();
 
-        if (! GAB2ContactsCLI::SureWhatToDo()) {
-            // show error message if available
-            if (GAB2ContactsCLI::GetErrorMessage())
-                fwrite(STDERR, GAB2ContactsCLI::GetErrorMessage() . PHP_EOL.PHP_EOL);
-
-            echo GAB2ContactsCLI::UsageInstructions();
-            exit(1);
-        }
-        else if (!GAB2ContactsCLI::SetupContactWorker()) {
-            fwrite(STDERR, GAB2ContactsCLI::GetErrorMessage() . PHP_EOL);
-            exit(1);
+    if (! GAB2ContactsCLI::SureWhatToDo()) {
+        // show error message if available
+        if (GAB2ContactsCLI::GetErrorMessage()) {
+            fwrite(STDERR, GAB2ContactsCLI::GetErrorMessage() . PHP_EOL.PHP_EOL);
         }
 
-        GAB2ContactsCLI::RunCommand();
-    }
-    catch (Exception $ex) {
-        fwrite(STDERR, get_class($ex) . ": ". $ex->getMessage() . PHP_EOL);
+        echo GAB2ContactsCLI::UsageInstructions();
+        exit(1);
+    } elseif (!GAB2ContactsCLI::SetupContactWorker()) {
+        fwrite(STDERR, GAB2ContactsCLI::GetErrorMessage() . PHP_EOL);
         exit(1);
     }
+
+    GAB2ContactsCLI::RunCommand();
+} catch (Exception $ex) {
+    fwrite(STDERR, get_class($ex) . ": ". $ex->getMessage() . PHP_EOL);
+    exit(1);
+}
 
 
 
 /************************************************
  * GAB2Contacts CLI
  */
-class GAB2ContactsCLI {
+class GAB2ContactsCLI
+{
     const COMMAND_SYNC = 1;
     const COMMAND_DELETE = 2;
 
-    static private $contactWorker;
-    static private $command;
-    static private $sourceGAB;
-    static private $errormessage;
+    private static $contactWorker;
+    private static $command;
+    private static $sourceGAB;
+    private static $errormessage;
 
     /**
      * Returns usage instructions.
@@ -82,7 +84,8 @@ class GAB2ContactsCLI {
      * @access public
      * @return string
      */
-    static public function UsageInstructions() {
+    public static function UsageInstructions()
+    {
         return  "Usage:" .PHP_EOL.
                 "\tgab2contact.php -a ACTION [options]" .PHP_EOL.PHP_EOL.
                 "Parameters:" .PHP_EOL.
@@ -99,15 +102,15 @@ class GAB2ContactsCLI {
      * @access public
      * @return boolean
      */
-    static public function SetupContactWorker() {
+    public static function SetupContactWorker()
+    {
         $file = "lib/" .strtolower(CONTACTWORKER).".php";
 
         include_once($file);
 
         if (!class_exists(CONTACTWORKER)) {
             self::$errormessage = "ContactWorker file loaded, but class '".CONTACTWORKER."' can not be found. Check your configuration or implementation.";
-        }
-        else {
+        } else {
             self::$sourceGAB = @constant('SOURCE_GAB');
 
             $s = @constant('CONTACTWORKER');
@@ -123,15 +126,19 @@ class GAB2ContactsCLI {
      * @access public
      * @return void
      */
-    static public function CheckEnv() {
-        if (php_sapi_name() != "cli")
+    public static function CheckEnv()
+    {
+        if (php_sapi_name() != "cli") {
             self::$errormessage = "This script can only be called from the CLI.";
+        }
 
-        if (!function_exists("getopt"))
+        if (!function_exists("getopt")) {
             self::$errormessage = "PHP Function getopt not found. Please check your PHP version and settings.";
+        }
 
-        if (!defined('CONTACT_FOLDERID') || CONTACT_FOLDERID == "")
+        if (!defined('CONTACT_FOLDERID') || CONTACT_FOLDERID == "") {
             self::$errormessage = "No value set for 'CONTACT_FOLDERID'. Please check your configuration.";
+        }
     }
 
     /**
@@ -140,18 +147,21 @@ class GAB2ContactsCLI {
      * @access public
      * @return void
      */
-    static public function CheckOptions() {
-        if (self::$errormessage)
+    public static function CheckOptions()
+    {
+        if (self::$errormessage) {
             return;
+        }
 
         $options = getopt("a:");
 
         // get 'action'
         $action = false;
-        if (isset($options['a']) && !empty($options['a']))
+        if (isset($options['a']) && !empty($options['a'])) {
             $action = strtolower(trim($options['a']));
-        elseif (isset($options['action']) && !empty($options['action']))
+        } elseif (isset($options['action']) && !empty($options['action'])) {
             $action = strtolower(trim($options['action']));
+        }
 
         // get a command for the requested action
         switch ($action) {
@@ -177,7 +187,8 @@ class GAB2ContactsCLI {
      * @access public
      * @return boolean
      */
-    static public function SureWhatToDo() {
+    public static function SureWhatToDo()
+    {
         return isset(self::$command);
     }
 
@@ -187,8 +198,9 @@ class GAB2ContactsCLI {
      * @access public
      * @return string
      */
-    static public function GetErrorMessage() {
-        return (isset(self::$errormessage))?self::$errormessage:"";
+    public static function GetErrorMessage()
+    {
+        return (isset(self::$errormessage)) ? self::$errormessage : "";
     }
 
     /**
@@ -197,8 +209,9 @@ class GAB2ContactsCLI {
      * @access public
      * @return void
      */
-    static public function RunCommand() {
-        switch(self::$command) {
+    public static function RunCommand()
+    {
+        switch (self::$command) {
             case self::COMMAND_SYNC:
                 self::$contactWorker->Sync(self::$sourceGAB);
                 break;
@@ -206,10 +219,11 @@ class GAB2ContactsCLI {
             case self::COMMAND_DELETE:
                 echo "Are you sure you want to remove all contacts of GAB folder in the target folder? [y/N]: ";
                 $confirm  = strtolower(trim(fgets(STDIN)));
-                if ( $confirm === 'y' || $confirm === 'yes')
+                if ($confirm === 'y' || $confirm === 'yes') {
                     self::$contactWorker->Delete(self::$sourceGAB);
-                else
+                } else {
                     echo "Aborted!".PHP_EOL;
+                }
                 break;
         }
         echo PHP_EOL;
@@ -221,7 +235,8 @@ class GAB2ContactsCLI {
      * @access public
      * @return ContactWorker implementation
      */
-    static public function GetWorker() {
+    public static function GetWorker()
+    {
         return self::$contactWorker;
     }
 }

@@ -22,7 +22,7 @@ class CommitManagerTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
     }
 

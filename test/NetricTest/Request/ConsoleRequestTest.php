@@ -11,24 +11,24 @@ class ConsoleRequestTest extends TestCase
      */
     public function testParseArgs()
     {
-        $args = array(
+        $args = [
             "nonoptionarray",
             "-v",
             "-f", "myfile.txt",
             "--username",  "sky",
             "--password=\"test -pass\""
-        );
+        ];
         $reflectionMethod = new \ReflectionMethod('Netric\Request\ConsoleRequest', 'parseArgs');
         $reflectionMethod->setAccessible(true);
         $ret = $reflectionMethod->invoke(new ConsoleRequest(), $args);
 
-        $expects = array(
+        $expects = [
             0 => 'nonoptionarray',
             'v' => true,
             'f' => 'myfile.txt',
             'username' => 'sky',
             'password' => '"test -pass"',
-        );
+        ];
         $this->assertEquals($expects, $ret);
     }
 }

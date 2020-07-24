@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class MAPIStreamWrapper {
+class MAPIStreamWrapper
+{
     const PROTOCOL = "mapistream";
 
     private $mapistream;
@@ -45,10 +46,12 @@ class MAPIStreamWrapper {
      * @access public
      * @return boolean
      */
-    public function stream_open($path, $mode, $options, &$opened_path) {
+    public function stream_open($path, $mode, $options, &$opened_path)
+    {
         $contextOptions = stream_context_get_options($this->context);
-        if (!isset($contextOptions[self::PROTOCOL]['stream']))
+        if (!isset($contextOptions[self::PROTOCOL]['stream'])) {
             return false;
+        }
 
         $this->position = 0;
         $this->toTruncate = false;
@@ -60,8 +63,7 @@ class MAPIStreamWrapper {
         if ($this->mapistream) {
             $stat = mapi_stream_stat($this->mapistream);
             $this->streamlength = $stat["cb"];
-        }
-        else {
+        } else {
             $this->streamlength = 0;
         }
 
@@ -78,17 +80,17 @@ class MAPIStreamWrapper {
      * @access public
      * @return string
      */
-    public function stream_read($len) {
+    public function stream_read($len)
+    {
         $len = ($this->position + $len > $this->streamlength) ? ($this->streamlength - $this->position) : $len;
 
         // read 4 additional bytes from the stream so we can always truncate correctly
-        if ($this->toTruncate && $this->position+$len >= $this->streamlength) {
+        if ($this->toTruncate && $this->position + $len >= $this->streamlength) {
             $len += 4;
         }
         if ($this->mapistream) {
             $data = mapi_stream_read($this->mapistream, $len);
-        }
-        else {
+        } else {
             $data = "";
         }
         $this->position += strlen($data);
@@ -108,8 +110,9 @@ class MAPIStreamWrapper {
      * @param int $whence
      * @return boolean
      */
-    public function stream_seek($offset, $whence = SEEK_SET) {
-        switch($whence) {
+    public function stream_seek($offset, $whence = SEEK_SET)
+    {
+        switch ($whence) {
             case SEEK_SET:
                 $mapiWhence = STREAM_SEEK_SET;
                 break;
@@ -128,7 +131,8 @@ class MAPIStreamWrapper {
      * @access public
      * @return int
      */
-    public function stream_tell() {
+    public function stream_tell()
+    {
         return $this->position;
     }
 
@@ -138,7 +142,8 @@ class MAPIStreamWrapper {
      * @access public
      * @return boolean
      */
-    public function stream_eof() {
+    public function stream_eof()
+    {
         return ($this->position >= $this->streamlength);
     }
 
@@ -148,7 +153,8 @@ class MAPIStreamWrapper {
      * @param int $new_size
      * @return boolean
      */
-    public function stream_truncate($new_size) {
+    public function stream_truncate($new_size)
+    {
         $this->streamlength = $new_size;
         $this->toTruncate = true;
 
@@ -165,11 +171,12 @@ class MAPIStreamWrapper {
      * @access public
      * @return array
      */
-    public function stream_stat() {
-        return array(
+    public function stream_stat()
+    {
+        return [
             7               => $this->streamlength,
             'size'          => $this->streamlength,
-        );
+        ];
     }
 
    /**
@@ -180,9 +187,10 @@ class MAPIStreamWrapper {
      * @access public
      * @return MAPIStreamWrapper
      */
-     static public function Open($mapistream) {
-        $context = stream_context_create(array(self::PROTOCOL => array('stream' => &$mapistream)));
-        return fopen(self::PROTOCOL . "://",'r', false, $context);
+    public static function Open($mapistream)
+    {
+        $context = stream_context_create([self::PROTOCOL => ['stream' => &$mapistream]]);
+        return fopen(self::PROTOCOL . "://", 'r', false, $context);
     }
 }
 

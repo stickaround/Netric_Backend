@@ -231,7 +231,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
         $this->assertEquals($ent->getValue("status_id"), $statGrp->getGroupId());
         $this->assertEquals($ent->getValueName("status_id"), $statGrp->getName());
-        $this->assertEquals($ent->getValue("groups"), array($groupsGrp->getGroupId()));
+        $this->assertEquals($ent->getValue("groups"), [$groupsGrp->getGroupId()]);
         $this->assertEquals($ent->getValueName("groups"), $groupsGrp->getName());
         $this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
@@ -741,7 +741,7 @@ abstract class DmTestsAbstract extends TestCase
         // object with no label (third param)
         $customer->setValue("owner_id", $this->user->getEntityId());
         // Setting object_multi field with array values of null and empty string should not throw an error
-        $customer->setValue("activity", array(null, ""));
+        $customer->setValue("activity", [null, ""]);
         // Setting object field with array values of null should not throw an error
         $customer->setValue("primary_contact", null);
 

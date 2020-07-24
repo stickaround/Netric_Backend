@@ -36,7 +36,7 @@
  *
  * @category    Mail
  * @package     Mail
- * @author      Chuck Hagenbuch <chuck@horde.org> 
+ * @author      Chuck Hagenbuch <chuck@horde.org>
  * @copyright   2010 Chuck Hagenbuch
  * @license     http://opensource.org/licenses/bsd-license.php New BSD License
  * @version     CVS: $Id: mail.php 294747 2010-02-08 08:18:33Z clockwerx $
@@ -59,7 +59,8 @@
  * @package Mail
  * @version $Revision: 294747 $
  */
-class Mail_mail extends Mail {
+class Mail_mail extends Mail
+{
 
     /**
      * Any arguments to pass to the mail() function.
@@ -165,8 +166,13 @@ class Mail_mail extends Mail {
         if (empty($this->_params) || ini_get('safe_mode')) {
             $result = mail($recipients, $subject, $body, $text_headers);
         } else {
-            $result = mail($recipients, $subject, $body, $text_headers,
-                           $this->_params);
+            $result = mail(
+                $recipients,
+                $subject,
+                $body,
+                $text_headers,
+                $this->_params
+            );
         }
 
         // If the mail() function returned failure, we need to create a
@@ -186,7 +192,8 @@ class Mail_mail extends Mail {
      * @return boolean always false as there was an error
      * @access private
      */
-    static function raiseError($message) {
+    static function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "Mail<mail> error: ". $message);
         return false;
     }

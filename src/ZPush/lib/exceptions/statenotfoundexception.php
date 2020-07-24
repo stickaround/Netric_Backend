@@ -24,4 +24,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class StateNotFoundException extends StatusException {}
+class StateNotFoundException extends StatusException
+{
+}

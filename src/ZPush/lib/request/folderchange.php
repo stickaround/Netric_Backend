@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class FolderChange extends RequestProcessor {
+class FolderChange extends RequestProcessor
+{
 
     /**
      * Handles creates, updates or deletes of a folder
@@ -34,38 +35,45 @@ class FolderChange extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle ($commandCode) {
+    public function Handle($commandCode)
+    {
         $el = self::$decoder->getElement();
 
-        if($el[EN_TYPE] != EN_TYPE_STARTTAG)
+        if ($el[EN_TYPE] != EN_TYPE_STARTTAG) {
             return false;
+        }
 
         $create = $update = $delete = false;
-        if($el[EN_TAG] == SYNC_FOLDERHIERARCHY_FOLDERCREATE)
+        if ($el[EN_TAG] == SYNC_FOLDERHIERARCHY_FOLDERCREATE) {
             $create = true;
-        else if($el[EN_TAG] == SYNC_FOLDERHIERARCHY_FOLDERUPDATE)
+        } elseif ($el[EN_TAG] == SYNC_FOLDERHIERARCHY_FOLDERUPDATE) {
             $update = true;
-        else if($el[EN_TAG] == SYNC_FOLDERHIERARCHY_FOLDERDELETE)
+        } elseif ($el[EN_TAG] == SYNC_FOLDERHIERARCHY_FOLDERDELETE) {
             $delete = true;
+        }
 
-        if(!$create && !$update && !$delete)
+        if (!$create && !$update && !$delete) {
             return false;
+        }
 
         // SyncKey
-        if(!self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_SYNCKEY))
+        if (!self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_SYNCKEY)) {
             return false;
+        }
         $synckey = self::$decoder->getElementContent();
-        if(!self::$decoder->getElementEndTag())
+        if (!self::$decoder->getElementEndTag()) {
             return false;
+        }
 
         // ServerID
         $serverid = false;
         $backendid = false;
-        if(self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_SERVERENTRYID)) {
+        if (self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_SERVERENTRYID)) {
             $serverid = self::$decoder->getElementContent();
             $backendid = self::$deviceManager->GetBackendIdForFolderId($serverid);
-            if(!self::$decoder->getElementEndTag())
+            if (!self::$decoder->getElementEndTag()) {
                 return false;
+            }
         }
 
         // Parent
@@ -74,32 +82,37 @@ class FolderChange extends RequestProcessor {
 
         // when creating or updating more information is necessary
         if (!$delete) {
-            if(self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_PARENTID)) {
+            if (self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_PARENTID)) {
                 $parentid = self::$decoder->getElementContent();
                 $parentBackendId = self::$deviceManager->GetBackendIdForFolderId($parentid);
-                if(!self::$decoder->getElementEndTag())
+                if (!self::$decoder->getElementEndTag()) {
                     return false;
+                }
             }
 
             // Displayname
-            if(!self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_DISPLAYNAME))
+            if (!self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_DISPLAYNAME)) {
                 return false;
+            }
             $displayname = self::$decoder->getElementContent();
-            if(!self::$decoder->getElementEndTag())
+            if (!self::$decoder->getElementEndTag()) {
                 return false;
+            }
 
             // Type
             $type = false;
-            if(self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_TYPE)) {
+            if (self::$decoder->getElementStartTag(SYNC_FOLDERHIERARCHY_TYPE)) {
                 $type = self::$decoder->getElementContent();
-                if(!self::$decoder->getElementEndTag())
+                if (!self::$decoder->getElementEndTag()) {
                     return false;
+                }
             }
         }
 
         // endtag foldercreate, folderupdate, folderdelete
-        if(!self::$decoder->getElementEndTag())
+        if (!self::$decoder->getElementEndTag()) {
             return false;
+        }
 
         $status = SYNC_FSSTATUS_SUCCESS;
         // Get state of hierarchy
@@ -120,29 +133,31 @@ class FolderChange extends RequestProcessor {
             self::$backend->Setup(false);
 
             // there are unprocessed changes in the hierarchy, trigger resync
-            if ($changesMem->GetChangeCount() > 0)
+            if ($changesMem->GetChangeCount() > 0) {
                 throw new StatusException("HandleFolderChange() can not proceed as there are unprocessed hierarchy changes", SYNC_FSSTATUS_SERVERERROR);
+            }
 
             // any additional folders can not be modified - with exception if they are of type SYNC_FOLDER_TYPE_UNKNOWN (ZP-907)
-            if (self::$deviceManager->GetFolderTypeFromCacheById($serverid) != SYNC_FOLDER_TYPE_UNKNOWN && $serverid !== false && ZPush::GetAdditionalSyncFolderStore($backendid))
+            if (self::$deviceManager->GetFolderTypeFromCacheById($serverid) != SYNC_FOLDER_TYPE_UNKNOWN && $serverid !== false && ZPush::GetAdditionalSyncFolderStore($backendid)) {
                 throw new StatusException("HandleFolderChange() can not change additional folders which are configured", SYNC_FSSTATUS_SYSTEMFOLDER);
+            }
 
             // switch user store if this this happens inside an additional folder
             // if this is an additional folder the backend has to be setup correctly
             // backend should also not be switched when type is SYNC_FOLDER_TYPE_UNKNOWN (ZP-1220)
-            if (self::$deviceManager->GetFolderTypeFromCacheById($serverid) != SYNC_FOLDER_TYPE_UNKNOWN && !self::$backend->Setup(ZPush::GetAdditionalSyncFolderStore((($parentBackendId != false) ? $parentBackendId : $backendid))))
+            if (self::$deviceManager->GetFolderTypeFromCacheById($serverid) != SYNC_FOLDER_TYPE_UNKNOWN && !self::$backend->Setup(ZPush::GetAdditionalSyncFolderStore((($parentBackendId != false) ? $parentBackendId : $backendid)))) {
                 throw new StatusException(sprintf("HandleFolderChange() could not Setup() the backend for folder id '%s'", (($parentBackendId != false) ? $parentBackendId : $backendid)), SYNC_FSSTATUS_SERVERERROR);
-        }
-        catch (StateNotFoundException $snfex) {
+            }
+        } catch (StateNotFoundException $snfex) {
             $status = SYNC_FSSTATUS_SYNCKEYERROR;
-        }
-        catch (StatusException $stex) {
-           $status = $stex->getCode();
+        } catch (StatusException $stex) {
+            $status = $stex->getCode();
         }
 
         // set $newsynckey in case of an error
-        if (!isset($newsynckey))
+        if (!isset($newsynckey)) {
             $newsynckey = $synckey;
+        }
 
         if ($status == SYNC_FSSTATUS_SUCCESS) {
             try {
@@ -170,20 +185,17 @@ class FolderChange extends RequestProcessor {
                 if (!$delete) {
                     // when creating, $folder->serverid is false, and the returned id is already mapped by the backend
                     $folder = $changesMem->ImportFolderChange($folder);
-                }
-                else {
+                } else {
                     // delete folder
                     $changesMem->ImportFolderDeletion($folder);
                 }
-            }
-            catch (StatusException $stex) {
+            } catch (StatusException $stex) {
                 $status = $stex->getCode();
             }
         }
 
         self::$encoder->startWBXML();
         if ($create) {
-
             self::$encoder->startTag(SYNC_FOLDERHIERARCHY_FOLDERCREATE);
             {
                 {
@@ -201,9 +213,7 @@ class FolderChange extends RequestProcessor {
                 }
             }
             self::$encoder->endTag();
-        }
-
-        elseif ($update) {
+        } elseif ($update) {
             self::$encoder->startTag(SYNC_FOLDERHIERARCHY_FOLDERUPDATE);
             {
                 {
@@ -217,9 +227,7 @@ class FolderChange extends RequestProcessor {
                 }
             }
             self::$encoder->endTag();
-        }
-
-        elseif ($delete) {
+        } elseif ($delete) {
             self::$encoder->startTag(SYNC_FOLDERHIERARCHY_FOLDERDELETE);
             {
                 {

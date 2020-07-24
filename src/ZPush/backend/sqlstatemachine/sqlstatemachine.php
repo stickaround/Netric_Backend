@@ -30,7 +30,8 @@
 //include the SqlStateMachine's own config file
 require_once("backend/sqlstatemachine/config.php");
 
-class SqlStateMachine implements IStateMachine {
+class SqlStateMachine implements IStateMachine
+{
     const SUPPORTED_STATE_VERSION = IStateMachine::STATEVERSION_02;
     const VERSION = "version";
 
@@ -59,7 +60,8 @@ class SqlStateMachine implements IStateMachine {
      * @throws FatalException
      * @throws FatalMisconfigurationException
      */
-    public function __construct() {
+    public function __construct()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "SqlStateMachine(): init");
 
         if (!trim(STATE_SQL_SERVER) || !trim(STATE_SQL_PORT) || !trim(STATE_SQL_DATABASE) || !trim(STATE_SQL_USER)) {
@@ -70,7 +72,7 @@ class SqlStateMachine implements IStateMachine {
             throw new FatalMisconfigurationException(sprintf("SqlStateMachine(): invalid database name '%s'. The name may contain ASCII 7bit letters, numbers and the '$' and '_' signs. Please change your configuration.", STATE_SQL_DATABASE));
         }
 
-        $this->options = array();
+        $this->options = [];
         if (trim(STATE_SQL_OPTIONS)) {
             $this->options = unserialize(STATE_SQL_OPTIONS);
         }
@@ -80,8 +82,7 @@ class SqlStateMachine implements IStateMachine {
         // check if the database and necessary tables exist and try to create them if necessary.
         try {
             $this->checkDbAndTables();
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             throw new FatalException(sprintf("SqlStateMachine(): not possible to connect to the state database: %s", $ex->getMessage()));
         }
     }
@@ -95,16 +96,15 @@ class SqlStateMachine implements IStateMachine {
      * @return PDO
      * @throws FatalException
      */
-    public function getDbh($throwFatalException = true) {
+    public function getDbh($throwFatalException = true)
+    {
         if (!isset($this->dbh) || $this->dbh == null) {
             try {
                 $this->dbh = new PDO($this->dsn, STATE_SQL_USER, STATE_SQL_PASSWORD, $this->options);
-            }
-            catch(PDOException $ex) {
+            } catch (PDOException $ex) {
                 if ($throwFatalException) {
                     throw new FatalException(sprintf("SqlStateMachine()->getDbh(): not possible to connect to the state database: %s", $ex->getMessage()));
-                }
-                else {
+                } else {
                     throw $ex;
                 }
             }
@@ -127,7 +127,8 @@ class SqlStateMachine implements IStateMachine {
      * @return string
      * @throws StateNotFoundException, StateInvalidException, UnavailableException
      */
-    public function GetStateHash($devid, $type, $key = null, $counter = false) {
+    public function GetStateHash($devid, $type, $key = null, $counter = false)
+    {
         $hash = null;
         $record = null;
         try {
@@ -143,14 +144,12 @@ class SqlStateMachine implements IStateMachine {
                     throw new UnavailableException("SqlStateMachine->GetStateHash(): Database not available", $errCode, null, LOGLEVEL_WARN);
                 }
                 throw new StateNotFoundException(sprintf("SqlStateMachine->GetStateHash(): Could not locate state with error code: %s", $errCode));
-            }
-            else {
+            } else {
                 // datetime->format("U") returns EPOCH
                 $datetime = new DateTime($record["updated_at"]);
                 $hash = $datetime->format("U");
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             $this->clearConnection($this->dbh, $sth, $record);
             throw new StateNotFoundException(sprintf("SqlStateMachine->GetStateHash(): Could not locate state: %s", $ex->getMessage()));
         }
@@ -173,11 +172,13 @@ class SqlStateMachine implements IStateMachine {
      * @return mixed
      * @throws StateNotFoundException, StateInvalidException, UnavailableException
      */
-    public function GetState($devid, $type, $key = false, $counter = false, $cleanstates = true) {
+    public function GetState($devid, $type, $key = false, $counter = false, $cleanstates = true)
+    {
         $key = $this->returnNullified($key);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->GetState(): devid:'%s' type:'%s' key:'%s' counter:'%s'", $devid, $type, Utils::PrintAsString($key), Utils::PrintAsString($counter), Utils::PrintAsString($cleanstates)));
-        if ($counter && $cleanstates)
+        if ($counter && $cleanstates) {
             $this->CleanStates($devid, $type, $key, $counter);
+        }
 
         $params = $this->getParams($devid, $type, $key, $counter);
         $sql = "SELECT state_data FROM {$this->states_table} WHERE device_id = :devid AND state_type = :type AND uuid". $this->getSQLOp($params, ':key') ." AND counter = :counter";
@@ -196,18 +197,15 @@ class SqlStateMachine implements IStateMachine {
                 if ($type !== IStateMachine::FAILSAVE) {
                     throw new StateNotFoundException("SqlStateMachine->GetState(): Could not locate state");
                 }
-            }
-            else {
+            } else {
                 if (is_string($record["state_data"])) {
                     // MySQL-PDO returns a string for LOB objects
                     $data = unserialize($record["state_data"]);
-                }
-                else {
+                } else {
                     $data = unserialize(stream_get_contents($record["state_data"]));
                 }
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             $this->clearConnection($this->dbh, $sth, $record);
             throw new StateNotFoundException(sprintf("SqlStateMachine->GetState(): Could not locate state: %s", $ex->getMessage()));
         }
@@ -228,7 +226,8 @@ class SqlStateMachine implements IStateMachine {
      * @return boolean
      * @throws StateInvalidException, UnavailableException
      */
-    public function SetState($state, $devid, $type, $key = false, $counter = false) {
+    public function SetState($state, $devid, $type, $key = false, $counter = false)
+    {
         $key = $this->returnNullified($key);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->SetState(): devid:'%s' type:'%s' key:'%s' counter:'%s'", $devid, $type, Utils::PrintAsString($key), Utils::PrintAsString($counter)));
 
@@ -250,8 +249,7 @@ class SqlStateMachine implements IStateMachine {
 
                 $sth = $this->getDbh()->prepare($sql);
                 $sth->bindValue(":created_at", $this->getNow(), PDO::PARAM_STR);
-            }
-            else {
+            } else {
                 // Existing record, we update it
                 $sql = "UPDATE {$this->states_table} SET state_data = :data, updated_at = :updated_at WHERE device_id = :devid AND state_type = :type AND uuid ". $this->getSQLOp($params, ':key') ." AND counter = :counter";
 
@@ -260,21 +258,21 @@ class SqlStateMachine implements IStateMachine {
 
             $sth->bindParam(":devid", $devid, PDO::PARAM_STR);
             $sth->bindParam(":type", $type, PDO::PARAM_STR);
-            if (!$record || isset($key)) $sth->bindParam(":key", $key, PDO::PARAM_STR);
+            if (!$record || isset($key)) {
+                $sth->bindParam(":key", $key, PDO::PARAM_STR);
+            }
             $sth->bindValue(":counter", ($counter === false ? 0 : $counter), PDO::PARAM_INT);
             $sth->bindValue(":data", serialize($state), PDO::PARAM_LOB);
             $sth->bindValue(":updated_at", $this->getNow(), PDO::PARAM_STR);
 
-            if (!$sth->execute() ) {
+            if (!$sth->execute()) {
                 $errInfo = $sth->errorInfo();
                 $this->clearConnection($this->dbh, $sth);
                 throw new UnavailableException(sprintf("SqlStateMachine->SetState(): Could not write state: %s", isset($errInfo[2]) ? $errInfo[2] : 'unknown'));
-            }
-            else {
+            } else {
                 $bytes = strlen(serialize($state));
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             $this->clearConnection($this->dbh, $sth);
             throw new UnavailableException(sprintf("SqlStateMachine->SetState(): Could not write state: %s", $ex->getMessage()));
         }
@@ -298,7 +296,8 @@ class SqlStateMachine implements IStateMachine {
      * @return
      * @throws StateInvalidException
      */
-    public function CleanStates($devid, $type, $key, $counter = false, $thisCounterOnly = false) {
+    public function CleanStates($devid, $type, $key, $counter = false, $thisCounterOnly = false)
+    {
         $key = $this->returnNullified($key);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->CleanStates(): devid:'%s' type:'%s' key:'%s' counter:'%s' thisCounterOnly:'%s'", $devid, $type, Utils::PrintAsString($key), Utils::PrintAsString($counter), Utils::PrintAsString($thisCounterOnly)));
 
@@ -306,11 +305,9 @@ class SqlStateMachine implements IStateMachine {
         if ($counter === false) {
             // Remove all the states. Counter are 0 or >0, then deleting >= 0 deletes all
             $sql = "DELETE FROM {$this->states_table} WHERE device_id = :devid AND state_type = :type AND uuid". $this->getSQLOp($params, ':key') ." AND counter >= :counter";
-        }
-        else if ($counter !== false && $thisCounterOnly === true) {
+        } elseif ($counter !== false && $thisCounterOnly === true) {
             $sql = "DELETE FROM {$this->states_table} WHERE device_id = :devid AND state_type = :type AND uuid". $this->getSQLOp($params, ':key') ." AND counter = :counter";
-        }
-        else {
+        } else {
             $sql = "DELETE FROM {$this->states_table} WHERE device_id = :devid AND state_type = :type AND uuid". $this->getSQLOp($params, ':key') ." AND counter < :counter";
         }
 
@@ -318,9 +315,7 @@ class SqlStateMachine implements IStateMachine {
         try {
             $sth = $this->getDbh()->prepare($sql);
             $sth->execute($params);
-
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->CleanStates(): Error deleting states: %s", $ex->getMessage()));
         }
     }
@@ -334,7 +329,8 @@ class SqlStateMachine implements IStateMachine {
      * @access public
      * @return boolean     indicating if the user was added or not (existed already)
      */
-    public function LinkUserDevice($username, $devid) {
+    public function LinkUserDevice($username, $devid)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->LinkUserDevice(): '%s', '%s'", $username, $devid));
 
         $sth = null;
@@ -342,7 +338,7 @@ class SqlStateMachine implements IStateMachine {
         $changed = false;
         try {
             $sql = "SELECT username FROM {$this->users_table} WHERE username = :username AND device_id = :devid";
-            $params = array(":username" => $username, ":devid" => $devid);
+            $params = [":username" => $username, ":devid" => $devid];
 
             $sth = $this->getDbh()->prepare($sql);
             $sth->execute($params);
@@ -350,21 +346,18 @@ class SqlStateMachine implements IStateMachine {
             $record = $sth->fetch(PDO::FETCH_ASSOC);
             if ($record) {
                 ZLog::Write(LOGLEVEL_DEBUG, "SqlStateMachine->LinkUserDevice(): nothing changed");
-            }
-            else {
+            } else {
                 $sth = null;
                 $sql = "INSERT INTO {$this->users_table} (username, device_id) VALUES (:username, :devid)";
                 $sth = $this->getDbh()->prepare($sql);
                 if ($sth->execute($params)) {
                     ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->LinkUserDevice(): Linked user-device: '%s' '%s'", $username, $devid));
                     $changed = true;
-                }
-                else {
+                } else {
                     ZLog::Write(LOGLEVEL_ERROR, "SqlStateMachine->LinkUserDevice(): Unable to link user-device");
                 }
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->LinkUserDevice(): Error linking user-device: %s", $ex->getMessage()));
         }
 
@@ -380,25 +373,24 @@ class SqlStateMachine implements IStateMachine {
      * @access public
      * @return boolean
      */
-    public function UnLinkUserDevice($username, $devid) {
+    public function UnLinkUserDevice($username, $devid)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->UnLinkUserDevice(): '%s', '%s'", $username, $devid));
 
         $sth = null;
         $changed = false;
         try {
             $sql = "DELETE FROM {$this->users_table} WHERE username = :username AND device_id = :devid";
-            $params = array(":username" => $username, ":devid" => $devid);
+            $params = [":username" => $username, ":devid" => $devid];
 
             $sth = $this->getDbh()->prepare($sql);
             if ($sth->execute($params)) {
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->UnLinkUserDevice(): Unlinked user-device: '%s' '%s'", $username, $devid));
                 $changed = true;
-            }
-            else {
+            } else {
                 ZLog::Write(LOGLEVEL_DEBUG, "SqlStateMachine->UnLinkUserDevice(): nothing changed");
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->UnLinkUserDevice(): Error unlinking user-device: %s", $ex->getMessage()));
         }
 
@@ -411,12 +403,13 @@ class SqlStateMachine implements IStateMachine {
      * @access public
      * @return array
      */
-    public function GetAllUserDevice() {
+    public function GetAllUserDevice()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->GetAllUserDevice(): '%s'", $username));
 
         $sth = null;
         $record = null;
-        $out = array();
+        $out = [];
         try {
             $sql = "SELECT device_id, username FROM {$this->users_table} ORDER BY username";
             $sth = $this->getDbh()->prepare($sql);
@@ -424,12 +417,11 @@ class SqlStateMachine implements IStateMachine {
 
             while ($record = $sth->fetch(PDO::FETCH_ASSOC)) {
                 if (!array_key_exists($record["username"], $out)) {
-                    $out[$record["username"]] = array();
+                    $out[$record["username"]] = [];
                 }
                 $out[$record["username"]][] = $record["device_id"];
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->GetAllUserDevice(): Error listing devices: %s", $ex->getMessage()));
         }
 
@@ -445,21 +437,21 @@ class SqlStateMachine implements IStateMachine {
      * @access public
      * @return array
      */
-    public function GetAllDevices($username = false) {
+    public function GetAllDevices($username = false)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->GetAllDevices(): '%s'", $username));
 
         $sth = null;
         $record = null;
-        $out = array();
+        $out = [];
         try {
             if ($username === false) {
                 // we also need to find potentially obsolete states that have no link to the $this->users_table table anymore
                 $sql = "SELECT DISTINCT(device_id) FROM {$this->states_table} ORDER BY device_id";
-                $params = array();
-            }
-            else {
+                $params = [];
+            } else {
                 $sql = "SELECT device_id FROM {$this->users_table} WHERE username = :username ORDER BY device_id";
-                $params = array(":username" => $username);
+                $params = [":username" => $username];
             }
             $sth = $this->getDbh()->prepare($sql);
             $sth->execute($params);
@@ -467,8 +459,7 @@ class SqlStateMachine implements IStateMachine {
             while ($record = $sth->fetch(PDO::FETCH_ASSOC)) {
                 $out[] = $record["device_id"];
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->GetAllDevices(): Error listing devices: %s", $ex->getMessage()));
         }
 
@@ -481,13 +472,14 @@ class SqlStateMachine implements IStateMachine {
      * @access public
      * @return int
      */
-    public function GetStateVersion() {
+    public function GetStateVersion()
+    {
         $sth = null;
         $record = null;
         $version = IStateMachine::STATEVERSION_01;
         try {
             $sql = "SELECT key_value FROM {$this->settings_table} WHERE key_name = :key_name";
-            $params = array(":key_name" => self::VERSION);
+            $params = [":key_name" => self::VERSION];
 
             $sth = $this->getDbh()->prepare($sql);
             $sth->execute($params);
@@ -495,13 +487,11 @@ class SqlStateMachine implements IStateMachine {
             $record = $sth->fetch(PDO::FETCH_ASSOC);
             if ($record) {
                 $version = $record["key_value"];
-            }
-            else {
+            } else {
                 $this->SetStateVersion(self::SUPPORTED_STATE_VERSION);
                 $version = self::SUPPORTED_STATE_VERSION;
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->GetStateVersion(): Error getting state version: %s", $ex->getMessage()));
         }
 
@@ -517,7 +507,8 @@ class SqlStateMachine implements IStateMachine {
      * @access public
      * @return boolean
      */
-    public function SetStateVersion($version) {
+    public function SetStateVersion($version)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->SetStateVersion(): '%s'", $version));
 
         $sth = null;
@@ -525,7 +516,7 @@ class SqlStateMachine implements IStateMachine {
         $status = false;
         try {
             $sql = "SELECT key_value FROM {$this->settings_table} WHERE key_name = :key_name";
-            $params = array(":key_name" => self::VERSION);
+            $params = [":key_name" => self::VERSION];
 
             $sth = $this->getDbh()->prepare($sql);
             $sth->execute($params);
@@ -541,8 +532,7 @@ class SqlStateMachine implements IStateMachine {
                 if ($sth->execute($params)) {
                     $status = true;
                 }
-            }
-            else {
+            } else {
                 $sth = null;
                 $sql = "INSERT INTO {$this->settings_table} (key_name, key_value, created_at, updated_at) VALUES (:key_name, :value, :created_at, :updated_at)";
                 $params[":value"] = $version;
@@ -553,8 +543,7 @@ class SqlStateMachine implements IStateMachine {
                     $status = true;
                 }
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->SetStateVersion(): Error saving state version: %s", $ex->getMessage()));
         }
 
@@ -569,25 +558,25 @@ class SqlStateMachine implements IStateMachine {
      * @access public
      * @return array(mixed)
      */
-    public function GetAllStatesForDevice($devid) {
+    public function GetAllStatesForDevice($devid)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("SqlStateMachine->GetAllStatesForDevice(): '%s'", $devid));
 
         $sth = null;
         $record = null;
-        $out = array();
+        $out = [];
         try {
             $sql = "SELECT state_type, uuid, counter FROM {$this->states_table} WHERE device_id = :devid ORDER BY id_state";
-            $params = array(":devid" => $devid);
+            $params = [":devid" => $devid];
 
             $sth = $this->getDbh()->prepare($sql);
             $sth->execute($params);
 
             while ($record = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $state = array('type' => false, 'counter' => false, 'uuid' => false);
+                $state = ['type' => false, 'counter' => false, 'uuid' => false];
                 if ($record["state_type"] !== null && strlen($record["state_type"]) > 0) {
                     $state["type"] = $record["state_type"];
-                }
-                else {
+                } else {
                     if ($record["counter"] !== null && is_numeric($record["counter"])) {
                         $state["type"] = "";
                     }
@@ -600,8 +589,7 @@ class SqlStateMachine implements IStateMachine {
                 }
                 $out[] = $state;
             }
-        }
-        catch(PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_ERROR, sprintf("SqlStateMachine->GetAllStatesForDevice(): Error listing states: %s", $ex->getMessage()));
         }
 
@@ -618,7 +606,8 @@ class SqlStateMachine implements IStateMachine {
      * @return string
      * @access protected
      */
-    protected function getNow() {
+    protected function getNow()
+    {
         $now = new DateTime("NOW");
         return $now->format("Y-m-d H:i:s");
     }
@@ -633,8 +622,9 @@ class SqlStateMachine implements IStateMachine {
      * @return array
      * @access protected
      */
-    protected function getParams($devid, $type, $key, $counter) {
-        return array(":devid" => $devid, ":type" => $type, ":key" => $key, ":counter" => ($counter === false ? 0 : $counter) );
+    protected function getParams($devid, $type, $key, $counter)
+    {
+        return [":devid" => $devid, ":type" => $type, ":key" => $key, ":counter" => ($counter === false ? 0 : $counter) ];
     }
 
     /**
@@ -647,7 +637,8 @@ class SqlStateMachine implements IStateMachine {
      * @access protected
      * @return string
      */
-    protected function getSQLOp(&$params, $key) {
+    protected function getSQLOp(&$params, $key)
+    {
         if (!array_key_exists($key, $params) || (array_key_exists($key, $params) && is_null($params[$key]))) {
             unset($params[$key]);
             return " IS NULL";
@@ -661,7 +652,8 @@ class SqlStateMachine implements IStateMachine {
      * @param mixed $param
      * @return NULL|mixed
      */
-    protected function returnNullified($param) {
+    protected function returnNullified($param)
+    {
         if ($param === false) {
             return null;
         }
@@ -676,7 +668,8 @@ class SqlStateMachine implements IStateMachine {
      * @params PDORecord $record
      * @access protected
      */
-    protected function clearConnection(&$dbh, &$sth = null, &$record = null) {
+    protected function clearConnection(&$dbh, &$sth = null, &$record = null)
+    {
         if ($record != null) {
             $record = null;
         }
@@ -697,12 +690,12 @@ class SqlStateMachine implements IStateMachine {
      * @access protected
      * @return PDOStatement
      */
-    protected function getStateHashStatement(&$params, $key=':key') {
+    protected function getStateHashStatement(&$params, $key = ':key')
+    {
         if (!isset($this->stateHashStatement) || $this->stateHashStatement == null) {
             $sql = "SELECT updated_at FROM {$this->states_table} WHERE device_id = :devid AND state_type = :type AND uuid ". $this->getSQLOp($params, $key) ." AND counter = :counter";
             $this->stateHashStatement = $this->getDbh()->prepare($sql);
-        }
-        else {
+        } else {
             $this->getSQLOp($params, $key);    // need to unset $params[':key'] for NULL
         }
         return $this->stateHashStatement;
@@ -714,7 +707,8 @@ class SqlStateMachine implements IStateMachine {
      * @return boolean
      * @throws UnavailableException
      */
-    protected function checkDbAndTables() {
+    protected function checkDbAndTables()
+    {
         try {
             $sqlStmt = sprintf("SHOW TABLES FROM %s", STATE_SQL_DATABASE);
             $sth = $this->getDbh(false)->prepare($sqlStmt);
@@ -724,14 +718,12 @@ class SqlStateMachine implements IStateMachine {
             }
             ZLog::Write(LOGLEVEL_DEBUG, "SqlStateMachine->checkDbAndTables(): Database and tables exist.");
             return true;
-        }
-        catch (PDOException $ex) {
+        } catch (PDOException $ex) {
             ZLog::Write(LOGLEVEL_INFO, sprintf("SqlStateMachine->checkDbAndTables(): error checking the database (%s): %s", $ex->getCode(), $ex->getMessage()));
             // try to create the database if it doesn't exist
             if ($ex->getCode() == self::UNKNOWNDATABASE) {
                 $this->createDB();
-            }
-            else {
+            } else {
                 throw new UnavailableException(sprintf("SqlStateMachine->checkDbAndTables(): PDOException (%s): %s", $ex->getCode(), $ex->getMessage()));
             }
         }
@@ -747,7 +739,8 @@ class SqlStateMachine implements IStateMachine {
      * @return boolean
      * @throws UnavailableException
      */
-    protected function createDB() {
+    protected function createDB()
+    {
         ZLog::Write(LOGLEVEL_INFO, sprintf("SqlStateMachine->createDB(): database '%s' is not available, trying to create it.", STATE_SQL_DATABASE));
         $dsn = sprintf("%s:host=%s;port=%s", STATE_SQL_ENGINE, STATE_SQL_SERVER, STATE_SQL_PORT);
         try {
@@ -759,8 +752,7 @@ class SqlStateMachine implements IStateMachine {
             $this->createTables();
             $this->clearConnection($dbh);
             return true;
-        }
-        catch (PDOException $ex) {
+        } catch (PDOException $ex) {
             throw new UnavailableException(sprintf("SqlStateMachine->createDB(): PDOException (%s): %s", $ex->getCode(), $ex->getMessage()));
         }
     }
@@ -772,21 +764,23 @@ class SqlStateMachine implements IStateMachine {
      * @return boolean
      * @throws UnavailableException
      */
-    protected function createTables() {
+    protected function createTables()
+    {
         ZLog::Write(LOGLEVEL_INFO, "SqlStateMachine->createTables(): tables are not available, trying to create them.");
         try {
-            $sqlStmt = strtr(self::CREATETABLE_SETTINGS . self::CREATETABLE_USERS . self::CREATETABLE_STATES . self::CREATEINDEX_STATES,
-                array(
+            $sqlStmt = strtr(
+                self::CREATETABLE_SETTINGS . self::CREATETABLE_USERS . self::CREATETABLE_STATES . self::CREATEINDEX_STATES,
+                [
                     '**users**' => $this->users_table,
                     '**states**' => $this->states_table,
                     '**settings**' => $this->settings_table,
-                ));
+                ]
+            );
             $sth = $this->getDbh()->prepare($sqlStmt);
             $sth->execute();
             ZLog::Write(LOGLEVEL_DEBUG, "SqlStateMachine->createTables(): tables created successfully.");
             return true;
-        }
-        catch (PDOException $ex) {
+        } catch (PDOException $ex) {
             throw new UnavailableException(sprintf("SqlStateMachine->createTables(): PDOException (%s): %s", $ex->getCode(), $ex->getMessage()));
         }
     }
@@ -798,7 +792,8 @@ class SqlStateMachine implements IStateMachine {
      * @return boolean
      * @throws UnavailableException
      */
-    public function DoTablesHaveData() {
+    public function DoTablesHaveData()
+    {
         try {
             $dataSettings = $dataStates = $dataUsers = false;
             $sqlStmt = "SELECT key_name FROM {$this->settings_table} LIMIT 1;";
@@ -807,8 +802,7 @@ class SqlStateMachine implements IStateMachine {
             if ($sth->rowCount() > 0) {
                 print("There is data in settings table." . PHP_EOL);
                 $dataSettings = true;
-            }
-            else {
+            } else {
                 print("There is no data in settings table." . PHP_EOL);
             }
 
@@ -818,8 +812,7 @@ class SqlStateMachine implements IStateMachine {
             if ($sth->rowCount() > 0) {
                 print("There is data in states table." . PHP_EOL);
                 $dataStates = true;
-            }
-            else {
+            } else {
                 print("There is no data in states table." . PHP_EOL);
             }
 
@@ -829,13 +822,11 @@ class SqlStateMachine implements IStateMachine {
             if ($sth->rowCount() > 0) {
                 print("There is data in users table." . PHP_EOL);
                 $dataUsers = true;
-            }
-            else {
+            } else {
                 print("There is no data in users table." . PHP_EOL);
             }
             return ($dataSettings || $dataStates || $dataUsers);
-        }
-        catch (PDOException $ex) {
+        } catch (PDOException $ex) {
             throw new UnavailableException(sprintf("SqlStateMachine->DoTablesHaveData(): PDOException (%s): %s", $ex->getCode(), $ex->getMessage()));
         }
         return false;

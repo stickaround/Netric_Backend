@@ -30,13 +30,14 @@
  * Consult LICENSE file for details
  ************************************************/
 
-class KopanoChangesWrapper implements IImportChanges, IExportChanges {
+class KopanoChangesWrapper implements IImportChanges, IExportChanges
+{
     const IMPORTER = 1;
     const EXPORTER = 2;
 
     // hold a static list of wrappers for stores & folders
-    static private $wrappers = array();
-    static private $backend;
+    private static $wrappers = [];
+    private static $backend;
 
     private $preparedAs;
     private $current;
@@ -55,7 +56,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      *
      * @param IBackend $backend
      */
-    static public function SetBackend($backend) {
+    public static function SetBackend($backend)
+    {
         self::$backend = $backend;
     }
 
@@ -73,7 +75,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return KopanoChangesWrapper | boolean
      */
-    static public function GetWrapper($storeName, $session, $store, $folderid, $ownFolder) {
+    public static function GetWrapper($storeName, $session, $store, $folderid, $ownFolder)
+    {
         // if existing exporter is used by Ping we need to discard it so it's fully reconfigured (ZP-1169)
         if (isset(self::$wrappers[$storeName][$folderid]) && self::$wrappers[$storeName][$folderid]->hasDiscardDataFlag()) {
             ZLog::Write(LOGLEVEL_DEBUG, "KopanoChangesWrapper::GetWrapper(): Found existing notification check exporter. Reinitializing.");
@@ -86,13 +89,12 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
         }
 
         if (!isset(self::$wrappers[$storeName])) {
-            self::$wrappers[$storeName] = array();
+            self::$wrappers[$storeName] = [];
         }
 
         if (!isset(self::$wrappers[$storeName][$folderid]) && $session) {
             self::$wrappers[$storeName][$folderid] = new KopanoChangesWrapper($session, $store, $folderid, $ownFolder);
-        }
-        else {
+        } else {
             return false;
         }
 
@@ -110,7 +112,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @throws StatusException
      */
-    public function __construct($session, $store, $folderid, $ownFolder) {
+    public function __construct($session, $store, $folderid, $ownFolder)
+    {
         $this->preparedAs = null;
         $this->session = $session;
         $this->store = $store;
@@ -133,7 +136,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return void
      */
-    public function Prepare($type) {
+    public function Prepare($type)
+    {
         $this->preparedAs = $type;
     }
 
@@ -143,7 +147,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function HasReplyBackExporter() {
+    public function HasReplyBackExporter()
+    {
         return !! $this->replyback;
     }
 
@@ -153,7 +158,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access private
      * @return boolean
      */
-    private function isReplyBackExporter() {
+    private function isReplyBackExporter()
+    {
         return $this->current == $this->replyback;
     }
 
@@ -164,7 +170,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access private
      * @return boolean
      */
-    private function hasDiscardDataFlag() {
+    private function hasDiscardDataFlag()
+    {
         if (isset($this->current) && $this->current instanceof ExportChangesICS && $this->current->HasDiscardDataFlag()) {
             return true;
         }
@@ -181,7 +188,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return void
      * @throws StatusException, FatalNotImplementedException
      */
-    private function init() {
+    private function init()
+    {
         if ($this->preparedAs == self::IMPORTER) {
             if (!($this->current instanceof ImportChangesICS)) {
                 // check if the user has permissions to import to this folderid
@@ -189,8 +197,7 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
                     ZLog::Write(LOGLEVEL_DEBUG, sprintf("KopanoChangesWrapper->init(): Importer: missing permissions on folderid: '%s'. Working with ReplyBackImExporter.", Utils::PrintAsString($this->folderid)));
                     $this->replyback = $this->getReplyBackImExporter();
                     $this->current = $this->replyback;
-                }
-                else if (!empty($this->moveSrcState)) {
+                } elseif (!empty($this->moveSrcState)) {
                     ZLog::Write(LOGLEVEL_DEBUG, "KopanoChangesWrapper->init(): Importer: Move state available. Working with ReplyBackImExporter.");
                     $this->replyback = $this->getReplyBackImExporter();
                     $this->current = $this->replyback;
@@ -200,8 +207,7 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
                     $this->current = new ImportChangesICS($this->session, $this->store, hex2bin($this->folderid));
                 }
             }
-        }
-        else if ($this->preparedAs == self::EXPORTER){
+        } elseif ($this->preparedAs == self::EXPORTER) {
             if (!($this->current instanceof ExportChangesICS)) {
                 // if there was something imported on a read-only folder, we need to reply back the changes
                 $states = isset($this->state) ? $this->state->GetReplyBackState() : false;
@@ -211,8 +217,7 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
                         $this->replyback = $this->getReplyBackImExporter();
                     }
                     $this->current = $this->replyback;
-                }
-                else {
+                } else {
                     // check if the user has permissions to export from this folderid
                     if (!$this->ownFolder && !self::$backend->HasReadACLs($this->store, $this->folderid)) {
                         throw new StatusException(sprintf("KopanoChangesWrapper->init(): Exporter: missing read permissions on folderid: '%s'.", Utils::PrintAsString($this->folderid)), SYNC_STATUS_FOLDERHIERARCHYCHANGED);
@@ -220,8 +225,7 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
                     $this->current = new ExportChangesICS($this->session, $this->store, hex2bin($this->folderid));
                 }
             }
-        }
-        else {
+        } else {
             throw new FatalNotImplementedException("KopanoChangesWrapper->init(): KopanoChangesWrapper was not prepared as importer or exporter.");
         }
     }
@@ -232,7 +236,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access private
      * @return ReplyBackImExporter
      */
-    private function getReplyBackImExporter() {
+    private function getReplyBackImExporter()
+    {
         return new ReplyBackImExporter($this->session, $this->store, hex2bin($this->folderid));
     }
 
@@ -250,7 +255,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean      status flag
      * @throws StatusException
      */
-    public function Config($state, $flags = 0) {
+    public function Config($state, $flags = 0)
+    {
         // if there is an ICS state, it will remain untouched in the ReplyBackState object
         $this->state = ReplyBackState::FromState($state);
 
@@ -259,8 +265,7 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
         $config = false;
         if ($this->isReplyBackExporter() || !empty($this->moveSrcState)) {
             $config = $this->current->Config($this->state->GetReplyBackState(), $flags);
-        }
-        else {
+        } else {
             $config = $this->current->Config($this->state->GetICSState(), $flags);
         }
         $this->current->SetMoveStates($this->moveSrcState, $this->moveDstState);
@@ -275,7 +280,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ConfigContentParameters($contentparameters) {
+    public function ConfigContentParameters($contentparameters)
+    {
         $this->init();
         return $this->current->ConfigContentParameters($contentparameters);
     }
@@ -286,12 +292,12 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return string
      */
-    public function GetState() {
+    public function GetState()
+    {
         $newState = $this->current->GetState();
         if ($this->isReplyBackExporter()) {
             $this->state->SetReplyBackState($newState);
-        }
-        else {
+        } else {
             $this->state->SetICSState($newState);
         }
         return ReplyBackState::ToState($this->state);
@@ -307,7 +313,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function SetMoveStates($srcState, $dstState = null) {
+    public function SetMoveStates($srcState, $dstState = null)
+    {
         $this->moveSrcState = $srcState;
         $this->moveDstState = $dstState;
         return true;
@@ -319,7 +326,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return array(0 => $srcState, 1 => $dstState)
      */
-    public function GetMoveStates() {
+    public function GetMoveStates()
+    {
         return $this->current->GetMoveStates();
     }
 
@@ -338,7 +346,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function LoadConflicts($contentparameters, $state) {
+    public function LoadConflicts($contentparameters, $state)
+    {
         return $this->current->LoadConflicts($contentparameters, $state);
     }
 
@@ -353,7 +362,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean/string               failure / id of message
      * @throws StatusException
      */
-    public function ImportMessageChange($id, $message) {
+    public function ImportMessageChange($id, $message)
+    {
         return $this->current->ImportMessageChange($id, $message);
     }
 
@@ -366,7 +376,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportMessageDeletion($id, $asSoftDelete = false) {
+    public function ImportMessageDeletion($id, $asSoftDelete = false)
+    {
         return $this->current->ImportMessageDeletion($id);
     }
 
@@ -381,7 +392,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ImportMessageReadFlag($id, $flags) {
+    public function ImportMessageReadFlag($id, $flags)
+    {
         return $this->current->ImportMessageReadFlag($id, $flags);
     }
 
@@ -395,12 +407,12 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ImportMessageMove($id, $newfolder) {
+    public function ImportMessageMove($id, $newfolder)
+    {
         $this->didMove = true;
         // When we setup the $current importer, we didn't know what we needed to do, so we look only at the src folder for permissions.
         // Now the $newfolder could be read only as well. So we need to check it's permissions and then switch to a ReplyBackImExporter if it's r/o.
         if (!$this->isReplyBackExporter()) {
-
             // check if the user has permissions on the destination folder
             $dststore = self::$backend->GetMAPIStoreForFolderId(ZPush::GetAdditionalSyncFolderStore($newfolder), $newfolder);
             if (!self::$backend->HasSecretaryACLs($dststore, $newfolder)) {
@@ -431,7 +443,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean/SyncObject           status/object with the ath least the serverid of the folder set
      * @throws StatusException
      */
-    public function ImportFolderChange($folder) {
+    public function ImportFolderChange($folder)
+    {
         return false;
     }
 
@@ -444,7 +457,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @return boolean/int  success/SYNC_FOLDERHIERARCHY_STATUS
      * @throws StatusException
     */
-    public function ImportFolderDeletion($folder) {
+    public function ImportFolderDeletion($folder)
+    {
         return false;
     }
 
@@ -461,7 +475,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function InitializeExporter(&$importer) {
+    public function InitializeExporter(&$importer)
+    {
         return $this->current->InitializeExporter($importer);
     }
 
@@ -471,7 +486,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return int
      */
-    public function GetChangeCount() {
+    public function GetChangeCount()
+    {
         return $this->current->GetChangeCount();
     }
 
@@ -482,7 +498,8 @@ class KopanoChangesWrapper implements IImportChanges, IExportChanges {
      * @access public
      * @return array
      */
-    public function Synchronize() {
+    public function Synchronize()
+    {
         return $this->current->Synchronize();
     }
 }

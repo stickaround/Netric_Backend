@@ -27,7 +27,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class DeviceManager {
+class DeviceManager
+{
     // broken message indicators
     const MSG_BROKEN_UNKNOWN = 1;
     const MSG_BROKEN_CAUSINGLOOP = 2;
@@ -67,12 +68,13 @@ class DeviceManager {
      *
      * @access public
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->statemachine = ZPush::GetStateMachine();
         $this->deviceHash = false;
         $this->devid = Request::GetDeviceID();
         $this->saveDevice = true;
-        $this->windowSize = array();
+        $this->windowSize = [];
         $this->latestFolder = false;
         $this->hierarchySyncRequired = false;
 
@@ -82,9 +84,9 @@ class DeviceManager {
             $this->loadDeviceData();
 
             ZPush::GetTopCollector()->SetUserAgent($this->device->GetDeviceUserAgent());
-        }
-        else
+        } else {
             throw new FatalNotImplementedException("Can not proceed without a device id.");
+        }
 
         $this->loopdetection = new LoopDetection();
         $this->loopdetection->ProcessLoopDetectionInit();
@@ -107,7 +109,8 @@ class DeviceManager {
      * @access public
      * @return StateManager
      */
-    public function GetStateManager() {
+    public function GetStateManager()
+    {
         return $this->stateManager;
     }
 
@@ -123,7 +126,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function SentData($datacounter) {
+    public function SentData($datacounter)
+    {
         // TODO save this somewhere
         $this->incomingData = Request::GetContentLength();
         $this->outgoingData = $datacounter;
@@ -136,13 +140,15 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function Save() {
+    public function Save()
+    {
         // TODO save other stuff
 
         // check if previousily ignored messages were synchronized for the current folder
         // on multifolder operations of AS14 this is done by setLatestFolder()
-        if ($this->latestFolder !== false)
+        if ($this->latestFolder !== false) {
             $this->checkBrokenMessages($this->latestFolder);
+        }
 
         // update the user agent and AS version on the device
         $this->device->SetUserAgent(Request::GetUserAgent());
@@ -168,12 +174,11 @@ class DeviceManager {
                     $this->statemachine->LinkUserDevice($this->device->GetDeviceUser(), $this->devid);
                 }
 
-                if (RequestProcessor::isUserAuthenticated() || $this->device->GetForceSave() ) {
+                if (RequestProcessor::isUserAuthenticated() || $this->device->GetForceSave()) {
                     $this->statemachine->SetState($data, $this->devid, IStateMachine::DEVICEDATA);
                     ZLog::Write(LOGLEVEL_DEBUG, "DeviceManager->Save(): Device data saved");
                 }
-            }
-            catch (StateNotFoundException $snfex) {
+            } catch (StateNotFoundException $snfex) {
                 ZLog::Write(LOGLEVEL_ERROR, "DeviceManager->Save(): Exception: ". $snfex->getMessage());
             }
         }
@@ -185,8 +190,9 @@ class DeviceManager {
         }
 
         // we terminated this process
-        if ($this->loopdetection)
+        if ($this->loopdetection) {
             $this->loopdetection->ProcessLoopDetectionTerminate();
+        }
 
         return true;
     }
@@ -199,7 +205,8 @@ class DeviceManager {
      * @access public
      * @return void
      */
-    public function DoAutomaticASDeviceSaving($doSave) {
+    public function DoAutomaticASDeviceSaving($doSave)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "DeviceManager->DoAutomaticASDeviceSaving(): save automatically: ". Utils::PrintAsString($doSave));
         $this->saveDevice = $doSave;
     }
@@ -213,15 +220,17 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function SaveDeviceInformation($deviceinformation) {
+    public function SaveDeviceInformation($deviceinformation)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Saving submitted device information");
 
         // set the user agent
-        if (isset($deviceinformation->useragent))
+        if (isset($deviceinformation->useragent)) {
             $this->device->SetUserAgent($deviceinformation->useragent);
+        }
 
         // save other informations
-        foreach (array("model", "imei", "friendlyname", "os", "oslanguage", "phonenumber", "mobileoperator", "enableoutboundsms") as $info) {
+        foreach (["model", "imei", "friendlyname", "os", "oslanguage", "phonenumber", "mobileoperator", "enableoutboundsms"] as $info) {
             if (isset($deviceinformation->$info) && $deviceinformation->$info != "") {
                 $this->device->__set("device".$info, $deviceinformation->$info);
             }
@@ -244,7 +253,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function ProvisioningRequired($policykey, $noDebug = false, $checkPolicies = true) {
+    public function ProvisioningRequired($policykey, $noDebug = false, $checkPolicies = true)
+    {
         $this->loadDeviceData();
 
         // check if a remote wipe is required
@@ -256,8 +266,9 @@ class DeviceManager {
         $p = ( ($this->device->GetWipeStatus() != SYNC_PROVISION_RWSTATUS_NA && $policykey != $this->device->GetPolicyKey()) ||
               Request::WasPolicyKeySent() && $this->device->GetPolicyKey() == ASDevice::UNDEFINED );
 
-        if (!$noDebug || $p)
+        if (!$noDebug || $p) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->ProvisioningRequired('%s') saved device key '%s': %s", $policykey, $this->device->GetPolicyKey(), Utils::PrintAsString($p)));
+        }
 
         if ($checkPolicies) {
             $policyHash = $this->GetProvisioningObject()->GetPolicyHash();
@@ -276,7 +287,8 @@ class DeviceManager {
      * @access public
      * @return int
      */
-    public function GenerateProvisioningPolicyKey() {
+    public function GenerateProvisioningPolicyKey()
+    {
         return mt_rand(100000000, 999999999);
     }
 
@@ -288,7 +300,8 @@ class DeviceManager {
      * @access public
      * @return boolean      status
      */
-    public function SetProvisioningPolicyKey($policykey) {
+    public function SetProvisioningPolicyKey($policykey)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->SetPolicyKey('%s')", $policykey));
         return $this->device->SetPolicyKey($policykey);
     }
@@ -301,7 +314,8 @@ class DeviceManager {
      * @access public
      * @return SyncProvisioning
      */
-    public function GetProvisioningObject($logPolicies = false) {
+    public function GetProvisioningObject($logPolicies = false)
+    {
         $policyName = $this->getPolicyName();
         $p = SyncProvisioning::GetObjectWithPolicies($this->getProvisioningPolicies($policyName), $logPolicies);
         $p->PolicyName = $policyName;
@@ -314,7 +328,8 @@ class DeviceManager {
      * @access public
      * @return int          returns the current status of the device - SYNC_PROVISION_RWSTATUS_*
      */
-    public function GetProvisioningWipeStatus() {
+    public function GetProvisioningWipeStatus()
+    {
         return $this->device->GetWipeStatus();
     }
 
@@ -326,8 +341,9 @@ class DeviceManager {
      * @access public
      * @return boolean      could fail if trying to update status to a wipe status which was not requested before
      */
-    public function SetProvisioningWipeStatus($status) {
-        ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->SetProvisioningWipeStatus() change from '%d' to '%d'",$this->device->GetWipeStatus(), $status));
+    public function SetProvisioningWipeStatus($status)
+    {
+        ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->SetProvisioningWipeStatus() change from '%d' to '%d'", $this->device->GetWipeStatus(), $status));
 
         if ($status > SYNC_PROVISION_RWSTATUS_OK && !($this->device->GetWipeStatus() > SYNC_PROVISION_RWSTATUS_OK)) {
             ZLog::Write(LOGLEVEL_ERROR, "Not permitted to update remote wipe status to a higher value as remote wipe was not initiated!");
@@ -345,7 +361,8 @@ class DeviceManager {
      * @access public
      * @return void
      */
-    public function SavePolicyHashAndName($provisioning) {
+    public function SavePolicyHashAndName($provisioning)
+    {
         // save policies' hash and name
         $this->device->SetPolicyname($provisioning->PolicyName);
         $this->device->SetPolicyhash($provisioning->GetPolicyHash());
@@ -365,7 +382,8 @@ class DeviceManager {
      * @access public
      * @return object           HierarchyCache
      */
-    public function GetHierarchyChangesWrapper() {
+    public function GetHierarchyChangesWrapper()
+    {
         return $this->device->GetHierarchyCache();
     }
 
@@ -379,7 +397,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function InitializeFolderCache($folders) {
+    public function InitializeFolderCache($folders)
+    {
         $this->stateManager->SetDevice($this->device);
         return $this->stateManager->InitializeFolderCache($folders);
     }
@@ -392,7 +411,8 @@ class DeviceManager {
      * @access public
      * @return int/boolean        boolean if no type is found
      */
-    public function GetFolderTypeFromCacheById($folderid) {
+    public function GetFolderTypeFromCacheById($folderid)
+    {
         return $this->device->GetFolderType($folderid);
     }
 
@@ -407,7 +427,8 @@ class DeviceManager {
      * @return string
      * @throws NoHierarchyCacheAvailableException
      */
-    public function GetFolderIdFromCacheByClass($class) {
+    public function GetFolderIdFromCacheByClass($class)
+    {
         $folderidforClass = false;
         // look at the default foldertype for this class
         $type = ZPush::getDefaultFolderTypeFromFolderClass($class);
@@ -424,8 +445,9 @@ class DeviceManager {
             // Old Palm Treos always do initial sync for calendar and contacts, even if they are not made available by the backend.
             // We need to fake these folderids, allowing a fake sync/ping, even if they are not supported by the backend
             // if the folderid would be available, they would already be returned in the above statement
-            if ($folderidforClass == false && ($type == SYNC_FOLDER_TYPE_APPOINTMENT || $type == SYNC_FOLDER_TYPE_CONTACT))
+            if ($folderidforClass == false && ($type == SYNC_FOLDER_TYPE_APPOINTMENT || $type == SYNC_FOLDER_TYPE_CONTACT)) {
                 $folderidforClass = SYNC_FOLDER_TYPE_DUMMY;
+            }
         }
 
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->GetFolderIdFromCacheByClass('%s'): '%s' => '%s'", $class, $type, $folderidforClass));
@@ -441,15 +463,18 @@ class DeviceManager {
      * @return int
      * @throws NoHierarchyCacheAvailableException, NotImplementedException
      */
-    public function GetFolderClassFromCacheByID($folderid) {
+    public function GetFolderClassFromCacheByID($folderid)
+    {
         //TODO check if the parent folder exists and is also beeing synchronized
         $typeFromCache = $this->device->GetFolderType($folderid);
-        if ($typeFromCache === false)
+        if ($typeFromCache === false) {
             throw new NoHierarchyCacheAvailableException(sprintf("Folderid '%s' is not fully synchronized on the device", $folderid));
+        }
 
         $class = ZPush::GetFolderClassFromFolderType($typeFromCache);
-        if ($class === false)
+        if ($class === false) {
             throw new NotImplementedException(sprintf("Folderid '%s' is saved to be of type '%d' but this type is not implemented", $folderid, $typeFromCache));
+        }
 
         return $class;
     }
@@ -460,13 +485,13 @@ class DeviceManager {
      *
      * @return string|boolean   returns false if not set or found
      */
-    public function GetKoeGabBackendFolderId() {
+    public function GetKoeGabBackendFolderId()
+    {
         $gabid = false;
         if (KOE_CAPABILITY_GAB) {
             if (KOE_GAB_FOLDERID) {
                 $gabid = KOE_GAB_FOLDERID;
-            }
-            else if (KOE_GAB_STORE && KOE_GAB_NAME) {
+            } elseif (KOE_GAB_STORE && KOE_GAB_NAME) {
                 $gabid = $this->device->GetKoeGabBackendFolderId();
             }
         }
@@ -479,9 +504,10 @@ class DeviceManager {
      * @access public
      * @return array of SyncFolder with backendids as keys
      */
-    public function GetAdditionalUserSyncFolders() {
-        $folders = array();
-        foreach($this->device->GetAdditionalFolders() as $df) {
+    public function GetAdditionalUserSyncFolders()
+    {
+        $folders = [];
+        foreach ($this->device->GetAdditionalFolders() as $df) {
             if (!isset($df['flags'])) {
                 $df['flags'] = 0;
                 ZLog::Write(LOGLEVEL_WARN, sprintf("DeviceManager->GetAdditionalUserSyncFolders(): Additional folder '%s' has no flags. Please run 'z-push-admin -a fixstates' to fix this issue.", $df['name']));
@@ -501,14 +527,12 @@ class DeviceManager {
             if (KOE_GAB_FOLDERID != "") {
                 $folder = $this->BuildSyncFolderObject(KOE_GAB_STORE, KOE_GAB_FOLDERID, '0', KOE_GAB_NAME, SYNC_FOLDER_TYPE_USER_APPOINTMENT, 0, DeviceManager::FLD_ORIGIN_GAB);
                 $folders[$folder->BackendId] = $folder;
-            }
-            else {
+            } else {
                 // get the GAB id from the device and from the backend
                 $deviceGabId = $this->device->GetKoeGabBackendFolderId();
                 if (!ZPush::GetBackend()->Setup(KOE_GAB_STORE)) {
                     ZLog::Write(LOGLEVEL_WARN, sprintf("DeviceManager->GetAdditionalUserSyncFolders(): setup for store '%s' failed. Unable to search for KOE GAB folder.", KOE_GAB_STORE));
-                }
-                else {
+                } else {
                     $backendGabId = ZPush::GetBackend()->GetKoeGabBackendFolderId(KOE_GAB_NAME);
                     if ($deviceGabId !== $backendGabId) {
                         ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->GetAdditionalUserSyncFolders(): Backend found different KOE GAB backend folderid: '%s'. Updating ASDevice.", $backendGabId));
@@ -532,7 +556,8 @@ class DeviceManager {
      * @access public
      * @return boolean|string
      */
-    public function GetAdditionalUserSyncFolderStore($folderid) {
+    public function GetAdditionalUserSyncFolderStore($folderid)
+    {
         // is this the KOE GAB folder?
         if ($folderid && $folderid === $this->GetKoeGabBackendFolderId()) {
             return KOE_GAB_STORE;
@@ -558,11 +583,13 @@ class DeviceManager {
      * @access public
      * @return boolean          returns true if the message should NOT be send!
      */
-    public function DoNotStreamMessage($id, &$message) {
+    public function DoNotStreamMessage($id, &$message)
+    {
         $folderid = $this->getLatestFolder();
 
-        if (isset($message->parentid))
+        if (isset($message->parentid)) {
             $folder = $message->parentid;
+        }
 
         // message was identified to be causing a loop
         if ($this->loopdetection->IgnoreNextMessage(true, $id, $folderid)) {
@@ -595,7 +622,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function RemoveBrokenMessage($id) {
+    public function RemoveBrokenMessage($id)
+    {
         $folderid = $this->getLatestFolder();
         if ($this->device->RemoveIgnoredMessage($folderid, $id)) {
             ZLog::Write(LOGLEVEL_INFO, sprintf("DeviceManager->RemoveBrokenMessage('%s', '%s'): cleared data about previously ignored message", $folderid, $id));
@@ -613,20 +641,24 @@ class DeviceManager {
      * @access public
      * @return int
      */
-    public function GetWindowSize($folderid, $uuid, $statecounter, $queuedmessages) {
-        if (isset($this->windowSize[$folderid]))
+    public function GetWindowSize($folderid, $uuid, $statecounter, $queuedmessages)
+    {
+        if (isset($this->windowSize[$folderid])) {
             $items = $this->windowSize[$folderid];
-        else
+        } else {
             $items = WINDOW_SIZE_MAX; // 512 by default
+        }
 
         $this->setLatestFolder($folderid);
 
         // detect if this is a loop condition
-        if ($this->loopdetection->Detect($folderid, $uuid, $statecounter, $items, $queuedmessages))
-            $items = ($items == 0) ? 0: 1+($this->loopdetection->IgnoreNextMessage(false)?1:0) ;
+        if ($this->loopdetection->Detect($folderid, $uuid, $statecounter, $items, $queuedmessages)) {
+            $items = ($items == 0) ? 0 : 1 + ($this->loopdetection->IgnoreNextMessage(false) ? 1 : 0) ;
+        }
 
-        if ($items >= 0 && $items <= 2)
+        if ($items >= 0 && $items <= 2) {
             ZLog::Write(LOGLEVEL_WARN, sprintf("Mobile loop detected! Messages sent to the mobile will be restricted to %d items in order to identify the conflict", $items));
+        }
 
         return $items;
     }
@@ -640,7 +672,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function SetWindowSize($folderid, $maxItems) {
+    public function SetWindowSize($folderid, $maxItems)
+    {
         $this->windowSize[$folderid] = $maxItems;
 
         return true;
@@ -655,7 +688,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function SetSupportedFields($folderid, $fieldlist) {
+    public function SetSupportedFields($folderid, $fieldlist)
+    {
         return $this->device->SetSupportedFields($folderid, $fieldlist);
     }
 
@@ -668,7 +702,8 @@ class DeviceManager {
      * @access public
      * @return array/boolean
      */
-    public function GetSupportedFields($folderid) {
+    public function GetSupportedFields($folderid)
+    {
         return $this->device->GetSupportedFields($folderid);
     }
 
@@ -681,7 +716,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function ForceFolderResync($folderid) {
+    public function ForceFolderResync($folderid)
+    {
         ZLog::Write(LOGLEVEL_INFO, sprintf("DeviceManager->ForceFolderResync('%s'): folder resync", $folderid));
 
         // delete folder states
@@ -697,12 +733,14 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function ForceFullResync() {
+    public function ForceFullResync()
+    {
         ZLog::Write(LOGLEVEL_INFO, "Full device resync requested");
 
         // delete all other uuids
-        foreach ($this->device->GetAllFolderIds() as $folderid)
+        foreach ($this->device->GetAllFolderIds() as $folderid) {
             $uuid = StateManager::UnLinkState($this->device, $folderid);
+        }
 
         // delete hierarchy states
         StateManager::UnLinkState($this->device, false);
@@ -717,7 +755,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function IsHierarchySyncRequired() {
+    public function IsHierarchySyncRequired()
+    {
         $this->loadDeviceData();
 
         if ($this->loopdetection->ProcessLoopDetectionIsHierarchySyncAdvised()) {
@@ -730,13 +769,15 @@ class DeviceManager {
         }
 
         // check if a hierarchy sync might be necessary
-        if ($this->device->GetFolderUUID(false) === false)
+        if ($this->device->GetFolderUUID(false) === false) {
             $this->hierarchySyncRequired = true;
+        }
 
         return $this->hierarchySyncRequired;
     }
 
-    private function getAdditionalFoldersHash() {
+    private function getAdditionalFoldersHash()
+    {
         return md5(serialize($this->device->GetAdditionalFolders()));
     }
 
@@ -746,7 +787,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function IsHierarchyFullResyncRequired() {
+    public function IsHierarchyFullResyncRequired()
+    {
         // do not check for loop detection, if the foldersync is not yet complete
         if ($this->GetFolderSyncComplete() === false) {
             ZLog::Write(LOGLEVEL_INFO, "DeviceManager->IsHierarchyFullResyncRequired(): aborted, as exporting of folders has not yet completed");
@@ -762,7 +804,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function IsKoe() {
+    public function IsKoe()
+    {
         if (Request::IsOutlook() && ($this->device->GetKoeVersion() !== false || Request::HasKoeStats())) {
             return true;
         }
@@ -777,7 +820,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function HasKoeFeature($feature) {
+    public function HasKoeFeature($feature)
+    {
         $capabilities = $this->device->GetKoeCapabilities();
         // in a settings request the capabilities might not yet be stored in the device
         if (empty($capabilities)) {
@@ -793,7 +837,8 @@ class DeviceManager {
      *  @access public
      *  @return boolean
      */
-    public function IsKoeSupportingSecondaryContacts() {
+    public function IsKoeSupportingSecondaryContacts()
+    {
         return defined('KOE_CAPABILITY_SECONDARYCONTACTS') && KOE_CAPABILITY_SECONDARYCONTACTS && $this->IsKoe() && $this->HasKoeFeature('secondarycontacts');
     }
 
@@ -805,7 +850,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function AnnounceProcessException($exception) {
+    public function AnnounceProcessException($exception)
+    {
         return $this->loopdetection->ProcessLoopDetectionAddException($exception);
     }
 
@@ -816,7 +862,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function AnnounceProcessStatus($folderid, $status) {
+    public function AnnounceProcessStatus($folderid, $status)
+    {
         return $this->loopdetection->ProcessLoopDetectionAddStatus($folderid, $status);
     }
 
@@ -827,7 +874,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function AnnounceProcessAsPush() {
+    public function AnnounceProcessAsPush()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "Announce process as PUSH connection");
 
         return $this->loopdetection->ProcessLoopDetectionSetAsPush() && ZPush::GetTopCollector()->SetAsPushConnection();
@@ -846,7 +894,8 @@ class DeviceManager {
      * @access public
      * @return boolean                  indicating if an uuid+counter were exported (with changes) before
      */
-    public function CheckHearbeatStateIntegrity($folderid, $uuid, $counter) {
+    public function CheckHearbeatStateIntegrity($folderid, $uuid, $counter)
+    {
         return $this->loopdetection->IsSyncStateObsolete($folderid, $uuid, $counter);
     }
 
@@ -860,7 +909,8 @@ class DeviceManager {
      * @access public
      * @return
      */
-    public function SetHeartbeatStateIntegrity($folderid, $uuid, $counter) {
+    public function SetHeartbeatStateIntegrity($folderid, $uuid, $counter)
+    {
         return $this->loopdetection->SetSyncStateUsage($folderid, $uuid, $counter);
     }
 
@@ -872,11 +922,12 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function CheckFolderData() {
+    public function CheckFolderData()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, "DeviceManager->CheckFolderData() checking integrity of hierarchy cache with synchronized folders");
 
         $hc = $this->device->GetHierarchyCache();
-        $notInCache = array();
+        $notInCache = [];
         foreach ($this->device->GetAllFolderIds() as $folderid) {
             $uuid = $this->device->GetFolderUUID($folderid);
             if ($uuid) {
@@ -899,18 +950,19 @@ class DeviceManager {
      * @access public
      * @return
      */
-    public function SetFolderSyncStatus($folderid, $statusflag) {
+    public function SetFolderSyncStatus($folderid, $statusflag)
+    {
         $currentStatus = $this->device->GetFolderSyncStatus($folderid);
 
         // status available or just initialized
         if (isset($currentStatus[ASDevice::FOLDERSYNCSTATUS]) || $statusflag == self::FLD_SYNC_INITIALIZED) {
             // only update if there is a change
             if ($statusflag !== $currentStatus[ASDevice::FOLDERSYNCSTATUS] && $statusflag != self::FLD_SYNC_COMPLETED) {
-                $this->device->SetFolderSyncStatus($folderid, array(ASDevice::FOLDERSYNCSTATUS => $statusflag));
+                $this->device->SetFolderSyncStatus($folderid, [ASDevice::FOLDERSYNCSTATUS => $statusflag]);
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("SetFolderSyncStatus(): set %s for %s", $statusflag, $folderid));
             }
             // if completed, remove the status
-            else if ($statusflag == self::FLD_SYNC_COMPLETED) {
+            elseif ($statusflag == self::FLD_SYNC_COMPLETED) {
                 $this->device->SetFolderSyncStatus($folderid, false);
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("SetFolderSyncStatus(): completed for %s", $folderid));
             }
@@ -925,7 +977,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function GetFolderSyncComplete() {
+    public function GetFolderSyncComplete()
+    {
         return $this->device->GetFolderSyncComplete();
     }
 
@@ -937,7 +990,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function SetFolderSyncComplete($complete, $user = false, $devid = false) {
+    public function SetFolderSyncComplete($complete, $user = false, $devid = false)
+    {
         $this->device->SetFolderSyncComplete($complete);
     }
 
@@ -950,7 +1004,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function ClearLoopDetectionData($user, $devid) {
+    public function ClearLoopDetectionData($user, $devid)
+    {
         if ($user == false || $devid == false) {
             return false;
         }
@@ -964,7 +1019,8 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function AnnounceASVersion() {
+    public function AnnounceASVersion()
+    {
         $latest = ZPush::GetSupportedASVersion();
         $announced = $this->device->GetAnnouncedASversion();
         $this->device->SetAnnouncedASversion($latest);
@@ -979,7 +1035,8 @@ class DeviceManager {
      * @access public
      * @return string
      */
-    public function GetUserAgent() {
+    public function GetUserAgent()
+    {
         return $this->device->GetDeviceUserAgent();
     }
 
@@ -992,7 +1049,8 @@ class DeviceManager {
      * @access public
      * @return int/boolean  returns false if the type is not set
      */
-    public function GetBackendIdForFolderId($folderid) {
+    public function GetBackendIdForFolderId($folderid)
+    {
         $backendId = $this->device->GetFolderBackendId($folderid);
         if (!$backendId) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->GetBackendIdForFolderId(): no backend-folderid available for '%s', returning as is.", $folderid));
@@ -1017,8 +1075,9 @@ class DeviceManager {
      * @access public
      * @return string/boolean  returns false if there is folderid known for this backendid and $generateNewIdIfNew is not set or false.
      */
-    public function GetFolderIdForBackendId($backendid, $generateNewIdIfNew = false, $folderOrigin = self::FLD_ORIGIN_USER, $folderName = null) {
-        if (!in_array($folderOrigin, array(DeviceManager::FLD_ORIGIN_CONFIG, DeviceManager::FLD_ORIGIN_GAB, DeviceManager::FLD_ORIGIN_SHARED, DeviceManager::FLD_ORIGIN_USER))) {
+    public function GetFolderIdForBackendId($backendid, $generateNewIdIfNew = false, $folderOrigin = self::FLD_ORIGIN_USER, $folderName = null)
+    {
+        if (!in_array($folderOrigin, [DeviceManager::FLD_ORIGIN_CONFIG, DeviceManager::FLD_ORIGIN_GAB, DeviceManager::FLD_ORIGIN_SHARED, DeviceManager::FLD_ORIGIN_USER])) {
             ZLog::Write(LOGLEVEL_WARN, sprintf("ASDevice->GetFolderIdForBackendId(): folder type '%' is unknown in DeviceManager", $folderOrigin));
         }
         return $this->device->GetFolderIdForBackendId($backendid, $generateNewIdIfNew, $folderOrigin, $folderName);
@@ -1035,22 +1094,23 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    private function loadDeviceData() {
-        if (!Request::IsValidDeviceID())
+    private function loadDeviceData()
+    {
+        if (!Request::IsValidDeviceID()) {
             return false;
+        }
         try {
             $deviceHash = $this->statemachine->GetStateHash($this->devid, IStateMachine::DEVICEDATA);
             if ($deviceHash != $this->deviceHash) {
-                if ($this->deviceHash)
+                if ($this->deviceHash) {
                     ZLog::Write(LOGLEVEL_DEBUG, "DeviceManager->loadDeviceData(): Device data was changed, reloading");
+                }
                 $this->device->SetData($this->statemachine->GetState($this->devid, IStateMachine::DEVICEDATA));
                 $this->deviceHash = $deviceHash;
             }
-        }
-        catch (StateNotFoundException $snfex) {
+        } catch (StateNotFoundException $snfex) {
             $this->hierarchySyncRequired = true;
-        }
-        catch (UnavailableException $uaex) {
+        } catch (UnavailableException $uaex) {
             // This is temporary and can be ignored e.g. in PING - see https://jira.z-hub.io/browse/ZP-1054
             // If the hash was not available before we treat it like a StateNotFoundException.
             if ($this->deviceHash === false) {
@@ -1072,9 +1132,11 @@ class DeviceManager {
      * @access public
      * @return boolean
      */
-    public function AnnounceIgnoredMessage($folderid, $id, SyncObject $message, $reason = self::MSG_BROKEN_UNKNOWN) {
-        if ($folderid === false)
+    public function AnnounceIgnoredMessage($folderid, $id, SyncObject $message, $reason = self::MSG_BROKEN_UNKNOWN)
+    {
+        if ($folderid === false) {
             $folderid = $this->getLatestFolder();
+        }
 
         $class = get_class($message);
 
@@ -1105,9 +1167,10 @@ class DeviceManager {
      * @access public
      * @return boolean          returns true if the message was ignored before
      */
-    private function announceAcceptedMessage($folderid, $id) {
+    private function announceAcceptedMessage($folderid, $id)
+    {
         if ($this->device->RemoveIgnoredMessage($folderid, $id)) {
-            ZLog::Write(LOGLEVEL_INFO, sprintf("DeviceManager->announceAcceptedMessage('%s', '%s'): cleared previously ignored message as message is sucessfully streamed",$folderid, $id));
+            ZLog::Write(LOGLEVEL_INFO, sprintf("DeviceManager->announceAcceptedMessage('%s', '%s'): cleared previously ignored message as message is sucessfully streamed", $folderid, $id));
             return true;
         }
         return false;
@@ -1122,9 +1185,10 @@ class DeviceManager {
      * @access private
      * @return boolean
      */
-    private function checkBrokenMessages($folderid) {
+    private function checkBrokenMessages($folderid)
+    {
         // check for correctly synchronized messages of the folder
-        foreach($this->loopdetection->GetSyncedButBeforeIgnoredMessages($folderid) as $okID) {
+        foreach ($this->loopdetection->GetSyncedButBeforeIgnoredMessages($folderid) as $okID) {
             $this->announceAcceptedMessage($folderid, $okID);
         }
         return true;
@@ -1139,11 +1203,13 @@ class DeviceManager {
      * @access private
      * @return boolean
      */
-    private function setLatestFolder($folderid) {
+    private function setLatestFolder($folderid)
+    {
         // this is a multi folder operation
         // check on ignoredmessages before discaring the folderid
-        if ($this->latestFolder !== false)
+        if ($this->latestFolder !== false) {
             $this->checkBrokenMessages($this->latestFolder);
+        }
 
         $this->latestFolder = $folderid;
 
@@ -1156,7 +1222,8 @@ class DeviceManager {
      * @access private
      * @return string    $folderid       the current folder
      */
-    private function getLatestFolder() {
+    private function getLatestFolder()
+    {
         return $this->latestFolder;
     }
 
@@ -1168,7 +1235,8 @@ class DeviceManager {
      * @access private
      * @return array
      */
-    private function getProvisioningPolicies($policyName) {
+    private function getProvisioningPolicies($policyName)
+    {
         $policies = ZPush::GetPolicies();
 
         if (!isset($policies[$policyName]) && $policyName != ASDevice::DEFAULTPOLICYNAME) {
@@ -1190,7 +1258,8 @@ class DeviceManager {
      * @access private
      * @return string
      */
-    private function getPolicyName() {
+    private function getPolicyName()
+    {
         $policyName = ZPush::GetBackend()->GetUserPolicyName();
         $policyName = ((!empty($policyName) && $policyName !== false) ? $policyName : ASDevice::DEFAULTPOLICYNAME);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("DeviceManager->getPolicyName(): determined policy name: '%s'", $policyName));
@@ -1210,7 +1279,8 @@ class DeviceManager {
      * @access public
      * @returns SyncFolder
      */
-    public function BuildSyncFolderObject($store, $folderid, $parentid, $name, $type, $flags, $folderOrigin) {
+    public function BuildSyncFolderObject($store, $folderid, $parentid, $name, $type, $flags, $folderOrigin)
+    {
         $folder = new SyncFolder();
         $folder->BackendId = $folderid;
         $folder->serverid = $this->GetFolderIdForBackendId($folder->BackendId, true, $folderOrigin, $name);

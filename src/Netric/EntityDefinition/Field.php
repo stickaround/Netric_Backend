@@ -135,7 +135,7 @@ class Field implements \ArrayAccess
 
     /**
      * Flag that will indicate that this field needs to be in an indexed column
-     * 
+     *
      * @var boolean
      */
     public $mustBeIndexed = false;
@@ -239,7 +239,7 @@ class Field implements \ArrayAccess
      */
     public function toArray()
     {
-        return array(
+        return [
             "id" => $this->id,
             "name" => $this->name,
             "title" => $this->title,
@@ -258,7 +258,7 @@ class Field implements \ArrayAccess
             "autocreatename" => $this->autocreatename,
             "autocreatebase" => $this->autocreatebase,
             "must_be_indexed" => $this->mustBeIndexed
-        );
+        ];
     }
 
     /**

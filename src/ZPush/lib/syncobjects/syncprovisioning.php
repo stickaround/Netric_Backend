@@ -27,7 +27,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncProvisioning extends SyncObject {
+class SyncProvisioning extends SyncObject
+{
     //AS 12.0, 12.1 and 14.0 props
     public $devpwenabled;
     public $alphanumpwreq;
@@ -78,146 +79,147 @@ class SyncProvisioning extends SyncObject {
     // policy name used with the policies; not part of ActiveSync
     public $PolicyName;
 
-    function __construct() {
-        $mapping = array (
-                    SYNC_PROVISION_DEVPWENABLED                         => array (  self::STREAMER_VAR      => "devpwenabled",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+    function __construct()
+    {
+        $mapping = [
+                    SYNC_PROVISION_DEVPWENABLED                         => [  self::STREAMER_VAR      => "devpwenabled",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALPHANUMPWREQ                        => array (  self::STREAMER_VAR      => "alphanumpwreq",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALPHANUMPWREQ                        => [  self::STREAMER_VAR      => "alphanumpwreq",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_PWRECOVERYENABLED                    => array (  self::STREAMER_VAR      => "pwrecoveryenabled",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_PWRECOVERYENABLED                    => [  self::STREAMER_VAR      => "pwrecoveryenabled",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_DEVENCENABLED                        => array (  self::STREAMER_VAR      => "devencenabled",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_DEVENCENABLED                        => [  self::STREAMER_VAR      => "devencenabled",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_DOCBROWSEENABLED                     => array (  self::STREAMER_VAR      => "docbrowseenabled"), // depricated
-                    SYNC_PROVISION_ATTENABLED                           => array (  self::STREAMER_VAR      => "attenabled",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_DOCBROWSEENABLED                     => [  self::STREAMER_VAR      => "docbrowseenabled"], // depricated
+                    SYNC_PROVISION_ATTENABLED                           => [  self::STREAMER_VAR      => "attenabled",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_MINDEVPWLENGTH                       => array (  self::STREAMER_VAR      => "mindevpwlenngth",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => 0,
-                                                                                                                        self::STREAMER_CHECK_CMPLOWER   => 17  )),
+                    SYNC_PROVISION_MINDEVPWLENGTH                       => [  self::STREAMER_VAR      => "mindevpwlenngth",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => 0,
+                                                                                                                        self::STREAMER_CHECK_CMPLOWER   => 17  ]],
 
-                    SYNC_PROVISION_MAXINACTTIMEDEVLOCK                  => array (  self::STREAMER_VAR      => "maxinacttimedevlock"),
-                    SYNC_PROVISION_MAXDEVPWFAILEDATTEMPTS               => array (  self::STREAMER_VAR      => "maxdevpwfailedattempts",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => 3,
-                                                                                                                        self::STREAMER_CHECK_CMPLOWER   => 17  )),
+                    SYNC_PROVISION_MAXINACTTIMEDEVLOCK                  => [  self::STREAMER_VAR      => "maxinacttimedevlock"],
+                    SYNC_PROVISION_MAXDEVPWFAILEDATTEMPTS               => [  self::STREAMER_VAR      => "maxdevpwfailedattempts",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => 3,
+                                                                                                                        self::STREAMER_CHECK_CMPLOWER   => 17  ]],
 
-                    SYNC_PROVISION_MAXATTSIZE                           => array (  self::STREAMER_VAR      => "maxattsize",
+                    SYNC_PROVISION_MAXATTSIZE                           => [  self::STREAMER_VAR      => "maxattsize",
                                                                                     self::STREAMER_PROP     => self::STREAMER_TYPE_SEND_EMPTY,
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => -1 )),
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => -1 ]],
 
-                    SYNC_PROVISION_ALLOWSIMPLEDEVPW                     => array (  self::STREAMER_VAR      => "allowsimpledevpw",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWSIMPLEDEVPW                     => [  self::STREAMER_VAR      => "allowsimpledevpw",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_DEVPWEXPIRATION                      => array (  self::STREAMER_VAR      => "devpwexpiration",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => -1 )),
+                    SYNC_PROVISION_DEVPWEXPIRATION                      => [  self::STREAMER_VAR      => "devpwexpiration",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => -1 ]],
 
-                    SYNC_PROVISION_DEVPWHISTORY                         => array (  self::STREAMER_VAR      => "devpwhistory",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => -1 )),
+                    SYNC_PROVISION_DEVPWHISTORY                         => [  self::STREAMER_VAR      => "devpwhistory",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => -1 ]],
 
 
-                    SYNC_PROVISION_POLICYNAME                           => array (  self::STREAMER_VAR      => "PolicyName",
-                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE),
-                );
+                    SYNC_PROVISION_POLICYNAME                           => [  self::STREAMER_VAR      => "PolicyName",
+                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE],
+                ];
 
-        if(Request::GetProtocolVersion() >= 12.1) {
-            $mapping += array (
-                    SYNC_PROVISION_ALLOWSTORAGECARD                     => array (  self::STREAMER_VAR      => "allowstoragecard",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+        if (Request::GetProtocolVersion() >= 12.1) {
+            $mapping += [
+                    SYNC_PROVISION_ALLOWSTORAGECARD                     => [  self::STREAMER_VAR      => "allowstoragecard",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWCAM                             => array (  self::STREAMER_VAR      => "allowcam",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWCAM                             => [  self::STREAMER_VAR      => "allowcam",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_REQDEVENC                            => array (  self::STREAMER_VAR      => "reqdevenc",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_REQDEVENC                            => [  self::STREAMER_VAR      => "reqdevenc",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWUNSIGNEDAPPS                    => array (  self::STREAMER_VAR      => "allowunsignedapps",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWUNSIGNEDAPPS                    => [  self::STREAMER_VAR      => "allowunsignedapps",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWUNSIGNEDINSTALLATIONPACKAGES    => array (  self::STREAMER_VAR      => "allowunsigninstallpacks",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWUNSIGNEDINSTALLATIONPACKAGES    => [  self::STREAMER_VAR      => "allowunsigninstallpacks",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_MINDEVPWCOMPLEXCHARS                 => array (  self::STREAMER_VAR      => "mindevcomplexchars",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(1,2,3,4) )),
+                    SYNC_PROVISION_MINDEVPWCOMPLEXCHARS                 => [  self::STREAMER_VAR      => "mindevcomplexchars",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [1,2,3,4] ]],
 
-                    SYNC_PROVISION_ALLOWWIFI                            => array (  self::STREAMER_VAR      => "allowwifi",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWWIFI                            => [  self::STREAMER_VAR      => "allowwifi",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWTEXTMESSAGING                   => array (  self::STREAMER_VAR      => "allowtextmessaging",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWTEXTMESSAGING                   => [  self::STREAMER_VAR      => "allowtextmessaging",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWPOPIMAPEMAIL                    => array (  self::STREAMER_VAR      => "allowpopimapemail",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWPOPIMAPEMAIL                    => [  self::STREAMER_VAR      => "allowpopimapemail",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWBLUETOOTH                       => array (  self::STREAMER_VAR      => "allowbluetooth",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1,2) )),
+                    SYNC_PROVISION_ALLOWBLUETOOTH                       => [  self::STREAMER_VAR      => "allowbluetooth",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1,2] ]],
 
-                    SYNC_PROVISION_ALLOWIRDA                            => array (  self::STREAMER_VAR      => "allowirda",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWIRDA                            => [  self::STREAMER_VAR      => "allowirda",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_REQMANUALSYNCWHENROAM                => array (  self::STREAMER_VAR      => "reqmansyncroam",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_REQMANUALSYNCWHENROAM                => [  self::STREAMER_VAR      => "reqmansyncroam",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWDESKTOPSYNC                     => array (  self::STREAMER_VAR      => "allowdesktopsync",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWDESKTOPSYNC                     => [  self::STREAMER_VAR      => "allowdesktopsync",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_MAXCALAGEFILTER                      => array (  self::STREAMER_VAR      => "maxcalagefilter",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,4,5,6,7) )),
+                    SYNC_PROVISION_MAXCALAGEFILTER                      => [  self::STREAMER_VAR      => "maxcalagefilter",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,4,5,6,7] ]],
 
-                    SYNC_PROVISION_ALLOWHTMLEMAIL                       => array (  self::STREAMER_VAR      => "allowhtmlemail",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWHTMLEMAIL                       => [  self::STREAMER_VAR      => "allowhtmlemail",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_MAXEMAILAGEFILTER                    => array (  self::STREAMER_VAR      => "maxemailagefilter",
-                                                                                     self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => -1,
-                                                                                                                         self::STREAMER_CHECK_CMPLOWER   => 6  )),
+                    SYNC_PROVISION_MAXEMAILAGEFILTER                    => [  self::STREAMER_VAR      => "maxemailagefilter",
+                                                                                     self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => -1,
+                                                                                                                         self::STREAMER_CHECK_CMPLOWER   => 6  ]],
 
-                    SYNC_PROVISION_MAXEMAILBODYTRUNCSIZE                => array (  self::STREAMER_VAR      => "maxemailbodytruncsize",
-                                                                                     self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => -2 )),
+                    SYNC_PROVISION_MAXEMAILBODYTRUNCSIZE                => [  self::STREAMER_VAR      => "maxemailbodytruncsize",
+                                                                                     self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => -2 ]],
 
-                    SYNC_PROVISION_MAXEMAILHTMLBODYTRUNCSIZE            => array (  self::STREAMER_VAR      => "maxemailhtmlbodytruncsize",
-                                                                                     self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_CMPHIGHER  => -2 )),
+                    SYNC_PROVISION_MAXEMAILHTMLBODYTRUNCSIZE            => [  self::STREAMER_VAR      => "maxemailhtmlbodytruncsize",
+                                                                                     self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_CMPHIGHER  => -2 ]],
 
-                    SYNC_PROVISION_REQSIGNEDSMIMEMESSAGES               => array (  self::STREAMER_VAR      => "reqsignedsmimemessages",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_REQSIGNEDSMIMEMESSAGES               => [  self::STREAMER_VAR      => "reqsignedsmimemessages",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_REQENCSMIMEMESSAGES                  => array (  self::STREAMER_VAR      => "reqencsmimemessages",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_REQENCSMIMEMESSAGES                  => [  self::STREAMER_VAR      => "reqencsmimemessages",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_REQSIGNEDSMIMEALGORITHM              => array (  self::STREAMER_VAR      => "reqsignedsmimealgorithm",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_REQSIGNEDSMIMEALGORITHM              => [  self::STREAMER_VAR      => "reqsignedsmimealgorithm",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_REQENCSMIMEALGORITHM                 => array (  self::STREAMER_VAR      => "reqencsmimealgorithm",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1,2,3,4) )),
+                    SYNC_PROVISION_REQENCSMIMEALGORITHM                 => [  self::STREAMER_VAR      => "reqencsmimealgorithm",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1,2,3,4] ]],
 
-                    SYNC_PROVISION_ALLOWSMIMEENCALGORITHNEG             => array (  self::STREAMER_VAR      => "allowsmimeencalgneg",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1,2) )),
+                    SYNC_PROVISION_ALLOWSMIMEENCALGORITHNEG             => [  self::STREAMER_VAR      => "allowsmimeencalgneg",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1,2] ]],
 
-                    SYNC_PROVISION_ALLOWSMIMESOFTCERTS                  => array (  self::STREAMER_VAR      => "allowsmimesoftcerts",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWSMIMESOFTCERTS                  => [  self::STREAMER_VAR      => "allowsmimesoftcerts",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWBROWSER                         => array (  self::STREAMER_VAR      => "allowbrowser",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWBROWSER                         => [  self::STREAMER_VAR      => "allowbrowser",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWCONSUMEREMAIL                   => array (  self::STREAMER_VAR      => "allowconsumeremail",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWCONSUMEREMAIL                   => [  self::STREAMER_VAR      => "allowconsumeremail",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWREMOTEDESKTOP                   => array (  self::STREAMER_VAR      => "allowremotedesk",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWREMOTEDESKTOP                   => [  self::STREAMER_VAR      => "allowremotedesk",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_ALLOWINTERNETSHARING                 => array (  self::STREAMER_VAR      => "allowinternetsharing",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_ONEVALUEOF => array(0,1) )),
+                    SYNC_PROVISION_ALLOWINTERNETSHARING                 => [  self::STREAMER_VAR      => "allowinternetsharing",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_ONEVALUEOF => [0,1] ]],
 
-                    SYNC_PROVISION_UNAPPROVEDINROMAPPLIST               => array (  self::STREAMER_VAR      => "unapprovedinromapplist",
+                    SYNC_PROVISION_UNAPPROVEDINROMAPPLIST               => [  self::STREAMER_VAR      => "unapprovedinromapplist",
                                                                                     self::STREAMER_PROP     => self::STREAMER_TYPE_SEND_EMPTY,
-                                                                                    self::STREAMER_ARRAY    => SYNC_PROVISION_APPNAME),  //TODO check
+                                                                                    self::STREAMER_ARRAY    => SYNC_PROVISION_APPNAME],  //TODO check
 
-                    SYNC_PROVISION_APPROVEDAPPLIST                      => array (  self::STREAMER_VAR      => "approvedapplist",
+                    SYNC_PROVISION_APPROVEDAPPLIST                      => [  self::STREAMER_VAR      => "approvedapplist",
                                                                                     self::STREAMER_PROP     => self::STREAMER_TYPE_SEND_EMPTY,
-                                                                                    self::STREAMER_ARRAY    => SYNC_PROVISION_HASH), //TODO check
-            );
+                                                                                    self::STREAMER_ARRAY    => SYNC_PROVISION_HASH], //TODO check
+            ];
         }
 
         parent::__construct($mapping);
@@ -232,11 +234,12 @@ class SyncProvisioning extends SyncObject {
      * @access public
      * @return void
      */
-    public function Load($policies = array(), $logPolicies = false) {
+    public function Load($policies = [], $logPolicies = false)
+    {
         $this->LoadDefaultPolicies();
 
         $streamerVars = $this->GetStreamerVars();
-        foreach ($policies as $p=>$v) {
+        foreach ($policies as $p => $v) {
             if (!in_array($p, $streamerVars)) {
                 ZLog::Write(LOGLEVEL_INFO, sprintf("Policy '%s' not supported by the device, ignoring", $p));
                 continue;
@@ -244,7 +247,7 @@ class SyncProvisioning extends SyncObject {
             if ($logPolicies) {
                 ZLog::Write(LOGLEVEL_WBXML, sprintf("Policy '%s' enforced with: %s (%s)", $p, (is_array($v)) ? Utils::PrintAsString(implode(',', $v)) : Utils::PrintAsString($v), gettype($v)));
             }
-            $this->$p = (is_array($v) && empty($v)) ? array() : $v;
+            $this->$p = (is_array($v) && empty($v)) ? [] : $v;
         }
     }
 
@@ -254,7 +257,8 @@ class SyncProvisioning extends SyncObject {
      * @access public
      * @return void
      */
-    public function LoadDefaultPolicies() {
+    public function LoadDefaultPolicies()
+    {
         //AS 12.0, 12.1 and 14.0 props
         $this->devpwenabled = 0;
         $this->alphanumpwreq = 0;
@@ -299,8 +303,8 @@ class SyncProvisioning extends SyncObject {
         $this->allowconsumeremail = 1;
         $this->allowremotedesk = 1;
         $this->allowinternetsharing = 1;
-        $this->unapprovedinromapplist = array();
-        $this->approvedapplist = array();
+        $this->unapprovedinromapplist = [];
+        $this->approvedapplist = [];
     }
 
     /**
@@ -309,7 +313,8 @@ class SyncProvisioning extends SyncObject {
      * @access public
      * @return string
      */
-    public function GetPolicyHash() {
+    public function GetPolicyHash()
+    {
         return md5(serialize($this));
     }
 
@@ -322,7 +327,8 @@ class SyncProvisioning extends SyncObject {
      * @access public
      * @return SyncProvisioning
      */
-    public static function GetObjectWithPolicies($policies = array(), $logPolicies = false) {
+    public static function GetObjectWithPolicies($policies = [], $logPolicies = false)
+    {
         $p = new SyncProvisioning();
         $p->Load($policies, $logPolicies);
         return $p;

@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class MoveItems extends RequestProcessor {
+class MoveItems extends RequestProcessor
+{
 
     /**
      * Handles the MoveItems command
@@ -33,45 +34,52 @@ class MoveItems extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle($commandCode) {
-        if(!self::$decoder->getElementStartTag(SYNC_MOVE_MOVES))
+    public function Handle($commandCode)
+    {
+        if (!self::$decoder->getElementStartTag(SYNC_MOVE_MOVES)) {
             return false;
+        }
 
-        $moves = array();
-        while(self::$decoder->getElementStartTag(SYNC_MOVE_MOVE)) {
-            $move = array();
-            if(self::$decoder->getElementStartTag(SYNC_MOVE_SRCMSGID)) {
+        $moves = [];
+        while (self::$decoder->getElementStartTag(SYNC_MOVE_MOVE)) {
+            $move = [];
+            if (self::$decoder->getElementStartTag(SYNC_MOVE_SRCMSGID)) {
                 $move["srcmsgid"] = self::$decoder->getElementContent();
-                if(!self::$decoder->getElementEndTag())
+                if (!self::$decoder->getElementEndTag()) {
                     break;
+                }
             }
-            if(self::$decoder->getElementStartTag(SYNC_MOVE_SRCFLDID)) {
+            if (self::$decoder->getElementStartTag(SYNC_MOVE_SRCFLDID)) {
                 $move["srcfldid"] = self::$decoder->getElementContent();
-                if(!self::$decoder->getElementEndTag())
+                if (!self::$decoder->getElementEndTag()) {
                     break;
+                }
             }
-            if(self::$decoder->getElementStartTag(SYNC_MOVE_DSTFLDID)) {
+            if (self::$decoder->getElementStartTag(SYNC_MOVE_DSTFLDID)) {
                 $move["dstfldid"] = self::$decoder->getElementContent();
-                if(!self::$decoder->getElementEndTag())
+                if (!self::$decoder->getElementEndTag()) {
                     break;
+                }
             }
             array_push($moves, $move);
 
-            if(!self::$decoder->getElementEndTag())
+            if (!self::$decoder->getElementEndTag()) {
                 return false;
+            }
         }
 
-        if(!self::$decoder->getElementEndTag())
+        if (!self::$decoder->getElementEndTag()) {
             return false;
+        }
 
         self::$encoder->StartWBXML();
 
         self::$encoder->startTag(SYNC_MOVE_MOVES);
 
-        $operationResults = array();
+        $operationResults = [];
         $operationCounter = 0;
         $operationTotal = count($moves);
-        foreach($moves as $move) {
+        foreach ($moves as $move) {
             $operationCounter++;
             self::$encoder->startTag(SYNC_MOVE_RESPONSE);
             self::$encoder->startTag(SYNC_MOVE_SRCMSGID);
@@ -84,17 +92,20 @@ class MoveItems extends RequestProcessor {
                 $sourceBackendFolderId = self::$deviceManager->GetBackendIdForFolderId($move["srcfldid"]);
 
                 // if the source folder is an additional folder the backend has to be setup correctly
-                if (!self::$backend->Setup(ZPush::GetAdditionalSyncFolderStore($sourceBackendFolderId)))
+                if (!self::$backend->Setup(ZPush::GetAdditionalSyncFolderStore($sourceBackendFolderId))) {
                     throw new StatusException(sprintf("HandleMoveItems() could not Setup() the backend for folder id %s/%s", $move["srcfldid"], $sourceBackendFolderId), SYNC_MOVEITEMSSTATUS_INVALIDSOURCEID);
+                }
 
                 $importer = self::$backend->GetImporter($sourceBackendFolderId);
-                if ($importer === false)
+                if ($importer === false) {
                     throw new StatusException(sprintf("HandleMoveItems() could not get an importer for folder id %s/%s", $move["srcfldid"], $sourceBackendFolderId), SYNC_MOVEITEMSSTATUS_INVALIDSOURCEID);
+                }
 
                 // get saved SyncParameters of the source folder
                 $spa = self::$deviceManager->GetStateManager()->GetSynchedFolderState($move["srcfldid"]);
-                if (!$spa->HasSyncKey())
+                if (!$spa->HasSyncKey()) {
                     throw new StatusException(sprintf("MoveItems(): Source folder id '%s' is not fully synchronized. Unable to perform operation.", $move["srcfldid"]), SYNC_MOVEITEMSSTATUS_INVALIDSOURCEID);
+                }
 
                 // get saved SyncParameters of the destination folder
                 $destSpa = self::$deviceManager->GetStateManager()->GetSynchedFolderState($move["dstfldid"]);
@@ -119,12 +130,12 @@ class MoveItems extends RequestProcessor {
                     $destSpa->SetMoveState($dstMoveState);
                     self::$deviceManager->GetStateManager()->SetSynchedFolderState($destSpa);
                 }
-            }
-            catch (StatusException $stex) {
-                if ($stex->getCode() == SYNC_STATUS_FOLDERHIERARCHYCHANGED) // same as SYNC_FSSTATUS_CODEUNKNOWN
+            } catch (StatusException $stex) {
+                if ($stex->getCode() == SYNC_STATUS_FOLDERHIERARCHYCHANGED) { // same as SYNC_FSSTATUS_CODEUNKNOWN
                     $status = SYNC_MOVEITEMSSTATUS_INVALIDSOURCEID;
-                else
+                } else {
                     $status = $stex->getCode();
+                }
             }
 
             if ($operationCounter % 10 == 0) {
@@ -142,7 +153,7 @@ class MoveItems extends RequestProcessor {
             self::$encoder->endTag();
 
             self::$encoder->startTag(SYNC_MOVE_DSTMSGID);
-            self::$encoder->content( (($result !== false ) ? $result : $move["srcmsgid"]));
+            self::$encoder->content((($result !== false ) ? $result : $move["srcmsgid"]));
             self::$encoder->endTag();
             self::$encoder->endTag();
         }

@@ -52,8 +52,7 @@ class ActivityEntity extends Entity implements EntityInterface
         }
 
         // Make sure the required data is set
-        if (
-            empty($this->getValue("subject")) ||
+        if (empty($this->getValue("subject")) ||
             empty($this->getValue("verb"))
         ) {
             throw new \InvalidArgumentException(

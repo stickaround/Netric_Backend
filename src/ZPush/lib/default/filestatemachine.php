@@ -27,7 +27,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class FileStateMachine implements IStateMachine {
+class FileStateMachine implements IStateMachine
+{
     const SUPPORTED_STATE_VERSION = IStateMachine::STATEVERSION_02;
     const VERSION = "version";
 
@@ -42,22 +43,27 @@ class FileStateMachine implements IStateMachine {
      * @access public
      * @throws FatalMisconfigurationException
      */
-    public function __construct() {
-        if (!defined('STATE_DIR'))
+    public function __construct()
+    {
+        if (!defined('STATE_DIR')) {
             throw new FatalMisconfigurationException("No configuration for the state directory available.");
+        }
 
-        if (substr(STATE_DIR, -1,1) != "/")
+        if (substr(STATE_DIR, -1, 1) != "/") {
             throw new FatalMisconfigurationException("The configured state directory should terminate with a '/'");
+        }
 
-        if (!file_exists(STATE_DIR))
+        if (!file_exists(STATE_DIR)) {
             throw new FatalMisconfigurationException("The configured state directory does not exist or can not be accessed: ". STATE_DIR);
+        }
         // checks if the directory exists and tries to create the necessary subfolders if they do not exist
         $this->getDirectoryForDevice(Request::GetDeviceID());
         $this->userfilename = STATE_DIR . 'users';
         $this->settingsfilename = STATE_DIR . 'settings';
 
-        if ((!file_exists($this->userfilename) && !touch($this->userfilename)) || !is_writable($this->userfilename))
+        if ((!file_exists($this->userfilename) && !touch($this->userfilename)) || !is_writable($this->userfilename)) {
             throw new FatalMisconfigurationException("Not possible to write to the configured state directory.");
+        }
         Utils::FixFileOwner($this->userfilename);
     }
 
@@ -76,14 +82,16 @@ class FileStateMachine implements IStateMachine {
      * @return string
      * @throws StateNotFoundException, StateInvalidException, UnavailableException
      */
-    public function GetStateHash($devid, $type, $key = false, $counter = false) {
+    public function GetStateHash($devid, $type, $key = false, $counter = false)
+    {
         $filename = $this->getFullFilePath($devid, $type, $key, $counter);
 
         // the filemodification time is enough to track changes
-        if(file_exists($filename))
+        if (file_exists($filename)) {
             return filemtime($filename);
-        else
-            throw new StateNotFoundException(sprintf("FileStateMachine->GetStateHash(): Could not locate state '%s'",$filename));
+        } else {
+            throw new StateNotFoundException(sprintf("FileStateMachine->GetStateHash(): Could not locate state '%s'", $filename));
+        }
     }
 
     /**
@@ -101,22 +109,25 @@ class FileStateMachine implements IStateMachine {
      * @return mixed
      * @throws StateNotFoundException, StateInvalidException, UnavailableException
      */
-    public function GetState($devid, $type, $key = false, $counter = false, $cleanstates = true) {
-        if ($counter && $cleanstates)
+    public function GetState($devid, $type, $key = false, $counter = false, $cleanstates = true)
+    {
+        if ($counter && $cleanstates) {
             $this->CleanStates($devid, $type, $key, $counter);
+        }
 
         // Read current sync state
         $filename = $this->getFullFilePath($devid, $type, $key, $counter);
 
-        if(file_exists($filename)) {
+        if (file_exists($filename)) {
             $contents = file_get_contents($filename);
             $bytes = strlen($contents);
-            ZLog::Write(LOGLEVEL_DEBUG, sprintf("FileStateMachine->GetState() read '%d' bytes from file: '%s'", $bytes, $filename ));
+            ZLog::Write(LOGLEVEL_DEBUG, sprintf("FileStateMachine->GetState() read '%d' bytes from file: '%s'", $bytes, $filename));
             return unserialize($contents);
         }
         // throw an exception on all other states, but not FAILSAVE as it's most of the times not there by default
-        else if ($type !== IStateMachine::FAILSAVE)
-            throw new StateNotFoundException(sprintf("FileStateMachine->GetState(): Could not locate state '%s'",$filename));
+        elseif ($type !== IStateMachine::FAILSAVE) {
+            throw new StateNotFoundException(sprintf("FileStateMachine->GetState(): Could not locate state '%s'", $filename));
+        }
     }
 
     /**
@@ -132,12 +143,14 @@ class FileStateMachine implements IStateMachine {
      * @return boolean
      * @throws StateInvalidException, UnavailableException
      */
-    public function SetState($state, $devid, $type, $key = false, $counter = false) {
+    public function SetState($state, $devid, $type, $key = false, $counter = false)
+    {
         $state = serialize($state);
 
         $filename = $this->getFullFilePath($devid, $type, $key, $counter);
-        if (($bytes = Utils::SafePutContents($filename, $state)) === false)
-            throw new FatalMisconfigurationException(sprintf("FileStateMachine->SetState(): Could not write state '%s'",$filename));
+        if (($bytes = Utils::SafePutContents($filename, $state)) === false) {
+            throw new FatalMisconfigurationException(sprintf("FileStateMachine->SetState(): Could not write state '%s'", $filename));
+        }
 
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("FileStateMachine->SetState() written %d bytes on file: '%s'", $bytes, $filename));
         return $bytes;
@@ -159,25 +172,27 @@ class FileStateMachine implements IStateMachine {
      * @return
      * @throws StateInvalidException
      */
-    public function CleanStates($devid, $type, $key, $counter = false, $thisCounterOnly = false) {
+    public function CleanStates($devid, $type, $key, $counter = false, $thisCounterOnly = false)
+    {
         $matching_files = glob($this->getFullFilePath($devid, $type, $key). "*", GLOB_NOSORT);
         if (is_array($matching_files)) {
-            foreach($matching_files as $state) {
+            foreach ($matching_files as $state) {
                 $file = false;
-                if($counter !== false && preg_match('/([0-9]+)$/', $state, $matches)) {
-                    if(($thisCounterOnly === false && $matches[1] < $counter) || ($thisCounterOnly === true && $matches[1] == $counter)) {
+                if ($counter !== false && preg_match('/([0-9]+)$/', $state, $matches)) {
+                    if (($thisCounterOnly === false && $matches[1] < $counter) || ($thisCounterOnly === true && $matches[1] == $counter)) {
                         $candidate = $this->getFullFilePath($devid, $type, $key, (int)$matches[1]);
 
-                        if ($candidate == $state)
+                        if ($candidate == $state) {
                             $file = $candidate;
+                        }
                     }
+                } elseif ($counter === false) {
+                    $file = $this->getFullFilePath($devid, $type, $key);
                 }
-                else if ($counter === false)
-                    $file =  $this->getFullFilePath($devid, $type, $key);
 
                 if ($file !== false) {
                     ZLog::Write(LOGLEVEL_DEBUG, sprintf("FileStateMachine->CleanStates(): Deleting file: '%s'", $file));
-                    unlink ($file);
+                    unlink($file);
                 }
             }
         }
@@ -192,7 +207,8 @@ class FileStateMachine implements IStateMachine {
      * @access public
      * @return boolean     indicating if the user was added or not (existed already)
      */
-    public function LinkUserDevice($username, $devid) {
+    public function LinkUserDevice($username, $devid)
+    {
         $mutex = new SimpleMutex();
         $changed = false;
 
@@ -200,14 +216,15 @@ class FileStateMachine implements IStateMachine {
         if ($mutex->Block()) {
             $filecontents = @file_get_contents($this->userfilename);
 
-            if ($filecontents)
+            if ($filecontents) {
                 $users = unserialize($filecontents);
-            else
-                $users = array();
+            } else {
+                $users = [];
+            }
 
             // add user/device to the list
             if (!isset($users[$username])) {
-                $users[$username] = array();
+                $users[$username] = [];
                 $changed = true;
             }
             if (!isset($users[$username][$devid])) {
@@ -218,9 +235,9 @@ class FileStateMachine implements IStateMachine {
             if ($changed) {
                 $bytes = Utils::SafePutContents($this->userfilename, serialize($users));
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("FileStateMachine->LinkUserDevice(): wrote %d bytes to users file", $bytes));
-            }
-            else
+            } else {
                 ZLog::Write(LOGLEVEL_DEBUG, "FileStateMachine->LinkUserDevice(): nothing changed");
+            }
 
             $mutex->Release();
         }
@@ -236,7 +253,8 @@ class FileStateMachine implements IStateMachine {
      * @access public
      * @return boolean
      */
-    public function UnLinkUserDevice($username, $devid) {
+    public function UnLinkUserDevice($username, $devid)
+    {
         $mutex = new SimpleMutex();
         $changed = false;
 
@@ -244,10 +262,11 @@ class FileStateMachine implements IStateMachine {
         if ($mutex->Block()) {
             $filecontents = @file_get_contents($this->userfilename);
 
-            if ($filecontents)
+            if ($filecontents) {
                 $users = unserialize($filecontents);
-            else
-                $users = array();
+            } else {
+                $users = [];
+            }
 
             // is this user listed at all?
             if (isset($users[$username])) {
@@ -266,9 +285,9 @@ class FileStateMachine implements IStateMachine {
             if ($changed) {
                 $bytes = Utils::SafePutContents($this->userfilename, serialize($users));
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("FileStateMachine->UnLinkUserDevice(): wrote %d bytes to users file", $bytes));
-            }
-            else
+            } else {
                 ZLog::Write(LOGLEVEL_DEBUG, "FileStateMachine->UnLinkUserDevice(): nothing changed");
+            }
 
             $mutex->Release();
         }
@@ -284,26 +303,30 @@ class FileStateMachine implements IStateMachine {
      * @access public
      * @return array
      */
-    public function GetAllDevices($username = false) {
-        $out = array();
+    public function GetAllDevices($username = false)
+    {
+        $out = [];
         if ($username === false) {
-            foreach (glob(STATE_DIR. "/*/*/*-".IStateMachine::DEVICEDATA, GLOB_NOSORT) as $devdata)
-                if (preg_match('/\/([A-Za-z0-9]+)-'. IStateMachine::DEVICEDATA. '$/', $devdata, $matches))
+            foreach (glob(STATE_DIR. "/*/*/*-".IStateMachine::DEVICEDATA, GLOB_NOSORT) as $devdata) {
+                if (preg_match('/\/([A-Za-z0-9]+)-'. IStateMachine::DEVICEDATA. '$/', $devdata, $matches)) {
                     $out[] = $matches[1];
+                }
+            }
             return $out;
-        }
-        else {
+        } else {
             $filecontents = file_get_contents($this->userfilename);
-            if ($filecontents)
+            if ($filecontents) {
                 $users = unserialize($filecontents);
-            else
-                $users = array();
+            } else {
+                $users = [];
+            }
 
             // get device list for the user
-            if (isset($users[$username]))
+            if (isset($users[$username])) {
                 return array_keys($users[$username]);
-            else
-                return array();
+            } else {
+                return [];
+            }
         }
     }
 
@@ -313,22 +336,22 @@ class FileStateMachine implements IStateMachine {
      * @access public
      * @return int
      */
-    public function GetStateVersion() {
+    public function GetStateVersion()
+    {
         if (file_exists($this->settingsfilename)) {
             $settings = unserialize(file_get_contents($this->settingsfilename));
             if (strtolower(gettype($settings) == "string") && strtolower($settings) == '2:1:{s:7:"version";s:1:"2";}') {
                 ZLog::Write(LOGLEVEL_INFO, "Broken state version file found. Attempt to autofix it. See https://jira.zarafa.com/browse/ZP-493 for more information.");
                 unlink($this->settingsfilename);
                 $this->SetStateVersion(IStateMachine::STATEVERSION_02);
-                $settings = array(self::VERSION => IStateMachine::STATEVERSION_02);
+                $settings = [self::VERSION => IStateMachine::STATEVERSION_02];
             }
-        }
-        else {
+        } else {
             $filecontents = @file_get_contents($this->userfilename);
-            if ($filecontents)
-                $settings = array(self::VERSION => IStateMachine::STATEVERSION_01);
-            else {
-                $settings = array(self::VERSION => self::SUPPORTED_STATE_VERSION);
+            if ($filecontents) {
+                $settings = [self::VERSION => IStateMachine::STATEVERSION_01];
+            } else {
+                $settings = [self::VERSION => self::SUPPORTED_STATE_VERSION];
                 $this->SetStateVersion(self::SUPPORTED_STATE_VERSION);
             }
         }
@@ -344,11 +367,13 @@ class FileStateMachine implements IStateMachine {
      * @access public
      * @return boolean
      */
-    public function SetStateVersion($version) {
-        if (file_exists($this->settingsfilename))
+    public function SetStateVersion($version)
+    {
+        if (file_exists($this->settingsfilename)) {
             $settings = unserialize(file_get_contents($this->settingsfilename));
-        else
-            $settings = array(self::VERSION => IStateMachine::STATEVERSION_01);
+        } else {
+            $settings = [self::VERSION => IStateMachine::STATEVERSION_01];
+        }
 
         $settings[self::VERSION] = $version;
         ZLog::Write(LOGLEVEL_INFO, sprintf("FileStateMachine->SetStateVersion() saving supported state version, value '%d'", $version));
@@ -364,27 +389,28 @@ class FileStateMachine implements IStateMachine {
      * @access public
      * @return array(mixed)
      */
-    public function GetAllStatesForDevice($devid) {
-        $types = array(IStateMachine::DEVICEDATA, IStateMachine::FOLDERDATA, IStateMachine::FAILSAVE, IStateMachine::HIERARCHY, IStateMachine::BACKENDSTORAGE);
-        $out = array();
+    public function GetAllStatesForDevice($devid)
+    {
+        $types = [IStateMachine::DEVICEDATA, IStateMachine::FOLDERDATA, IStateMachine::FAILSAVE, IStateMachine::HIERARCHY, IStateMachine::BACKENDSTORAGE];
+        $out = [];
         $devdir = $this->getDirectoryForDevice($devid) . "/$devid-";
 
         foreach (glob($devdir . "*", GLOB_NOSORT) as $devdata) {
             // cut the device dir away and split into parts
             $parts = explode("-", substr($devdata, strlen($devdir)));
 
-            $state = array('type' => false, 'counter' => false, 'uuid' => false);
+            $state = ['type' => false, 'counter' => false, 'uuid' => false];
 
             // part 0 could be "devicedata" or another type in broken states
-            if (isset($parts[0]) && in_array($parts[0], $types))
+            if (isset($parts[0]) && in_array($parts[0], $types)) {
                 $state['type'] = $parts[0];
+            }
 
             if (isset($parts[0]) && strlen($parts[0]) == 8 &&
                 isset($parts[1]) && strlen($parts[1]) == 4 &&
                 isset($parts[2]) && strlen($parts[2]) == 4 &&
                 isset($parts[3]) && strlen($parts[3]) == 4 &&
                 isset($parts[4]) && strlen($parts[4]) == 12) {
-
                 $state['uuid'] = $parts[0]."-".$parts[1]."-".$parts[2]."-".$parts[3]."-".$parts[4];
             }
 
@@ -396,8 +422,7 @@ class FileStateMachine implements IStateMachine {
             if (isset($parts[5])) {
                 if (is_int($parts[5])) {
                     $state['counter'] = $parts[5];
-                }
-                else if (in_array($parts[5], $types)) {
+                } elseif (in_array($parts[5], $types)) {
                     $state['type'] = $parts[5];
                 }
             }
@@ -405,7 +430,7 @@ class FileStateMachine implements IStateMachine {
                 $state['counter'] = $parts[6];
             }
             // Permanent BS are recognized here
-            if($state['counter'] == false && $state['uuid'] == false && isset($parts[1]) && is_numeric($parts[1])) {
+            if ($state['counter'] == false && $state['uuid'] == false && isset($parts[1]) && is_numeric($parts[1])) {
                 $state['counter'] = $parts[1];
             }
 
@@ -432,12 +457,14 @@ class FileStateMachine implements IStateMachine {
      * @return string
      * @throws StateInvalidException
      */
-    private function getFullFilePath($devid, $type, $key = false, $counter = false, $doNotCreateDirs = false) {
-        $testkey = $devid . (($key !== false)? "-". $key : "") . (($type !== "")? "-". $type : "");
-        if (preg_match('/^[a-zA-Z0-9-]+$/', $testkey, $matches) || ($type == "" && $key === false))
-            $internkey = $testkey . (($counter && is_int($counter))?"-".$counter:"");
-        else
+    private function getFullFilePath($devid, $type, $key = false, $counter = false, $doNotCreateDirs = false)
+    {
+        $testkey = $devid . (($key !== false) ? "-". $key : "") . (($type !== "") ? "-". $type : "");
+        if (preg_match('/^[a-zA-Z0-9-]+$/', $testkey, $matches) || ($type == "" && $key === false)) {
+            $internkey = $testkey . (($counter && is_int($counter)) ? "-".$counter : "");
+        } else {
             throw new StateInvalidException("FileStateMachine->getFullFilePath(): Invalid state deviceid, type, key or in any combination");
+        }
 
         return $this->getDirectoryForDevice($devid, $doNotCreateDirs) ."/". $internkey;
     }
@@ -454,32 +481,35 @@ class FileStateMachine implements IStateMachine {
      * @return string/boolean                   returns the full directory of false if the dirs can not be created
      * @throws FatalMisconfigurationException   when configured directory is not writeable
      */
-    private function getDirectoryForDevice($devid, $doNotCreateDirs = false) {
+    private function getDirectoryForDevice($devid, $doNotCreateDirs = false)
+    {
         $firstLevel = substr(strtolower($devid), -1, 1);
         $secondLevel = substr(strtolower($devid), -2, 1);
 
         $dir = STATE_DIR . $firstLevel . "/" . $secondLevel;
-        if (is_dir($dir))
+        if (is_dir($dir)) {
             return $dir;
+        }
 
         if ($doNotCreateDirs === false) {
             // try to create the subdirectory structure necessary
             $fldir = STATE_DIR . $firstLevel;
             if (!is_dir($fldir)) {
                 $dirOK = mkdir($fldir);
-                if (!$dirOK)
+                if (!$dirOK) {
                     throw new FatalMisconfigurationException("FileStateMachine->getDirectoryForDevice(): Not possible to create state sub-directory: ". $fldir);
+                }
             }
 
             if (!is_dir($dir)) {
                 $dirOK = mkdir($dir);
-                if (!$dirOK)
+                if (!$dirOK) {
                     throw new FatalMisconfigurationException("FileStateMachine->getDirectoryForDevice(): Not possible to create state sub-directory: ". $dir);
-            }
-            else
+                }
+            } else {
                 return $dir;
+            }
         }
         return false;
     }
-
 }

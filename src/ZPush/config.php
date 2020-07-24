@@ -107,7 +107,7 @@
     // Users have to be encapusulated in quotes, several users are comma separated, like:
     //   $specialLogUsers = array('info@domain.com', 'myusername');
     define('LOGUSERLEVEL', LOGLEVEL_DEVICEID);
-    $specialLogUsers = array();
+    $specialLogUsers = [];
 
     // Filelog settings
     define('LOGFILEDIR', '/var/log/z-push/');
@@ -252,7 +252,7 @@
     // point. You can add DeviceType strings to the categories.
     // In general longer timeouts are better, because more data can be streamed at once.
     define('SYNC_TIMEOUT_MEDIUM_DEVICETYPES', "SAMSUNGGTI");
-    define('SYNC_TIMEOUT_LONG_DEVICETYPES',   "iPod, iPad, iPhone, WP, WindowsOutlook");
+    define('SYNC_TIMEOUT_LONG_DEVICETYPES', "iPod, iPad, iPhone, WP, WindowsOutlook");
 
     // Time in seconds the device should wait whenever the service is unavailable,
     // e.g. when a backend service is unavailable.
@@ -361,7 +361,7 @@
  *    added/modified folders.
  */
 
-    $additionalFolders = array(
+    $additionalFolders = [
         // demo entry for the synchronization of contacts from the public folder.
         // uncomment (remove '/*' '*/') and fill in the folderid
 /*
@@ -372,4 +372,4 @@
             'type'      => SYNC_FOLDER_TYPE_USER_CONTACT,
         ),
 */
-    );
+    ];

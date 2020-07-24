@@ -20,7 +20,7 @@ class FileStoreFactoryTest extends TestCase
 
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
     }
 

@@ -23,7 +23,7 @@ class PhpErrorLogWriter implements LogWriterInterface
      * @var bool
      */
     private $suppressOutput = false;
-    
+
     /**
      * Do not actually print to error_log because it will make
      * anything running in a docker console (like unit tests)

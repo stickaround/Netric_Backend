@@ -27,7 +27,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncUserInformation extends SyncObject {
+class SyncUserInformation extends SyncObject
+{
     public $accountid;
     public $accountname;
     public $userdisplayname;
@@ -35,23 +36,24 @@ class SyncUserInformation extends SyncObject {
     public $emailaddresses;
     public $Status;
 
-    public function __construct() {
-        $mapping = array (
-            SYNC_SETTINGS_ACCOUNTID                 => array (  self::STREAMER_VAR      => "accountid"),
-            SYNC_SETTINGS_ACCOUNTNAME               => array (  self::STREAMER_VAR      => "accountname"),
-            SYNC_SETTINGS_EMAILADDRESSES            => array (  self::STREAMER_VAR      => "emailaddresses",
-                                                                self::STREAMER_ARRAY    => SYNC_SETTINGS_SMPTADDRESS),
+    public function __construct()
+    {
+        $mapping = [
+            SYNC_SETTINGS_ACCOUNTID                 => [  self::STREAMER_VAR      => "accountid"],
+            SYNC_SETTINGS_ACCOUNTNAME               => [  self::STREAMER_VAR      => "accountname"],
+            SYNC_SETTINGS_EMAILADDRESSES            => [  self::STREAMER_VAR      => "emailaddresses",
+                                                                self::STREAMER_ARRAY    => SYNC_SETTINGS_SMPTADDRESS],
 
-            SYNC_SETTINGS_PROP_STATUS               => array (  self::STREAMER_VAR      => "Status",
-                                                                self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE)
-        );
+            SYNC_SETTINGS_PROP_STATUS               => [  self::STREAMER_VAR      => "Status",
+                                                                self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE]
+        ];
 
         if (Request::GetProtocolVersion() >= 12.1) {
-            $mapping[SYNC_SETTINGS_USERDISPLAYNAME] = array (   self::STREAMER_VAR       => "userdisplayname");
+            $mapping[SYNC_SETTINGS_USERDISPLAYNAME] = [   self::STREAMER_VAR       => "userdisplayname"];
         }
 
         if (Request::GetProtocolVersion() >= 14.0) {
-            $mapping[SYNC_SETTINGS_SENDDISABLED]    = array (   self::STREAMER_VAR       => "senddisabled");
+            $mapping[SYNC_SETTINGS_SENDDISABLED]    = [   self::STREAMER_VAR       => "senddisabled"];
         }
 
         parent::__construct($mapping);

@@ -95,12 +95,12 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     //     // Get basic object definition
     //     // ------------------------------------------------------
     //     $sql = "select
-    // 		id, def_data, revision, title,
-    // 		f_system, system_definition_hash, dacl, capped,
+    //      id, def_data, revision, title,
+    //      f_system, system_definition_hash, dacl, capped,
     //         default_activity_level, is_private, store_revisions,
     //         recur_rules, inherit_dacl_ref, parent_field, uname_settings,
     //         list_title, icon, system_definition_hash
-    // 		from " . self::ENTITY_TYPE_TABLE . " where name=:name";
+    //      from " . self::ENTITY_TYPE_TABLE . " where name=:name";
     //     $result = $this->database->query($sql, ['name' => $objType]);
 
 
@@ -750,11 +750,11 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         // Active
         if (!$this->database->tableExists($tables[0])) {
             $query = "CREATE TABLE " . $tables[0] . "
-						(
-							CONSTRAINT " . $tables[0] . "_pkey PRIMARY KEY (guid),
-							CHECK(entity_definition_id='" . $typeId . "' and f_deleted='f')
-						)
-						INHERITS ($base);";
+                        (
+                            CONSTRAINT " . $tables[0] . "_pkey PRIMARY KEY (guid),
+                            CHECK(entity_definition_id='" . $typeId . "' and f_deleted='f')
+                        )
+                        INHERITS ($base);";
             $this->database->query($query);
 
             // Add index to legacy id until everyone moves to guid
@@ -764,11 +764,11 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         // Deleted / Archived
         if (!$this->database->tableExists($tables[1])) {
             $query = "CREATE TABLE " . $tables[1] . "
-						(
-							CONSTRAINT " . $tables[1] . "_pkey PRIMARY KEY (guid),
-							CHECK(entity_definition_id='" . $typeId . "' and f_deleted='t')
-						)
-						INHERITS ($base);";
+                        (
+                            CONSTRAINT " . $tables[1] . "_pkey PRIMARY KEY (guid),
+                            CHECK(entity_definition_id='" . $typeId . "' and f_deleted='t')
+                        )
+                        INHERITS ($base);";
             $this->database->query($query);
 
             // Add index to legacy id until everyone moves to guid
@@ -779,26 +779,26 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         foreach ($tables as $tbl) {
             if (!$this->database->indexExists($tbl . "_uname_idx")) {
                 $this->database->query("CREATE INDEX " . $tbl . "_uname_idx
-							  ON $tbl
-							  USING btree (lower(uname))
-							  where uname is not null;");
+                              ON $tbl
+                              USING btree (lower(uname))
+                              where uname is not null;");
             }
 
             if (!$this->database->indexExists($tbl . "_tsv_fulltext_idx")) {
                 $this->database->query("CREATE INDEX " . $tbl . "_tsv_fulltext_idx
-							  ON $tbl
-							  USING gin (tsv_fulltext)
-							  where tsv_fulltext is not null;");
+                              ON $tbl
+                              USING gin (tsv_fulltext)
+                              where tsv_fulltext is not null;");
             }
 
             if (!$this->database->indexExists($tbl . "_ts_entered_idx")) {
                 $this->database->query("CREATE INDEX " . $tbl . "_ts_entered_idx
-							  ON $tbl (ts_entered);");
+                              ON $tbl (ts_entered);");
             }
 
             if (!$this->database->indexExists($tbl . "_ts_updated_idx")) {
                 $this->database->query("CREATE INDEX " . $tbl . "_ts_updated_idx
-							  ON $tbl (ts_entered);");
+                              ON $tbl (ts_entered);");
             }
         }
         */

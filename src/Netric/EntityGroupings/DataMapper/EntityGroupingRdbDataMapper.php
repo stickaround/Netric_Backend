@@ -107,7 +107,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         // Now save
         $field = $def->getField($groupings->getFieldName());
-        $ret = array("deleted" => [], "changed" => []);
+        $ret = ["deleted" => [], "changed" => []];
 
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
@@ -182,7 +182,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
     /**
      * Function that will get the groupings by objType
-     * 
+     *
      * @param Definition $definition The definition that we will use to filter the object groupings
      * @param string $fieldName The name of the field of this grouping
      */

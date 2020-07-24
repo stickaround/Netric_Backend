@@ -35,7 +35,7 @@ class InMemory implements QueueInterface
      */
     public function doWork($workerName, array $jobData)
     {
-        $this->queuedJobs[] = array($workerName, $jobData);
+        $this->queuedJobs[] = [$workerName, $jobData];
         return true;
     }
 
@@ -48,7 +48,7 @@ class InMemory implements QueueInterface
      */
     public function doWorkBackground($workerName, array $jobData)
     {
-        $this->queuedJobs[] = array($workerName, $jobData);
+        $this->queuedJobs[] = [$workerName, $jobData];
         return (string) count($this->queuedJobs);
     }
 

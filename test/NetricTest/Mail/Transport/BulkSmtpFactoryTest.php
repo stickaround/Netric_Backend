@@ -22,7 +22,7 @@ class BulkSmtpFactoryTest extends TestCase
      *
      * @var array
      */
-    private $oldSettings = array();
+    private $oldSettings = [];
 
     protected function setUp(): void
     {
@@ -85,7 +85,7 @@ class BulkSmtpFactoryTest extends TestCase
         $this->assertEquals($testPort, $options->getPort());
         $this->assertEquals('login', $options->getConnectionClass());
         $this->assertEquals(
-            array('username' => $testUser, 'password' => $testPassword),
+            ['username' => $testUser, 'password' => $testPassword],
             $options->getConnectionConfig()
         );
     }

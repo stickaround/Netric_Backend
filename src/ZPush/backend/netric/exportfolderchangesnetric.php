@@ -54,7 +54,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
      *
      * @var array('id', 'type'=>'change'|'delete', 'flags', 'mod')
      */
-    private $changes = array();
+    private $changes = [];
 
     /**
      * Constructor
@@ -65,8 +65,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
     public function __construct(
         Netric\Log\LogInterface $log,
         EntityProvider $entityProvider
-    )
-    {
+    ) {
         $this->log = $log;
         $this->provider = $entityProvider;
     }
@@ -85,7 +84,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
     public function InitializeExporter(&$importer)
     {
         $this->log->debug("ZPUSH->InitializeExporter Initializing");
-        $this->changes = array();
+        $this->changes = [];
         $this->step = 0;
         $this->importer = $importer;
 
@@ -93,13 +92,13 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
         $folders = $this->provider->getAllFolders();
 
         // Convert the folders to stats
-        $hierarchy = array();
+        $hierarchy = [];
         foreach ($folders as $folder) {
-            $hierarchy[] = array(
+            $hierarchy[] = [
                 "id" => $folder->serverid,
                 "flags" => 0,
                 "mod" => $folder->displayname
-            );
+            ];
         }
 
         // Get a diff of any changes made compared to the state from last sync
@@ -130,29 +129,27 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
     public function Synchronize()
     {
         // Get one of our stored changes and send it to the importer, store the new state it succeeds
-        if($this->step < count($this->changes))  {
+        if ($this->step < count($this->changes)) {
             $change = $this->changes[$this->step];
 
-            switch($change["type"])
-            {
+            switch ($change["type"]) {
                 case "change":
                     $folder = $this->provider->getFolder($change["id"]);
 
                     // The folder was apparently deleted between the time we changed and now
-                    if(!$folder) {
+                    if (!$folder) {
                         throw new StatusException("The folder {$change['id']} could not be opened");
                     }
 
-                    if($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportFolderChange($folder))
-                    {
+                    if ($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportFolderChange($folder)) {
                         $this->updateState(
                             $change["type"],
-                            array(
+                            [
                                 "type" => $change['type'],
                                 "parent" => $folder->parentid,
                                 "id" => $change['id'],
                                 "mod" => $folder->displayname
-                            )
+                            ]
                         );
                     }
                     break;
@@ -161,32 +158,29 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
                     $syncFolder = new \SyncFolder();
                     $syncFolder->serverid = $change['id'];
                     $syncFolder->displayname = "Delete-" . $change['id'];
-                    if($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportFolderDeletion($syncFolder))
-                    {
+                    if ($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportFolderDeletion($syncFolder)) {
                         // Delete action only requires id in the stat data
                         $this->updateState(
                             $change["type"],
-                            array("id" => $change['id'])
+                            ["id" => $change['id']]
                         );
                     }
                     break;
                 default:
                     // Not supported
                     throw new StatusException("Sync type {$change['type']} not supported");
-
             }
 
 
             $this->step++;
 
-            return array(
+            return [
                 "steps" => count($this->changes),
                 "progress" => $this->step
-            );
+            ];
         } else {
             return false;
         }
-
     }
 
     /**----------------------------------------------------------------------------------------------------------
@@ -204,7 +198,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
      */
     private function getDiffTo($new)
     {
-        $changes = array();
+        $changes = [];
 
         // Convert array to map to make it easy to diff
         $newMap = [];
@@ -217,7 +211,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
         }
 
         // Get any new folders (groups in netric) in $new
-        foreach ($newMap as $id=>$newState) {
+        foreach ($newMap as $id => $newState) {
             if (!isset($syncStateMap[$id])) {
                 // New folder found in $newState
                 $changes[] = [
@@ -230,7 +224,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
         }
 
         // Find any folders that have been deleted (in syncState but not in new)
-        foreach ($syncStateMap as $id=>$state) {
+        foreach ($syncStateMap as $id => $state) {
             if (!isset($newMap[$id])) {
                 // New folder found in $newState
                 $changes[] = [

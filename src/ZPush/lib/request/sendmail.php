@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SendMail extends RequestProcessor {
+class SendMail extends RequestProcessor
+{
 
     /**
      * Handles the SendMail, SmartReply and SmartForward command
@@ -33,37 +34,42 @@ class SendMail extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle($commandCode) {
+    public function Handle($commandCode)
+    {
         $sm = new SyncSendMail();
 
         $reply = $forward = $parent = $sendmail = $smartreply = $smartforward = false;
-        if (Request::GetGETCollectionId())
+        if (Request::GetGETCollectionId()) {
             $parent = Request::GetGETCollectionId();
-        if ($commandCode == ZPush::COMMAND_SMARTFORWARD)
+        }
+        if ($commandCode == ZPush::COMMAND_SMARTFORWARD) {
             $forward = Request::GetGETItemId();
-        else if ($commandCode == ZPush::COMMAND_SMARTREPLY)
+        } elseif ($commandCode == ZPush::COMMAND_SMARTREPLY) {
             $reply = Request::GetGETItemId();
+        }
 
         if (self::$decoder->IsWBXML()) {
             $el = self::$decoder->getElement();
 
-            if($el[EN_TYPE] != EN_TYPE_STARTTAG)
+            if ($el[EN_TYPE] != EN_TYPE_STARTTAG) {
                 return false;
+            }
 
 
-            if($el[EN_TAG] == SYNC_COMPOSEMAIL_SENDMAIL)
+            if ($el[EN_TAG] == SYNC_COMPOSEMAIL_SENDMAIL) {
                 $sendmail = true;
-            else if($el[EN_TAG] == SYNC_COMPOSEMAIL_SMARTREPLY)
+            } elseif ($el[EN_TAG] == SYNC_COMPOSEMAIL_SMARTREPLY) {
                 $smartreply = true;
-            else if($el[EN_TAG] == SYNC_COMPOSEMAIL_SMARTFORWARD)
+            } elseif ($el[EN_TAG] == SYNC_COMPOSEMAIL_SMARTFORWARD) {
                 $smartforward = true;
+            }
 
-            if(!$sendmail && !$smartreply && !$smartforward)
+            if (!$sendmail && !$smartreply && !$smartforward) {
                 return false;
+            }
 
             $sm->Decode(self::$decoder);
-        }
-        else {
+        } else {
             $sm->mime = self::$decoder->GetPlainInputStream();
             // no wbxml output is provided, only a http OK
             $sm->saveinsent = Request::GetGETSaveInSent();
@@ -75,8 +81,7 @@ class SendMail extends RequestProcessor {
             // "reply" and "reply-all" are handled as "reply"
             if ($ol_flags[1] == 102 || $ol_flags[1] == 103) {
                 $reply = true;
-            }
-            else if ($ol_flags[1] == 104) {
+            } elseif ($ol_flags[1] == 104) {
                 $forward = true;
             }
             // set source folder+item and replacemime
@@ -97,9 +102,15 @@ class SendMail extends RequestProcessor {
             // If the mobile sends an email in WBXML data the variables below
             // should be set. If it is a RFC822 message, get the reply/forward message id
             // from the request as they are always available there
-            if (!isset($sm->source)) $sm->source = new SyncSendMailSource();
-            if (!isset($sm->source->itemid)) $sm->source->itemid = Request::GetGETItemId();
-            if (!isset($sm->source->folderid)) $sm->source->folderid = Request::GetGETCollectionId();
+            if (!isset($sm->source)) {
+                $sm->source = new SyncSendMailSource();
+            }
+            if (!isset($sm->source->itemid)) {
+                $sm->source->itemid = Request::GetGETItemId();
+            }
+            if (!isset($sm->source->folderid)) {
+                $sm->source->folderid = Request::GetGETCollectionId();
+            }
 
             // Rewrite the AS folderid into a backend folderid
             if (isset($sm->source->folderid)) {
@@ -111,13 +122,15 @@ class SendMail extends RequestProcessor {
             }
             // replyflag and forward flags are actually only for the correct icon.
             // Even if they are a part of SyncSendMail object, they won't be streamed.
-            if ($smartreply || $reply)
+            if ($smartreply || $reply) {
                 $sm->replyflag = true;
-            else
+            } else {
                 $sm->forwardflag = true;
+            }
 
-            if (!isset($sm->source->folderid))
+            if (!isset($sm->source->folderid)) {
                 ZLog::Write(LOGLEVEL_ERROR, sprintf("SendMail(): No parent folder id while replying or forwarding message:'%s'", (($reply) ? $reply : $forward)));
+            }
         }
 
         self::$topCollector->AnnounceInformation(sprintf("SendMail(): Sending email with %d bytes", strlen($sm->mime)), true);
@@ -125,8 +138,7 @@ class SendMail extends RequestProcessor {
         $statusMessage = '';
         try {
             $status = self::$backend->SendMail($sm);
-        }
-        catch (StatusException $se) {
+        } catch (StatusException $se) {
             $status = $se->getCode();
             $statusMessage = $se->getMessage();
         }
@@ -140,9 +152,9 @@ class SendMail extends RequestProcessor {
                 self::$encoder->content($status); //TODO return the correct status
                 self::$encoder->endTag();
                 self::$encoder->endTag();
-            }
-            else
+            } else {
                 throw new HTTPReturnCodeException($statusMessage, HTTP_CODE_500, null, LOGLEVEL_WARN);
+            }
         }
 
         return $status;

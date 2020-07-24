@@ -21,22 +21,22 @@ require_once('backend/netric/lognetric.php');
 class LogNetricTest extends TestCase
 {
     /**
-	 * Setup each test
-	 */
-	protected function setUp(): void
-{
+     * Setup each test
+     */
+    protected function setUp(): void
+    {
         // We just do this to initailize the application
         $account = Bootstrap::getAccount();
-	}
-    
+    }
+
     /**
-	 * Test logging errors
-	 */
-	public function testLog()
-	{
+     * Test logging errors
+     */
+    public function testLog()
+    {
         // By default the logging is set to LOG_ERR
         $log = new \LogNetric();
-		$log->Log(LOGLEVEL_ERROR, "My Test");
-		$this->assertNotEmpty($log->getLastMessage());
-	}
+        $log->Log(LOGLEVEL_ERROR, "My Test");
+        $this->assertNotEmpty($log->getLastMessage());
+    }
 }

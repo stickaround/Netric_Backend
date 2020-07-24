@@ -26,7 +26,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-interface IChanges {
+interface IChanges
+{
     /**
      * Constructor
      *

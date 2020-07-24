@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class ImportChangesStream implements IImportChanges {
+class ImportChangesStream implements IImportChanges
+{
     private $encoder;
     private $objclass;
     private $seenObjects;
@@ -38,11 +39,12 @@ class ImportChangesStream implements IImportChanges {
      *
      * @access public
      */
-    public function __construct(&$encoder, $class) {
+    public function __construct(&$encoder, $class)
+    {
         $this->encoder = &$encoder;
         $this->objclass = $class;
-        $this->classAsString = (is_object($class))?get_class($class):'';
-        $this->seenObjects = array();
+        $this->classAsString = (is_object($class)) ? get_class($class) : '';
+        $this->seenObjects = [];
         $this->importedMsgs = 0;
         $this->checkForIgnoredMessages = true;
     }
@@ -50,12 +52,30 @@ class ImportChangesStream implements IImportChanges {
     /**
      * Implement interface - never used
      */
-    public function Config($state, $flags = 0) { return true; }
-    public function ConfigContentParameters($contentparameters) { return true; }
-    public function GetState() { return false;}
-    public function SetMoveStates($srcState, $dstState = null) { return true; }
-    public function GetMoveStates() { return array(false, false); }
-    public function LoadConflicts($contentparameters, $state) { return true; }
+    public function Config($state, $flags = 0)
+    {
+        return true;
+    }
+    public function ConfigContentParameters($contentparameters)
+    {
+        return true;
+    }
+    public function GetState()
+    {
+        return false;
+    }
+    public function SetMoveStates($srcState, $dstState = null)
+    {
+        return true;
+    }
+    public function GetMoveStates()
+    {
+        return [false, false];
+    }
+    public function LoadConflicts($contentparameters, $state)
+    {
+        return true;
+    }
 
     /**
      * Imports a single message
@@ -66,9 +86,10 @@ class ImportChangesStream implements IImportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportMessageChange($id, $message) {
+    public function ImportMessageChange($id, $message)
+    {
         // ignore other SyncObjects
-        if(!($message instanceof $this->classAsString)) {
+        if (!($message instanceof $this->classAsString)) {
             return false;
         }
 
@@ -87,21 +108,24 @@ class ImportChangesStream implements IImportChanges {
                 $appointment->responserequested = 0;
 
                 $appointment->flags = $message->flags;
-                if (isset($message->asbody))
+                if (isset($message->asbody)) {
                     $appointment->asbody = $message->asbody;
-                if (isset($message->categories))
+                }
+                if (isset($message->categories)) {
                     $appointment->categories = $message->categories;
-                if (isset($message->subject))
+                }
+                if (isset($message->subject)) {
                     $appointment->subject = $message->subject;
-                if (isset($message->lastmodified))
+                }
+                if (isset($message->lastmodified)) {
                     $appointment->dtstamp = $message->lastmodified;
+                }
 
                 $appointment->starttime = time();
                 $appointment->endtime = $appointment->starttime + 1;
 
                 $message = $appointment;
-            }
-            else if (Request::IsOutlook()) {
+            } elseif (Request::IsOutlook()) {
                 ZLog::Write(LOGLEVEL_WARN, "MS Outlook is synchronizing Notes folder without active KOE settings or extension. Not streaming SyncNote change!");
                 return false;
             }
@@ -131,30 +155,42 @@ class ImportChangesStream implements IImportChanges {
         // KOE ZO-3: Stream reply/forward flag and time as additional category to KOE
         if (ZPush::GetDeviceManager()->IsKoe() && KOE_CAPABILITY_RECEIVEFLAGS && isset($message->lastverbexectime) && isset($message->lastverbexecuted) && $message->lastverbexecuted > 0) {
             ZLog::Write(LOGLEVEL_DEBUG, "ImportChangesStream->ImportMessageChange('%s'): KOE detected. Adding LastVerb information as category.");
-            if (!isset($message->categories)){
-                $message->categories = array();
+            if (!isset($message->categories)) {
+                $message->categories = [];
             }
 
             $s = "Push: Email ";
-            if     ($message->lastverbexecuted == 1) $s .= "replied";
-            elseif ($message->lastverbexecuted == 2) $s .= "replied-to-all";
-            elseif ($message->lastverbexecuted == 3) $s .= "forwarded";
+            if ($message->lastverbexecuted == 1) {
+                $s .= "replied";
+            } elseif ($message->lastverbexecuted == 2) {
+                $s .= "replied-to-all";
+            } elseif ($message->lastverbexecuted == 3) {
+                $s .= "forwarded";
+            }
             $s .= " on " . gmdate("d-m-Y H:i:s", $message->lastverbexectime) . " GMT";
 
             $message->categories[] = $s;
         }
 
-        if ($message->flags === false || $message->flags === SYNC_NEWMESSAGE)
+        if ($message->flags === false || $message->flags === SYNC_NEWMESSAGE) {
             $this->encoder->startTag(SYNC_ADD);
-        else {
+        } else {
             // on update of an SyncEmail we only export the flags and categories
-            if($message instanceof SyncMail && ((isset($message->flag) && $message->flag instanceof SyncMailFlags) || isset($message->categories))) {
+            if ($message instanceof SyncMail && ((isset($message->flag) && $message->flag instanceof SyncMailFlags) || isset($message->categories))) {
                 $newmessage = new SyncMail();
                 $newmessage->read = $message->read;
-                if (isset($message->flag))              $newmessage->flag = $message->flag;
-                if (isset($message->lastverbexectime))  $newmessage->lastverbexectime = $message->lastverbexectime;
-                if (isset($message->lastverbexecuted))  $newmessage->lastverbexecuted = $message->lastverbexecuted;
-                if (isset($message->categories))        $newmessage->categories = $message->categories;
+                if (isset($message->flag)) {
+                    $newmessage->flag = $message->flag;
+                }
+                if (isset($message->lastverbexectime)) {
+                    $newmessage->lastverbexectime = $message->lastverbexectime;
+                }
+                if (isset($message->lastverbexecuted)) {
+                    $newmessage->lastverbexecuted = $message->lastverbexecuted;
+                }
+                if (isset($message->categories)) {
+                    $newmessage->categories = $message->categories;
+                }
                 $message = $newmessage;
                 unset($newmessage);
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("ImportChangesStream->ImportMessageChange('%s'): SyncMail message updated. Message content is striped, only flags/categories are streamed.", $id));
@@ -184,16 +220,16 @@ class ImportChangesStream implements IImportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportMessageDeletion($id, $asSoftDelete = false) {
+    public function ImportMessageDeletion($id, $asSoftDelete = false)
+    {
         if ($this->checkForIgnoredMessages) {
-           ZPush::GetDeviceManager()->RemoveBrokenMessage($id);
+            ZPush::GetDeviceManager()->RemoveBrokenMessage($id);
         }
 
         $this->importedMsgs++;
         if ($asSoftDelete) {
             $this->encoder->startTag(SYNC_SOFTDELETE);
-        }
-        else {
+        } else {
             $this->encoder->startTag(SYNC_REMOVE);
         }
             $this->encoder->startTag(SYNC_SERVERENTRYID);
@@ -214,9 +250,11 @@ class ImportChangesStream implements IImportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportMessageReadFlag($id, $flags) {
-        if(!($this->objclass instanceof SyncMail))
+    public function ImportMessageReadFlag($id, $flags)
+    {
+        if (!($this->objclass instanceof SyncMail)) {
             return false;
+        }
 
         $this->importedMsgs++;
 
@@ -243,7 +281,8 @@ class ImportChangesStream implements IImportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportMessageMove($id, $newfolder) {
+    public function ImportMessageMove($id, $newfolder)
+    {
         return true;
     }
 
@@ -255,7 +294,8 @@ class ImportChangesStream implements IImportChanges {
      * @access public
      * @return boolean/SyncObject           status/object with the ath least the serverid of the folder set
      */
-    public function ImportFolderChange($folder) {
+    public function ImportFolderChange($folder)
+    {
         // checks if the next message may cause a loop or is broken
         if (ZPush::GetDeviceManager(false) && ZPush::GetDeviceManager()->DoNotStreamMessage($folder->serverid, $folder)) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("ImportChangesStream->ImportFolderChange('%s'): folder ignored as requested by DeviceManager.", $folder->serverid));
@@ -263,10 +303,11 @@ class ImportChangesStream implements IImportChanges {
         }
 
         // send a modify flag if the folder is already known on the device
-        if (isset($folder->flags) && $folder->flags === SYNC_NEWMESSAGE)
+        if (isset($folder->flags) && $folder->flags === SYNC_NEWMESSAGE) {
             $this->encoder->startTag(SYNC_FOLDERHIERARCHY_ADD);
-        else
+        } else {
             $this->encoder->startTag(SYNC_FOLDERHIERARCHY_UPDATE);
+        }
 
         $folder->Encode($this->encoder);
         $this->encoder->endTag();
@@ -282,7 +323,8 @@ class ImportChangesStream implements IImportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportFolderDeletion($folder) {
+    public function ImportFolderDeletion($folder)
+    {
         $this->encoder->startTag(SYNC_FOLDERHIERARCHY_REMOVE);
             $this->encoder->startTag(SYNC_FOLDERHIERARCHY_SERVERENTRYID);
                 $this->encoder->content($folder->serverid);
@@ -298,7 +340,8 @@ class ImportChangesStream implements IImportChanges {
      * @access public
      * @return int
      */
-    public function GetImportedMessages() {
+    public function GetImportedMessages()
+    {
         return $this->importedMsgs;
     }
 }

@@ -49,10 +49,10 @@ class OrderBy
      */
     public function toArray()
     {
-        return array(
+        return [
             "field_name" => $this->fieldName,
             "direction" => $this->direction,
-        );
+        ];
     }
 
     /**

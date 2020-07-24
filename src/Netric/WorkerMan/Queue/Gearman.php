@@ -94,7 +94,7 @@ class Gearman implements QueueInterface
         // Unregister previous worker if set
         @$gmWorker->unregister($workerName);
         $this->listeners[$workerName] = $worker;
-        $ret = $gmWorker->addFunction($workerName, array($this, "sendJobToWorker"));
+        $ret = $gmWorker->addFunction($workerName, [$this, "sendJobToWorker"]);
         return $ret;
     }
 
@@ -197,7 +197,7 @@ class Gearman implements QueueInterface
 
         // Re-register original listeners
         foreach ($this->listeners as $listenerName => $worker) {
-            $gmWorker->addFunction($workerName, array($this, "sendJobToWorker"));
+            $gmWorker->addFunction($workerName, [$this, "sendJobToWorker"]);
         }
 
         return $purged;

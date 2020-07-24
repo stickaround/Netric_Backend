@@ -24,55 +24,57 @@
 * Consult LICENSE file for details
 * ************************************************/
 
-if (!defined('SYNC_CONFIG')) define('SYNC_CONFIG', 'config.php');
+if (!defined('SYNC_CONFIG')) {
+    define('SYNC_CONFIG', 'config.php');
+}
 include_once(SYNC_CONFIG);
 
 /************************************************
  * MAIN
  */
-    define('BASE_PATH_CLI',  dirname(__FILE__) ."/");
+    define('BASE_PATH_CLI', dirname(__FILE__) ."/");
     set_include_path(get_include_path() . PATH_SEPARATOR . BASE_PATH_CLI);
-    try {
-        GabSyncCLI::CheckEnv();
-        GabSyncCLI::CheckOptions();
+try {
+    GabSyncCLI::CheckEnv();
+    GabSyncCLI::CheckOptions();
 
-        if (! GabSyncCLI::SureWhatToDo()) {
-            // show error message if available
-            if (GabSyncCLI::GetErrorMessage())
-                fwrite(STDERR, GabSyncCLI::GetErrorMessage() . PHP_EOL.PHP_EOL);
-
-            echo GabSyncCLI::UsageInstructions();
-            exit(1);
-        }
-        else if (!GabSyncCLI::SetupSyncWorker()) {
-            fwrite(STDERR, GabSyncCLI::GetErrorMessage() . PHP_EOL);
-            exit(1);
+    if (! GabSyncCLI::SureWhatToDo()) {
+        // show error message if available
+        if (GabSyncCLI::GetErrorMessage()) {
+            fwrite(STDERR, GabSyncCLI::GetErrorMessage() . PHP_EOL.PHP_EOL);
         }
 
-        GabSyncCLI::RunCommand();
-    }
-    catch (Exception $ex) {
-        fwrite(STDERR, get_class($ex) . ": ". $ex->getMessage() . PHP_EOL);
+        echo GabSyncCLI::UsageInstructions();
+        exit(1);
+    } elseif (!GabSyncCLI::SetupSyncWorker()) {
+        fwrite(STDERR, GabSyncCLI::GetErrorMessage() . PHP_EOL);
         exit(1);
     }
+
+    GabSyncCLI::RunCommand();
+} catch (Exception $ex) {
+    fwrite(STDERR, get_class($ex) . ": ". $ex->getMessage() . PHP_EOL);
+    exit(1);
+}
 
 
 
 /************************************************
  * GAB SYNC CLI
  */
-class GabSyncCLI {
+class GabSyncCLI
+{
     const COMMAND_SIMULATE = 1;
     const COMMAND_SYNC = 2;
     const COMMAND_SYNC_ONE = 3;
     const COMMAND_CLEARALL = 4;
     const COMMAND_DELETEALL = 5;
 
-    static private $syncWorker;
-    static private $command;
-    static private $uniqueId = false;
-    static private $targetGab = false;
-    static private $errormessage;
+    private static $syncWorker;
+    private static $command;
+    private static $uniqueId = false;
+    private static $targetGab = false;
+    private static $errormessage;
 
     /**
      * Returns usage instructions.
@@ -80,7 +82,8 @@ class GabSyncCLI {
      * @access public
      * @return string
      */
-    static public function UsageInstructions() {
+    public static function UsageInstructions()
+    {
         return  "Usage:" .PHP_EOL.
                 "\tgab-sync.php -a ACTION [options]" .PHP_EOL.PHP_EOL.
                 "Parameters:" .PHP_EOL.
@@ -102,15 +105,15 @@ class GabSyncCLI {
      * @access public
      * @return boolean
      */
-    static public function SetupSyncWorker() {
+    public static function SetupSyncWorker()
+    {
         $file = "lib/" .strtolower(SYNCWORKER).".php";
 
         include_once($file);
 
         if (!class_exists(SYNCWORKER)) {
             self::$errormessage = "SyncWorker file loaded, but class '".SYNCWORKER."' can not be found. Check your configuration or implementation.";
-        }
-        else {
+        } else {
             $s = @constant('SYNCWORKER');
             self::$syncWorker = new $s();
             return true;
@@ -124,12 +127,15 @@ class GabSyncCLI {
      * @access public
      * @return void
      */
-    static public function CheckEnv() {
-        if (php_sapi_name() != "cli")
+    public static function CheckEnv()
+    {
+        if (php_sapi_name() != "cli") {
             self::$errormessage = "This script can only be called from the CLI.";
+        }
 
-        if (!function_exists("getopt"))
+        if (!function_exists("getopt")) {
             self::$errormessage = "PHP Function getopt not found. Please check your PHP version and settings.";
+        }
     }
 
     /**
@@ -138,30 +144,35 @@ class GabSyncCLI {
      * @access public
      * @return void
      */
-    static public function CheckOptions() {
-        if (self::$errormessage)
+    public static function CheckOptions()
+    {
+        if (self::$errormessage) {
             return;
+        }
 
         $options = getopt("u:a:t:");
 
         // get 'unique-id'
-        if (isset($options['u']) && !empty($options['u']))
+        if (isset($options['u']) && !empty($options['u'])) {
             self::$uniqueId = strtolower(trim($options['u']));
-        else if (isset($options['unique-id']) && !empty($options['unique-id']))
+        } elseif (isset($options['unique-id']) && !empty($options['unique-id'])) {
             self::$uniqueId = strtolower(trim($options['unique-id']));
+        }
 
         // get 'target-gab'
-        if (isset($options['t']) && !empty($options['t']))
+        if (isset($options['t']) && !empty($options['t'])) {
             self::$targetGab = strtolower(trim($options['t']));
-        else if (isset($options['target-gab']) && !empty($options['target-gab']))
+        } elseif (isset($options['target-gab']) && !empty($options['target-gab'])) {
             self::$targetGab = strtolower(trim($options['target-gab']));
+        }
 
         // get 'action'
         $action = false;
-        if (isset($options['a']) && !empty($options['a']))
+        if (isset($options['a']) && !empty($options['a'])) {
             $action = strtolower(trim($options['a']));
-        elseif (isset($options['action']) && !empty($options['action']))
+        } elseif (isset($options['action']) && !empty($options['action'])) {
             $action = strtolower(trim($options['action']));
+        }
 
         // get a command for the requested action
         switch ($action) {
@@ -179,8 +190,7 @@ class GabSyncCLI {
             case "sync-one":
                 if (self::$uniqueId === false) {
                     self::$errormessage = "Not possible to synchronize one user, if the unique-id is not specified (-u parameter).";
-                }
-                else {
+                } else {
                     self::$command = self::COMMAND_SYNC_ONE;
                 }
                 break;
@@ -207,7 +217,8 @@ class GabSyncCLI {
      * @access public
      * @return boolean
      */
-    static public function SureWhatToDo() {
+    public static function SureWhatToDo()
+    {
         return isset(self::$command);
     }
 
@@ -217,8 +228,9 @@ class GabSyncCLI {
      * @access public
      * @return string
      */
-    static public function GetErrorMessage() {
-        return (isset(self::$errormessage))?self::$errormessage:"";
+    public static function GetErrorMessage()
+    {
+        return (isset(self::$errormessage)) ? self::$errormessage : "";
     }
 
     /**
@@ -227,9 +239,10 @@ class GabSyncCLI {
      * @access public
      * @return void
      */
-    static public function RunCommand() {
+    public static function RunCommand()
+    {
         echo PHP_EOL;
-        switch(self::$command) {
+        switch (self::$command) {
             case self::COMMAND_SIMULATE:
                 self::$syncWorker->Simulate(self::$targetGab);
                 break;
@@ -244,23 +257,24 @@ class GabSyncCLI {
 
             case self::COMMAND_CLEARALL:
                 echo "Are you sure you want to remove all chunks and data from the hidden GAB folder. ALL GAB data will be removed from ALL KOE instances [y/N]: ";
-                $confirm  =  strtolower(trim(fgets(STDIN)));
-                if ( $confirm === 'y' || $confirm === 'yes')
+                $confirm  = strtolower(trim(fgets(STDIN)));
+                if ($confirm === 'y' || $confirm === 'yes') {
                     self::$syncWorker->ClearAll(self::$targetGab);
-                else
+                } else {
                     echo "Aborted!".PHP_EOL;
+                }
                 break;
 
             case self::COMMAND_DELETEALL:
                 echo "Are you sure you want to remove all chunks and data from the hidden GAB folder and delete it? ALL GAB data will be removed from ALL KOE instances [y/N]: ";
-                $confirm  =  strtolower(trim(fgets(STDIN)));
-                if ( $confirm === 'y' || $confirm === 'yes')
+                $confirm  = strtolower(trim(fgets(STDIN)));
+                if ($confirm === 'y' || $confirm === 'yes') {
                     self::$syncWorker->DeleteAll(self::$targetGab);
-                else
+                } else {
                     echo "Aborted!".PHP_EOL;
+                }
                 break;
         }
         echo PHP_EOL;
     }
-
 }

@@ -71,12 +71,12 @@ class Entry
      */
     public function toArray()
     {
-        return array(
+        return [
             'name' => $this->name,
             'groups' => $this->groups,
             'users' => $this->users,
             'parent_id' => $this->parentId,
-        );
+        ];
     }
 
     /**

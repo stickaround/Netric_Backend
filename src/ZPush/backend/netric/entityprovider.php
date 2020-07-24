@@ -172,8 +172,9 @@ class EntityProvider
             case self::FOLDER_TYPE_EMAIL:
                 $entity = $entityLoader->getByGuid($id);
 
-                if (!$entity)
+                if (!$entity) {
                     return false;
+                }
 
                 $entity->setValue("mailbox_id", $newFolder['id']);
                 $entityLoader->save($entity);
@@ -182,8 +183,9 @@ class EntityProvider
             case self::FOLDER_TYPE_CALENDAR:
                 $entity = $entityLoader->getByGuid($id);
 
-                if (!$entity)
+                if (!$entity) {
                     return false;
+                }
 
                 $entity->setValue(ObjectTypes::CALENDAR, $newFolder['id']);
                 $entityLoader->save($entity);
@@ -218,12 +220,12 @@ class EntityProvider
 
         // Return the stat
         if ($entity) {
-            return array(
+            return [
                 "id" => $entity->getEntityId(),
                 "mod" => $entity->getValue("commit_id"),
                 "flags" => ($entity->getValue("f_seen") == 't') ? 1 : 0,
                 "revision" => $entity->getValue("revision")
-            );
+            ];
         }
 
         return false;
@@ -376,8 +378,9 @@ class EntityProvider
 
                 $group = $groupings->getByGuidOrGroupId($folder['id']);
 
-                if (!$group)
+                if (!$group) {
                     return false;
+                }
 
                 // We cannot delete a system folder
                 if ($group->isSystem) {
@@ -392,8 +395,9 @@ class EntityProvider
                 $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
                 $entity = $entityLoader->getByGuid($folder['id']);
 
-                if (!$entity)
+                if (!$entity) {
                     return false;
+                }
 
                 return $entityLoader->delete($entity);
 
@@ -494,7 +498,7 @@ class EntityProvider
         }
 
         // Folders to return
-        $folders = array();
+        $folders = [];
 
         /*
          * Get email groupings for email folders.
@@ -529,11 +533,11 @@ class EntityProvider
             $lowerName = strtolower($group->name);
             if ($lowerName === "inbox" && !$group->parentId && $group->isSystem) {
                 $folder->type = SYNC_FOLDER_TYPE_INBOX;
-            } else if ($lowerName === "drafts" && !$group->parentId) {
+            } elseif ($lowerName === "drafts" && !$group->parentId) {
                 $folder->type = SYNC_FOLDER_TYPE_DRAFTS;
-            } else if ($lowerName === "trash" && !$group->parentId) {
+            } elseif ($lowerName === "trash" && !$group->parentId) {
                 $folder->type = SYNC_FOLDER_TYPE_WASTEBASKET;
-            } else if ($lowerName === "sent" && !$group->parentId) {
+            } elseif ($lowerName === "sent" && !$group->parentId) {
                 $folder->type = SYNC_FOLDER_TYPE_WASTEBASKET;
             } else {
                 $folder->type = SYNC_FOLDER_TYPE_OTHER;
@@ -542,7 +546,7 @@ class EntityProvider
 
             // If we are only trying to get one id, return it if found
             if ($id == $group->getGroupId()) {
-                return array($folder);
+                return [$folder];
             }
         }
 
@@ -562,7 +566,7 @@ class EntityProvider
         $folder->parentid = "0";
         $folder->displayname = "My Tasks";
         $folder->type = SYNC_FOLDER_TYPE_TASK;
-        return array($folder);
+        return [$folder];
     }
 
     /**
@@ -578,7 +582,7 @@ class EntityProvider
         $folder->parentid = "0";
         $folder->displayname = "My Contacts";
         $folder->type = SYNC_FOLDER_TYPE_CONTACT;
-        return array($folder);
+        return [$folder];
     }
 
     /**
@@ -642,7 +646,7 @@ class EntityProvider
         $folder->parentid = "0";
         $folder->displayname = "My Notes";
         $folder->type = SYNC_FOLDER_TYPE_NOTE;
-        return array($folder);
+        return [$folder];
     }
 
     /**
@@ -654,15 +658,16 @@ class EntityProvider
     public function getCalendarFolders($id = "")
     {
         // Folders to return
-        $folders = array();
+        $folders = [];
 
         // Setup the query
         $query = new Netric\EntityQuery(ObjectTypes::CALENDAR);
         $query->where("owner_id")->equals($this->user->getEntityId());
 
         // Check fi we are only supposed to get a single calendar
-        if ($id)
+        if ($id) {
             $query->andWhere("id")->equals($id);
+        }
 
         // Execute the query
         $serviceManager = $this->account->getServiceManager();
@@ -750,8 +755,9 @@ class EntityProvider
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entityEvent = $entityLoader->getByGuid($id);
 
-        if (!$entityEvent->getValue("ts_end") || !$entityEvent->getValue("ts_start"))
+        if (!$entityEvent->getValue("ts_end") || !$entityEvent->getValue("ts_start")) {
             return false;
+        }
 
         /*
         if ($appointment->starttime)
@@ -773,8 +779,9 @@ class EntityProvider
 
         // Create timezone
         $tz = TimezoneUtil::GetFullTZ();
-        if (!$tz)
+        if (!$tz) {
             $tz = $this->getGMTTZ();
+        }
         $appt->timezone = base64_encode($this->getSyncBlobFromTZ($tz));
 
         $appt->recurrence = null;
@@ -797,20 +804,27 @@ class EntityProvider
                     break;
                 case RECUR_WEEKLY:
                     $appt->recurrence->type = 1;
-                    if ($rp->dayOfWeekMask & WEEKDAY_SUNDAY)
+                    if ($rp->dayOfWeekMask & WEEKDAY_SUNDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_SUNDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_MONDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_MONDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_MONDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_TUESDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_TUESDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_TUESDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_WEDNESDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_THURSDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_THURSDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_THURSDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_FRIDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_FRIDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_FRIDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_SATURDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_SATURDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_SATURDAY;
+                    }
                     break;
                 case RECUR_MONTHLY:
                     $appt->recurrence->type = 2;
@@ -819,20 +833,27 @@ class EntityProvider
                 case RECUR_MONTHNTH:
                     $appt->recurrence->type = 3;
                     $appt->recurrence->weekofmonth = $rp->instance;
-                    if ($rp->dayOfWeekMask & WEEKDAY_SUNDAY)
+                    if ($rp->dayOfWeekMask & WEEKDAY_SUNDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_SUNDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_MONDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_MONDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_MONDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_TUESDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_TUESDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_TUESDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_WEDNESDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_THURSDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_THURSDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_THURSDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_FRIDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_FRIDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_FRIDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_SATURDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_SATURDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_SATURDAY;
+                    }
                     break;
                 case RECUR_YEARLY:
                     $appt->recurrence->type = 5;
@@ -841,20 +862,27 @@ class EntityProvider
                 case RECUR_YEARNTH:
                     $appt->recurrence->type = 6;
                     $appt->recurrence->weekofmonth = $rp->instance;
-                    if ($rp->dayOfWeekMask & WEEKDAY_SUNDAY)
+                    if ($rp->dayOfWeekMask & WEEKDAY_SUNDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_SUNDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_MONDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_MONDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_MONDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_TUESDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_TUESDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_TUESDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_WEDNESDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_THURSDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_THURSDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_THURSDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_FRIDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_FRIDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_FRIDAY;
-                    if ($rp->dayOfWeekMask & WEEKDAY_SATURDAY)
+                    }
+                    if ($rp->dayOfWeekMask & WEEKDAY_SATURDAY) {
                         $appt->recurrence->dayofweek = $appt->recurrence->dayofweek | WEEKDAY_SATURDAY;
+                    }
                     break;
             }
 
@@ -884,12 +912,15 @@ class EntityProvider
         $task->subject = $taskEntity->getValue('name');
         $task->body = $taskEntity->getValue('notes');
         $task->complete = ($taskEntity->getValue('done') == 't') ? 1 : 0;
-        if ($taskEntity->getValue('date_completed'))
+        if ($taskEntity->getValue('date_completed')) {
             $task->datecompleted = $taskEntity->getValue('date_completed');
-        if ($taskEntity->getValue('deadline'))
+        }
+        if ($taskEntity->getValue('deadline')) {
             $task->duedate = $taskEntity->getValue('deadline');
-        if ($taskEntity->getValue('start_date'))
+        }
+        if ($taskEntity->getValue('start_date')) {
             $task->startdate = $taskEntity->getValue('start_date');
+        }
 
         $this->log->info("ZPUSH->EntityProvider:getTask returning " . $taskEntity->getEntityId());
 
@@ -912,8 +943,9 @@ class EntityProvider
         $syncNote->subject = $noteEntity->getValue('name');
         $syncNote->asbody = new SyncBaseBody();
 
-        if ($noteEntity->getValue("ts_updated"))
+        if ($noteEntity->getValue("ts_updated")) {
             $syncNote->lastmodified = $noteEntity->getValue("ts_updated");
+        }
 
         if ($noteEntity->getValue('body') == 'plain') {
             $syncNote->asbody->type = SYNC_BODYPREFERENCE_PLAIN;
@@ -925,13 +957,14 @@ class EntityProvider
         $syncNote->asbody->data = StringStreamWrapper::Open($bodyContent);
         $syncNote->asbody->estimatedDataSize = strlen($bodyContent);
 
-        if ($noteEntity->getValue('ts_updated'))
+        if ($noteEntity->getValue('ts_updated')) {
             $syncNote->lastmodified = $noteEntity->getValue('ts_updated');
+        }
 
         // Get categories
         $groups = $noteEntity->getValueNames("groups");
         if (is_array($groups) && count($groups) > 0) {
-            $syncNote->categories = array();
+            $syncNote->categories = [];
             foreach ($groups as $gid => $gname) {
                 $syncNote->categories[] = $gname;
             }
@@ -997,7 +1030,6 @@ class EntityProvider
                     break;
 
                 case SYNC_BODYPREFERENCE_HTML:
-
                     // If the there is no html then force this to be a plain text message
                     if (empty($htmlBody)) {
                         $bodyData = $plainBody;
@@ -1066,8 +1098,9 @@ class EntityProvider
 
         $datereceived = $emailEntity->getValue("message_date");
         $tz = TimezoneUtil::GetFullTZ();
-        if (!$tz)
+        if (!$tz) {
             $tz = $this->getGMTTZ();
+        }
 
         $output->timezone = base64_encode($this->getSyncBlobFromTZ($tz));
         $output->datereceived = $datereceived;
@@ -1096,8 +1129,9 @@ class EntityProvider
                 $serviceManager = $this->account->getServiceManager();
                 $fileSystem = $serviceManager->get(FileSystemFactory::class);
 
-                if (!isset($output->attachments) || !is_array($output->attachments))
-                    $output->attachments = array();
+                if (!isset($output->attachments) || !is_array($output->attachments)) {
+                    $output->attachments = [];
+                }
 
                 foreach ($attachments as $attId) {
                     $file = $fileSystem->openFileById($attId);
@@ -1210,7 +1244,6 @@ class EntityProvider
         $entity->setValue('name', $syncNote->subject);
 
         if (isset($syncNote->categories)) {
-
             $sm = $this->account->getServiceManager();
             $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
             $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId());
@@ -1227,8 +1260,7 @@ class EntityProvider
         }
 
 
-        if (
-            isset($syncNote->asbody) &&
+        if (isset($syncNote->asbody) &&
             isset($syncNote->asbody->type) &&
             isset($syncNote->asbody->data)
         ) {
@@ -1299,10 +1331,12 @@ class EntityProvider
         $entity->setValue('owner_id', $this->user->getEntityId());
         $entity->setValue('name', $syncTask->subject);
         $entity->setValue('notes', $syncTask->body);
-        if ($syncTask->startdate)
+        if ($syncTask->startdate) {
             $entity->setValue('start_date', date("Y-m-d", $syncTask->startdate));
-        if ($syncTask->duedate)
+        }
+        if ($syncTask->duedate) {
             $entity->setValue('deadline', date("Y-m-d", $syncTask->duedate));
+        }
 
         $this->log->info("ZPUSH->EntityProvider->saveTask: returning " . $entity->getEntityId());
 
@@ -1343,8 +1377,7 @@ class EntityProvider
          * nokia sends an yearly event with 0 mins duration but as all day event,
          * so make it end next day
          */
-        if (
-            $syncAppointment->starttime == $syncAppointment->endtime
+        if ($syncAppointment->starttime == $syncAppointment->endtime
             && isset($syncAppointment->alldayevent)
             && $syncAppointment->alldayevent
         ) {
@@ -1360,19 +1393,21 @@ class EntityProvider
         $entity->setValue("owner_id", $this->user->getEntityId());
         $entity->setValue("all_day", ($syncAppointment->alldayevent) ? 't' : 'f');
         $entity->setValue('calendar', $calendarId);
-        if ($syncAppointment->starttime)
+        if ($syncAppointment->starttime) {
             $entity->setValue("ts_start", $syncAppointment->starttime);
-        if ($syncAppointment->endtime)
+        }
+        if ($syncAppointment->endtime) {
             $entity->setValue("ts_end", $syncAppointment->endtime);
+        }
 
         // 1 = private, 2 = public
-        //$values['user_status'] 		= ($appointment->busystatus == 2) ? 1 : 3;
+        //$values['user_status']        = ($appointment->busystatus == 2) ? 1 : 3;
         //debugLog("\tbusystatus=".$appointment->busystatus);
-        //$values['uid']	 		= $appointment->uid;
-        //$values['organizername'] 	= $appointment->organizername;
-        //$values['organizeremail']	= $appointment->organizeremail;
-        //$values['sensitivity'] 	= $appointment->sensitivity;
-        //$values['user_status'] 	= $appointment->busystatus;
+        //$values['uid']            = $appointment->uid;
+        //$values['organizername']  = $appointment->organizername;
+        //$values['organizeremail'] = $appointment->organizeremail;
+        //$values['sensitivity']    = $appointment->sensitivity;
+        //$values['user_status']    = $appointment->busystatus;
 
         // Fix dates if all day. Apple will push to midnight of the next day...
         if ($syncAppointment->alldayevent) {
@@ -1400,8 +1435,9 @@ class EntityProvider
 
             // Set start date
             $startDate = new \DateTime();
-            if ($localstart)
+            if ($localstart) {
                 $startDate->setTimestamp($localstart);
+            }
             $rp->setDateStart($startDate);
 
             // Set end date
@@ -1587,8 +1623,9 @@ class EntityProvider
         $entity->setValue("owner_id", $this->user->getEntityId());
         $entity->setValue("flag_seen", ($syncMail->read) ? true : false);
 
-        if ($mailboxId)
+        if ($mailboxId) {
             $entity->setValue("mailbox_id", $mailboxId);
+        }
 
         // TODO: save other fields here. Not sure there's much of a need, but just in case. - Sky
 
@@ -1605,7 +1642,7 @@ class EntityProvider
      */
     private function getGMTTZ()
     {
-        $tz = array(
+        $tz = [
             "bias" => 0,
             "tzname" => "",
             "dstendyear" => 0,
@@ -1627,7 +1664,7 @@ class EntityProvider
             "dststartsecond" => 0,
             "dststartmillis" => 0,
             "dstbias" => -60
-        );
+        ];
 
         return $tz;
     }
@@ -1651,8 +1688,9 @@ class EntityProvider
         $tz["timezonedst"] = $tz["dstbias"];
 
         // If not set, then use the users timezone
-        if (!$tz['tzname'] && $this->user->timezoneName)
+        if (!$tz['tzname'] && $this->user->timezoneName) {
             $tz['tzname'] = $this->user->timezoneName;
+        }
 
         return $tz;
     }
@@ -1669,8 +1707,9 @@ class EntityProvider
     private function getSyncBlobFromTZ($tz)
     {
         // set the correct TZ name (done using the Bias)
-        if (!isset($tz["tzname"]) || !$tz["tzname"] || !isset($tz["tznamedst"]) || !$tz["tznamedst"])
+        if (!isset($tz["tzname"]) || !$tz["tzname"] || !isset($tz["tznamedst"]) || !$tz["tznamedst"]) {
             $tz = TimezoneUtil::FillTZNames($tz);
+        }
 
         $packed = pack(
             "la64vvvvvvvv" . "la64vvvvvvvv" . "l",
@@ -1711,13 +1750,15 @@ class EntityProvider
      */
     private function getLocaltimeByTZ($gmttime, $tz)
     {
-        if (!isset($tz) || !is_array($tz))
+        if (!isset($tz) || !is_array($tz)) {
             return $gmttime;
+        }
 
-        if ($this->isDST($gmttime - $tz["bias"] * 60, $tz)) // may bug around the switch time because it may have to be 'gmttime - bias - dstbias'
+        if ($this->isDST($gmttime - $tz["bias"] * 60, $tz)) { // may bug around the switch time because it may have to be 'gmttime - bias - dstbias'
             return $gmttime - $tz["bias"] * 60 - $tz["dstbias"] * 60;
-        else
+        } else {
             return $gmttime - $tz["bias"] * 60;
+        }
     }
 
     /**
@@ -1731,13 +1772,13 @@ class EntityProvider
      */
     private function isDST($localtime, $tz)
     {
-        if (
-            !isset($tz) || !is_array($tz) ||
+        if (!isset($tz) || !is_array($tz) ||
             !isset($tz["dstbias"]) || $tz["dstbias"] == 0 ||
             !isset($tz["dststartmonth"]) || $tz["dststartmonth"] == 0 ||
             !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0
-        )
+        ) {
             return false;
+        }
 
         $year = gmdate("Y", $localtime);
         $start = $this->getTimestampOfWeek($year, $tz["dststartmonth"], $tz["dststartweek"], $tz["dststartday"], $tz["dststarthour"], $tz["dststartminute"], $tz["dststartsecond"]);
@@ -1745,16 +1786,18 @@ class EntityProvider
 
         if ($start < $end) {
             // northern hemisphere (july = dst)
-            if ($localtime >= $start && $localtime < $end)
+            if ($localtime >= $start && $localtime < $end) {
                 $dst = true;
-            else
+            } else {
                 $dst = false;
+            }
         } else {
             // southern hemisphere (january = dst)
-            if ($localtime >= $end && $localtime < $start)
+            if ($localtime >= $end && $localtime < $start) {
                 $dst = false;
-            else
+            } else {
                 $dst = true;
+            }
         }
 
         return $dst;
@@ -1776,16 +1819,18 @@ class EntityProvider
      */
     private function getTimestampOfWeek($year, $month, $week, $wday, $hour, $minute, $second)
     {
-        if ($month == 0)
+        if ($month == 0) {
             return;
+        }
 
         $date = gmmktime($hour, $minute, $second, $month, 1, $year);
 
         // Find first day in month which matches day of the week
         while (1) {
             $wdaynow = gmdate("w", $date);
-            if ($wdaynow == $wday)
+            if ($wdaynow == $wday) {
                 break;
+            }
             $date += 24 * 60 * 60;
         }
 
@@ -1796,10 +1841,11 @@ class EntityProvider
         // specified weekday exists
         while (1) {
             $monthnow = gmdate("n", $date); // gmdate returns 1-12
-            if ($monthnow > $month)
+            if ($monthnow > $month) {
                 $date = $date - (24 * 7 * 60 * 60);
-            else
+            } else {
                 break;
+            }
         }
 
         return $date;
@@ -1839,10 +1885,10 @@ class EntityProvider
     public function unpackFolderId($folderid)
     {
         $parts = explode(':', $folderid);
-        return array(
+        return [
             'type' => $parts[0],
             'id' => (isset($parts[1])) ? $parts[1] : null
-        );
+        ];
     }
 
     /**

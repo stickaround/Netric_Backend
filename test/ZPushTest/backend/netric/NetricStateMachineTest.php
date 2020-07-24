@@ -53,7 +53,7 @@ class NetricStateMachineTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         // Get dependencies
@@ -63,7 +63,7 @@ class NetricStateMachineTest extends TestCase
         $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
 
         // Initialize zpush - copied from zpush index file
-        if (!defined ( 'REAL_BASE_PATH' )) {
+        if (!defined('REAL_BASE_PATH')) {
             \ZPush::CheckConfig();
         }
 
@@ -78,7 +78,7 @@ class NetricStateMachineTest extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         $this->stateMachine->UnLinkUserDevice(self::TEST_USER, self::TEST_DEVID);
         $this->stateMachine->CleanStates(self::TEST_DEVID, 'test', false);
         $this->stateMachine->SetStateVersion(\NetricStateMachine::SUPPORTED_STATE_VERSION);
@@ -94,7 +94,8 @@ class NetricStateMachineTest extends TestCase
     {
         // The device should not be linked so the first pass will be false
         $this->assertFalse(
-            $this->stateMachine->UnLinkUserDevice(self::TEST_USER, self::TEST_DEVID));
+            $this->stateMachine->UnLinkUserDevice(self::TEST_USER, self::TEST_DEVID)
+        );
 
         // Link the device
         $this->stateMachine->LinkUserDevice(self::TEST_USER, self::TEST_DEVID);
@@ -156,7 +157,7 @@ class NetricStateMachineTest extends TestCase
 
     public function testGetState()
     {
-        $state = [['test'=>'ZPush can put whatever it wants']];
+        $state = [['test' => 'ZPush can put whatever it wants']];
 
         // Add a test state
         $this->stateMachine->SetState($state, self::TEST_DEVID, 'test');

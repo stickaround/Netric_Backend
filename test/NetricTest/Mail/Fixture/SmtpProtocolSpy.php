@@ -11,7 +11,7 @@ class SmtpProtocolSpy extends Smtp
     public $calledQuit = false;
     protected $connect = false;
     protected $mail;
-    protected $rcptTest = array();
+    protected $rcptTest = [];
 
     public function connect()
     {
@@ -40,7 +40,7 @@ class SmtpProtocolSpy extends Smtp
     public function rset()
     {
         parent::rset();
-        $this->rcptTest = array();
+        $this->rcptTest = [];
     }
 
     public function mail($from)

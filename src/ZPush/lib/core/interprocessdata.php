@@ -25,19 +25,20 @@
 * Consult LICENSE file for details
 ************************************************/
 
-abstract class InterProcessData {
+abstract class InterProcessData
+{
     const CLEANUPTIME = 1;
 
     // Defines which IPC provider to load, first has preference
     // if IPC_PROVIDER in the main config  is set, that class will be loaded
-    static private $providerLoadOrder = array(
+    private static $providerLoadOrder = [
         'IpcSharedMemoryProvider' => 'backend/ipcsharedmemory/ipcsharedmemoryprovider.php',
         'IpcMemcachedProvider'    => 'backend/ipcmemcached/ipcmemcachedprovider.php',
-    );
-    static protected $devid;
-    static protected $pid;
-    static protected $user;
-    static protected $start;
+    ];
+    protected static $devid;
+    protected static $pid;
+    protected static $user;
+    protected static $start;
     protected $type;
     protected $allocate;
     protected $provider_class;
@@ -52,13 +53,15 @@ abstract class InterProcessData {
      *
      * @access public
      */
-    public function __construct() {
-        if (!isset($this->type) || !isset($this->allocate))
+    public function __construct()
+    {
+        if (!isset($this->type) || !isset($this->allocate)) {
             throw new FatalNotImplementedException(sprintf("Class InterProcessData can not be initialized. Subclass %s did not initialize type and allocable memory.", get_class($this)));
+        }
 
         $this->provider_class = defined('IPC_PROVIDER') ? IPC_PROVIDER : false;
         if (!$this->provider_class) {
-            foreach(self::$providerLoadOrder as $provider => $file) {
+            foreach (self::$providerLoadOrder as $provider => $file) {
                 if (file_exists(REAL_BASE_PATH . $file) && class_exists($provider)) {
                     $this->provider_class = $provider;
                     break;
@@ -77,13 +80,10 @@ abstract class InterProcessData {
             }
             $this->ipcProvider = new $this->provider_class($this->type, $this->allocate, get_class($this));
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("%s initialised with IPC provider '%s' with type '%s'", get_class($this), $this->provider_class, $this->type));
-
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // ipcProvider could not initialise
             ZLog::Write(LOGLEVEL_ERROR, sprintf("%s could not initialise IPC provider '%s': %s", get_class($this), $this->provider_class, $e->getMessage()));
         }
-
     }
 
     /**
@@ -92,7 +92,8 @@ abstract class InterProcessData {
      * @access protected
      * @return boolean
      */
-    protected function initializeParams() {
+    protected function initializeParams()
+    {
         if (!isset(self::$devid)) {
             self::$devid = Request::GetDeviceID();
             self::$pid = @getmypid();
@@ -108,7 +109,8 @@ abstract class InterProcessData {
      * @access public
      * @return boolean
      */
-    public function ReInitIPC() {
+    public function ReInitIPC()
+    {
         return $this->ipcProvider ? $this->ipcProvider->ReInitIPC() : false;
     }
 
@@ -118,7 +120,8 @@ abstract class InterProcessData {
      * @access public
      * @return boolean
      */
-    public function Clean() {
+    public function Clean()
+    {
         return $this->ipcProvider ? $this->ipcProvider->Clean() : false;
     }
 
@@ -128,7 +131,8 @@ abstract class InterProcessData {
      * @access public
      * @return boolean
      */
-    public function IsActive() {
+    public function IsActive()
+    {
         return $this->ipcProvider ? $this->ipcProvider->IsActive() : false;
     }
 
@@ -140,7 +144,8 @@ abstract class InterProcessData {
      * @access protected
      * @return boolean
      */
-    protected function blockMutex() {
+    protected function blockMutex()
+    {
         return $this->ipcProvider ? $this->ipcProvider->BlockMutex() : false;
     }
 
@@ -151,7 +156,8 @@ abstract class InterProcessData {
      * @access protected
      * @return boolean
      */
-    protected function releaseMutex() {
+    protected function releaseMutex()
+    {
         return $this->ipcProvider ? $this->ipcProvider->ReleaseMutex() : false;
     }
 
@@ -163,7 +169,8 @@ abstract class InterProcessData {
      * @access protected
      * @return boolean
      */
-    protected function hasData($id = 2) {
+    protected function hasData($id = 2)
+    {
         return $this->ipcProvider ? $this->ipcProvider->HasData($id) : false;
     }
 
@@ -175,7 +182,8 @@ abstract class InterProcessData {
      * @access protected
      * @return mixed
      */
-    protected function getData($id = 2) {
+    protected function getData($id = 2)
+    {
         return $this->ipcProvider ? $this->ipcProvider->GetData($id) : null;
     }
 
@@ -189,7 +197,8 @@ abstract class InterProcessData {
      * @access protected
      * @return boolean
      */
-    protected function setData($data, $id = 2) {
+    protected function setData($data, $id = 2)
+    {
         return $this->ipcProvider ? $this->ipcProvider->SetData($data, $id) : false;
     }
 }

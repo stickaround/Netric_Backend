@@ -22,7 +22,7 @@ class CheckConditionActionTest extends AbstractActionTests
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * All action tests must construct the action
@@ -70,14 +70,14 @@ class CheckConditionActionTest extends AbstractActionTests
 
         // Create check condition action and set conditions
         $action = $this->getAction();
-        $conditions = array(
-            array(
+        $conditions = [
+            [
                 "blogic" => Where::COMBINED_BY_AND,
                 "field_name" => "done",
                 "operator" => Where::OPERATOR_EQUAL_TO,
                 "value" => false,
-            ),
-        );
+            ],
+        ];
         $action->setParam("conditions", $conditions);
 
         // Start a new test/fake instance (no need to save since the action does not check)
@@ -105,14 +105,14 @@ class CheckConditionActionTest extends AbstractActionTests
 
         // Create check condition action and set conditions
         $action = $this->getAction();
-        $conditions = array(
-            array(
+        $conditions = [
+            [
                 "blogic" => Where::COMBINED_BY_AND,
                 "field_name" => "done",
                 "operator" => Where::OPERATOR_EQUAL_TO,
                 "value" => false,
-            ),
-        );
+            ],
+        ];
         $action->setParam("conditions", $conditions);
 
         // Start a new test/fake instance (no need to save since the action does not check)

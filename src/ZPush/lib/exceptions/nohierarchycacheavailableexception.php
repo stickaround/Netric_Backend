@@ -23,4 +23,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class NoHierarchyCacheAvailableException extends StateNotFoundException {}
+class NoHierarchyCacheAvailableException extends StateNotFoundException
+{
+}

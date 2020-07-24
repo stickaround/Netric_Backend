@@ -25,7 +25,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-interface IImportChanges extends IChanges {
+interface IImportChanges extends IChanges
+{
 
     /**----------------------------------------------------------------------------------------------------------
      * Methods for to import contents
@@ -118,5 +119,4 @@ interface IImportChanges extends IChanges {
      * @throws StatusException
      */
     public function ImportFolderDeletion($folder);
-
 }

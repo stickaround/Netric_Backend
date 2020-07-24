@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncObjectBrokenException extends ZPushException {
+class SyncObjectBrokenException extends ZPushException
+{
     protected $defaultLogLevel = LOGLEVEL_WARN;
     private $syncObject;
 
@@ -34,7 +35,8 @@ class SyncObjectBrokenException extends ZPushException {
      * @access public
      * @return SyncObject
      */
-    public function GetSyncObject() {
+    public function GetSyncObject()
+    {
         return isset($this->syncObject) ? $this->syncObject : false;
     }
 
@@ -46,7 +48,8 @@ class SyncObjectBrokenException extends ZPushException {
      * @access public
      * @return boolean
      */
-    public function SetSyncObject($syncobject) {
+    public function SetSyncObject($syncobject)
+    {
         $this->syncObject = $syncobject;
         return true;
     }

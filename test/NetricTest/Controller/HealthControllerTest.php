@@ -25,7 +25,7 @@ class HealthControllerTest extends TestCase
      * @return void
      */
     protected function setUp(): void
-{
+    {
         $account = Bootstrap::getAccount();
         // Rest stats for logs since erros may have occurred before this test
         $account->getApplication()->getLog()->resetLevelStats();

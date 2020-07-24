@@ -54,12 +54,14 @@ try {
         die("ZPUSH_BASE_PATH not set correctly or no config.php file found\n");
     }
 
-    define('BASE_PATH_CLI',  ZPUSH_BASE_PATH ."/");
+    define('BASE_PATH_CLI', ZPUSH_BASE_PATH ."/");
     set_include_path(get_include_path() . PATH_SEPARATOR . ZPUSH_BASE_PATH);
 
     require_once 'vendor/autoload.php';
 
-    if (!defined('ZPUSH_CONFIG')) define('ZPUSH_CONFIG', BASE_PATH_CLI . 'config.php');
+    if (!defined('ZPUSH_CONFIG')) {
+        define('ZPUSH_CONFIG', BASE_PATH_CLI . 'config.php');
+    }
     include_once(ZPUSH_CONFIG);
 
     ZPush::CheckConfig();
@@ -72,11 +74,11 @@ try {
     }
     foreach ($devices as $devid) {
         $users = ZPushAdmin::ListUsers($devid);
-        foreach($users as $user) {
+        foreach ($users as $user) {
             $device = ZPushAdmin::GetDeviceDetails($devid, $user);
             foreach ($device->GetAdditionalFolders() as $folder) {
                 $syncfolderid = $device->GetFolderIdForBackendId($folder['folderid'], false, false, null);
-                if(Utils::GetFolderOriginFromId($syncfolderid) !== DeviceManager::FLD_ORIGIN_SHARED) {
+                if (Utils::GetFolderOriginFromId($syncfolderid) !== DeviceManager::FLD_ORIGIN_SHARED) {
                     continue;
                 }
                 $syncfolder = $device->GetHierarchyCache()->GetFolder($syncfolderid);
@@ -89,8 +91,7 @@ try {
             }
         }
     }
-}
-catch (ZPushException $zpe) {
+} catch (ZPushException $zpe) {
     fwrite(STDERR, get_class($zpe) . ": ". $zpe->getMessage() . "\n");
     exit(1);
 }

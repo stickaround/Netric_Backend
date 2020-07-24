@@ -32,7 +32,7 @@ class EntityFactoryTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->entityFactory = $sm->get(EntityFactoryFactory::class);

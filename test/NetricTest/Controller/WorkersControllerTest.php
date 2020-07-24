@@ -69,7 +69,7 @@ class WorkersControllerTest extends TestCase
         $outputBuffer = $ret->getOutputBuffer();
         $this->assertStringContainsString("Processed 1 jobs", trim(array_pop($outputBuffer)));
     }
-    
+
     /**
      * Test to make sure only one instance of the scheudle action can be run
      */
@@ -80,20 +80,20 @@ class WorkersControllerTest extends TestCase
         // Do not allow echo
         $req->setParam("suppressoutput", 1);
 
-        
+
         // Make sure that doWorkBackground is ONLY CALLED ONCE
         $this->workerService->expects($this->never())
             ->method('doWorkBackground')
             ->with(
                 $this->equalTo('ScheduleRunner'),
-                $this->equalTo(['account_id'=>$this->account->getAccountId()])
+                $this->equalTo(['account_id' => $this->account->getAccountId()])
             );
 
         // Artificially lock the test for 1 second
         $uniqueLockName = 'WorkerScheduleAction-';
         $uniqueLockName .= $this->account->getApplication()->getConfig()->version;
         $this->account->getApplication()->acquireLock($uniqueLockName, 1);
-        
+
         // This should just exit due to the lock
         $this->controller->consoleScheduleAction();
 

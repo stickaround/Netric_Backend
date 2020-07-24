@@ -103,9 +103,9 @@ class ConsoleRequest implements RequestInterface
 
         // Setup signal handlers to actually catch and direct the signals
         if (function_exists("pcntl_signal")) {
-            pcntl_signal(SIGTERM, array($this, "singHandleStop"));
-            pcntl_signal(SIGHUP, array($this, "singHandleStop"));
-            pcntl_signal(SIGINT, array($this, "singHandleStop"));
+            pcntl_signal(SIGTERM, [$this, "singHandleStop"]);
+            pcntl_signal(SIGHUP, [$this, "singHandleStop"]);
+            pcntl_signal(SIGINT, [$this, "singHandleStop"]);
         }
     }
 

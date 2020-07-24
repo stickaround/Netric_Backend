@@ -22,7 +22,7 @@ class ElasticSearch extends IndexAbstract
     protected function setUp(Account $account)
     {
     }
-    
+
     /**
      * Save an object to the index
      *
@@ -34,7 +34,7 @@ class ElasticSearch extends IndexAbstract
         // TODO: build
         return true;
     }
-    
+
     /**
      * Delete an object from the index
      *

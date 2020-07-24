@@ -20,22 +20,22 @@ class SmtpFactoryTest extends TestCase
      *
      * @var array
      */
-    private $oldSettings = array();
+    private $oldSettings = [];
 
     protected function setUp(): void
-{
+    {
         $account = Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
-        $this->oldSettings = array(
+        $this->oldSettings = [
             'smtp_host' => $settings->get("email/smtp_host"),
             'smtp_user' => $settings->get("email/smtp_user"),
             'smtp_password' => $settings->get("email/smtp_password"),
             'smtp_port' => $settings->get("email/smtp_port"),
-        );
+        ];
     }
 
     protected function tearDown(): void
-{
+    {
         // Restore cached old settings
         $account = Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
@@ -83,7 +83,7 @@ class SmtpFactoryTest extends TestCase
         $this->assertEquals($testPort, $options->getPort());
         $this->assertEquals('login', $options->getConnectionClass());
         $this->assertEquals(
-            array('username'=>$testUser, 'password'=>$testPassword),
+            ['username' => $testUser, 'password' => $testPassword],
             $options->getConnectionConfig()
         );
     }

@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class NoPostRequestException extends FatalException {
+class NoPostRequestException extends FatalException
+{
     const OPTIONS_REQUEST = 1;
     const GET_REQUEST = 2;
     protected $defaultLogLevel = LOGLEVEL_DEBUG;

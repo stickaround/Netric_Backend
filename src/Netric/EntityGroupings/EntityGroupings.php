@@ -40,7 +40,7 @@ class EntityGroupings
 
     /**
      * Optional. userGuid is set if this grouping is private
-     * 
+     *
      * @var string
      */
     private $userGuid = "";
@@ -54,7 +54,7 @@ class EntityGroupings
 
     /**
      * Unique path of the entity groupings
-     * 
+     *
      * @var string
      */
     public $path = "";
@@ -389,7 +389,7 @@ class EntityGroupings
 
     /**
      * Deprecated - Marl Tumulak 01/14/2020
-     * 
+     *
      * Get unique filters hash
      */
     public static function getFiltersHash($filters = [])
@@ -417,7 +417,7 @@ class EntityGroupings
 
     /**
      * Function that will check if the value is a valid uuid or a group id. Then it will return the group
-     * 
+     *
      * @param string $value This value should be either a valud uuid or group id.
      */
     public function getByGuidOrGroupId(string $value)

@@ -74,7 +74,7 @@ class Auth_SASL_DigestMD5 extends Auth_SASL_Common
 
             if ($challenge['realm']) {
                 return sprintf('username="%s",realm="%s"' . $authzid_string  .
-',nonce="%s",cnonce="%s",nc=00000001,qop=auth,digest-uri="%s",response=%s,maxbuf=%d', $authcid, $challenge['realm'], $challenge['nonce'], $cnonce, $digest_uri, $response_value, $challenge['maxbuf']);
+                ',nonce="%s",cnonce="%s",nc=00000001,qop=auth,digest-uri="%s",response=%s,maxbuf=%d', $authcid, $challenge['realm'], $challenge['nonce'], $cnonce, $digest_uri, $response_value, $challenge['maxbuf']);
             } else {
                 return sprintf('username="%s"' . $authzid_string  . ',nonce="%s",cnonce="%s",nc=00000001,qop=auth,digest-uri="%s",response=%s,maxbuf=%d', $authcid, $challenge['nonce'], $cnonce, $digest_uri, $response_value, $challenge['maxbuf']);
             }
@@ -93,28 +93,26 @@ class Auth_SASL_DigestMD5 extends Auth_SASL_Common
     */
     function _parseChallenge($challenge)
     {
-        $tokens = array();
+        $tokens = [];
         while (preg_match('/^([a-z-]+)=("[^"]+(?<!\\\)"|[^,]+)/i', $challenge, $matches)) {
-
             // Ignore these as per rfc2831
-            if ($matches[1] == 'opaque' OR $matches[1] == 'domain') {
+            if ($matches[1] == 'opaque' or $matches[1] == 'domain') {
                 $challenge = substr($challenge, strlen($matches[0]) + 1);
                 continue;
             }
 
             // Allowed multiple "realm" and "auth-param"
-            if (!empty($tokens[$matches[1]]) AND ($matches[1] == 'realm' OR $matches[1] == 'auth-param')) {
+            if (!empty($tokens[$matches[1]]) and ($matches[1] == 'realm' or $matches[1] == 'auth-param')) {
                 if (is_array($tokens[$matches[1]])) {
                     $tokens[$matches[1]][] = preg_replace('/^"(.*)"$/', '\\1', $matches[2]);
                 } else {
-                    $tokens[$matches[1]] = array($tokens[$matches[1]], preg_replace('/^"(.*)"$/', '\\1', $matches[2]));
+                    $tokens[$matches[1]] = [$tokens[$matches[1]], preg_replace('/^"(.*)"$/', '\\1', $matches[2])];
                 }
 
             // Any other multiple instance = failure
             } elseif (!empty($tokens[$matches[1]])) {
-                $tokens = array();
+                $tokens = [];
                 break;
-
             } else {
                 $tokens[$matches[1]] = preg_replace('/^"(.*)"$/', '\\1', $matches[2]);
             }
@@ -137,8 +135,8 @@ class Auth_SASL_DigestMD5 extends Auth_SASL_Common
         }
 
         // Required: nonce, algorithm
-        if (empty($tokens['nonce']) OR empty($tokens['algorithm'])) {
-            return array();
+        if (empty($tokens['nonce']) or empty($tokens['algorithm'])) {
+            return [];
         }
 
         return $tokens;
@@ -178,13 +176,11 @@ class Auth_SASL_DigestMD5 extends Auth_SASL_Common
     {
         if (@file_exists('/dev/urandom') && $fd = @fopen('/dev/urandom', 'r')) {
             return base64_encode(fread($fd, 32));
-
         } elseif (@file_exists('/dev/random') && $fd = @fopen('/dev/random', 'r')) {
             return base64_encode(fread($fd, 32));
-
         } else {
             $str = '';
-            for ($i=0; $i<32; $i++) {
+            for ($i = 0; $i < 32; $i++) {
                 $str .= chr(mt_rand(0, 255));
             }
 

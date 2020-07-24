@@ -11,7 +11,7 @@ class ModuleTest extends TestCase
 {
     public function testFromArray()
     {
-        $data = array(
+        $data = [
             "id" => 123,
             "name" => "test",
             "title" => "My Test Module",
@@ -23,21 +23,21 @@ class ModuleTest extends TestCase
             "sort_order" => 100,
             "icon" => "test-icon",
             "default_route" => "all-notes",
-            "navigation" => array(
+            "navigation" => [
                 "title" => "Notes",
                 "icon" => "pencil-square-o",
                 "defaultRoute" => "all-notes",
-                "navigation" => array(
-                    array(
+                "navigation" => [
+                    [
                         "title" => "New Note",
                         "type" => "entity",
                         "route" => "new-note",
                         "objType" => "note",
                         "icon" => "plus",
-                    )
-                )
-            )
-        );
+                    ]
+                ]
+            ]
+        ];
 
         $module = new Module();
         $module->fromArray($data);
@@ -70,23 +70,23 @@ class ModuleTest extends TestCase
         $module->setSortOrder(3000);
         $module->setIcon("test-icon");
         $module->setDefaultRoute("all-notes");
-        $module->setNavigation(array(
-                array(
+        $module->setNavigation([
+                [
                     "title" => "New Note",
                     "type" => "entity",
                     "default_route" => "new-note",
                     "objType" => "note",
                     "icon" => "plus",
-                ),
-                array(
+                ],
+                [
                     "title" => "All Notes",
                     "type" => "browse",
                     "default_route" => "all-notes",
                     "objType" => "note",
                     "icon" => "tags",
                     "browseby" => "groups",
-                )
-            ));
+                ]
+            ]);
 
         $data = $module->toArray();
         $this->assertEquals($data['id'], $module->getModuleId());
@@ -108,15 +108,15 @@ class ModuleTest extends TestCase
         $module = new Module();
         $module->setModuleId(123);
         $module->setName("tester");
-        $module->setNavigation(array(
-                array(
+        $module->setNavigation([
+                [
                     "title" => "New Note",
                     "type" => "entity",
                     "route" => "new-note",
                     "objType" => "note",
                     "icon" => "plus",
-                )
-            ));
+                ]
+            ]);
 
         $this->assertTrue($module->isDirty());
 
@@ -129,15 +129,15 @@ class ModuleTest extends TestCase
         $module = new Module();
         $module->setModuleId(1);
         $module->setName("tester");
-        $module->setNavigation(array(
-                array(
+        $module->setNavigation([
+                [
                     "title" => "New Note",
                     "type" => "entity",
                     "route" => "new-note",
                     "objType" => "note",
                     "icon" => "plus",
-                )
-            ));
+                ]
+            ]);
 
         $xmlNavigation = $module->convertNavigationToXml();
         $this->assertRegexp("/xml/", $xmlNavigation);

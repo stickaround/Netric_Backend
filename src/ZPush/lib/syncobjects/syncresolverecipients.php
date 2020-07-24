@@ -27,29 +27,30 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncResolveRecipients extends SyncObject {
-    public $to = array();
+class SyncResolveRecipients extends SyncObject
+{
+    public $to = [];
     public $options;
     public $status;
     public $response;
 
-    public function __construct() {
-        $mapping = array (
-            SYNC_RESOLVERECIPIENTS_TO                       => array (  self::STREAMER_VAR      => "to",
+    public function __construct()
+    {
+        $mapping = [
+            SYNC_RESOLVERECIPIENTS_TO                       => [  self::STREAMER_VAR      => "to",
                                                                         self::STREAMER_ARRAY    => SYNC_RESOLVERECIPIENTS_TO,
-                                                                        self::STREAMER_PROP     => self::STREAMER_TYPE_NO_CONTAINER),
+                                                                        self::STREAMER_PROP     => self::STREAMER_TYPE_NO_CONTAINER],
 
-            SYNC_RESOLVERECIPIENTS_OPTIONS                  => array (  self::STREAMER_VAR      => "options",
-                                                                        self::STREAMER_TYPE     => "SyncResolveRecipientsOptions"),
+            SYNC_RESOLVERECIPIENTS_OPTIONS                  => [  self::STREAMER_VAR      => "options",
+                                                                        self::STREAMER_TYPE     => "SyncResolveRecipientsOptions"],
 
-            SYNC_RESOLVERECIPIENTS_STATUS                   => array (  self::STREAMER_VAR      => "status"),
+            SYNC_RESOLVERECIPIENTS_STATUS                   => [  self::STREAMER_VAR      => "status"],
 
-            SYNC_RESOLVERECIPIENTS_RESPONSE                 => array (  self::STREAMER_VAR      => "response",
+            SYNC_RESOLVERECIPIENTS_RESPONSE                 => [  self::STREAMER_VAR      => "response",
                                                                         self::STREAMER_TYPE     => "SyncResolveRecipientsResponse",
-                                                                        self::STREAMER_ARRAY    => SYNC_RESOLVERECIPIENTS_RESPONSE),
-        );
+                                                                        self::STREAMER_ARRAY    => SYNC_RESOLVERECIPIENTS_RESPONSE],
+        ];
 
         parent::__construct($mapping);
     }
-
 }

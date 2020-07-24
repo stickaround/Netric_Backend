@@ -504,7 +504,7 @@ class FileSystem implements Error\ErrorAwareInterface
 
         // Parse folder path
         $folderNames = explode("/", $path);
-        $folders = array($this->rootFolder);
+        $folders = [$this->rootFolder];
         $lastFolder = $this->rootFolder;
         foreach ($folderNames as $nextFolderName) {
             $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);

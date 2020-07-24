@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-interface ISearchProvider {
+interface ISearchProvider
+{
     const SEARCH_GAL = "GAL";
     const SEARCH_MAILBOX = "MAILBOX";
     const SEARCH_DOCUMENTLIBRARY = "DOCUMENTLIBRARY";

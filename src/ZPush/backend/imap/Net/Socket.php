@@ -143,9 +143,13 @@ class Net_Socket
      *
      * @return boolean|PEAR_Error  True on success or a PEAR_Error on failure.
      */
-    function connect($addr, $port = 0, $persistent = null,
-                     $timeout = null, $options = null)
-    {
+    function connect(
+        $addr,
+        $port = 0,
+        $persistent = null,
+        $timeout = null,
+        $options = null
+    ) {
         if (is_resource($this->fp)) {
             @fclose($this->fp);
             $this->fp = null;
@@ -153,7 +157,7 @@ class Net_Socket
 
         if (!$addr) {
             return $this->raiseError('$addr cannot be empty');
-        } else if (strspn($addr, ':.0123456789') == strlen($addr)) {
+        } elseif (strspn($addr, ':.0123456789') == strlen($addr)) {
             $this->addr = strpos($addr, ':') !== false ? '['.$addr.']' : $addr;
         } else {
             $this->addr = $addr;
@@ -187,11 +191,23 @@ class Net_Socket
                 }
 
                 $addr = $this->addr . ':' . $this->port;
-                $fp   = stream_socket_client($addr, $errno, $errstr,
-                                             $timeout, $flags, $context);
+                $fp   = stream_socket_client(
+                    $addr,
+                    $errno,
+                    $errstr,
+                    $timeout,
+                    $flags,
+                    $context
+                );
             } else {
-                $fp = @$openfunc($this->addr, $this->port, $errno,
-                                 $errstr, $timeout, $context);
+                $fp = @$openfunc(
+                    $this->addr,
+                    $this->port,
+                    $errno,
+                    $errstr,
+                    $timeout,
+                    $context
+                );
             }
         } else {
             $fp = @$openfunc($this->addr, $this->port, $errno, $errstr, $timeout);
@@ -294,13 +310,12 @@ class Net_Socket
             $seconds      = (int) $this->timeout;
             $microseconds = (int) (($this->timeout - $seconds) * 1000000);
         } else {
-            $this->timeout = $seconds + $microseconds/1000000;
+            $this->timeout = $seconds + $microseconds / 1000000;
         }
 
         if ($this->timeout > 0) {
             return stream_set_timeout($this->fp, (int) $seconds, (int) $microseconds);
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -581,8 +596,13 @@ class Net_Socket
         }
 
         $buf = @fread($this->fp, 4);
-        return sprintf('%d.%d.%d.%d', ord($buf[0]), ord($buf[1]),
-                       ord($buf[2]), ord($buf[3]));
+        return sprintf(
+            '%d.%d.%d.%d',
+            ord($buf[0]),
+            ord($buf[1]),
+            ord($buf[2]),
+            ord($buf[3])
+        );
     }
 
     /**
@@ -669,8 +689,13 @@ class Net_Socket
         if ($state & NET_SOCKET_ERROR) {
             $except[] = $this->fp;
         }
-        if (false === ($sr = stream_select($read, $write, $except,
-                                          $tv_sec, $tv_usec))) {
+        if (false === ($sr = stream_select(
+            $read,
+            $write,
+            $except,
+            $tv_sec,
+            $tv_usec
+        ))) {
             return false;
         }
 
@@ -713,10 +738,11 @@ class Net_Socket
             }
 
             // 5.6.0    Added verify_peer_name. verify_peer default changed to TRUE.
-            if (version_compare(phpversion(), "5.6.0", ">="))
-                stream_context_set_option($this->fp, array('ssl' => array('verify_peer' => $verify_peer, 'verify_peer_name' => $verify_peer_name, 'allow_self_signed' => $allow_self_signed)));
-            else
-                stream_context_set_option($this->fp, array('ssl' => array('verify_peer' => $verify_peer, 'allow_self_signed' => $allow_self_signed)));
+            if (version_compare(phpversion(), "5.6.0", ">=")) {
+                stream_context_set_option($this->fp, ['ssl' => ['verify_peer' => $verify_peer, 'verify_peer_name' => $verify_peer_name, 'allow_self_signed' => $allow_self_signed]]);
+            } else {
+                stream_context_set_option($this->fp, ['ssl' => ['verify_peer' => $verify_peer, 'allow_self_signed' => $allow_self_signed]]);
+            }
 
             return @stream_socket_enable_crypto($this->fp, $enabled, $type);
         } else {
@@ -733,7 +759,8 @@ class Net_Socket
      * @return boolean always false as there was an error
      * @access private
      */
-    function raiseError($message) {
+    function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "Net_Socket error: ". $message);
         return false;
     }

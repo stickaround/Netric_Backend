@@ -38,7 +38,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class StateManager {
+class StateManager
+{
     const FIXEDHIERARCHYCOUNTER = 99999;
 
     // backend storage types
@@ -62,11 +63,12 @@ class StateManager {
      *
      * @access public
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->statemachine = ZPush::GetStateMachine();
         $this->hierarchyOperation = ZPush::HierarchyCommand(Request::GetCommandCode());
         $this->deleteOldStates = (Request::GetCommandCode() === ZPush::COMMAND_SYNC || $this->hierarchyOperation);
-        $this->synchedFolders = array();
+        $this->synchedFolders = [];
     }
 
     /**
@@ -75,7 +77,8 @@ class StateManager {
      * @access public
      * @return void
      */
-    public function DoNotDeleteOldStates() {
+    public function DoNotDeleteOldStates()
+    {
         $this->deleteOldStates = false;
     }
 
@@ -87,7 +90,8 @@ class StateManager {
      * @access public
      * @return boolean
      */
-    public function SetDevice(&$device) {
+    public function SetDevice(&$device)
+    {
         $this->device = $device;
         return true;
     }
@@ -98,12 +102,14 @@ class StateManager {
      * @access public
      * @return array
      */
-    public function GetSynchedFolders() {
-        $synched = array();
+    public function GetSynchedFolders()
+    {
+        $synched = [];
         foreach ($this->device->GetAllFolderIds() as $folderid) {
             $uuid = $this->device->GetFolderUUID($folderid);
-            if ($uuid)
+            if ($uuid) {
                 $synched[] = $folderid;
+            }
         }
         return $synched;
     }
@@ -117,7 +123,8 @@ class StateManager {
      * @access public
      * @return SyncParameters
      */
-    public function GetSynchedFolderState($folderid, $fromCacheIfAvailable = true) {
+    public function GetSynchedFolderState($folderid, $fromCacheIfAvailable = true)
+    {
         // new SyncParameters are cached
         if ($fromCacheIfAvailable && isset($this->synchedFolders[$folderid])) {
             return $this->synchedFolders[$folderid];
@@ -130,12 +137,13 @@ class StateManager {
                 if ($data !== false) {
                     $this->synchedFolders[$folderid] = $data;
                 }
+            } catch (StateNotFoundException $ex) {
             }
-            catch (StateNotFoundException $ex) { }
         }
 
-        if (!isset($this->synchedFolders[$folderid]))
+        if (!isset($this->synchedFolders[$folderid])) {
             $this->synchedFolders[$folderid] = new SyncParameters();
+        }
 
         return $this->synchedFolders[$folderid];
     }
@@ -148,7 +156,8 @@ class StateManager {
      * @access public
      * @return boolean
      */
-    public function SetSynchedFolderState($spa) {
+    public function SetSynchedFolderState($spa)
+    {
         // make sure the current uuid is linked on the device for the folder.
         // if not, old states will be automatically removed and the new ones linked
         self::LinkState($this->device, $spa->GetUuid(), $spa->GetFolderId());
@@ -167,12 +176,12 @@ class StateManager {
      * @access public
      * @return string
      */
-    function GetNewSyncKey($synckey) {
-        if(!isset($synckey) || $synckey == "0" || $synckey == false) {
+    function GetNewSyncKey($synckey)
+    {
+        if (!isset($synckey) || $synckey == "0" || $synckey == false) {
             $this->uuid = $this->getNewUuid();
             $this->newStateCounter = 1;
-        }
-        else {
+        } else {
             list($uuid, $counter) = self::ParseStateKey($synckey);
             $this->uuid = $uuid;
             $this->newStateCounter = $counter + 1;
@@ -187,7 +196,8 @@ class StateManager {
      * @access public
      * @return string
      */
-    public function GetZeroSyncKey() {
+    public function GetZeroSyncKey()
+    {
         return self::BuildStateKey($this->getNewUuid(), 0);
     }
 
@@ -201,9 +211,10 @@ class StateManager {
      * @return string
      * @throws StateInvalidException, StateNotFoundException
      */
-    public function GetSyncState($synckey, $forceHierarchyLoading = false) {
+    public function GetSyncState($synckey, $forceHierarchyLoading = false)
+    {
         // No sync state for sync key '0'
-        if($synckey == "0") {
+        if ($synckey == "0") {
             $this->oldStateCounter = 0;
             return "";
         }
@@ -212,8 +223,9 @@ class StateManager {
         list($this->uuid, $this->oldStateCounter) = self::ParseStateKey($synckey);
 
         // make sure the hierarchy cache is in place
-        if ($this->hierarchyOperation || $forceHierarchyLoading)
+        if ($this->hierarchyOperation || $forceHierarchyLoading) {
             $this->loadHierarchyCache($forceHierarchyLoading);
+        }
 
         // the state machine will discard any sync states before this one, as they are no longer required
         return $this->statemachine->GetState($this->device->GetDeviceId(), IStateMachine::DEFTYPE, $this->uuid, $this->oldStateCounter, $this->deleteOldStates);
@@ -230,14 +242,17 @@ class StateManager {
      * @return boolean
      * @throws StateInvalidException
      */
-    public function SetSyncState($synckey, $syncstate, $folderid = false) {
+    public function SetSyncState($synckey, $syncstate, $folderid = false)
+    {
         $internalkey = self::BuildStateKey($this->uuid, $this->newStateCounter);
-        if ($this->oldStateCounter != 0 && $synckey != $internalkey)
+        if ($this->oldStateCounter != 0 && $synckey != $internalkey) {
             throw new StateInvalidException(sprintf("Unexpected synckey value oldcounter: '%s' synckey: '%s' internal key: '%s'", $this->oldStateCounter, $synckey, $internalkey));
+        }
 
         // make sure the hierarchy cache is also saved
-        if ($this->hierarchyOperation)
+        if ($this->hierarchyOperation) {
             $this->saveHierarchyCache();
+        }
 
         // announce this uuid to the device, while old uuid/states should be deleted
         self::LinkState($this->device, $this->uuid, $folderid);
@@ -251,14 +266,15 @@ class StateManager {
      * @access public
      * @return array/boolean    false if not available
      */
-    public function GetSyncFailState() {
-        if (!$this->uuid)
+    public function GetSyncFailState()
+    {
+        if (!$this->uuid) {
             return false;
+        }
 
         try {
             return $this->statemachine->GetState($this->device->GetDeviceId(), IStateMachine::FAILSAVE, $this->uuid, $this->oldStateCounter, $this->deleteOldStates);
-        }
-        catch (StateNotFoundException $snfex) {
+        } catch (StateNotFoundException $snfex) {
             return false;
         }
     }
@@ -271,9 +287,11 @@ class StateManager {
      * @access public
      * @return boolean
      */
-    public function SetSyncFailState($syncstate) {
-        if ($this->oldStateCounter == 0)
+    public function SetSyncFailState($syncstate)
+    {
+        if ($this->oldStateCounter == 0) {
             return false;
+        }
 
         return $this->statemachine->SetState($syncstate, $this->device->GetDeviceId(), IStateMachine::FAILSAVE, $this->uuid, $this->oldStateCounter);
     }
@@ -287,14 +305,15 @@ class StateManager {
      * @return mixed
      * @throws StateNotYetAvailableException, StateNotFoundException
      */
-    public function GetBackendStorage($type = self::BACKENDSTORAGE_PERMANENT) {
+    public function GetBackendStorage($type = self::BACKENDSTORAGE_PERMANENT)
+    {
         if ($type == self::BACKENDSTORAGE_STATE) {
-            if (!$this->uuid)
+            if (!$this->uuid) {
                 throw new StateNotYetAvailableException();
+            }
 
             return $this->statemachine->GetState($this->device->GetDeviceId(), IStateMachine::BACKENDSTORAGE, $this->uuid, $this->oldStateCounter, $this->deleteOldStates);
-        }
-        else {
+        } else {
             return $this->statemachine->GetState($this->device->GetDeviceId(), IStateMachine::BACKENDSTORAGE, false, $this->device->GetFirstSyncTime(), false);
         }
     }
@@ -309,15 +328,16 @@ class StateManager {
      * @return int              amount of bytes saved
      * @throws StateNotYetAvailableException, StateNotFoundException
      */
-    public function SetBackendStorage($data, $type = self::BACKENDSTORAGE_PERMANENT) {
+    public function SetBackendStorage($data, $type = self::BACKENDSTORAGE_PERMANENT)
+    {
         if ($type == self::BACKENDSTORAGE_STATE) {
-            if (!$this->uuid)
+            if (!$this->uuid) {
                 throw new StateNotYetAvailableException();
+            }
 
             // TODO serialization should be done in the StateMachine
             return $this->statemachine->SetState($data, $this->device->GetDeviceId(), IStateMachine::BACKENDSTORAGE, $this->uuid, $this->newStateCounter);
-        }
-        else {
+        } else {
             return $this->statemachine->SetState($data, $this->device->GetDeviceId(), IStateMachine::BACKENDSTORAGE, false, $this->device->GetFirstSyncTime());
         }
     }
@@ -333,12 +353,15 @@ class StateManager {
      * @access public
      * @return boolean
      */
-    public function InitializeFolderCache($folders) {
-        if (!is_array($folders))
+    public function InitializeFolderCache($folders)
+    {
+        if (!is_array($folders)) {
             return false;
+        }
 
-        if (!isset($this->device))
+        if (!isset($this->device)) {
             throw new FatalException("ASDevice not initialized");
+        }
 
         // redeclare this operation as hierarchyOperation
         $this->hierarchyOperation = true;
@@ -371,14 +394,15 @@ class StateManager {
      * @access public
      * @return boolean
      */
-    static public function LinkState(&$device, $newUuid, $folderid = false) {
+    public static function LinkState(&$device, $newUuid, $folderid = false)
+    {
         $savedUuid = $device->GetFolderUUID($folderid);
         // delete 'old' states!
         if ($savedUuid != $newUuid) {
             // remove states but no need to notify device
             self::UnLinkState($device, $folderid, false);
 
-            ZLog::Write(LOGLEVEL_DEBUG, sprintf("StateManager::linkState(#ASDevice, '%s','%s'): linked to uuid '%s'.", $newUuid, (($folderid === false)?'HierarchyCache':$folderid), $newUuid));
+            ZLog::Write(LOGLEVEL_DEBUG, sprintf("StateManager::linkState(#ASDevice, '%s','%s'): linked to uuid '%s'.", $newUuid, (($folderid === false) ? 'HierarchyCache' : $folderid), $newUuid));
             return $device->SetFolderUUID($newUuid, $folderid);
         }
         return true;
@@ -399,30 +423,34 @@ class StateManager {
      * @access public
      * @return boolean
      */
-    static public function UnLinkState(&$device, $folderid, $removeFromDevice = true, $retrieveUUIDFromDevice = true) {
-        if ($retrieveUUIDFromDevice === true)
+    public static function UnLinkState(&$device, $folderid, $removeFromDevice = true, $retrieveUUIDFromDevice = true)
+    {
+        if ($retrieveUUIDFromDevice === true) {
             $savedUuid = $device->GetFolderUUID($folderid);
-        else
+        } else {
             $savedUuid = $retrieveUUIDFromDevice;
+        }
 
         if ($savedUuid) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("StateManager::UnLinkState('%s'): saved state '%s' will be deleted.", $folderid, $savedUuid));
-            ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::DEFTYPE, $savedUuid, self::FIXEDHIERARCHYCOUNTER *2);
+            ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::DEFTYPE, $savedUuid, self::FIXEDHIERARCHYCOUNTER * 2);
             ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::FOLDERDATA, $savedUuid); // CPO
-            ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::FAILSAVE, $savedUuid, self::FIXEDHIERARCHYCOUNTER *2);
-            ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::BACKENDSTORAGE, $savedUuid, self::FIXEDHIERARCHYCOUNTER *2);
+            ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::FAILSAVE, $savedUuid, self::FIXEDHIERARCHYCOUNTER * 2);
+            ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::BACKENDSTORAGE, $savedUuid, self::FIXEDHIERARCHYCOUNTER * 2);
 
             // remove all messages which could not be synched before
             $device->RemoveIgnoredMessage($folderid, false);
 
-            if ($folderid === false && $savedUuid !== false)
-                ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::HIERARCHY, $savedUuid, self::FIXEDHIERARCHYCOUNTER *2);
+            if ($folderid === false && $savedUuid !== false) {
+                ZPush::GetStateMachine()->CleanStates($device->GetDeviceId(), IStateMachine::HIERARCHY, $savedUuid, self::FIXEDHIERARCHYCOUNTER * 2);
+            }
         }
         // delete this id from the uuid cache
-        if ($removeFromDevice)
+        if ($removeFromDevice) {
             return $device->SetFolderUUID(false, $folderid);
-        else
+        } else {
             return true;
+        }
     }
 
     /**
@@ -434,12 +462,14 @@ class StateManager {
      * @return array            uuid, counter
      * @throws StateInvalidException
      */
-    static public function ParseStateKey($synckey) {
-        $matches = array();
-        if(!preg_match('/^\{([0-9A-Za-z-]+)\}([0-9]+)$/', $synckey, $matches))
+    public static function ParseStateKey($synckey)
+    {
+        $matches = [];
+        if (!preg_match('/^\{([0-9A-Za-z-]+)\}([0-9]+)$/', $synckey, $matches)) {
             throw new StateInvalidException(sprintf("SyncKey '%s' is invalid", $synckey));
+        }
 
-        return array($matches[1], (int)$matches[2]);
+        return [$matches[1], (int)$matches[2]];
     }
 
     /**
@@ -452,9 +482,11 @@ class StateManager {
      * @return string           syncKey
      * @throws StateInvalidException
      */
-    static public function BuildStateKey($uuid, $counter) {
-        if(!preg_match('/^([0-9A-Za-z-]+)$/', $uuid, $matches))
+    public static function BuildStateKey($uuid, $counter)
+    {
+        if (!preg_match('/^([0-9A-Za-z-]+)$/', $uuid, $matches)) {
             throw new StateInvalidException(sprintf("UUID '%s' is invalid", $uuid));
+        }
 
         return "{" . $uuid . "}" . $counter;
     }
@@ -474,9 +506,11 @@ class StateManager {
      * @return boolean
      * @throws StateNotFoundException
      */
-    private function loadHierarchyCache($forceLoading = false) {
-        if (!$this->hierarchyOperation && $forceLoading == false)
+    private function loadHierarchyCache($forceLoading = false)
+    {
+        if (!$this->hierarchyOperation && $forceLoading == false) {
             return false;
+        }
 
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("StateManager->loadHierarchyCache(): '%s-%s-%s-%d'", $this->device->GetDeviceId(), $this->uuid, IStateMachine::HIERARCHY, $this->oldStateCounter));
 
@@ -486,7 +520,7 @@ class StateManager {
             throw new StateNotFoundException("No hierarchy UUID linked to device. Requesting folder resync.");
         }
 
-        $hierarchydata = $this->statemachine->GetState($this->device->GetDeviceId(), IStateMachine::HIERARCHY, $this->uuid , $this->oldStateCounter, $this->deleteOldStates);
+        $hierarchydata = $this->statemachine->GetState($this->device->GetDeviceId(), IStateMachine::HIERARCHY, $this->uuid, $this->oldStateCounter, $this->deleteOldStates);
         $this->device->SetHierarchyCache($hierarchydata);
         return true;
     }
@@ -501,18 +535,22 @@ class StateManager {
      * @return boolean
      * @throws StateInvalidException
      */
-    private function saveHierarchyCache($forceSaving = false) {
-        if (!$this->hierarchyOperation && !$forceSaving)
+    private function saveHierarchyCache($forceSaving = false)
+    {
+        if (!$this->hierarchyOperation && !$forceSaving) {
             return false;
+        }
 
         // link the hierarchy cache again, if the UUID does not match the UUID saved in the devicedata
-        if (($this->uuid != $this->device->GetFolderUUID() || $forceSaving) )
+        if (($this->uuid != $this->device->GetFolderUUID() || $forceSaving)) {
             self::LinkState($this->device, $this->uuid);
+        }
 
         // check all folders and deleted folders to update data of ASDevice and delete old states
         $hc = $this->device->getHierarchyCache();
-        foreach ($hc->GetDeletedFolders() as $delfolder)
+        foreach ($hc->GetDeletedFolders() as $delfolder) {
             self::UnLinkState($this->device, $delfolder->serverid);
+        }
 
         foreach ($hc->ExportFolders() as $folder) {
             $this->device->SetFolderType($folder->serverid, $folder->type);
@@ -528,11 +566,18 @@ class StateManager {
      * @access private
      * @return string
      */
-    private function getNewUuid() {
-        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-                    mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-                    mt_rand( 0, 0x0fff ) | 0x4000,
-                    mt_rand( 0, 0x3fff ) | 0x8000,
-                    mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ) );
+    private function getNewUuid()
+    {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
+        );
     }
 }

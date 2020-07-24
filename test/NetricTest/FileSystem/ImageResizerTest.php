@@ -39,7 +39,7 @@ class ImageResizerTest extends TestCase
      *
      * @var ObjType\FileEntity[]
      */
-    private $testFiles = array();
+    private $testFiles = [];
 
     /**
      * Use a temp path in the tests directory to avoid permissions issues
@@ -52,7 +52,7 @@ class ImageResizerTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->fileSystem = $sl->get(FileSystem::class);
@@ -63,7 +63,7 @@ class ImageResizerTest extends TestCase
      * Cleanup each test
      */
     protected function tearDown(): void
-{
+    {
         // Clean-up test files
         foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file, true);

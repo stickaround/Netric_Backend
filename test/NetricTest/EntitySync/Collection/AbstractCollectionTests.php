@@ -185,9 +185,9 @@ abstract class AbstractCollectionTests extends TestCase
 
     public function testSetAndGetConditions()
     {
-        $conditions = array(
-            array("blogic" => "and", "field" => "groups", "operator" => "is_equal", "condValue" => 1)
-        );
+        $conditions = [
+            ["blogic" => "and", "field" => "groups", "operator" => "is_equal", "condValue" => 1]
+        ];
 
         $coll = $this->getCollection();
         $coll->setConditions($conditions);

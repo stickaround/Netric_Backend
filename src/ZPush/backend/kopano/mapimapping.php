@@ -28,14 +28,16 @@
  *
  *
  */
-class MAPIMapping {
+class MAPIMapping
+{
     /**
      * Returns the MAPI to AS mapping for contacts
      *
      * @return array
      */
-    public static function GetContactMapping() {
-        return array (
+    public static function GetContactMapping()
+    {
+        return  [
             "anniversary"           => PR_WEDDING_ANNIVERSARY,
             "assistantname"         => PR_ASSISTANT,
             "assistnamephonenumber" => PR_ASSISTANT_TELEPHONE_NUMBER,
@@ -98,7 +100,7 @@ class MAPIMapping {
             "accountname"           => PR_ACCOUNT,
             "nickname"              => PR_NICKNAME,
             // mms
-            );
+            ];
     }
 
 
@@ -110,8 +112,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetContactProperties() {
-        return array (
+    public static function GetContactProperties()
+    {
+        return  [
             "haspic"                => "PT_BOOLEAN:PSETID_Address:0x8015",
             "emailaddress1"         => "PT_STRING8:PSETID_Address:0x8083",
             "emailaddressdname1"    => "PT_STRING8:PSETID_Address:0x8080",
@@ -142,7 +145,7 @@ class MAPIMapping {
             "businessaddress"       => "PT_STRING8:PSETID_Address:0x801b",
             "otheraddress"          => "PT_STRING8:PSETID_Address:0x801c",
             "mailingaddress"        => "PT_LONG:PSETID_Address:0x8022",
-        );
+        ];
     }
 
 
@@ -151,8 +154,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetEmailMapping() {
-        return array (
+    public static function GetEmailMapping()
+    {
+        return  [
             // from
             "datereceived"          => PR_MESSAGE_DELIVERY_TIME,
             "displayname"           => PR_SUBJECT,
@@ -169,7 +173,7 @@ class MAPIMapping {
             "lastverbexecuted"      => PR_LAST_VERB_EXECUTED,
             "lastverbexectime"      => PR_LAST_VERB_EXECUTION_TIME,
             "categories"            => "PT_MV_STRING8:PS_PUBLIC_STRINGS:Keywords",
-            );
+            ];
     }
 
 
@@ -181,8 +185,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetEmailProperties() {
-        return array (
+    public static function GetEmailProperties()
+    {
+        return  [
             // Override 'From' to show "Full Name <user@domain.com>"
             "representingname"      => PR_SENT_REPRESENTING_NAME,
             "representingentryid"   => PR_SENT_REPRESENTING_ENTRYID,
@@ -194,7 +199,7 @@ class MAPIMapping {
             "html"                  => PR_HTML,
             "rtfinsync"             => PR_RTF_IN_SYNC,
             "processed"             => PR_PROCESSED,
-        );
+        ];
     }
 
 
@@ -203,8 +208,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetMeetingRequestMapping() {
-        return array (
+    public static function GetMeetingRequestMapping()
+    {
+        return  [
             "responserequested"     => PR_RESPONSE_REQUESTED,
             // timezone
             "alldayevent"           => "PT_BOOLEAN:PSETID_Appointment:0x8215",
@@ -217,12 +223,13 @@ class MAPIMapping {
             "reminder"              => "PT_LONG:PSETID_Common:0x8501",
             "starttime"             => "PT_SYSTIME:PSETID_Appointment:0x820d",
             "sensitivity"           => PR_SENSITIVITY,
-            );
+            ];
     }
 
 
-    public static function GetMeetingRequestProperties() {
-        return array (
+    public static function GetMeetingRequestProperties()
+    {
+        return  [
             "goidtag"               => "PT_BINARY:PSETID_Meeting:0x3",
             "timezonetag"           => "PT_BINARY:PSETID_Appointment:0x8233",
             "recReplTime"           => "PT_SYSTIME:PSETID_Appointment:0x8228",
@@ -234,12 +241,13 @@ class MAPIMapping {
             "reminderset"           => "PT_BOOLEAN:PSETID_Common:0x8503",
             "remindertime"          => "PT_LONG:PSETID_Common:0x8501",
             "recurrenceend"         => "PT_SYSTIME:PSETID_Appointment:0x8236",
-            );
+            ];
     }
 
 
-    public static function GetTnefAndIcalProperties() {
-        return array(
+    public static function GetTnefAndIcalProperties()
+    {
+        return [
             "starttime"             => "PT_SYSTIME:PSETID_Appointment:0x820d",
             "endtime"               => "PT_SYSTIME:PSETID_Appointment:0x820e",
             "commonstart"           => "PT_SYSTIME:PSETID_Common:0x8516",
@@ -263,7 +271,7 @@ class MAPIMapping {
             "weekinterval"          => "PT_I2:PSETID_Meeting:0x12",
             "monthinterval"         => "PT_I2:PSETID_Meeting:0x13",
             "yearinterval"          => "PT_I2:PSETID_Meeting:0x14",
-        );
+        ];
     }
 
 
@@ -272,8 +280,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetAppointmentMapping() {
-        return array (
+    public static function GetAppointmentMapping()
+    {
+        return  [
             "alldayevent"           => "PT_BOOLEAN:PSETID_Appointment:0x8215",
             "body"                  => PR_BODY,
             "busystatus"            => "PT_LONG:PSETID_Appointment:0x8205",
@@ -288,7 +297,7 @@ class MAPIMapping {
             "starttime"             => "PT_SYSTIME:PSETID_Appointment:0x820d",
             "uid"                   => "PT_BINARY:PSETID_Meeting:0x3",
             "nativebodytype"        => PR_NATIVE_BODY_INFO,
-            );
+            ];
     }
 
 
@@ -300,8 +309,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetAppointmentProperties() {
-        return array(
+    public static function GetAppointmentProperties()
+    {
+        return [
             "sourcekey"             => PR_SOURCE_KEY,
             "representingentryid"   => PR_SENT_REPRESENTING_ENTRYID,
             "representingname"      => PR_SENT_REPRESENTING_NAME,
@@ -334,7 +344,7 @@ class MAPIMapping {
             "rtfcompressed"         => PR_RTF_COMPRESSED,
             "html"                  => PR_HTML,
             "rtfinsync"             => PR_RTF_IN_SYNC,
-        );
+        ];
     }
 
 
@@ -343,8 +353,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetTaskMapping() {
-        return array (
+    public static function GetTaskMapping()
+    {
+        return  [
             "body"                  => PR_BODY,
             "categories"            => "PT_MV_STRING8:PS_PUBLIC_STRINGS:Keywords",
             "complete"              => "PT_BOOLEAN:PSETID_Task:0x811C",
@@ -363,7 +374,7 @@ class MAPIMapping {
             "subject"               => PR_SUBJECT,
             "rtf"                   => PR_RTF_COMPRESSED,
             "html"                  => PR_HTML,
-            );
+            ];
     }
 
 
@@ -374,8 +385,9 @@ class MAPIMapping {
      *
      * @return array
      */
-    public static function GetTaskProperties() {
-        return array (
+    public static function GetTaskProperties()
+    {
+        return  [
             "isrecurringtag"        => "PT_BOOLEAN:PSETID_Task:0x8126",
             "recurringstate"        => "PT_BINARY:PSETID_Task:0x8116",
             "deadoccur"             => "PT_BOOLEAN:PSETID_Task:0x8109",
@@ -384,7 +396,7 @@ class MAPIMapping {
             "icon"                  => PR_ICON_INDEX,
             "owner"                 => "PT_STRING8:PSETID_Task:0x811F",
             "private"               => "PT_BOOLEAN:PSETID_Common:0x8506",
-        );
+        ];
     }
 
 
@@ -393,8 +405,9 @@ class MAPIMapping {
     *
     * @return array
     */
-    public static function GetMailFlagsMapping() {
-        return array (
+    public static function GetMailFlagsMapping()
+    {
+        return  [
             "flagstatus"            => PR_FLAG_STATUS,
             "flagtype"              => "PT_STRING8:PSETID_Common:0x8530",
             "datecompleted"         => "PT_SYSTIME:PSETID_Common:0x810F",
@@ -408,7 +421,7 @@ class MAPIMapping {
             "ordinaldate"           => "PT_SYSTIME:PSETID_Common:0x85A0",
             "subordinaldate"        => "PT_STRING8:PSETID_Common:0x85A1",
 
-        );
+        ];
     }
 
 
@@ -419,8 +432,9 @@ class MAPIMapping {
     *
     * @return array
     */
-    public static function GetMailFlagsProperties() {
-        return array(
+    public static function GetMailFlagsProperties()
+    {
+        return [
             "todoitemsflags"        => PR_TODO_ITEM_FLAGS,
             "todotitle"             => "PT_STRING8:PSETID_Common:0x85A4",
             "flagicon"              => PR_FLAG_ICON,
@@ -429,7 +443,7 @@ class MAPIMapping {
             "status"                => "PT_LONG:PSETID_Task:0x8101",
             "completion"            => "PT_DOUBLE:PSETID_Task:0x8102",
             "complete"              => "PT_BOOLEAN:PSETID_Task:0x811C",
-        );
+        ];
     }
 
 
@@ -440,15 +454,16 @@ class MAPIMapping {
     *
     * @return array
     */
-    public static function GetNoteMapping() {
-        return array(
+    public static function GetNoteMapping()
+    {
+        return [
             "categories"            => "PT_MV_STRING8:PS_PUBLIC_STRINGS:Keywords",
             "lastmodified"          => PR_LAST_MODIFICATION_TIME,
             "messageclass"          => PR_MESSAGE_CLASS,
             "subject"               => PR_SUBJECT,
             "Color"                 => "PT_LONG:PSETID_Note:0x8B00",
             "Iconindex"             => PR_ICON_INDEX,
-        );
+        ];
     }
 
 
@@ -459,14 +474,15 @@ class MAPIMapping {
     *
     * @return array
     */
-    public static function GetNoteProperties() {
-        return array(
+    public static function GetNoteProperties()
+    {
+        return [
             "body"                  => PR_BODY,
             "messageclass"          => PR_MESSAGE_CLASS,
             "html"                  => PR_HTML,
             "internetcpid"          => PR_INTERNET_CPID,
 
-        );
+        ];
     }
 
 
@@ -477,8 +493,9 @@ class MAPIMapping {
     *
     * @return array
     */
-    public static function GetSendMailProperties() {
-        return array(
+    public static function GetSendMailProperties()
+    {
+        return [
                 "outboxentryid"         => PR_IPM_OUTBOX_ENTRYID,
                 "ipmsentmailentryid"    => PR_IPM_SENTMAIL_ENTRYID,
                 "sentmailentryid"       => PR_SENTMAIL_ENTRYID,
@@ -508,6 +525,6 @@ class MAPIMapping {
                 "internetcpid"          => PR_INTERNET_CPID,
                 "rtf"                   => PR_RTF_COMPRESSED,
                 "rtfinsync"             => PR_RTF_IN_SYNC,
-        );
+        ];
     }
 }

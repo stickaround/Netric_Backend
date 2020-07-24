@@ -80,10 +80,10 @@ class ModuleControllerTest extends TestCase
 
     public function testSaveAction()
     {
-        $data = array(
+        $data = [
             'name' => "unit_test_module",
             'title' => "Unit Test Module",
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();

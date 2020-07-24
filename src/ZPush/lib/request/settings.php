@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class Settings extends RequestProcessor {
+class Settings extends RequestProcessor
+{
 
     /**
      * Handles the Settings command
@@ -33,28 +34,51 @@ class Settings extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle($commandCode) {
-        if (!self::$decoder->getElementStartTag(SYNC_SETTINGS_SETTINGS))
+    public function Handle($commandCode)
+    {
+        if (!self::$decoder->getElementStartTag(SYNC_SETTINGS_SETTINGS)) {
             return false;
+        }
 
         // always add capability header - define the supported capabilites
-        $cap = array();
-        if (defined('KOE_CAPABILITY_GAB') && KOE_CAPABILITY_GAB)                                $cap[] = "gab";
-        if (defined('KOE_CAPABILITY_RECEIVEFLAGS') && KOE_CAPABILITY_RECEIVEFLAGS)              $cap[] = "receiveflags";
-        if (defined('KOE_CAPABILITY_SENDFLAGS') && KOE_CAPABILITY_SENDFLAGS)                    $cap[] = "sendflags";
-        if (defined('KOE_CAPABILITY_OOFTIMES') && KOE_CAPABILITY_OOFTIMES)                      $cap[] = "ooftime";
-        elseif(defined('KOE_CAPABILITY_OOF') && KOE_CAPABILITY_OOF)                             $cap[] = "oof";        // 'ooftime' superseeds 'oof'. If 'ooftime' is set, 'oof' should not be defined.
-        if (defined('KOE_CAPABILITY_NOTES') && KOE_CAPABILITY_NOTES)                            $cap[] = "notes";
-        if (defined('KOE_CAPABILITY_SHAREDFOLDER') && KOE_CAPABILITY_SHAREDFOLDER)              $cap[] = "sharedfolder";
-        if (defined('KOE_CAPABILITY_SENDAS') && KOE_CAPABILITY_SENDAS)                          $cap[] = "sendas";
-        if (defined('KOE_CAPABILITY_SECONDARYCONTACTS') && KOE_CAPABILITY_SECONDARYCONTACTS)    $cap[] = "secondarycontacts";
-        if (defined('KOE_CAPABILITY_SIGNATURES') && KOE_CAPABILITY_SIGNATURES)                  $cap[] = "signatures";
-        if (defined('KOE_CAPABILITY_RECEIPTS') && KOE_CAPABILITY_RECEIPTS)                      $cap[] = "receipts";
+        $cap = [];
+        if (defined('KOE_CAPABILITY_GAB') && KOE_CAPABILITY_GAB) {
+            $cap[] = "gab";
+        }
+        if (defined('KOE_CAPABILITY_RECEIVEFLAGS') && KOE_CAPABILITY_RECEIVEFLAGS) {
+            $cap[] = "receiveflags";
+        }
+        if (defined('KOE_CAPABILITY_SENDFLAGS') && KOE_CAPABILITY_SENDFLAGS) {
+            $cap[] = "sendflags";
+        }
+        if (defined('KOE_CAPABILITY_OOFTIMES') && KOE_CAPABILITY_OOFTIMES) {
+            $cap[] = "ooftime";
+        } elseif (defined('KOE_CAPABILITY_OOF') && KOE_CAPABILITY_OOF) {
+            $cap[] = "oof";        // 'ooftime' superseeds 'oof'. If 'ooftime' is set, 'oof' should not be defined.
+        }
+        if (defined('KOE_CAPABILITY_NOTES') && KOE_CAPABILITY_NOTES) {
+            $cap[] = "notes";
+        }
+        if (defined('KOE_CAPABILITY_SHAREDFOLDER') && KOE_CAPABILITY_SHAREDFOLDER) {
+            $cap[] = "sharedfolder";
+        }
+        if (defined('KOE_CAPABILITY_SENDAS') && KOE_CAPABILITY_SENDAS) {
+            $cap[] = "sendas";
+        }
+        if (defined('KOE_CAPABILITY_SECONDARYCONTACTS') && KOE_CAPABILITY_SECONDARYCONTACTS) {
+            $cap[] = "secondarycontacts";
+        }
+        if (defined('KOE_CAPABILITY_SIGNATURES') && KOE_CAPABILITY_SIGNATURES) {
+            $cap[] = "signatures";
+        }
+        if (defined('KOE_CAPABILITY_RECEIPTS') && KOE_CAPABILITY_RECEIPTS) {
+            $cap[] = "receipts";
+        }
 
-        self::$specialHeaders = array();
+        self::$specialHeaders = [];
         self::$specialHeaders[] = "X-Push-Capabilities: ". implode(",", $cap);
 
-        if(self::$deviceManager->IsKoe()) {
+        if (self::$deviceManager->IsKoe()) {
             self::$specialHeaders[] = "X-Push-GAB-Name: ". bin2hex(KOE_GAB_NAME);
 
             if (defined('KOE_CAPABILITY_SIGNATURES') && KOE_CAPABILITY_SIGNATURES) {
@@ -63,7 +87,7 @@ class Settings extends RequestProcessor {
         }
 
         //save the request parameters
-        $request = array();
+        $request = [];
 
         // Loop through properties. Possible are:
         // - Out of office
@@ -72,7 +96,7 @@ class Settings extends RequestProcessor {
         // - UserInformation
         // Each of them should only be once per request. Each property must be processed in order.
         WBXMLDecoder::ResetInWhile("settingsMain");
-        while(WBXMLDecoder::InWhile("settingsMain")) {
+        while (WBXMLDecoder::InWhile("settingsMain")) {
             $propertyName = "";
             if (self::$decoder->getElementStartTag(SYNC_SETTINGS_OOF)) {
                 $propertyName = SYNC_SETTINGS_OOF;
@@ -88,8 +112,9 @@ class Settings extends RequestProcessor {
             }
             //TODO - check if it is necessary
             //no property name available - break
-            if (!$propertyName)
+            if (!$propertyName) {
                 break;
+            }
 
             //the property name is followed by either get or set
             if (self::$decoder->getElementStartTag(SYNC_SETTINGS_GET)) {
@@ -98,8 +123,9 @@ class Settings extends RequestProcessor {
                     case SYNC_SETTINGS_OOF:
                         $oofGet = new SyncOOF();
                         $oofGet->Decode(self::$decoder);
-                        if(!self::$decoder->getElementEndTag())
+                        if (!self::$decoder->getElementEndTag()) {
                             return false; // SYNC_SETTINGS_GET
+                        }
                         break;
 
                     case SYNC_SETTINGS_USERINFORMATION:
@@ -108,10 +134,9 @@ class Settings extends RequestProcessor {
 
                     default:
                         //TODO: a special status code needed?
-                        ZLog::Write(LOGLEVEL_WARN, sprintf ("This property ('%s') is not allowed to use get in request", $propertyName));
+                        ZLog::Write(LOGLEVEL_WARN, sprintf("This property ('%s') is not allowed to use get in request", $propertyName));
                 }
-            }
-            elseif (self::$decoder->getElementStartTag(SYNC_SETTINGS_SET)) {
+            } elseif (self::$decoder->getElementStartTag(SYNC_SETTINGS_SET)) {
                 //set is available for OOF, device password and device information
                 switch ($propertyName) {
                     case SYNC_SETTINGS_OOF:
@@ -135,23 +160,24 @@ class Settings extends RequestProcessor {
 
                     default:
                         //TODO: a special status code needed?
-                        ZLog::Write(LOGLEVEL_WARN, sprintf ("This property ('%s') is not allowed to use set in request", $propertyName));
+                        ZLog::Write(LOGLEVEL_WARN, sprintf("This property ('%s') is not allowed to use set in request", $propertyName));
                 }
 
-                if(!self::$decoder->getElementEndTag())
+                if (!self::$decoder->getElementEndTag()) {
                     return false; // SYNC_SETTINGS_SET
-            }
-            else {
+                }
+            } else {
                 ZLog::Write(LOGLEVEL_WARN, sprintf("Neither get nor set found for property '%s'", $propertyName));
                 return false;
             }
 
-            if(!self::$decoder->getElementEndTag())
+            if (!self::$decoder->getElementEndTag()) {
                 return false; // SYNC_SETTINGS_OOF or SYNC_SETTINGS_DEVICEPW or SYNC_SETTINGS_DEVICEINFORMATION or SYNC_SETTINGS_USERINFORMATION
+            }
 
             //break if it reached the endtag
             $e = self::$decoder->peek();
-            if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
+            if ($e[EN_TYPE] == EN_TYPE_ENDTAG) {
                 self::$decoder->getElementEndTag(); //SYNC_SETTINGS_SETTINGS
                 break;
             }
@@ -173,63 +199,63 @@ class Settings extends RequestProcessor {
             self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
 
             //get oof settings
-            if (isset($oofGet)) {
-                $oofGet = self::$backend->Settings($oofGet);
-                self::$encoder->startTag(SYNC_SETTINGS_OOF);
-                    self::$encoder->startTag(SYNC_SETTINGS_STATUS);
-                    self::$encoder->content($oofGet->Status);
-                    self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
+        if (isset($oofGet)) {
+            $oofGet = self::$backend->Settings($oofGet);
+            self::$encoder->startTag(SYNC_SETTINGS_OOF);
+                self::$encoder->startTag(SYNC_SETTINGS_STATUS);
+                self::$encoder->content($oofGet->Status);
+                self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
 
-                    self::$encoder->startTag(SYNC_SETTINGS_GET);
-                        $oofGet->Encode(self::$encoder);
-                    self::$encoder->endTag(); //SYNC_SETTINGS_GET
-                self::$encoder->endTag(); //SYNC_SETTINGS_OOF
-            }
+                self::$encoder->startTag(SYNC_SETTINGS_GET);
+                    $oofGet->Encode(self::$encoder);
+                self::$encoder->endTag(); //SYNC_SETTINGS_GET
+            self::$encoder->endTag(); //SYNC_SETTINGS_OOF
+        }
 
             //get user information
             //TODO none email address found
-            if (isset($userInformation)) {
-                self::$backend->Settings($userInformation);
-                self::$encoder->startTag(SYNC_SETTINGS_USERINFORMATION);
-                    self::$encoder->startTag(SYNC_SETTINGS_STATUS);
-                    self::$encoder->content($userInformation->Status);
-                    self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
+        if (isset($userInformation)) {
+            self::$backend->Settings($userInformation);
+            self::$encoder->startTag(SYNC_SETTINGS_USERINFORMATION);
+                self::$encoder->startTag(SYNC_SETTINGS_STATUS);
+                self::$encoder->content($userInformation->Status);
+                self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
 
-                    self::$encoder->startTag(SYNC_SETTINGS_GET);
-                        $userInformation->Encode(self::$encoder);
-                    self::$encoder->endTag(); //SYNC_SETTINGS_GET
-                self::$encoder->endTag(); //SYNC_SETTINGS_USERINFORMATION
-            }
+                self::$encoder->startTag(SYNC_SETTINGS_GET);
+                    $userInformation->Encode(self::$encoder);
+                self::$encoder->endTag(); //SYNC_SETTINGS_GET
+            self::$encoder->endTag(); //SYNC_SETTINGS_USERINFORMATION
+        }
 
             //set out of office
-            if (isset($oofSet)) {
-                $oofSet = self::$backend->Settings($oofSet);
-                self::$encoder->startTag(SYNC_SETTINGS_OOF);
-                    self::$encoder->startTag(SYNC_SETTINGS_STATUS);
-                    self::$encoder->content($oofSet->Status);
-                    self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
-                self::$encoder->endTag(); //SYNC_SETTINGS_OOF
-            }
+        if (isset($oofSet)) {
+            $oofSet = self::$backend->Settings($oofSet);
+            self::$encoder->startTag(SYNC_SETTINGS_OOF);
+                self::$encoder->startTag(SYNC_SETTINGS_STATUS);
+                self::$encoder->content($oofSet->Status);
+                self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
+            self::$encoder->endTag(); //SYNC_SETTINGS_OOF
+        }
 
             //set device passwort
-            if (isset($devicepassword)) {
-                self::$encoder->startTag(SYNC_SETTINGS_DEVICEPW);
-                    self::$encoder->startTag(SYNC_SETTINGS_SET);
-                        self::$encoder->startTag(SYNC_SETTINGS_STATUS);
-                        self::$encoder->content($devicepassword->Status);
-                        self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
-                    self::$encoder->endTag(); //SYNC_SETTINGS_SET
-                self::$encoder->endTag(); //SYNC_SETTINGS_DEVICEPW
-            }
+        if (isset($devicepassword)) {
+            self::$encoder->startTag(SYNC_SETTINGS_DEVICEPW);
+                self::$encoder->startTag(SYNC_SETTINGS_SET);
+                    self::$encoder->startTag(SYNC_SETTINGS_STATUS);
+                    self::$encoder->content($devicepassword->Status);
+                    self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
+                self::$encoder->endTag(); //SYNC_SETTINGS_SET
+            self::$encoder->endTag(); //SYNC_SETTINGS_DEVICEPW
+        }
 
             //set device information
-            if (isset($deviceinformation)) {
-                self::$encoder->startTag(SYNC_SETTINGS_DEVICEINFORMATION);
-                    self::$encoder->startTag(SYNC_SETTINGS_STATUS);
-                    self::$encoder->content($deviceinformation->Status);
-                    self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
-                self::$encoder->endTag(); //SYNC_SETTINGS_DEVICEINFORMATION
-            }
+        if (isset($deviceinformation)) {
+            self::$encoder->startTag(SYNC_SETTINGS_DEVICEINFORMATION);
+                self::$encoder->startTag(SYNC_SETTINGS_STATUS);
+                self::$encoder->content($deviceinformation->Status);
+                self::$encoder->endTag(); //SYNC_SETTINGS_STATUS
+            self::$encoder->endTag(); //SYNC_SETTINGS_DEVICEINFORMATION
+        }
 
 
         self::$encoder->endTag(); //SYNC_SETTINGS_SETTINGS

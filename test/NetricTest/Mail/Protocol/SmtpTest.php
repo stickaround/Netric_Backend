@@ -26,7 +26,7 @@ class SmtpTest extends TestCase
     public $connection;
 
     public function setUp(): void
-{
+    {
         $this->transport  = new Smtp();
         $this->connection = new SmtpProtocolSpy();
         $this->transport->setConnection($this->connection);

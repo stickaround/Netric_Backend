@@ -275,7 +275,8 @@ class Module
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;;
+        $this->userId = $userId;
+        ;
     }
 
     /**
@@ -489,7 +490,7 @@ class Module
      */
     public function toArray()
     {
-        return array(
+        return [
             "id" => $this->id,
             "name" => $this->name,
             "title" => $this->title,
@@ -505,7 +506,7 @@ class Module
             "default_route" => $this->defaultRoute,
             "navigation" => count($this->navigation) ? $this->navigation : $this->convertXmltoNavigation($this->xmlNavigation),
             "xml_navigation" => strlen($this->xmlNavigation) ? $this->xmlNavigation : $this->convertNavigationToXml()
-        );
+        ];
     }
 
     /**

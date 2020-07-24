@@ -78,14 +78,14 @@ class AuthenticationService
      *
      * @var array
      */
-    protected $messageTemplates = array(
+    protected $messageTemplates = [
         self::IDENTITY_NOT_FOUND => 'Invalid identity',
         self::IDENTITY_AMBIGUOUS => 'Identity is ambiguous',
         self::IDENTITY_DISABLED  => 'User is no longer active',
         self::CREDENTIAL_INVALID => 'Invalid password',
         self::UNCATEGORIZED      => 'Authentication failed',
         self::GENERAL            => 'Authentication failed',
-    );
+    ];
 
     /**
      * The number of params expected in each auth string

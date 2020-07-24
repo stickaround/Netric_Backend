@@ -20,7 +20,6 @@ use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
 
-
 class NotifierTest extends TestCase
 {
     /**
@@ -49,7 +48,7 @@ class NotifierTest extends TestCase
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Notifier to test

@@ -116,7 +116,7 @@ class BrowserView
      */
     public function toArray($userid = null)
     {
-        $ret = array(
+        $ret = [
             "id" => $this->id,
             "name" => $this->name,
             "description" => $this->description,
@@ -129,7 +129,7 @@ class BrowserView
             "conditions" => [],
             "order_by" => [],
             "group_first_order_by" => $this->groupFirstOrderBy
-        );
+        ];
 
         // Add view fields
         foreach ($this->tableColumns as $field) {

@@ -27,23 +27,24 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncResolveRecipientsAvailability extends SyncObject {
+class SyncResolveRecipientsAvailability extends SyncObject
+{
     public $starttime;
     public $endtime;
     public $status;
     public $mergedfreebusy;
 
-    public function __construct() {
-        $mapping = array ();
+    public function __construct()
+    {
+        $mapping = [];
 
         if (Request::GetProtocolVersion() >= 14.0) {
-            $mapping[SYNC_RESOLVERECIPIENTS_STARTTIME]      = array (  self::STREAMER_VAR      => "starttime");
-            $mapping[SYNC_RESOLVERECIPIENTS_ENDTIME]        = array (  self::STREAMER_VAR      => "endtime");
-            $mapping[SYNC_RESOLVERECIPIENTS_STATUS]         = array (  self::STREAMER_VAR      => "status");
-            $mapping[SYNC_RESOLVERECIPIENTS_MERGEDFREEBUSY] = array (  self::STREAMER_VAR      => "mergedfreebusy");
+            $mapping[SYNC_RESOLVERECIPIENTS_STARTTIME]      = [  self::STREAMER_VAR      => "starttime"];
+            $mapping[SYNC_RESOLVERECIPIENTS_ENDTIME]        = [  self::STREAMER_VAR      => "endtime"];
+            $mapping[SYNC_RESOLVERECIPIENTS_STATUS]         = [  self::STREAMER_VAR      => "status"];
+            $mapping[SYNC_RESOLVERECIPIENTS_MERGEDFREEBUSY] = [  self::STREAMER_VAR      => "mergedfreebusy"];
         }
 
         parent::__construct($mapping);
     }
-
 }

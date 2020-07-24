@@ -15,20 +15,20 @@ class WaitConditionActionTest extends AbstractActionTests
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Test WorkFlows to cleanup
      *
      * @var WorkFlow[]
      */
-    private $testWorkFlows = array();
+    private $testWorkFlows = [];
 
     /**
      * Cleanup entities
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }
@@ -59,18 +59,18 @@ class WaitConditionActionTest extends AbstractActionTests
         $serviceManager = $this->account->getServiceManager();
 
         // Create and save the workflow
-        $workFlowData = array(
+        $workFlowData = [
             "name" => "Test Get Execute Wait Action",
             "obj_type" => ObjectTypes::TASK,
             "active" => true,
-        );
-        
+        ];
+
         $workFlow = new WorkFlow($this->actionFactory);
         $workFlow->fromArray($workFlowData);
 
         // Create wait condition action and set params for 1 week wait
         $action = $this->getAction();
-        $action->fromArray(array("name"=>"testExecuteWaitAction"));
+        $action->fromArray(["name" => "testExecuteWaitAction"]);
         $action->setParam("when_unit", WorkFlow::TIME_UNIT_WEEK);
         $action->setParam("when_interval", 1);
 

@@ -138,10 +138,10 @@ class Pop3 extends AbstractStorage
             throw new Exception\InvalidArgumentException('need at least user in params');
         }
 
-        $host     = isset($params->host)     ? $params->host     : 'localhost';
+        $host     = isset($params->host) ? $params->host : 'localhost';
         $password = isset($params->password) ? $params->password : '';
-        $port     = isset($params->port)     ? $params->port     : null;
-        $ssl      = isset($params->ssl)      ? $params->ssl      : false;
+        $port     = isset($params->port) ? $params->port : null;
+        $ssl      = isset($params->ssl) ? $params->ssl : false;
 
         $this->protocol = new Protocol\Pop3();
         $this->protocol->connect($host, $port, $ssl);

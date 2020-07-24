@@ -48,7 +48,7 @@ class AuthenticationControllerTest extends TestCase
     const TEST_USER_PASS = "testpass";
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Create the controller
@@ -79,7 +79,7 @@ class AuthenticationControllerTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         if ($this->user) {
             $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
             $dm->delete($this->user, true);

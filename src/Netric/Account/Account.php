@@ -126,12 +126,12 @@ class Account
      */
     public function toArray()
     {
-        return array(
+        return [
             "account_id" => $this->id,
             "name" => $this->name,
             "database" => $this->dbname,
             "description" => $this->description,
-        );
+        ];
     }
 
     /**

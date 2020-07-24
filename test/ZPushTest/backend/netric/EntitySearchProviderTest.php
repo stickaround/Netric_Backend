@@ -61,7 +61,7 @@ class EntitySearchProviderTest extends TestCase
      *
      * @var \Netric\Entity\EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Loader for opening, saving, and deleting entities

@@ -41,12 +41,14 @@ try {
         die("ZPUSH_BASE_PATH not set correctly or no config.php file found\n");
     }
 
-    define('BASE_PATH_CLI',  ZPUSH_BASE_PATH ."/");
+    define('BASE_PATH_CLI', ZPUSH_BASE_PATH ."/");
     set_include_path(get_include_path() . PATH_SEPARATOR . ZPUSH_BASE_PATH);
 
     require_once 'vendor/autoload.php';
 
-    if (!defined('ZPUSH_CONFIG')) define('ZPUSH_CONFIG', BASE_PATH_CLI . 'config.php');
+    if (!defined('ZPUSH_CONFIG')) {
+        define('ZPUSH_CONFIG', BASE_PATH_CLI . 'config.php');
+    }
     include_once(ZPUSH_CONFIG);
 
 
@@ -64,14 +66,14 @@ try {
     }
 
     $migrate->DoMigration();
-}
-catch (ZPushException $zpe) {
+} catch (ZPushException $zpe) {
     die(get_class($zpe) . ": ". $zpe->getMessage() . "\n");
 }
 
 sprintf("terminated%s", PHP_EOL);
 
-class StateMigratorFileToDB {
+class StateMigratorFileToDB
+{
     private $fsm;
     private $dbsm;
 
@@ -84,7 +86,8 @@ class StateMigratorFileToDB {
      * @throws FatalNotImplementedException
      * @return boolean
      */
-    public function MigrationNecessary() {
+    public function MigrationNecessary()
+    {
         print("StateMigratorFileToDB->MigrationNecessary(): checking if migration is necessary." . PHP_EOL);
         try {
             $this->dbsm = new SqlStateMachine();
@@ -92,8 +95,7 @@ class StateMigratorFileToDB {
                 print ("Tables already have data. Migration aborted. Drop database or truncate tables and try again." . PHP_EOL);
                 return false;
             }
-        }
-        catch (ZPushException $ex) {
+        } catch (ZPushException $ex) {
             die(get_class($ex) . ": ". $ex->getMessage() . PHP_EOL);
         }
         return true;
@@ -105,7 +107,8 @@ class StateMigratorFileToDB {
      * @access public
      * @return true
      */
-    public function DoMigration() {
+    public function DoMigration()
+    {
         print("StateMigratorFileToDB->DoMigration(): Starting migration routine." . PHP_EOL);
         $starttime = time();
         $deviceCount = 0;
@@ -116,7 +119,7 @@ class StateMigratorFileToDB {
 
             $this->fsm = new FileStateMachine();
 
-            if (!($this->fsm  instanceof FileStateMachine)) {
+            if (!($this->fsm instanceof FileStateMachine)) {
                 throw new FatalNotImplementedException("This conversion script is only able to convert states from the FileStateMachine");
             }
 
@@ -127,12 +130,12 @@ class StateMigratorFileToDB {
                 $lowerDevid = strtolower($devid);
 
                 $allStates = $this->fsm->GetAllStatesForDevice($lowerDevid);
-                printf("Processing device: %s with %s states\t", str_pad($devid,35), str_pad(count($allStates), 4, ' ',STR_PAD_LEFT));
+                printf("Processing device: %s with %s states\t", str_pad($devid, 35), str_pad(count($allStates), 4, ' ', STR_PAD_LEFT));
                 $migrated = 0;
                 foreach ($allStates as $stateInfo) {
                     ZLog::Write(LOGLEVEL_DEBUG, sprintf("StateMigratorFileToDB->DoMigration(): Migrating state type:'%s' uuid:'%s' counter:'%s'", Utils::PrintAsString($stateInfo['type']), Utils::PrintAsString($stateInfo['uuid']), Utils::PrintAsString($stateInfo['counter'])));
                     $state = $this->fsm->GetState($lowerDevid, $stateInfo['type'], $stateInfo['uuid'], (int) $stateInfo['counter'], false);
-                    $this->dbsm->SetState($state, $lowerDevid, $stateInfo['type'], (empty($stateInfo['uuid']) ? NULL : $stateInfo['uuid']), (int) $stateInfo['counter']);
+                    $this->dbsm->SetState($state, $lowerDevid, $stateInfo['type'], (empty($stateInfo['uuid']) ? null : $stateInfo['uuid']), (int) $stateInfo['counter']);
                     $migrated++;
                 }
 
@@ -145,8 +148,7 @@ class StateMigratorFileToDB {
                 print(" completed migration of $migrated states" . PHP_EOL);
                 $stateCount += $migrated;
             }
-        }
-        catch (ZPushException $ex) {
+        } catch (ZPushException $ex) {
             print (PHP_EOL . "Something went wrong during the migration. The script will now exit." . PHP_EOL);
             die(get_class($ex) . ": ". $ex->getMessage() . PHP_EOL);
         }

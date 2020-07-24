@@ -34,13 +34,15 @@ define('ZPUSH_BASE_PATH', "../src");
  * MAIN
 */
 try {
-    if (php_sapi_name() != "cli")
+    if (php_sapi_name() != "cli") {
         die("This script can only be called from the CLI.");
+    }
 
-    if (!defined('ZPUSH_BASE_PATH') || !file_exists(ZPUSH_BASE_PATH . "/config.php"))
+    if (!defined('ZPUSH_BASE_PATH') || !file_exists(ZPUSH_BASE_PATH . "/config.php")) {
         die("ZPUSH_BASE_PATH not set correctly or no config.php file found\n");
+    }
 
-    define('BASE_PATH_CLI',  ZPUSH_BASE_PATH ."/");
+    define('BASE_PATH_CLI', ZPUSH_BASE_PATH ."/");
     set_include_path(get_include_path() . PATH_SEPARATOR . ZPUSH_BASE_PATH);
 
     include('lib/core/zpushdefs.php');
@@ -65,19 +67,20 @@ try {
     ZPush::CheckConfig();
     $migrate = new StateMigrator20xto210();
 
-    if (!$migrate->MigrationNecessary())
+    if (!$migrate->MigrationNecessary()) {
         echo "Migration script was run before and eventually no migration is necessary. Rerunning checks\n";
+    }
 
     $migrate->DoMigration();
-}
-catch (ZPushException $zpe) {
+} catch (ZPushException $zpe) {
     die(get_class($zpe) . ": ". $zpe->getMessage() . "\n");
 }
 
 echo "terminated\n";
 
 
-class StateMigrator20xto210 {
+class StateMigrator20xto210
+{
     const FROMVERSION = "1"; // IStateMachine::STATEVERSION_01
     const TOVERSION = "2";   // IStateMachine::STATEVERSION_02
 
@@ -86,7 +89,8 @@ class StateMigrator20xto210 {
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->sm = false;
     }
 
@@ -98,11 +102,11 @@ class StateMigrator20xto210 {
      * @throws FatalNotImplementedException
      * @return boolean
      */
-    public function MigrationNecessary() {
+    public function MigrationNecessary()
+    {
         try {
             $this->sm = ZPush::GetStateMachine();
-        }
-        catch (HTTPReturnCodeException $e) {
+        } catch (HTTPReturnCodeException $e) {
             echo "Check states: states versions do not match and need to be migrated\n\n";
 
             // we just try to get the statemachine again
@@ -110,18 +114,21 @@ class StateMigrator20xto210 {
             $this->sm = ZPush::GetStateMachine();
         }
 
-        if (!$this->sm)
+        if (!$this->sm) {
              throw new FatalMisconfigurationException("Could not get StateMachine from ZPush::GetStateMachine()");
+        }
 
-        if (!($this->sm  instanceof FileStateMachine)) {
+        if (!($this->sm instanceof FileStateMachine)) {
             throw new FatalNotImplementedException("This conversion script is only able to convert states of the FileStateMachine");
         }
 
-        if ($this->sm->GetStateVersion() == ZPush::GetLatestStateVersion())
+        if ($this->sm->GetStateVersion() == ZPush::GetLatestStateVersion()) {
             return false;
+        }
 
-        if ($this->sm->GetStateVersion() !== self::FROMVERSION || ZPush::GetLatestStateVersion() !== self::TOVERSION)
-            throw new FatalNotImplementedException(sprintf("This script only converts from state version %d to %d. Currently the system is on %d and should go to %d. Please contact support.", self::FROMVERSION,  self::TOVERSION, $this->sm->GetStateVersion(), ZPush::GetLatestStateVersion()));
+        if ($this->sm->GetStateVersion() !== self::FROMVERSION || ZPush::GetLatestStateVersion() !== self::TOVERSION) {
+            throw new FatalNotImplementedException(sprintf("This script only converts from state version %d to %d. Currently the system is on %d and should go to %d. Please contact support.", self::FROMVERSION, self::TOVERSION, $this->sm->GetStateVersion(), ZPush::GetLatestStateVersion()));
+        }
 
         // do migration
         return true;
@@ -133,7 +140,8 @@ class StateMigrator20xto210 {
      * @access public
      * @return true
      */
-    public function DoMigration() {
+    public function DoMigration()
+    {
         // go through all files
         $files = glob(STATE_DIR. "/*/*/*", GLOB_NOSORT);
         $filetotal = count($files);
@@ -148,10 +156,10 @@ class StateMigrator20xto210 {
 
             if ($file !== $newfile) {
                 $rencount++;
-                rename ($file, $newfile);
-            }
-            else
+                rename($file, $newfile);
+            } else {
                 $igncount++;
+            }
 
             printf("Migrating file %d/%d\t%s", $filecount, $filetotal, $file);
         }
@@ -166,10 +174,11 @@ class StateMigrator20xto210 {
 
             // update device data
             $devState = ZPush::GetStateMachine()->GetState($lowerDevid, IStateMachine::DEVICEDATA);
-            $newdata = array();
+            $newdata = [];
             foreach ($devState->devices as $user => $dev) {
-                if (!isset($dev->deviceidOrg))
+                if (!isset($dev->deviceidOrg)) {
                     $dev->deviceidOrg = $dev->deviceid;
+                }
 
                 $dev->deviceid = strtolower($dev->deviceid);
                 $dev->useragenthistory = array_unique($dev->useragenthistory);

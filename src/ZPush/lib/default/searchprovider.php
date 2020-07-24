@@ -32,7 +32,8 @@
  * If you wish to implement an alternative search method, you should implement the
  * ISearchProvider interface like the BackendSearchLDAP backend
  */
-class SearchProvider implements ISearchProvider{
+class SearchProvider implements ISearchProvider
+{
 
     /**
      * Constructor
@@ -42,7 +43,8 @@ class SearchProvider implements ISearchProvider{
      * @return
      * @throws StatusException, FatalException
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -54,7 +56,8 @@ class SearchProvider implements ISearchProvider{
      * @access public
      * @return boolean
      */
-    public function SupportsType($searchtype) {
+    public function SupportsType($searchtype)
+    {
         return ($searchtype == ISearchProvider::SEARCH_GAL);
     }
 
@@ -68,8 +71,9 @@ class SearchProvider implements ISearchProvider{
      * @return array        search results
      * @throws StatusException
      */
-    public function GetGALSearchResults($searchquery, $searchrange) {
-       return array();
+    public function GetGALSearchResults($searchquery, $searchrange)
+    {
+        return [];
     }
 
     /**
@@ -79,8 +83,9 @@ class SearchProvider implements ISearchProvider{
      *
      * @return array
      */
-    public function GetMailboxSearchResults($cpo){
-        return array();
+    public function GetMailboxSearchResults($cpo)
+    {
+        return [];
     }
 
     /**
@@ -90,7 +95,8 @@ class SearchProvider implements ISearchProvider{
     *
     * @return boolean
     */
-    public function TerminateSearch($pid) {
+    public function TerminateSearch($pid)
+    {
         return true;
     }
 
@@ -100,7 +106,8 @@ class SearchProvider implements ISearchProvider{
      * @access public
      * @return boolean
      */
-    public function Disconnect() {
+    public function Disconnect()
+    {
         return true;
     }
 }

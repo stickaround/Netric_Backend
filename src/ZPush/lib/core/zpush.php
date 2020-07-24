@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class ZPush {
+class ZPush
+{
     const UNAUTHENTICATED = 1;
     const UNPROVISIONED = 2;
     const NOACTIVESYNCCOMMAND = 3;
@@ -83,98 +84,98 @@ class ZPush {
     // Latest supported State version
     const STATE_VERSION = IStateMachine::STATEVERSION_02;
 
-    static private $autoloadBackendPreference = array(
+    private static $autoloadBackendPreference = [
                     "BackendKopano",
                     "BackendCombined",
                     "BackendIMAP",
                     "BackendVCardDir",
                     "BackendMaildir"
-                );
+                ];
 
     // Versions 1.0, 2.0, 2.1 and 2.5 are deprecated (ZP-604)
-    static private $supportedASVersions = array(
+    private static $supportedASVersions = [
                     self::ASV_12,
                     self::ASV_121,
                     self::ASV_14
-                );
+                ];
 
-    static private $supportedCommands = array(
+    private static $supportedCommands = [
                     // COMMAND                             // AS VERSION   // REQUESTHANDLER                        // OTHER SETTINGS
-                    self::COMMAND_SYNC              => array(self::ASV_1,  self::REQUESTHANDLER => "Sync"),
-                    self::COMMAND_SENDMAIL          => array(self::ASV_1,  self::REQUESTHANDLER => "SendMail"),
-                    self::COMMAND_SMARTFORWARD      => array(self::ASV_1,  self::REQUESTHANDLER => "SendMail"),
-                    self::COMMAND_SMARTREPLY        => array(self::ASV_1,  self::REQUESTHANDLER => "SendMail"),
-                    self::COMMAND_GETATTACHMENT     => array(self::ASV_1,  self::REQUESTHANDLER => "GetAttachment"),
-                    self::COMMAND_GETHIERARCHY      => array(self::ASV_1,  self::REQUESTHANDLER => "GetHierarchy",  self::HIERARCHYCOMMAND),            // deprecated but implemented
-                    self::COMMAND_CREATECOLLECTION  => array(self::ASV_1),                                                                              // deprecated & not implemented
-                    self::COMMAND_DELETECOLLECTION  => array(self::ASV_1),                                                                              // deprecated & not implemented
-                    self::COMMAND_MOVECOLLECTION    => array(self::ASV_1),                                                                              // deprecated & not implemented
-                    self::COMMAND_FOLDERSYNC        => array(self::ASV_2,  self::REQUESTHANDLER => "FolderSync",    self::HIERARCHYCOMMAND),
-                    self::COMMAND_FOLDERCREATE      => array(self::ASV_2,  self::REQUESTHANDLER => "FolderChange",  self::HIERARCHYCOMMAND),
-                    self::COMMAND_FOLDERDELETE      => array(self::ASV_2,  self::REQUESTHANDLER => "FolderChange",  self::HIERARCHYCOMMAND),
-                    self::COMMAND_FOLDERUPDATE      => array(self::ASV_2,  self::REQUESTHANDLER => "FolderChange",  self::HIERARCHYCOMMAND),
-                    self::COMMAND_MOVEITEMS         => array(self::ASV_1,  self::REQUESTHANDLER => "MoveItems"),
-                    self::COMMAND_GETITEMESTIMATE   => array(self::ASV_1,  self::REQUESTHANDLER => "GetItemEstimate"),
-                    self::COMMAND_MEETINGRESPONSE   => array(self::ASV_1,  self::REQUESTHANDLER => "MeetingResponse"),
-                    self::COMMAND_RESOLVERECIPIENTS => array(self::ASV_1,  self::REQUESTHANDLER => "ResolveRecipients"),
-                    self::COMMAND_VALIDATECERT      => array(self::ASV_1,  self::REQUESTHANDLER => "ValidateCert"),
-                    self::COMMAND_PROVISION         => array(self::ASV_25, self::REQUESTHANDLER => "Provisioning",  self::UNAUTHENTICATED, self::UNPROVISIONED),
-                    self::COMMAND_SEARCH            => array(self::ASV_1,  self::REQUESTHANDLER => "Search"),
-                    self::COMMAND_PING              => array(self::ASV_2,  self::REQUESTHANDLER => "Ping",          self::UNPROVISIONED),
-                    self::COMMAND_NOTIFY            => array(self::ASV_1,  self::REQUESTHANDLER => "Notify"),                                           // deprecated & not implemented
-                    self::COMMAND_ITEMOPERATIONS    => array(self::ASV_12, self::REQUESTHANDLER => "ItemOperations"),
-                    self::COMMAND_SETTINGS          => array(self::ASV_12, self::REQUESTHANDLER => "Settings"),
+                    self::COMMAND_SYNC              => [self::ASV_1,  self::REQUESTHANDLER => "Sync"],
+                    self::COMMAND_SENDMAIL          => [self::ASV_1,  self::REQUESTHANDLER => "SendMail"],
+                    self::COMMAND_SMARTFORWARD      => [self::ASV_1,  self::REQUESTHANDLER => "SendMail"],
+                    self::COMMAND_SMARTREPLY        => [self::ASV_1,  self::REQUESTHANDLER => "SendMail"],
+                    self::COMMAND_GETATTACHMENT     => [self::ASV_1,  self::REQUESTHANDLER => "GetAttachment"],
+                    self::COMMAND_GETHIERARCHY      => [self::ASV_1,  self::REQUESTHANDLER => "GetHierarchy",  self::HIERARCHYCOMMAND],            // deprecated but implemented
+                    self::COMMAND_CREATECOLLECTION  => [self::ASV_1],                                                                              // deprecated & not implemented
+                    self::COMMAND_DELETECOLLECTION  => [self::ASV_1],                                                                              // deprecated & not implemented
+                    self::COMMAND_MOVECOLLECTION    => [self::ASV_1],                                                                              // deprecated & not implemented
+                    self::COMMAND_FOLDERSYNC        => [self::ASV_2,  self::REQUESTHANDLER => "FolderSync",    self::HIERARCHYCOMMAND],
+                    self::COMMAND_FOLDERCREATE      => [self::ASV_2,  self::REQUESTHANDLER => "FolderChange",  self::HIERARCHYCOMMAND],
+                    self::COMMAND_FOLDERDELETE      => [self::ASV_2,  self::REQUESTHANDLER => "FolderChange",  self::HIERARCHYCOMMAND],
+                    self::COMMAND_FOLDERUPDATE      => [self::ASV_2,  self::REQUESTHANDLER => "FolderChange",  self::HIERARCHYCOMMAND],
+                    self::COMMAND_MOVEITEMS         => [self::ASV_1,  self::REQUESTHANDLER => "MoveItems"],
+                    self::COMMAND_GETITEMESTIMATE   => [self::ASV_1,  self::REQUESTHANDLER => "GetItemEstimate"],
+                    self::COMMAND_MEETINGRESPONSE   => [self::ASV_1,  self::REQUESTHANDLER => "MeetingResponse"],
+                    self::COMMAND_RESOLVERECIPIENTS => [self::ASV_1,  self::REQUESTHANDLER => "ResolveRecipients"],
+                    self::COMMAND_VALIDATECERT      => [self::ASV_1,  self::REQUESTHANDLER => "ValidateCert"],
+                    self::COMMAND_PROVISION         => [self::ASV_25, self::REQUESTHANDLER => "Provisioning",  self::UNAUTHENTICATED, self::UNPROVISIONED],
+                    self::COMMAND_SEARCH            => [self::ASV_1,  self::REQUESTHANDLER => "Search"],
+                    self::COMMAND_PING              => [self::ASV_2,  self::REQUESTHANDLER => "Ping",          self::UNPROVISIONED],
+                    self::COMMAND_NOTIFY            => [self::ASV_1,  self::REQUESTHANDLER => "Notify"],                                           // deprecated & not implemented
+                    self::COMMAND_ITEMOPERATIONS    => [self::ASV_12, self::REQUESTHANDLER => "ItemOperations"],
+                    self::COMMAND_SETTINGS          => [self::ASV_12, self::REQUESTHANDLER => "Settings"],
 
-                    self::COMMAND_WEBSERVICE_DEVICE => array(self::REQUESTHANDLER => "Webservice", self::PLAININPUT, self::NOACTIVESYNCCOMMAND, self::WEBSERVICECOMMAND),
-                    self::COMMAND_WEBSERVICE_USERS  => array(self::REQUESTHANDLER => "Webservice", self::PLAININPUT, self::NOACTIVESYNCCOMMAND, self::WEBSERVICECOMMAND),
-                    self::COMMAND_WEBSERVICE_INFO   => array(self::REQUESTHANDLER => "Webservice", self::PLAININPUT, self::NOACTIVESYNCCOMMAND, self::WEBSERVICECOMMAND),
-            );
+                    self::COMMAND_WEBSERVICE_DEVICE => [self::REQUESTHANDLER => "Webservice", self::PLAININPUT, self::NOACTIVESYNCCOMMAND, self::WEBSERVICECOMMAND],
+                    self::COMMAND_WEBSERVICE_USERS  => [self::REQUESTHANDLER => "Webservice", self::PLAININPUT, self::NOACTIVESYNCCOMMAND, self::WEBSERVICECOMMAND],
+                    self::COMMAND_WEBSERVICE_INFO   => [self::REQUESTHANDLER => "Webservice", self::PLAININPUT, self::NOACTIVESYNCCOMMAND, self::WEBSERVICECOMMAND],
+            ];
 
 
 
-    static private $classes = array(
-                    "Email"     => array(
+    private static $classes = [
+                    "Email"     => [
                                         self::CLASS_NAME => "SyncMail",
                                         self::CLASS_REQUIRESPROTOCOLVERSION => false,
                                         self::CLASS_DEFAULTTYPE => SYNC_FOLDER_TYPE_INBOX,
-                                        self::CLASS_OTHERTYPES => array(SYNC_FOLDER_TYPE_OTHER, SYNC_FOLDER_TYPE_DRAFTS, SYNC_FOLDER_TYPE_WASTEBASKET,
+                                        self::CLASS_OTHERTYPES => [SYNC_FOLDER_TYPE_OTHER, SYNC_FOLDER_TYPE_DRAFTS, SYNC_FOLDER_TYPE_WASTEBASKET,
                                                                         SYNC_FOLDER_TYPE_SENTMAIL, SYNC_FOLDER_TYPE_OUTBOX, SYNC_FOLDER_TYPE_USER_MAIL,
-                                                                        SYNC_FOLDER_TYPE_JOURNAL, SYNC_FOLDER_TYPE_USER_JOURNAL),
-                                   ),
-                    "Contacts"  => array(
+                                                                        SYNC_FOLDER_TYPE_JOURNAL, SYNC_FOLDER_TYPE_USER_JOURNAL],
+                                   ],
+                    "Contacts"  => [
                                         self::CLASS_NAME => "SyncContact",
                                         self::CLASS_REQUIRESPROTOCOLVERSION => true,
                                         self::CLASS_DEFAULTTYPE => SYNC_FOLDER_TYPE_CONTACT,
-                                        self::CLASS_OTHERTYPES => array(SYNC_FOLDER_TYPE_USER_CONTACT, SYNC_FOLDER_TYPE_UNKNOWN),
-                                   ),
-                    "Calendar"  => array(
+                                        self::CLASS_OTHERTYPES => [SYNC_FOLDER_TYPE_USER_CONTACT, SYNC_FOLDER_TYPE_UNKNOWN],
+                                   ],
+                    "Calendar"  => [
                                         self::CLASS_NAME => "SyncAppointment",
                                         self::CLASS_REQUIRESPROTOCOLVERSION => false,
                                         self::CLASS_DEFAULTTYPE => SYNC_FOLDER_TYPE_APPOINTMENT,
-                                        self::CLASS_OTHERTYPES => array(SYNC_FOLDER_TYPE_USER_APPOINTMENT),
-                                   ),
-                    "Tasks"     => array(
+                                        self::CLASS_OTHERTYPES => [SYNC_FOLDER_TYPE_USER_APPOINTMENT],
+                                   ],
+                    "Tasks"     => [
                                         self::CLASS_NAME => "SyncTask",
                                         self::CLASS_REQUIRESPROTOCOLVERSION => false,
                                         self::CLASS_DEFAULTTYPE => SYNC_FOLDER_TYPE_TASK,
-                                        self::CLASS_OTHERTYPES => array(SYNC_FOLDER_TYPE_USER_TASK),
-                                   ),
-                    "Notes" => array(
+                                        self::CLASS_OTHERTYPES => [SYNC_FOLDER_TYPE_USER_TASK],
+                                   ],
+                    "Notes" => [
                                         self::CLASS_NAME => "SyncNote",
                                         self::CLASS_REQUIRESPROTOCOLVERSION => false,
                                         self::CLASS_DEFAULTTYPE => SYNC_FOLDER_TYPE_NOTE,
-                                        self::CLASS_OTHERTYPES => array(SYNC_FOLDER_TYPE_USER_NOTE),
-                                   ),
-                );
+                                        self::CLASS_OTHERTYPES => [SYNC_FOLDER_TYPE_USER_NOTE],
+                                   ],
+                ];
 
 
-    static private $stateMachine;
-    static private $searchProvider;
-    static private $deviceManager;
-    static private $topCollector;
-    static private $backend;
-    static private $addSyncFolders;
-    static private $policies;
+    private static $stateMachine;
+    private static $searchProvider;
+    private static $deviceManager;
+    private static $topCollector;
+    private static $backend;
+    private static $addSyncFolders;
+    private static $policies;
 
 
     /**
@@ -184,26 +185,31 @@ class ZPush {
      * @return boolean
      * @throws FatalMisconfigurationException
      */
-    static public function CheckConfig() {
+    public static function CheckConfig()
+    {
         // check the php version
-        if (version_compare(phpversion(),'5.4.0') < 0) {
+        if (version_compare(phpversion(), '5.4.0') < 0) {
             throw new FatalException("The configured PHP version is too old. Please make sure at least PHP 5.4 is used.");
         }
 
         // some basic checks
-        if (!defined('BASE_PATH'))
+        if (!defined('BASE_PATH')) {
             throw new FatalMisconfigurationException("The BASE_PATH is not configured. Check if the config.php file is in place.");
+        }
 
-        if (substr(BASE_PATH, -1,1) != "/")
+        if (substr(BASE_PATH, -1, 1) != "/") {
             throw new FatalMisconfigurationException("The BASE_PATH should terminate with a '/'");
+        }
 
-        if (!file_exists(BASE_PATH))
+        if (!file_exists(BASE_PATH)) {
             throw new FatalMisconfigurationException("The configured BASE_PATH does not exist or can not be accessed.");
+        }
 
-        if (defined('BASE_PATH_CLI') && file_exists(BASE_PATH_CLI))
+        if (defined('BASE_PATH_CLI') && file_exists(BASE_PATH_CLI)) {
             define('REAL_BASE_PATH', BASE_PATH_CLI);
-        else
+        } else {
             define('REAL_BASE_PATH', BASE_PATH);
+        }
 
         if (!defined('LOGBACKEND')) {
             define('LOGBACKEND', 'filelog');
@@ -234,39 +240,42 @@ class ZPush {
             if (LOG_SYSLOG_HOST && LOG_SYSLOG_PORT <= 0) {
                 throw new FatalMisconfigurationException("LOG_SYSLOG_HOST is defined but the LOG_SYSLOG_PORT does not seem to be valid.");
             }
-        }
-        elseif (strtolower(LOGBACKEND) == 'filelog') {
+        } elseif (strtolower(LOGBACKEND) == 'filelog') {
             define('LOGBACKEND_CLASS', 'FileLog');
-            if (!defined('LOGFILEDIR'))
+            if (!defined('LOGFILEDIR')) {
                 throw new FatalMisconfigurationException("The LOGFILEDIR is not configured. Check if the config.php file is in place.");
+            }
 
-            if (substr(LOGFILEDIR, -1,1) != "/")
+            if (substr(LOGFILEDIR, -1, 1) != "/") {
                 throw new FatalMisconfigurationException("The LOGFILEDIR should terminate with a '/'");
+            }
 
-            if (!file_exists(LOGFILEDIR))
+            if (!file_exists(LOGFILEDIR)) {
                 throw new FatalMisconfigurationException("The configured LOGFILEDIR does not exist or can not be accessed.");
+            }
 
-            if ((!file_exists(LOGFILE) && !touch(LOGFILE)) || !is_writable(LOGFILE))
+            if ((!file_exists(LOGFILE) && !touch(LOGFILE)) || !is_writable(LOGFILE)) {
                 throw new FatalMisconfigurationException("The configured LOGFILE can not be modified.");
+            }
 
-            if ((!file_exists(LOGERRORFILE) && !touch(LOGERRORFILE)) || !is_writable(LOGERRORFILE))
+            if ((!file_exists(LOGERRORFILE) && !touch(LOGERRORFILE)) || !is_writable(LOGERRORFILE)) {
                 throw new FatalMisconfigurationException("The configured LOGERRORFILE can not be modified.");
+            }
 
             // check ownership on the (eventually) just created files
             Utils::FixFileOwner(LOGFILE);
             Utils::FixFileOwner(LOGERRORFILE);
-        }
-        else {
+        } else {
             define('LOGBACKEND_CLASS', LOGBACKEND);
         }
 
         // set time zone
         // code contributed by Robert Scheck (rsc)
-        if(defined('TIMEZONE') ? constant('TIMEZONE') : false) {
-            if (! @date_default_timezone_set(TIMEZONE))
+        if (defined('TIMEZONE') ? constant('TIMEZONE') : false) {
+            if (! @date_default_timezone_set(TIMEZONE)) {
                 throw new FatalMisconfigurationException(sprintf("The configured TIMEZONE '%s' is not valid. Please check supported timezones at http://www.php.net/manual/en/timezones.php", constant('TIMEZONE')));
-        }
-        else if(!ini_get('date.timezone')) {
+            }
+        } elseif (!ini_get('date.timezone')) {
             date_default_timezone_set('Europe/Amsterdam');
         }
 
@@ -274,8 +283,7 @@ class ZPush {
         if (PROVISIONING) {
             if (file_exists(REAL_BASE_PATH . PROVISIONING_POLICYFILE)) {
                 $policyfile = REAL_BASE_PATH . PROVISIONING_POLICYFILE;
-            }
-            else {
+            } else {
                 $policyfile = PROVISIONING_POLICYFILE;
             }
             ZPush::$policies = parse_ini_file($policyfile, true);
@@ -293,17 +301,19 @@ class ZPush {
      * @return boolean
      * @trows FatalMisconfigurationException
      */
-    static public function CheckAdvancedConfig() {
+    public static function CheckAdvancedConfig()
+    {
         global $specialLogUsers, $additionalFolders;
 
-        if (!is_array($specialLogUsers))
+        if (!is_array($specialLogUsers)) {
             throw new FatalMisconfigurationException("The WBXML log users is not an array.");
+        }
 
         if (!defined('SYNC_CONTACTS_MAXPICTURESIZE')) {
             define('SYNC_CONTACTS_MAXPICTURESIZE', 49152);
-        }
-        else if ((!is_int(SYNC_CONTACTS_MAXPICTURESIZE) || SYNC_CONTACTS_MAXPICTURESIZE < 1))
+        } elseif ((!is_int(SYNC_CONTACTS_MAXPICTURESIZE) || SYNC_CONTACTS_MAXPICTURESIZE < 1)) {
             throw new FatalMisconfigurationException("The SYNC_CONTACTS_MAXPICTURESIZE value must be a number higher than 0.");
+        }
 
         if (!defined('USE_PARTIAL_FOLDERSYNC')) {
             define('USE_PARTIAL_FOLDERSYNC', false);
@@ -311,24 +321,21 @@ class ZPush {
 
         if (!defined('PING_LOWER_BOUND_LIFETIME')) {
             define('PING_LOWER_BOUND_LIFETIME', false);
-        }
-        elseif(PING_LOWER_BOUND_LIFETIME !== false && (!is_int(PING_LOWER_BOUND_LIFETIME) || PING_LOWER_BOUND_LIFETIME < 1 || PING_LOWER_BOUND_LIFETIME > 3540)){
+        } elseif (PING_LOWER_BOUND_LIFETIME !== false && (!is_int(PING_LOWER_BOUND_LIFETIME) || PING_LOWER_BOUND_LIFETIME < 1 || PING_LOWER_BOUND_LIFETIME > 3540)) {
             throw new FatalMisconfigurationException("The PING_LOWER_BOUND_LIFETIME value must be 'false' or a number between 1 and 3540 inclusively.");
         }
         if (!defined('PING_HIGHER_BOUND_LIFETIME')) {
             define('PING_HIGHER_BOUND_LIFETIME', false);
-        }
-        elseif(PING_HIGHER_BOUND_LIFETIME !== false && (!is_int(PING_HIGHER_BOUND_LIFETIME) || PING_HIGHER_BOUND_LIFETIME < 1 || PING_HIGHER_BOUND_LIFETIME > 3540)){
+        } elseif (PING_HIGHER_BOUND_LIFETIME !== false && (!is_int(PING_HIGHER_BOUND_LIFETIME) || PING_HIGHER_BOUND_LIFETIME < 1 || PING_HIGHER_BOUND_LIFETIME > 3540)) {
             throw new FatalMisconfigurationException("The PING_HIGHER_BOUND_LIFETIME value must be 'false' or a number between 1 and 3540 inclusively.");
         }
-        if(PING_HIGHER_BOUND_LIFETIME !== false && PING_LOWER_BOUND_LIFETIME !== false && PING_HIGHER_BOUND_LIFETIME < PING_LOWER_BOUND_LIFETIME){
+        if (PING_HIGHER_BOUND_LIFETIME !== false && PING_LOWER_BOUND_LIFETIME !== false && PING_HIGHER_BOUND_LIFETIME < PING_LOWER_BOUND_LIFETIME) {
             throw new FatalMisconfigurationException("The PING_HIGHER_BOUND_LIFETIME value must be greater or equal to PING_LOWER_BOUND_LIFETIME.");
         }
 
         if (!defined('RETRY_AFTER_DELAY')) {
             define('RETRY_AFTER_DELAY', 300);
-        }
-        elseif (RETRY_AFTER_DELAY !== false && (!is_int(RETRY_AFTER_DELAY) || RETRY_AFTER_DELAY < 1))  {
+        } elseif (RETRY_AFTER_DELAY !== false && (!is_int(RETRY_AFTER_DELAY) || RETRY_AFTER_DELAY < 1)) {
             throw new FatalMisconfigurationException("The RETRY_AFTER_DELAY value must be 'false' or a number greater than 0.");
         }
 
@@ -365,12 +372,11 @@ class ZPush {
         }
 
         // the check on additional folders will not throw hard errors, as this is probably changed on live systems
-        if (isset($additionalFolders) && !is_array($additionalFolders))
+        if (isset($additionalFolders) && !is_array($additionalFolders)) {
             ZLog::Write(LOGLEVEL_ERROR, "ZPush::CheckConfig() : The additional folders synchronization not available as array.");
-        else {
+        } else {
             // check configured data
             foreach ($additionalFolders as $af) {
-
                 if (!is_array($af) || !isset($af['store']) || !isset($af['folderid']) || !isset($af['name']) || !isset($af['type'])) {
                     ZLog::Write(LOGLEVEL_ERROR, "ZPush::CheckConfig() : the additional folder synchronization is not configured correctly. Missing parameters. Entry will be ignored.");
                     continue;
@@ -381,7 +387,7 @@ class ZPush {
                     continue;
                 }
 
-                if (!in_array($af['type'], array(SYNC_FOLDER_TYPE_USER_NOTE, SYNC_FOLDER_TYPE_USER_CONTACT, SYNC_FOLDER_TYPE_USER_APPOINTMENT, SYNC_FOLDER_TYPE_USER_TASK, SYNC_FOLDER_TYPE_USER_MAIL))) {
+                if (!in_array($af['type'], [SYNC_FOLDER_TYPE_USER_NOTE, SYNC_FOLDER_TYPE_USER_CONTACT, SYNC_FOLDER_TYPE_USER_APPOINTMENT, SYNC_FOLDER_TYPE_USER_TASK, SYNC_FOLDER_TYPE_USER_MAIL])) {
                     ZLog::Write(LOGLEVEL_ERROR, sprintf("ZPush::CheckConfig() : the type of the additional synchronization folder '%s is not permitted.", $af['name']));
                     continue;
                 }
@@ -404,7 +410,8 @@ class ZPush {
      * @throws HTTPReturnCodeException
      * @return object   implementation of IStateMachine
      */
-    static public function GetStateMachine() {
+    public static function GetStateMachine()
+    {
         if (!isset(ZPush::$stateMachine)) {
             // the backend could also return an own IStateMachine implementation
             $backendStateMachine = self::GetBackend()->GetStateMachine();
@@ -412,23 +419,24 @@ class ZPush {
             // if false is returned, use the default StateMachine
             if ($backendStateMachine !== false) {
                 ZLog::Write(LOGLEVEL_DEBUG, "Backend implementation of IStateMachine: ".get_class($backendStateMachine));
-                if (in_array('IStateMachine', class_implements($backendStateMachine)))
+                if (in_array('IStateMachine', class_implements($backendStateMachine))) {
                     ZPush::$stateMachine = $backendStateMachine;
-                else
+                } else {
                     throw new FatalNotImplementedException("State machine returned by the backend does not implement the IStateMachine interface!");
-            }
-            else {
+                }
+            } else {
                 // Initialize the default StateMachine
                 if (defined('STATE_MACHINE') && STATE_MACHINE == 'SQL') {
                     ZPush::$stateMachine = new SqlStateMachine();
-                }
-                else {
+                } else {
                     ZPush::$stateMachine = new FileStateMachine();
                 }
             }
 
             if (ZPush::$stateMachine->GetStateVersion() !== ZPush::GetLatestStateVersion()) {
-                if (class_exists("TopCollector")) self::GetTopCollector()->AnnounceInformation("Run migration script!", true);
+                if (class_exists("TopCollector")) {
+                    self::GetTopCollector()->AnnounceInformation("Run migration script!", true);
+                }
                 throw new ServiceUnavailableException(sprintf("The state version available to the %s is not the latest version - please run the state upgrade script. See release notes for more information.", get_class(ZPush::$stateMachine)));
             }
         }
@@ -441,7 +449,8 @@ class ZPush {
      * @access public
      * @return int
      */
-    static public function GetLatestStateVersion() {
+    public static function GetLatestStateVersion()
+    {
         return self::STATE_VERSION;
     }
 
@@ -453,9 +462,11 @@ class ZPush {
      * @access public
      * @return object DeviceManager
      */
-    static public function GetDeviceManager($initialize = true) {
-        if (!isset(ZPush::$deviceManager) && $initialize)
+    public static function GetDeviceManager($initialize = true)
+    {
+        if (!isset(ZPush::$deviceManager) && $initialize) {
             ZPush::$deviceManager = new DeviceManager();
+        }
 
         return ZPush::$deviceManager;
     }
@@ -466,9 +477,11 @@ class ZPush {
      * @access public
      * @return object TopCollector
      */
-    static public function GetTopCollector() {
-        if (!isset(ZPush::$topCollector))
+    public static function GetTopCollector()
+    {
+        if (!isset(ZPush::$topCollector)) {
             ZPush::$topCollector = new TopCollector();
+        }
 
         return ZPush::$topCollector;
     }
@@ -482,24 +495,29 @@ class ZPush {
      * @throws FatalNotImplementedException
      * @return boolean
      */
-    static public function IncludeBackend($backendname) {
-        if ($backendname == false) return false;
+    public static function IncludeBackend($backendname)
+    {
+        if ($backendname == false) {
+            return false;
+        }
 
         $backendname = strtolower($backendname);
-        if (substr($backendname, 0, 7) !== 'backend')
-            throw new FatalNotImplementedException(sprintf("Backend '%s' is not allowed",$backendname));
+        if (substr($backendname, 0, 7) !== 'backend') {
+            throw new FatalNotImplementedException(sprintf("Backend '%s' is not allowed", $backendname));
+        }
 
         $rbn = substr($backendname, 7);
 
         $subdirbackend = REAL_BASE_PATH . "backend/" . $rbn . "/" . $rbn . ".php";
         $stdbackend = REAL_BASE_PATH . "backend/" . $rbn . ".php";
 
-        if (is_file($subdirbackend))
+        if (is_file($subdirbackend)) {
             $toLoad = $subdirbackend;
-        else if (is_file($stdbackend))
+        } elseif (is_file($stdbackend)) {
             $toLoad = $stdbackend;
-        else
+        } else {
             return false;
+        }
 
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("Including backend file: '%s'", $toLoad));
         return include_once($toLoad);
@@ -513,28 +531,33 @@ class ZPush {
      * @return object   implementation of ISearchProvider
      * @throws FatalMisconfigurationException, FatalNotImplementedException
      */
-    static public function GetSearchProvider() {
+    public static function GetSearchProvider()
+    {
         if (!isset(ZPush::$searchProvider)) {
             // is a global searchprovider configured ? It will  outrank the backend
             if (defined('SEARCH_PROVIDER') && @constant('SEARCH_PROVIDER') != "") {
                 $searchClass = @constant('SEARCH_PROVIDER');
 
-                if (! class_exists($searchClass))
+                if (! class_exists($searchClass)) {
                     self::IncludeBackend($searchClass);
+                }
 
-                if (class_exists($searchClass))
+                if (class_exists($searchClass)) {
                     $aSearchProvider = new $searchClass();
-                else
+                } else {
                     throw new FatalMisconfigurationException(sprintf("Search provider '%s' can not be loaded. Check configuration!", $searchClass));
+                }
             }
             // get the searchprovider from the backend
-            else
+            else {
                 $aSearchProvider = self::GetBackend()->GetSearchProvider();
+            }
 
-            if (in_array('ISearchProvider', class_implements($aSearchProvider)))
+            if (in_array('ISearchProvider', class_implements($aSearchProvider))) {
                 ZPush::$searchProvider = $aSearchProvider;
-            else
+            } else {
                 throw new FatalNotImplementedException("Instantiated SearchProvider does not implement the ISearchProvider interface!");
+            }
         }
         return ZPush::$searchProvider;
     }
@@ -546,10 +569,10 @@ class ZPush {
      * @access public
      * @return object     IBackend implementation
      */
-    static public function GetBackend() {
+    public static function GetBackend()
+    {
         // if the backend is not yet loaded, load backend drivers and instantiate it
         if (!isset(ZPush::$backend)) {
-
             // Initialize our backend
             $ourBackend = @constant('BACKEND_PROVIDER');
 
@@ -562,17 +585,18 @@ class ZPush {
                         break;
                     }
                 }
-                if (!$ourBackend)
+                if (!$ourBackend) {
                     throw new FatalMisconfigurationException("No Backend provider can be found. Check your installation and/or configuration!");
-            }
-            elseif (!class_exists($ourBackend)) {
+                }
+            } elseif (!class_exists($ourBackend)) {
                 \ZPush::IncludeBackend($ourBackend);
             }
 
-            if (class_exists($ourBackend))
+            if (class_exists($ourBackend)) {
                 ZPush::$backend = new $ourBackend();
-            else
+            } else {
                 throw new FatalMisconfigurationException(sprintf("Backend provider '%s' can not be loaded. Check configuration!", $ourBackend));
+            }
         }
         return ZPush::$backend;
     }
@@ -585,14 +609,15 @@ class ZPush {
      * @access public
      * @return array
      */
-    static public function GetAdditionalSyncFolders($backendIdsAsKeys = true) {
+    public static function GetAdditionalSyncFolders($backendIdsAsKeys = true)
+    {
         // get user based folders which should be synchronized
         $userFolder = self::GetDeviceManager()->GetAdditionalUserSyncFolders();
         $addfolders = self::getAddSyncFolders() + $userFolder;
         // if requested, we rewrite the backendids to folderids here
         if ($backendIdsAsKeys === false && !empty($addfolders)) {
             ZLog::Write(LOGLEVEL_DEBUG, "ZPush::GetAdditionalSyncFolders(): Requested AS folderids as keys for additional folders array, converting");
-            $faddfolders = array();
+            $faddfolders = [];
             foreach ($addfolders as $backendId => $addFolder) {
                 $fid = self::GetDeviceManager()->GetFolderIdForBackendId($backendId);
                 $faddfolders[$fid] = $addFolder;
@@ -612,16 +637,17 @@ class ZPush {
      * @access public
      * @return string
      */
-    static public function GetAdditionalSyncFolderStore($backendid, $noDebug = false) {
-        if(isset(self::getAddSyncFolders()[$backendid]->Store)) {
+    public static function GetAdditionalSyncFolderStore($backendid, $noDebug = false)
+    {
+        if (isset(self::getAddSyncFolders()[$backendid]->Store)) {
             $val = self::getAddSyncFolders()[$backendid]->Store;
-        }
-        else {
+        } else {
             $val = self::GetDeviceManager()->GetAdditionalUserSyncFolderStore($backendid);
         }
 
-        if (!$noDebug)
+        if (!$noDebug) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("ZPush::GetAdditionalSyncFolderStore('%s'): '%s'", $backendid, Utils::PrintAsString($val)));
+        }
         return $val;
     }
 
@@ -634,15 +660,18 @@ class ZPush {
      * @return string
      * @throws FatalNotImplementedException
      */
-    static public function getSyncObjectFromFolderClass($folderclass) {
-        if (!isset(self::$classes[$folderclass]))
+    public static function getSyncObjectFromFolderClass($folderclass)
+    {
+        if (!isset(self::$classes[$folderclass])) {
             throw new FatalNotImplementedException("Class '$folderclass' is not supported");
+        }
 
         $class = self::$classes[$folderclass][self::CLASS_NAME];
-        if (self::$classes[$folderclass][self::CLASS_REQUIRESPROTOCOLVERSION])
+        if (self::$classes[$folderclass][self::CLASS_REQUIRESPROTOCOLVERSION]) {
             return new $class(Request::GetProtocolVersion());
-        else
+        } else {
             return new $class();
+        }
     }
 
     /**
@@ -652,15 +681,15 @@ class ZPush {
      * @access private
      * @return array
      */
-    static private function getAddSyncFolders() {
+    private static function getAddSyncFolders()
+    {
         global $additionalFolders;
         if (!isset(self::$addSyncFolders)) {
-            self::$addSyncFolders = array();
+            self::$addSyncFolders = [];
 
             if (isset($additionalFolders) && !is_array($additionalFolders)) {
                 ZLog::Write(LOGLEVEL_ERROR, "ZPush::getAddSyncFolders() : The additional folders synchronization not available as array.");
-            }
-            else {
+            } else {
                 foreach ($additionalFolders as $af) {
                     if (!is_array($af) || !isset($af['store']) || !isset($af['folderid']) || !isset($af['name']) || !isset($af['type'])) {
                         ZLog::Write(LOGLEVEL_ERROR, "ZPush::getAddSyncFolders() : the additional folder synchronization is not configured correctly. Missing parameters. Entry will be ignored.");
@@ -672,7 +701,7 @@ class ZPush {
                         continue;
                     }
 
-                    if (!in_array($af['type'], array(SYNC_FOLDER_TYPE_USER_NOTE, SYNC_FOLDER_TYPE_USER_CONTACT, SYNC_FOLDER_TYPE_USER_APPOINTMENT, SYNC_FOLDER_TYPE_USER_TASK, SYNC_FOLDER_TYPE_USER_MAIL))) {
+                    if (!in_array($af['type'], [SYNC_FOLDER_TYPE_USER_NOTE, SYNC_FOLDER_TYPE_USER_CONTACT, SYNC_FOLDER_TYPE_USER_APPOINTMENT, SYNC_FOLDER_TYPE_USER_TASK, SYNC_FOLDER_TYPE_USER_MAIL])) {
                         ZLog::Write(LOGLEVEL_ERROR, sprintf("ZPush::getAddSyncFolders() : the type of the additional synchronization folder '%s is not permitted.", $af['name']));
                         continue;
                     }
@@ -693,7 +722,8 @@ class ZPush {
      * @access public
      * @return string
      */
-    static public function getDefaultFolderTypeFromFolderClass($folderclass) {
+    public static function getDefaultFolderTypeFromFolderClass($folderclass)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("ZPush::getDefaultFolderTypeFromFolderClass('%s'): '%d'", $folderclass, self::$classes[$folderclass][self::CLASS_DEFAULTTYPE]));
         return self::$classes[$folderclass][self::CLASS_DEFAULTTYPE];
     }
@@ -706,7 +736,8 @@ class ZPush {
      * @access public
      * @return string/false     false if no class for this type is available
      */
-    static public function GetFolderClassFromFolderType($foldertype) {
+    public static function GetFolderClassFromFolderType($foldertype)
+    {
         $class = false;
         foreach (self::$classes as $aClass => $cprops) {
             if ($cprops[self::CLASS_DEFAULTTYPE] == $foldertype || in_array($foldertype, $cprops[self::CLASS_OTHERTYPES])) {
@@ -729,14 +760,17 @@ class ZPush {
      * @return
      *
      */
-    static public function PrintZPushLegal($message = "", $additionalMessage = "") {
-        ZLog::Write(LOGLEVEL_DEBUG,"ZPush::PrintZPushLegal()");
+    public static function PrintZPushLegal($message = "", $additionalMessage = "")
+    {
+        ZLog::Write(LOGLEVEL_DEBUG, "ZPush::PrintZPushLegal()");
         $zpush_version = @constant('ZPUSH_VERSION');
 
-        if ($message)
+        if ($message) {
             $message = "<h3>". $message . "</h3>";
-        if ($additionalMessage)
+        }
+        if ($additionalMessage) {
             $additionalMessage .= "<br>";
+        }
 
         header("Content-type: text/html");
         print <<<END
@@ -770,7 +804,8 @@ END;
      * @access public
      * @return string
      */
-    static public function GetLatestSupportedASVersion() {
+    public static function GetLatestSupportedASVersion()
+    {
         return end(self::$supportedASVersions);
     }
 
@@ -781,10 +816,12 @@ END;
      * @return string
      * @throws FatalNotImplementedException     if the backend returns an invalid version
      */
-    static public function GetSupportedASVersion() {
+    public static function GetSupportedASVersion()
+    {
         $version = self::GetBackend()->GetSupportedASVersion();
-        if (!in_array($version, self::$supportedASVersions))
+        if (!in_array($version, self::$supportedASVersions)) {
             throw new FatalNotImplementedException(sprintf("AS version '%s' reported by the backend is not supported", $version));
+        }
 
         return $version;
     }
@@ -795,11 +832,13 @@ END;
      * @access public
      * @return string
      */
-    static public function GetServerHeader() {
-        if (self::GetSupportedASVersion() == self::ASV_25)
+    public static function GetServerHeader()
+    {
+        if (self::GetSupportedASVersion() == self::ASV_25) {
             return "MS-Server-ActiveSync: 6.5.7638.1";
-        else
+        } else {
             return "MS-Server-ActiveSync: ". self::GetSupportedASVersion();
+        }
     }
 
     /**
@@ -810,12 +849,14 @@ END;
      * @access public
      * @return string
      */
-    static public function GetSupportedProtocolVersions($valueOnly = false) {
-        $versions = implode(',', array_slice(self::$supportedASVersions, 0, (array_search(self::GetSupportedASVersion(), self::$supportedASVersions)+1)));
+    public static function GetSupportedProtocolVersions($valueOnly = false)
+    {
+        $versions = implode(',', array_slice(self::$supportedASVersions, 0, (array_search(self::GetSupportedASVersion(), self::$supportedASVersions) + 1)));
         ZLog::Write(LOGLEVEL_DEBUG, "ZPush::GetSupportedProtocolVersions(): " . $versions);
 
-        if ($valueOnly === true)
+        if ($valueOnly === true) {
             return $versions;
+        }
 
         return "MS-ASProtocolVersions: " . $versions;
     }
@@ -826,13 +867,16 @@ END;
      * @access public
      * @return string
      */
-    static public function GetSupportedCommands() {
-        $asCommands = array();
+    public static function GetSupportedCommands()
+    {
+        $asCommands = [];
         // filter all non-activesync commands
-        foreach (self::$supportedCommands as $c=>$v)
+        foreach (self::$supportedCommands as $c => $v) {
             if (!self::checkCommandOptions($c, self::NOACTIVESYNCCOMMAND) &&
-                self::checkCommandOptions($c, self::GetSupportedASVersion()))
+                self::checkCommandOptions($c, self::GetSupportedASVersion())) {
                 $asCommands[] = Utils::GetCommandFromCode($c);
+            }
+        }
 
         $commands = implode(',', $asCommands);
         ZLog::Write(LOGLEVEL_DEBUG, "ZPush::GetSupportedCommands(): " . $commands);
@@ -847,24 +891,29 @@ END;
      * @access public
      * @return RequestProcessor sub-class
      */
-    static public function GetRequestHandlerForCommand($commandCode) {
+    public static function GetRequestHandlerForCommand($commandCode)
+    {
         if (!array_key_exists($commandCode, self::$supportedCommands) ||
-            !array_key_exists(self::REQUESTHANDLER, self::$supportedCommands[$commandCode]) )
+            !array_key_exists(self::REQUESTHANDLER, self::$supportedCommands[$commandCode])) {
             throw new FatalNotImplementedException(sprintf("Command '%s' has no request handler or class", Utils::GetCommandFromCode($commandCode)));
+        }
 
         $class = self::$supportedCommands[$commandCode][self::REQUESTHANDLER];
-        if ($class == "Webservice")
+        if ($class == "Webservice") {
             $handlerclass = REAL_BASE_PATH . "lib/webservice/webservice.php";
-        else
+        } else {
             $handlerclass = REAL_BASE_PATH . "lib/request/" . strtolower($class) . ".php";
+        }
 
-        if (is_file($handlerclass))
+        if (is_file($handlerclass)) {
             include($handlerclass);
+        }
 
-        if (class_exists($class))
+        if (class_exists($class)) {
             return new $class();
-        else
+        } else {
             throw new FatalNotImplementedException(sprintf("Request handler '%s' can not be loaded", $class));
+        }
     }
 
     /**
@@ -875,7 +924,8 @@ END;
      * @access public
      * @return boolean
      */
-    static public function CommandNeedsAuthentication($commandCode) {
+    public static function CommandNeedsAuthentication($commandCode)
+    {
         $stat = ! self::checkCommandOptions($commandCode, self::UNAUTHENTICATED);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("ZPush::CommandNeedsAuthentication(%d): %s", $commandCode, Utils::PrintAsString($stat)));
         return $stat;
@@ -889,7 +939,8 @@ END;
      * @access public
      * @return boolean
      */
-    static public function CommandNeedsProvisioning($commandCode) {
+    public static function CommandNeedsProvisioning($commandCode)
+    {
         $stat = ! self::checkCommandOptions($commandCode, self::UNPROVISIONED);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("ZPush::CommandNeedsProvisioning(%s): %s", $commandCode, Utils::PrintAsString($stat)));
         return $stat;
@@ -903,7 +954,8 @@ END;
      * @access public
      * @return boolean
      */
-    static public function CommandNeedsPlainInput($commandCode) {
+    public static function CommandNeedsPlainInput($commandCode)
+    {
         $stat = self::checkCommandOptions($commandCode, self::PLAININPUT);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("ZPush::CommandNeedsPlainInput(%d): %s", $commandCode, Utils::PrintAsString($stat)));
         return $stat;
@@ -917,7 +969,8 @@ END;
      * @access public
      * @return boolean
      */
-    static public function HierarchyCommand($commandCode) {
+    public static function HierarchyCommand($commandCode)
+    {
         $stat = self::checkCommandOptions($commandCode, self::HIERARCHYCOMMAND);
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("ZPush::HierarchyCommand(%d): %s", $commandCode, Utils::PrintAsString($stat)));
         return $stat;
@@ -933,11 +986,15 @@ END;
      * @throws FatalNotImplementedException
      * @return object StateMachine
      */
-    static private function checkCommandOptions($commandCode, $option) {
-        if ($commandCode === false) return false;
+    private static function checkCommandOptions($commandCode, $option)
+    {
+        if ($commandCode === false) {
+            return false;
+        }
 
-        if (!array_key_exists($commandCode, self::$supportedCommands))
+        if (!array_key_exists($commandCode, self::$supportedCommands)) {
             throw new FatalNotImplementedException(sprintf("Command '%s' is not supported", Utils::GetCommandFromCode($commandCode)));
+        }
 
         $capa = self::$supportedCommands[$commandCode];
         $defcapa = in_array($option, $capa, true);
@@ -958,7 +1015,8 @@ END;
      *
      * @return array
      */
-    static public function GetPolicies() {
+    public static function GetPolicies()
+    {
         // TODO another policy providers might be available, e.g. for sqlstatemachine
         return ZPush::$policies;
     }

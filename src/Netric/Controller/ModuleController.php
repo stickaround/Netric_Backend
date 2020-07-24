@@ -48,14 +48,14 @@ class ModuleController extends Mvc\AbstractAccountController
 
         $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['name'])) {
-            return $this->sendOutput(array("error" => "name is a required param"));
+            return $this->sendOutput(["error" => "name is a required param"]);
         }
 
         // Get the service manager of the current user
@@ -75,7 +75,7 @@ class ModuleController extends Mvc\AbstractAccountController
             // Return the saved module
             return $this->sendOutput($module->toArray());
         } else {
-            return $this->sendOutput(array("error" => "Error saving the module"));
+            return $this->sendOutput(["error" => "Error saving the module"]);
         }
     }
 
@@ -94,7 +94,7 @@ class ModuleController extends Mvc\AbstractAccountController
     {
         $id = $this->request->getParam("id");
         if (!$id) {
-            return $this->sendOutput(array("error" => "id is a required param"));
+            return $this->sendOutput(["error" => "id is a required param"]);
         }
 
         // Get the service manager of the current user
@@ -107,7 +107,7 @@ class ModuleController extends Mvc\AbstractAccountController
             // Return true since we have successfully deleted the module
             return $this->sendOutput(true);
         } else {
-            return $this->sendOutput(array("error" => "Error while trying to delete the module"));
+            return $this->sendOutput(["error" => "Error while trying to delete the module"]);
         }
     }
 

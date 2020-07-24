@@ -38,7 +38,8 @@
 // config file
 require_once("backend/maildir/config.php");
 
-class BackendMaildir extends BackendDiff {
+class BackendMaildir extends BackendDiff
+{
     /**----------------------------------------------------------------------------------------------------------
      * default backend methods
      */
@@ -56,7 +57,8 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return boolean
      */
-    public function Logon($username, $domain, $password) {
+    public function Logon($username, $domain, $password)
+    {
         return true;
     }
 
@@ -66,7 +68,8 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return boolean
      */
-    public function Logoff() {
+    public function Logoff()
+    {
         return true;
     }
 
@@ -80,7 +83,8 @@ class BackendMaildir extends BackendDiff {
      * @return boolean
      * @throws StatusException
      */
-    public function SendMail($sm) {
+    public function SendMail($sm)
+    {
         return false;
     }
 
@@ -90,7 +94,8 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return string
      */
-    public function GetWasteBasket() {
+    public function GetWasteBasket()
+    {
         return false;
     }
 
@@ -106,22 +111,25 @@ class BackendMaildir extends BackendDiff {
      * @return SyncItemOperationsAttachment
      * @throws StatusException
      */
-    public function GetAttachmentData($attname) {
+    public function GetAttachmentData($attname)
+    {
         list($id, $part) = explode(":", $attname);
 
         $fn = $this->findMessage($id);
-        if ($fn == false)
+        if ($fn == false) {
             throw new StatusException(sprintf("BackendMaildir->GetAttachmentData('%s'): Error, requested message/attachment can not be found", $attname), SYNC_ITEMOPERATIONSSTATUS_INVALIDATT);
+        }
 
         // Parse e-mail
         $rfc822 = file_get_contents($this->getPath() . "/$fn");
 
-        $message = Mail_mimeDecode::decode(array('decode_headers' => true, 'decode_bodies' => true, 'include_bodies' => true, 'input' => $rfc822, 'crlf' => "\n", 'charset' => 'utf-8'));
+        $message = Mail_mimeDecode::decode(['decode_headers' => true, 'decode_bodies' => true, 'include_bodies' => true, 'input' => $rfc822, 'crlf' => "\n", 'charset' => 'utf-8']);
 
         $attachment = new SyncItemOperationsAttachment();
         $attachment->data = StringStreamWrapper::Open($message->parts[$part]->body);
-        if (isset($message->parts[$part]->ctype_primary) && isset($message->parts[$part]->ctype_secondary))
+        if (isset($message->parts[$part]->ctype_primary) && isset($message->parts[$part]->ctype_secondary)) {
             $attachment->contenttype = $message->parts[$part]->ctype_primary .'/'.$message->parts[$part]->ctype_secondary;
+        }
 
         return $attachment;
     }
@@ -138,17 +146,18 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return array
      */
-    public function GetFolderList() {
-        $folders = array();
+    public function GetFolderList()
+    {
+        $folders = [];
 
-        $inbox = array();
+        $inbox = [];
         $inbox["id"] = "root";
         $inbox["parent"] = "0";
         $inbox["mod"] = "Inbox";
 
-        $folders[]=$inbox;
+        $folders[] = $inbox;
 
-        $sub = array();
+        $sub = [];
         $sub["id"] = "sub";
         $sub["parent"] = "root";
         $sub["mod"] = "Sub";
@@ -166,8 +175,9 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return object       SyncFolder with information
      */
-    public function GetFolder($id) {
-        if($id == "root") {
+    public function GetFolder($id)
+    {
+        if ($id == "root") {
             $inbox = new SyncFolder();
 
             $inbox->serverid = $id;
@@ -176,7 +186,7 @@ class BackendMaildir extends BackendDiff {
             $inbox->type = SYNC_FOLDER_TYPE_INBOX;
 
             return $inbox;
-        } else if($id == "sub") {
+        } elseif ($id == "sub") {
             $inbox = new SyncFolder();
             $inbox->serverid = $id;
             $inbox->parentid = "root";
@@ -198,10 +208,11 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return array
      */
-    public function StatFolder($id) {
+    public function StatFolder($id)
+    {
         $folder = $this->GetFolder($id);
 
-        $stat = array();
+        $stat = [];
         $stat["id"] = $id;
         $stat["parent"] = $folder->parentid;
         $stat["mod"] = $folder->displayname;
@@ -224,7 +235,8 @@ class BackendMaildir extends BackendDiff {
      * @throws StatusException              could throw specific SYNC_FSSTATUS_* exceptions
      *
      */
-    public function ChangeFolder($folderid, $oldid, $displayname, $type){
+    public function ChangeFolder($folderid, $oldid, $displayname, $type)
+    {
         return false;
     }
 
@@ -239,7 +251,8 @@ class BackendMaildir extends BackendDiff {
      * @throws StatusException              could throw specific SYNC_FSSTATUS_* exceptions
      *
      */
-    public function DeleteFolder($id, $parentid){
+    public function DeleteFolder($id, $parentid)
+    {
         return false;
     }
 
@@ -252,11 +265,13 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return array/false  array with messages or false if folder is not available
      */
-    public function GetMessageList($folderid, $cutoffdate) {
+    public function GetMessageList($folderid, $cutoffdate)
+    {
         $this->moveNewToCur();
 
-        if($folderid != "root")
+        if ($folderid != "root") {
             return false;
+        }
 
         // return stats of all messages in a dir. We can do this faster than
         // just calling statMessage() on each message; We still need fstat()
@@ -270,38 +285,41 @@ class BackendMaildir extends BackendDiff {
         // are depending on the creation date of the message instead, which should
         // normally be just about the same, unless you just did some kind of import.
 
-        $messages = array();
+        $messages = [];
         $dirname = $this->getPath();
 
         $dir = opendir($dirname);
 
-        if(!$dir)
+        if (!$dir) {
             return false;
+        }
 
-        while($entry = readdir($dir)) {
-            if($entry{0} == ".")
+        while ($entry = readdir($dir)) {
+            if ($entry{0} == ".") {
                 continue;
+            }
 
-            $message = array();
+            $message = [];
 
             $stat = stat("$dirname/$entry");
 
-            if($stat["mtime"] < $cutoffdate) {
+            if ($stat["mtime"] < $cutoffdate) {
                 // message is out of range for curoffdate, ignore it
                 continue;
             }
 
             $message["mod"] = $stat["mtime"];
 
-            $matches = array();
+            $matches = [];
 
             // Flags according to http://cr.yp.to/proto/maildir.html (pretty authoritative - qmail author's website)
-            if(!preg_match("/([^:]+):2,([PRSTDF]*)/",$entry,$matches))
+            if (!preg_match("/([^:]+):2,([PRSTDF]*)/", $entry, $matches)) {
                 continue;
+            }
             $message["id"] = $matches[1];
             $message["flags"] = 0;
 
-            if(strpos($matches[2],"S") !== false) {
+            if (strpos($matches[2], "S") !== false) {
                 $message["flags"] |= 1; // 'seen' aka 'read' is the only flag we want to know about
             }
 
@@ -321,9 +339,11 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return object/false     false if the message could not be retrieved
      */
-    public function GetMessage($folderid, $id, $truncsize, $mimesupport = 0) {
-        if($folderid != 'root')
+    public function GetMessage($folderid, $id, $truncsize, $mimesupport = 0)
+    {
+        if ($folderid != 'root') {
             return false;
+        }
 
         $fn = $this->findMessage($id);
 
@@ -333,7 +353,7 @@ class BackendMaildir extends BackendDiff {
         // Parse e-mail
         $rfc822 = file_get_contents($this->getPath() . "/" . $fn);
 
-        $message = Mail_mimeDecode::decode(array('decode_headers' => true, 'decode_bodies' => true, 'include_bodies' => true, 'input' => $rfc822, 'crlf' => "\n", 'charset' => 'utf-8'));
+        $message = Mail_mimeDecode::decode(['decode_headers' => true, 'decode_bodies' => true, 'include_bodies' => true, 'input' => $rfc822, 'crlf' => "\n", 'charset' => 'utf-8']);
 
         Utils::CheckAndFixEncoding($message->headers["subject"]);
         Utils::CheckAndFixEncoding($message->headers["from"]);
@@ -350,32 +370,35 @@ class BackendMaildir extends BackendDiff {
         $output->from = $message->headers["from"];
 
         $Mail_RFC822 = new Mail_RFC822();
-        $toaddr = $ccaddr = $replytoaddr = array();
-        if(isset($message->headers["to"]))
+        $toaddr = $ccaddr = $replytoaddr = [];
+        if (isset($message->headers["to"])) {
             $toaddr = $Mail_RFC822->parseAddressList($message->headers["to"]);
-        if(isset($message->headers["cc"]))
+        }
+        if (isset($message->headers["cc"])) {
             $ccaddr = $Mail_RFC822->parseAddressList($message->headers["cc"]);
-        if(isset($message->headers["reply_to"]))
+        }
+        if (isset($message->headers["reply_to"])) {
             $replytoaddr = $Mail_RFC822->parseAddressList($message->headers["reply_to"]);
+        }
 
-        $output->to = array();
-        $output->cc = array();
-        $output->reply_to = array();
-        foreach(array("to" => $toaddr, "cc" => $ccaddr, "reply_to" => $replytoaddr) as $type => $addrlist) {
-            foreach($addrlist as $addr) {
+        $output->to = [];
+        $output->cc = [];
+        $output->reply_to = [];
+        foreach (["to" => $toaddr, "cc" => $ccaddr, "reply_to" => $replytoaddr] as $type => $addrlist) {
+            foreach ($addrlist as $addr) {
                 $address = $addr->mailbox . "@" . $addr->host;
                 $name = $addr->personal;
 
-                if (!isset($output->displayto) && $name != "")
+                if (!isset($output->displayto) && $name != "") {
                     $output->displayto = $name;
+                }
 
-                if($name == "" || $name == $address)
+                if ($name == "" || $name == $address) {
                     $fulladdr = w2u($address);
-                else {
+                } else {
                     if (substr($name, 0, 1) != '"' && substr($name, -1) != '"') {
                         $fulladdr = "\"" . w2u($name) ."\" <" . w2u($address) . ">";
-                    }
-                    else {
+                    } else {
                         $fulladdr = w2u($name) ." <" . w2u($address) . ">";
                     }
                 }
@@ -386,30 +409,35 @@ class BackendMaildir extends BackendDiff {
 
         // convert mime-importance to AS-importance
         if (isset($message->headers["x-priority"])) {
-            $mimeImportance =  preg_replace("/\D+/", "", $message->headers["x-priority"]);
-            if ($mimeImportance > 3)
+            $mimeImportance = preg_replace("/\D+/", "", $message->headers["x-priority"]);
+            if ($mimeImportance > 3) {
                 $output->importance = 0;
-            if ($mimeImportance == 3)
+            }
+            if ($mimeImportance == 3) {
                 $output->importance = 1;
-            if ($mimeImportance < 3)
+            }
+            if ($mimeImportance < 3) {
                 $output->importance = 2;
+            }
         }
 
         // Attachments are only searched in the top-level part
         $n = 0;
-        if(isset($message->parts)) {
-            foreach($message->parts as $part) {
-                if($part->ctype_primary == "application") {
+        if (isset($message->parts)) {
+            foreach ($message->parts as $part) {
+                if ($part->ctype_primary == "application") {
                     $attachment = new SyncAttachment();
                     $attachment->attsize = strlen($part->body);
 
-                    if(isset($part->d_parameters['filename']))
+                    if (isset($part->d_parameters['filename'])) {
                         $attname = $part->d_parameters['filename'];
-                    else if(isset($part->ctype_parameters['name']))
+                    } elseif (isset($part->ctype_parameters['name'])) {
                         $attname = $part->ctype_parameters['name'];
-                    else if(isset($part->headers['content-description']))
+                    } elseif (isset($part->headers['content-description'])) {
                         $attname = $part->headers['content-description'];
-                    else $attname = "unknown attachment";
+                    } else {
+                        $attname = "unknown attachment";
+                    }
 
                     $attachment->displayname = $attname;
                     $attachment->attname = $id . ":" . $n;
@@ -434,20 +462,23 @@ class BackendMaildir extends BackendDiff {
      * @access public
      * @return array
      */
-    public function StatMessage($folderid, $id) {
+    public function StatMessage($folderid, $id)
+    {
         $dirname = $this->getPath();
         $fn = $this->findMessage($id);
-        if(!$fn)
+        if (!$fn) {
             return false;
+        }
 
         $stat = stat("$dirname/$fn");
 
-        $entry = array();
+        $entry = [];
         $entry["id"] = $id;
         $entry["flags"] = 0;
 
-        if(strpos($fn,"S"))
+        if (strpos($fn, "S")) {
             $entry["flags"] |= 1;
+        }
         $entry["mod"] = $stat["mtime"];
 
         return $entry;
@@ -466,7 +497,8 @@ class BackendMaildir extends BackendDiff {
      * @return array                        same return value as StatMessage()
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function ChangeMessage($folderid, $id, $message, $contentParameters) {
+    public function ChangeMessage($folderid, $id, $message, $contentParameters)
+    {
         // TODO SyncInterval check + ContentParameters
         // see https://jira.zarafa.com/browse/ZP-258 for details
         // before changing the message, it should be checked if the message is in the SyncInterval
@@ -487,9 +519,11 @@ class BackendMaildir extends BackendDiff {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function SetReadFlag($folderid, $id, $flags, $contentParameters) {
-        if($folderid != 'root')
+    public function SetReadFlag($folderid, $id, $flags, $contentParameters)
+    {
+        if ($folderid != 'root') {
             return false;
+        }
 
         // TODO SyncInterval check + ContentParameters
         // see https://jira.zarafa.com/browse/ZP-258 for details
@@ -499,24 +533,27 @@ class BackendMaildir extends BackendDiff {
 
         $fn = $this->findMessage($id);
 
-        if(!$fn)
+        if (!$fn) {
             return true; // message may have been deleted
+        }
 
-        if(!preg_match("/([^:]+):2,([PRSTDF]*)/",$fn,$matches))
+        if (!preg_match("/([^:]+):2,([PRSTDF]*)/", $fn, $matches)) {
             return false;
+        }
 
         // remove 'seen' (S) flag
-        if(!$flags) {
-            $newflags = str_replace("S","",$matches[2]);
+        if (!$flags) {
+            $newflags = str_replace("S", "", $matches[2]);
         } else {
             // make sure we don't double add the 'S' flag
-            $newflags = str_replace("S","",$matches[2]) . "S";
+            $newflags = str_replace("S", "", $matches[2]) . "S";
         }
 
         $newfn = $matches[1] . ":2," . $newflags;
         // rename if required
-        if($fn != $newfn)
+        if ($fn != $newfn) {
             rename($this->getPath() ."/$fn", $this->getPath() . "/$newfn");
+        }
 
         return true;
     }
@@ -532,9 +569,11 @@ class BackendMaildir extends BackendDiff {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function DeleteMessage($folderid, $id, $contentParameters) {
-        if($folderid != 'root')
+    public function DeleteMessage($folderid, $id, $contentParameters)
+    {
+        if ($folderid != 'root') {
             return false;
+        }
 
         // TODO SyncInterval check + ContentParameters
         // see https://jira.zarafa.com/browse/ZP-258 for details
@@ -544,10 +583,11 @@ class BackendMaildir extends BackendDiff {
 
         $fn = $this->findMessage($id);
 
-        if(!$fn)
+        if (!$fn) {
             return true; // success because message has been deleted already
+        }
 
-        if(!unlink($this->getPath() . "/$fn")) {
+        if (!unlink($this->getPath() . "/$fn")) {
             return true; // success - message may have been deleted in the mean time (since findMessage)
         }
 
@@ -567,7 +607,8 @@ class BackendMaildir extends BackendDiff {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_MOVEITEMSSTATUS_* exceptions
      */
-    public function MoveMessage($folderid, $id, $newfolderid, $contentParameters) {
+    public function MoveMessage($folderid, $id, $newfolderid, $contentParameters)
+    {
         return false;
     }
 
@@ -584,7 +625,8 @@ class BackendMaildir extends BackendDiff {
      * @access private
      * @return string
      */
-    private function findMessage($id) {
+    private function findMessage($id)
+    {
         // We could use 'this->folderid' for path info but we currently
         // only support a single INBOX. We also have to use a glob '*'
         // because we don't know the flags of the message we're looking for.
@@ -592,9 +634,10 @@ class BackendMaildir extends BackendDiff {
         $dirname = $this->getPath();
         $dir = opendir($dirname);
 
-        while($entry = readdir($dir)) {
-            if(strpos($entry,$id) === 0)
+        while ($entry = readdir($dir)) {
+            if (strpos($entry, $id) === 0) {
                 return $entry;
+            }
         }
         return false; // not found
     }
@@ -607,13 +650,14 @@ class BackendMaildir extends BackendDiff {
      * @access private
      * @return string       plaintext message
      */
-    private function getBody($message) {
+    private function getBody($message)
+    {
         $body = "";
         $htmlbody = "";
 
         $this->getBodyRecursive($message, "plain", $body);
 
-        if(!isset($body) || $body === "") {
+        if (!isset($body) || $body === "") {
             $this->getBodyRecursive($message, "html", $body);
             // remove css-style tags
             $body = preg_replace("/<style.*?<\/style>/is", "", $body);
@@ -635,14 +679,18 @@ class BackendMaildir extends BackendDiff {
      * @access private
      * @return
      */
-    private function getBodyRecursive($message, $subtype, &$body) {
-        if(!isset($message->ctype_primary)) return;
-        if(strcasecmp($message->ctype_primary,"text")==0 && strcasecmp($message->ctype_secondary,$subtype)==0 && isset($message->body))
+    private function getBodyRecursive($message, $subtype, &$body)
+    {
+        if (!isset($message->ctype_primary)) {
+            return;
+        }
+        if (strcasecmp($message->ctype_primary, "text") == 0 && strcasecmp($message->ctype_secondary, $subtype) == 0 && isset($message->body)) {
             $body .= $message->body;
+        }
 
-        if(strcasecmp($message->ctype_primary,"multipart")==0 && isset($message->parts) && is_array($message->parts)) {
-            foreach($message->parts as $part) {
-                if(!isset($part->disposition) || strcasecmp($part->disposition,"attachment"))  {
+        if (strcasecmp($message->ctype_primary, "multipart") == 0 && isset($message->parts) && is_array($message->parts)) {
+            foreach ($message->parts as $part) {
+                if (!isset($part->disposition) || strcasecmp($part->disposition, "attachment")) {
                     $this->getBodyRecursive($part, $subtype, $body);
                 }
             }
@@ -657,12 +705,14 @@ class BackendMaildir extends BackendDiff {
      * @access private
      * @return long
      */
-    private function parseReceivedDate($received) {
+    private function parseReceivedDate($received)
+    {
         $pos = strpos($received, ";");
-        if(!$pos)
+        if (!$pos) {
             return false;
+        }
 
-        $datestr = substr($received, $pos+1);
+        $datestr = substr($received, $pos + 1);
         $datestr = ltrim($datestr);
 
         return strtotime($datestr);
@@ -674,14 +724,16 @@ class BackendMaildir extends BackendDiff {
      * @access private
      * @return
      */
-    private function moveNewToCur() {
+    private function moveNewToCur()
+    {
         $newdirname = MAILDIR_BASE . "/" . $this->store . "/" . MAILDIR_SUBDIR . "/new";
 
         $newdir = opendir($newdirname);
 
-        while($newentry = readdir($newdir)) {
-            if($newentry{0} == ".")
+        while ($newentry = readdir($newdir)) {
+            if ($newentry{0} == ".") {
                 continue;
+            }
 
             // link/unlink == move. This is the way to move the message according to cr.yp.to
             link($newdirname . "/" . $newentry, $this->getPath() . "/" . $newentry . ":2,");
@@ -695,7 +747,8 @@ class BackendMaildir extends BackendDiff {
      * @access private
      * @return string
      */
-    private function getPath() {
+    private function getPath()
+    {
         return MAILDIR_BASE . "/" . $this->store . "/" . MAILDIR_SUBDIR . "/cur";
     }
 }

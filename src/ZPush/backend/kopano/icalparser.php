@@ -25,7 +25,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class ICalParser{
+class ICalParser
+{
     private $props;
 
     /**
@@ -36,7 +37,8 @@ class ICalParser{
      *
      * @access public
      */
-    public function __construct(&$store, &$props){
+    public function __construct(&$store, &$props)
+    {
          $this->props = $props;
     }
 
@@ -48,25 +50,26 @@ class ICalParser{
      *
      * @access public
      */
-    public function ExtractProps($ical, &$mapiprops) {
+    public function ExtractProps($ical, &$mapiprops)
+    {
         //mapping between partstat in ical and MAPI Meeting Response classes as well as icons
-        $aClassMap = array(
-            "ACCEPTED"          => array("class" => "IPM.Schedule.Meeting.Resp.Pos", "icon" => 0x405),
-            "DECLINED"          => array("class" => "IPM.Schedule.Meeting.Resp.Neg", "icon" => 0x406),
-            "TENTATIVE"         => array("class" => "IPM.Schedule.Meeting.Resp.Tent", "icon" => 0x407),
-            "NEEDS-ACTION"      => array("class" => "IPM.Schedule.Meeting.Request", "icon" => 0x404), //iphone
-            "REQ-PARTICIPANT"   => array("class" => "IPM.Schedule.Meeting.Request", "icon" => 0x404), //nokia
-        );
+        $aClassMap = [
+            "ACCEPTED"          => ["class" => "IPM.Schedule.Meeting.Resp.Pos", "icon" => 0x405],
+            "DECLINED"          => ["class" => "IPM.Schedule.Meeting.Resp.Neg", "icon" => 0x406],
+            "TENTATIVE"         => ["class" => "IPM.Schedule.Meeting.Resp.Tent", "icon" => 0x407],
+            "NEEDS-ACTION"      => ["class" => "IPM.Schedule.Meeting.Request", "icon" => 0x404], //iphone
+            "REQ-PARTICIPANT"   => ["class" => "IPM.Schedule.Meeting.Request", "icon" => 0x404], //nokia
+        ];
 
         $aical = preg_split("/[\n]/", $ical);
         $elemcount = count($aical);
-        $i=0;
+        $i = 0;
         $nextline = $aical[0];
 
         //last element is empty
         while ($i < $elemcount - 1) {
             $line = $nextline;
-            $nextline = $aical[$i+1];
+            $nextline = $aical[$i + 1];
 
             //if a line starts with a space or a tab it belongs to the previous line
             while (strlen($nextline) > 0 && ($nextline{0} == " " || $nextline{0} == "\t")) {
@@ -82,13 +85,15 @@ class ICalParser{
                 case "END:VCALENDAR":
                     break;
                 default:
-                    unset ($field, $data, $prop_pos, $property);
-                    if (preg_match ("/([^:]+):(.*)/", $line, $line)){
+                    unset($field, $data, $prop_pos, $property);
+                    if (preg_match("/([^:]+):(.*)/", $line, $line)) {
                         $field = $line[1];
                         $data = $line[2];
                         $property = $field;
-                        $prop_pos = strpos($property,';');
-                        if ($prop_pos !== false) $property = substr($property, 0, $prop_pos);
+                        $prop_pos = strpos($property, ';');
+                        if ($prop_pos !== false) {
+                            $property = substr($property, 0, $prop_pos);
+                        }
                         $property = strtoupper($property);
 
                         switch ($property) {
@@ -112,10 +117,18 @@ class ICalParser{
                                     $prop_pos     = strpos($field, '=');
                                     if ($prop_pos !== false) {
                                         switch (substr($field, 0, $prop_pos)) {
-                                            case 'PARTSTAT'    : $partstat = substr($field, $prop_pos+1); break;
-                                            case 'CN'        : $cn = substr($field, $prop_pos+1); break;
-                                            case 'ROLE'        : $role = substr($field, $prop_pos+1); break;
-                                            case 'RSVP'        : $rsvp = substr($field, $prop_pos+1); break;
+                                            case 'PARTSTAT':
+                                                $partstat = substr($field, $prop_pos + 1);
+                                                break;
+                                            case 'CN':
+                                                $cn = substr($field, $prop_pos + 1);
+                                                break;
+                                            case 'ROLE':
+                                                $role = substr($field, $prop_pos + 1);
+                                                break;
+                                            case 'RSVP':
+                                                $rsvp = substr($field, $prop_pos + 1);
+                                                break;
                                         }
                                     }
                                 }
@@ -132,15 +145,17 @@ class ICalParser{
                                     $mapiprops[PR_ICON_INDEX] = $aClassMap[$role]['icon'];
                                 }
                                 // END ADDED dw2412 to support meeting requests on HTC Android Mail App
-                                if (!isset($cn)) $cn = "";
-                                $data         = str_replace ("MAILTO:", "", $data);
-                                $attendee[] = array ('name' => stripslashes($cn), 'email' => stripslashes($data));
+                                if (!isset($cn)) {
+                                    $cn = "";
+                                }
+                                $data         = str_replace("MAILTO:", "", $data);
+                                $attendee[] = ['name' => stripslashes($cn), 'email' => stripslashes($data)];
                                 break;
 
                             case 'ORGANIZER':
                                 $field          = str_replace("ORGANIZER;CN=", "", $field);
-                                $data          = str_replace ("MAILTO:", "", $data);
-                                $organizer[] = array ('name' => stripslashes($field), 'email' => stripslashes($data));
+                                $data          = str_replace("MAILTO:", "", $data);
+                                $organizer[] = ['name' => stripslashes($field), 'email' => stripslashes($data)];
                                 break;
 
                             case 'LOCATION':
@@ -155,7 +170,6 @@ class ICalParser{
                     break;
             }
             $i++;
-
         }
         $mapiprops[$this->props["usetnef"]] = true;
     }
@@ -168,11 +182,12 @@ class ICalParser{
      * @access private
      * @return long
      */
-    private function getTimestampFromStreamerDate ($data) {
+    private function getTimestampFromStreamerDate($data)
+    {
         $data = str_replace('Z', '', $data);
         $data = str_replace('T', '', $data);
 
-        preg_match ('/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{0,2})([0-9]{0,2})([0-9]{0,2})/', $data, $regs);
+        preg_match('/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{0,2})([0-9]{0,2})([0-9]{0,2})/', $data, $regs);
         if ($regs[1] < 1970) {
             $regs[1] = '1971';
         }

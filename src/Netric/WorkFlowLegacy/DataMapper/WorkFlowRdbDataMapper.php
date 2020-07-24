@@ -280,7 +280,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
         $workFlow = new WorkFlowLegacy($this->actionFactory);
 
         // Create data array to import
-        $importData = array(
+        $importData = [
             "id" => $row['entity_id'],
             "guid" => $row['entity_id'],
             "name" => $row['name'],
@@ -298,7 +298,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
             "only_on_conditions_unmet" => $row['f_condition_unmet'],
             "conditions" => ($row['conditions']) ? json_decode($row['conditions'], true) : null,
             "actions" => $this->getActionsArray($row['entity_id']),
-        );
+        ];
 
         // Set the data from the row
         $workFlow->fromArray($importData);
@@ -322,14 +322,14 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
         }
 
         // Setup column values to set
-        $workflowData = array(
+        $workflowData = [
             "workflow_id" => $workFlowInstance->getWorkFlowLegacyId(),
             "entity_definition_id" => $workFlowInstance->getObjTypeId(),
             "object_type" => $workFlowInstance->getObjType(),
             "object_uid" => $workFlowInstance->getEntityId(),
             "ts_started" => $workFlowInstance->getTimeStarted()->format("Y-m-d H:i:s T"),
             "f_completed" => (($workFlowInstance->isCompleted()) ? 't' : 'f'),
-        );
+        ];
 
         $workFlowInstanceId = $workFlowInstance->getWorkFlowLegacyInstanceId();
 
@@ -664,10 +664,10 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
 
             // Only return the scheduled action if the instance and action are still valid
             if ($instance && $action) {
-                $actions[] = array(
+                $actions[] = [
                     "instance" => $instance,
                     "action" => $action,
-                );
+                ];
             } else {
                 // It looks like either the action was deleted or the instance was cancelled, cleanup
                 $this->deleteScheduledAction($instanceId, $actionId);
@@ -704,7 +704,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
                 $workflowData = json_decode($workflowData['field_data'], true);
             }
 
-            $actionArray = array(
+            $actionArray = [
                 "id" => $workflowData['id'],
                 "guid" => $workflowData['guid'],
                 "name" => $workflowData['name'],
@@ -712,7 +712,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
                 "type" => $workflowData['type_name'],
                 "parent_action_id" => $workflowData['parent_action_id'],
                 "child_actions" => $this->getActionsArray($workflowData['workflow_id'], $workflowData['guid']),
-            );
+            ];
 
             // TODO: get child actions
 

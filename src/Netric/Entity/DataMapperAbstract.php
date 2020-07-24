@@ -570,7 +570,6 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         // Make sure that private groupings always have user_guid set
         $userGuidPath = "";
         if ($entity->getDefinition()->isPrivate()) {
-
             // Make sure that the owner_id was set
             if ($entity->getValue("owner_id")) {
                 $userEntity = $entityLoader->getByGuid($entity->getValue("owner_id"));
@@ -615,10 +614,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     break;
 
                 case Field::TYPE_OBJECT_MULTI:
-
                     if (is_array($value)) {
                         foreach ($value as $id) {
-
                             // If we are dealing with null or empty id, then there is no need to update this foreign key
                             if (!$id) {
                                 continue;
@@ -662,7 +659,6 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                     if (is_array($value)) {
                         foreach ($value as $id) {
-
                             if (!$id) {
                                 continue;
                             }

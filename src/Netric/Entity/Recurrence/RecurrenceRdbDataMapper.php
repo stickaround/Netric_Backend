@@ -183,7 +183,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $this->database->query($sql, $recurrenceData);
 
 
-        // If the recurrence pattern do not have an Id, then set it with the newly created id 
+        // If the recurrence pattern do not have an Id, then set it with the newly created id
         if (!$recurPattern->getId()) {
             $recurPattern->setId($recurrenceData["entity_recurrence_id"]);
         }

@@ -118,7 +118,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $entity->resetIsDirty();
         $fields = $entity->getDefinition()->getFields();
         foreach ($fields as $field) {
-
             switch ($field->type) {
                 case Field::TYPE_GROUPING:
                 case Field::TYPE_GROUPING_MULTI:
@@ -135,13 +134,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                     // Check if this field is a grouping multi
                     if ($field->isMultiValue()) {
-
                         // Make sure that we have fieldValue and it is an array
                         if ($fieldValue && is_array($fieldValue)) {
-
                             // Loop thru the fieldValue and look for referenced group that still have id
                             foreach ($fieldValue as $value) {
-
                                 if (!$value) {
                                     continue;
                                 }
@@ -164,7 +160,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                                 }
                             }
                         }
-                    } else if ($fieldValue && !Uuid::isValid($fieldValue) && $fieldValue) {
+                    } elseif ($fieldValue && !Uuid::isValid($fieldValue) && $fieldValue) {
                         // Here we will handle the grouping field and make sure that the fieldValue is still not a guid
 
                         // Look first in public groupings and see if the group id exists.
@@ -201,7 +197,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     // Make sure the the multi value is an array
                     if (is_array($refValues)) {
                         foreach ($refValues as $value) {
-
                             if ($value) {
                                 // Get the referenced entity
                                 $referencedEntity = $entityLoader->getByGuid($value);
@@ -499,8 +494,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             }
 
             // Set fval cache so we do not have to do crazy joins across tables
-            if (
-                $fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
+            if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
                 $fdef->type == "object" || $fdef->type == "object_multi"
             ) {
                 // Get the value names (if set) and save

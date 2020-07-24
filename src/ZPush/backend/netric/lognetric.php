@@ -36,11 +36,12 @@ class LogNetric extends \Log
      * @var string
      */
     private $logFilePath = "";
-    
+
     /**
      * Log constructor cannot take any arguments because we do not control instantiation
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
 
         // Set output directory for dumping WBXML files
@@ -49,7 +50,7 @@ class LogNetric extends \Log
 
     /**
      * Get the last message written to file
-     * 
+     *
      * This is mostly used for testing purposes
      *
      * @return string
@@ -69,7 +70,8 @@ class LogNetric extends \Log
      * @param int $loglevel ZPush log level
      * @param string $message Message to be logged
      */
-    protected function Write($loglevel, $message) {
+    protected function Write($loglevel, $message)
+    {
         $netricLog = $this->getNetricLog();
         $logMessage = $this->buildLogString($loglevel, $message);
 
@@ -103,13 +105,14 @@ class LogNetric extends \Log
 
     /**
      * This function is used as an event for log implementer
-     * 
+     *
      * It happens when the a call to the Log function is finished.
      *
      * @access public
      * @return void
      */
-    public function WriteForUser($loglevel, $message) {
+    public function WriteForUser($loglevel, $message)
+    {
         $this->Write($loglevel, $message);
     }
 
@@ -131,7 +134,8 @@ class LogNetric extends \Log
      * @param string $message Message to be logged
      * @return string
      */
-    private function buildLogString($loglevel, $message) {
+    private function buildLogString($loglevel, $message)
+    {
         $log = $this->GetUser();
         if ($loglevel >= LOGLEVEL_DEVICEID) {
             $log .= $this->GetDevid();
@@ -162,6 +166,5 @@ class LogNetric extends \Log
             // Log the error so we know something went wrong
             $this->Write(LOGLEVEL_ERROR, $ex->getMessage());
         }
-
     }
 }

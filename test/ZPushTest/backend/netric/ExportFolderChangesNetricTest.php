@@ -31,13 +31,13 @@ class ExportFolderChagesNetricTest extends TestCase
 
 
     protected function setUp(): void
-{
+    {
         $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
             ->disableOriginalConstructor()
             ->getMock();
 
         // Initialize zpush - copied from zpush index file
-        if (!defined ( 'REAL_BASE_PATH' )) {
+        if (!defined('REAL_BASE_PATH')) {
             \ZPush::CheckConfig();
         }
 
@@ -67,7 +67,7 @@ class ExportFolderChagesNetricTest extends TestCase
         $syncFolder = new \SyncFolder();
         $syncFolder->serverid = 'test';
         $syncFolder->displayname = "Test";
-        $this->entityProvider->method('getAllFolders')->willReturn(array($syncFolder));
+        $this->entityProvider->method('getAllFolders')->willReturn([$syncFolder]);
 
         // Initialize
         $ret = $exporter->InitializeExporter($importer);
@@ -88,7 +88,7 @@ class ExportFolderChagesNetricTest extends TestCase
         $syncFolder = new \SyncFolder();
         $syncFolder->serverid = 'test';
         $syncFolder->displayname = "Test";
-        $this->entityProvider->method('getAllFolders')->willReturn(array($syncFolder));
+        $this->entityProvider->method('getAllFolders')->willReturn([$syncFolder]);
 
         // Initialize
         $exporter->InitializeExporter($importer);
@@ -105,7 +105,7 @@ class ExportFolderChagesNetricTest extends TestCase
         $syncFolder->displayname = "Test";
         $syncFolder->parentid = "0";
         $this->entityProvider->method('getFolder')->willReturn($syncFolder);
-        $this->entityProvider->method('getAllFolders')->willReturn(array($syncFolder));
+        $this->entityProvider->method('getAllFolders')->willReturn([$syncFolder]);
 
         // Create exporter
         $exporter = new \ExportFolderChangeNetric(
@@ -119,7 +119,7 @@ class ExportFolderChagesNetricTest extends TestCase
         $syncFolderDelete->serverid = 'testdel';
         $syncFolderDelete->displayname = "DelTest";
         $syncFolder->parentid = "0";
-        $exporter->Config(array(array('id' => $syncFolderDelete->serverid, 'flags' => 0)));
+        $exporter->Config([['id' => $syncFolderDelete->serverid, 'flags' => 0]]);
 
         // Create an in-memory importer
         $importer = new \ChangesMemoryWrapper();
@@ -136,13 +136,13 @@ class ExportFolderChagesNetricTest extends TestCase
         $result = $exporter->Synchronize();
 
         // If a change is made it should return steps and progress
-        $this->assertEquals(array("steps" => 2, "progress" => 1), $result);
+        $this->assertEquals(["steps" => 2, "progress" => 1], $result);
 
         // Synchronize again which should process the second change
         $result = $exporter->Synchronize();
 
         // If a change is made it should return steps and progress
-        $this->assertEquals(array("steps" => 2, "progress" => 2), $result);
+        $this->assertEquals(["steps" => 2, "progress" => 2], $result);
 
         // Make sure the importer delete was called for folder 'test'
         $this->assertTrue($importer->IsChanged($syncFolder));
@@ -154,14 +154,14 @@ class ExportFolderChagesNetricTest extends TestCase
         $this->assertFalse($exporter->Synchronize());
 
         // Check that the state was updated
-        $expectedState = array(
-            array (
+        $expectedState = [
+             [
                 'type' => 'change',
                 'id' => 'test',
                 'mod' => 'Test',
                 'parent' => "0"
-            )
-        );
+             ]
+        ];
         $this->assertEquals($expectedState, $exporter->GetState());
     }
 
@@ -186,7 +186,7 @@ class ExportFolderChagesNetricTest extends TestCase
         );
 
         // Assume we had previously exported the same folders
-        $state = [['id' => 'test', 'mod' => 'Test', 'parent' => '0', 'flags'=>0]];
+        $state = [['id' => 'test', 'mod' => 'Test', 'parent' => '0', 'flags' => 0]];
         $exporter->Config($state);
 
         // Initialize the netric exporter with the in-memory importer
@@ -229,13 +229,13 @@ class ExportFolderChagesNetricTest extends TestCase
                 'id' => $syncFolder1->serverid,
                 'mod' => $syncFolder1->displayname,
                 'parent' => $syncFolder1->parentid,
-                'flags'=>0
+                'flags' => 0
             ],
             [
                 'id' => $syncFolder2->serverid,
                 'mod' => $syncFolder2->displayname,
                 'parent' => $syncFolder2->parentid,
-                'flags'=>0
+                'flags' => 0
             ]
         ];
         $exporter->Config($state);

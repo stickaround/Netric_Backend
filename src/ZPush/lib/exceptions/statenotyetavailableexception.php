@@ -23,4 +23,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class StateNotYetAvailableException extends StatusException {}
+class StateNotYetAvailableException extends StatusException
+{
+}

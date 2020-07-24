@@ -25,7 +25,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncParameters extends StateObject {
+class SyncParameters extends StateObject
+{
     const DEFAULTOPTIONS = "DEFAULT";
     const EMAILOPTIONS = "EMAIL";
     const CALENDAROPTIONS = "CALENDAR";
@@ -38,7 +39,7 @@ class SyncParameters extends StateObject {
     private $confirmationChanged = false;
     private $currentCPO = self::DEFAULTOPTIONS;
 
-    protected $unsetdata = array(
+    protected $unsetdata = [
                                     'uuid' => false,
                                     'uuidcounter' => false,
                                     'uuidnewcounter' => false,
@@ -53,18 +54,19 @@ class SyncParameters extends StateObject {
                                     'deletesasmoves' => false,
                                     'conversationmode' => false,
                                     'windowsize' => 5,
-                                    'contentparameters' => array(),
+                                    'contentparameters' => [],
                                     'foldersynctotal' => false,
                                     'foldersyncremaining' => false,
                                     'folderstat' => false,
                                     'folderstattimeout' => false,
                                     'movestate' => false,
-                                );
+                                ];
 
     /**
      * SyncParameters constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         // initialize ContentParameters for the current option
         $this->checkCPO();
     }
@@ -83,9 +85,11 @@ class SyncParameters extends StateObject {
      * @access public
      * @return string/boolean       false if no uuid/counter available
      */
-    public function GetSyncKey() {
-        if (isset($this->uuid) && isset($this->uuidCounter))
+    public function GetSyncKey()
+    {
+        if (isset($this->uuid) && isset($this->uuidCounter)) {
             return StateManager::BuildStateKey($this->uuid, $this->uuidCounter);
+        }
 
         return false;
     }
@@ -100,7 +104,8 @@ class SyncParameters extends StateObject {
      * @access public
      * @return boolean
      */
-    public function SetSyncKey($synckey) {
+    public function SetSyncKey($synckey)
+    {
         list($this->uuid, $this->uuidCounter) = StateManager::ParseStateKey($synckey);
 
         // remove newSyncKey
@@ -121,7 +126,8 @@ class SyncParameters extends StateObject {
      * @access public
      * @return booleans
      */
-    public function HasSyncKey() {
+    public function HasSyncKey()
+    {
         return (isset($this->uuid) && isset($this->uuidCounter));
     }
 
@@ -136,14 +142,15 @@ class SyncParameters extends StateObject {
      * @throws FatalException       if the uuids of current and next do not match
      * @return boolean
      */
-    public function SetNewSyncKey($synckey) {
+    public function SetNewSyncKey($synckey)
+    {
         list($uuid, $uuidNewCounter) = StateManager::ParseStateKey($synckey);
         if (!$this->HasSyncKey()) {
             $this->uuid = $uuid;
             $this->uuidCounter = $uuidNewCounter;
-        }
-        else if ($uuid !== $this->uuid)
+        } elseif ($uuid !== $this->uuid) {
             throw new FatalException("SyncParameters->SetNewSyncKey(): new SyncKey must have the same UUID as current SyncKey");
+        }
 
         $this->uuidNewCounter = $uuidNewCounter;
         $this->counterconfirmed = false;
@@ -157,9 +164,11 @@ class SyncParameters extends StateObject {
      * @access public
      * @return string/boolean       returns false if uuid or counter are not available
      */
-    public function GetNewSyncKey() {
-        if (isset($this->uuid) && isset($this->uuidNewCounter))
+    public function GetNewSyncKey()
+    {
+        if (isset($this->uuid) && isset($this->uuidNewCounter)) {
             return StateManager::BuildStateKey($this->uuid, $this->uuidNewCounter);
+        }
 
         return false;
     }
@@ -170,7 +179,8 @@ class SyncParameters extends StateObject {
      * @access public
      * @return boolean
      */
-    public function HasNewSyncKey() {
+    public function HasNewSyncKey()
+    {
         return (isset($this->uuid) && isset($this->uuidNewCounter));
     }
 
@@ -184,7 +194,8 @@ class SyncParameters extends StateObject {
      * @access public
      * @return string
      */
-    public function GetLatestSyncKey($confirmedOnly = false) {
+    public function GetLatestSyncKey($confirmedOnly = false)
+    {
         // New becomes old if available - if $confirmedOnly then the counter needs to be confirmed
         if ($this->HasUuidNewCounter() && (($confirmedOnly && $this->counterconfirmed) || !$confirmedOnly)) {
             $this->uuidCounter = $this->uuidNewCounter;
@@ -201,15 +212,19 @@ class SyncParameters extends StateObject {
      * @access public
      * @return boolean
      */
-    public function RemoveSyncKey() {
-        if (isset($this->uuid))
+    public function RemoveSyncKey()
+    {
+        if (isset($this->uuid)) {
             unset($this->uuid);
+        }
 
-        if (isset($this->uuidCounter))
+        if (isset($this->uuidCounter)) {
             unset($this->uuidCounter);
+        }
 
-        if (isset($this->uuidNewCounter))
+        if (isset($this->uuidNewCounter)) {
             unset($this->uuidNewCounter);
+        }
 
         ZLog::Write(LOGLEVEL_DEBUG, "SyncParameters->RemoveSyncKey(): saved sync key removed");
         return true;
@@ -221,11 +236,11 @@ class SyncParameters extends StateObject {
      * @access public
      * @return string
      */
-    public function GetBackendFolderId() {
+    public function GetBackendFolderId()
+    {
         if ($this->backendfolderid) {
             return $this->backendfolderid;
-        }
-        else {
+        } else {
             return $this->GetFolderId();
         }
     }
@@ -246,7 +261,8 @@ class SyncParameters extends StateObject {
      * @access public
      * @return ContentParameters object
      */
-    public function GetCPO($options = self::DEFAULTOPTIONS) {
+    public function GetCPO($options = self::DEFAULTOPTIONS)
+    {
         $options = strtoupper($options);
         $this->isValidType($options);
         $options = $this->normalizeType($options);
@@ -269,7 +285,8 @@ class SyncParameters extends StateObject {
      * @access public
      * @return
      */
-    public function UseCPO($options = self::DEFAULTOPTIONS) {
+    public function UseCPO($options = self::DEFAULTOPTIONS)
+    {
         $options = strtoupper($options);
         $this->isValidType($options);
 
@@ -296,12 +313,12 @@ class SyncParameters extends StateObject {
      * @access public
      * @return boolean
      */
-    public function IsExporterRunRequired($currentFolderStat, $doLog = false) {
+    public function IsExporterRunRequired($currentFolderStat, $doLog = false)
+    {
         // if the backend returned false as folderstat, we have to run the exporter
-        if ($currentFolderStat === false || $this->confirmationChanged)  {
+        if ($currentFolderStat === false || $this->confirmationChanged) {
             $run = true;
-        }
-        else {
+        } else {
             // check if the folderstat differs from the saved one or expired
             $run = ! ($this->HasFolderStat() && $currentFolderStat === $this->GetFolderStat() && time() < $this->GetFolderStatTimeout());
         }
@@ -321,7 +338,8 @@ class SyncParameters extends StateObject {
      * @access private
      * @return boolean
      */
-    private function checkCPO($options = self::DEFAULTOPTIONS) {
+    private function checkCPO($options = self::DEFAULTOPTIONS)
+    {
         $this->isValidType($options);
 
         if (!isset($this->contentParameters[$options])) {
@@ -342,15 +360,17 @@ class SyncParameters extends StateObject {
      * @return boolean
      * @throws FatalNotImplementedException
      */
-     private function isValidType($options) {
-         if ($options !== self::DEFAULTOPTIONS &&
-                        $options !== self::EMAILOPTIONS &&
-                        $options !== self::CALENDAROPTIONS &&
-                        $options !== self::CONTACTOPTIONS &&
-                        $options !== self::NOTEOPTIONS &&
-                        $options !== self::TASKOPTIONS &&
-                        $options !== self::SMSOPTIONS)
+    private function isValidType($options)
+    {
+        if ($options !== self::DEFAULTOPTIONS &&
+                       $options !== self::EMAILOPTIONS &&
+                       $options !== self::CALENDAROPTIONS &&
+                       $options !== self::CONTACTOPTIONS &&
+                       $options !== self::NOTEOPTIONS &&
+                       $options !== self::TASKOPTIONS &&
+                       $options !== self::SMSOPTIONS) {
             throw new FatalNotImplementedException(sprintf("SyncParameters->isAllowedType('%s') ContentParameters is invalid. Such type is not available.", $options));
+        }
 
         return true;
     }
@@ -365,25 +385,27 @@ class SyncParameters extends StateObject {
      * @return string
      * @throws FatalNotImplementedException
      */
-     private function normalizeType($options) {
+    private function normalizeType($options)
+    {
         // return the requested CPO as it is defined
-        if (isset($this->contentParameters[$options]))
+        if (isset($this->contentParameters[$options])) {
             return $options;
+        }
 
         $returnCPO = $options;
         // return email, calendar, contact or note CPO as default CPO if there no explicit default CPO defined
         if ($options == self::DEFAULTOPTIONS && !isset($this->contentParameters[self::DEFAULTOPTIONS])) {
-
-            if (isset($this->contentParameters[self::EMAILOPTIONS]))
+            if (isset($this->contentParameters[self::EMAILOPTIONS])) {
                 $returnCPO = self::EMAILOPTIONS;
-            elseif (isset($this->contentParameters[self::CALENDAROPTIONS]))
+            } elseif (isset($this->contentParameters[self::CALENDAROPTIONS])) {
                 $returnCPO = self::CALENDAROPTIONS;
-            elseif (isset($this->contentParameters[self::CONTACTOPTIONS]))
+            } elseif (isset($this->contentParameters[self::CONTACTOPTIONS])) {
                 $returnCPO = self::CONTACTOPTIONS;
-            elseif (isset($this->contentParameters[self::NOTEOPTIONS]))
+            } elseif (isset($this->contentParameters[self::NOTEOPTIONS])) {
                 $returnCPO = self::NOTEOPTIONS;
-            elseif (isset($this->contentParameters[self::TASKOPTIONS]))
+            } elseif (isset($this->contentParameters[self::TASKOPTIONS])) {
                 $returnCPO = self::TASKOPTIONS;
+            }
 
             return $returnCPO;
         }
@@ -407,10 +429,11 @@ class SyncParameters extends StateObject {
      * @access public
      * @return mixed
      */
-    public function __call($name, $arguments) {
+    public function __call($name, $arguments)
+    {
         $lowname = strtolower($name);
-        $operator = substr($lowname, 0,3);
-        $var = substr($lowname,3);
+        $operator = substr($lowname, 0, 3);
+        $var = substr($lowname, 3);
 
         if (array_key_exists($var, $this->unsetdata)) {
             return parent::__call($name, $arguments);
@@ -430,11 +453,13 @@ class SyncParameters extends StateObject {
      * @access protected
      * @return boolean
      */
-    protected function preSerialize() {
+    protected function preSerialize()
+    {
         parent::preSerialize();
 
-        if ($this->changed === true && ($this->synckeyChanged || $this->lastsynctime === false))
+        if ($this->changed === true && ($this->synckeyChanged || $this->lastsynctime === false)) {
             $this->lastsynctime = time();
+        }
 
         return true;
     }
@@ -445,7 +470,8 @@ class SyncParameters extends StateObject {
      * @access protected
      * @return boolean
      */
-    protected function postUnserialize() {
+    protected function postUnserialize()
+    {
         // init with the available CPO or default
         $availableCPO = $this->normalizeType(self::DEFAULTOPTIONS);
         $this->UseCPO($availableCPO);

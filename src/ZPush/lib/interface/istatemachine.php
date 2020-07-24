@@ -35,7 +35,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-interface IStateMachine {
+interface IStateMachine
+{
     const DEFTYPE = "";
     const DEVICEDATA = "devicedata";
     const FOLDERDATA = "fd";

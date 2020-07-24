@@ -42,7 +42,7 @@ abstract class AbstractLogWriterTests extends TestCase
         // See if we can write without an exception being thrown
         $message = new LogMessage('unit-test', 'TEST_WRITE');
         $message->setLevelNumber(Log::LOG_ERR);
-        $message->setBody(['firstval'=>1, 'secondval'=>2]);
+        $message->setBody(['firstval' => 1, 'secondval' => 2]);
         $writer->write($message);
         // If write succeeds it will increment numMessagesWritten
         $this->assertEquals(1, $writer->getNumMessageWritten());

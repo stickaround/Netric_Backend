@@ -26,7 +26,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class TopCollector extends InterProcessData {
+class TopCollector extends InterProcessData
+{
     const ENABLEDAT = 2;
     const TOPDATA = 3;
 
@@ -38,7 +39,8 @@ class TopCollector extends InterProcessData {
      *
      * @access public
      */
-    public function __construct() {
+    public function __construct()
+    {
         // initialize super parameters
         $this->allocate = 2097152; // 2 MB
         $this->type = 20;
@@ -47,9 +49,9 @@ class TopCollector extends InterProcessData {
         // initialize params
         $this->initializeParams();
 
-        $this->preserved = array();
+        $this->preserved = [];
         // static vars come from the parent class
-        $this->latest = array(  "pid"       => self::$pid,
+        $this->latest = [  "pid"       => self::$pid,
                                 "ip"        => Request::GetRemoteAddr(),
                                 "user"      => self::$user,
                                 "start"     => self::$start,
@@ -59,7 +61,7 @@ class TopCollector extends InterProcessData {
                                 "command"   => Request::GetCommandCode(),
                                 "ended"     => 0,
                                 "push"      => false,
-                        );
+                        ];
 
         $this->AnnounceInformation("initializing");
     }
@@ -70,7 +72,8 @@ class TopCollector extends InterProcessData {
      *
      * @access public
      */
-    public function __destruct() {
+    public function __destruct()
+    {
         $this->AnnounceInformation("OK", false, true);
     }
 
@@ -84,7 +87,8 @@ class TopCollector extends InterProcessData {
      * @access public
      * @return boolean  indicating if it was set to collect before
      */
-    public function CollectData($stop = false) {
+    public function CollectData($stop = false)
+    {
         $wasEnabled = false;
 
         // exclusive block
@@ -92,10 +96,13 @@ class TopCollector extends InterProcessData {
             $wasEnabled = ($this->hasData(self::ENABLEDAT)) ? $this->getData(self::ENABLEDAT) : false;
 
             $time = time();
-            if ($stop === true) $time = 0;
+            if ($stop === true) {
+                $time = 0;
+            }
 
-            if (! $this->setData($time, self::ENABLEDAT))
+            if (! $this->setData($time, self::ENABLEDAT)) {
                 return false;
+            }
             $this->releaseMutex();
         }
         // end exclusive block
@@ -113,7 +120,8 @@ class TopCollector extends InterProcessData {
      * @access public
      * @return boolean
      */
-    public function AnnounceInformation($addinfo, $preserve = false, $terminating = false) {
+    public function AnnounceInformation($addinfo, $preserve = false, $terminating = false)
+    {
         if (defined('TOPCOLLECTOR_DISABLED') && constant('TOPCOLLECTOR_DISABLED') === true) {
             return true;
         }
@@ -123,18 +131,20 @@ class TopCollector extends InterProcessData {
 
         if ($terminating) {
             $this->latest["ended"] = time();
-            foreach ($this->preserved as $p)
+            foreach ($this->preserved as $p) {
                 $this->latest["addinfo"] .= " : ".$p;
+            }
         }
 
-        if ($preserve)
+        if ($preserve) {
             $this->preserved[] = $addinfo;
+        }
 
         if ($this->isEnabled()) {
             $ok = false;
             // exclusive block
             if ($this->blockMutex()) {
-                $topdata = ($this->hasData(self::TOPDATA)) ? $this->getData(self::TOPDATA): array();
+                $topdata = ($this->hasData(self::TOPDATA)) ? $this->getData(self::TOPDATA) : [];
 
                 $this->checkArrayStructure($topdata);
 
@@ -158,12 +168,13 @@ class TopCollector extends InterProcessData {
      * @access public
      * @return array
      */
-    public function ReadLatest() {
-        $topdata = array();
+    public function ReadLatest()
+    {
+        $topdata = [];
 
         // exclusive block
         if ($this->blockMutex()) {
-            $topdata = ($this->hasData(self::TOPDATA)) ? $this->getData(self::TOPDATA) : array();
+            $topdata = ($this->hasData(self::TOPDATA)) ? $this->getData(self::TOPDATA) : [];
             $this->releaseMutex();
         }
         // end exclusive block
@@ -179,29 +190,30 @@ class TopCollector extends InterProcessData {
      * @access public
      * @return boolean  status
      */
-    public function ClearLatest($all = false) {
+    public function ClearLatest($all = false)
+    {
         // it's ok when doing this every 10 sec
-        if ($all == false && time() % 10 != 0 )
+        if ($all == false && time() % 10 != 0) {
             return true;
+        }
 
         $stat = false;
 
         // exclusive block
         if ($this->blockMutex()) {
             if ($all == true) {
-                $topdata = array();
-            }
-            else {
-                $topdata = ($this->hasData(self::TOPDATA)) ? $this->getData(self::TOPDATA) : array();
+                $topdata = [];
+            } else {
+                $topdata = ($this->hasData(self::TOPDATA)) ? $this->getData(self::TOPDATA) : [];
 
-                $toClear = array();
-                foreach ($topdata as $devid=>$users) {
-                    foreach ($users as $user=>$pids) {
-                        foreach ($pids as $pid=>$line) {
+                $toClear = [];
+                foreach ($topdata as $devid => $users) {
+                    foreach ($users as $user => $pids) {
+                        foreach ($pids as $pid => $line) {
                             // remove everything which terminated for 20 secs or is not updated for more than 120 secs
                             if (($line["ended"] != 0 && time() - $line["ended"] > 20) ||
                                 time() - $line["update"] > 120) {
-                                $toClear[] = array($devid, $user, $pid);
+                                $toClear[] = [$devid, $user, $pid];
                             }
                         }
                     }
@@ -227,7 +239,8 @@ class TopCollector extends InterProcessData {
      * @access public
      * @return boolean
      */
-    public function SetUserAgent($agent) {
+    public function SetUserAgent($agent)
+    {
         $this->latest["devagent"] = $agent;
         return true;
     }
@@ -240,7 +253,8 @@ class TopCollector extends InterProcessData {
      * @access public
      * @return boolean
      */
-    public function SetAsPushConnection() {
+    public function SetAsPushConnection()
+    {
         $this->latest["push"] = true;
         return true;
     }
@@ -251,10 +265,11 @@ class TopCollector extends InterProcessData {
      * @access public
      * @return boolean
      */
-    public function ReInitIPC() {
+    public function ReInitIPC()
+    {
         $status = parent::ReInitIPC();
         if (!status) {
-            $this->SetData(array(), self::TOPDATA);
+            $this->SetData([], self::TOPDATA);
         }
         return $status;
     }
@@ -267,9 +282,10 @@ class TopCollector extends InterProcessData {
      * @access private
      * @return boolean
      */
-    private function isEnabled() {
+    private function isEnabled()
+    {
         $isEnabled = ($this->hasData(self::ENABLEDAT)) ? $this->getData(self::ENABLEDAT) : false;
-        return ($isEnabled !== false && ($isEnabled +300) > time());
+        return ($isEnabled !== false && ($isEnabled + 300) > time());
     }
 
     /**
@@ -280,17 +296,22 @@ class TopCollector extends InterProcessData {
      * @access private
      * @return
      */
-    private function checkArrayStructure(&$topdata) {
-        if (!isset($topdata) || !is_array($topdata))
-            $topdata = array();
+    private function checkArrayStructure(&$topdata)
+    {
+        if (!isset($topdata) || !is_array($topdata)) {
+            $topdata = [];
+        }
 
-        if (!isset($topdata[self::$devid]))
-            $topdata[self::$devid] = array();
+        if (!isset($topdata[self::$devid])) {
+            $topdata[self::$devid] = [];
+        }
 
-        if (!isset($topdata[self::$devid][self::$user]))
-            $topdata[self::$devid][self::$user] = array();
+        if (!isset($topdata[self::$devid][self::$user])) {
+            $topdata[self::$devid][self::$user] = [];
+        }
 
-        if (!isset($topdata[self::$devid][self::$user][self::$pid]))
-            $topdata[self::$devid][self::$user][self::$pid] = array();
+        if (!isset($topdata[self::$devid][self::$user][self::$pid])) {
+            $topdata[self::$devid][self::$user][self::$pid] = [];
+        }
     }
 }

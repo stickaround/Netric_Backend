@@ -101,12 +101,12 @@ class Where
      */
     public function toArray()
     {
-        return array(
+        return [
             "blogic" => $this->bLogic,
             "field_name" => $this->fieldName,
             "operator" => $this->operator,
             "value" => $this->value,
-        );
+        ];
     }
 
     /**
@@ -117,19 +117,19 @@ class Where
     public function fromArray($data)
     {
         if (isset($data['blogic'])) {
-            $this->bLogic =  $data['blogic'];
+            $this->bLogic = $data['blogic'];
         }
 
         if (isset($data['field_name'])) {
-            $this->fieldName =  $data['field_name'];
+            $this->fieldName = $data['field_name'];
         }
 
         if (isset($data['operator'])) {
-            $this->operator =  $data['operator'];
+            $this->operator = $data['operator'];
         }
 
         if (isset($data['value'])) {
-            $this->value =  $data['value'];
+            $this->value = $data['value'];
         }
     }
 
@@ -360,7 +360,6 @@ class Where
     public function getOperatorDateType()
     {
         switch ($this->operator) {
-
             case self::OPERATOR_DAY_IS_EQUAL:
             case self::OPERATOR_LAST_X_DAYS:
             case self::OPERATOR_NEXT_X_DAYS:

@@ -27,25 +27,26 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncResolveRecipientsPicture extends SyncObject {
+class SyncResolveRecipientsPicture extends SyncObject
+{
     public $maxsize;
     public $maxpictures;
     public $status;
     public $data;
 
-    public function __construct() {
-        $mapping = array ();
+    public function __construct()
+    {
+        $mapping = [];
 
         if (Request::GetProtocolVersion() >= 14.1) {
-            $mapping[SYNC_RESOLVERECIPIENTS_MAXSIZE]        = array (  self::STREAMER_VAR      => "maxsize");
-            $mapping[SYNC_RESOLVERECIPIENTS_MAXPICTURES]    = array (  self::STREAMER_VAR      => "maxpictures");
-            $mapping[SYNC_RESOLVERECIPIENTS_STATUS]         = array (  self::STREAMER_VAR      => "status");
-            $mapping[SYNC_RESOLVERECIPIENTS_DATA]           = array (  self::STREAMER_VAR      => "data",
+            $mapping[SYNC_RESOLVERECIPIENTS_MAXSIZE]        = [  self::STREAMER_VAR      => "maxsize"];
+            $mapping[SYNC_RESOLVERECIPIENTS_MAXPICTURES]    = [  self::STREAMER_VAR      => "maxpictures"];
+            $mapping[SYNC_RESOLVERECIPIENTS_STATUS]         = [  self::STREAMER_VAR      => "status"];
+            $mapping[SYNC_RESOLVERECIPIENTS_DATA]           = [  self::STREAMER_VAR      => "data",
                                                                        self::STREAMER_TYPE     => self::STREAMER_TYPE_STREAM_ASBASE64,
-                                                                     );
+                                                                     ];
         }
 
         parent::__construct($mapping);
     }
-
 }

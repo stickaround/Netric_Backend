@@ -94,7 +94,8 @@ class EntityLoaderTest extends TestCase
         $task = $entityFactory->create(ObjectTypes::TASK);
 
         // Configure a mock datamapper
-        $dataMapper = $this->getMockBuilder(DataMapperInterface::class)->getMock();;
+        $dataMapper = $this->getMockBuilder(DataMapperInterface::class)->getMock();
+        ;
         $dataMapper->method('getByUniqueName')
             ->willReturn($task);
         $dataMapper->method('getAccount')

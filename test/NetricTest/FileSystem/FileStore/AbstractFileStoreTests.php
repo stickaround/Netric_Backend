@@ -19,7 +19,7 @@ abstract class AbstractFileStoreTests extends TestCase
      *
      * @var Netric\Entity\ObjType\FileEntity[]
      */
-    private $testFiles = array();
+    private $testFiles = [];
 
     /**
      * Required for any FileStore implementation to constract and return a File Store
@@ -58,7 +58,7 @@ abstract class AbstractFileStoreTests extends TestCase
      * Clean-up and test files
      */
     protected function tearDown(): void
-{
+    {
         $fileStore = $this->getFileStore();
         $dataMapper = $this->getEntityDataMapper();
         foreach ($this->testFiles as $file) {

@@ -23,14 +23,15 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class WBXMLEncoder extends WBXMLDefs {
+class WBXMLEncoder extends WBXMLDefs
+{
     private $_dtd;
     private $_out;
 
     private $_tagcp = 0;
 
     private $log = false;
-    private $logStack = array();
+    private $logStack = [];
 
     // We use a delayed output mechanism in which we only output a tag when it actually has something
     // in it. This can cause entire XML trees to disappear if they don't have output data in them; Ie
@@ -43,25 +44,26 @@ class WBXMLEncoder extends WBXMLDefs {
     private $multipart; // the content is multipart
     private $bodyparts;
 
-    public function __construct($output, $multipart = false) {
+    public function __construct($output, $multipart = false)
+    {
         $this->log = ZLog::IsWbxmlDebugEnabled();
 
         $this->_out = $output;
 
         // reverse-map the DTD
-        foreach($this->dtd["namespaces"] as $nsid => $nsname) {
+        foreach ($this->dtd["namespaces"] as $nsid => $nsname) {
             $this->_dtd["namespaces"][$nsname] = $nsid;
         }
 
-        foreach($this->dtd["codes"] as $cp => $value) {
-            $this->_dtd["codes"][$cp] = array();
-            foreach($this->dtd["codes"][$cp] as $tagid => $tagname) {
+        foreach ($this->dtd["codes"] as $cp => $value) {
+            $this->_dtd["codes"][$cp] = [];
+            foreach ($this->dtd["codes"][$cp] as $tagid => $tagname) {
                 $this->_dtd["codes"][$cp][$tagname] = $tagid;
             }
         }
-        $this->_stack = array();
+        $this->_stack = [];
         $this->multipart = $multipart;
-        $this->bodyparts = array();
+        $this->bodyparts = [];
     }
 
     /**
@@ -70,12 +72,12 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return
      */
-    public function startWBXML() {
+    public function startWBXML()
+    {
         if ($this->multipart) {
             header("Content-Type: application/vnd.ms-sync.multipart");
             ZLog::Write(LOGLEVEL_DEBUG, "WBXMLEncoder->startWBXML() type: vnd.ms-sync.multipart");
-        }
-        else {
+        } else {
             header("Content-Type: application/vnd.ms-sync.wbxml");
             ZLog::Write(LOGLEVEL_DEBUG, "WBXMLEncoder->startWBXML() type: vnd.ms-sync.wbxml");
         }
@@ -96,10 +98,11 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return
      */
-    public function startTag($tag, $attributes = false, $nocontent = false) {
-        $stackelem = array();
+    public function startTag($tag, $attributes = false, $nocontent = false)
+    {
+        $stackelem = [];
 
-        if(!$nocontent) {
+        if (!$nocontent) {
             $stackelem['tag'] = $tag;
             $stackelem['nocontent'] = $nocontent;
             $stackelem['sent'] = false;
@@ -120,21 +123,24 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return
      */
-    public function endTag() {
+    public function endTag()
+    {
         $stackelem = array_pop($this->_stack);
 
         // Only output end tags for items that have had a start tag sent
-        if($stackelem['sent']) {
+        if ($stackelem['sent']) {
             $this->_endTag();
 
-            if(count($this->_stack) == 0)
+            if (count($this->_stack) == 0) {
                 ZLog::Write(LOGLEVEL_DEBUG, "WBXMLEncoder->endTag() WBXML output completed");
+            }
 
-            if(count($this->_stack) == 0 && $this->multipart == true) {
+            if (count($this->_stack) == 0 && $this->multipart == true) {
                 $this->processMultipart();
             }
-            if(count($this->_stack) == 0)
+            if (count($this->_stack) == 0) {
                 $this->writeLog();
+            }
         }
     }
 
@@ -146,13 +152,15 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return
      */
-    public function content($content) {
+    public function content($content)
+    {
         // We need to filter out any \0 chars because it's the string terminator in WBXML. We currently
         // cannot send \0 characters within the XML content anywhere.
-        $content = str_replace("\0","",$content);
+        $content = str_replace("\0", "", $content);
 
-        if("x" . $content == "x")
+        if ("x" . $content == "x") {
             return;
+        }
         $this->_outputStack();
         $this->_content($content);
     }
@@ -166,7 +174,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return
      */
-    public function contentStream($stream, $asBase64 = false) {
+    public function contentStream($stream, $asBase64 = false)
+    {
         if (!$asBase64) {
             stream_filter_register('replacenullchar', 'ReplaceNullcharFilter');
             $rnc_filter = stream_filter_append($stream, 'replacenullchar');
@@ -188,7 +197,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return boolean
      */
-    public function getMultipart() {
+    public function getMultipart()
+    {
         return $this->multipart;
     }
 
@@ -200,11 +210,14 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return void
      */
-    public function addBodypartStream($bp) {
-        if (!is_resource($bp))
+    public function addBodypartStream($bp)
+    {
+        if (!is_resource($bp)) {
             throw new WBXMLException("WBXMLEncoder->addBodypartStream(): trying to add a ".gettype($bp)." instead of a stream");
-        if ($this->multipart)
+        }
+        if ($this->multipart) {
             $this->bodyparts[] = $bp;
+        }
     }
 
     /**
@@ -213,7 +226,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access public
      * @return int
      */
-    public function getBodypartsCount() {
+    public function getBodypartsCount()
+    {
         return count($this->bodyparts);
     }
 
@@ -227,9 +241,10 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function _outputStack() {
-        for($i=0;$i<count($this->_stack);$i++) {
-            if(!$this->_stack[$i]['sent']) {
+    private function _outputStack()
+    {
+        for ($i = 0; $i < count($this->_stack); $i++) {
+            if (!$this->_stack[$i]['sent']) {
                 $this->_startTag($this->_stack[$i]['tag'], $this->_stack[$i]['nocontent']);
                 $this->_stack[$i]['sent'] = true;
             }
@@ -242,24 +257,28 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function _startTag($tag, $nocontent = false) {
-        if ($this->log)
+    private function _startTag($tag, $nocontent = false)
+    {
+        if ($this->log) {
             $this->logStartTag($tag, $nocontent);
+        }
 
         $mapping = $this->getMapping($tag);
 
-        if(!$mapping)
+        if (!$mapping) {
             return false;
+        }
 
-        if($this->_tagcp != $mapping["cp"]) {
+        if ($this->_tagcp != $mapping["cp"]) {
             $this->outSwitchPage($mapping["cp"]);
             $this->_tagcp = $mapping["cp"];
         }
 
         $code = $mapping["code"];
 
-        if(!isset($nocontent) || !$nocontent)
+        if (!isset($nocontent) || !$nocontent) {
             $code |= 0x40;
+        }
 
         $this->outByte($code);
     }
@@ -271,9 +290,11 @@ class WBXMLEncoder extends WBXMLDefs {
      * @param string $content
      * @return
      */
-    private function _content($content) {
-        if ($this->log)
+    private function _content($content)
+    {
+        if ($this->log) {
             $this->logContent($content);
+        }
         $this->outByte(self::WBXML_STR_I);
         $this->outTermStr($content);
     }
@@ -286,7 +307,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @param boolean  $asBase64
      * @return
      */
-    private function _contentStream($stream, $asBase64) {
+    private function _contentStream($stream, $asBase64)
+    {
         // write full stream, including the finalizing terminator to the output stream (stuff outTermStr() would do)
         $this->outByte(self::WBXML_STR_I);
         if ($asBase64) {
@@ -301,7 +323,7 @@ class WBXMLEncoder extends WBXMLDefs {
         if ($this->log) {
             // data is out, do some logging
             $stat = fstat($stream);
-            $this->logContent(sprintf("<<< written %d of %d bytes of %s data >>>", $written, $stat['size'], $asBase64 ? "base64 encoded":"plain"));
+            $this->logContent(sprintf("<<< written %d of %d bytes of %s data >>>", $written, $stat['size'], $asBase64 ? "base64 encoded" : "plain"));
         }
     }
 
@@ -311,9 +333,11 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function _endTag() {
-        if ($this->log)
+    private function _endTag()
+    {
+        if ($this->log) {
             $this->logEndTag();
+        }
         $this->outByte(self::WBXML_END);
     }
 
@@ -325,7 +349,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function outByte($byte) {
+    private function outByte($byte)
+    {
         fwrite($this->_out, chr($byte));
     }
 
@@ -337,11 +362,12 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function outMBUInt($uint) {
-        while(1) {
+    private function outMBUInt($uint)
+    {
+        while (1) {
             $byte = $uint & 0x7f;
             $uint = $uint >> 7;
-            if($uint == 0) {
+            if ($uint == 0) {
                 $this->outByte($byte);
                 break;
             } else {
@@ -358,7 +384,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function outTermStr($content) {
+    private function outTermStr($content)
+    {
         fwrite($this->_out, $content);
         fwrite($this->_out, chr(0));
     }
@@ -371,7 +398,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function outSwitchPage($page) {
+    private function outSwitchPage($page)
+    {
         $this->outByte(self::WBXML_SWITCH_PAGE);
         $this->outByte($page);
     }
@@ -384,15 +412,15 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return array
      */
-    private function getMapping($tag) {
-        $mapping = array();
+    private function getMapping($tag)
+    {
+        $mapping = [];
 
         $split = $this->splitTag($tag);
 
-        if(isset($split["ns"])) {
+        if (isset($split["ns"])) {
             $cp = $this->_dtd["namespaces"][$split["ns"]];
-        }
-        else {
+        } else {
             $cp = 0;
         }
 
@@ -412,21 +440,22 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return array        keys: 'ns' (namespace), 'tag' (tag)
      */
-    private function splitTag($fulltag) {
+    private function splitTag($fulltag)
+    {
         $ns = false;
         $pos = strpos($fulltag, chr(58)); // chr(58) == ':'
 
-        if($pos) {
+        if ($pos) {
             $ns = substr($fulltag, 0, $pos);
-            $tag = substr($fulltag, $pos+1);
-        }
-        else {
+            $tag = substr($fulltag, $pos + 1);
+        } else {
             $tag = $fulltag;
         }
 
-        $ret = array();
-        if($ns)
+        $ret = [];
+        if ($ns) {
             $ret["ns"] = $ns;
+        }
         $ret["tag"] = $tag;
 
         return $ret;
@@ -441,13 +470,14 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function logStartTag($tag, $nocontent) {
+    private function logStartTag($tag, $nocontent)
+    {
         $spaces = str_repeat(" ", count($this->logStack));
-        if($nocontent)
-            ZLog::Write(LOGLEVEL_WBXML,"O " . $spaces . " <$tag/>");
-        else {
+        if ($nocontent) {
+            ZLog::Write(LOGLEVEL_WBXML, "O " . $spaces . " <$tag/>");
+        } else {
             array_push($this->logStack, $tag);
-            ZLog::Write(LOGLEVEL_WBXML,"O " . $spaces . " <$tag>");
+            ZLog::Write(LOGLEVEL_WBXML, "O " . $spaces . " <$tag>");
         }
     }
 
@@ -457,10 +487,11 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function logEndTag() {
+    private function logEndTag()
+    {
         $spaces = str_repeat(" ", count($this->logStack));
         $tag = array_pop($this->logStack);
-        ZLog::Write(LOGLEVEL_WBXML,"O " . $spaces . "</$tag>");
+        ZLog::Write(LOGLEVEL_WBXML, "O " . $spaces . "</$tag>");
     }
 
     /**
@@ -471,9 +502,10 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return
      */
-    private function logContent($content) {
+    private function logContent($content)
+    {
         $spaces = str_repeat(" ", count($this->logStack));
-        ZLog::Write(LOGLEVEL_WBXML,"O " . $spaces . $content);
+        ZLog::Write(LOGLEVEL_WBXML, "O " . $spaces . $content);
     }
 
     /**
@@ -482,7 +514,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return void
      */
-    private function processMultipart() {
+    private function processMultipart()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("WBXMLEncoder->processMultipart() with %d parts to be processed", $this->getBodypartsCount()));
         $len = ob_get_length();
         $buffer = ob_get_clean();
@@ -491,7 +524,7 @@ class WBXMLEncoder extends WBXMLDefs {
 
         fwrite($this->_out, pack("iii", ($nrBodyparts + 1), $blockstart, $len));
 
-        foreach ($this->bodyparts as $i=>$bp) {
+        foreach ($this->bodyparts as $i => $bp) {
             $blockstart = $blockstart + $len;
             $len = fstat($bp);
             $len = (isset($len['size'])) ? $len['size'] : 0;
@@ -503,7 +536,7 @@ class WBXMLEncoder extends WBXMLDefs {
 
         fwrite($this->_out, $buffer);
 
-        foreach($this->bodyparts as $bp) {
+        foreach ($this->bodyparts as $bp) {
             stream_copy_to_stream($bp, $this->_out);
             fclose($bp);
         }
@@ -515,7 +548,8 @@ class WBXMLEncoder extends WBXMLDefs {
      * @access private
      * @return void
      */
-    private function writeLog() {
+    private function writeLog()
+    {
         if (ob_get_length() === false) {
             $data = "output buffer disabled";
         } elseif (ob_get_length() < 524288) {

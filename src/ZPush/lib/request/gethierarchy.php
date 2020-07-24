@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class GetHierarchy extends RequestProcessor {
+class GetHierarchy extends RequestProcessor
+{
 
     /**
      * Handles the GetHierarchy command
@@ -34,16 +35,16 @@ class GetHierarchy extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle($commandCode) {
+    public function Handle($commandCode)
+    {
         try {
             $folders = self::$backend->GetHierarchy();
-            if (!$folders || empty($folders))
+            if (!$folders || empty($folders)) {
                 throw new StatusException("GetHierarchy() did not return any data.");
+            }
 
             // TODO execute $data->Check() to see if SyncObject is valid
-
-        }
-        catch (StatusException $ex) {
+        } catch (StatusException $ex) {
             return false;
         }
 

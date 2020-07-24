@@ -27,34 +27,34 @@ $olap->deleteCube('test'); // Purge cube if already exists
 $cube = $olap->getCube("test");
 
 // Record an entry for each quarter
-$data = array(
-	'page' => "/index.php",
-	'country' => "us",
-	'time' => "1/1/2012",
-);
-$measures = array("hits" => 100);
+$data = [
+    'page' => "/index.php",
+    'country' => "us",
+    'time' => "1/1/2012",
+];
+$measures = ["hits" => 100];
 $cube->writeData($measures, $data);
-$data = array(
-	'page' => "/about.php",
-	'country' => "us",
-	'time' => "4/1/2012",
-);
-$measures = array("hits" => 75);
+$data = [
+    'page' => "/about.php",
+    'country' => "us",
+    'time' => "4/1/2012",
+];
+$measures = ["hits" => 75];
 $cube->writeData($measures, $data);
 
-$data = array(
-	'page' => "/about.php",
-	'country' => "us",
-	'time' => "7/1/2012",
-);
-$measures = array("hits" => 50);
+$data = [
+    'page' => "/about.php",
+    'country' => "us",
+    'time' => "7/1/2012",
+];
+$measures = ["hits" => 50];
 $cube->writeData($measures, $data);
-$data = array(
-	'page' => "/about.php",
-	'country' => "us",
-	'time' => "10/1/2012",
-);
-$measures = array("hits" => 25);
+$data = [
+    'page' => "/about.php",
+    'country' => "us",
+    'time' => "10/1/2012",
+];
+$measures = ["hits" => 25];
 $cube->writeData($measures, $data);
 
 $mtime = microtime();

@@ -70,7 +70,7 @@
     define('LOGERRORFILE', LOGFILEDIR . 'autodiscover-error.log');
     define('LOGLEVEL', LOGLEVEL_INFO);
     define('LOGUSERLEVEL', LOGLEVEL);
-    $specialLogUsers = array();
+    $specialLogUsers = [];
 
     // Syslog settings
     // false will log to local syslog, otherwise put the remote syslog IP here

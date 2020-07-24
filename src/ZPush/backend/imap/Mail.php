@@ -83,7 +83,7 @@ class Mail
      * @return object Mail a instance of the driver class or if fails a PEAR Error
      * @access public
      */
-    static function &factory($driver, $params = array())
+    static function &factory($driver, $params = [])
     {
         $driver = strtolower($driver);
         $class = 'Mail_' . $driver;
@@ -166,8 +166,11 @@ class Mail
     {
         foreach ($headers as $key => $value) {
             $headers[$key] =
-                preg_replace('=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i',
-                             null, $value);
+                preg_replace(
+                    '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i',
+                    null,
+                    $value
+                );
         }
 
         return true;
@@ -191,7 +194,7 @@ class Mail
      */
     function prepareHeaders($headers)
     {
-        $lines = array();
+        $lines = [];
         $from = null;
 
         foreach ($headers as $key => $value) {
@@ -212,13 +215,12 @@ class Mail
 
                 $lines[] = $key . ': ' . $value;
             } elseif (strcasecmp($key, 'Received') === 0) {
-                $received = array();
+                $received = [];
                 if (is_array($value)) {
                     foreach ($value as $line) {
                         $received[] = $key . ': ' . $line;
                     }
-                }
-                else {
+                } else {
                     $received[] = $key . ': ' . $value;
                 }
                 // Put Received: headers at the top.  Spam detectors often
@@ -235,7 +237,7 @@ class Mail
             }
         }
 
-        return array($from, join($this->sep, $lines));
+        return [$from, join($this->sep, $lines)];
     }
 
     /**
@@ -271,7 +273,7 @@ class Mail
             return $addresses;
         }
 
-        $recipients = array();
+        $recipients = [];
         if (is_array($addresses)) {
             foreach ($addresses as $ob) {
                 $recipients[] = $ob->mailbox . '@' . $ob->host;
@@ -292,7 +294,8 @@ class Mail
      * @return boolean always false as there was an error
      * @access private
      */
-    static function raiseError($message) {
+    static function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "Mail error: ". $message);
         return false;
     }

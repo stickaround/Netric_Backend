@@ -23,8 +23,9 @@
 * Consult LICENSE file for details
 *************************************************/
 
-class KoeSignatures {
-    private $all = array();
+class KoeSignatures
+{
+    private $all = [];
     private $new_message;
     private $replyforward_message;
     private $hash;
@@ -34,7 +35,8 @@ class KoeSignatures {
      *
      * @access public
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->GetHash();
     }
 
@@ -46,7 +48,8 @@ class KoeSignatures {
      * @access public
      * @return void
      */
-    public function LoadSignaturesFromData($data) {
+    public function LoadSignaturesFromData($data)
+    {
         if (isset($data['all'])) {
             foreach ($data['all'] as $id => $signature) {
                 $koeSig = KoeSignature::GetSignatureFromArray($id, $signature);
@@ -71,7 +74,8 @@ class KoeSignatures {
      * @access public
      * @return void
      */
-    public function AddSignature($koeSig) {
+    public function AddSignature($koeSig)
+    {
         $this->all[$koeSig->id] = $koeSig;
     }
 
@@ -81,7 +85,8 @@ class KoeSignatures {
      * @access public
      * @return array
      */
-    public function GetSignatures() {
+    public function GetSignatures()
+    {
         return $this->all;
     }
 
@@ -93,7 +98,8 @@ class KoeSignatures {
      * @access public
      * @return KoeSignature | null
      */
-    public function GetSignature($id) {
+    public function GetSignature($id)
+    {
         return (isset($this->all[$id]) ? $this->all[$id] : null);
     }
 
@@ -106,7 +112,8 @@ class KoeSignatures {
      * @access public
      * @return void
      */
-    public function SetNewMessageSignatureId($id) {
+    public function SetNewMessageSignatureId($id)
+    {
         $this->new_message = $id;
     }
 
@@ -116,7 +123,8 @@ class KoeSignatures {
      * @access public
      * @return string | null
      */
-    public function GetNewMessageSignatureId() {
+    public function GetNewMessageSignatureId()
+    {
         return $this->new_message;
     }
 
@@ -129,7 +137,8 @@ class KoeSignatures {
      * @access public
      * @return void
      */
-    public function SetReplyForwardSignatureId($id) {
+    public function SetReplyForwardSignatureId($id)
+    {
         $this->replyforward_message = $id;
     }
 
@@ -139,7 +148,8 @@ class KoeSignatures {
      * @access public
      * @return string | null
      */
-    public function GetReplyForwardSignatureId() {
+    public function GetReplyForwardSignatureId()
+    {
         return $this->replyforward_message;
     }
 
@@ -149,7 +159,8 @@ class KoeSignatures {
      * @access public
      * @return string
      */
-    public function GetHash() {
+    public function GetHash()
+    {
         $this->hash = sha1(json_encode($this->all).$this->new_message.$this->replyforward_message);
         return $this->hash;
     }
@@ -158,7 +169,8 @@ class KoeSignatures {
 /**
  * Helper class holding a signature.
  */
-class KoeSignature {
+class KoeSignature
+{
     public $id;
     public $name;
     public $content;
@@ -173,7 +185,8 @@ class KoeSignature {
      * @access public
      * @return KoeSignature
      */
-    public static function GetSignatureFromArray($id, array $data) {
+    public static function GetSignatureFromArray($id, array $data)
+    {
         $sig = new KoeSignature();
         $sig->id = $id;
         $sig->name = $data['name'];

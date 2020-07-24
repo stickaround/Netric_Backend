@@ -168,11 +168,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
 
         $result = $this->database->query($sql, $sqlParams);
         foreach ($result->fetchAll() as $row) {
-            $ret[] = array(
+            $ret[] = [
                 "account_id" => $row['account_id'],
                 "name" => $row['name'],
                 "database" => $row['database'],
-            );
+            ];
         }
 
         return $ret;

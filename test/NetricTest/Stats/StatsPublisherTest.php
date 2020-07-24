@@ -83,7 +83,7 @@ class StatsPublisherTest extends TestCase
     public function testmaxPacketSize()
     {
         StatsPublisherMocker::pauseStatsOutput();
-        for ($i=0; $i< 100; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             StatsPublisherMocker::increment("test-stat-$i");
         }
         StatsPublisherMocker::flushStatsOutput();

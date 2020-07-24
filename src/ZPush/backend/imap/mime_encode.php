@@ -32,7 +32,8 @@
  *
  * @return void
  */
-function add_extra_sub_parts(&$email, $parts) {
+function add_extra_sub_parts(&$email, $parts)
+{
     if (isset($parts)) {
         foreach ($parts as $part) {
             $new_part = null;
@@ -40,8 +41,7 @@ function add_extra_sub_parts(&$email, $parts) {
             if (isset($part->disposition) && $part->disposition == "attachment") {
                 // it's an attachment
                 $new_part = add_sub_part($email, $part);
-            }
-            else {
+            } else {
                 if (isset($part->ctype_primary) && $part->ctype_primary != "text" && $part->ctype_primary != "multipart") {
                     // it's not a text part or a multipart
                     $new_part = add_sub_part($email, $part);
@@ -51,8 +51,7 @@ function add_extra_sub_parts(&$email, $parts) {
                 // We add sub-parts to the new part (if any), not to the main message. Recursive calling
                 if ($new_part === null) {
                     add_extra_sub_parts($email, $part->parts);
-                }
-                else {
+                } else {
                     add_extra_sub_parts($new_part, $part->parts);
                 }
             }
@@ -68,10 +67,11 @@ function add_extra_sub_parts(&$email, $parts) {
  *
  * @return void
  */
-function add_sub_part(&$email, $part) {
+function add_sub_part(&$email, $part)
+{
     //http://tools.ietf.org/html/rfc4021
     $new_part = null;
-    $params = array();
+    $params = [];
     $params['content_type'] = '';
     if (isset($part) && isset($email)) {
         if (isset($part->ctype_primary)) {
@@ -82,7 +82,7 @@ function add_sub_part(&$email, $part) {
         }
         if (isset($part->ctype_parameters)) {
             foreach ($part->ctype_parameters as $k => $v) {
-                if(strcasecmp($k, 'boundary') != 0) {
+                if (strcasecmp($k, 'boundary') != 0) {
                     $params['content_type'] .= '; ' . $k . '=' . $v;
                 }
             }
@@ -98,7 +98,7 @@ function add_sub_part(&$email, $part) {
             }
         }
         foreach ($part->headers as $k => $v) {
-            switch($k) {
+            switch ($k) {
                 case "content-description":
                     $params['description'] = $v;
                     break;
@@ -137,7 +137,8 @@ function add_sub_part(&$email, $part) {
  *
  * @return void
  */
-function change_charset_and_add_subparts(&$email, $part) {
+function change_charset_and_add_subparts(&$email, $part)
+{
     if (isset($part)) {
         $new_part = null;
         if (isset($part->ctype_parameters['charset'])) {
@@ -146,8 +147,7 @@ function change_charset_and_add_subparts(&$email, $part) {
             Utils::CheckAndFixEncoding($part->body);
 
             $new_part = add_sub_part($email, $part);
-        }
-        else {
+        } else {
             // We don't add the charset because it could be a non-text part
             $new_part = add_sub_part($email, $part);
         }
@@ -168,26 +168,27 @@ function change_charset_and_add_subparts(&$email, $part) {
  *
  * @return string MIME message
  */
-function build_mime_message($message) {
-    $finalEmail = new Mail_mimePart(isset($message->body) ? $message->body : "", array('headers' => $message->headers));
+function build_mime_message($message)
+{
+    $finalEmail = new Mail_mimePart(isset($message->body) ? $message->body : "", ['headers' => $message->headers]);
     if (isset($message->parts)) {
         foreach ($message->parts as $part) {
             change_charset_and_add_subparts($finalEmail, $part);
         }
     }
 
-    $mimeHeaders = Array();
-    $mimeHeaders['headers'] = Array();
+    $mimeHeaders = [];
+    $mimeHeaders['headers'] = [];
     $is_mime = false;
     foreach ($message->headers as $key => $value) {
-        switch($key) {
+        switch ($key) {
             case 'content-type':
                 $new_value = $message->ctype_primary . "/" . $message->ctype_secondary;
                 $is_mime = (strcasecmp($message->ctype_primary, 'multipart') == 0);
 
                 if (isset($message->ctype_parameters)) {
                     foreach ($message->ctype_parameters as $ckey => $cvalue) {
-                        switch($ckey) {
+                        switch ($ckey) {
                             case 'charset':
                                 $new_value .= '; charset="UTF-8"';
                                 break;
@@ -206,8 +207,7 @@ function build_mime_message($message) {
             case 'content-transfer-encoding':
                 if (strcasecmp($value, "base64") == 0 || strcasecmp($value, "binary") == 0) {
                     $mimeHeaders['encoding'] = "base64";
-                }
-                else {
+                } else {
                     $mimeHeaders['encoding'] = "8bit";
                 }
                 break;
@@ -225,11 +225,10 @@ function build_mime_message($message) {
                 break;
             default:
                 if (is_array($value)) {
-                    foreach($value as $v) {
+                    foreach ($value as $v) {
                         $mimeHeaders['headers'][$key] = $v;
                     }
-                }
-                else {
+                } else {
                     $mimeHeaders['headers'][$key] = $value;
                 }
                 break;
@@ -257,8 +256,7 @@ function build_mime_message($message) {
             foreach ($values as $ikey => $ivalue) {
                 $headers .= $key . ": " . $mimePart->encodeHeader($key, $ivalue, "utf-8", "base64") . "\n";
             }
-        }
-        else {
+        } else {
             $headers .= $key . ": " . $mimePart->encodeHeader($key, $value, "utf-8", "base64") . "\n";
         }
     }
@@ -267,8 +265,7 @@ function build_mime_message($message) {
 
     if ($is_mime) {
         $built_message = "$headers\nThis is a multi-part message in MIME format.\n".$finalEmail['body'];
-    }
-    else {
+    } else {
         $built_message = "$headers\n".$finalEmail['body'];
     }
     unset($headers);
@@ -284,11 +281,12 @@ function build_mime_message($message) {
  * @param Mail_mimeDecode $message
  * @return boolean
  */
-function is_smime($message) {
+function is_smime($message)
+{
     $res = false;
 
     if (isset($message->ctype_primary) && isset($message->ctype_secondary)) {
-        $smime_types = array(array("multipart", "signed"), array("application", "pkcs7-mime"), array("application", "x-pkcs7-mime"), array("multipart", "encrypted"));
+        $smime_types = [["multipart", "signed"], ["application", "pkcs7-mime"], ["application", "x-pkcs7-mime"], ["multipart", "encrypted"]];
         for ($i = 0; $i < count($smime_types) && !$res; $i++) {
             $res = ($message->ctype_primary == $smime_types[$i][0] && $message->ctype_secondary == $smime_types[$i][1]);
         }
@@ -305,7 +303,8 @@ function is_smime($message) {
  * @param Mail_mimeDecode $message
  * @return boolean
  */
-function is_encrypted($message) {
+function is_encrypted($message)
+{
     $res = false;
 
     if (is_smime($message) && !($message->ctype_primary == "multipart" && $message->ctype_secondary == "signed")) {
@@ -323,6 +322,7 @@ function is_encrypted($message) {
  * @param Mail_mimeDecode $message
  * @return boolean
  */
-function is_multipart($message) {
+function is_multipart($message)
+{
     return isset($message->ctype_primary) && $message->ctype_primary == "multipart";
 }

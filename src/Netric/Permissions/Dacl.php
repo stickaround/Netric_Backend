@@ -252,7 +252,7 @@ class Dacl
 
     /**
      * Used to make a generic DACL that always allows everyone by default
-     * 
+     *
      * Note: This is a read-only runtime property and will not be saved.
      *
      * @return void

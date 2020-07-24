@@ -84,11 +84,13 @@ class EntitySearchProvider implements ISearchProvider
     public function SupportsType($searchtype)
     {
 
-        if ($searchtype === ISearchProvider::SEARCH_GAL)
+        if ($searchtype === ISearchProvider::SEARCH_GAL) {
             return true;
+        }
 
-        if ($searchtype === ISearchProvider::SEARCH_MAILBOX)
+        if ($searchtype === ISearchProvider::SEARCH_MAILBOX) {
             return true;
+        }
 
         // False for all other types
         return false;
@@ -117,7 +119,7 @@ class EntitySearchProvider implements ISearchProvider
             $limit = $rangeend - $offset;
         }
 
-        $items = array();
+        $items = [];
 
         // Create entity query
         $query = new \Netric\EntityQuery(ObjectTypes::USER);
@@ -134,7 +136,7 @@ class EntitySearchProvider implements ISearchProvider
         // Loop through each user and add them to the list
         for ($i = 0; $i < $num; $i++) {
             $user = $results->getEntity($i);
-            $item = array();
+            $item = [];
 
             // Skip if the user does not have an email address
             if (!$user->getValue("email")) {
@@ -154,24 +156,28 @@ class EntitySearchProvider implements ISearchProvider
             $item[SYNC_GAL_EMAILADDRESS] = $user->getValue('email');
 
             //check if an user has an office number or it might produce warnings in the log
-            if ($user->getValue('phone_office'))
+            if ($user->getValue('phone_office')) {
                 $item[SYNC_GAL_PHONE] = $user->getValue('phone_office');
+            }
 
             //check if an user has a mobile number or it might produce warnings in the log
-            if ($user->getValue('phone_mobile'))
+            if ($user->getValue('phone_mobile')) {
                 $item[SYNC_GAL_MOBILEPHONE] = $user->getValue('phone_mobile');
+            }
 
             //check if an user has a home number or it might produce warnings in the log
-            if ($user->getValue('phone_home'))
+            if ($user->getValue('phone_home')) {
                 $item[SYNC_GAL_HOMEPHONE] = $user->getValue('phone_home');
+            }
 
             /*
             if (isset($abentries[$i][PR_COMPANY_NAME]))
                 $items[$i][SYNC_GAL_COMPANY] = w2u($abentries[$i][PR_COMPANY_NAME]);
             */
 
-            if ($user->getValue('job_title'))
+            if ($user->getValue('job_title')) {
                 $item[SYNC_GAL_TITLE] = $user->getValue('job_title');
+            }
 
             if ($user->getValue('city') || $user->getValue('state')) {
                 $item[SYNC_GAL_OFFICE] = $user->getValue('city') . " " . $user->getValue('state');
@@ -203,7 +209,7 @@ class EntitySearchProvider implements ISearchProvider
         $searchRange = explode('-', $cpo->GetSearchRange());
         $searchFolderId = $cpo->GetSearchFolderid();
         $mailboxId = null;
-        $searchFolders = array();
+        $searchFolders = [];
 
         // Decode folder id to get the group id for the mailbox_id field
         if ($searchFolderId) {
@@ -213,15 +219,17 @@ class EntitySearchProvider implements ISearchProvider
             }
         }
 
-        $items = array();
+        $items = [];
 
         // Create entity query
         $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("*")->contains($searchText);
-        if ($searchGreater)
+        if ($searchGreater) {
             $query->andWhere("ts_entered")->isGreaterOrEqualTo($searchGreater);
-        if ($searchLess)
+        }
+        if ($searchLess) {
             $query->andWhere("ts_entered")->isLessOrEqualTo($searchLess);
+        }
 
         if ($mailboxId) {
             if ($cpo->GetSearchDeepTraversal()) {
@@ -234,10 +242,12 @@ class EntitySearchProvider implements ISearchProvider
         // Filter by user id of course
         $query->andWhere("owner_id")->equals($this->user->getEntityId());
 
-        if (isset($searchRange[0]) && is_numeric($searchRange[0]))
+        if (isset($searchRange[0]) && is_numeric($searchRange[0])) {
             $query->setOffset($searchRange[0]);
-        if (isset($searchRange[1]) && is_numeric($searchRange[1]))
+        }
+        if (isset($searchRange[1]) && is_numeric($searchRange[1])) {
             $query->setLimit($searchRange[1] - $searchRange[0]);
+        }
 
         // Execute the query and get the results
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
@@ -248,11 +258,11 @@ class EntitySearchProvider implements ISearchProvider
         // Loop through each user and add them to the list
         for ($i = 0; $i < $num; $i++) {
             $email = $results->getEntity($i);
-            $items[] = array(
+            $items[] = [
                 'class' => 'Email',
                 'longid' => $email->getEntityId(),
                 'folderid' => \EntityProvider::FOLDER_TYPE_EMAIL . "-" . $email->getValue("mailbox_id")
-            );
+            ];
         }
 
         $items['searchtotal'] = $totalNum;

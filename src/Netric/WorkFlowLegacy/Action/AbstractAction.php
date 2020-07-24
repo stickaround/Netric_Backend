@@ -219,14 +219,14 @@ abstract class AbstractAction implements ErrorAwareInterface
      */
     public function toArray()
     {
-        $data = array(
+        $data = [
             "guid" => $this->guid,
             "name" => $this->name,
             "type" => $this->type,
             "workflow_id" => $this->workflowId,
             "parent_action_id" => $this->parentActionId,
             "params" => $this->params,
-        );
+        ];
 
         // Set child actions
         $data['actions'] = [];
@@ -284,8 +284,7 @@ abstract class AbstractAction implements ErrorAwareInterface
     public function removeAction(ActionInterface $action)
     {
         for ($i = 0; $i < count($this->childActions); $i++) {
-            if (
-                $action === $this->childActions[$i] ||
+            if ($action === $this->childActions[$i] ||
                 ($action->getWorkFlowLegacyActionId() != null && $action->getWorkFlowLegacyActionId() === $this->childActions[$i]->getWorkFlowLegacyActionId())
             ) {
                 array_splice($this->childActions, $i, 1);
@@ -330,8 +329,7 @@ abstract class AbstractAction implements ErrorAwareInterface
         // Check if previously added
         $previouslyAddedAt = -1;
         for ($i = 0; $i < count($this->childActions); $i++) {
-            if (
-                $actionToAdd->getWorkFlowLegacyActionId() &&
+            if ($actionToAdd->getWorkFlowLegacyActionId() &&
                 $this->childActions[$i]->getWorkFlowLegacyActionId() === $actionToAdd->getWorkFlowLegacyActionId()
             ) {
                 $previouslyAddedAt = $i;

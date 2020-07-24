@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class Ping extends RequestProcessor {
+class Ping extends RequestProcessor
+{
 
     /**
      * Handles the Ping command
@@ -33,10 +34,11 @@ class Ping extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    public function Handle($commandCode) {
+    public function Handle($commandCode)
+    {
         $interval = (defined('PING_INTERVAL') && PING_INTERVAL > 0) ? PING_INTERVAL : 30;
         $pingstatus = false;
-        $fakechanges = array();
+        $fakechanges = [];
         $foundchanges = false;
 
         // Contains all requested folders (containers)
@@ -48,27 +50,23 @@ class Ping extends RequestProcessor {
         // Load all collections - do load states, check permissions and allow unconfirmed states
         try {
             $sc->LoadAllCollections(true, true, true, true, false);
-        }
-        catch (StateInvalidException $siex) {
+        } catch (StateInvalidException $siex) {
             // if no params are present, indicate to send params, else do hierarchy sync
             if (!$params_present) {
                 $pingstatus = SYNC_PINGSTATUS_FAILINGPARAMS;
                 self::$topCollector->AnnounceInformation("StateInvalidException: require PingParameters", true);
-            }
-            elseif (self::$deviceManager->IsHierarchySyncRequired()) {
+            } elseif (self::$deviceManager->IsHierarchySyncRequired()) {
                 // we could be in a looping  - see LoopDetection->ProcessLoopDetectionIsHierarchySyncAdvised()
                 $pingstatus = SYNC_PINGSTATUS_FOLDERHIERSYNCREQUIRED;
                 self::$topCollector->AnnounceInformation("Potential loop detection: require HierarchySync", true);
-            }
-            else {
+            } else {
                 // we do not have a ping status for this, but SyncCollections should have generated fake changes for the folders which are broken
                 $fakechanges = $sc->GetChangedFolderIds();
                 $foundchanges = true;
 
                 self::$topCollector->AnnounceInformation("StateInvalidException: force sync", true);
             }
-        }
-        catch (StatusException $stex) {
+        } catch (StatusException $stex) {
             $pingstatus = SYNC_PINGSTATUS_FOLDERHIERSYNCREQUIRED;
             self::$topCollector->AnnounceInformation("StatusException: require HierarchySync", true);
         }
@@ -76,33 +74,33 @@ class Ping extends RequestProcessor {
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("HandlePing(): reference PolicyKey for PING: %s", $sc->GetReferencePolicyKey()));
 
         // receive PING initialization data
-        if($params_present) {
+        if ($params_present) {
             self::$topCollector->AnnounceInformation("Processing PING data");
             ZLog::Write(LOGLEVEL_DEBUG, "HandlePing(): initialization data received");
 
-            if(self::$decoder->getElementStartTag(SYNC_PING_LIFETIME)) {
+            if (self::$decoder->getElementStartTag(SYNC_PING_LIFETIME)) {
                 $sc->SetLifetime(self::$decoder->getElementContent());
                 self::$decoder->getElementEndTag();
             }
 
-            if(($el = self::$decoder->getElementStartTag(SYNC_PING_FOLDERS)) && $el[EN_FLAGS] & EN_FLAGS_CONTENT) {
+            if (($el = self::$decoder->getElementStartTag(SYNC_PING_FOLDERS)) && $el[EN_FLAGS] & EN_FLAGS_CONTENT) {
                 // cache requested (pingable) folderids
-                $pingable = array();
+                $pingable = [];
 
-                while(self::$decoder->getElementStartTag(SYNC_PING_FOLDER)) {
+                while (self::$decoder->getElementStartTag(SYNC_PING_FOLDER)) {
                     WBXMLDecoder::ResetInWhile("pingFolder");
-                    while(WBXMLDecoder::InWhile("pingFolder")) {
-                        if(self::$decoder->getElementStartTag(SYNC_PING_SERVERENTRYID)) {
+                    while (WBXMLDecoder::InWhile("pingFolder")) {
+                        if (self::$decoder->getElementStartTag(SYNC_PING_SERVERENTRYID)) {
                             $folderid = self::$decoder->getElementContent();
                             self::$decoder->getElementEndTag();
                         }
-                        if(self::$decoder->getElementStartTag(SYNC_PING_FOLDERTYPE)) {
+                        if (self::$decoder->getElementStartTag(SYNC_PING_FOLDERTYPE)) {
                             $class = self::$decoder->getElementContent();
                             self::$decoder->getElementEndTag();
                         }
 
                         $e = self::$decoder->peek();
-                        if($e[EN_TYPE] == EN_TYPE_ENDTAG) {
+                        if ($e[EN_TYPE] == EN_TYPE_ENDTAG) {
                             self::$decoder->getElementEndTag();
                             break;
                         }
@@ -119,8 +117,7 @@ class Ping extends RequestProcessor {
                                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("HandlePing(): ignoring folder id '%s' as it's of type UNKNOWN ", $folderid));
                                 continue;
                             }
-                        }
-                        catch (NoHierarchyCacheAvailableException $nhca) {
+                        } catch (NoHierarchyCacheAvailableException $nhca) {
                             ZLog::Write(LOGLEVEL_INFO, sprintf("HandlePing(): unknown collection '%s', triggering HierarchySync", $folderid));
                             $pingstatus = SYNC_PINGSTATUS_FOLDERHIERSYNCREQUIRED;
                         }
@@ -128,36 +125,37 @@ class Ping extends RequestProcessor {
                         // Trigger a Sync request because then the device will be forced to resync this folder.
                         $fakechanges[$folderid] = 1;
                         $foundchanges = true;
-                    }
-                    else if ($this->isClassValid($class, $spa)) {
+                    } elseif ($this->isClassValid($class, $spa)) {
                         $pingable[] = $folderid;
                         ZLog::Write(LOGLEVEL_DEBUG, sprintf("HandlePing(): using saved sync state for '%s' id '%s'", $spa->GetContentClass(), $folderid));
                     }
                 }
-                if(!self::$decoder->getElementEndTag())
+                if (!self::$decoder->getElementEndTag()) {
                     return false;
+                }
 
                 // update pingable flags
                 foreach ($sc as $folderid => $spa) {
                     // if the folderid is in $pingable, we should ping it, else remove the flag
                     if (in_array($folderid, $pingable)) {
                         $spa->SetPingableFlag(true);
-                    }
-                    else  {
+                    } else {
                         $spa->DelPingableFlag();
                     }
                 }
             }
-            if(!self::$decoder->getElementEndTag())
+            if (!self::$decoder->getElementEndTag()) {
                 return false;
+            }
 
-            if(!$this->lifetimeBetweenBound($sc->GetLifetime())){
+            if (!$this->lifetimeBetweenBound($sc->GetLifetime())) {
                 $pingstatus = SYNC_PINGSTATUS_HBOUTOFRANGE;
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("HandlePing(): ping lifetime not between bound (higher bound:'%d' lower bound:'%d' current lifetime:'%d'. Returning SYNC_PINGSTATUS_HBOUTOFRANGE.", PING_HIGHER_BOUND_LIFETIME, PING_LOWER_BOUND_LIFETIME, $sc->GetLifetime()));
             }
             // save changed data
-            foreach ($sc as $folderid => $spa)
+            foreach ($sc as $folderid => $spa) {
                 $sc->SaveCollection($spa);
+            }
         } // END SYNC_PING_PING
         else {
             // if no ping initialization data was sent, we check if we have pingable folders
@@ -165,8 +163,7 @@ class Ping extends RequestProcessor {
             if (! $sc->PingableFolders()) {
                 $pingstatus = SYNC_PINGSTATUS_FAILINGPARAMS;
                 ZLog::Write(LOGLEVEL_DEBUG, "HandlePing(): no pingable folders found and no initialization data sent. Returning SYNC_PINGSTATUS_FAILINGPARAMS.");
-            }
-            elseif(!$this->lifetimeBetweenBound($sc->GetLifetime())){
+            } elseif (!$this->lifetimeBetweenBound($sc->GetLifetime())) {
                 $pingstatus = SYNC_PINGSTATUS_FAILINGPARAMS;
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("HandlePing(): ping lifetime not between bound (higher bound:'%d' lower bound:'%d' current lifetime:'%d'. Returning SYNC_PINGSTATUS_FAILINGPARAMS.", PING_HIGHER_BOUND_LIFETIME, PING_LOWER_BOUND_LIFETIME, $sc->GetLifetime()));
             }
@@ -179,9 +176,8 @@ class Ping extends RequestProcessor {
                 self::$deviceManager->DoAutomaticASDeviceSaving(false);
                 $foundchanges = $sc->CheckForChanges($sc->GetLifetime(), $interval, true);
             }
-        }
-        catch (StatusException $ste) {
-            switch($ste->getCode()) {
+        } catch (StatusException $ste) {
+            switch ($ste->getCode()) {
                 case SyncCollections::ERROR_NO_COLLECTIONS:
                     $pingstatus = SYNC_PINGSTATUS_FAILINGPARAMS;
                     break;
@@ -202,42 +198,43 @@ class Ping extends RequestProcessor {
         self::$encoder->startTag(SYNC_PING_PING);
         {
             self::$encoder->startTag(SYNC_PING_STATUS);
-            if (isset($pingstatus) && $pingstatus)
-                self::$encoder->content($pingstatus);
-            else
-                self::$encoder->content($foundchanges ? SYNC_PINGSTATUS_CHANGES : SYNC_PINGSTATUS_HBEXPIRED);
+        if (isset($pingstatus) && $pingstatus) {
+            self::$encoder->content($pingstatus);
+        } else {
+            self::$encoder->content($foundchanges ? SYNC_PINGSTATUS_CHANGES : SYNC_PINGSTATUS_HBEXPIRED);
+        }
             self::$encoder->endTag();
 
-            if (! $pingstatus) {
-                self::$encoder->startTag(SYNC_PING_FOLDERS);
+        if (! $pingstatus) {
+            self::$encoder->startTag(SYNC_PING_FOLDERS);
 
-                if (empty($fakechanges))
-                    $changes = $sc->GetChangedFolderIds();
-                else
-                    $changes = $fakechanges;
+            if (empty($fakechanges)) {
+                $changes = $sc->GetChangedFolderIds();
+            } else {
+                $changes = $fakechanges;
+            }
 
-                foreach ($changes as $folderid => $changecount) {
-                    if ($changecount > 0) {
-                        self::$encoder->startTag(SYNC_PING_FOLDER);
-                        self::$encoder->content($folderid);
-                        self::$encoder->endTag();
-                        if (empty($fakechanges))
-                            self::$topCollector->AnnounceInformation(sprintf("Found change in %s", $sc->GetCollection($folderid)->GetContentClass()), true);
-                        self::$deviceManager->AnnounceProcessStatus($folderid, SYNC_PINGSTATUS_CHANGES);
+            foreach ($changes as $folderid => $changecount) {
+                if ($changecount > 0) {
+                    self::$encoder->startTag(SYNC_PING_FOLDER);
+                    self::$encoder->content($folderid);
+                    self::$encoder->endTag();
+                    if (empty($fakechanges)) {
+                        self::$topCollector->AnnounceInformation(sprintf("Found change in %s", $sc->GetCollection($folderid)->GetContentClass()), true);
                     }
+                    self::$deviceManager->AnnounceProcessStatus($folderid, SYNC_PINGSTATUS_CHANGES);
                 }
-                self::$encoder->endTag();
             }
-            elseif($pingstatus == SYNC_PINGSTATUS_HBOUTOFRANGE){
-                self::$encoder->startTag(SYNC_PING_LIFETIME);
-                if($sc->GetLifetime() > PING_HIGHER_BOUND_LIFETIME){
-                    self::$encoder->content(PING_HIGHER_BOUND_LIFETIME);
-                }
-                else{
-                    self::$encoder->content(PING_LOWER_BOUND_LIFETIME);
-                }
-                self::$encoder->endTag();
+            self::$encoder->endTag();
+        } elseif ($pingstatus == SYNC_PINGSTATUS_HBOUTOFRANGE) {
+            self::$encoder->startTag(SYNC_PING_LIFETIME);
+            if ($sc->GetLifetime() > PING_HIGHER_BOUND_LIFETIME) {
+                self::$encoder->content(PING_HIGHER_BOUND_LIFETIME);
+            } else {
+                self::$encoder->content(PING_LOWER_BOUND_LIFETIME);
             }
+            self::$encoder->endTag();
+        }
         }
 
         self::$encoder->endTag();
@@ -256,14 +253,15 @@ class Ping extends RequestProcessor {
      * @access private
      * @return boolean
      */
-    private function lifetimeBetweenBound($lifetime){
-        if(PING_HIGHER_BOUND_LIFETIME !== false && PING_LOWER_BOUND_LIFETIME !== false){
+    private function lifetimeBetweenBound($lifetime)
+    {
+        if (PING_HIGHER_BOUND_LIFETIME !== false && PING_LOWER_BOUND_LIFETIME !== false) {
             return ($lifetime <= PING_HIGHER_BOUND_LIFETIME && $lifetime >= PING_LOWER_BOUND_LIFETIME);
         }
-        if(PING_HIGHER_BOUND_LIFETIME !== false){
+        if (PING_HIGHER_BOUND_LIFETIME !== false) {
             return $lifetime <= PING_HIGHER_BOUND_LIFETIME;
         }
-        if(PING_LOWER_BOUND_LIFETIME !== false){
+        if (PING_LOWER_BOUND_LIFETIME !== false) {
             return $lifetime >= PING_LOWER_BOUND_LIFETIME;
         }
         return true;
@@ -278,7 +276,8 @@ class Ping extends RequestProcessor {
      * @access public
      * @return boolean
      */
-    private function isClassValid($class, $spa) {
+    private function isClassValid($class, $spa)
+    {
         // ZP-907: Outlook might request a ping for such a folder, but we shouldn't answer it in any way
         if (Request::IsOutlook() && self::$deviceManager->GetFolderTypeFromCacheById($spa->GetFolderId()) == SYNC_FOLDER_TYPE_UNKNOWN) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("HandlePing()->isClassValid(): ignoring folder id '%s' as it's of type UNKNOWN ", $spa->GetFolderId()));

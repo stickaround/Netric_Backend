@@ -27,7 +27,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncFolder extends SyncObject {
+class SyncFolder extends SyncObject
+{
     public $serverid;
     public $parentid;
     public $displayname;
@@ -38,37 +39,38 @@ class SyncFolder extends SyncObject {
     public $Flags;
     public $TypeReal;
 
-    function __construct() {
-        $mapping = array (
-                    SYNC_FOLDERHIERARCHY_SERVERENTRYID                  => array (  self::STREAMER_VAR      => "serverid",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED   => false)),
+    function __construct()
+    {
+        $mapping = [
+                    SYNC_FOLDERHIERARCHY_SERVERENTRYID                  => [  self::STREAMER_VAR      => "serverid",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED   => false]],
 
-                    SYNC_FOLDERHIERARCHY_PARENTID                       => array (  self::STREAMER_VAR      => "parentid",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED   => self::STREAMER_CHECK_SETZERO)),
+                    SYNC_FOLDERHIERARCHY_PARENTID                       => [  self::STREAMER_VAR      => "parentid",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED   => self::STREAMER_CHECK_SETZERO]],
 
-                    SYNC_FOLDERHIERARCHY_DISPLAYNAME                    => array (  self::STREAMER_VAR      => "displayname",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED   => "Unknown")),
+                    SYNC_FOLDERHIERARCHY_DISPLAYNAME                    => [  self::STREAMER_VAR      => "displayname",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED   => "Unknown"]],
 
-                    SYNC_FOLDERHIERARCHY_TYPE                           => array (  self::STREAMER_VAR      => "type",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED   => 18,
+                    SYNC_FOLDERHIERARCHY_TYPE                           => [  self::STREAMER_VAR      => "type",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED   => 18,
                                                                                                                         self::STREAMER_CHECK_CMPHIGHER  => 0,
-                                                                                                                        self::STREAMER_CHECK_CMPLOWER   => 20  )),
+                                                                                                                        self::STREAMER_CHECK_CMPLOWER   => 20  ]],
 
-                    SYNC_FOLDERHIERARCHY_IGNORE_STORE                   => array (  self::STREAMER_VAR      => "Store",
-                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE),
+                    SYNC_FOLDERHIERARCHY_IGNORE_STORE                   => [  self::STREAMER_VAR      => "Store",
+                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE],
 
-                    SYNC_FOLDERHIERARCHY_IGNORE_NOBCKENDFLD             => array (  self::STREAMER_VAR      => "NoBackendFolder",
-                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE),
+                    SYNC_FOLDERHIERARCHY_IGNORE_NOBCKENDFLD             => [  self::STREAMER_VAR      => "NoBackendFolder",
+                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE],
 
-                    SYNC_FOLDERHIERARCHY_IGNORE_BACKENDID               => array (  self::STREAMER_VAR      => "BackendId",
-                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE),
+                    SYNC_FOLDERHIERARCHY_IGNORE_BACKENDID               => [  self::STREAMER_VAR      => "BackendId",
+                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE],
 
-                    SYNC_FOLDERHIERARCHY_IGNORE_FLAGS                   => array (  self::STREAMER_VAR      => "Flags",
-                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE),
+                    SYNC_FOLDERHIERARCHY_IGNORE_FLAGS                   => [  self::STREAMER_VAR      => "Flags",
+                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE],
 
-                    SYNC_FOLDERHIERARCHY_IGNORE_TYPEREAL                => array (  self::STREAMER_VAR      => "TypeReal",
-                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE),
-        );
+                    SYNC_FOLDERHIERARCHY_IGNORE_TYPEREAL                => [  self::STREAMER_VAR      => "TypeReal",
+                                                                                    self::STREAMER_TYPE     => self::STREAMER_TYPE_IGNORE],
+        ];
 
         parent::__construct($mapping);
     }
@@ -82,7 +84,8 @@ class SyncFolder extends SyncObject {
      * @access public
      * @return SyncFolder object
      */
-    public static function GetObject($serverid, $parentid = false) {
+    public static function GetObject($serverid, $parentid = false)
+    {
         $folder = new SyncFolder();
         $folder->serverid = $serverid;
         $folder->parentid = $parentid;

@@ -23,7 +23,8 @@
  * Consult LICENSE file for details
  ************************************************/
 
-class Syslog extends Log {
+class Syslog extends Log
+{
 
     protected $program_name = '';
 
@@ -35,7 +36,8 @@ class Syslog extends Log {
      * @access public
      * @return string
      */
-    public function GetProgramName() {
+    public function GetProgramName()
+    {
         return $this->program_name;
     }
 
@@ -44,7 +46,8 @@ class Syslog extends Log {
      *
      * @access public
      */
-    public function SetProgramName($value) {
+    public function SetProgramName($value)
+    {
         $this->program_name = $value;
     }
 
@@ -52,7 +55,8 @@ class Syslog extends Log {
      * @access public
      * @return string
      */
-    public function GetHost() {
+    public function GetHost()
+    {
         return $this->host;
     }
 
@@ -61,7 +65,8 @@ class Syslog extends Log {
      *
      * @access public
      */
-    public function SetHost($value) {
+    public function SetHost($value)
+    {
         $this->host = $value;
     }
 
@@ -69,7 +74,8 @@ class Syslog extends Log {
      * @access public
      * @return int
      */
-    public function GetPort() {
+    public function GetPort()
+    {
         return $this->port;
     }
 
@@ -78,7 +84,8 @@ class Syslog extends Log {
      *
      * @access public
      */
-    public function SetPort($value) {
+    public function SetPort($value)
+    {
         if (is_numeric($value)) {
             $this->port = (int)$value;
         }
@@ -92,12 +99,19 @@ class Syslog extends Log {
      * @param string $host
      * @param string $port
      */
-    public function __construct($program_name = null, $host = null, $port = null) {
+    public function __construct($program_name = null, $host = null, $port = null)
+    {
         parent::__construct();
 
-        if (is_null($program_name)) $program_name = LOG_SYSLOG_PROGRAM;
-        if (is_null($host)) $host = LOG_SYSLOG_HOST;
-        if (is_null($port)) $port = LOG_SYSLOG_PORT;
+        if (is_null($program_name)) {
+            $program_name = LOG_SYSLOG_PROGRAM;
+        }
+        if (is_null($host)) {
+            $host = LOG_SYSLOG_HOST;
+        }
+        if (is_null($port)) {
+            $port = LOG_SYSLOG_PORT;
+        }
 
         $this->SetProgramName($program_name);
         $this->SetHost($host);
@@ -111,7 +125,8 @@ class Syslog extends Log {
      * @access protected
      * @return string
      */
-    protected function GenerateProgramName() {
+    protected function GenerateProgramName()
+    {
         // @TODO Use another mechanism than debug_backtrace to determine to origin of the log
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         // Shift the "syslog.php" entry.
@@ -140,16 +155,33 @@ class Syslog extends Log {
      * @param int $loglevel
      * @return int One of many LOG_* syslog level.
      */
-    protected function GetZpushLogLevelToSyslogLogLevel($loglevel) {
+    protected function GetZpushLogLevelToSyslogLogLevel($loglevel)
+    {
         switch ($loglevel) {
-            case LOGLEVEL_FATAL: return LOG_ALERT; break;
-            case LOGLEVEL_ERROR: return LOG_ERR; break;
-            case LOGLEVEL_WARN:    return LOG_WARNING; break;
-            case LOGLEVEL_INFO:    return LOG_INFO; break;
-            case LOGLEVEL_DEBUG: return LOG_DEBUG; break;
-            case LOGLEVEL_WBXML: return LOG_DEBUG; break;
-            case LOGLEVEL_DEVICEID: return LOG_DEBUG; break;
-            case LOGLEVEL_WBXMLSTACK: return LOG_DEBUG; break;
+            case LOGLEVEL_FATAL:
+                return LOG_ALERT;
+            break;
+            case LOGLEVEL_ERROR:
+                return LOG_ERR;
+            break;
+            case LOGLEVEL_WARN:
+                return LOG_WARNING;
+            break;
+            case LOGLEVEL_INFO:
+                return LOG_INFO;
+            break;
+            case LOGLEVEL_DEBUG:
+                return LOG_DEBUG;
+            break;
+            case LOGLEVEL_WBXML:
+                return LOG_DEBUG;
+            break;
+            case LOGLEVEL_DEVICEID:
+                return LOG_DEBUG;
+            break;
+            case LOGLEVEL_WBXMLSTACK:
+                return LOG_DEBUG;
+            break;
         }
         return null;
     }
@@ -163,7 +195,8 @@ class Syslog extends Log {
      * @access public
      * @return string
      */
-    public function BuildLogString($loglevel, $message) {
+    public function BuildLogString($loglevel, $message)
+    {
         $log = $this->GetLogLevelString($loglevel); // Never pad syslog log because syslog log are usually read with a software.
         $log .= $this->GetUser();
         if ($loglevel >= LOGLEVEL_DEVICEID) {
@@ -186,7 +219,8 @@ class Syslog extends Log {
      * @access protected
      * @return void
      */
-    protected function Write($loglevel, $message) {
+    protected function Write($loglevel, $message)
+    {
         if ($this->GetHost() && $this->GetPort()) {
             $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
             $facility = 1; // user level
@@ -213,7 +247,8 @@ class Syslog extends Log {
      * @access public
      * @return void
      */
-    public function WriteForUser($loglevel, $message) {
+    public function WriteForUser($loglevel, $message)
+    {
         $this->Write(LOGLEVEL_DEBUG, $message); // Always pass the logleveldebug so it uses syslog level LOG_DEBUG
     }
 }

@@ -52,7 +52,7 @@ class RecurrenceDataMapperTest extends TestCase
 
     /**
      * Entity definition for tasks
-     * 
+     *
      * @var EntityDefinition
      */
     private $taskEntityDefintion = null;
@@ -126,14 +126,14 @@ class RecurrenceDataMapperTest extends TestCase
 
     public function testLoad()
     {
-        $data = array(
+        $data = [
             "recur_type" => RecurrencePattern::RECUR_WEEKLY,
             "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01",
             "day_of_week_mask" => RecurrencePattern::WEEKDAY_SUNDAY,
-        );
+        ];
         $rp = new RecurrencePattern();
         $rp->fromArray($data);
 
@@ -162,13 +162,13 @@ class RecurrenceDataMapperTest extends TestCase
     public function testDelete()
     {
         // Create
-        $data = array(
+        $data = [
             "recur_type" => RecurrencePattern::RECUR_DAILY,
             "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
-        );
+        ];
         $rp = new RecurrencePattern();
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
@@ -184,13 +184,13 @@ class RecurrenceDataMapperTest extends TestCase
     public function testDeleteById()
     {
         // Create
-        $data = array(
+        $data = [
             "recur_type" => RecurrencePattern::RECUR_DAILY,
             "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
-        );
+        ];
         $rp = new RecurrencePattern();
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
@@ -212,14 +212,14 @@ class RecurrenceDataMapperTest extends TestCase
     public function testGetStalePatterns()
     {
         // Create
-        $data = array(
+        $data = [
             "recur_type" => RecurrencePattern::RECUR_DAILY,
             "entity_definition_id" => $this->taskEntityDefintion->getEntityDefinitionId(),
             "interval" => 1,
             "date_start" => "2015-02-01",
             "date_end" => "2015-03-01",
             "date_processed_to" => "2015-02-01",
-        );
+        ];
         $rp = new RecurrencePattern();
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);

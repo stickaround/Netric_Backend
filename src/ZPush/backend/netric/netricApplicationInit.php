@@ -6,7 +6,6 @@ require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
 use Netric\Application\Application;
 use Aereus\Config\ConfigLoader;
 
-
 /**
  * Loader singleton to keep one copy of the netric application running for ZPUsh
  */

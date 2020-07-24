@@ -23,4 +23,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class StateInvalidException extends StatusException {}
+class StateInvalidException extends StatusException
+{
+}

@@ -103,13 +103,13 @@ class Forms
             $xlarge = $default;
         }
 
-        $forms = array(
+        $forms = [
             'small' => $small,
             'medium' => $medium,
             'large' => $large,
             'xlarge' => $xlarge,
             'infobox' => $this->getFormUiXml($def, $user, "infobox"),
-        );
+        ];
 
         return $forms;
     }

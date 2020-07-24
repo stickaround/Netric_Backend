@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class StringStreamWrapper {
+class StringStreamWrapper
+{
     const PROTOCOL = "stringstream";
 
     private $stringstream;
@@ -44,10 +45,12 @@ class StringStreamWrapper {
      * @access public
      * @return boolean
      */
-    public function stream_open($path, $mode, $options, &$opened_path) {
+    public function stream_open($path, $mode, $options, &$opened_path)
+    {
         $contextOptions = stream_context_get_options($this->context);
-        if (!isset($contextOptions[self::PROTOCOL]['string']))
+        if (!isset($contextOptions[self::PROTOCOL]['string'])) {
             return false;
+        }
 
         $this->position = 0;
 
@@ -68,7 +71,8 @@ class StringStreamWrapper {
      * @access public
      * @return string
      */
-    public function stream_read($len) {
+    public function stream_read($len)
+    {
         $data = substr($this->stringstream, $this->position, $len);
         $this->position += strlen($data);
         return $data;
@@ -80,7 +84,8 @@ class StringStreamWrapper {
      * @param string $data
      * @return int
      */
-    public function stream_write($data){
+    public function stream_write($data)
+    {
         $l = strlen($data);
         $this->stringstream = substr($this->stringstream, 0, $this->position) . $data . substr($this->stringstream, $this->position += $l);
         $this->stringlength = strlen($this->stringstream);
@@ -94,14 +99,13 @@ class StringStreamWrapper {
      * @param int $whence
      * @return boolean
      */
-    public function stream_seek($offset, $whence = SEEK_SET) {
+    public function stream_seek($offset, $whence = SEEK_SET)
+    {
         if ($whence == SEEK_CUR) {
             $this->position += $offset;
-        }
-        else if ($whence == SEEK_END) {
+        } elseif ($whence == SEEK_END) {
             $this->position = $this->stringlength + $offset;
-        }
-        else {
+        } else {
             $this->position = $offset;
         }
         return true;
@@ -113,7 +117,8 @@ class StringStreamWrapper {
      * @access public
      * @return int
      */
-    public function stream_tell() {
+    public function stream_tell()
+    {
         return $this->position;
     }
 
@@ -123,7 +128,8 @@ class StringStreamWrapper {
      * @access public
      * @return boolean
      */
-    public function stream_eof() {
+    public function stream_eof()
+    {
         return ($this->position >= $this->stringlength);
     }
 
@@ -133,7 +139,8 @@ class StringStreamWrapper {
      * @param int $new_size
      * @return boolean
      */
-    public function stream_truncate ($new_size) {
+    public function stream_truncate($new_size)
+    {
         // cut the string!
         $this->stringstream = Utils::Utf8_truncate($this->stringstream, $new_size);
         $this->stringlength = strlen($this->stringstream);
@@ -151,11 +158,12 @@ class StringStreamWrapper {
     * @access public
     * @return array
     */
-    public function stream_stat() {
-        return array(
+    public function stream_stat()
+    {
+        return [
             7               => $this->stringlength,
             'size'          => $this->stringlength,
-        );
+        ];
     }
 
    /**
@@ -166,9 +174,10 @@ class StringStreamWrapper {
      * @access public
      * @return StringStreamWrapper
      */
-     static public function Open($string) {
-        $context = stream_context_create(array(self::PROTOCOL => array('string' => &$string)));
-        return fopen(self::PROTOCOL . "://",'r', false, $context);
+    public static function Open($string)
+    {
+        $context = stream_context_create([self::PROTOCOL => ['string' => &$string]]);
+        return fopen(self::PROTOCOL . "://", 'r', false, $context);
     }
 }
 

@@ -43,7 +43,7 @@ class Application
      *
      * @var LogInterface
      */
-    static protected $log = null;
+    protected static $log = null;
 
     /**
      * Application DataMapper
@@ -107,7 +107,7 @@ class Application
         }
 
         // Watch for error notices and log them
-        set_error_handler(array(self::$log, "phpErrorHandler"));
+        set_error_handler([self::$log, "phpErrorHandler"]);
 
         // Log unhandled exceptions
         //set_exception_handler(array(self::$log, "phpUnhandledExceptionHandler"));
@@ -319,7 +319,6 @@ class Application
 
         // First check if an account param was provided
         if (!empty($_REQUEST['X-NTRC-ACCOUNT'])) {
-
             return $_REQUEST['X-NTRC-ACCOUNT'];
         }
 
@@ -327,14 +326,12 @@ class Application
         if (function_exists('getallheaders')) {
             $headers = getallheaders();
             if (!empty($headers['X-NTRC-ACCOUNT'])) {
-
                 return $headers['X-NTRC-ACCOUNT'];
             }
         }
 
         // Check url - 3rd level domain is the account name
-        if (
-            isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
+        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
             && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)
         ) {
             $left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
@@ -525,7 +522,7 @@ class Application
                     list($functionCalled, $calledFrom) = explode("==>", $functionAndCalledFrom);
                 }
 
-                $profileData = array(
+                $profileData = [
                     "type" => "profile",
                     "function_name" => $functionCalled,
                     "called_from" => $calledFrom,
@@ -534,7 +531,7 @@ class Application
                     "cputime" => $stats['cpu'],
                     "memoryused" => $stats['mu'],
                     "peakmemoryused" => $stats['pmu'],
-                );
+                ];
                 self::$log->warning($profileData);
             }
         }

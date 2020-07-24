@@ -20,7 +20,7 @@ class MogileFileStoreFactoryTest extends TestCase
 
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
     }
 

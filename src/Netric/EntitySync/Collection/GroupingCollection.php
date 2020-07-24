@@ -94,8 +94,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
                     // First make sure we didn't just import this
                     $skipStat = false;
                     foreach ($imports as $imported) {
-                        if (
-                            $imported['local_id'] == $grp->getGroupId()
+                        if ($imported['local_id'] == $grp->getGroupId()
                             && $imported['local_revision'] == $grp->getCommitId()
                         ) {
                             // Skip over this export because we just imported it
@@ -105,11 +104,11 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
                     }
 
                     if (!$skipStat) {
-                        $retStats[] = array(
+                        $retStats[] = [
                             "id" => $grp->getGroupId(),
                             "action" => 'change',
                             "commit_id" => $grp->commitId
-                        );
+                        ];
                     }
 
                     if (($autoFastForward && $grp->commitId) || $skipStat) {

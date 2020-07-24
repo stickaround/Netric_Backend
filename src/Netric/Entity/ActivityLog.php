@@ -108,7 +108,6 @@ class ActivityLog
 
         // If we created a comment, then get the name from the object commented on
         if (($objType == ObjectTypes::COMMENT) && $objReference) {
-
             // Get the referenced entity
             $entityReferenced = $this->entityLoader->getByGuid($objReference);
 

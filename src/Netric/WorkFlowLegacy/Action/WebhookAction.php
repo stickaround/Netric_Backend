@@ -70,8 +70,8 @@ class WebhookAction extends AbstractAction implements ActionInterface
         // Get merged params
         $params = $this->getParams($entity);
 
-        $search = array("(", ")", " ", "\"", "'");
-        $replace = array("%28", "%29", "%20", "%22", "%27");
+        $search = ["(", ")", " ", "\"", "'"];
+        $replace = ["%28", "%29", "%20", "%22", "%27"];
 
         $url = str_replace($search, $replace, $params["url"]);
 
@@ -84,10 +84,10 @@ class WebhookAction extends AbstractAction implements ActionInterface
         curl_close($ch);
         */
 
-        $client = new Client($url, array(
+        $client = new Client($url, [
             'maxredirects' => 10,
             'timeout'      => 30,
-        ));
+        ]);
         if ($this->adapeter) {
             $client->setAdapter($this->adapeter);
         }

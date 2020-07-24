@@ -46,7 +46,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $params = $this->getRequest()->getParams();
         if (!$params['obj_type']) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         // Get the service manager and current user
@@ -60,13 +60,13 @@ class EntityController extends Mvc\AbstractAccountController
             $def = $defLoader->get($params['obj_type']);
 
             if (!$def) {
-                return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
+                return $this->sendOutput(["error" => $params['obj_type'] . " could not be loaded"]);
             }
 
             $ret = $this->fillDefinitionArray($def);
             return $this->sendOutput($ret);
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
     }
 
@@ -79,7 +79,7 @@ class EntityController extends Mvc\AbstractAccountController
         $params = $this->getRequest()->getParams();
 
         if (!isset($params["obj_type"])) {
-            return $this->sendOutput(array("error" => "obj_type must be set"));
+            return $this->sendOutput(["error" => "obj_type must be set"]);
         }
 
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
@@ -102,7 +102,7 @@ class EntityController extends Mvc\AbstractAccountController
             // Execute the query
             $res = $index->executeQuery($query);
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         // Pagination
@@ -188,10 +188,10 @@ class EntityController extends Mvc\AbstractAccountController
             );
         } else {
             return $this->sendOutput(
-                array(
+                [
                     "error" => "entity_id or uname are required params.",
                     "params" => $params
-                )
+                ]
             );
         }
         // } catch (\Exception $ex) {
@@ -206,11 +206,11 @@ class EntityController extends Mvc\AbstractAccountController
         // If user is not allowed, then return an error
         if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
             return $this->sendOutput(
-                array(
+                [
                     "error" => "You do not have permission to view this.",
                     "entity_id" => $entity->getValue('entity_id'),
                     "params" => $params
-                )
+                ]
             );
         }
 
@@ -230,14 +230,14 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -250,7 +250,7 @@ class EntityController extends Mvc\AbstractAccountController
                 $entity = $entityLoader->getByGuid($objData['entity_id']);
             }
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         // Parse the params
@@ -261,10 +261,10 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             if (!$dataMapper->save($entity)) {
-                return $this->sendOutput(array("error" => "Error saving: " . $dataMapper->getLastError()));
+                return $this->sendOutput(["error" => "Error saving: " . $dataMapper->getLastError()]);
             }
         } catch (\RuntimeException $ex) {
-            return $this->sendOutput(array("error" => "Error saving: " . $ex->getMessage()));
+            return $this->sendOutput(["error" => "Error saving: " . $ex->getMessage()]);
         }
 
         // Check to see if any new object_multi objects were sent awaiting save
@@ -316,7 +316,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         if (!$objType) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
@@ -342,7 +342,7 @@ class EntityController extends Mvc\AbstractAccountController
                 }
             }
         } catch (\RuntimeException $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         // Return what was deleted
@@ -374,7 +374,7 @@ class EntityController extends Mvc\AbstractAccountController
         $fieldName = $this->request->getParam("field_name");
 
         if (!$objType || !$fieldName) {
-            return $this->sendOutput(array("error" => "obj_type & field_name are required params"));
+            return $this->sendOutput(["error" => "obj_type & field_name are required params"]);
         }
 
         // Get the groupingLoader that will be used to get the groupings model
@@ -384,18 +384,18 @@ class EntityController extends Mvc\AbstractAccountController
         try {
             $groupings = $this->getGroupings($groupingLoader, $objType, $fieldName);
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         if (!$groupings) {
-            return $this->sendOutput(array("error" => "No groupings found for specified obj_type and field"));
+            return $this->sendOutput(["error" => "No groupings found for specified obj_type and field"]);
         }
 
-        return $this->sendOutput(array(
+        return $this->sendOutput([
             "obj_type" => $objType,
             "field_name" => $fieldName,
             "groups" => $groupings->toArray()
-        ));
+        ]);
     }
 
     /**
@@ -417,7 +417,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         if (sizeOf($ret) == 0) {
-            return $this->sendOutput(array("Definitions could not be loaded"));
+            return $this->sendOutput(["Definitions could not be loaded"]);
         }
 
         return $this->sendOutput($ret);
@@ -487,8 +487,7 @@ class EntityController extends Mvc\AbstractAccountController
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if (
-                        $field->subtype // Make sure that this field has a subtype
+                    if ($field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
@@ -503,7 +502,7 @@ class EntityController extends Mvc\AbstractAccountController
 
                             // Save the awaiting entity object
                             if (!$dataMapper->save($waitingObjectEntity)) {
-                                return $this->sendOutput(array("error" => "Error saving object reference " . $field->name . ": " . $dataMapper->getLastError()));
+                                return $this->sendOutput(["error" => "Error saving object reference " . $field->name . ": " . $dataMapper->getLastError()]);
                             }
 
                             // Set the reference for the $entity
@@ -539,16 +538,16 @@ class EntityController extends Mvc\AbstractAccountController
 
         $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         } elseif ($objData['obj_type'] === "") {
-            return $this->sendOutput(array("error" => "obj_type is empty."));
+            return $this->sendOutput(["error" => "obj_type is empty."]);
         }
 
         // Get the service manager and current user
@@ -564,7 +563,7 @@ class EntityController extends Mvc\AbstractAccountController
         if (!$def) {
             // If we are trying to edit an existing entity that could not be found, error out
             if ($objData['id'] || $objData['entity_definition_id']) {
-                return $this->sendOutput(array("error" => 'Definition not found'));
+                return $this->sendOutput(["error" => 'Definition not found']);
             }
 
             // Otherwise create a new definition object to update
@@ -599,14 +598,14 @@ class EntityController extends Mvc\AbstractAccountController
 
         $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         // Get the service manager and current user
@@ -619,7 +618,7 @@ class EntityController extends Mvc\AbstractAccountController
         $def = $defLoader->get($objData['obj_type']);
 
         if (!$def) {
-            return $this->sendOutput(array("error" => $objData['obj_type'] . ' could not be loaded'));
+            return $this->sendOutput(["error" => $objData['obj_type'] . ' could not be loaded']);
         }
 
         // Delete the entity definition
@@ -647,7 +646,7 @@ class EntityController extends Mvc\AbstractAccountController
         $rawBody = $this->getRequest()->getBody();
 
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
@@ -655,12 +654,12 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Check if we have id. If it is not defined, then return an error
         if (!isset($objData['entity_id'])) {
-            return $this->sendOutput(array("error" => "entity_id is a required param"));
+            return $this->sendOutput(["error" => "entity_id is a required param"]);
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
         if (!isset($objData['entity_data'])) {
-            return $this->sendOutput(array("error" => "entity_data is a required param"));
+            return $this->sendOutput(["error" => "entity_data is a required param"]);
         }
 
         $entityData = $objData['entity_data'];
@@ -670,7 +669,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Convert a single id to an array so we can handle them all the same way
         if (!is_array($guids) && $guids) {
-            $guids = array($guids);
+            $guids = [$guids];
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
@@ -698,7 +697,7 @@ class EntityController extends Mvc\AbstractAccountController
                 }
             }
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         // Return what was edited
@@ -723,7 +722,7 @@ class EntityController extends Mvc\AbstractAccountController
         $rawBody = $this->getRequest()->getBody();
 
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
@@ -731,12 +730,12 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Check if we have obj_type. If it is not defined, then return an error
         if (!isset($requestData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
         if (!isset($requestData['merge_data'])) {
-            return $this->sendOutput(array("error" => "merge_data is a required param"));
+            return $this->sendOutput(["error" => "merge_data is a required param"]);
         }
 
         $mergeData = $requestData['merge_data'];
@@ -757,7 +756,7 @@ class EntityController extends Mvc\AbstractAccountController
             */
             $mergedEntityId = $dataMapper->save($mergedEntity);
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         $entityData = [];
@@ -801,7 +800,7 @@ class EntityController extends Mvc\AbstractAccountController
             // Now save the the entity where all merged data are set
             $dataMapper->save($mergedEntity);
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         // Return the merged entity
@@ -819,22 +818,22 @@ class EntityController extends Mvc\AbstractAccountController
         $ret = [];
 
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         if (!isset($objData['field_name'])) {
-            return $this->sendOutput(array("error" => "field_name is a required param"));
+            return $this->sendOutput(["error" => "field_name is a required param"]);
         }
 
         if (!isset($objData['action'])) {
-            return $this->sendOutput(array("error" => "action is a required param"));
+            return $this->sendOutput(["error" => "action is a required param"]);
         }
 
         // Get the entity loader that will be used to get the groupings model
@@ -858,7 +857,7 @@ class EntityController extends Mvc\AbstractAccountController
                 if (isset($objData['group_id']) && !empty($objData['group_id'])) {
                     $group = $groupings->getByGuidOrGroupId($objData['group_id']);
                 } else {
-                    return $this->sendOutput(array("error" => "Edit action needs group id to update the group."));
+                    return $this->sendOutput(["error" => "Edit action needs group id to update the group."]);
                 }
 
                 // Set the group data
@@ -870,21 +869,21 @@ class EntityController extends Mvc\AbstractAccountController
                 if (isset($objData['group_id']) && !empty($objData['group_id'])) {
                     $group = $groupings->getByGuidOrGroupId($objData['group_id']);
                 } else {
-                    return $this->sendOutput(array("error" => "Delete action needs group id to update the group."));
+                    return $this->sendOutput(["error" => "Delete action needs group id to update the group."]);
                 }
 
                 // Now flag the group as deleted
                 $groupings->delete($objData['group_id']);
                 break;
             default:
-                return $this->sendOutput(array("error" => "No action made for entity group."));
+                return $this->sendOutput(["error" => "No action made for entity group."]);
         }
 
         try {
             // Save the changes made to the groupings
             $groupingLoader->save($groupings);
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
         return $this->sendOutput($group->toArray());
@@ -917,7 +916,7 @@ class EntityController extends Mvc\AbstractAccountController
             // Return the groupings object
             return $groupings;
         } catch (\Exception $ex) {
-            return $this->sendOutput(array("error" => $ex->getMessage()));
+            return $this->sendOutput(["error" => $ex->getMessage()]);
         }
     }
 

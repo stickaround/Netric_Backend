@@ -108,7 +108,7 @@ class HttpResponseTest extends TestCase
         $this->assertEquals(stream_get_contents($fileStream, $end, $start), $response->getOutputBuffer());
 
         // Try reading only the last 10 bytes
-        $start = filesize($fileToStream)-10;
+        $start = filesize($fileToStream) - 10;
         $end = filesize($fileToStream);
         $request->setParam('HTTP_RANGE', "bytes=$start-$end");
         $response->stream();

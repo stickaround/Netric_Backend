@@ -23,7 +23,8 @@
  * Consult LICENSE file for details
  ************************************************/
 
-abstract class Log {
+abstract class Log
+{
 
     /**
      * @var string
@@ -48,13 +49,13 @@ abstract class Log {
     /**
      * @var array
      */
-    protected $specialLogUsers = array();
+    protected $specialLogUsers = [];
 
     /**
      * Only used as a cache value for IsUserInSpecialLogUsers.
      * @var array
      */
-    private $isUserInSpecialLogUsers = array();
+    private $isUserInSpecialLogUsers = [];
 
     /**
      * Only used as a cache value for IsAuthUserInSpecialLogUsers function
@@ -65,12 +66,13 @@ abstract class Log {
     /**
      * @var array
      */
-    private $unauthMessageCache = array();
+    private $unauthMessageCache = [];
 
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -79,7 +81,8 @@ abstract class Log {
      * @access public
      * @return string
      */
-    public function GetUser() {
+    public function GetUser()
+    {
         return $this->user;
     }
 
@@ -91,7 +94,8 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function SetUser($value) {
+    public function SetUser($value)
+    {
         $this->user = $value;
     }
 
@@ -101,7 +105,8 @@ abstract class Log {
      * @access public
      * @return string
      */
-    public function GetAuthUser() {
+    public function GetAuthUser()
+    {
         return $this->authUser;
     }
 
@@ -113,7 +118,8 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function SetAuthUser($value) {
+    public function SetAuthUser($value)
+    {
         $this->isAuthUserInSpecialLogUsers = false;
         $this->authUser = $value;
     }
@@ -126,11 +132,12 @@ abstract class Log {
      * @access public
      * @return bool
      */
-    public function IsAuthUserInSpecialLogUsers() {
+    public function IsAuthUserInSpecialLogUsers()
+    {
         if ($this->isAuthUserInSpecialLogUsers) {
             return true;
         }
-        if($this->IsUserInSpecialLogUsers($this->GetAuthUser())){
+        if ($this->IsUserInSpecialLogUsers($this->GetAuthUser())) {
             $this->isAuthUserInSpecialLogUsers = true;
             return true;
         }
@@ -143,7 +150,8 @@ abstract class Log {
      * @access public
      * @return string
      */
-    public function GetDevid() {
+    public function GetDevid()
+    {
         return $this->devid;
     }
 
@@ -155,7 +163,8 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function SetDevid($value) {
+    public function SetDevid($value)
+    {
         $this->devid = $value;
     }
 
@@ -165,7 +174,8 @@ abstract class Log {
      * @access public
      * @return string
      */
-    public function GetPidstr() {
+    public function GetPidstr()
+    {
         return $this->pidstr;
     }
 
@@ -177,7 +187,8 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function SetPidstr($value) {
+    public function SetPidstr($value)
+    {
         $this->pidstr = $value;
     }
 
@@ -187,7 +198,8 @@ abstract class Log {
      * @access public
      * @return bool True if we do have to log some specific user. False otherwise.
      */
-    public function HasSpecialLogUsers() {
+    public function HasSpecialLogUsers()
+    {
         return !empty($this->specialLogUsers);
     }
 
@@ -199,7 +211,8 @@ abstract class Log {
      * @access public
      * @return bool
      */
-    public function IsUserInSpecialLogUsers($user) {
+    public function IsUserInSpecialLogUsers($user)
+    {
         if (isset($this->isUserInSpecialLogUsers[$user])) {
             return true;
         }
@@ -216,7 +229,8 @@ abstract class Log {
      * @access public
      * @return array
      */
-    public function GetSpecialLogUsers() {
+    public function GetSpecialLogUsers()
+    {
         return $this->specialLogUsers;
     }
 
@@ -228,8 +242,9 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function SetSpecialLogUsers(array $value) {
-        $this->isUserInSpecialLogUsers = array(); // reset cache
+    public function SetSpecialLogUsers(array $value)
+    {
+        $this->isUserInSpecialLogUsers = []; // reset cache
         $this->specialLogUsers = $value;
     }
 
@@ -242,7 +257,8 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function SpecialLogUser() {
+    public function SpecialLogUser()
+    {
         $this->isAuthUserInSpecialLogUsers = true;
     }
 
@@ -256,14 +272,15 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function Log($loglevel, $message) {
+    public function Log($loglevel, $message)
+    {
         if ($loglevel <= LOGLEVEL) {
             $this->Write($loglevel, $message);
         }
         if ($loglevel <= LOGUSERLEVEL) {
             // cache log messages for unauthenticated users
             if (!RequestProcessor::isUserAuthenticated()) {
-                $this->unauthMessageCache[] = array($loglevel, $message);
+                $this->unauthMessageCache[] = [$loglevel, $message];
             }
             // user is authenticated now
             elseif ($this->IsAuthUserInSpecialLogUsers()) {
@@ -272,12 +289,11 @@ abstract class Log {
                     foreach ($this->unauthMessageCache as $authcache) {
                         $this->WriteForUser($authcache[0], $authcache[1]);
                     }
-                    $this->unauthMessageCache = array();
+                    $this->unauthMessageCache = [];
                 }
                 $this->WriteForUser($loglevel, $message);
-            }
-            else {
-                $this->unauthMessageCache[] = array($loglevel, $message);
+            } else {
+                $this->unauthMessageCache[] = [$loglevel, $message];
             }
         }
 
@@ -291,7 +307,8 @@ abstract class Log {
      * @access public
      * @return void
      */
-    public function AfterInitialize() {
+    public function AfterInitialize()
+    {
     }
 
     /**
@@ -301,7 +318,8 @@ abstract class Log {
      * @access protected
      * @return void
      */
-    protected function afterLog($loglevel, $message) {
+    protected function afterLog($loglevel, $message)
+    {
     }
 
     /**
@@ -314,21 +332,41 @@ abstract class Log {
      * @access protected
      * @return string
      */
-    protected function GetLogLevelString($loglevel, $pad = false) {
-        if ($pad)
+    protected function GetLogLevelString($loglevel, $pad = false)
+    {
+        if ($pad) {
             $s = " ";
-        else
+        } else {
             $s = "";
-        switch($loglevel) {
-            case LOGLEVEL_OFF:          return ""; break;
-            case LOGLEVEL_FATAL:        return "[FATAL]"; break;
-            case LOGLEVEL_ERROR:        return "[ERROR]"; break;
-            case LOGLEVEL_WARN:         return "[".$s."WARN]"; break;
-            case LOGLEVEL_INFO:         return "[".$s."INFO]"; break;
-            case LOGLEVEL_DEBUG:        return "[DEBUG]"; break;
-            case LOGLEVEL_WBXML:        return "[WBXML]"; break;
-            case LOGLEVEL_DEVICEID:     return "[DEVICEID]"; break;
-            case LOGLEVEL_WBXMLSTACK:   return "[WBXMLSTACK]"; break;
+        }
+        switch ($loglevel) {
+            case LOGLEVEL_OFF:
+                return "";
+            break;
+            case LOGLEVEL_FATAL:
+                return "[FATAL]";
+            break;
+            case LOGLEVEL_ERROR:
+                return "[ERROR]";
+            break;
+            case LOGLEVEL_WARN:
+                return "[".$s."WARN]";
+            break;
+            case LOGLEVEL_INFO:
+                return "[".$s."INFO]";
+            break;
+            case LOGLEVEL_DEBUG:
+                return "[DEBUG]";
+            break;
+            case LOGLEVEL_WBXML:
+                return "[WBXML]";
+            break;
+            case LOGLEVEL_DEVICEID:
+                return "[DEVICEID]";
+            break;
+            case LOGLEVEL_WBXMLSTACK:
+                return "[WBXMLSTACK]";
+            break;
         }
     }
 

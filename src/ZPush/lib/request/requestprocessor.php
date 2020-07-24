@@ -30,15 +30,16 @@
 * Consult LICENSE file for details
 ************************************************/
 
-abstract class RequestProcessor {
-    static protected $backend;
-    static protected $deviceManager;
-    static protected $topCollector;
-    static protected $decoder;
-    static protected $encoder;
-    static protected $userIsAuthenticated;
-    static protected $specialHeaders;
-    static protected $waitTime = 0;
+abstract class RequestProcessor
+{
+    protected static $backend;
+    protected static $deviceManager;
+    protected static $topCollector;
+    protected static $decoder;
+    protected static $encoder;
+    protected static $userIsAuthenticated;
+    protected static $specialHeaders;
+    protected static $waitTime = 0;
 
     /**
      * Authenticates the remote user
@@ -53,16 +54,19 @@ abstract class RequestProcessor {
      * @return
      * @throws AuthenticationRequiredException
      */
-    static public function Authenticate() {
+    public static function Authenticate()
+    {
         self::$userIsAuthenticated = false;
 
         // when a certificate is sent, allow authentication only as the certificate owner
-        if(defined("CERTIFICATE_OWNER_PARAMETER") && isset($_SERVER[CERTIFICATE_OWNER_PARAMETER]) && strtolower($_SERVER[CERTIFICATE_OWNER_PARAMETER]) != strtolower(Request::GetAuthUser()))
+        if (defined("CERTIFICATE_OWNER_PARAMETER") && isset($_SERVER[CERTIFICATE_OWNER_PARAMETER]) && strtolower($_SERVER[CERTIFICATE_OWNER_PARAMETER]) != strtolower(Request::GetAuthUser())) {
             throw new AuthenticationRequiredException(sprintf("Access denied. Access is allowed only for the certificate owner '%s'", $_SERVER[CERTIFICATE_OWNER_PARAMETER]));
+        }
 
         $backend = ZPush::GetBackend();
-        if($backend->Logon(Request::GetAuthUser(), Request::GetAuthDomain(), Request::GetAuthPassword()) == false)
+        if ($backend->Logon(Request::GetAuthUser(), Request::GetAuthDomain(), Request::GetAuthPassword()) == false) {
             throw new AuthenticationRequiredException("Access denied. Username or password incorrect");
+        }
 
         // mark this request as "authenticated"
         self::$userIsAuthenticated = true;
@@ -74,9 +78,11 @@ abstract class RequestProcessor {
      * @access public
      * @return boolean
      */
-    static public function isUserAuthenticated() {
-        if (!isset(self::$userIsAuthenticated))
+    public static function isUserAuthenticated()
+    {
+        if (!isset(self::$userIsAuthenticated)) {
             return false;
+        }
         return self::$userIsAuthenticated;
     }
 
@@ -86,13 +92,15 @@ abstract class RequestProcessor {
      * @access public
      * @return
      */
-    static public function Initialize() {
+    public static function Initialize()
+    {
         self::$backend = ZPush::GetBackend();
         self::$deviceManager = ZPush::GetDeviceManager();
         self::$topCollector = ZPush::GetTopCollector();
 
-        if (!ZPush::CommandNeedsPlainInput(Request::GetCommandCode()))
+        if (!ZPush::CommandNeedsPlainInput(Request::GetCommandCode())) {
             self::$decoder = new WBXMLDecoder(Request::GetInputStream());
+        }
 
         self::$encoder = new WBXMLEncoder(Request::GetOutputStream(), Request::GetGETAcceptMultipart());
         self::$waitTime = 0;
@@ -104,7 +112,8 @@ abstract class RequestProcessor {
      * @access public
      * @return boolean
      */
-    static public function HandleRequest() {
+    public static function HandleRequest()
+    {
         $handler = ZPush::GetRequestHandlerForCommand(Request::GetCommandCode());
 
         // if there is an error decoding wbxml, consume remaining data and include it in the WBXMLException
@@ -112,8 +121,7 @@ abstract class RequestProcessor {
             if (!$handler->Handle(Request::GetCommandCode())) {
                 throw new WBXMLException(sprintf("Unknown error in %s->Handle()", get_class($handler)));
             }
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             // Log 10 KB of the WBXML data
             ZLog::Write(LOGLEVEL_FATAL, "WBXML 10K debug data: " . Request::GetInputAsBase64(10240), false);
             throw $ex;
@@ -132,9 +140,11 @@ abstract class RequestProcessor {
      * @access public
      * @return array
      */
-    static public function GetSpecialHeaders() {
-        if (!isset(self::$specialHeaders) || !is_array(self::$specialHeaders))
-            return array();
+    public static function GetSpecialHeaders()
+    {
+        if (!isset(self::$specialHeaders) || !is_array(self::$specialHeaders)) {
+            return [];
+        }
 
         return self::$specialHeaders;
     }
@@ -145,7 +155,8 @@ abstract class RequestProcessor {
      * @access public
      * @return int
      */
-    public static function GetWaitTime() {
+    public static function GetWaitTime()
+    {
         return self::$waitTime;
     }
 

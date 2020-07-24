@@ -134,15 +134,15 @@ abstract class AbstractDataMapperTests extends TestCase
         $module = $dataMapper->get("home");
 
         // Updat the navigation with new data
-        $nav = array(
-            array(
+        $nav = [
+            [
                 "title" => "New Note",
                 "type" => "entity",
                 "route" => "new-note",
                 "objType" => "note",
                 "icon" => "plus",
-            )
-        );
+            ]
+        ];
         $module->setNavigation($nav);
 
         // Save the updated navigation

@@ -32,9 +32,9 @@ abstract class AbstractPluginManager
      *
      * @var array
      */
-    protected $invokableClasses = array(
+    protected $invokableClasses = [
         "test_invokable" => 'Netric\ServiceManager\Test\Service',
-    );
+    ];
 
     /**
      * Validate the plugin

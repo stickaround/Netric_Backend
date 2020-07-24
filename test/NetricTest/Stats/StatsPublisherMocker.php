@@ -10,7 +10,7 @@ use Netric\Stats\StatsPublisher;
 class StatsPublisherMocker extends StatsPublisher
 {
     protected static $writtenData;
-    protected static $writtenChunks = array();
+    protected static $writtenChunks = [];
 
     protected static function sendAsUDP($data)
     {
@@ -26,7 +26,7 @@ class StatsPublisherMocker extends StatsPublisher
     public static function getWrittenChunks()
     {
         $data = self::$writtenChunks;
-        self::$writtenChunks = array();
+        self::$writtenChunks = [];
         return $data;
     }
 }

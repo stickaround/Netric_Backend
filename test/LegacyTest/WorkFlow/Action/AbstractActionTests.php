@@ -105,21 +105,21 @@ abstract class AbstractActionTests extends TestCase
      */
     public function testFromAndToArray()
     {
-        $actionData = array(
+        $actionData = [
             "guid" => self::TEST_ACTION_ID,
             "name" => "my action",
             "workflow_id" => self::TEST_WORKFLOW_ID,
             "parent_action_id" => 1,
-            "actions" => array(
-                array(
+            "actions" => [
+                [
                     "id" => 789,
                     "type" => "test",
                     "name" => "my action",
                     "workflow_id" => self::TEST_WORKFLOW_ID,
                     "parent_action_id" => self::TEST_ACTION_ID,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $action = $this->getAction();
         $action->fromArray($actionData);

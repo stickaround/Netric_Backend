@@ -82,7 +82,8 @@ define('PEAR_MAIL_SMTP_ERROR_DATA', 10006);
  * @package Mail
  * @version $Revision: 307488 $
  */
-class Mail_smtp extends Mail {
+class Mail_smtp extends Mail
+{
 
     /**
      * SMTP connection object.
@@ -97,7 +98,7 @@ class Mail_smtp extends Mail {
      * mailFrom() command.
      * @var array
      */
-    var $_extparams = array();
+    var $_extparams = [];
 
     /**
      * The SMTP host to connect to.
@@ -219,26 +220,52 @@ class Mail_smtp extends Mail {
      */
     function __construct($params)
     {
-        if (isset($params['host'])) $this->host = $params['host'];
-        if (isset($params['port'])) $this->port = $params['port'];
-        if (isset($params['auth'])) $this->auth = $params['auth'];
-        if (isset($params['username'])) $this->username = $params['username'];
-        if (isset($params['password'])) $this->password = $params['password'];
-        if (isset($params['localhost'])) $this->localhost = $params['localhost'];
-        if (isset($params['timeout'])) $this->timeout = $params['timeout'];
-        if (isset($params['debug'])) $this->debug = (bool)$params['debug'];
-        if (isset($params['persist'])) $this->persist = (bool)$params['persist'];
-        if (isset($params['pipelining'])) $this->pipelining = (bool)$params['pipelining'];
-        if (isset($params['verify_peer'])) $this->verify_peer = (bool)$params['verify_peer'];
-        if (isset($params['verify_peer_name'])) $this->verify_peer_name = (bool)$params['verify_peer_name'];
-        if (isset($params['allow_self_signed'])) $this->allow_self_signed = (bool)$params['allow_self_signed'];
+        if (isset($params['host'])) {
+            $this->host = $params['host'];
+        }
+        if (isset($params['port'])) {
+            $this->port = $params['port'];
+        }
+        if (isset($params['auth'])) {
+            $this->auth = $params['auth'];
+        }
+        if (isset($params['username'])) {
+            $this->username = $params['username'];
+        }
+        if (isset($params['password'])) {
+            $this->password = $params['password'];
+        }
+        if (isset($params['localhost'])) {
+            $this->localhost = $params['localhost'];
+        }
+        if (isset($params['timeout'])) {
+            $this->timeout = $params['timeout'];
+        }
+        if (isset($params['debug'])) {
+            $this->debug = (bool)$params['debug'];
+        }
+        if (isset($params['persist'])) {
+            $this->persist = (bool)$params['persist'];
+        }
+        if (isset($params['pipelining'])) {
+            $this->pipelining = (bool)$params['pipelining'];
+        }
+        if (isset($params['verify_peer'])) {
+            $this->verify_peer = (bool)$params['verify_peer'];
+        }
+        if (isset($params['verify_peer_name'])) {
+            $this->verify_peer_name = (bool)$params['verify_peer_name'];
+        }
+        if (isset($params['allow_self_signed'])) {
+            $this->allow_self_signed = (bool)$params['allow_self_signed'];
+        }
 
         // Deprecated options
         if (isset($params['verp'])) {
             $this->addServiceExtensionParameter('XVERP', is_bool($params['verp']) ? null : $params['verp']);
         }
 
-        register_shutdown_function(array($this, '_Mail_smtp'));
+        register_shutdown_function([$this, '_Mail_smtp']);
     }
 
     /**
@@ -306,8 +333,10 @@ class Mail_smtp extends Mail {
 
         if (!isset($from)) {
             $this->_smtp->rset();
-            return Mail_smtp::raiseError('No From: address has been provided',
-                                    PEAR_MAIL_SMTP_ERROR_FROM);
+            return Mail_smtp::raiseError(
+                'No From: address has been provided',
+                PEAR_MAIL_SMTP_ERROR_FROM
+            );
         }
 
         $params = null;
@@ -342,15 +371,15 @@ class Mail_smtp extends Mail {
 
         /* Send the message's headers and the body as SMTP data. */
         $res = $this->_smtp->data($body, $textHeaders);
-		list(,$args) = $this->_smtp->getResponse();
+        list(,$args) = $this->_smtp->getResponse();
 
-		if (preg_match("/Ok: queued as (.*)/", $args, $queued)) {
-			$this->queued_as = $queued[1];
-		}
+        if (preg_match("/Ok: queued as (.*)/", $args, $queued)) {
+            $this->queued_as = $queued[1];
+        }
 
-		/* we need the greeting; from it we can extract the authorative name of the mail server we've really connected to.
-		 * ideal if we're connecting to a round-robin of relay servers and need to track which exact one took the email */
-		$this->greeting = $this->_smtp->getGreeting();
+        /* we need the greeting; from it we can extract the authorative name of the mail server we've really connected to.
+         * ideal if we're connecting to a round-robin of relay servers and need to track which exact one took the email */
+        $this->greeting = $this->_smtp->getGreeting();
 
         //if (is_a($res, 'PEAR_Error')) {
         if ($res === false) {
@@ -383,20 +412,24 @@ class Mail_smtp extends Mail {
             return $this->_smtp;
         }
 
-        $this->_smtp = new Net_SMTP($this->host,
-                                     $this->port,
-                                     $this->localhost,
-                                     $this->pipelining,
-                                     0, //timeout
-                                     null, //socket_options
-                                     $this->verify_peer,
-                                     $this->verify_peer_name,
-                                     $this->allow_self_signed);
+        $this->_smtp = new Net_SMTP(
+            $this->host,
+            $this->port,
+            $this->localhost,
+            $this->pipelining,
+            0, //timeout
+            null, //socket_options
+            $this->verify_peer,
+            $this->verify_peer_name,
+            $this->allow_self_signed
+        );
 
         /* If we still don't have an SMTP object at this point, fail. */
         if (is_object($this->_smtp) === false) {
-            return Mail_smtp::raiseError('Failed to create a Net_SMTP object',
-                                    PEAR_MAIL_SMTP_ERROR_CREATE);
+            return Mail_smtp::raiseError(
+                'Failed to create a Net_SMTP object',
+                PEAR_MAIL_SMTP_ERROR_CREATE
+            );
         }
 
         /* Configure the SMTP connection. */
@@ -407,9 +440,11 @@ class Mail_smtp extends Mail {
         /* Attempt to connect to the configured SMTP server. */
         //if (PEAR::isError($res = $this->_smtp->connect($this->timeout))) {
         if (($res = $this->_smtp->connect($this->timeout)) === false) {
-            $error = $this->_error('Failed to connect to ' .
+            $error = $this->_error(
+                'Failed to connect to ' .
                                    $this->host . ':' . $this->port,
-                                   $res);
+                $res
+            );
             return Mail_smtp::raiseError($error, PEAR_MAIL_SMTP_ERROR_CONNECT);
         }
 
@@ -419,8 +454,10 @@ class Mail_smtp extends Mail {
 
             //if (PEAR::isError($res = $this->_smtp->auth($this->username, $this->password, $method))) {
             if (($res = $this->_smtp->auth($this->username, $this->password, $method)) === false) {
-                $error = $this->_error("$method authentication failure",
-                                       $res);
+                $error = $this->_error(
+                    "$method authentication failure",
+                    $res
+                );
                 $this->_smtp->rset();
                 return Mail_smtp::raiseError($error, PEAR_MAIL_SMTP_ERROR_AUTH);
             }
@@ -493,7 +530,8 @@ class Mail_smtp extends Mail {
      * @return boolean always false as there was an error
      * @access private
      */
-    static function raiseError($message) {
+    static function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "Mail<smtp> error: ". $message);
         return false;
     }

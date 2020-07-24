@@ -35,38 +35,41 @@ require_once 'vendor/autoload.php';
 /************************************************
  * MAIN
  */
-    define('BASE_PATH_CLI',  dirname(__FILE__) ."/");
+    define('BASE_PATH_CLI', dirname(__FILE__) ."/");
     set_include_path(get_include_path() . PATH_SEPARATOR . BASE_PATH_CLI);
 
-    if (!defined('ZPUSH_CONFIG')) define('ZPUSH_CONFIG', BASE_PATH_CLI . 'config.php');
+if (!defined('ZPUSH_CONFIG')) {
+    define('ZPUSH_CONFIG', BASE_PATH_CLI . 'config.php');
+}
     include_once(ZPUSH_CONFIG);
 
-    try {
-        ZPush::CheckConfig();
-        ZPushAdminCLI::CheckEnv();
-        ZPushAdminCLI::CheckOptions();
+try {
+    ZPush::CheckConfig();
+    ZPushAdminCLI::CheckEnv();
+    ZPushAdminCLI::CheckOptions();
 
-        if (! ZPushAdminCLI::SureWhatToDo()) {
-            // show error message if available
-            if (ZPushAdminCLI::GetErrorMessage())
-                fwrite(STDERR, ZPushAdminCLI::GetErrorMessage() . "\n");
-
-            echo ZPushAdminCLI::UsageInstructions();
-            exit(1);
+    if (! ZPushAdminCLI::SureWhatToDo()) {
+        // show error message if available
+        if (ZPushAdminCLI::GetErrorMessage()) {
+            fwrite(STDERR, ZPushAdminCLI::GetErrorMessage() . "\n");
         }
 
-        ZPushAdminCLI::RunCommand();
-    }
-    catch (ZPushException $zpe) {
-        fwrite(STDERR, get_class($zpe) . ": ". $zpe->getMessage() . "\n");
+        echo ZPushAdminCLI::UsageInstructions();
         exit(1);
     }
+
+    ZPushAdminCLI::RunCommand();
+} catch (ZPushException $zpe) {
+    fwrite(STDERR, get_class($zpe) . ": ". $zpe->getMessage() . "\n");
+    exit(1);
+}
 
 
 /************************************************
  * Z-Push-Admin CLI
  */
-class ZPushAdminCLI {
+class ZPushAdminCLI
+{
     const COMMAND_SHOWALLDEVICES = 1;
     const COMMAND_SHOWDEVICESOFUSER = 2;
     const COMMAND_SHOWUSERSOFDEVICE = 3;
@@ -87,11 +90,11 @@ class ZPushAdminCLI {
     const TYPE_OPTION_HIERARCHY = "hierarchy";
     const TYPE_OPTION_GAB = "gab";
 
-    static private $command;
-    static private $user = false;
-    static private $device = false;
-    static private $type = false;
-    static private $errormessage;
+    private static $command;
+    private static $user = false;
+    private static $device = false;
+    private static $type = false;
+    private static $errormessage;
 
     /**
      * Returns usage instructions
@@ -99,7 +102,8 @@ class ZPushAdminCLI {
      * @return string
      * @access public
      */
-    static public function UsageInstructions() {
+    public static function UsageInstructions()
+    {
         return  "Usage:\n\tz-push-admin.php -a ACTION [options]\n\n" .
                 "Parameters:\n\t-a list/lastsync/wipe/remove/resync/clearloop/fixstates\n\t[-u] username\n\t[-d] deviceid\n" .
                 "\t[-t] type\tthe following types are available: '".self::TYPE_OPTION_EMAIL."', '".self::TYPE_OPTION_CALENDAR."', '".self::TYPE_OPTION_CONTACT."', '".self::TYPE_OPTION_TASK."', '".self::TYPE_OPTION_NOTE."', '".self::TYPE_OPTION_HIERARCHY."' of '".self::TYPE_OPTION_GAB."' (for KOE) or a folder id.\n\n" .
@@ -132,12 +136,15 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CheckEnv() {
-        if (php_sapi_name() != "cli")
+    public static function CheckEnv()
+    {
+        if (php_sapi_name() != "cli") {
             self::$errormessage = "This script can only be called from the CLI.";
+        }
 
-        if (!function_exists("getopt"))
+        if (!function_exists("getopt")) {
             self::$errormessage = "PHP Function getopt not found. Please check your PHP version and settings.";
+        }
     }
 
     /**
@@ -146,36 +153,42 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CheckOptions() {
-        if (self::$errormessage)
+    public static function CheckOptions()
+    {
+        if (self::$errormessage) {
             return;
+        }
 
         $options = getopt("u:d:a:t:");
 
         // get 'user'
-        if (isset($options['u']) && !empty($options['u']))
+        if (isset($options['u']) && !empty($options['u'])) {
             self::$user = strtolower(trim($options['u']));
-        else if (isset($options['user']) && !empty($options['user']))
+        } elseif (isset($options['user']) && !empty($options['user'])) {
             self::$user = strtolower(trim($options['user']));
+        }
 
         // get 'device'
-        if (isset($options['d']) && !empty($options['d']))
+        if (isset($options['d']) && !empty($options['d'])) {
             self::$device = strtolower(trim($options['d']));
-        else if (isset($options['device']) && !empty($options['device']))
+        } elseif (isset($options['device']) && !empty($options['device'])) {
             self::$device = strtolower(trim($options['device']));
+        }
 
         // get 'action'
         $action = false;
-        if (isset($options['a']) && !empty($options['a']))
+        if (isset($options['a']) && !empty($options['a'])) {
             $action = strtolower(trim($options['a']));
-        elseif (isset($options['action']) && !empty($options['action']))
+        } elseif (isset($options['action']) && !empty($options['action'])) {
             $action = strtolower(trim($options['action']));
+        }
 
         // get 'type'
-        if (isset($options['t']) && !empty($options['t']))
+        if (isset($options['t']) && !empty($options['t'])) {
             self::$type = strtolower(trim($options['t']));
-        elseif (isset($options['type']) && !empty($options['type']))
+        } elseif (isset($options['type']) && !empty($options['type'])) {
             self::$type = strtolower(trim($options['type']));
+        }
 
         // if type is set, it must be one of known types or a 44 or 48 byte long folder id
         if (self::$type !== false) {
@@ -193,21 +206,24 @@ class ZPushAdminCLI {
                         "'".self::TYPE_OPTION_EMAIL."', '".self::TYPE_OPTION_CALENDAR."', '".self::TYPE_OPTION_CONTACT."', '".self::TYPE_OPTION_TASK."', '".self::TYPE_OPTION_NOTE."', '".self::TYPE_OPTION_HIERARCHY."', '".self::TYPE_OPTION_GAB."' ".
                         "or a 6, 44 or 48 byte long folder id (as hex).";
                     return;
-                }
+            }
         }
 
         // get a command for the requested action
         switch ($action) {
             // list data
             case "list":
-                if (self::$user === false && self::$device === false)
+                if (self::$user === false && self::$device === false) {
                     self::$command = self::COMMAND_SHOWALLDEVICES;
+                }
 
-                if (self::$user !== false)
+                if (self::$user !== false) {
                     self::$command = self::COMMAND_SHOWDEVICESOFUSER;
+                }
 
-                if (self::$device !== false)
+                if (self::$device !== false) {
                     self::$command = self::COMMAND_SHOWUSERSOFDEVICE;
+                }
                 break;
 
             // list data
@@ -217,18 +233,20 @@ class ZPushAdminCLI {
 
             // remove wipe device
             case "wipe":
-                if (self::$user === false && self::$device === false)
+                if (self::$user === false && self::$device === false) {
                     self::$errormessage = "Not possible to execute remote wipe. Device, user or both must be specified.";
-                else
+                } else {
                     self::$command = self::COMMAND_WIPEDEVICE;
+                }
                 break;
 
             // remove device data of user
             case "remove":
-                if (self::$user === false && self::$device === false)
+                if (self::$user === false && self::$device === false) {
                     self::$errormessage = "Not possible to remove data. Device, user or both must be specified.";
-                else
+                } else {
                     self::$command = self::COMMAND_REMOVEDEVICE;
+                }
                 break;
 
             // resync a device
@@ -240,15 +258,14 @@ class ZPushAdminCLI {
             case "synchronize":
                 // full resync
                 if (self::$type === false) {
-                    if (self::$user === false || self::$device === false)
+                    if (self::$user === false || self::$device === false) {
                         self::$errormessage = "Not possible to resynchronize device. Device and user must be specified.";
-                    else
+                    } else {
                         self::$command = self::COMMAND_RESYNCDEVICE;
-                }
-                else if (self::$type === self::TYPE_OPTION_HIERARCHY) {
+                    }
+                } elseif (self::$type === self::TYPE_OPTION_HIERARCHY) {
                     self::$command = self::COMMAND_RESYNCHIERARCHY;
-                }
-                else {
+                } else {
                     self::$command = self::COMMAND_RESYNCFOLDER;
                 }
                 break;
@@ -278,7 +295,8 @@ class ZPushAdminCLI {
      * @return boolean
      * @access public
      */
-    static public function SureWhatToDo() {
+    public static function SureWhatToDo()
+    {
         return isset(self::$command);
     }
 
@@ -288,8 +306,9 @@ class ZPushAdminCLI {
      * @return string
      * @access public
      */
-    static public function GetErrorMessage() {
-        return (isset(self::$errormessage))?self::$errormessage:"";
+    public static function GetErrorMessage()
+    {
+        return (isset(self::$errormessage)) ? self::$errormessage : "";
     }
 
     /**
@@ -298,9 +317,10 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function RunCommand() {
+    public static function RunCommand()
+    {
         echo "\n";
-        switch(self::$command) {
+        switch (self::$command) {
             case self::COMMAND_SHOWALLDEVICES:
                 self::CommandShowDevices();
                 break;
@@ -318,16 +338,18 @@ class ZPushAdminCLI {
                 break;
 
             case self::COMMAND_WIPEDEVICE:
-                if (self::$device)
+                if (self::$device) {
                     echo sprintf("Are you sure you want to REMOTE WIPE device '%s' [y/N]: ", self::$device);
-                else
+                } else {
                     echo sprintf("Are you sure you want to REMOTE WIPE all devices of user '%s' [y/N]: ", self::$user);
+                }
 
-                $confirm  =  strtolower(trim(fgets(STDIN)));
-                if ( $confirm === 'y' || $confirm === 'yes')
+                $confirm  = strtolower(trim(fgets(STDIN)));
+                if ($confirm === 'y' || $confirm === 'yes') {
                     self::CommandWipeDevice();
-                else
+                } else {
                     echo "Aborted!\n";
+                }
                 break;
 
             case self::COMMAND_REMOVEDEVICE:
@@ -337,8 +359,8 @@ class ZPushAdminCLI {
             case self::COMMAND_RESYNCDEVICE:
                 if (self::$device == false) {
                     echo sprintf("Are you sure you want to re-synchronize all devices of user '%s' [y/N]: ", self::$user);
-                    $confirm  =  strtolower(trim(fgets(STDIN)));
-                    if ( !($confirm === 'y' || $confirm === 'yes')) {
+                    $confirm  = strtolower(trim(fgets(STDIN)));
+                    if (!($confirm === 'y' || $confirm === 'yes')) {
                         echo "Aborted!\n";
                         exit(1);
                     }
@@ -346,29 +368,29 @@ class ZPushAdminCLI {
                 self::CommandResyncDevices();
                 break;
 
-                case self::COMMAND_RESYNCFOLDER:
-                    if (self::$device == false && self::$user == false) {
-                        echo "Are you sure you want to re-synchronize this folder type of all devices and users [y/N]: ";
-                        $confirm  =  strtolower(trim(fgets(STDIN)));
-                        if ( !($confirm === 'y' || $confirm === 'yes')) {
-                            echo "Aborted!\n";
-                            exit(1);
-                        }
+            case self::COMMAND_RESYNCFOLDER:
+                if (self::$device == false && self::$user == false) {
+                    echo "Are you sure you want to re-synchronize this folder type of all devices and users [y/N]: ";
+                    $confirm  = strtolower(trim(fgets(STDIN)));
+                    if (!($confirm === 'y' || $confirm === 'yes')) {
+                        echo "Aborted!\n";
+                        exit(1);
                     }
-                    self::CommandResyncFolder();
-                    break;
+                }
+                self::CommandResyncFolder();
+                break;
 
-                case self::COMMAND_RESYNCHIERARCHY:
-                    if (self::$device == false && self::$user == false) {
-                        echo "Are you sure you want to re-synchronize the hierarchy of all devices and users [y/N]: ";
-                        $confirm  =  strtolower(trim(fgets(STDIN)));
-                        if ( !($confirm === 'y' || $confirm === 'yes')) {
-                            echo "Aborted!\n";
-                            exit(1);
-                        }
+            case self::COMMAND_RESYNCHIERARCHY:
+                if (self::$device == false && self::$user == false) {
+                    echo "Are you sure you want to re-synchronize the hierarchy of all devices and users [y/N]: ";
+                    $confirm  = strtolower(trim(fgets(STDIN)));
+                    if (!($confirm === 'y' || $confirm === 'yes')) {
+                        echo "Aborted!\n";
+                        exit(1);
                     }
-                    self::CommandResyncHierarchy();
-                    break;
+                }
+                self::CommandResyncHierarchy();
+                break;
 
             case self::COMMAND_CLEARLOOP:
                 self::CommandClearLoopDetectionData();
@@ -377,7 +399,6 @@ class ZPushAdminCLI {
             case self::COMMAND_FIXSTATES:
                 self::CommandFixStates();
                 break;
-
         }
         echo "\n";
     }
@@ -389,26 +410,27 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandShowDevices() {
+    public static function CommandShowDevices()
+    {
         $devicelist = ZPushAdmin::ListDevices(self::$user);
-        if (empty($devicelist))
+        if (empty($devicelist)) {
             echo "\tno devices found\n";
-        else {
+        } else {
             if (self::$user === false) {
                 echo "All synchronized devices\n\n";
                 echo str_pad("Device id", 36). "Synchronized users\n";
                 echo "-----------------------------------------------------\n";
-            }
-            else
+            } else {
                 echo "Synchronized devices of user: ". self::$user. "\n";
+            }
         }
 
         foreach ($devicelist as $deviceId) {
             if (self::$user === false) {
-                echo str_pad($deviceId, 36) . implode (",", ZPushAdmin::ListUsers($deviceId)) ."\n";
-            }
-            else
+                echo str_pad($deviceId, 36) . implode(",", ZPushAdmin::ListUsers($deviceId)) ."\n";
+            } else {
                 self::printDeviceData($deviceId, self::$user);
+            }
         }
     }
 
@@ -419,11 +441,12 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-     static public function CommandShowLastSync() {
+    public static function CommandShowLastSync()
+    {
         $devicelist = ZPushAdmin::ListDevices(false);
-        if (empty($devicelist))
+        if (empty($devicelist)) {
             echo "\tno devices found\n";
-        else {
+        } else {
             echo "All known devices and users and their last synchronization time\n\n";
             echo str_pad("Device id", 36) . str_pad("Synchronized user", 31) . str_pad("Last sync time", 20) . "Short Ids\n";
             echo "-----------------------------------------------------------------------------------------------------\n";
@@ -434,7 +457,7 @@ class ZPushAdminCLI {
             foreach ($users as $user) {
                 $device = ZPushAdmin::GetDeviceDetails($deviceId, $user);
                 $lastsync = $device->GetLastSyncTime() ? strftime("%Y-%m-%d %H:%M", $device->GetLastSyncTime()) : "never";
-                $hasShortFolderIds = $device->HasFolderIdMapping() ? "Yes":"No";
+                $hasShortFolderIds = $device->HasFolderIdMapping() ? "Yes" : "No";
                 echo str_pad($deviceId, 36) . str_pad($user, 30) . " " . str_pad($lastsync, 20) . $hasShortFolderIds . "\n";
             }
         }
@@ -447,14 +470,15 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandDeviceUsers() {
+    public static function CommandDeviceUsers()
+    {
         $users = ZPushAdmin::ListUsers(self::$device);
 
         if (empty($users)) {
             echo "\tno user data synchronized to device\n";
         }
         // if a user is specified, we only want to see the devices of this one
-        else if (self::$user !== false && !in_array(self::$user, $users)) {
+        elseif (self::$user !== false && !in_array(self::$user, $users)) {
             printf("\tuser '%s' not known in device data '%s'\n", self::$user, self::$device);
         }
 
@@ -474,19 +498,19 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandWipeDevice() {
+    public static function CommandWipeDevice()
+    {
         $stat = ZPushAdmin::WipeDevice($_SERVER["LOGNAME"], self::$user, self::$device);
 
         if (self::$user !== false && self::$device !== false) {
-            echo sprintf("Mark device '%s' of user '%s' to be wiped: %s", self::$device, self::$user, ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+            echo sprintf("Mark device '%s' of user '%s' to be wiped: %s", self::$device, self::$user, ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
 
             if ($stat) {
                 echo "Updated information about this device:\n";
                 self::printDeviceData(self::$device, self::$user);
             }
-        }
-        elseif (self::$user !== false) {
-            echo sprintf("Mark devices of user '%s' to be wiped: %s", self::$user, ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        } elseif (self::$user !== false) {
+            echo sprintf("Mark devices of user '%s' to be wiped: %s", self::$user, ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
             self::CommandShowDevices();
         }
     }
@@ -498,14 +522,16 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandRemoveDevice() {
+    public static function CommandRemoveDevice()
+    {
         $stat = ZPushAdmin::RemoveDevice(self::$user, self::$device);
-        if (self::$user === false)
-           echo sprintf("State data of device '%s' removed: %s", self::$device, ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
-        elseif (self::$device === false)
-           echo sprintf("State data of all devices of user '%s' removed: %s", self::$user, ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
-        else
-           echo sprintf("State data of device '%s' of user '%s' removed: %s", self::$device, self::$user, ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        if (self::$user === false) {
+            echo sprintf("State data of device '%s' removed: %s", self::$device, ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        } elseif (self::$device === false) {
+            echo sprintf("State data of all devices of user '%s' removed: %s", self::$user, ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        } else {
+            echo sprintf("State data of device '%s' of user '%s' removed: %s", self::$device, self::$user, ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        }
     }
 
     /**
@@ -515,9 +541,10 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandResyncDevices() {
+    public static function CommandResyncDevices()
+    {
         $stat = ZPushAdmin::ResyncDevice(self::$user, self::$device);
-        echo sprintf("Resync of device '%s' of user '%s': %s", self::$device, self::$user, ($stat)?'Requested':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        echo sprintf("Resync of device '%s' of user '%s': %s", self::$device, self::$user, ($stat) ? 'Requested' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
     }
 
     /**
@@ -527,7 +554,8 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandResyncFolder() {
+    public static function CommandResyncFolder()
+    {
         // if no device is specified, search for all devices of a user. If user is not set, all devices are returned.
         if (self::$device === false) {
             $devicelist = ZPushAdmin::ListDevices(self::$user);
@@ -535,19 +563,19 @@ class ZPushAdminCLI {
                 echo "\tno devices/users found\n";
                 return true;
             }
+        } else {
+            $devicelist = [self::$device];
         }
-        else
-            $devicelist = array(self::$device);
 
         foreach ($devicelist as $deviceId) {
             $users = ZPushAdmin::ListUsers($deviceId);
             foreach ($users as $user) {
-                if (self::$user && self::$user != $user)
+                if (self::$user && self::$user != $user) {
                     continue;
+                }
                 self::resyncFolder($deviceId, $user, self::$type);
             }
         }
-
     }
 
     /**
@@ -557,7 +585,8 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandResyncHierarchy() {
+    public static function CommandResyncHierarchy()
+    {
         // if no device is specified, search for all devices of a user. If user is not set, all devices are returned.
         if (self::$device === false) {
             $devicelist = ZPushAdmin::ListDevices(self::$user);
@@ -565,19 +594,19 @@ class ZPushAdminCLI {
                 echo "\tno devices/users found\n";
                 return true;
             }
+        } else {
+            $devicelist = [self::$device];
         }
-        else
-            $devicelist = array(self::$device);
 
         foreach ($devicelist as $deviceId) {
             $users = ZPushAdmin::ListUsers($deviceId);
             foreach ($users as $user) {
-                if (self::$user && self::$user != $user)
+                if (self::$user && self::$user != $user) {
                     continue;
+                }
                 self::resyncHierarchy($deviceId, $user);
             }
         }
-
     }
 
     /**
@@ -587,17 +616,19 @@ class ZPushAdminCLI {
      * @return
      * @access public
      */
-    static public function CommandClearLoopDetectionData() {
+    public static function CommandClearLoopDetectionData()
+    {
         $stat = false;
         $stat = ZPushAdmin::ClearLoopDetectionData(self::$user, self::$device);
-        if (self::$user === false && self::$device === false)
-           echo sprintf("System wide loop detection data removed: %s", ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
-        elseif (self::$user === false)
-           echo sprintf("Loop detection data of device '%s' removed: %s", self::$device, ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
-        elseif (self::$device === false && self::$user !== false)
-           echo sprintf("Error: %s", ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_WARN)). "\n";
-        else
-           echo sprintf("Loop detection data of device '%s' of user '%s' removed: %s", self::$device, self::$user, ($stat)?'OK':ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        if (self::$user === false && self::$device === false) {
+            echo sprintf("System wide loop detection data removed: %s", ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        } elseif (self::$user === false) {
+            echo sprintf("Loop detection data of device '%s' removed: %s", self::$device, ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        } elseif (self::$device === false && self::$user !== false) {
+            echo sprintf("Error: %s", ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_WARN)). "\n";
+        } else {
+            echo sprintf("Loop detection data of device '%s' of user '%s' removed: %s", self::$device, self::$user, ($stat) ? 'OK' : ZLog::GetLastMessage(LOGLEVEL_ERROR)). "\n";
+        }
     }
 
     /**
@@ -610,7 +641,8 @@ class ZPushAdminCLI {
      * @return
      * @access private
      */
-    static private function resyncFolder($deviceId, $user, $type) {
+    private static function resyncFolder($deviceId, $user, $type)
+    {
         $device = ZPushAdmin::GetDeviceDetails($deviceId, $user);
 
         if (! $device instanceof ASDevice) {
@@ -618,14 +650,13 @@ class ZPushAdminCLI {
             return false;
         }
 
-        $folders = array();
+        $folders = [];
         $searchFor = $type;
         // get the KOE gab folderid
         if ($type == self::TYPE_OPTION_GAB) {
             if (@constant('KOE_GAB_FOLDERID') !== '') {
                 $gab = KOE_GAB_FOLDERID;
-            }
-            else {
+            } else {
                 $gab = $device->GetKoeGabBackendFolderId();
             }
             if (!$gab) {
@@ -647,37 +678,42 @@ class ZPushAdminCLI {
 
             if ($device->GetFolderUUID($folderid)) {
                 $foldertype = $device->GetFolderType($folderid);
-                switch($foldertype) {
+                switch ($foldertype) {
                     case SYNC_FOLDER_TYPE_APPOINTMENT:
                     case SYNC_FOLDER_TYPE_USER_APPOINTMENT:
-                        if ($searchFor == "calendar")
+                        if ($searchFor == "calendar") {
                             $folders[] = $folderid;
+                        }
                         break;
                     case SYNC_FOLDER_TYPE_CONTACT:
                     case SYNC_FOLDER_TYPE_USER_CONTACT:
-                        if ($searchFor == "contact")
+                        if ($searchFor == "contact") {
                             $folders[] = $folderid;
+                        }
                         break;
                     case SYNC_FOLDER_TYPE_TASK:
                     case SYNC_FOLDER_TYPE_USER_TASK:
-                        if ($searchFor == "task")
+                        if ($searchFor == "task") {
                             $folders[] = $folderid;
+                        }
                         break;
                     case SYNC_FOLDER_TYPE_NOTE:
                     case SYNC_FOLDER_TYPE_USER_NOTE:
-                        if ($searchFor == "note")
+                        if ($searchFor == "note") {
                             $folders[] = $folderid;
+                        }
                         break;
                     default:
-                        if ($searchFor == "email")
+                        if ($searchFor == "email") {
                             $folders[] = $folderid;
+                        }
                         break;
                 }
             }
         }
 
         $stat = ZPushAdmin::ResyncFolder($user, $deviceId, $folders);
-        echo sprintf("Resync of %d folders of type '%s' on device '%s' of user '%s': %s\n", count($folders), $type, $deviceId, $user, ($stat)?'Requested':ZLog::GetLastMessage(LOGLEVEL_ERROR));
+        echo sprintf("Resync of %d folders of type '%s' on device '%s' of user '%s': %s\n", count($folders), $type, $deviceId, $user, ($stat) ? 'Requested' : ZLog::GetLastMessage(LOGLEVEL_ERROR));
     }
 
     /**
@@ -689,9 +725,10 @@ class ZPushAdminCLI {
      * @return
      * @access private
      */
-    static private function resyncHierarchy($deviceId, $user) {
+    private static function resyncHierarchy($deviceId, $user)
+    {
         $stat = ZPushAdmin::ResyncHierarchy($user, $deviceId);
-        echo sprintf("Removing hierarchy information for resync on device '%s' of user '%s': %s\n",  $deviceId, $user, ($stat)?'Requested':ZLog::GetLastMessage(LOGLEVEL_ERROR));
+        echo sprintf("Removing hierarchy information for resync on device '%s' of user '%s': %s\n", $deviceId, $user, ($stat) ? 'Requested' : ZLog::GetLastMessage(LOGLEVEL_ERROR));
     }
 
     /**
@@ -700,39 +737,45 @@ class ZPushAdminCLI {
      * @return
      * @access private
      */
-    static private function CommandFixStates() {
+    private static function CommandFixStates()
+    {
         echo "Validating and fixing states (this can take some time):\n";
 
         echo "\tChecking username casings: ";
-        if ($stat = ZPushAdmin::FixStatesDifferentUsernameCases())
+        if ($stat = ZPushAdmin::FixStatesDifferentUsernameCases()) {
             printf("Processed: %d - Converted: %d - Removed: %d\n", $stat[0], $stat[1], $stat[2]);
-        else
+        } else {
             echo ZLog::GetLastMessage(LOGLEVEL_ERROR) . "\n";
+        }
 
         // fixes ZP-339
         echo "\tChecking available devicedata & user linking: ";
-        if ($stat = ZPushAdmin::FixStatesDeviceToUserLinking())
+        if ($stat = ZPushAdmin::FixStatesDeviceToUserLinking()) {
             printf("Processed: %d - Fixed: %d\n", $stat[0], $stat[1]);
-        else
+        } else {
             echo ZLog::GetLastMessage(LOGLEVEL_ERROR) . "\n";
+        }
 
         echo "\tChecking for unreferenced (obsolete) state files: ";
-        if (($stat = ZPushAdmin::FixStatesUserToStatesLinking()) !== false)
-            printf("Processed: %d - Deleted: %d\n",  $stat[0], $stat[1]);
-        else
+        if (($stat = ZPushAdmin::FixStatesUserToStatesLinking()) !== false) {
+            printf("Processed: %d - Deleted: %d\n", $stat[0], $stat[1]);
+        } else {
             echo ZLog::GetLastMessage(LOGLEVEL_ERROR) . "\n";
+        }
 
         echo "\tChecking for hierarchy folder data state: ";
-        if (($stat = ZPushAdmin::FixStatesHierarchyFolderData()) !== false)
-            printf("Devices: %d - Processed: %d - Fixed: %d - Device+User without hierarchy: %d\n",  $stat[0], $stat[1], $stat[2], $stat[3]);
-        else
+        if (($stat = ZPushAdmin::FixStatesHierarchyFolderData()) !== false) {
+            printf("Devices: %d - Processed: %d - Fixed: %d - Device+User without hierarchy: %d\n", $stat[0], $stat[1], $stat[2], $stat[3]);
+        } else {
             echo ZLog::GetLastMessage(LOGLEVEL_ERROR) . "\n";
+        }
 
         echo "\tChecking flags of shared folders: ";
-        if (($stat = ZPushAdmin::FixStatesAdditionalFolders()) !== false)
-            printf("Devices: %d - Devices with additional folders: %d - Fixed: %d\n",  $stat[0], $stat[1], $stat[2]);
-        else
+        if (($stat = ZPushAdmin::FixStatesAdditionalFolders()) !== false) {
+            printf("Devices: %d - Devices with additional folders: %d - Fixed: %d\n", $stat[0], $stat[1], $stat[2]);
+        } else {
             echo ZLog::GetLastMessage(LOGLEVEL_ERROR) . "\n";
+        }
     }
 
     /**
@@ -744,7 +787,8 @@ class ZPushAdminCLI {
      * @return
      * @access private
      */
-    static private function printDeviceData($deviceId, $user) {
+    private static function printDeviceData($deviceId, $user)
+    {
         global $additionalFolders;
         $device = ZPushAdmin::GetDeviceDetails($deviceId, $user);
 
@@ -756,7 +800,7 @@ class ZPushAdminCLI {
         // Gather some statistics about synchronized folders
         $folders = $device->GetAllFolderIds();
         $synchedFolders = 0;
-        $synchedFolderTypes = array();
+        $synchedFolderTypes = [];
         $syncedFoldersInProgress = 0;
         foreach ($folders as $folderid) {
             if ($device->GetFolderUUID($folderid)) {
@@ -764,13 +808,12 @@ class ZPushAdminCLI {
                 $type = $device->GetFolderType($folderid);
                 $folder = $device->GetHierarchyCache()->GetFolder($folderid);
                 $name = $folder ? $folder->displayname : "unknown";
-                switch($type) {
+                switch ($type) {
                     case SYNC_FOLDER_TYPE_APPOINTMENT:
                     case SYNC_FOLDER_TYPE_USER_APPOINTMENT:
                         if ($name == KOE_GAB_NAME) {
                             $gentype = "GAB";
-                        }
-                        else {
+                        } else {
                             $gentype = "Calendars";
                         }
                         break;
@@ -790,8 +833,9 @@ class ZPushAdminCLI {
                         $gentype = "Emails";
                         break;
                 }
-                if (!isset($synchedFolderTypes[$gentype]))
+                if (!isset($synchedFolderTypes[$gentype])) {
                     $synchedFolderTypes[$gentype] = 0;
+                }
                 $synchedFolderTypes[$gentype]++;
 
                 // set the folder name for all folders which are not fully synchronized yet
@@ -804,28 +848,35 @@ class ZPushAdminCLI {
             }
         }
         $folderinfo = "";
-        foreach ($synchedFolderTypes as $gentype=>$count) {
+        foreach ($synchedFolderTypes as $gentype => $count) {
             $folderinfo .= $gentype;
-            if ($count>1) $folderinfo .= "($count)";
+            if ($count > 1) {
+                $folderinfo .= "($count)";
+            }
             $folderinfo .= " ";
         }
-        if (!$folderinfo) $folderinfo = "None available";
+        if (!$folderinfo) {
+            $folderinfo = "None available";
+        }
 
         // additional folders
-        $addFolders = array();
+        $addFolders = [];
         $sharedFolders = $device->GetAdditionalFolders();
-        array_walk($sharedFolders, function (&$key) { $key["origin"] = 'Shared'; });
+        array_walk($sharedFolders, function (&$key) {
+            $key["origin"] = 'Shared';
+        });
         // $additionalFolders comes directly from the config
-        array_walk($additionalFolders, function (&$key) { $key["origin"] = 'Configured'; });
-        foreach(array_merge($additionalFolders,$sharedFolders) as $df) {
+        array_walk($additionalFolders, function (&$key) {
+            $key["origin"] = 'Configured';
+        });
+        foreach (array_merge($additionalFolders, $sharedFolders) as $df) {
             $df['additional'] = '';
             $syncfolderid = $device->GetFolderIdForBackendId($df['folderid'], false, false, null);
-            switch($df['type']) {
+            switch ($df['type']) {
                 case SYNC_FOLDER_TYPE_USER_APPOINTMENT:
                     if ($name == KOE_GAB_NAME) {
                         $gentype = "GAB";
-                    }
-                    else {
+                    } else {
                         $gentype = "Calendar";
                     }
                     break;
@@ -854,35 +905,44 @@ class ZPushAdminCLI {
         echo "-----------------------------------------------------\n";
         echo "DeviceId:\t\t$deviceId\n";
         echo "Device type:\t\t". ($device->GetDeviceType() !== ASDevice::UNDEFINED ? $device->GetDeviceType() : "unknown") ."\n";
-        echo "UserAgent:\t\t".($device->GetDeviceUserAgent()!== ASDevice::UNDEFINED ? $device->GetDeviceUserAgent() : "unknown") ."\n";
+        echo "UserAgent:\t\t".($device->GetDeviceUserAgent() !== ASDevice::UNDEFINED ? $device->GetDeviceUserAgent() : "unknown") ."\n";
         // TODO implement $device->GetDeviceUserAgentHistory()
 
         // device information transmitted during Settings command
-        if ($device->GetDeviceModel())
+        if ($device->GetDeviceModel()) {
             echo "Device Model:\t\t". $device->GetDeviceModel(). "\n";
-        if ($device->GetDeviceIMEI())
+        }
+        if ($device->GetDeviceIMEI()) {
             echo "Device IMEI:\t\t". $device->GetDeviceIMEI(). "\n";
-        if ($device->GetDeviceFriendlyName())
+        }
+        if ($device->GetDeviceFriendlyName()) {
             echo "Device friendly name:\t". $device->GetDeviceFriendlyName(). "\n";
-        if ($device->GetDeviceOS())
+        }
+        if ($device->GetDeviceOS()) {
             echo "Device OS:\t\t". $device->GetDeviceOS(). "\n";
-        if ($device->GetDeviceOSLanguage())
+        }
+        if ($device->GetDeviceOSLanguage()) {
             echo "Device OS Language:\t". $device->GetDeviceOSLanguage(). "\n";
-        if ($device->GetDevicePhoneNumber())
+        }
+        if ($device->GetDevicePhoneNumber()) {
             echo "Device Phone nr:\t". $device->GetDevicePhoneNumber(). "\n";
-        if ($device->GetDeviceMobileOperator())
+        }
+        if ($device->GetDeviceMobileOperator()) {
             echo "Device Operator:\t". $device->GetDeviceMobileOperator(). "\n";
-        if ($device->GetDeviceEnableOutboundSMS())
+        }
+        if ($device->GetDeviceEnableOutboundSMS()) {
             echo "Device Outbound SMS:\t". $device->GetDeviceEnableOutboundSMS(). "\n";
+        }
 
         echo "ActiveSync version:\t".($device->GetASVersion() ? $device->GetASVersion() : "unknown") ."\n";
         echo "First sync:\t\t". strftime("%Y-%m-%d %H:%M", $device->GetFirstSyncTime()) ."\n";
         echo "Last sync:\t\t". ($device->GetLastSyncTime() ? strftime("%Y-%m-%d %H:%M", $device->GetLastSyncTime()) : "never")."\n";
         echo "Total folders:\t\t". count($folders). "\n";
-        echo "Short folder Ids:\t". ($device->HasFolderIdMapping() ? "Yes":"No") ."\n";
+        echo "Short folder Ids:\t". ($device->HasFolderIdMapping() ? "Yes" : "No") ."\n";
         echo "Synchronized folders:\t". $synchedFolders;
-        if ($syncedFoldersInProgress > 0)
+        if ($syncedFoldersInProgress > 0) {
             echo " (". $syncedFoldersInProgress. " in progress)";
+        }
         echo "\n";
         echo "Synchronized data:\t$folderinfo\n";
         if ($syncedFoldersInProgress > 0) {
@@ -892,8 +952,8 @@ class ZPushAdminCLI {
                 if ($d) {
                     $status = "";
                     if ($d['total'] > 0) {
-                        $percent = round($d['done']*100/$d['total']);
-                        $status = sprintf("Status: %s%d%% (%d/%d)", ($percent < 10)?" ":"", $percent, $d['done'], $d['total']);
+                        $percent = round($d['done'] * 100 / $d['total']);
+                        $status = sprintf("Status: %s%d%% (%d/%d)", ($percent < 10) ? " " : "", $percent, $d['done'], $d['total']);
                     }
                     if (strlen($d['name']) > 20) {
                         $d['name'] = substr($d['name'], 0, 18) . "..";
@@ -940,39 +1000,42 @@ class ZPushAdminCLI {
             echo "Kopano Outlook Extension:\n";
             echo "\tVersion:\t". $device->GetKoeVersion() ."\n";
             echo "\tBuild:\t\t". $device->GetKoeBuild() ."\n";
-            echo "\tBuild Date:\t". strftime("%Y-%m-%d %H:%M",$device->GetKoeBuildDate()) ."\n";
+            echo "\tBuild Date:\t". strftime("%Y-%m-%d %H:%M", $device->GetKoeBuildDate()) ."\n";
             echo "\tCapabilities:\t". (count($device->GetKoeCapabilities()) ? implode(',', $device->GetKoeCapabilities()) : 'unknown') ."\n";
         }
 
         echo "Attention needed:\t";
 
-        if ($device->GetDeviceError())
+        if ($device->GetDeviceError()) {
             echo $device->GetDeviceError() ."\n";
-        else if (!isset($device->ignoredmessages) || empty($device->ignoredmessages)) {
+        } elseif (!isset($device->ignoredmessages) || empty($device->ignoredmessages)) {
             echo "No errors known\n";
-        }
-        else {
+        } else {
             printf("%d messages need attention because they could not be synchronized\n", count($device->ignoredmessages));
             foreach ($device->ignoredmessages as $im) {
                 $info = "";
-                if (isset($im->asobject->subject))
+                if (isset($im->asobject->subject)) {
                     $info .= sprintf("Subject: '%s'", $im->asobject->subject);
-                if (isset($im->asobject->fileas))
+                }
+                if (isset($im->asobject->fileas)) {
                     $info .= sprintf("FileAs: '%s'", $im->asobject->fileas);
-                if (isset($im->asobject->from))
+                }
+                if (isset($im->asobject->from)) {
                     $info .= sprintf(" - From: '%s'", $im->asobject->from);
-                if (isset($im->asobject->starttime))
+                }
+                if (isset($im->asobject->starttime)) {
                     $info .= sprintf(" - On: '%s'", strftime("%Y-%m-%d %H:%M", $im->asobject->starttime));
+                }
                 $reason = $im->reasonstring;
-                if ($im->reasoncode == 2)
+                if ($im->reasoncode == 2) {
                     $reason = "Message was causing loop";
-                printf("\tBroken object:\t'%s' ignored on '%s'\n", $im->asclass,  strftime("%Y-%m-%d %H:%M", $im->timestamp));
+                }
+                printf("\tBroken object:\t'%s' ignored on '%s'\n", $im->asclass, strftime("%Y-%m-%d %H:%M", $im->timestamp));
                 printf("\tInformation:\t%s\n", $info);
                 printf("\tReason: \t%s (%s)\n", $reason, $im->reasoncode);
                 printf("\tItem/Parent id: %s/%s\n", $im->id, $im->folderid);
                 echo "\n";
             }
         }
-
     }
 }

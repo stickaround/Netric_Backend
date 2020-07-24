@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class WebserviceInfo {
+class WebserviceInfo
+{
 
     /**
      * Returns a list of folders of the Request::GetGETUser().
@@ -33,9 +34,10 @@ class WebserviceInfo {
      * @access public
      * @return array
      */
-    public function ListUserFolders() {
+    public function ListUserFolders()
+    {
         $user = Request::GetGETUser();
-        $output = array();
+        $output = [];
         $hasRights = ZPush::GetBackend()->Setup($user);
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceInfo::ListUserFolders(): permissions to open store '%s': %s", $user, Utils::PrintAsString($hasRights)));
 
@@ -59,7 +61,8 @@ class WebserviceInfo {
      * @access public
      * @return KoeSignatures
      */
-    public function GetSignatures() {
+    public function GetSignatures()
+    {
         $user = Request::GetGETUser();
         $sigs = null;
 
@@ -80,7 +83,8 @@ class WebserviceInfo {
      * @access public
      * @return string
      */
-    public function About() {
+    public function About()
+    {
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceInfo->About(): returning Z-Push version '%s'", @constant('ZPUSH_VERSION')));
         return @constant('ZPUSH_VERSION');
     }

@@ -88,11 +88,13 @@ class ChangesNetric implements IChanges
      */
     public function Config($state, $flags = 0)
     {
-        if ($state == "")
-            $state = array();
+        if ($state == "") {
+            $state = [];
+        }
 
-        if (!is_array($state))
+        if (!is_array($state)) {
             throw new StatusException("Invalid state", SYNC_FSSTATUS_CODEUNKNOWN);
+        }
 
         $this->syncState = $state;
         $this->flags = $flags;
@@ -119,8 +121,9 @@ class ChangesNetric implements IChanges
      */
     public function GetState()
     {
-        if (!isset($this->syncState) || !is_array($this->syncState))
+        if (!isset($this->syncState) || !is_array($this->syncState)) {
             throw new StatusException("DiffState->GetState(): Error, state not available", SYNC_FSSTATUS_CODEUNKNOWN, null, LOGLEVEL_WARN);
+        }
 
         return $this->syncState;
     }
@@ -155,7 +158,7 @@ class ChangesNetric implements IChanges
                     if ($type == "flags") {
                         // Update flags
                         $this->syncState[$i]["flags"] = $change["flags"];
-                    } else if ($type == "delete") {
+                    } elseif ($type == "delete") {
                         // Delete item
                         array_splice($this->syncState, $i, 1);
                     }
@@ -211,10 +214,11 @@ class ChangesNetric implements IChanges
 
         if (!$stat) {
             // Message is gone
-            if ($type == "change")
+            if ($type == "change") {
                 return true; // deleted here, but changed there
-            else
+            } else {
                 return false; // all other remote changes still result in a delete (no conflict)
+            }
         }
 
         foreach ($this->syncState as $state) {
@@ -231,10 +235,11 @@ class ChangesNetric implements IChanges
 
         if ($stat["mod"] != $oldstat["mod"]) {
             // Changed here
-            if ($type == "delete" || $type == "change")
+            if ($type == "delete" || $type == "change") {
                 return true; // changed here, but deleted there -> conflict, or changed here and changed there -> conflict
-            else
+            } else {
                 return false; // changed here, and other remote changes (move or flags)
+            }
         }
     }
 

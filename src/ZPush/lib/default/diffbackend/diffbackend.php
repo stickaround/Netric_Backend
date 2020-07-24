@@ -33,7 +33,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-abstract class BackendDiff extends Backend {
+abstract class BackendDiff extends Backend
+{
     protected $store;
 
     /**
@@ -56,13 +57,15 @@ abstract class BackendDiff extends Backend {
      * @access public
      * @return boolean
      */
-    public function Setup($store, $checkACLonly = false, $folderid = false, $readonly = false) {
+    public function Setup($store, $checkACLonly = false, $folderid = false, $readonly = false)
+    {
         $this->store = $store;
 
         // we don't know if and how diff backends implement the "admin" check, but this will disable it for the webservice
         // backends which want to implement this, need to overwrite this method explicitely. For more info see https://jira.zarafa.com/browse/ZP-462
-        if ($store == "SYSTEM" && $checkACLonly == true)
+        if ($store == "SYSTEM" && $checkACLonly == true) {
             return false;
+        }
 
         return true;
     }
@@ -76,13 +79,16 @@ abstract class BackendDiff extends Backend {
      * @access public
      * @return array SYNC_FOLDER
      */
-    function GetHierarchy() {
-        $folders = array();
+    function GetHierarchy()
+    {
+        $folders = [];
 
         $fl = $this->GetFolderList();
-        if (is_array($fl))
-            foreach($fl as $f)
+        if (is_array($fl)) {
+            foreach ($fl as $f) {
                 $folders[] = $this->GetFolder($f['id']);
+            }
+        }
 
         return $folders;
     }
@@ -97,7 +103,8 @@ abstract class BackendDiff extends Backend {
      * @return object(ImportChanges)
      * @throws StatusException
      */
-    public function GetImporter($folderid = false) {
+    public function GetImporter($folderid = false)
+    {
         return new ImportChangesDiff($this, $folderid);
     }
 
@@ -111,7 +118,8 @@ abstract class BackendDiff extends Backend {
      * @return object(ExportChanges)
      * @throws StatusException
      */
-    public function GetExporter($folderid = false) {
+    public function GetExporter($folderid = false)
+    {
         return new ExportChangesDiff($this, $folderid);
     }
 
@@ -126,12 +134,14 @@ abstract class BackendDiff extends Backend {
      * @return object(SyncObject)
      * @throws StatusException
      */
-    public function Fetch($folderid, $id, $contentparameters) {
+    public function Fetch($folderid, $id, $contentparameters)
+    {
         // override truncation
         $contentparameters->SetTruncation(SYNC_TRUNCATION_ALL);
         $msg = $this->GetMessage($folderid, $id, $contentparameters);
-        if ($msg === false)
+        if ($msg === false) {
             throw new StatusException("BackendDiff->Fetch('%s','%s'): Error, unable retrieve message from backend", SYNC_STATUS_OBJECTNOTFOUND);
+        }
         return $msg;
     }
 
@@ -147,7 +157,8 @@ abstract class BackendDiff extends Backend {
      * @return string       id of the created/updated calendar obj
      * @throws StatusException
      */
-    public function MeetingResponse($requestid, $folderid, $response) {
+    public function MeetingResponse($requestid, $folderid, $response)
+    {
         throw new StatusException(sprintf("BackendDiff->MeetingResponse('%s','%s','%s'): Error, this functionality is not supported by the diff backend", $requestid, $folderid, $response), SYNC_MEETRESPSTATUS_MAILBOXERROR);
     }
 
@@ -166,7 +177,7 @@ abstract class BackendDiff extends Backend {
      * @access protected
      * @return array/boolean        false if the list could not be retrieved
      */
-    public abstract function GetFolderList();
+    abstract public function GetFolderList();
 
     /**
      * Returns an actual SyncFolder object with all the properties set. Folders
@@ -177,7 +188,7 @@ abstract class BackendDiff extends Backend {
      * @access public
      * @return object   SyncFolder with information
      */
-    public abstract function GetFolder($id);
+    abstract public function GetFolder($id);
 
     /**
      * Returns folder stats. An associative array with properties is expected.
@@ -195,7 +206,7 @@ abstract class BackendDiff extends Backend {
      *                                      as this is the only thing that ever changes in folders. (the type is normally constant)
      *          )
      */
-    public abstract function StatFolder($id);
+    abstract public function StatFolder($id);
 
     /**
      * Creates or modifies a folder
@@ -210,7 +221,7 @@ abstract class BackendDiff extends Backend {
      * @throws StatusException              could throw specific SYNC_FSSTATUS_* exceptions
      *
      */
-    public abstract function ChangeFolder($folderid, $oldid, $displayname, $type);
+    abstract public function ChangeFolder($folderid, $oldid, $displayname, $type);
 
     /**
      * Deletes a folder
@@ -222,7 +233,7 @@ abstract class BackendDiff extends Backend {
      * @return boolean                      status - false if e.g. does not exist
      * @throws StatusException              could throw specific SYNC_FSSTATUS_* exceptions
      */
-    public abstract function DeleteFolder($id, $parentid);
+    abstract public function DeleteFolder($id, $parentid);
 
     /**
      * Returns a list (array) of messages, each entry being an associative array
@@ -241,7 +252,7 @@ abstract class BackendDiff extends Backend {
      * @access public
      * @return array/false                  array with messages or false if folder is not available
      */
-    public abstract function GetMessageList($folderid, $cutoffdate);
+    abstract public function GetMessageList($folderid, $cutoffdate);
 
     /**
      * Returns the actual SyncXXX object type. The '$folderid' of parent folder can be used.
@@ -256,7 +267,7 @@ abstract class BackendDiff extends Backend {
      * @access public
      * @return object/false                 false if the message could not be retrieved
      */
-    public abstract function GetMessage($folderid, $id, $contentparameters);
+    abstract public function GetMessage($folderid, $id, $contentparameters);
 
     /**
      * Returns message stats, analogous to the folder stats from StatFolder().
@@ -275,7 +286,7 @@ abstract class BackendDiff extends Backend {
      *                                      time for this field, which will change as soon as the contents have changed.
      *          )
      */
-    public abstract function StatMessage($folderid, $id);
+    abstract public function StatMessage($folderid, $id);
 
     /**
      * Called when a message has been changed on the mobile. The new message must be saved to disk.
@@ -293,7 +304,7 @@ abstract class BackendDiff extends Backend {
      * @return array                        same return value as StatMessage()
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public abstract function ChangeMessage($folderid, $id, $message, $contentParameters);
+    abstract public function ChangeMessage($folderid, $id, $message, $contentParameters);
 
     /**
      * Changes the 'read' flag of a message on disk. The $flags
@@ -312,7 +323,7 @@ abstract class BackendDiff extends Backend {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public abstract function SetReadFlag($folderid, $id, $flags, $contentParameters);
+    abstract public function SetReadFlag($folderid, $id, $flags, $contentParameters);
 
     /**
      * Called when the user has requested to delete (really delete) a message. Usually
@@ -329,7 +340,7 @@ abstract class BackendDiff extends Backend {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public abstract function DeleteMessage($folderid, $id, $contentParameters);
+    abstract public function DeleteMessage($folderid, $id, $contentParameters);
 
     /**
      * Called when the user moves an item on the PDA from one folder to another. Whatever is needed
@@ -346,6 +357,5 @@ abstract class BackendDiff extends Backend {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_MOVEITEMSSTATUS_* exceptions
      */
-    public abstract function MoveMessage($folderid, $id, $newfolderid, $contentParameters);
-
+    abstract public function MoveMessage($folderid, $id, $newfolderid, $contentParameters);
 }

@@ -108,10 +108,10 @@ class EntityControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array(
+        $req->setBody(json_encode([
             'obj_type' => ObjectTypes::DASHBOARD,
             'entity_id' => $dashboardEntity->getEntityId()
-        )));
+        ]));
 
         $ret = $this->controller->getGetAction();
         $this->assertEquals($dashboardEntity->getEntityId(), $ret['entity_id'], var_export($ret, true));
@@ -122,7 +122,7 @@ class EntityControllerTest extends TestCase
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
-        $dashboardName =  "activity-test" . uniqid();
+        $dashboardName = "activity-test" . uniqid();
         $dashboardEntity->setValue("name", $dashboardName);
         $dashboardEntity->setValue("owner_id", $this->account->getUser()->getEntityId());
         $loader->save($dashboardEntity);
@@ -130,13 +130,13 @@ class EntityControllerTest extends TestCase
 
         // Test The getting of entity using unique name
         // Set params in the request
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::DASHBOARD,
             'uname' => $dashboardEntity->getValue("uname"),
             'uname_conditions' => [
                 'owner_id' => $this->account->getUser()->getEntityId(),
             ],
-        );
+        ];
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
         $req->setParam('content-type', 'application/json');
@@ -155,10 +155,10 @@ class EntityControllerTest extends TestCase
         $loader->save($customer);
         $this->testEntities[] = $customer;
 
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::CONTACT,
             'entity_id' => $customer->getEntityId(),
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -184,13 +184,13 @@ class EntityControllerTest extends TestCase
         $loader->save($page);
         $this->testEntities[] = $page;
 
-        $data = array(
+        $data = [
             'obj_type' => "cms_page",
             'uname' => $page->getValue("uname"),
             'uname_conditions' => [
                 'site_id' => $site->getEntityId(),
             ],
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -239,11 +239,11 @@ class EntityControllerTest extends TestCase
 
     public function testSave()
     {
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::CONTACT,
             'first_name' => "Test",
             'last_name' => "User",
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -317,19 +317,19 @@ class EntityControllerTest extends TestCase
         $objType = "unittest_customer";
 
         // Test creating new entity definition
-        $data = array(
+        $data = [
             'obj_type' => $objType,
             'title' => "Unit Test Customer",
             'system' => false,
-            'fields' => array(
-                "test_field" => array(
+            'fields' => [
+                "test_field" => [
                     'name' => "test_field",
                     'title' => "New Test Field",
                     'type' => "text",
                     'system' => false
-                )
-            )
-        );
+                ]
+            ]
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -350,11 +350,11 @@ class EntityControllerTest extends TestCase
         $this->assertNotNull($testDef->getField("test_field"));
 
         // Remove the custom test field added
-        $data = array(
+        $data = [
             'id' => $testDef->id,
             'obj_type' => $objType,
-            'deleted_fields' => array("test_field")
-        );
+            'deleted_fields' => ["test_field"]
+        ];
 
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
@@ -367,11 +367,11 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($deletedFieldDef->revision, 2);
 
         // Test the updating of entity definition
-        $data = array(
+        $data = [
             'id' => $testDef->getEntityDefinitionId(),
             'obj_type' => $objType,
             'title' => "Updated Definition Title",
-        );
+        ];
 
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
@@ -389,19 +389,19 @@ class EntityControllerTest extends TestCase
         $objType = "unittest_customer";
 
         // Test creating new entity definition
-        $data = array(
+        $data = [
             'obj_type' => $objType,
             'title' => "Unit Test Customer",
             'system' => false,
-            'fields' => array(
-                "test_field" => array(
+            'fields' => [
+                "test_field" => [
                     'name' => "test_field",
                     'title' => "New Test Field",
                     'type' => "text",
                     'system' => false
-                )
-            )
-        );
+                ]
+            ]
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -419,9 +419,9 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($testDef->revision, 1);
 
         // Now Delete the newly created entity definition
-        $data = array(
+        $data = [
             'obj_type' => $objType,
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -470,14 +470,14 @@ class EntityControllerTest extends TestCase
         $groupData[$group2->getGroupId()] = $group2->getName();
 
         // Setup the data
-        $data = array(
-            'entity_id' => array($entityGuid1, $entityGuid2, "invalid-guid"),
-            'entity_data' => array(
+        $data = [
+            'entity_id' => [$entityGuid1, $entityGuid2, "invalid-guid"],
+            'entity_data' => [
                 "body" => "test mass edit",
-                "groups" => array($group1->getGroupId(), $group2->getGroupId()),
+                "groups" => [$group1->getGroupId(), $group2->getGroupId()],
                 "groups_fval" => $groupData
-            )
-        );
+            ]
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -530,15 +530,15 @@ class EntityControllerTest extends TestCase
         $entityId3 = $entity3->getEntityId();
 
         // Setup the merge data
-        $data = array(
+        $data = [
             'obj_type' => ObjectTypes::NOTE,
-            'entity_id' => array($entityId1, $entityId2, $entityId3),
-            'merge_data' => array(
-                $entityId1 => array("body"),
-                $entityId2 => array("path", "website"),
-                $entityId3 => array("groups", "name"),
-            )
-        );
+            'entity_id' => [$entityId1, $entityId2, $entityId3],
+            'merge_data' => [
+                $entityId1 => ["body"],
+                $entityId2 => ["path", "website"],
+                $entityId3 => ["groups", "name"],
+            ]
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -580,13 +580,13 @@ class EntityControllerTest extends TestCase
     public function testSaveGroup()
     {
         // Setup the save group data
-        $dataGroup = array(
+        $dataGroup = [
             'action' => "add",
             'obj_type' => ObjectTypes::NOTE,
             'field_name' => 'groups',
             'name' => 'test save group',
             'color' => 'blue'
-        );
+        ];
 
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -651,7 +651,7 @@ class EntityControllerTest extends TestCase
     {
         // Deleting an entity definition without providing an object type should return an error
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array('name' => 'DefWithNoType')));
+        $req->setBody(json_encode(['name' => 'DefWithNoType']));
         $ret = $this->controller->postDeleteEntityDefAction();
         $this->assertEquals($ret['error'], 'obj_type is a required param');
     }
@@ -661,17 +661,17 @@ class EntityControllerTest extends TestCase
         $req = $this->controller->getRequest();
 
         // Saving an entity definition without providing an object type should return an error
-        $req->setBody(json_encode(array('name' => 'DefWithNoType')));
+        $req->setBody(json_encode(['name' => 'DefWithNoType']));
         $ret = $this->controller->postUpdateEntityDefAction();
         $this->assertEquals($ret['error'], 'obj_type is a required param');
 
         // Saving an entity definition with an empty obj_type should return an error
-        $req->setBody(json_encode(array('obj_type' => '', 'name' => 'DefWithNoType')));
+        $req->setBody(json_encode(['obj_type' => '', 'name' => 'DefWithNoType']));
         $ret = $this->controller->postUpdateEntityDefAction();
         $this->assertEquals($ret['error'], 'obj_type is empty.');
 
         // Saving an existing entity definition but with non existing object type
-        $req->setBody(json_encode(array('obj_type' => 'NonExistingDefinition', 'id' => 1)));
+        $req->setBody(json_encode(['obj_type' => 'NonExistingDefinition', 'id' => 1]));
         $ret = $this->controller->postUpdateEntityDefAction();
         $this->assertNotEmpty($ret['error']);
     }
@@ -706,17 +706,17 @@ class EntityControllerTest extends TestCase
         $req = $this->controller->getRequest();
 
         // Saving a group without object type should return an error
-        $req->setBody(json_encode(array('field_name' => 'group')));
+        $req->setBody(json_encode(['field_name' => 'group']));
         $ret = $this->controller->postSaveGroupAction();
         $this->assertEquals($ret['error'], 'obj_type is a required param');
 
         // Saving a group without field name should return an error
-        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK)));
+        $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK]));
         $ret = $this->controller->postSaveGroupAction();
         $this->assertEquals($ret['error'], 'field_name is a required param');
 
         // Saving a group without an action should return an error
-        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK, 'field_name' => 'group')));
+        $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK, 'field_name' => 'group']));
         $ret = $this->controller->postSaveGroupAction();
         $this->assertEquals($ret['error'], 'action is a required param');
     }

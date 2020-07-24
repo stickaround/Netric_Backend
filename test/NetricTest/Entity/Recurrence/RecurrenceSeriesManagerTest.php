@@ -20,7 +20,6 @@ use Netric\Entity\Recurrence\RecurrenceSeriesManagerFactory;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
-
 class RecurrenceSeriesManagerTest extends TestCase
 {
     /**
@@ -90,17 +89,17 @@ class RecurrenceSeriesManagerTest extends TestCase
     public function testCreateSeries()
     {
         // Save a new entity with the recurrence pattern
-        $entityData = array(
+        $entityData = [
             "name" => 'my recurring event',
             "ts_start" => strtotime("2016-01-01 08:00:00 PST"),
             "ts_end" => strtotime("2016-01-01 09:00:00 PST"),
-            "recurrence_pattern" => array(
+            "recurrence_pattern" => [
                 "recur_type" => Recurrence\RecurrencePattern::RECUR_DAILY,
                 "interval" => 1,
                 "date_start" => "2016-01-01",
                 "date_end" => "2016-01-05",
-            )
-        );
+            ]
+        ];
         $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $this->entityDataMapper->save($event);
@@ -221,17 +220,17 @@ class RecurrenceSeriesManagerTest extends TestCase
     public function testCreateInstancesFromQuery()
     {
         // Save a new entity with the recurrence pattern
-        $entityData = array(
+        $entityData = [
             "name" => 'my recurring event',
             "ts_start" => strtotime("2016-01-01 08:00:00 PST"),
             "ts_end" => strtotime("2016-01-01 09:00:00 PST"),
-            "recurrence_pattern" => array(
+            "recurrence_pattern" => [
                 "recur_type" => Recurrence\RecurrencePattern::RECUR_DAILY,
                 "interval" => 1,
                 "date_start" => "2016-01-01",
                 "date_end" => "2016-01-05",
-            )
-        );
+            ]
+        ];
         $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $this->entityDataMapper->save($event);

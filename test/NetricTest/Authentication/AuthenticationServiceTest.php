@@ -126,7 +126,7 @@ class AuthenticationServiceTest extends TestCase
     {
         // TEST_USER was created in $this->setUp
         $ret = $this->authService->authenticate(self::TEST_USER, self::TEST_USER_PASS);
-        
+
         // Make sure we got a session string back
         $this->assertNotNull($ret);
 

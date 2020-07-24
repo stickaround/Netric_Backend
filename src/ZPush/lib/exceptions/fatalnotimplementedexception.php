@@ -24,4 +24,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class FatalNotImplementedException extends FatalException {}
+class FatalNotImplementedException extends FatalException
+{
+}

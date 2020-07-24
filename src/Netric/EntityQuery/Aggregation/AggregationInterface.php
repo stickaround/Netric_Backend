@@ -25,21 +25,21 @@ interface AggregationInterface
      * @return string
      */
     public function getName();
-    
+
     /**
      * Set the field for this aggregation
      *
      * @param string $field the name of the document field on which to perform this aggregation
      */
     public function setField($field);
-    
+
     /**
      * Get the field for this aggregation
      *
      * @return string
      */
     public function getField();
-    
+
     /**
      * Tries to guess the name of the aggregate, based on its class
      * Example: \Netric\EntityQuery\Aggregations\TermsFilter => terms_filter

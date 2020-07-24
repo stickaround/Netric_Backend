@@ -33,7 +33,5 @@ class FileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
         } else {
             return $sl->get(LocalFileStoreFactory::class);
         }
-
-
     }
 }

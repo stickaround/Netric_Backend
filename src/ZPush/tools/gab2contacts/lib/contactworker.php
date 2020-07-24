@@ -23,13 +23,14 @@
 * Consult LICENSE file for details
 * ************************************************/
 
-abstract class ContactWorker {
+abstract class ContactWorker
+{
 
     /**
      * Constructor
      */
-    public function __construct() {
-
+    public function __construct()
+    {
     }
 
     /**
@@ -41,7 +42,8 @@ abstract class ContactWorker {
      * @access public
      * @return void
      */
-    public function Sync($sourceGAB = 'default') {
+    public function Sync($sourceGAB = 'default')
+    {
         $targetFolderId = CONTACT_FOLDERID;
         // gets a list of GABs
         $gabs = $this->GetGABs();
@@ -49,10 +51,9 @@ abstract class ContactWorker {
         if (empty($gabs) || $sourceGAB == 'default') {
             // no multi-GABs, just go default
             $this->doSync($targetFolderId, null, 'default');
-        }
-        else {
+        } else {
             $found = false;
-            foreach($gabs as $gabName => $gabId) {
+            foreach ($gabs as $gabName => $gabId) {
                 if (!$sourceGAB || $sourceGAB == $gabName || $sourceGAB == $gabId) {
                     $this->doSync($targetFolderId, $gabId, $gabName);
                     $found = true;
@@ -74,7 +75,8 @@ abstract class ContactWorker {
      * @access public
      * @return void
      */
-    public function Delete($sourceGAB = 'default') {
+    public function Delete($sourceGAB = 'default')
+    {
         $targetFolderId = CONTACT_FOLDERID;
 
         // gets a list of GABs
@@ -83,10 +85,9 @@ abstract class ContactWorker {
         if (empty($gabs) || $sourceGAB == 'default') {
             // no multi-GABs, just go default
             $this->doDelete($targetFolderId, null, 'default');
-        }
-        else {
+        } else {
             $found = false;
-            foreach($gabs as $gabName => $gabId) {
+            foreach ($gabs as $gabName => $gabId) {
                 if (!$sourceGAB || $sourceGAB == $gabName || $sourceGAB == $gabId) {
                     $this->doDelete($gabId, $gabName);
                     $found = true;
@@ -107,7 +108,8 @@ abstract class ContactWorker {
      * @access protected
      * @return void
      */
-    protected function Log($msg) {
+    protected function Log($msg)
+    {
         echo $msg . PHP_EOL;
     }
 
@@ -119,7 +121,8 @@ abstract class ContactWorker {
      * @access protected
      * @return void
      */
-    protected function Terminate($msg) {
+    protected function Terminate($msg)
+    {
         fwrite(STDERR, $msg);
         echo PHP_EOL.PHP_EOL;
         exit(1);
@@ -135,7 +138,7 @@ abstract class ContactWorker {
      * @access protected
      * @return array
      */
-    protected abstract function getGABs();
+    abstract protected function getGABs();
 
     /**
      * Performs the actual synchronization for a single GAB.
@@ -147,7 +150,7 @@ abstract class ContactWorker {
      * @access protected
      * @return void
      */
-    protected abstract function doSync($targetFolderId, $gabId = null, $gabName = 'default');
+    abstract protected function doSync($targetFolderId, $gabId = null, $gabName = 'default');
 
     /**
      * Deletes all contacts that were created by the script before.
@@ -159,18 +162,19 @@ abstract class ContactWorker {
      * @access protected
      * @return boolean
      */
-    protected abstract function doDelete($targetFolderId, $gabId = null, $gabName = 'default');
+    abstract protected function doDelete($targetFolderId, $gabId = null, $gabName = 'default');
 }
 
 /**
  * Overwrite ZLog class to provide basic logging.
  * All debug messages are ignored, others are logged.
  */
-class ZLog {
-    static public function Write($level, $msg, $truncate = false) {
+class ZLog
+{
+    public static function Write($level, $msg, $truncate = false)
+    {
         if ($level < LOGLEVEL_INFO) {
             GAB2ContactsCLI::GetWorker()->Log($msg);
         }
     }
 }
-

@@ -472,11 +472,11 @@ class EntityQuery
      */
     public function toArray()
     {
-        $ret = array(
+        $ret = [
             "obj_type" => $this->objType,
             "limit" => $this->limitPerPage,
             "offset" => $this->offset,
-        );
+        ];
 
         // Add all where conditions
         $ret['conditions'] = [];

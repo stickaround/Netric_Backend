@@ -60,14 +60,14 @@ class FileSystemTest extends TestCase
      *
      * @var ObjType\Folder[]
      */
-    private $testFolders = array();
+    private $testFolders = [];
 
     /**
      * Test files to cleanup
      *
      * @var ObjType\File[]
      */
-    private $testFiles = array();
+    private $testFiles = [];
 
     protected function setUp(): void
     {

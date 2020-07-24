@@ -23,14 +23,16 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class PingTracking extends InterProcessData {
+class PingTracking extends InterProcessData
+{
 
     /**
      * Constructor
      *
      * @access public
      */
-    public function __construct() {
+    public function __construct()
+    {
         // initialize super parameters
         $this->allocate = 512000; // 500 KB
         $this->type = 2;
@@ -45,7 +47,8 @@ class PingTracking extends InterProcessData {
      *
      * @access public
      */
-    public function __destruct() {
+    public function __destruct()
+    {
         // exclusive block
         if ($this->blockMutex()) {
             $pings = $this->getData();
@@ -67,7 +70,8 @@ class PingTracking extends InterProcessData {
      * @access public
      * @return boolean
      */
-    protected function initPing() {
+    protected function initPing()
+    {
         $stat = false;
 
         // initialize params
@@ -75,7 +79,7 @@ class PingTracking extends InterProcessData {
 
         // exclusive block
         if ($this->blockMutex()) {
-            $pings = ($this->hasData()) ? $this->getData() : array();
+            $pings = ($this->hasData()) ? $this->getData() : [];
 
             // set the start time for the current process
             $this->checkArrayStructure($pings);
@@ -95,7 +99,8 @@ class PingTracking extends InterProcessData {
      * @access public
      * @return boolean      true if the current process is obsolete
      */
-    public function DoForcePingTimeout() {
+    public function DoForcePingTimeout()
+    {
         $pings = false;
         // exclusive block
         if ($this->blockMutex()) {
@@ -106,9 +111,11 @@ class PingTracking extends InterProcessData {
 
         // check if there is another (and newer) active ping connection
         if (is_array($pings) && isset($pings[self::$devid][self::$user]) && count($pings[self::$devid][self::$user]) > 1) {
-            foreach ($pings[self::$devid][self::$user] as $pid=>$starttime)
-                if ($starttime > self::$start)
+            foreach ($pings[self::$devid][self::$user] as $pid => $starttime) {
+                if ($starttime > self::$start) {
                     return true;
+                }
+            }
         }
 
         return false;
@@ -122,15 +129,18 @@ class PingTracking extends InterProcessData {
      * @access private
      * @return
      */
-    private function checkArrayStructure(&$array) {
-        if (!is_array($array))
-            $array = array();
+    private function checkArrayStructure(&$array)
+    {
+        if (!is_array($array)) {
+            $array = [];
+        }
 
-        if (!isset($array[self::$devid]))
-            $array[self::$devid] = array();
+        if (!isset($array[self::$devid])) {
+            $array[self::$devid] = [];
+        }
 
-        if (!isset($array[self::$devid][self::$user]))
-            $array[self::$devid][self::$user] = array();
-
+        if (!isset($array[self::$devid][self::$user])) {
+            $array[self::$devid][self::$user] = [];
+        }
     }
 }

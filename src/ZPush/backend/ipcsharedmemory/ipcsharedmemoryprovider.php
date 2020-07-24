@@ -23,7 +23,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class IpcSharedMemoryProvider implements IIpcProvider {
+class IpcSharedMemoryProvider implements IIpcProvider
+{
     private $mutexid;
     private $memid;
     protected $type;
@@ -36,12 +37,14 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @param int $allocate
      * @param string $class
      */
-    public function __construct($type, $allocate, $class) {
+    public function __construct($type, $allocate, $class)
+    {
         $this->type = $type;
         $this->allocate = $allocate;
 
-        if ($this->initSharedMem())
+        if ($this->initSharedMem()) {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("%s(): Initialized mutexid %s and memid %s.", $class, $this->mutexid, $this->memid));
+        }
     }
 
     /**
@@ -50,7 +53,8 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access private
      * @return boolean
      */
-    private function initSharedMem() {
+    private function initSharedMem()
+    {
         if (!function_exists('sem_get') || !function_exists('shm_attach') || !function_exists('sem_acquire')|| !function_exists('shm_get_var')) {
             ZLog::Write(LOGLEVEL_INFO, "IpcSharedMemoryProvider->initSharedMem(): PHP libraries for the use shared memory are not available. Check the isntalled php packages or use e.g. the memcache IPC provider.");
             return false;
@@ -64,7 +68,7 @@ class IpcSharedMemoryProvider implements IIpcProvider {
         }
 
         // Attach shared memory
-        $this->memid = shm_attach($this->type+10, $this->allocate);
+        $this->memid = shm_attach($this->type + 10, $this->allocate);
         if ($this->memid === false) {
             ZLog::Write(LOGLEVEL_ERROR, "IpcSharedMemoryProvider->initSharedMem(): could not attach shared memory");
             @sem_remove($this->mutexid);
@@ -84,7 +88,8 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access private
      * @return boolean
      */
-    private function removeSharedMem() {
+    private function removeSharedMem()
+    {
         if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false)) {
             @sem_acquire($this->mutexid);
             $memid = $this->memid;
@@ -108,7 +113,8 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function ReInitIPC() {
+    public function ReInitIPC()
+    {
         return ($this->removeSharedMem() && $this->initSharedMem());
     }
 
@@ -118,7 +124,8 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function Clean() {
+    public function Clean()
+    {
         $stat = false;
 
         // exclusive block
@@ -140,7 +147,8 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function IsActive() {
+    public function IsActive()
+    {
         return ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false));
     }
 
@@ -152,9 +160,11 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function BlockMutex() {
-        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false))
+    public function BlockMutex()
+    {
+        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false)) {
             return @sem_acquire($this->mutexid);
+        }
 
         return false;
     }
@@ -166,9 +176,11 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function ReleaseMutex() {
-        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false))
+    public function ReleaseMutex()
+    {
+        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false)) {
             return @sem_release($this->mutexid);
+        }
 
         return false;
     }
@@ -181,11 +193,12 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function HasData($id = 2) {
+    public function HasData($id = 2)
+    {
         if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false)) {
-            if (function_exists("shm_has_var"))
+            if (function_exists("shm_has_var")) {
                 return @shm_has_var($this->memid, $id);
-            else {
+            } else {
                 $some = $this->GetData($id);
                 return isset($some);
             }
@@ -201,9 +214,11 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return mixed
      */
-    public function GetData($id = 2) {
-        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false))
+    public function GetData($id = 2)
+    {
+        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false)) {
             return @shm_get_var($this->memid, $id);
+        }
 
         return ;
     }
@@ -218,9 +233,11 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access public
      * @return boolean
      */
-    public function SetData($data, $id = 2) {
-        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false))
+    public function SetData($data, $id = 2)
+    {
+        if ((isset($this->mutexid) && $this->mutexid !== false) && (isset($this->memid) && $this->memid !== false)) {
             return @shm_put_var($this->memid, $id, $data);
+        }
 
         return false;
     }
@@ -231,14 +248,15 @@ class IpcSharedMemoryProvider implements IIpcProvider {
      * @access private
      * @return boolean
      */
-    private function setInitialCleanTime() {
+    private function setInitialCleanTime()
+    {
         $stat = false;
 
         // exclusive block
         if ($this->BlockMutex()) {
-
-            if ($this->HasData(1) == false)
+            if ($this->HasData(1) == false) {
                 $stat = $this->SetData(time(), 1);
+            }
 
             $this->ReleaseMutex();
         }
@@ -246,5 +264,4 @@ class IpcSharedMemoryProvider implements IIpcProvider {
 
         return $stat;
     }
-
 }

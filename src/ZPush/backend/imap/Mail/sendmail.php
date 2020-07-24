@@ -54,14 +54,15 @@
  *
  *
  */
- 
+
 /**
  * Sendmail implementation of the PEAR Mail:: interface.
  * @access public
  * @package Mail
  * @version $Revision: 294744 $
  */
-class Mail_sendmail extends Mail {
+class Mail_sendmail extends Mail
+{
 
     /**
      * The location of the sendmail or sendmail wrapper binary on the
@@ -203,8 +204,10 @@ class Mail_sendmail extends Mail {
         }
 
         if ($result != 0) {
-            return Mail_sendmail::raiseError('sendmail returned error code ' . $result,
-                                    $result);
+            return Mail_sendmail::raiseError(
+                'sendmail returned error code ' . $result,
+                $result
+            );
         }
 
         return true;
@@ -218,7 +221,8 @@ class Mail_sendmail extends Mail {
      * @return boolean always false as there was an error
      * @access private
      */
-    static function raiseError($message) {
+    static function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "Mail<sendmail> error: ". $message);
         return false;
     }

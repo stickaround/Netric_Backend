@@ -63,7 +63,7 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
         // Though I could be strict, I will actually also accept the naming used in the PHP core hash framework.
         // For instance "sha1" is accepted, while the registered hash name should be "SHA-1".
         $hash = strtolower($hash);
-        $hashes = array('md2' => 'md2',
+        $hashes = ['md2' => 'md2',
             'md5' => 'md5',
             'sha-1' => 'sha1',
             'sha1' => 'sha1',
@@ -74,24 +74,19 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
             'sha-384' => 'sha384',
             'sha384' => 'sha384',
             'sha-512' => 'sha512',
-            'sha512' => 'sha512');
-        if (function_exists('hash_hmac') && isset($hashes[$hash]))
-        {
+            'sha512' => 'sha512'];
+        if (function_exists('hash_hmac') && isset($hashes[$hash])) {
             $this->hash = create_function('$data', 'return hash("' . $hashes[$hash] . '", $data, TRUE);');
             $this->hmac = create_function('$key,$str,$raw', 'return hash_hmac("' . $hashes[$hash] . '", $str, $key, $raw);');
-        }
-        elseif ($hash == 'md5')
-        {
+        } elseif ($hash == 'md5') {
             $this->hash = create_function('$data', 'return md5($data, true);');
-            $this->hmac = array($this, '_HMAC_MD5');
-        }
-        elseif (in_array($hash, array('sha1', 'sha-1')))
-        {
+            $this->hmac = [$this, '_HMAC_MD5'];
+        } elseif (in_array($hash, ['sha1', 'sha-1'])) {
             $this->hash = create_function('$data', 'return sha1($data, true);');
-            $this->hmac = array($this, '_HMAC_SHA1');
-        }
-        else
+            $this->hmac = [$this, '_HMAC_SHA1'];
+        } else {
             return $this->raiseError('Invalid SASL mechanism type');
+        }
     }
 
     /**
@@ -105,31 +100,24 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
     * @return string|false      The response (binary, NOT base64 encoded)
     * @access public
     */
-    public function getResponse($authcid, $pass, $challenge = NULL, $authzid = NULL)
+    public function getResponse($authcid, $pass, $challenge = null, $authzid = null)
     {
         $authcid = $this->_formatName($authcid);
-        if (empty($authcid))
-        {
+        if (empty($authcid)) {
             return false;
         }
-        if (!empty($authzid))
-        {
+        if (!empty($authzid)) {
             $authzid = $this->_formatName($authzid);
-            if (empty($authzid))
-            {
+            if (empty($authzid)) {
                 return false;
             }
         }
 
-        if (empty($challenge))
-        {
+        if (empty($challenge)) {
             return $this->_generateInitialResponse($authcid, $authzid);
-        }
-        else
-        {
+        } else {
             return $this->_generateResponse($challenge, $pass);
         }
-
     }
 
     /**
@@ -162,7 +150,7 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
     {
         $init_rep = '';
         $gs2_cbind_flag = 'n,'; // TODO: support channel binding.
-        $this->gs2_header = $gs2_cbind_flag . (!empty($authzid)? 'a=' . $authzid : '') . ',';
+        $this->gs2_header = $gs2_cbind_flag . (!empty($authzid) ? 'a=' . $authzid : '') . ',';
 
         // I must generate a client nonce and "save" it for later comparison on second response.
         $this->cnonce = $this->_getCnonce();
@@ -186,22 +174,19 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
         // And I simply ignore any optional extension.
         $server_message_regexp = "#^r=([\x21-\x2B\x2D-\x7E]+),s=((?:[A-Za-z0-9/+]{4})*(?:[A-Za-z0-9]{3}=|[A-Xa-z0-9]{2}==)?),i=([0-9]*)(,[A-Za-z]=[^,])*$#";
         if (!isset($this->cnonce, $this->gs2_header)
-            || !preg_match($server_message_regexp, $challenge, $matches))
-        {
+            || !preg_match($server_message_regexp, $challenge, $matches)) {
             return false;
         }
         $nonce = $matches[1];
         $salt = base64_decode($matches[2]);
-        if (!$salt)
-        {
+        if (!$salt) {
             // Invalid Base64.
             return false;
         }
         $i = intval($matches[3]);
 
         $cnonce = substr($nonce, 0, strlen($this->cnonce));
-        if ($cnonce <> $this->cnonce)
-        {
+        if ($cnonce <> $this->cnonce) {
             // Invalid challenge! Are we under attack?
             return false;
         }
@@ -212,11 +197,11 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
         // TODO: $password = $this->normalize($password); // SASLprep profile of stringprep.
         $saltedPassword = $this->hi($password, $salt, $i);
         $this->saltedPassword = $saltedPassword;
-        $clientKey = call_user_func($this->hmac, $saltedPassword, "Client Key", TRUE);
-        $storedKey = call_user_func($this->hash, $clientKey, TRUE);
+        $clientKey = call_user_func($this->hmac, $saltedPassword, "Client Key", true);
+        $storedKey = call_user_func($this->hash, $clientKey, true);
         $authMessage = $this->first_message_bare . ',' . $challenge . ',' . $final_message;
         $this->authMessage = $authMessage;
-        $clientSignature = call_user_func($this->hmac, $storedKey, $authMessage, TRUE);
+        $clientSignature = call_user_func($this->hmac, $storedKey, $authMessage, true);
         $clientProof = $clientKey ^ $clientSignature;
         $proof = ',p=' . base64_encode($clientProof);
 
@@ -237,8 +222,7 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
     {
         $verifier_regexp = '#^v=((?:[A-Za-z0-9/+]{4})*(?:[A-Za-z0-9]{3}=|[A-Xa-z0-9]{2}==)?)$#';
         if (!isset($this->saltedPassword, $this->authMessage)
-            || !preg_match($verifier_regexp, $data, $matches))
-        {
+            || !preg_match($verifier_regexp, $data, $matches)) {
             // This cannot be an outcome, you never sent the challenge's response.
             return false;
         }
@@ -246,7 +230,7 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
         $verifier = $matches[1];
         $proposed_serverSignature = base64_decode($verifier);
         $serverKey = call_user_func($this->hmac, $this->saltedPassword, "Server Key", true);
-        $serverSignature = call_user_func($this->hmac, $serverKey, $this->authMessage, TRUE);
+        $serverSignature = call_user_func($this->hmac, $serverKey, $this->authMessage, true);
         return ($proposed_serverSignature === $serverSignature);
     }
 
@@ -263,8 +247,7 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
         $int1 = "\0\0\0\1";
         $ui = call_user_func($this->hmac, $str, $salt . $int1, true);
         $result = $ui;
-        for ($k = 1; $k < $i; $k++)
-        {
+        for ($k = 1; $k < $i; $k++) {
             $ui = call_user_func($this->hmac, $str, $ui, true);
             $result = $result ^ $ui;
         }
@@ -285,13 +268,11 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
         // I should probably make this a protected function in Common.
         if (@file_exists('/dev/urandom') && $fd = @fopen('/dev/urandom', 'r')) {
             return base64_encode(fread($fd, 32));
-
         } elseif (@file_exists('/dev/random') && $fd = @fopen('/dev/random', 'r')) {
             return base64_encode(fread($fd, 32));
-
         } else {
             $str = '';
-            for ($i=0; $i<32; $i++) {
+            for ($i = 0; $i < 32; $i++) {
                 $str .= chr(mt_rand(0, 255));
             }
 

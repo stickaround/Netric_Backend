@@ -42,7 +42,8 @@ if (!defined('STORE_SUPPORTS_UNICODE')) {
     define('STORE_SUPPORTS_UNICODE', true);
 }
 
-class Kopano extends ContactWorker {
+class Kopano extends ContactWorker
+{
     const NAME = "Z-Push GAB2Contacts";
     const VERSION = "1.0";
     private $session;
@@ -56,13 +57,13 @@ class Kopano extends ContactWorker {
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         // send Z-Push version and user agent to ZCP >7.2.0
         if ($this->checkMapiExtVersion('7.2.0')) {
             $this->session = mapi_logon_zarafa(USERNAME, PASSWORD, SERVER, CERTIFICATE, CERTIFICATE_PASSWORD, 0, self::VERSION, self::NAME. " ". self::VERSION);
-        }
-        else {
+        } else {
             $this->session = mapi_logon_zarafa(USERNAME, PASSWORD, SERVER, CERTIFICATE, CERTIFICATE_PASSWORD, 0);
         }
 
@@ -73,11 +74,11 @@ class Kopano extends ContactWorker {
         $this->targetStore = CONTACT_FOLDERSTORE;
         $this->defaultstore = $this->openMessageStore($this->mainUser);
         $this->store = $this->openMessageStore(CONTACT_FOLDERSTORE);
-        $this->storeCache = array();
+        $this->storeCache = [];
 
-        $this->mapiprops = array(
+        $this->mapiprops = [
             "hash"    => "PT_STRING8:PSETID_Address:0x6825",      // custom property holding the contact hash
-        );
+        ];
         $this->mapiprops = getPropIdsFromStrings($this->store, $this->mapiprops);
     }
 
@@ -91,11 +92,12 @@ class Kopano extends ContactWorker {
      * @access protected
      * @return array
      */
-    protected function getGABs() {
-        $names = array();
+    protected function getGABs()
+    {
+        $names = [];
         $companies = mapi_zarafa_getcompanylist($this->store);
         if (is_array($companies)) {
-            foreach($companies as $c) {
+            foreach ($companies as $c) {
                 $names[trim($c['companyname'])] = bin2hex($c['companyid']);
             }
         }
@@ -112,7 +114,8 @@ class Kopano extends ContactWorker {
      * @access protected
      * @return void
      */
-    protected function doSync($targetFolderId, $gabId = null, $gabName = 'default') {
+    protected function doSync($targetFolderId, $gabId = null, $gabName = 'default')
+    {
         $store = $this->getStore($gabId, $gabName);
         $folder = $this->getFolder($store, $targetFolderId);
 
@@ -131,8 +134,7 @@ class Kopano extends ContactWorker {
             if (mapi_last_hresult()) {
                 $this->Terminate(sprintf("Kopano->doSync: Error, could not get '%s' address directory: 0x%08X", $gabName, mapi_last_hresult()));
             }
-        }
-        else {
+        } else {
             $ab_entryid = hex2bin($gabId);
         }
 
@@ -147,7 +149,7 @@ class Kopano extends ContactWorker {
         if (mapi_last_hresult()) {
             $this->Terminate(sprintf("Kopano->doSync: error, could not open '%s' addressbook content table: 0x%08X", $gabName, mapi_last_hresult()));
         }
-        $gabentries = mapi_table_queryallrows($table, array(PR_ENTRYID,
+        $gabentries = mapi_table_queryallrows($table, [PR_ENTRYID,
                 PR_ACCOUNT,
                 PR_GIVEN_NAME,
                 PR_SURNAME,
@@ -174,7 +176,7 @@ class Kopano extends ContactWorker {
                 PR_INITIALS,
                 PR_LANGUAGE,
                 */
-        ));
+        ]);
 
         $inGab = count($gabentries);
         $existingNr = count($existingByAccount);
@@ -224,24 +226,60 @@ class Kopano extends ContactWorker {
 
             // build a SyncContact for the GAB entry
             $contact = new SyncContact();
-            if (isset($entry[PR_ACCOUNT]))                              $contact->accountname           = $entry[PR_ACCOUNT];
-            if (isset($entry[PR_GIVEN_NAME]))                           $contact->firstname             = $entry[PR_GIVEN_NAME];
-            if (isset($entry[PR_SURNAME]))                              $contact->lastname              = $entry[PR_SURNAME];
-            if (isset($entry[PR_OFFICE_LOCATION]))                      $contact->officelocation        = $entry[PR_OFFICE_LOCATION];
-            if (isset($entry[PR_COMPANY_NAME]))                         $contact->companyname           = $entry[PR_COMPANY_NAME];
-            if (isset($entry[PR_TITLE]))                                $contact->jobtitle              = $entry[PR_TITLE];
-            if (isset($entry[PR_SMTP_ADDRESS]))                         $contact->email1address         = $entry[PR_SMTP_ADDRESS];
-            if (isset($entry[PR_BUSINESS_TELEPHONE_NUMBER]))            $contact->businessphonenumber   = $entry[PR_BUSINESS_TELEPHONE_NUMBER];
-            if (isset($entry[PR_PRIMARY_FAX_NUMBER]))                   $contact->businessphonenumber   = $entry[PR_PRIMARY_FAX_NUMBER];
-            if (isset($entry[PR_POSTAL_ADDRESS]))                       $contact->businessstreet        = $entry[PR_POSTAL_ADDRESS];
-            if (isset($entry[PR_BUSINESS_ADDRESS_POSTAL_CODE]))         $contact->businesspostalcode    = $entry[PR_BUSINESS_ADDRESS_POSTAL_CODE];
-            if (isset($entry[PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE]))   $contact->businessstate         = $entry[PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE];
-            if (isset($entry[PR_BUSINESS_ADDRESS_CITY]))                $contact->businesscity          = $entry[PR_BUSINESS_ADDRESS_CITY];
-            if (isset($entry[PR_MOBILE_TELEPHONE_NUMBER]))              $contact->mobilephonenumber     = $entry[PR_MOBILE_TELEPHONE_NUMBER];
-            if (isset($entry[PR_HOME_TELEPHONE_NUMBER]))                $contact->homephonenumber       = $entry[PR_HOME_TELEPHONE_NUMBER];
-            if (isset($entry[PR_BEEPER_TELEPHONE_NUMBER]))              $contact->pagernumber           = $entry[PR_BEEPER_TELEPHONE_NUMBER];
-            if (isset($entry[PR_EMS_AB_THUMBNAIL_PHOTO]))               $contact->picture               = base64_encode($entry[PR_EMS_AB_THUMBNAIL_PHOTO]);
-            if (isset($entry[PR_ORGANIZATIONAL_ID_NUMBER]))             $contact->customerid            = $entry[PR_ORGANIZATIONAL_ID_NUMBER];
+            if (isset($entry[PR_ACCOUNT])) {
+                $contact->accountname           = $entry[PR_ACCOUNT];
+            }
+            if (isset($entry[PR_GIVEN_NAME])) {
+                $contact->firstname             = $entry[PR_GIVEN_NAME];
+            }
+            if (isset($entry[PR_SURNAME])) {
+                $contact->lastname              = $entry[PR_SURNAME];
+            }
+            if (isset($entry[PR_OFFICE_LOCATION])) {
+                $contact->officelocation        = $entry[PR_OFFICE_LOCATION];
+            }
+            if (isset($entry[PR_COMPANY_NAME])) {
+                $contact->companyname           = $entry[PR_COMPANY_NAME];
+            }
+            if (isset($entry[PR_TITLE])) {
+                $contact->jobtitle              = $entry[PR_TITLE];
+            }
+            if (isset($entry[PR_SMTP_ADDRESS])) {
+                $contact->email1address         = $entry[PR_SMTP_ADDRESS];
+            }
+            if (isset($entry[PR_BUSINESS_TELEPHONE_NUMBER])) {
+                $contact->businessphonenumber   = $entry[PR_BUSINESS_TELEPHONE_NUMBER];
+            }
+            if (isset($entry[PR_PRIMARY_FAX_NUMBER])) {
+                $contact->businessphonenumber   = $entry[PR_PRIMARY_FAX_NUMBER];
+            }
+            if (isset($entry[PR_POSTAL_ADDRESS])) {
+                $contact->businessstreet        = $entry[PR_POSTAL_ADDRESS];
+            }
+            if (isset($entry[PR_BUSINESS_ADDRESS_POSTAL_CODE])) {
+                $contact->businesspostalcode    = $entry[PR_BUSINESS_ADDRESS_POSTAL_CODE];
+            }
+            if (isset($entry[PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE])) {
+                $contact->businessstate         = $entry[PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE];
+            }
+            if (isset($entry[PR_BUSINESS_ADDRESS_CITY])) {
+                $contact->businesscity          = $entry[PR_BUSINESS_ADDRESS_CITY];
+            }
+            if (isset($entry[PR_MOBILE_TELEPHONE_NUMBER])) {
+                $contact->mobilephonenumber     = $entry[PR_MOBILE_TELEPHONE_NUMBER];
+            }
+            if (isset($entry[PR_HOME_TELEPHONE_NUMBER])) {
+                $contact->homephonenumber       = $entry[PR_HOME_TELEPHONE_NUMBER];
+            }
+            if (isset($entry[PR_BEEPER_TELEPHONE_NUMBER])) {
+                $contact->pagernumber           = $entry[PR_BEEPER_TELEPHONE_NUMBER];
+            }
+            if (isset($entry[PR_EMS_AB_THUMBNAIL_PHOTO])) {
+                $contact->picture               = base64_encode($entry[PR_EMS_AB_THUMBNAIL_PHOTO]);
+            }
+            if (isset($entry[PR_ORGANIZATIONAL_ID_NUMBER])) {
+                $contact->customerid            = $entry[PR_ORGANIZATIONAL_ID_NUMBER];
+            }
 
             // check if the contact already exists in the folder
             if (isset($existingByAccount[$contact->accountname])) {
@@ -254,13 +292,12 @@ class Kopano extends ContactWorker {
                 }
                 $mapimessage = mapi_msgstore_openentry($store, $existingByAccount[$contact->accountname]['entryid']);
                 $updated++;
-            }
-            else {
+            } else {
                 $mapimessage = mapi_folder_createmessage($folder);
                 $created++;
             }
             // save the hash in the message as well
-            mapi_setprops($mapimessage, array($this->mapiprops['hash'] => $contact->GetHash()));
+            mapi_setprops($mapimessage, [$this->mapiprops['hash'] => $contact->GetHash()]);
             $mapiprovider->SetMessage($mapimessage, $contact);
             mapi_message_savechanges($mapimessage);
             unset($existingByAccount[$contact->accountname]);
@@ -271,7 +308,7 @@ class Kopano extends ContactWorker {
             $entry_ids = array_reduce($existingByAccount, function ($result, $item) {
                 $result[] = $item['entryid'];
                 return $result;
-            }, array());
+            }, []);
 
             $deleted = count($entry_ids);
             mapi_folder_deletemessages($folder, $entry_ids, DELETE_HARD_DELETE);
@@ -289,7 +326,8 @@ class Kopano extends ContactWorker {
      * @access protected
      * @return boolean
      */
-    protected function doDelete($targetFolderId, $gabId = null, $gabName = 'default') {
+    protected function doDelete($targetFolderId, $gabId = null, $gabName = 'default')
+    {
         $store = $this->getStore($gabId, $gabName);
         $folder = $this->getFolder($store, $targetFolderId);
 
@@ -300,7 +338,7 @@ class Kopano extends ContactWorker {
         $entry_ids = array_reduce($existingByAccount, function ($result, $item) {
             $result[] = $item['entryid'];
             return $result;
-        }, array());
+        }, []);
         mapi_folder_deletemessages($folder, $entry_ids, DELETE_HARD_DELETE);
 
         $this->Log(sprintf("Delete - deleted contacts: %d", count($entry_ids)));
@@ -319,12 +357,14 @@ class Kopano extends ContactWorker {
      * @access private
      * @return boolean
      */
-    private function openMessageStore($user) {
+    private function openMessageStore($user)
+    {
         $entryid = false;
         $return_public = false;
 
-        if (strtoupper($user) == 'SYSTEM')
+        if (strtoupper($user) == 'SYSTEM') {
             $return_public = true;
+        }
 
         // loop through the storestable if authenticated user of public folder
         if ($user == $this->mainUser || $return_public === true) {
@@ -332,11 +372,11 @@ class Kopano extends ContactWorker {
             $storestables = mapi_getmsgstorestable($this->session);
             $result = mapi_last_hresult();
 
-            if ($result == NOERROR){
-                $rows = mapi_table_queryallrows($storestables, array(PR_ENTRYID, PR_DEFAULT_STORE, PR_MDB_PROVIDER));
+            if ($result == NOERROR) {
+                $rows = mapi_table_queryallrows($storestables, [PR_ENTRYID, PR_DEFAULT_STORE, PR_MDB_PROVIDER]);
 
-                foreach($rows as $row) {
-                    if(!$return_public && isset($row[PR_DEFAULT_STORE]) && $row[PR_DEFAULT_STORE] == true) {
+                foreach ($rows as $row) {
+                    if (!$return_public && isset($row[PR_DEFAULT_STORE]) && $row[PR_DEFAULT_STORE] == true) {
                         $entryid = $row[PR_ENTRYID];
                         break;
                     }
@@ -346,12 +386,11 @@ class Kopano extends ContactWorker {
                     }
                 }
             }
-        }
-        else {
+        } else {
             $entryid = @mapi_msgstore_createentryid($this->defaultstore, $user);
         }
 
-        if(!$entryid) {
+        if (!$entryid) {
             $this->Terminate(sprintf("Kopano->openMessageStore(): No store found for user '%s': 0x%08X - Aborting.", $user, mapi_last_hresult()));
         }
 
@@ -372,13 +411,14 @@ class Kopano extends ContactWorker {
      * @access private
      * @return ressource
      */
-    private function getStore($gabId, $gabName) {
+    private function getStore($gabId, $gabName)
+    {
         if (!$gabId) {
             return $this->store;
         }
 
         if (!isset($this->storeCache[$gabId])) {
-            $user =  (strtoupper($this->targetStore) == 'SYSTEM') ? $gabName : $this->targetStore . "@" . $gabName;
+            $user = (strtoupper($this->targetStore) == 'SYSTEM') ? $gabName : $this->targetStore . "@" . $gabName;
             $store_entryid = mapi_msgstore_createentryid($this->store, $user);
             $store = mapi_openmsgstore($this->session, $store_entryid);
             $this->Log(sprintf("Kopano->getStore(): Found store of user '%s': '%s'", $user, $store));
@@ -397,11 +437,13 @@ class Kopano extends ContactWorker {
      * @access private
      * @return ressource
      */
-    private function getFolder($store, $folderid) {
+    private function getFolder($store, $folderid)
+    {
         if (!isset($this->folderCache[$folderid])) {
             $folderentryid = mapi_msgstore_entryidfromsourcekey($store, hex2bin($folderid));
-            if (!$folderentryid)
+            if (!$folderentryid) {
                 $this->Terminate(sprintf("Kopano->getFolder(): Error, unable to open folder (no entry id): 0x%08X", mapi_last_hresult()));
+            }
 
             $this->folderCache[$folderid] = mapi_msgstore_openentry($store, $folderentryid);
         }
@@ -417,21 +459,23 @@ class Kopano extends ContactWorker {
      * @access private
      * @return array
      */
-    private function getExistingContacts($folder) {
+    private function getExistingContacts($folder)
+    {
         $table = mapi_folder_getcontentstable($folder);
-        if (!$table)
+        if (!$table) {
             $this->Log(sprintf("Kopano->getExistingContacts: Error, unable to read contents table to find contacts: 0x%08X", mapi_last_hresult()));
+        }
 
-        $restriction = array(RES_EXIST,  Array(ULPROPTAG => $this->mapiprops['hash'] ));
+        $restriction = [RES_EXIST,  [ULPROPTAG => $this->mapiprops['hash'] ]];
         mapi_table_restrict($table, $restriction);
 
-        $entries = mapi_table_queryallrows($table, array(PR_ENTRYID, PR_ACCOUNT, $this->mapiprops['hash']));
+        $entries = mapi_table_queryallrows($table, [PR_ENTRYID, PR_ACCOUNT, $this->mapiprops['hash']]);
 
-        $return = array();
+        $return = [];
 
         if (!empty($entries)) {
-            foreach($entries as $e) {
-                $return[$e[PR_ACCOUNT]] = array('entryid' => $e[PR_ENTRYID], 'hash' => $e[$this->mapiprops['hash']]);
+            foreach ($entries as $e) {
+                $return[$e[PR_ACCOUNT]] = ['entryid' => $e[PR_ENTRYID], 'hash' => $e[$this->mapiprops['hash']]];
             }
         }
         return $return;
@@ -445,22 +489,22 @@ class Kopano extends ContactWorker {
      * @access private
      * @return boolean installed version is superior to the checked string
      */
-    private function checkMapiExtVersion($version = "") {
+    private function checkMapiExtVersion($version = "")
+    {
         // compare build number if requested
         if (preg_match('/^\d+$/', $version) && strlen($version) > 3) {
             $vs = preg_split('/-/', phpversion("mapi"));
             return ($version <= $vs[1]);
         }
 
-        if (extension_loaded("mapi")){
-            if (version_compare(phpversion("mapi"), $version) == -1){
+        if (extension_loaded("mapi")) {
+            if (version_compare(phpversion("mapi"), $version) == -1) {
                 return false;
             }
-        }
-        else
+        } else {
             return false;
+        }
 
         return true;
     }
-
 }

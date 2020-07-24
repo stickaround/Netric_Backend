@@ -18,7 +18,7 @@ class LocalFileStoreFactoryTest extends TestCase
 
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
     }
 

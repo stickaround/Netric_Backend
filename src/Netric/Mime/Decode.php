@@ -41,18 +41,18 @@ class Decode
         $start = $p + 3 + strlen($boundary);
 
         while (($p = strpos($body, '--' . $boundary . "\n", $start)) !== false) {
-            $res[] = substr($body, $start, $p-$start);
+            $res[] = substr($body, $start, $p - $start);
             $start = $p + 3 + strlen($boundary);
         }
 
         // no more parts, find end boundary
         $p = strpos($body, '--' . $boundary . '--', $start);
-        if ($p===false) {
+        if ($p === false) {
             throw new Exception\RuntimeException('Not a valid Mime Message: End Missing');
         }
 
         // the remaining part also needs to be parsed:
-        $res[] = substr($body, $start, $p-$start);
+        $res[] = substr($body, $start, $p - $start);
         return $res;
     }
 
@@ -114,7 +114,7 @@ class Decode
         if (!$strict) {
             $parts = explode(':', $firstline, 2);
             if (count($parts) != 2) {
-                $message = substr($message, strpos($message, $EOL)+1);
+                $message = substr($message, strpos($message, $EOL) + 1);
             }
         }
 
@@ -130,7 +130,7 @@ class Decode
             list($headers, $body) = explode("\n\n", $message, 2);
             // at last resort find anything that looks like a new line
         } else {
-            ErrorHandler::start(E_NOTICE|E_WARNING);
+            ErrorHandler::start(E_NOTICE | E_WARNING);
             list($headers, $body) = preg_split("%([\r\n]+)\\1%U", $message, 2);
             ErrorHandler::stop();
         }

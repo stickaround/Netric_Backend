@@ -41,10 +41,11 @@
 
 */
 
-class rtf {
+class rtf
+{
     var $LZRTF_HDR_DATA = "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier{\\colortbl\\red0\\green0\\blue0\n\r\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx";
     var $LZRTF_HDR_LEN = 207;
-    var $CRC32_TABLE = array(     0x00000000,0x77073096,0xEE0E612C,0x990951BA,0x076DC419,0x706AF48F,0xE963A535,0x9E6495A3,
+    var $CRC32_TABLE = [     0x00000000,0x77073096,0xEE0E612C,0x990951BA,0x076DC419,0x706AF48F,0xE963A535,0x9E6495A3,
                                   0x0EDB8832,0x79DCB8A4,0xE0D5E91E,0x97D2D988,0x09B64C2B,0x7EB17CBD,0xE7B82D07,0x90BF1D91,
                                   0x1DB71064,0x6AB020F2,0xF3B97148,0x84BE41DE,0x1ADAD47D,0x6DDDE4EB,0xF4D4B551,0x83D385C7,
                                   0x136C9856,0x646BA8C0,0xFD62F97A,0x8A65C9EC,0x14015C4F,0x63066CD9,0xFA0F3D63,0x8D080DF5,
@@ -76,11 +77,11 @@ class rtf {
                                   0xAED16A4A,0xD9D65ADC,0x40DF0B66,0x37D83BF0,0xA9BCAE53,0xDEBB9EC5,0x47B2CF7F,0x30B5FFE9,
                                   0xBDBDF21C,0xCABAC28A,0x53B39330,0x24B4A3A6,0xBAD03605,0xCDD70693,0x54DE5729,0x23D967BF,
                                   0xB3667A2E,0xC4614AB8,0x5D681B02,0x2A6F2B94,0xB40BBE37,0xC30C8EA1,0x5A05DF1B,0x2D02EF8D,
-                               );
+                               ];
 
     var $rtf;                   // rtf core stream
     var $rtf_len;               // length in characters of the stream (get performace due avoiding calling strlen everytime)
-    var $err = array();         // array of error message, no entities on no error
+    var $err = [];         // array of error message, no entities on no error
 
     var $wantXML = false;       // convert to XML
     var $wantHTML = false;      // convert to HTML
@@ -97,15 +98,15 @@ class rtf {
     var $cw;                    // are we currently parsing a control word ?
     var $cfirst;                // could this be the first character ? so watch out for control symbols
 
-    var $flags = array();       // parser flags
+    var $flags = [];       // parser flags
 
     var $queue;                 // every character which is no sepcial char, not belongs to a control word/symbol; is generally considered being 'plain'
 
-    var $stack = array();       // group stack
+    var $stack = [];       // group stack
 
     /* keywords which don't follw the specification (used by Word '97 - 2000) */
     // not yet used
-    var $control_exception = array(
+    var $control_exception = [
         "clFitText",
         "clftsWidth(-?[0-9]+)?",
         "clNoWrap(-?[0-9]+)?",
@@ -121,44 +122,45 @@ class rtf {
         "trwWithB(-?[0-9]+)?",
         "trwWith(-?[0-9]+)?",
         "spectspecifygen(-?[0-9]+)?",
-    );
+    ];
 
-    var $charset_table = array(
-        "0"     =>      "ANSI",
-        "1"     =>      "Default",
-        "2"     =>      "Symbol",
-        "77"    =>      "Mac",
-        "128"   =>      "Shift Jis",
-        "129"   =>      "Hangul",
-        "130"   =>      "Johab",
-        "134"   =>      "GB2312",
-        "136"   =>      "Big5",
-        "161"   =>      "Greek",
-        "162"   =>      "Turkish",
-        "163"   =>      "Vietnamese",
-        "177"   =>      "Hebrew",
-        "178"   =>      "Arabic",
-        "179"   =>      "Arabic Traditional",
-        "180"   =>      "Arabic user",
-        "181"   =>      "Hebrew user",
-        "186"   =>      "Baltic",
-        "204"   =>      "Russian",
-        "222"   =>      "Thai",
-        "238"   =>      "Eastern European",
-        "255"   =>      "PC 437",
-        "255"   =>      "OEM",
-    );
+    var $charset_table = [
+        "0"     => "ANSI",
+        "1"     => "Default",
+        "2"     => "Symbol",
+        "77"    => "Mac",
+        "128"   => "Shift Jis",
+        "129"   => "Hangul",
+        "130"   => "Johab",
+        "134"   => "GB2312",
+        "136"   => "Big5",
+        "161"   => "Greek",
+        "162"   => "Turkish",
+        "163"   => "Vietnamese",
+        "177"   => "Hebrew",
+        "178"   => "Arabic",
+        "179"   => "Arabic Traditional",
+        "180"   => "Arabic user",
+        "181"   => "Hebrew user",
+        "186"   => "Baltic",
+        "204"   => "Russian",
+        "222"   => "Thai",
+        "238"   => "Eastern European",
+        "255"   => "PC 437",
+        "255"   => "OEM",
+    ];
 
     /* note: the only conversion table used */
-    var $fontmodifier_table = array(
+    var $fontmodifier_table = [
         "bold"          => "b",
         "italic"        => "i",
         "underlined"    => "u",
         "strikethru"    => "strike",
-    );
+    ];
 
 
-    function __construct() {
+    function __construct()
+    {
         $this->rtf_len = 0;
         $this->rtf = '';
 
@@ -167,50 +169,60 @@ class rtf {
 
     // loadrtf - load the raw rtf data to be converted by this class
     // data = the raw rtf
-    function loadrtf($data) {
+    function loadrtf($data)
+    {
         if (($this->rtf = $this->uncompress($data))) {
             $this->rtf_len = strlen($this->rtf);
         };
-        if($this->rtf_len == 0) {
+        if ($this->rtf_len == 0) {
             debugLog("No data in stream found");
             return false;
         };
         return true;
     }
 
-    function output($typ) {
-        switch($typ) {
-            case "ascii": $this->wantASCII = true; break;
-            case "xml": $this->wantXML = true; break;
-            case "html": $this->wantHTML = true; break;
-            default: break;
+    function output($typ)
+    {
+        switch ($typ) {
+            case "ascii":
+                $this->wantASCII = true;
+                break;
+            case "xml":
+                $this->wantXML = true;
+                break;
+            case "html":
+                $this->wantHTML = true;
+                break;
+            default:
+                break;
         }
     }
 
     // uncompress - uncompress compressed rtf data
     // src = the compressed raw rtf in LZRTF format
-    function uncompress($src) {
-        $header = unpack("LcSize/LuSize/Lmagic/Lcrc32",substr($src,0,16));
+    function uncompress($src)
+    {
+        $header = unpack("LcSize/LuSize/Lmagic/Lcrc32", substr($src, 0, 16));
         $in = 16;
-        if ($header['cSize'] != strlen($src)-4) {
+        if ($header['cSize'] != strlen($src) - 4) {
             debugLog("Stream too short");
             return false;
         }
 
-        if ($header['crc32'] != $this->LZRTFCalcCRC32($src,16,(($header['cSize']+4))-16)) {
+        if ($header['crc32'] != $this->LZRTFCalcCRC32($src, 16, (($header['cSize'] + 4)) - 16)) {
             debugLog("CRC MISMATCH");
             return false;
         }
 
         if ($header['magic'] == 0x414c454d) {                   // uncompressed RTF - return as is.
-            $dest = substr($src,$in,$header['uSize']);
-        } else if ($header['magic'] == 0x75465a4c) {            // compressed RTF - uncompress.
+            $dest = substr($src, $in, $header['uSize']);
+        } elseif ($header['magic'] == 0x75465a4c) {            // compressed RTF - uncompress.
             $dst = $this->LZRTF_HDR_DATA;
             $out = $this->LZRTF_HDR_LEN;
             $oblen = $this->LZRTF_HDR_LEN + $header['uSize'];
             $flagCount = 0;
             $flags = 0;
-            while ($out<$oblen) {
+            while ($out < $oblen) {
                 $flags = ($flagCount++ % 8 == 0) ? ord($src{$in++}) : $flags >> 1;
                 if (($flags & 1) == 1) {
                     $offset = ord($src{$in++});
@@ -218,7 +230,9 @@ class rtf {
                     $offset = ($offset << 4) | ($length >> 4);
                     $length = ($length & 0xF) + 2;
                     $offset = (int)($out / 4096) * 4096 + $offset;
-                    if ($offset >= $out) $offset -= 4096;
+                    if ($offset >= $out) {
+                        $offset -= 4096;
+                    }
                     $end = $offset + $length;
                     while ($offset < $end) {
                         $dst{$out++} = $dst{$offset++};
@@ -228,7 +242,7 @@ class rtf {
                 }
             }
             $src = $dst;
-            $dest = substr($src,$this->LZRTF_HDR_LEN,$header['uSize']);
+            $dest = substr($src, $this->LZRTF_HDR_LEN, $header['uSize']);
         } else {                                                // unknown magic - returfn false (please report if this ever happens)
             debugLog("Unknown Magic");
             return false;
@@ -242,29 +256,33 @@ class rtf {
     // off = start point of crc calculation
     // len = length of data to calculate CRC for
     // function is necessary since in RTF there is no XOR 0xffffffff being done (said to be 0x00 unsafe CRC32 calculation
-    function LZRTFCalcCRC32($buf, $off, $len) {
-        $c=0;
+    function LZRTFCalcCRC32($buf, $off, $len)
+    {
+        $c = 0;
         $end = $off + $len;
-        for($i=$off;$i < $end;$i++) {
-            $c=$this->CRC32_TABLE[($c ^ ord($buf{$i})) & 0xFF] ^ (($c >> 8) & 0x00ffffff);
+        for ($i = $off; $i < $end; $i++) {
+            $c = $this->CRC32_TABLE[($c ^ ord($buf{$i})) & 0xFF] ^ (($c >> 8) & 0x00ffffff);
         }
         return $c;
     }
 
-    function parserInit() { /* Default values according to the specs */
-        $this->flags = array(
+    function parserInit()
+    {
+ /* Default values according to the specs */
+        $this->flags = [
             "fontsize"          => 24,
             "beginparagraph"    => true,
-        );
+        ];
     }
 
-    function parseControl($control, $parameter) {
+    function parseControl($control, $parameter)
+    {
         switch ($control) {
             case "fonttbl":             // font table definition start
                 $this->flags["fonttbl"] = true; // signal fonttable control words they are allowed to behave as expected
                 break;
             case "f":                   // define or set font
-                if($this->flags["fonttbl"]) {   // if its set, the fonttable definition is written to; else its read from
+                if ($this->flags["fonttbl"]) {   // if its set, the fonttable definition is written to; else its read from
                     $this->flags["fonttbl_current_write"] = $parameter;
                 } else {
                     $this->flags["fonttbl_current_read"] = $parameter;
@@ -289,10 +307,10 @@ class rtf {
                 break;
             case "par":                 // define new paragraph (for now, thats a simple break in html) begin new line
                 $this->flags["beginparagraph"] = true;
-                if($this->wantHTML) {
+                if ($this->wantHTML) {
                     $this->out .= "</div>";
                 }
-                if($this->wantASCII) {
+                if ($this->wantASCII) {
                     $this->out .= "\n";
                 }
                 break;
@@ -300,34 +318,38 @@ class rtf {
                 $parameter = "0";
             case "b":
                 // haven'y yet figured out WHY I need a (string)-cast here ... hm
-                if((string)$parameter == "0")
+                if ((string)$parameter == "0") {
                     $this->flags["bold"] = false;
-                else
+                } else {
                     $this->flags["bold"] = true;
+                }
                 break;
             case "ulnone":              // underlined
                 $parameter = "0";
             case "ul":
-                if((string)$parameter == "0")
+                if ((string)$parameter == "0") {
                     $this->flags["underlined"] = false;
-                else
+                } else {
                     $this->flags["underlined"] = true;
+                }
                 break;
             case "inone":               // italic
                 $parameter = "0";
             case "i":
-                if((string)$parameter == "0")
+                if ((string)$parameter == "0") {
                     $this->flags["italic"] = false;
-                else
+                } else {
                     $this->flags["italic"] = true;
+                }
                 break;
             case "strikenone":          // strikethru
                 $parameter = "0";
             case "strike":
-                if((string)$parameter == "0")
+                if ((string)$parameter == "0") {
                     $this->flags["strikethru"] = false;
-                else
+                } else {
                     $this->flags["strikethru"] = true;
+                }
                 break;
             case "plain":               // reset all font modifiers and fontsize to 12
                 $this->flags["bold"] = false;
@@ -342,18 +364,20 @@ class rtf {
             case "subnone":             // subscription
                 $parameter = "0";
             case "sub":
-                if((string)$parameter == "0")
+                if ((string)$parameter == "0") {
                     $this->flags["subscription"] = false;
-                else
+                } else {
                     $this->flags["subscription"] = true;
+                }
                 break;
             case "supernone":           // superscription
                 $parameter = "0";
             case "super":
-                if((string)$parameter == "0")
+                if ((string)$parameter == "0") {
                     $this->flags["superscription"] = false;
-                else
+                } else {
                     $this->flags["superscription"] = true;
+                }
                 break;
         }
     }
@@ -362,14 +386,16 @@ class rtf {
         Dispatch the control word to the output stream
     */
 
-    function flushControl() {
-        if(preg_match("/^([A-Za-z]+)(-?[0-9]*) ?$/", $this->cword, $match)) {
+    function flushControl()
+    {
+        if (preg_match("/^([A-Za-z]+)(-?[0-9]*) ?$/", $this->cword, $match)) {
             $this->parseControl($match[1], $match[2]);
-            if($this->wantXML) {
-                $this->out.="<control word=\"".$match[1]."\"";
-                if(strlen($match[2]) > 0)
-                    $this->out.=" param=\"".$match[2]."\"";
-                $this->out.="/>";
+            if ($this->wantXML) {
+                $this->out .= "<control word=\"".$match[1]."\"";
+                if (strlen($match[2]) > 0) {
+                    $this->out .= " param=\"".$match[2]."\"";
+                }
+                $this->out .= "/>";
             }
         }
     }
@@ -378,9 +404,10 @@ class rtf {
         If output stream supports comments, dispatch it
     */
 
-    function flushComment($comment) {
-        if($this->wantXML || $this->wantHTML) {
-            $this->out.="<!-- ".$comment." -->";
+    function flushComment($comment)
+    {
+        if ($this->wantXML || $this->wantHTML) {
+            $this->out .= "<!-- ".$comment." -->";
         }
     }
 
@@ -388,14 +415,16 @@ class rtf {
         Dispatch start/end of logical rtf groups (not every output type needs it; merely debugging purpose)
     */
 
-    function flushGroup($state) {
-        if($state == "open") { /* push onto the stack */
+    function flushGroup($state)
+    {
+        if ($state == "open") { /* push onto the stack */
             array_push($this->stack, $this->flags);
 
-            if($this->wantXML)
-                $this->out.="<group>";
+            if ($this->wantXML) {
+                $this->out .= "<group>";
+            }
         }
-        if($state == "close") { /* pop from the stack */
+        if ($state == "close") { /* pop from the stack */
             $this->last_flags = $this->flags;
             $this->flags = array_pop($this->stack);
 
@@ -406,29 +435,36 @@ class rtf {
                                                         // therefore an stacked approach is heavily needed
             $this->flags["fonttbl"] = false;            // no matter what you do, if a group closes, its fonttbl definition is closed too
 
-            if($this->wantXML)
-                $this->out.="</group>";
+            if ($this->wantXML) {
+                $this->out .= "</group>";
+            }
         }
     }
 
-    function flushHead() {
-        if($this->wantXML)
-            $this->out.="<rtf>";
+    function flushHead()
+    {
+        if ($this->wantXML) {
+            $this->out .= "<rtf>";
+        }
     }
 
-    function flushBottom() {
-        if($this->wantXML)
-            $this->out.="</rtf>";
+    function flushBottom()
+    {
+        if ($this->wantXML) {
+            $this->out .= "</rtf>";
+        }
     }
 
-    function checkHtmlSpanContent($command) {
+    function checkHtmlSpanContent($command)
+    {
         reset($this->fontmodifier_table);
-        while(list($rtf, $html) = each($this->fontmodifier_table)) {
-            if($this->flags[$rtf] == true) {
-                if($command == "start")
+        while (list($rtf, $html) = each($this->fontmodifier_table)) {
+            if ($this->flags[$rtf] == true) {
+                if ($command == "start") {
                     $this->out .= "<".$html.">";
-                else
+                } else {
                     $this->out .= "</".$html.">";
+                }
             }
         }
     }
@@ -436,8 +472,9 @@ class rtf {
     /*
         flush text in queue
     */
-    function flushQueue() {
-        if(strlen($this->queue)) {
+    function flushQueue()
+    {
+        if (strlen($this->queue)) {
             // processing logic
             if (isset($this->flags["fonttbl_want_fcharset"]) &&
                 preg_match("/^[0-9]+$/", $this->flags["fonttbl_want_fcharset"])) {
@@ -452,16 +489,18 @@ class rtf {
                     Everything which passes this is (or, at leat, *should*) be only outputted plaintext
                     Thats why we can safely add the css-stylesheet when using wantHTML
                 */
-                if($this->wantXML)
-                    $this->out.= "<plain>".$this->queue."</plain>";
-                else if($this->wantHTML) {
+                if ($this->wantXML) {
+                    $this->out .= "<plain>".$this->queue."</plain>";
+                } elseif ($this->wantHTML) {
                     // only output html if a valid (for now, just numeric;) fonttable is given
-					if (!isset($this->flags["fonttbl_current_read"])) $this->flags["fonttbl_current_read"] = "";
-                    if(preg_match("/^[0-9]+$/", $this->flags["fonttbl_current_read"])) {
-                        if($this->flags["beginparagraph"] == true) {
+                    if (!isset($this->flags["fonttbl_current_read"])) {
+                        $this->flags["fonttbl_current_read"] = "";
+                    }
+                    if (preg_match("/^[0-9]+$/", $this->flags["fonttbl_current_read"])) {
+                        if ($this->flags["beginparagraph"] == true) {
                             $this->flags["beginparagraph"] = false;
                             $this->out .= "<div align=\"";
-                            switch($this->flags["alignment"]) {
+                            switch ($this->flags["alignment"]) {
                                 case "right":
                                     $this->out .= "right";
                                     break;
@@ -499,51 +538,124 @@ class rtf {
         handle special charactes like \'ef
     */
 
-    function flushSpecial($special) {
-        if(strlen($special) == 2) {
-            if($this->wantASCII)
+    function flushSpecial($special)
+    {
+        if (strlen($special) == 2) {
+            if ($this->wantASCII) {
                 $this->out .= chr(hexdec('0x'.$special));
-            else if($this->wantXML)
+            } elseif ($this->wantXML) {
                 $this->out .= "<special value=\"".$special."\"/>";
-            else if($this->wantHTML){
+            } elseif ($this->wantHTML) {
                 $this->out .= "<special value=\"".$special."\"/>";
-                switch($special) {
-                    case "c1": $this->out .= "&Aacute;"; break;
-                    case "e1": $this->out .= "&aacute;"; break;
-                    case "c0": $this->out .= "&Agrave;"; break;
-                    case "e0": $this->out .= "&agrave;"; break;
-                    case "c9": $this->out .= "&Eacute;"; break;
-                    case "e9": $this->out .= "&eacute;"; break;
-                    case "c8": $this->out .= "&Egrave;"; break;
-                    case "e8": $this->out .= "&egrave;"; break;
-                    case "cd": $this->out .= "&Iacute;"; break;
-                    case "ed": $this->out .= "&iacute;"; break;
-                    case "cc": $this->out .= "&Igrave;"; break;
-                    case "ec": $this->out .= "&igrave;"; break;
-                    case "d3": $this->out .= "&Oacute;"; break;
-                    case "f3": $this->out .= "&oacute;"; break;
-                    case "d2": $this->out .= "&Ograve;"; break;
-                    case "f2": $this->out .= "&ograve;"; break;
-                    case "da": $this->out .= "&Uacute;"; break;
-                    case "fa": $this->out .= "&uacute;"; break;
-                    case "d9": $this->out .= "&Ugrave;"; break;
-                    case "f9": $this->out .= "&ugrave;"; break;
-                    case "80": $this->out .= "&#8364;"; break;
-                    case "d1": $this->out .= "&Ntilde;"; break;
-                    case "f1": $this->out .= "&ntilde;"; break;
-                    case "c7": $this->out .= "&Ccedil;"; break;
-                    case "e7": $this->out .= "&ccedil;"; break;
-                    case "dc": $this->out .= "&Uuml;"; break;
-                    case "fc": $this->out .= "&uuml;"; break;
-                    case "bf": $this->out .= "&#191;"; break;
-                    case "a1": $this->out .= "&#161;"; break;
-                    case "b7": $this->out .= "&middot;"; break;
-                    case "a9": $this->out .= "&copy;"; break;
-                    case "ae": $this->out .= "&reg;"; break;
-                    case "ba": $this->out .= "&ordm;"; break;
-                    case "aa": $this->out .= "&ordf;"; break;
-                    case "b2": $this->out .= "&sup2;"; break;
-                    case "b3": $this->out .= "&sup3;"; break;
+                switch ($special) {
+                    case "c1":
+                        $this->out .= "&Aacute;";
+                        break;
+                    case "e1":
+                        $this->out .= "&aacute;";
+                        break;
+                    case "c0":
+                        $this->out .= "&Agrave;";
+                        break;
+                    case "e0":
+                        $this->out .= "&agrave;";
+                        break;
+                    case "c9":
+                        $this->out .= "&Eacute;";
+                        break;
+                    case "e9":
+                        $this->out .= "&eacute;";
+                        break;
+                    case "c8":
+                        $this->out .= "&Egrave;";
+                        break;
+                    case "e8":
+                        $this->out .= "&egrave;";
+                        break;
+                    case "cd":
+                        $this->out .= "&Iacute;";
+                        break;
+                    case "ed":
+                        $this->out .= "&iacute;";
+                        break;
+                    case "cc":
+                        $this->out .= "&Igrave;";
+                        break;
+                    case "ec":
+                        $this->out .= "&igrave;";
+                        break;
+                    case "d3":
+                        $this->out .= "&Oacute;";
+                        break;
+                    case "f3":
+                        $this->out .= "&oacute;";
+                        break;
+                    case "d2":
+                        $this->out .= "&Ograve;";
+                        break;
+                    case "f2":
+                        $this->out .= "&ograve;";
+                        break;
+                    case "da":
+                        $this->out .= "&Uacute;";
+                        break;
+                    case "fa":
+                        $this->out .= "&uacute;";
+                        break;
+                    case "d9":
+                        $this->out .= "&Ugrave;";
+                        break;
+                    case "f9":
+                        $this->out .= "&ugrave;";
+                        break;
+                    case "80":
+                        $this->out .= "&#8364;";
+                        break;
+                    case "d1":
+                        $this->out .= "&Ntilde;";
+                        break;
+                    case "f1":
+                        $this->out .= "&ntilde;";
+                        break;
+                    case "c7":
+                        $this->out .= "&Ccedil;";
+                        break;
+                    case "e7":
+                        $this->out .= "&ccedil;";
+                        break;
+                    case "dc":
+                        $this->out .= "&Uuml;";
+                        break;
+                    case "fc":
+                        $this->out .= "&uuml;";
+                        break;
+                    case "bf":
+                        $this->out .= "&#191;";
+                        break;
+                    case "a1":
+                        $this->out .= "&#161;";
+                        break;
+                    case "b7":
+                        $this->out .= "&middot;";
+                        break;
+                    case "a9":
+                        $this->out .= "&copy;";
+                        break;
+                    case "ae":
+                        $this->out .= "&reg;";
+                        break;
+                    case "ba":
+                        $this->out .= "&ordm;";
+                        break;
+                    case "aa":
+                        $this->out .= "&ordf;";
+                        break;
+                    case "b2":
+                        $this->out .= "&sup2;";
+                        break;
+                    case "b3":
+                        $this->out .= "&sup3;";
+                        break;
                 }
             }
         }
@@ -552,11 +664,12 @@ class rtf {
     /*
         Output errors at end
     */
-    function flushErrors() {
-        if(count($this->err) > 0) {
-            if($this->wantXML) {
+    function flushErrors()
+    {
+        if (count($this->err) > 0) {
+            if ($this->wantXML) {
                 $this->out .= "<errors>";
-                while(list($num,$value) = each($this->err)) {
+                while (list($num,$value) = each($this->err)) {
                     $this->out .= "<message>".$value."</message>";
                 }
                 $this->out .= "</errors>";
@@ -564,21 +677,23 @@ class rtf {
         }
     }
 
-    function makeStyles() {
+    function makeStyles()
+    {
         $this->outstyles = "<style type=\"text/css\"><!--\n";
         reset($this->styles);
-        while(list($stylename, $styleattrib) = each($this->styles)) {
+        while (list($stylename, $styleattrib) = each($this->styles)) {
             $this->outstyles .= ".".$stylename." { ".$styleattrib." }\n";
         }
         $this->outstyles .= "--></style>\n";
     }
 
-    function parse() {
+    function parse()
+    {
 
         $this->parserInit();
 
         $i = 0;
-        $this->cw= false;       // flag if control word is currently parsed
+        $this->cw = false;       // flag if control word is currently parsed
         $this->cfirst = false;  // first control character ?
         $this->cword = "";      // last or current control word (depends on $this->cw
 
@@ -586,51 +701,56 @@ class rtf {
 
         $this->flushHead();
 
-        while($i < $this->rtf_len) {
-            switch($this->rtf[$i]) {
+        while ($i < $this->rtf_len) {
+            switch ($this->rtf[$i]) {
                 case "{":
-                    if($this->cw) {
+                    if ($this->cw) {
                         $this->flushControl();
                         $this->cw = false;
                         $this->cfirst = false;
-                    } else
+                    } else {
                         $this->flushQueue();
+                    }
 
                     $this->flushGroup("open");
                     break;
                 case "}":
-                    if($this->cw) {
+                    if ($this->cw) {
                         $this->flushControl();
                         $this->cw = false;
                         $this->cfirst = false;
-                    } else
+                    } else {
                         $this->flushQueue();
+                    }
 
                     $this->flushGroup("close");
                     break;
                 case "\\":
-                    if($this->cfirst) { // catches '\\'
+                    if ($this->cfirst) { // catches '\\'
                         $this->queue .= "\\"; // replaced single quotes
                         $this->cfirst = false;
                         $this->cw = false;
                         break;
                     }
-                    if($this->cw) {
+                    if ($this->cw) {
                         $this->flushControl();
-                    } else
+                    } else {
                         $this->flushQueue();
+                    }
                     $this->cw = true;
                     $this->cfirst = true;
                     $this->cword = "";
                     break;
                 default:
-                    if((ord($this->rtf[$i]) == 10) || (ord($this->rtf[$i]) == 13)) break; // eat line breaks
-                    if($this->cw) {     // active control word ?
+                    if ((ord($this->rtf[$i]) == 10) || (ord($this->rtf[$i]) == 13)) {
+                        break; // eat line breaks
+                    }
+                    if ($this->cw) {     // active control word ?
                         /*
                             Watch the RE: there's an optional space at the end which IS part of
                             the control word (but actually its ignored by flushControl)
                         */
-                        if(preg_match("/^[a-zA-Z0-9-]?$/", $this->rtf[$i])) { // continue parsing
+                        if (preg_match("/^[a-zA-Z0-9-]?$/", $this->rtf[$i])) { // continue parsing
                             $this->cword .= $this->rtf[$i];
                             $this->cfirst = false;
                         } else {
@@ -638,29 +758,28 @@ class rtf {
                                 Control word could be a 'control symbol', like \~ or \* etc.
                             */
                             $specialmatch = false;
-                            if($this->cfirst) {
-                                if($this->rtf[$i] == '\'') { // expect to get some special chars
+                            if ($this->cfirst) {
+                                if ($this->rtf[$i] == '\'') { // expect to get some special chars
                                     $this->flushQueue();
-                                    $this->flushSpecial($this->rtf[$i+1].$this->rtf[$i+2]);
-                                    $i+=2;
+                                    $this->flushSpecial($this->rtf[$i + 1].$this->rtf[$i + 2]);
+                                    $i += 2;
                                     $specialmatch = true;
                                     $this->cw = false;
                                     $this->cfirst = false;
                                     $this->cword = "";
-                                } else
-                                    if(preg_match("/^[{}\*]$/", $this->rtf[$i])) {
-                                        $this->flushComment("control symbols not yet handled");
-                                        $specialmatch = true;
-                                    }
+                                } elseif (preg_match("/^[{}\*]$/", $this->rtf[$i])) {
+                                    $this->flushComment("control symbols not yet handled");
+                                    $specialmatch = true;
+                                }
                                 $this->cfirst = false;
                             } else {
-                                if($this->rtf[$i] == ' ') {     // space delimtes control words, so just discard it and flush the controlword
+                                if ($this->rtf[$i] == ' ') {     // space delimtes control words, so just discard it and flush the controlword
                                     $this->cw = false;
                                     $this->flushControl();
                                     break;
                                 }
                             }
-                            if(!$specialmatch) {
+                            if (!$specialmatch) {
                                 $this->flushControl();
                                 $this->cw = false;
                                 $this->cfirst = false;
@@ -674,8 +793,8 @@ class rtf {
                         }
                     } else {
                         // < and > need translation before putting into queue when XML or HTML is wanted
-                        if(($this->wantHTML) || ($this->wantXML)) {
-                            switch($this->rtf[$i]) {
+                        if (($this->wantHTML) || ($this->wantXML)) {
+                            switch ($this->rtf[$i]) {
                                 case "<":
                                     $this->queue .= "&lt;";
                                     break;
@@ -686,10 +805,10 @@ class rtf {
                                     $this->queue .= $this->rtf[$i];
                                     break;
                             }
-                        } else
+                        } else {
                             $this->queue .= $this->rtf[$i];
+                        }
                     }
-
             }
             $i++;
         }
@@ -697,7 +816,7 @@ class rtf {
         $this->flushErrors();
         $this->flushBottom();
 
-        if($this->wantHTML) {
+        if ($this->wantHTML) {
             $this->makeStyles();
         }
     }

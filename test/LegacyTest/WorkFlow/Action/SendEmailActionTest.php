@@ -21,7 +21,7 @@ class SendEmailActionTest extends AbstractActionTests
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Cleanup entities
@@ -63,7 +63,7 @@ class SendEmailActionTest extends AbstractActionTests
 
         // Setup an action
         $action = new SendEmailAction($this->entityLoader, $this->actionFactory, $senderService);
-        $action->setParam("to", array("<%owner_id.email%>"));
+        $action->setParam("to", ["<%owner_id.email%>"]);
         $action->setParam("subject", "Automated Email");
         $action->setParam("body", "Hello <%owner_id.name%>");
         $action->setParam("from", "test@test.com");

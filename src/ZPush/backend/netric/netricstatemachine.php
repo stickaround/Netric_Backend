@@ -325,7 +325,7 @@ class NetricStateMachine implements IStateMachine
             // Remove all the states. Counter are 0 or >0, then deleting >= 0 deletes all
             $sql .= " AND counter>=:counter";
             $params["counter"] = 0;
-        } else if ($counter !== false && $thisCounterOnly === true) {
+        } elseif ($counter !== false && $thisCounterOnly === true) {
             $sql .= " AND counter=:counter";
         } else {
             $sql .= " AND counter<:counter";
@@ -517,10 +517,10 @@ class NetricStateMachine implements IStateMachine
         if ($result->rowCount()) {
             // Get all devices
             foreach ($result->fetchAll() as $row) {
-                $state = array('type' => false, 'counter' => false, 'uuid' => false);
+                $state = ['type' => false, 'counter' => false, 'uuid' => false];
                 if ($row["state_type"] !== null && strlen($row["state_type"]) > 0) {
                     $state["type"] = $row["state_type"];
-                } else if ($row["counter"] !== null && is_numeric($row["counter"])) {
+                } elseif ($row["counter"] !== null && is_numeric($row["counter"])) {
                     $state["type"] = "";
                 }
                 if ($row["counter"] !== null && strlen($row["counter"]) > 0) {

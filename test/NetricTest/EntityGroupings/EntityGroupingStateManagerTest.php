@@ -25,7 +25,7 @@ class EntityGroupingStateManagerTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
     }
 
@@ -35,7 +35,7 @@ class EntityGroupingStateManagerTest extends TestCase
     public function testGet()
     {
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
-        
+
         // Create test group
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
         $newGroup = $groupings->create();
@@ -43,11 +43,11 @@ class EntityGroupingStateManagerTest extends TestCase
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
 
-        
+
         // Load through loader
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $groupingLoader->clearCache(ObjectTypes::CONTACT, "groups");
-        
+
         // Use the loader to get the object
         $grp = $groupingLoader->get(ObjectTypes::CONTACT . "/groups")->getByName($newGroup->name);
         $this->assertNotNull($grp);

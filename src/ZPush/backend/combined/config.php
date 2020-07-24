@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class BackendCombinedConfig {
+class BackendCombinedConfig
+{
 
     // *************************
     //  BackendCombined settings
@@ -36,40 +37,41 @@ class BackendCombinedConfig {
      * @return array
      *
      */
-    public static function GetBackendCombinedConfig() {
+    public static function GetBackendCombinedConfig()
+    {
         //use a function for it because php does not allow
         //assigning variables to the class members (expecting T_STRING)
-        return array(
+        return [
             //the order in which the backends are loaded.
             //login only succeeds if all backend return true on login
             //sending mail: the mail is sent with first backend that is able to send the mail
-            'backends' => array(
-                'i' => array(
+            'backends' => [
+                'i' => [
                     'name' => 'BackendIMAP',
-                ),
-                'z' => array(
+                ],
+                'z' => [
                     'name' => 'BackendKopano',
-                ),
-                'm' => array(
+                ],
+                'm' => [
                     'name' => 'BackendMaildir',
-                ),
-                'v' => array(
+                ],
+                'v' => [
                     'name' => 'BackendVCardDir',
-                ),
-                'l' => array(
+                ],
+                'l' => [
                     'name' => 'BackendLDAP',
-                ),
-                'd' => array(
+                ],
+                'd' => [
                     'name' => 'BackendCardDAV',
-                ),
-                'c' => array(
+                ],
+                'c' => [
                     'name' => 'BackendCalDAV',
-                ),
-            ),
+                ],
+            ],
             'delimiter' => '/',
             //force one type of folder to one backend
             //it must match one of the above defined backends
-            'folderbackend' => array(
+            'folderbackend' => [
                 SYNC_FOLDER_TYPE_INBOX => 'i',
                 SYNC_FOLDER_TYPE_DRAFTS => 'i',
                 SYNC_FOLDER_TYPE_WASTEBASKET => 'i',
@@ -88,9 +90,9 @@ class BackendCombinedConfig {
                 SYNC_FOLDER_TYPE_USER_JOURNAL => 'z',
                 SYNC_FOLDER_TYPE_USER_NOTE => 'z',
                 SYNC_FOLDER_TYPE_UNKNOWN => 'z',
-            ),
+            ],
             //creating a new folder in the root folder should create a folder in one backend
             'rootcreatefolderbackend' => 'i',
-        );
+        ];
     }
 }

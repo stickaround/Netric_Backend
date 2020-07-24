@@ -52,7 +52,7 @@ class DaclLoaderTest extends TestCase
     private $testEntities = [];
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
@@ -75,7 +75,7 @@ class DaclLoaderTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         $serviceLocator = $this->account->getServiceManager();
 
         // Delete any test entities
@@ -100,14 +100,14 @@ class DaclLoaderTest extends TestCase
         // New file
         $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
-        $daclData = array(
-            "entries" => array(
-                array(
+        $daclData = [
+            "entries" => [
+                [
                     "name" => Dacl::PERM_VIEW,
                     "users" => [$this->user->getEntityId()]
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
         $file->setValue("dacl", json_encode($daclData));
         $entityLoader->save($file);
         $this->testEntities[] = $file;
@@ -129,14 +129,14 @@ class DaclLoaderTest extends TestCase
         // New folder which is the parent of a file
         $folder = $entityLoader->create(ObjectTypes::FOLDER);
         $folder->setValue("name", "MyFolder");
-        $daclData = array(
-            "entries" => array(
-                array(
+        $daclData = [
+            "entries" => [
+                [
                     "name" => Dacl::PERM_VIEW,
                     "users" => [$this->user->getEntityId()]
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
         $folder->setValue("dacl", json_encode($daclData));
         $entityLoader->save($folder);
         $this->testEntities[] = $folder;

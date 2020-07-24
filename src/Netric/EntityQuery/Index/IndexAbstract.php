@@ -150,7 +150,7 @@ abstract class IndexAbstract
      */
     public function getHeiarchyUp(Field $field, $this_id)
     {
-        $parent_arr = array($this_id);
+        $parent_arr = [$this_id];
 
         // TODO: finish
         /*
@@ -183,7 +183,7 @@ abstract class IndexAbstract
      */
     public function getHeiarchyUpObj($objType, $oid)
     {
-        $ret = array($oid);
+        $ret = [$oid];
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $ent = $entityLoader->getByGuid($oid);
@@ -217,7 +217,7 @@ abstract class IndexAbstract
             throw new \Exception("Circular reference found in $entityGuid");
         }
 
-        $ret = array($entityGuid);
+        $ret = [$entityGuid];
         $aProtectCircular[] = $entityGuid;
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -431,7 +431,7 @@ abstract class IndexAbstract
     public function getFieldUsingFieldName(EntityDefinition $entityDefinition, $fieldName)
     {
         // Look for associated object conditions
-        $parts = array($fieldName);
+        $parts = [$fieldName];
         $refField = "";
 
         if (strpos($fieldName, ".")) {

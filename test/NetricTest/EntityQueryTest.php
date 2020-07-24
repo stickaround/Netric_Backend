@@ -19,7 +19,7 @@ class EntityQueryTest extends TestCase
         $query->where('name')->equals("test");
         //$query->orWhere('fieldname')->isGreaterThan("value");
         //$query->andWhere('fieldname')->isLessThan("value");
-        
+
         // Get the protected and private values
         $refColl = new \ReflectionObject($query);
         $wheresProp = $refColl->getProperty('wheres');
@@ -30,7 +30,7 @@ class EntityQueryTest extends TestCase
         $this->assertEquals("name", $wheres[0]->fieldName, "Where name not set");
         $this->assertEquals("test", $wheres[0]->value, "Where condtiion value not set");
     }
-    
+
     /**
      * Test addition an order by condition to a collection
      */
@@ -79,27 +79,27 @@ class EntityQueryTest extends TestCase
      */
     public function testFromArray()
     {
-        $arrQueryData = array(
+        $arrQueryData = [
             'obj_type' => ObjectTypes::CONTACT,
             'limit' => 100,
             'offset' => 20,
-            'conditions' => array(
-                array(
+            'conditions' => [
+                [
                     'field_name' => 'name',
                     'operator' => EntityQuery\Where::OPERATOR_EQUAL_TO,
                     'value' => 'realname'
-                ),
-                array(
+                ],
+                [
                     'blogic' => EntityQuery\Where::COMBINED_BY_AND,
                     'field_name' => 'name',
                     'operator' => EntityQuery\Where::OPERATOR_NOT_EQUAL_TO,
                     'value' => 'fakename'
-                )
-            ),
-            'order_by' => array(
-                array('field_name'=>'name', 'direction'=>EntityQuery\OrderBy::DESCENDING)
-            )
-        );
+                ]
+            ],
+            'order_by' => [
+                ['field_name' => 'name', 'direction' => EntityQuery\OrderBy::DESCENDING]
+            ]
+        ];
 
         $query = new EntityQuery($arrQueryData['obj_type']);
         $query->fromArray($arrQueryData);

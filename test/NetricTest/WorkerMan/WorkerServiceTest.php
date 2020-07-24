@@ -30,7 +30,7 @@ class WorkerServicetest extends TestCase
     private $workerService = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
@@ -41,17 +41,17 @@ class WorkerServicetest extends TestCase
 
     public function testDoWork()
     {
-        $this->assertTrue($this->workerService->doWork("Test", array("mystring"=>"test")));
+        $this->assertTrue($this->workerService->doWork("Test", ["mystring" => "test"]));
     }
 
     public function testDoWorkBackground()
     {
-        $this->assertEquals("1", $this->workerService ->doWorkBackground("Test", array("mystring"=>"test")));
+        $this->assertEquals("1", $this->workerService ->doWorkBackground("Test", ["mystring" => "test"]));
     }
 
     public function testProcessJobQueue()
     {
-        $this->workerService->doWorkBackground("Test", array("mystring"=>"test"));
+        $this->workerService->doWorkBackground("Test", ["mystring" => "test"]);
         $this->assertTrue($this->workerService->processJobQueue());
     }
 }

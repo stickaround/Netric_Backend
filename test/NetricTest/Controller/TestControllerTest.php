@@ -23,6 +23,6 @@ class TestControllerTest extends TestCase
     {
         $con = new TestController();
         $ret = $con->getTestAction(new HttpRequest());
-        $this->assertEquals(['param'=>'test'], $ret->getOutputBuffer());
+        $this->assertEquals(['param' => 'test'], $ret->getOutputBuffer());
     }
 }

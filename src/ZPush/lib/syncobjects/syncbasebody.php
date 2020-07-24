@@ -26,28 +26,30 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncBaseBody extends SyncObject {
+class SyncBaseBody extends SyncObject
+{
     public $type; //Possible types are plain text, html, rtf and mime
     public $estimatedDataSize;
     public $truncated;
     public $data;
     public $preview;
 
-    function __construct() {
-        $mapping = array(
-                    SYNC_AIRSYNCBASE_TYPE                               => array (self::STREAMER_VAR        => "type"),
-                    SYNC_AIRSYNCBASE_ESTIMATEDDATASIZE                  => array (self::STREAMER_VAR        => "estimatedDataSize",
-                                                                                  self::STREAMER_PRIVATE    => 0),          // when stripping private we remove the body, so the size needs to be 0
-                    SYNC_AIRSYNCBASE_TRUNCATED                          => array (self::STREAMER_VAR        => "truncated"),
-                    SYNC_AIRSYNCBASE_DATA                               => array (self::STREAMER_VAR        => "data",
+    function __construct()
+    {
+        $mapping = [
+                    SYNC_AIRSYNCBASE_TYPE                               => [self::STREAMER_VAR        => "type"],
+                    SYNC_AIRSYNCBASE_ESTIMATEDDATASIZE                  => [self::STREAMER_VAR        => "estimatedDataSize",
+                                                                                  self::STREAMER_PRIVATE    => 0],          // when stripping private we remove the body, so the size needs to be 0
+                    SYNC_AIRSYNCBASE_TRUNCATED                          => [self::STREAMER_VAR        => "truncated"],
+                    SYNC_AIRSYNCBASE_DATA                               => [self::STREAMER_VAR        => "data",
                                                                                   self::STREAMER_TYPE       => self::STREAMER_TYPE_STREAM_ASPLAIN,
                                                                                   self::STREAMER_RONOTIFY   => true,
-                                                                                  self::STREAMER_PRIVATE    => true),       // just remove the body when stripping private
-        );
-        if(Request::GetProtocolVersion() >= 14.0) {
-            $mapping[SYNC_AIRSYNCBASE_PREVIEW]                          =  array (self::STREAMER_VAR        => "preview",
+                                                                                  self::STREAMER_PRIVATE    => true],       // just remove the body when stripping private
+        ];
+        if (Request::GetProtocolVersion() >= 14.0) {
+            $mapping[SYNC_AIRSYNCBASE_PREVIEW]                          = [self::STREAMER_VAR        => "preview",
                                                                                   self::STREAMER_PRIVATE    => true
-            );
+            ];
         }
 
         parent::__construct($mapping);

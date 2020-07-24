@@ -345,7 +345,7 @@ class EntityDefinition
      */
     public function getFieldType($name)
     {
-        $arr = array("type" => null, "subtype" => null);
+        $arr = ["type" => null, "subtype" => null];
 
         if (isset($this->fields[$name]->type)) {
             $arr['type'] = $this->fields[$name]->type;
@@ -395,7 +395,7 @@ class EntityDefinition
      */
     public function toArray()
     {
-        $ret = array(
+        $ret = [
             "id" => $this->id,
             "obj_type" => $this->objType,
             "title" => $this->title,
@@ -416,7 +416,7 @@ class EntityDefinition
             "dacl" => '',
             "store_revisions" => $this->storeRevisions,
             "parent_field" => $this->parentField,
-        );
+        ];
 
         // Add fields for this object definition
         foreach ($this->fields as $fname => $field) {
@@ -433,12 +433,12 @@ class EntityDefinition
         }
 
         foreach ($this->aggregates as $agg) {
-            $ret['aggregates'][] = array(
+            $ret['aggregates'][] = [
                 'type' => $agg->type,
                 'calc_field' => $agg->calcField,
                 'obj_field_to_update' => $agg->refField,
                 'ref_obj_update' => $agg->field,
-            );
+            ];
         }
 
         if ($this->getDacl()) {

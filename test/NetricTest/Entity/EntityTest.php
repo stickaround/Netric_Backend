@@ -40,7 +40,7 @@ class EntityTest extends TestCase
      *
      * @var EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Setup each test
@@ -126,16 +126,16 @@ class EntityTest extends TestCase
      */
     public function testFromArray()
     {
-        $data = array(
+        $data = [
             "name" => "testFromArray",
             "last_contacted" => time(),
             "f_nocall" => true,
             "company" => "test company",
             "owner_id" => $this->user->getEntityId(),
-            "owner_id_fval" => array(
+            "owner_id_fval" => [
                 $this->user->getEntityId() => $this->user->getValue("name")
-            ),
-        );
+            ],
+        ];
 
         // Load data into entity
         $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
@@ -154,13 +154,13 @@ class EntityTest extends TestCase
         $dataMapper->save($cust);
 
         // Now let's test the updating of entity with only specific fields
-        $updatedData = array(
+        $updatedData = [
             "name" => "Updated Customer From Array",
             "owner_id" => 5,
-            "owner_id_fval" => array(
+            "owner_id_fval" => [
                 5 => "Updated Customer Owner"
-            )
-        );
+            ]
+        ];
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $existingCust = $entityLoader->getByGuid($cust->getEntityId());
@@ -188,10 +188,10 @@ class EntityTest extends TestCase
         $cust->addMultiValue("attachments", 1, "fakefile.txt");
 
         // This should unset the attachments property set above
-        $data = array(
-            "attachments" => array(),
-            "attachments_fval" => array(),
-        );
+        $data = [
+            "attachments" => [],
+            "attachments_fval" => [],
+        ];
 
         // Load data into entity
         $cust->fromArray($data);
@@ -291,19 +291,19 @@ class EntityTest extends TestCase
         $test1 = "Hey [user:$uuid1:Sky] this is my test";
         $taggedReferences = Entity::getTaggedObjRef($test1);
         $this->assertEquals(1, count($taggedReferences));
-        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid1, "name" => "Sky"), $taggedReferences[0]);
+        $this->assertEquals(["obj_type" => "user", "entity_id" => $uuid1, "name" => "Sky"], $taggedReferences[0]);
 
         $test2 = "This would test multiple [user:$uuid1:Sky] and [user:$uuid2:John]";
         $taggedReferences = Entity::getTaggedObjRef($test2);
         $this->assertEquals(2, count($taggedReferences));
-        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid1, "name" => "Sky"), $taggedReferences[0]);
-        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid2, "name" => "John"), $taggedReferences[1]);
+        $this->assertEquals(["obj_type" => "user", "entity_id" => $uuid1, "name" => "Sky"], $taggedReferences[0]);
+        $this->assertEquals(["obj_type" => "user", "entity_id" => $uuid2, "name" => "John"], $taggedReferences[1]);
 
         // Test unicode = John in Chinese
         $test1 = "Hey [user:$uuid1:约翰·] this is my test";
         $taggedReferences = Entity::getTaggedObjRef($test1);
         $this->assertEquals(1, count($taggedReferences));
-        $this->assertEquals(array("obj_type" => "user", "entity_id" => $uuid1, "name" => "约翰·"), $taggedReferences[0]);
+        $this->assertEquals(["obj_type" => "user", "entity_id" => $uuid1, "name" => "约翰·"], $taggedReferences[0]);
     }
 
     /**
@@ -345,7 +345,7 @@ class EntityTest extends TestCase
         $this->assertTrue(in_array($userGuid1, $followers));
         $this->assertTrue(in_array($userGuid2, $followers));
 
-        // Should only have 2 followers 
+        // Should only have 2 followers
         // Since the other 2 followers ([user:0:invalidId] and [user:abc:nonNumericId]) are invalid
         $this->assertEquals(3, count($followers));
     }

@@ -37,7 +37,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-abstract class Backend implements IBackend {
+abstract class Backend implements IBackend
+{
     protected $permanentStorage;
     protected $stateStorage;
 
@@ -46,7 +47,8 @@ abstract class Backend implements IBackend {
      *
      * @access public
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -56,7 +58,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return boolean/object
      */
-    public function GetStateMachine() {
+    public function GetStateMachine()
+    {
         return false;
     }
 
@@ -67,7 +70,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return object       Implementation of ISearchProvider
      */
-    public function GetSearchProvider() {
+    public function GetSearchProvider()
+    {
         return new SearchProvider();
     }
 
@@ -79,7 +83,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return string       AS version constant
      */
-    public function GetSupportedASVersion() {
+    public function GetSupportedASVersion()
+    {
         return ZPush::ASV_25;
     }
 
@@ -112,7 +117,8 @@ abstract class Backend implements IBackend {
      * @return boolean
      * @throws StatusException
      */
-    public function EmptyFolder($folderid, $includeSubfolders = true) {
+    public function EmptyFolder($folderid, $includeSubfolders = true)
+    {
         return false;
     }
 
@@ -123,7 +129,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return boolean
      */
-    public function HasChangesSink() {
+    public function HasChangesSink()
+    {
         return false;
     }
 
@@ -137,9 +144,10 @@ abstract class Backend implements IBackend {
      * @access public
      * @return boolean      false if there is any problem with that folder
      */
-     public function ChangesSinkInitialize($folderid) {
-         return false;
-     }
+    public function ChangesSinkInitialize($folderid)
+    {
+        return false;
+    }
 
     /**
      * The actual ChangesSink.
@@ -152,8 +160,9 @@ abstract class Backend implements IBackend {
      * @access public
      * @return array
      */
-    public function ChangesSink($timeout = 30) {
-        return array();
+    public function ChangesSink($timeout = 30)
+    {
+        return [];
     }
 
     /**
@@ -164,7 +173,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return SyncObject   $settings
      */
-    public function Settings($settings) {
+    public function Settings($settings)
+    {
         if ($settings instanceof SyncOOF) {
             $isget = !empty($settings->bodytype);
             $settings = new SyncOOF();
@@ -178,7 +188,7 @@ abstract class Backend implements IBackend {
             }
         }
         if ($settings instanceof SyncUserInformation) {
-            $settings->emailaddresses = array(ZPush::GetBackend()->GetUserDetails(Request::GetAuthUser())['emailaddress']);
+            $settings->emailaddresses = [ZPush::GetBackend()->GetUserDetails(Request::GetAuthUser())['emailaddress']];
             $settings->Status = SYNC_SETTINGSSTATUS_SUCCESS;
         }
         return $settings;
@@ -192,7 +202,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return SyncObject       $resolveRecipients
      */
-    public function ResolveRecipients($resolveRecipients) {
+    public function ResolveRecipients($resolveRecipients)
+    {
         $r = new SyncResolveRecipients();
         $r->status = SYNC_RESOLVERECIPSSTATUS_PROTOCOLERROR;
         return $r;
@@ -206,8 +217,9 @@ abstract class Backend implements IBackend {
      * @access public
      * @return Array
      */
-    public function GetUserDetails($username) {
-        return array('emailaddress' => $username, 'fullname' => $username);
+    public function GetUserDetails($username)
+    {
+        return ['emailaddress' => $username, 'fullname' => $username];
     }
 
     /**
@@ -216,7 +228,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return Array
      */
-    public function GetCurrentUsername() {
+    public function GetCurrentUsername()
+    {
         return $this->GetUserDetails(Request::GetAuthUser());
     }
 
@@ -226,7 +239,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return boolean
      */
-    public function HasFolderStats() {
+    public function HasFolderStats()
+    {
         return false;
     }
 
@@ -241,7 +255,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return string
      */
-    public function GetFolderStat($store, $folderid) {
+    public function GetFolderStat($store, $folderid)
+    {
         // As this is not implemented, the value returned will change every hour.
         // This will only be called if HasFolderStats() returns true.
         return "not implemented-".gmdate("Y-m-d-H");
@@ -253,7 +268,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return KoeSignatures
      */
-    public function GetKoeSignatures() {
+    public function GetKoeSignatures()
+    {
         return new KoeSignatures();
     }
 
@@ -284,15 +300,14 @@ abstract class Backend implements IBackend {
      * @access protected
      * @return
      */
-    protected function InitializePermanentStorage() {
+    protected function InitializePermanentStorage()
+    {
         if (!isset($this->permanentStorage)) {
             try {
                 $this->permanentStorage = ZPush::GetDeviceManager()->GetStateManager()->GetBackendStorage(StateManager::BACKENDSTORAGE_PERMANENT);
-            }
-            catch (StateNotYetAvailableException $snyae) {
+            } catch (StateNotYetAvailableException $snyae) {
                 $this->permanentStorage = new StateObject();
-            }
-            catch(StateNotFoundException $snfe) {
+            } catch (StateNotFoundException $snfe) {
                 $this->permanentStorage = new StateObject();
             }
         }
@@ -305,15 +320,14 @@ abstract class Backend implements IBackend {
      * @access protected
      * @return
      */
-    protected function InitializeStateStorage() {
+    protected function InitializeStateStorage()
+    {
         if (!isset($this->stateStorage)) {
             try {
                 $this->stateStorage = ZPush::GetDeviceManager()->GetStateManager()->GetBackendStorage(StateManager::BACKENDSTORAGE_STATE);
-            }
-            catch (StateNotYetAvailableException $snyae) {
+            } catch (StateNotYetAvailableException $snyae) {
                 $this->stateStorage = new StateObject();
-            }
-            catch(StateNotFoundException $snfe) {
+            } catch (StateNotFoundException $snfe) {
                 $this->stateStorage = new StateObject();
             }
         }
@@ -327,20 +341,21 @@ abstract class Backend implements IBackend {
      * @access protected
      * @return
      */
-    protected function SaveStorages() {
+    protected function SaveStorages()
+    {
         if (isset($this->permanentStorage)) {
             try {
                 ZPush::GetDeviceManager()->GetStateManager()->SetBackendStorage($this->permanentStorage, StateManager::BACKENDSTORAGE_PERMANENT);
+            } catch (StateNotYetAvailableException $snyae) {
+            } catch (StateNotFoundException $snfe) {
             }
-            catch (StateNotYetAvailableException $snyae) { }
-            catch(StateNotFoundException $snfe) { }
         }
         if (isset($this->stateStorage)) {
             try {
                 ZPush::GetDeviceManager()->GetStateManager()->SetBackendStorage($this->stateStorage, StateManager::BACKENDSTORAGE_STATE);
+            } catch (StateNotYetAvailableException $snyae) {
+            } catch (StateNotFoundException $snfe) {
             }
-            catch (StateNotYetAvailableException $snyae) { }
-            catch(StateNotFoundException $snfe) { }
         }
     }
 
@@ -353,7 +368,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return string|boolean
      */
-    public function GetUserPolicyName() {
+    public function GetUserPolicyName()
+    {
         return false;
     }
 
@@ -365,7 +381,8 @@ abstract class Backend implements IBackend {
      * @access public
      * @return string|boolean
      */
-    public function GetKoeGabBackendFolderId($foldername) {
+    public function GetKoeGabBackendFolderId($foldername)
+    {
         return false;
     }
 }

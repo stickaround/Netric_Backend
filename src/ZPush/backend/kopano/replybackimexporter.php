@@ -26,7 +26,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class ReplyBackImExporter implements IImportChanges, IExportChanges {
+class ReplyBackImExporter implements IImportChanges, IExportChanges
+{
     const REPLYBACKID = "ReplyBack";
     const EXPORT_DELETE_AFTER_MOVE_TIMES = 3;
     const CHANGE = 1;
@@ -58,16 +59,17 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @throws StatusException
      */
-    public function __construct($session, $store, $folderid) {
+    public function __construct($session, $store, $folderid)
+    {
         $this->session = $session;
         $this->store = $store;
         $this->folderid = $folderid;
 
-        $this->changes = array();
+        $this->changes = [];
         $this->step = 0;
 
-        $this->changesDest = array();
-        $this->changesNext = array();
+        $this->changesDest = [];
+        $this->changesNext = [];
         $this->mapiprovider = new MAPIProvider($this->session, $this->store);
         $this->moveSrcState = false;
         $this->moveDstState = false;
@@ -83,7 +85,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @return boolean      status flag
      * @throws StatusException
      */
-    public function Config($state, $flags = 0) {
+    public function Config($state, $flags = 0)
+    {
         if (is_array($state)) {
             $this->changes = array_merge($this->changes, $state);
         }
@@ -100,7 +103,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ConfigContentParameters($contentparameters) {
+    public function ConfigContentParameters($contentparameters)
+    {
         $this->contentparameters = $contentparameters;
         return true;
     }
@@ -111,7 +115,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return string
      */
-    public function GetState() {
+    public function GetState()
+    {
         // we can discard all entries in the $changes array up to $step
         $changes = array_slice($this->changes, $this->step);
         return array_merge($changes, $this->changesNext);
@@ -127,7 +132,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function SetMoveStates($srcState, $dstState = null) {
+    public function SetMoveStates($srcState, $dstState = null)
+    {
         if (is_array($srcState)) {
             $this->changes = array_merge($this->changes, $srcState);
         }
@@ -143,18 +149,18 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return array(0 => $srcState, 1 => $dstState)
      */
-    public function GetMoveStates() {
+    public function GetMoveStates()
+    {
         // if a move was executed, there will be changes for the destination folder, so we have to return the
         // source changes as well. If not, they will be transported via GetState().
         $srcMoveState = false;
         $dstMoveState = $this->changesDest;
         if (!empty($this->changesDest)) {
             $srcMoveState = $this->changes;
-        }
-        else {
+        } else {
             $dstMoveState = false;
         }
-        return array($srcMoveState, $dstMoveState);
+        return [$srcMoveState, $dstMoveState];
     }
 
 
@@ -173,7 +179,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function LoadConflicts($contentparameters, $state) {
+    public function LoadConflicts($contentparameters, $state)
+    {
         return true;
     }
 
@@ -187,9 +194,11 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ImportMessageMove($id, $newfolder) {
-        if (strtolower($newfolder) == strtolower(bin2hex($this->folderid)) )
+    public function ImportMessageMove($id, $newfolder)
+    {
+        if (strtolower($newfolder) == strtolower(bin2hex($this->folderid))) {
             throw new StatusException(sprintf("ReplyBackImExporter->ImportMessageMove('%s','%s'): Error, source and destination are equal", $id, $newfolder), SYNC_MOVEITEMSSTATUS_SAMESOURCEANDDEST);
+        }
 
         // At this point, we don't know which case of move is happening:
         // 1. ReadOnly -> Writeable     (should normally work, message is duplicated)
@@ -201,11 +210,11 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
         //   3. for the destination folder, the tmp-id message is deleted (same as creation in RO)
 
         // make sure the message is added again to the src folder
-        $this->changes[] = array(self::DELETION, $id, null);
+        $this->changes[] = [self::DELETION, $id, null];
 
         // generate tmp-id and have it removed later via the dest changes (saved via DstMoveState)
         $tmpId = $this->getTmpId($newfolder);
-        $this->changesDest[] = array(self::MOVEDHERE, $tmpId, 0);
+        $this->changesDest[] = [self::MOVEDHERE, $tmpId, 0];
         ZLog::Write(LOGLEVEL_DEBUG, sprintf("ReplyBackImExporter->ImportMessageMove(): Move forbidden. Restoring message in source folder and added a delete request for the destination folder for the id: %s", $tmpId));
 
         return $tmpId;
@@ -220,7 +229,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @return boolean/SyncObject           status/object with the ath least the serverid of the folder set
      * @throws StatusException
      */
-    public function ImportFolderChange($folder) {
+    public function ImportFolderChange($folder)
+    {
         return false;
     }
 
@@ -233,7 +243,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @return boolean/int  success/SYNC_FOLDERHIERARCHY_STATUS
      * @throws StatusException
     */
-    public function ImportFolderDeletion($folder) {
+    public function ImportFolderDeletion($folder)
+    {
         return false;
     }
 
@@ -251,8 +262,9 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportMessageChange($id, $message) {
-        if(ZPush::GetDeviceManager()->IsKoe()) {
+    public function ImportMessageChange($id, $message)
+    {
+        if (ZPush::GetDeviceManager()->IsKoe()) {
             // Ignore incoming update events of KOE caused by PatchItem - ZP-1060
             if (KOE_CAPABILITY_NOTES && $id && $message instanceof SyncNote && !isset($message->asbody)) {
                 ZLog::Write(LOGLEVEL_DEBUG, "ReplyBackImExporter->ImportMessageChange(): KOE patch item update. Ignoring incoming update.");
@@ -262,7 +274,7 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
             if (KOE_CAPABILITY_RECEIVEFLAGS && $message instanceof SyncMail && !isset($message->flag) && isset($message->categories)) {
                 // check if the categories changed
                 $serverMessage = $this->getMessage($id, false);
-                if((empty($message->categories) && empty($serverMessage->categories)) ||
+                if ((empty($message->categories) && empty($serverMessage->categories)) ||
                     (is_array($mapiCategories) && count(array_diff($mapiCategories, $message->categories)) == 0 && count(array_diff($message->categories, $mapiCategories)) == 0)) {
                         ZLog::Write(LOGLEVEL_DEBUG, "ReplyBackImExporter->ImportMessageChange(): KOE update of flag categories. Ignoring incoming update.");
                         return true;
@@ -281,23 +293,21 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
 
                 ZLog::Write(LOGLEVEL_DEBUG, sprintf("ReplyBackImExporter->ImportMessageChange(): Data send from the mobile will be lost. Sending email to user notifying about this."));
                 $this->sendNotificationEmail($message, $oldmessage);
-            }
-            catch (ZPushException $zpe) {
+            } catch (ZPushException $zpe) {
                 // TODO should we still print the email to the log so the data is not lost at all?
                 ZLog::Write(LOGLEVEL_ERROR, "ReplyBackImExporter->ImportMessageChange(): exception sending notification email");
             }
-        }
-        else {
+        } else {
             ZLog::Write(LOGLEVEL_INFO, sprintf("ReplyBackImExporter->ImportMessageChange(): Data received from the mobile will be lost. User was *not* informed as configured (see READ_ONLY_NOTIFY_LOST_DATA)."));
         }
 
         if ($id) {
-            $this->changes[] = array(self::CHANGE, $id, $message);
+            $this->changes[] = [self::CHANGE, $id, $message];
             return true;
         }
         // if there is no $id it means it's a new object. We have to reply back that we accepted it and then delete it.
         $id = $this->getTmpId();
-        $this->changes[] = array(self::CREATION, $id, $message);
+        $this->changes[] = [self::CREATION, $id, $message];
         return $id;
     }
 
@@ -310,9 +320,10 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function ImportMessageDeletion($id, $asSoftDelete = false) {
+    public function ImportMessageDeletion($id, $asSoftDelete = false)
+    {
         // TODO do something different due to $asSoftDelete?
-        $this->changes[] = array(self::DELETION, $id, null);
+        $this->changes[] = [self::DELETION, $id, null];
         throw new StatusException(sprintf("ReplyBackImExporter->ImportMessageDeletion('%s'): Read only folder. Data from PIM will be dropped! Server will read data.", $id), SYNC_STATUS_CONFLICTCLIENTSERVEROBJECT, null, LOGLEVEL_INFO);
     }
 
@@ -327,8 +338,9 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @return boolean
      * @throws StatusException
      */
-    public function ImportMessageReadFlag($id, $flags) {
-        $this->changes[] = array(self::READFLAG, $id, $flags);
+    public function ImportMessageReadFlag($id, $flags)
+    {
+        $this->changes[] = [self::READFLAG, $id, $flags];
         return true;
     }
 
@@ -345,7 +357,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    public function InitializeExporter(&$importer) {
+    public function InitializeExporter(&$importer)
+    {
         $this->exportImporter = $importer;
         $this->step = 0;
         return true;
@@ -357,7 +370,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return int
      */
-    public function GetChangeCount() {
+    public function GetChangeCount()
+    {
         return count($this->changes);
     }
 
@@ -368,13 +382,13 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return array
      */
-    public function Synchronize() {
-        if($this->step < count($this->changes) && isset($this->exportImporter)) {
-
+    public function Synchronize()
+    {
+        if ($this->step < count($this->changes) && isset($this->exportImporter)) {
             $change = $this->changes[$this->step];
 
             $this->step++;
-            $status = array("steps" => count($this->changes), "progress" => $this->step);
+            $status = ["steps" => count($this->changes), "progress" => $this->step];
 
             $id = $change[1];
             $oldmessage = $change[2];
@@ -389,23 +403,20 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
                     $change[2]++;
                     $this->changesNext[] = $change;
                 }
-            }
-            else if ($change[0] === self::CREATION || $this->isTmpId($id)) {
+            } elseif ($change[0] === self::CREATION || $this->isTmpId($id)) {
                 $this->exportImporter->ImportMessageDeletion($id);
-            }
-            else {
+            } else {
                 // This block also handles the read flags,
                 // so that the todo flags are exported properly as well.
                 // get the server side message
                 $message = $this->getMessage($id);
-                if (! $message instanceOf SyncObject) {
+                if (! $message instanceof SyncObject) {
                     return $message;
                 }
 
                 if ($change[0] === self::DELETION) {
                     $message->flags = SYNC_NEWMESSAGE;
-                }
-                else {
+                } else {
                     $message->flags = "";
                 }
                 // only reply back on modify
@@ -416,9 +427,9 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
 
             // return progress array
             return $status;
-        }
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -429,7 +440,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access private
      * @return string
      */
-    private function getTmpId($backendfolderid) {
+    private function getTmpId($backendfolderid)
+    {
         return ZPush::GetDeviceManager()->GetFolderIdForBackendId($backendfolderid) .":". self::REPLYBACKID ."". substr(md5(microtime()), 0, 5);
     }
 
@@ -439,11 +451,13 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @access public
      * @return boolean
      */
-    private function isTmpId($id) {
+    private function isTmpId($id)
+    {
         return !!stripos($id, self::REPLYBACKID);
     }
 
-    private function getMessage($id, $announceErrors = true) {
+    private function getMessage($id, $announceErrors = true)
+    {
         if (!$id) {
             return false;
         }
@@ -459,7 +473,7 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
         }
         $entryid = mapi_msgstore_entryidfromsourcekey($this->store, $parentsourcekey, $sourcekey);
 
-        if(!$entryid) {
+        if (!$entryid) {
             ZLog::Write(LOGLEVEL_INFO, sprintf("ReplyBackImExporter->getMessage(): Couldn't retrieve message from MAPIProvider, sourcekey: '%s', parentsourcekey: '%s'", bin2hex($sourcekey), bin2hex($parentsourcekey), bin2hex($entryid)));
             return false;
         }
@@ -468,15 +482,12 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
         try {
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("ReplyBackImExporter->getMessage(): Getting message from MAPIProvider, sourcekey: '%s', parentsourcekey: '%s', entryid: '%s'", bin2hex($sourcekey), bin2hex($parentsourcekey), bin2hex($entryid)));
             $message = $this->mapiprovider->GetMessage($mapimessage, $this->contentparameters);
-        }
-        catch (SyncObjectBrokenException $mbe) {
+        } catch (SyncObjectBrokenException $mbe) {
             if ($announceErrors) {
-
                 $brokenSO = $mbe->GetSyncObject();
                 if (!$brokenSO) {
                     ZLog::Write(LOGLEVEL_ERROR, sprintf("ReplyBackImExporter->getMessage(): Catched SyncObjectBrokenException but broken SyncObject available"));
-                }
-                else {
+                } else {
                     if (!isset($brokenSO->id)) {
                         $brokenSO->id = "Unknown ID";
                         ZLog::Write(LOGLEVEL_ERROR, sprintf("ReplyBackImExporter->getMessage(): Catched SyncObjectBrokenException but no ID of object set"));
@@ -496,7 +507,8 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
      * @param SyncObject $oldmessage
      * @return void
      */
-    private function sendNotificationEmail($message, $oldmessage) {
+    private function sendNotificationEmail($message, $oldmessage)
+    {
         // get email address and full name of the user
         $userinfo = ZPush::GetBackend()->GetUserDetails(Request::GetAuthUser());
 
@@ -514,9 +526,9 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
         $supportedFields = ZPush::GetDeviceManager()->GetSupportedFields(ZPush::GetDeviceManager()->GetFolderIdForBackendId($folderid));
         $dataarray = $oldmessage->EvaluateAndCompare($message, @constant('READ_ONLY_NOTIFY_YOURDATA'), $supportedFields);
 
-        foreach($dataarray as $key => $value) {
+        foreach ($dataarray as $key => $value) {
             $value = str_replace("\r", "", $value);
-            $value = str_replace("\n", str_pad("\r\n",25), $value);
+            $value = str_replace("\n", str_pad("\r\n", 25), $value);
             $data .= str_pad(ucfirst($key).":", 25) . $value ."\r\n";
         }
 
@@ -545,5 +557,4 @@ class ReplyBackImExporter implements IImportChanges, IExportChanges {
 
         ZPush::GetBackend()->SendMail($m);
     }
-
 }

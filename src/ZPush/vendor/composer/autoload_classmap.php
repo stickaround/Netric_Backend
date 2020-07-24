@@ -5,7 +5,7 @@
 $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
-return array(
+return [
     'ASDevice' => $baseDir . '/lib/core/asdevice.php',
     'Auth_SASL' => $baseDir . '/backend/imap/Auth/SASL.php',
     'Auth_SASL_Anonymous' => $baseDir . '/backend/imap/Auth/SASL/Anonymous.php',
@@ -191,4 +191,4 @@ return array(
     'iCalProp' => $baseDir . '/include/iCalendar.php',
     'iCalendar' => $baseDir . '/include/iCalendar.php',
     'rtf' => $baseDir . '/include/z_RTF.php',
-);
+];

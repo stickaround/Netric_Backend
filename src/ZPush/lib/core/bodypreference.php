@@ -23,11 +23,12 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class BodyPreference extends StateObject {
-    protected $unsetdata = array(   'truncationsize' => false,
+class BodyPreference extends StateObject
+{
+    protected $unsetdata = [   'truncationsize' => false,
                                     'allornone' => false,
                                     'preview' => false,
-                                );
+                                ];
 
     /**
      * expected magic getters and setters
@@ -43,7 +44,8 @@ class BodyPreference extends StateObject {
      * @access public
      * @return boolean
      */
-    public function HasValues() {
+    public function HasValues()
+    {
         return (count($this->data) > 0);
     }
 }

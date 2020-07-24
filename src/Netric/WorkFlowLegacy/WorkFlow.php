@@ -445,8 +445,7 @@ class WorkFlowLegacy
     public function removeAction(ActionInterface $action)
     {
         for ($i = 0; $i < count($this->actions); $i++) {
-            if (
-                $action === $this->actions[$i] ||
+            if ($action === $this->actions[$i] ||
                 ($action->getWorkFlowLegacyActionId() != null && $action->getWorkFlowLegacyActionId() === $this->actions[$i]->getWorkFlowLegacyActionId())
             ) {
                 array_splice($this->actions, $i, 1);
@@ -473,8 +472,7 @@ class WorkFlowLegacy
     {
         // First make sure we didn't previously remove this action
         for ($i = 0; $i < count($this->removedActions); $i++) {
-            if (
-                $actionToAdd === $this->removedActions[$i] ||
+            if ($actionToAdd === $this->removedActions[$i] ||
                 ($actionToAdd->getWorkFlowLegacyActionId() != null && $actionToAdd->getWorkFlowLegacyActionId() === $this->removedActions[$i]->getWorkFlowLegacyActionId())
             ) {
                 // Remove it from deletion queue, apparently the user didn't mean to delete it
@@ -485,8 +483,7 @@ class WorkFlowLegacy
         // Check if previously added
         $previouslyAddedAt = -1;
         for ($i = 0; $i < count($this->actions); $i++) {
-            if (
-                $actionToAdd->getWorkFlowLegacyActionId() &&
+            if ($actionToAdd->getWorkFlowLegacyActionId() &&
                 $this->actions[$i]->getWorkFlowLegacyActionId() === $actionToAdd->getWorkFlowLegacyActionId()
             ) {
                 $previouslyAddedAt = $i;

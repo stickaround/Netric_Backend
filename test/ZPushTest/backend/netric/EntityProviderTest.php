@@ -65,7 +65,7 @@ class EntityProviderTest extends TestCase
      *
      * @var \Netric\Entity\EntityInterface[]
      */
-    private $testEntities = array();
+    private $testEntities = [];
 
     /**
      * Loader for opening, saving, and deleting entities
@@ -539,7 +539,7 @@ class EntityProviderTest extends TestCase
         $note->asbody = new \SyncBaseBody();
         $note->asbody->type = SYNC_BODYPREFERENCE_HTML;
         $note->asbody->data = \StringStreamWrapper::Open("<p>My Body</p>");
-        $note->categories = array($savedGroup->name);
+        $note->categories = [$savedGroup->name];
         $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . ":my", null, $note);
         $this->assertNotNull($id);
 
@@ -555,7 +555,7 @@ class EntityProviderTest extends TestCase
         $this->assertEquals('html', $entity->getValue("body_type"));
         $originalBody = stream_get_contents($note->asbody->data, -1, 0);
         $this->assertEquals($originalBody, $entity->getValue("body"));
-        $this->assertEquals($note->categories, array("utttest"));
+        $this->assertEquals($note->categories, ["utttest"]);
 
         // Save changes without setting body type and meta data for legacy active sync
         $note->asbody = "<p>My Edited Body</p>";

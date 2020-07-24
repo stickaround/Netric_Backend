@@ -241,8 +241,7 @@ class Partner
                         $found = false;
 
                         foreach ($collConds as $cmdCond) {
-                            if (
-                                $cmdCond['blogic'] == $cond['blogic']
+                            if ($cmdCond['blogic'] == $cond['blogic']
                                 && $cmdCond['field'] == $cond['field']
                                 && $cmdCond['operator'] == $cond['operator']
                                 && $cmdCond['condValue'] == $cond['condValue']
@@ -261,8 +260,7 @@ class Partner
                     foreach ($collConds as $cond) {
                         $found = false;
                         foreach ($conditions as $cmdCond) {
-                            if (
-                                $cmdCond['blogic'] == $cond['blogic']
+                            if ($cmdCond['blogic'] == $cond['blogic']
                                 && $cmdCond['field'] == $cond['field']
                                 && $cmdCond['operator'] == $cond['operator']
                                 && $cmdCond['condValue'] == $cond['condValue']

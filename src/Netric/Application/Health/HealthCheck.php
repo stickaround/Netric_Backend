@@ -125,7 +125,7 @@ class HealthCheck implements HealthCheckInterface
                 return false;
             }
         }
-       
+
         return true;
     }
 
@@ -148,7 +148,7 @@ class HealthCheck implements HealthCheckInterface
     {
         // TODO: This was breaking unit tests that ran without the server
         return true;
-        
+
         // // create curl resource
         // $curlHandle = curl_init();
 

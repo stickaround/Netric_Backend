@@ -124,7 +124,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
         }
 
         $oldAddresses = ($this->getValue($fieldName)) ? explode(",", $this->getValue($fieldName)) : [];
-        $combined= array_merge($newAddresses, $oldAddresses);
+        $combined = array_merge($newAddresses, $oldAddresses);
 
         // Make the receivers unique so we only see a name once
         $combined = array_unique($combined);

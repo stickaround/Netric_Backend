@@ -182,8 +182,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
             throw new \RuntimeException("Column name '$columnName' on table '$tableName' is too long.");
         }
 
-        if (
-            !empty($columnDefinition["default"])
+        if (!empty($columnDefinition["default"])
             && $columnDefinition["default"] === "auto_increment"
             && strlen($columnName) > 61
         ) {
@@ -259,7 +258,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
 
         // Normalize to an array so we can implode below
         if (!is_array($columnNameOrNames)) {
-            $columnNameOrNames = array($columnNameOrNames);
+            $columnNameOrNames = [$columnNameOrNames];
         }
 
         // Run the SQL
@@ -277,8 +276,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
     private function applyForeignKey($tableName, $keyDefinition)
     {
         // Make sure the definition is valid
-        if (
-            empty($keyDefinition["property"])
+        if (empty($keyDefinition["property"])
             || !empty($keyDefinition["references_bucket"])
             || !empty($keyDefinition["references_property"])
         ) {

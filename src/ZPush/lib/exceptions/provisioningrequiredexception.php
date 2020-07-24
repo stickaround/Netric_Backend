@@ -24,7 +24,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class ProvisioningRequiredException extends HTTPReturnCodeException {
+class ProvisioningRequiredException extends HTTPReturnCodeException
+{
     protected $defaultLogLevel = LOGLEVEL_INFO;
     protected $httpReturnCode = HTTP_CODE_449;
     protected $httpReturnMessage = "Retry after sending a PROVISION command";

@@ -27,32 +27,34 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class SyncAttendee extends SyncObject {
+class SyncAttendee extends SyncObject
+{
     public $email;
     public $name;
 
-    function __construct() {
-        $mapping = array(
-                    SYNC_POOMCAL_EMAIL                                  => array (  self::STREAMER_VAR      => "email",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED => self::STREAMER_CHECK_SETEMPTY),
+    function __construct()
+    {
+        $mapping = [
+                    SYNC_POOMCAL_EMAIL                                  => [  self::STREAMER_VAR      => "email",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED => self::STREAMER_CHECK_SETEMPTY],
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => 'attendee@localhost'),
+                                                                                    self::STREAMER_PRIVATE  => 'attendee@localhost'],
 
-                    SYNC_POOMCAL_NAME                                   => array (  self::STREAMER_VAR      => "name",
-                                                                                    self::STREAMER_CHECKS   => array(   self::STREAMER_CHECK_REQUIRED => self::STREAMER_CHECK_SETEMPTY),
+                    SYNC_POOMCAL_NAME                                   => [  self::STREAMER_VAR      => "name",
+                                                                                    self::STREAMER_CHECKS   => [   self::STREAMER_CHECK_REQUIRED => self::STREAMER_CHECK_SETEMPTY],
                                                                                     self::STREAMER_RONOTIFY => true,
-                                                                                    self::STREAMER_PRIVATE  => 'Undisclosed Attendee')
-                );
+                                                                                    self::STREAMER_PRIVATE  => 'Undisclosed Attendee']
+                ];
 
         if (Request::GetProtocolVersion() >= 12.0) {
-            $mapping[SYNC_POOMCAL_ATTENDEESTATUS]                       =  array (  self::STREAMER_VAR      => "attendeestatus",
+            $mapping[SYNC_POOMCAL_ATTENDEESTATUS]                       = [  self::STREAMER_VAR      => "attendeestatus",
                                                                                     self::STREAMER_RONOTIFY => true,
                                                                                     self::STREAMER_PRIVATE  => true
-            );
-            $mapping[SYNC_POOMCAL_ATTENDEETYPE]                         =  array (  self::STREAMER_VAR      => "attendeetype",
+            ];
+            $mapping[SYNC_POOMCAL_ATTENDEETYPE]                         = [  self::STREAMER_VAR      => "attendeetype",
                                                                                     self::STREAMER_RONOTIFY => true,
                                                                                     self::STREAMER_PRIVATE  => true
-            );
+            ];
         }
 
         parent::__construct($mapping);

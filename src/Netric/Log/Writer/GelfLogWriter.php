@@ -18,7 +18,7 @@ class GelfLogWriter implements LogWriterInterface
      *
      * @var GelfPublisher
      */
-    private $gelfPublisher =  null;
+    private $gelfPublisher = null;
 
     /**
      * Keep track of how many messages we have written

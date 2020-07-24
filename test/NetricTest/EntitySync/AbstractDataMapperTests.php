@@ -106,9 +106,9 @@ abstract class AbstractDataMapperTests extends TestCase
     {
         $partnerId = "UTEST-DEVICE-SAVEANDLOADPARTNERENTITYCOLLECITON";
         $dm = $this->getDataMapper();
-        $testConditions = array(
-            array("blogic" => "and", "field" => "name", "operator" => "is_equal", "condValue" => "test")
-        );
+        $testConditions = [
+            ["blogic" => "and", "field" => "name", "operator" => "is_equal", "condValue" => "test"]
+        ];
 
         // Create a partner
         $partner = new EntitySync\Partner($dm);
@@ -144,9 +144,9 @@ abstract class AbstractDataMapperTests extends TestCase
     {
         $partnerId = "UTEST-DEVICE-SAVEAUPLOADPARTNERENTITYCOLLECITON";
         $dm = $this->getDataMapper();
-        $testConditions = array(
-            array("blogic" => "and", "field" => "name", "operator" => "is_equal", "condValue" => "test")
-        );
+        $testConditions = [
+            ["blogic" => "and", "field" => "name", "operator" => "is_equal", "condValue" => "test"]
+        ];
 
         // Create a partner
         $partner = new EntitySync\Partner($dm);

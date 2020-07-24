@@ -27,7 +27,8 @@
 
 require_once("backend/searchldap/config.php");
 
-class BackendSearchLDAP implements ISearchProvider {
+class BackendSearchLDAP implements ISearchProvider
+{
     private $connection;
 
     /**
@@ -39,9 +40,11 @@ class BackendSearchLDAP implements ISearchProvider {
      * @return
      * @throws StatusException
      */
-    public function __construct() {
-        if (!function_exists("ldap_connect"))
+    public function __construct()
+    {
+        if (!function_exists("ldap_connect")) {
             throw new StatusException("BackendSearchLDAP(): php-ldap is not installed. Search aborted.", SYNC_SEARCHSTATUS_STORE_SERVERERROR, null, LOGLEVEL_FATAL);
+        }
 
         // connect to LDAP
         $this->connection = @ldap_connect(LDAP_HOST, LDAP_PORT);
@@ -49,18 +52,16 @@ class BackendSearchLDAP implements ISearchProvider {
 
         // Authenticate
         if (constant('ANONYMOUS_BIND') === true) {
-            if(! @ldap_bind($this->connection)) {
+            if (! @ldap_bind($this->connection)) {
                 $this->connection = false;
                 throw new StatusException("BackendSearchLDAP(): Could not bind anonymously to server! Search aborted.", SYNC_SEARCHSTATUS_STORE_CONNECTIONFAILED, null, LOGLEVEL_ERROR);
             }
-        }
-        else if (constant('LDAP_BIND_USER') != "") {
-            if(! @ldap_bind($this->connection, LDAP_BIND_USER, LDAP_BIND_PASSWORD)) {
+        } elseif (constant('LDAP_BIND_USER') != "") {
+            if (! @ldap_bind($this->connection, LDAP_BIND_USER, LDAP_BIND_PASSWORD)) {
                 $this->connection = false;
                 throw new StatusException(sprintf("BackendSearchLDAP(): Could not bind to server with user '%s' and specified password! Search aborted.", LDAP_BIND_USER), SYNC_SEARCHSTATUS_STORE_ACCESSDENIED, null, LOGLEVEL_ERROR);
             }
-        }
-        else {
+        } else {
             // it would be possible to use the users login and password to authenticate on the LDAP server
             // the main $backend has to keep these values so they could be used here
             $this->connection = false;
@@ -77,7 +78,8 @@ class BackendSearchLDAP implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function SupportsType($searchtype) {
+    public function SupportsType($searchtype)
+    {
         return ($searchtype == ISearchProvider::SEARCH_GAL);
     }
 
@@ -91,7 +93,8 @@ class BackendSearchLDAP implements ISearchProvider {
      * @access public
      * @return array        search results
      */
-    public function GetGALSearchResults($searchquery, $searchrange) {
+    public function GetGALSearchResults($searchquery, $searchrange)
+    {
         global $ldap_field_map;
         if (isset($this->connection) && $this->connection !== false) {
             $searchfilter = str_replace("SEARCHVALUE", $searchquery, LDAP_SEARCH_FILTER);
@@ -114,32 +117,33 @@ class BackendSearchLDAP implements ISearchProvider {
                 $rangestart = substr($searchrange, 0, $pos);
                 $rangeend = substr($searchrange, ($pos + 1));
             }
-            $items = array();
+            $items = [];
 
             // TODO the limiting of the searchresults could be refactored into Utils as it's probably used more than once
             $querycnt = $searchresult['count'];
             //do not return more results as requested in range
             $querylimit = (($rangeend + 1) < $querycnt) ? ($rangeend + 1) : $querycnt;
-            $items['range'] = $rangestart.'-'.($querylimit-1);
+            $items['range'] = $rangestart.'-'.($querylimit - 1);
             $items['searchtotal'] = $querycnt;
 
             $rc = 0;
             for ($i = $rangestart; $i < $querylimit; $i++) {
-                foreach ($ldap_field_map as $key=>$value ) {
+                foreach ($ldap_field_map as $key => $value) {
                     if (isset($searchresult[$i][$value])) {
-                        if (is_array($searchresult[$i][$value]))
+                        if (is_array($searchresult[$i][$value])) {
                             $items[$rc][$key] = $searchresult[$i][$value][0];
-                        else
+                        } else {
                             $items[$rc][$key] = $searchresult[$i][$value];
+                        }
                     }
                 }
                 $rc++;
             }
 
             return $items;
-        }
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -149,8 +153,9 @@ class BackendSearchLDAP implements ISearchProvider {
      *
      * @return array
      */
-    public function GetMailboxSearchResults($cpo) {
-        return array();
+    public function GetMailboxSearchResults($cpo)
+    {
+        return [];
     }
 
     /**
@@ -160,7 +165,8 @@ class BackendSearchLDAP implements ISearchProvider {
     *
     * @return boolean
     */
-    public function TerminateSearch($pid) {
+    public function TerminateSearch($pid)
+    {
         return true;
     }
 
@@ -170,9 +176,11 @@ class BackendSearchLDAP implements ISearchProvider {
      * @access public
      * @return boolean
      */
-    public function Disconnect() {
-        if ($this->connection)
+    public function Disconnect()
+    {
+        if ($this->connection) {
             @ldap_close($this->connection);
+        }
 
         return true;
     }

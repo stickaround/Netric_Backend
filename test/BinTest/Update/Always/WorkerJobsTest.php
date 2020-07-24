@@ -45,7 +45,7 @@ class WorkerJobsTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $serviceManager = $this->account->getServiceManager();
         $this->schedulerService = $serviceManager->get(SchedulerService::class);
@@ -71,7 +71,7 @@ class WorkerJobsTest extends TestCase
     {
         $scheduledJobsData = require(__DIR__ . "/../../../../data/account/worker-jobs.php");
         $binScript = new BinScript($this->account->getApplication(), $this->account);
-        
+
         // Run the script which should add all system scheduled jobs
         $this->assertTrue($binScript->run($this->scriptPath));
 
@@ -91,7 +91,7 @@ class WorkerJobsTest extends TestCase
     {
         $scheduledJobsData = require(__DIR__ . "/../../../../data/account/worker-jobs.php");
         $binScript = new BinScript($this->account->getApplication(), $this->account);
-        
+
         // Create a future date 3 days from now (most jobs are every day at the latest)
         $future = new DateTime();
         $future->add(new DateInterval("P3D"));

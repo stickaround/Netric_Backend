@@ -24,4 +24,6 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class FatalException extends ZPushException {}
+class FatalException extends ZPushException
+{
+}

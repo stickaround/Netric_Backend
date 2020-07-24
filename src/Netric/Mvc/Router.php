@@ -158,7 +158,7 @@ class Router
 
         // Call class method and pass request object
         if ($hasPermission) {
-            $response = call_user_func(array($this->controllerClass, $fName), $request);
+            $response = call_user_func([$this->controllerClass, $fName], $request);
 
             // Print any buffered output if not in test mode
             if (!$this->testMode) {
@@ -248,7 +248,7 @@ class Router
 
             // Call class method and pass request params
             if ($hasPermission) {
-                $response = call_user_func(array($this->controllerClass, $fName), $params);
+                $response = call_user_func([$this->controllerClass, $fName], $params);
 
                 // New controllers should all return a ResponseInterface which handles output
                 if (is_object($response) && $response instanceof ResponseInterface) {

@@ -113,8 +113,7 @@ class Auth_SASL
 
             default:
                 $scram = '/^SCRAM-(.{1,9})$/i';
-                if (preg_match($scram, $type, $matches))
-                {
+                if (preg_match($scram, $type, $matches)) {
                     $hash = $matches[1];
                     $filename = 'include/Auth/SASL/SCRAM.php';
                     $classname = 'Auth_SASL_SCRAM';
@@ -126,10 +125,11 @@ class Auth_SASL
         }
 
         require_once($filename);
-        if (isset($parameter))
+        if (isset($parameter)) {
             $obj = new $classname($parameter);
-        else
+        } else {
             $obj = new $classname();
+        }
         return $obj;
     }
 
@@ -141,7 +141,8 @@ class Auth_SASL
      * @return boolean always false as there was an error
      * @access private
      */
-    static function raiseError($message) {
+    static function raiseError($message)
+    {
         ZLog::Write(LOGLEVEL_ERROR, "Auth_SASL error: ". $message);
         return false;
     }

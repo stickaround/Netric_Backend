@@ -21,16 +21,16 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $rawBody = $this->getRequest()->getBody();
 
         if (!$rawBody) {
-            return $this->sendOutput(array(
+            return $this->sendOutput([
                 "error" => "Request input is not valid. Must post a raw body with JSON defining the query."
-            ));
+            ]);
         }
 
         $params = json_decode($rawBody, true);
         $ret = [];
 
         if (!isset($params["obj_type"])) {
-            return $this->sendOutput(array("error" => "obj_type must be set"));
+            return $this->sendOutput(["error" => "obj_type must be set"]);
         }
 
         $index = $this->account->getServiceManager()->get(IndexFactory::class);

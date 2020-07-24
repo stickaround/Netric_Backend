@@ -63,7 +63,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
      *
      * @var array('id', 'type'=>'change'|'delete', 'flags', 'mod')
      */
-    private $changes = array();
+    private $changes = [];
 
     /**
      * The unique id of the folder we are synchronizing
@@ -105,7 +105,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
      */
     public function InitializeExporter(&$importer)
     {
-        $this->changes = array();
+        $this->changes = [];
         $this->step = 0;
         $this->importer = $importer;
 
@@ -192,11 +192,9 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                 case "delete":
                     // Entity was deleted
                     if ($this->foundInSyncState($change['id'])) {
-                        if (
-                            $this->flags & BACKEND_DISCARD_DATA ||
+                        if ($this->flags & BACKEND_DISCARD_DATA ||
                             $this->importer->ImportMessageDeletion($change["id"]) == true
                         ) {
-
                             $this->collection->logExported($change['id'], 0);
                             $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: exported delete {$change['id']}");
                         }
@@ -220,22 +218,22 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
             // Update syncStates with this change
             $this->updateState(
                 $change["action"],
-                array(
+                [
                     "type" => $change['action'],
                     "id" => $change['id'],
                     "flags" => 0,
                     "mod" => (isset($change['commit_id'])) ? $change['commit_id'] : 0
-                )
+                ]
             );
 
             $this->step++;
 
             $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: synchronized {$this->step} of " . count($this->changes));
 
-            return array(
+            return [
                 "steps" => count($this->changes),
                 "progress" => $this->step
-            );
+            ];
         } else {
             // No changes left, the's fast-forward to th
             return false;

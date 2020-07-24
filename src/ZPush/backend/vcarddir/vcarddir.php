@@ -26,7 +26,8 @@
 // config file
 require_once("backend/vcarddir/config.php");
 
-class BackendVCardDir extends BackendDiff {
+class BackendVCardDir extends BackendDiff
+{
     /**----------------------------------------------------------------------------------------------------------
      * default backend methods
      */
@@ -44,7 +45,8 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return boolean
      */
-    public function Logon($username, $domain, $password) {
+    public function Logon($username, $domain, $password)
+    {
         return true;
     }
 
@@ -54,7 +56,8 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return boolean
      */
-    public function Logoff() {
+    public function Logoff()
+    {
         return true;
     }
 
@@ -68,7 +71,8 @@ class BackendVCardDir extends BackendDiff {
      * @return boolean
      * @throws StatusException
      */
-    public function SendMail($sm) {
+    public function SendMail($sm)
+    {
         return false;
     }
 
@@ -78,7 +82,8 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return string
      */
-    public function GetWasteBasket() {
+    public function GetWasteBasket()
+    {
         return false;
     }
 
@@ -92,7 +97,8 @@ class BackendVCardDir extends BackendDiff {
      * @return SyncItemOperationsAttachment
      * @throws StatusException
      */
-    public function GetAttachmentData($attname) {
+    public function GetAttachmentData($attname)
+    {
         return false;
     }
 
@@ -107,9 +113,10 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return array
      */
-    public function GetFolderList() {
+    public function GetFolderList()
+    {
         ZLog::Write(LOGLEVEL_DEBUG, 'VCDir::GetFolderList()');
-        $contacts = array();
+        $contacts = [];
         $folder = $this->StatFolder("root");
         $contacts[] = $folder;
 
@@ -124,9 +131,10 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return object       SyncFolder with information
      */
-    public function GetFolder($id) {
+    public function GetFolder($id)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, 'VCDir::GetFolder('.$id.')');
-        if($id == "root") {
+        if ($id == "root") {
             $folder = new SyncFolder();
             $folder->serverid = $id;
             $folder->parentid = "0";
@@ -134,7 +142,9 @@ class BackendVCardDir extends BackendDiff {
             $folder->type = SYNC_FOLDER_TYPE_CONTACT;
 
             return $folder;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -145,11 +155,12 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return array
      */
-    public function StatFolder($id) {
+    public function StatFolder($id)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, 'VCDir::StatFolder('.$id.')');
         $folder = $this->GetFolder($id);
 
-        $stat = array();
+        $stat = [];
         $stat["id"] = $id;
         $stat["parent"] = $folder->parentid;
         $stat["mod"] = $folder->displayname;
@@ -171,7 +182,8 @@ class BackendVCardDir extends BackendDiff {
      * @throws StatusException              could throw specific SYNC_FSSTATUS_* exceptions
      *
      */
-    public function ChangeFolder($folderid, $oldid, $displayname, $type){
+    public function ChangeFolder($folderid, $oldid, $displayname, $type)
+    {
         return false;
     }
 
@@ -186,7 +198,8 @@ class BackendVCardDir extends BackendDiff {
      * @throws StatusException              could throw specific SYNC_FSSTATUS_* exceptions
      *
      */
-    public function DeleteFolder($id, $parentid){
+    public function DeleteFolder($id, $parentid)
+    {
         return false;
     }
 
@@ -199,19 +212,22 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return array/false  array with messages or false if folder is not available
      */
-    public function GetMessageList($folderid, $cutoffdate) {
+    public function GetMessageList($folderid, $cutoffdate)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, 'VCDir::GetMessageList('.$folderid.')');
-        $messages = array();
+        $messages = [];
 
         $dir = opendir($this->getPath());
-        if(!$dir)
+        if (!$dir) {
             return false;
+        }
 
-        while($entry = readdir($dir)) {
-            if(is_dir($this->getPath() .'/'.$entry))
+        while ($entry = readdir($dir)) {
+            if (is_dir($this->getPath() .'/'.$entry)) {
                 continue;
+            }
 
-            $message = array();
+            $message = [];
             $message["id"] = $entry;
             $stat = stat($this->getPath() .'/'.$entry);
             $message["mod"] = $stat["mtime"];
@@ -233,12 +249,14 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return object/false     false if the message could not be retrieved
      */
-    public function GetMessage($folderid, $id, $contentparameters) {
+    public function GetMessage($folderid, $id, $contentparameters)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, 'VCDir::GetMessage('.$folderid.', '.$id.', ..)');
-        if($folderid != "root")
+        if ($folderid != "root") {
             return;
+        }
 
-        $types = array ('dom' => 'type', 'intl' => 'type', 'postal' => 'type', 'parcel' => 'type', 'home' => 'type', 'work' => 'type',
+        $types = ['dom' => 'type', 'intl' => 'type', 'postal' => 'type', 'parcel' => 'type', 'home' => 'type', 'work' => 'type',
             'pref' => 'type', 'voice' => 'type', 'fax' => 'type', 'msg' => 'type', 'cell' => 'type', 'pager' => 'type',
             'bbs' => 'type', 'modem' => 'type', 'car' => 'type', 'isdn' => 'type', 'video' => 'type',
             'aol' => 'type', 'applelink' => 'type', 'attmail' => 'type', 'cis' => 'type', 'eworld' => 'type',
@@ -250,7 +268,7 @@ class BackendVCardDir extends BackendDiff {
             'wave' => 'type', 'aiff' => 'type', 'pcm' => 'type',
             'x509' => 'type', 'pgp' => 'type', 'text' => 'value', 'inline' => 'value', 'url' => 'value', 'cid' => 'value', 'content-id' => 'value',
             '7bit' => 'encoding', '8bit' => 'encoding', 'quoted-printable' => 'encoding', 'base64' => 'encoding',
-        );
+        ];
 
 
         // Parse the vcard
@@ -264,35 +282,39 @@ class BackendVCardDir extends BackendDiff {
 
         $lines = explode("\n", $data);
 
-        $vcard = array();
-        foreach($lines as $line) {
-            if (trim($line) == '')
+        $vcard = [];
+        foreach ($lines as $line) {
+            if (trim($line) == '') {
                 continue;
+            }
             $pos = strpos($line, ':');
-            if ($pos === false)
+            if ($pos === false) {
                 continue;
+            }
 
             $field = trim(substr($line, 0, $pos));
-            $value = trim(substr($line, $pos+1));
+            $value = trim(substr($line, $pos + 1));
 
             $fieldparts = preg_split('/(?<!\\\\)(\;)/i', $field, -1, PREG_SPLIT_NO_EMPTY);
 
             $type = strtolower(array_shift($fieldparts));
 
-            $fieldvalue = array();
+            $fieldvalue = [];
 
             foreach ($fieldparts as $fieldpart) {
-                if(preg_match('/([^=]+)=(.+)/', $fieldpart, $matches)){
-                    if(!in_array(strtolower($matches[1]),array('value','type','encoding','language')))
+                if (preg_match('/([^=]+)=(.+)/', $fieldpart, $matches)) {
+                    if (!in_array(strtolower($matches[1]), ['value','type','encoding','language'])) {
                         continue;
-                    if(isset($fieldvalue[strtolower($matches[1])]) && is_array($fieldvalue[strtolower($matches[1])])){
+                    }
+                    if (isset($fieldvalue[strtolower($matches[1])]) && is_array($fieldvalue[strtolower($matches[1])])) {
                         $fieldvalue[strtolower($matches[1])] = array_merge($fieldvalue[strtolower($matches[1])], preg_split('/(?<!\\\\)(\,)/i', $matches[2], -1, PREG_SPLIT_NO_EMPTY));
-                    }else{
+                    } else {
                         $fieldvalue[strtolower($matches[1])] = preg_split('/(?<!\\\\)(\,)/i', $matches[2], -1, PREG_SPLIT_NO_EMPTY);
                     }
-                }else{
-                    if(!isset($types[strtolower($fieldpart)]))
+                } else {
+                    if (!isset($types[strtolower($fieldpart)])) {
                         continue;
+                    }
                     $fieldvalue[$types[strtolower($fieldpart)]][] = $fieldpart;
                 }
             }
@@ -307,23 +329,23 @@ class BackendVCardDir extends BackendDiff {
                     $val = preg_split('/(?<!\\\\)(\;)/i', $value);
                     break;
             }
-            if(isset($fieldvalue['encoding'][0])){
-                switch(strtolower($fieldvalue['encoding'][0])){
+            if (isset($fieldvalue['encoding'][0])) {
+                switch (strtolower($fieldvalue['encoding'][0])) {
                     case 'q':
                     case 'quoted-printable':
-                        foreach($val as $i => $v){
+                        foreach ($val as $i => $v) {
                             $val[$i] = quoted_printable_decode($v);
                         }
                         break;
                     case 'b':
                     case 'base64':
-                        foreach($val as $i => $v){
+                        foreach ($val as $i => $v) {
                             $val[$i] = base64_decode($v);
                         }
                         break;
                 }
-            }else{
-                foreach($val as $i => $v){
+            } else {
+                foreach ($val as $i => $v) {
                     $val[$i] = $this->unescape($v);
                 }
             }
@@ -331,118 +353,132 @@ class BackendVCardDir extends BackendDiff {
             $vcard[$type][] = $fieldvalue;
         }
 
-        if(isset($vcard['email'][0]['val'][0]))
+        if (isset($vcard['email'][0]['val'][0])) {
             $message->email1address = $vcard['email'][0]['val'][0];
-        if(isset($vcard['email'][1]['val'][0]))
+        }
+        if (isset($vcard['email'][1]['val'][0])) {
             $message->email2address = $vcard['email'][1]['val'][0];
-        if(isset($vcard['email'][2]['val'][0]))
+        }
+        if (isset($vcard['email'][2]['val'][0])) {
             $message->email3address = $vcard['email'][2]['val'][0];
+        }
 
-        if(isset($vcard['tel'])){
-            foreach($vcard['tel'] as $tel) {
-                if(!isset($tel['type'])){
-                    $tel['type'] = array();
+        if (isset($vcard['tel'])) {
+            foreach ($vcard['tel'] as $tel) {
+                if (!isset($tel['type'])) {
+                    $tel['type'] = [];
                 }
-                if(in_array('car', $tel['type'])){
+                if (in_array('car', $tel['type'])) {
                     $message->carphonenumber = $tel['val'][0];
-                }elseif(in_array('pager', $tel['type'])){
+                } elseif (in_array('pager', $tel['type'])) {
                     $message->pagernumber = $tel['val'][0];
-                }elseif(in_array('cell', $tel['type'])){
+                } elseif (in_array('cell', $tel['type'])) {
                     $message->mobilephonenumber = $tel['val'][0];
-                }elseif(in_array('home', $tel['type'])){
-                    if(in_array('fax', $tel['type'])){
+                } elseif (in_array('home', $tel['type'])) {
+                    if (in_array('fax', $tel['type'])) {
                         $message->homefaxnumber = $tel['val'][0];
-                    }elseif(empty($message->homephonenumber)){
+                    } elseif (empty($message->homephonenumber)) {
                         $message->homephonenumber = $tel['val'][0];
-                    }else{
+                    } else {
                         $message->home2phonenumber = $tel['val'][0];
                     }
-                }elseif(in_array('work', $tel['type'])){
-                    if(in_array('fax', $tel['type'])){
+                } elseif (in_array('work', $tel['type'])) {
+                    if (in_array('fax', $tel['type'])) {
                         $message->businessfaxnumber = $tel['val'][0];
-                    }elseif(empty($message->businessphonenumber)){
+                    } elseif (empty($message->businessphonenumber)) {
                         $message->businessphonenumber = $tel['val'][0];
-                    }else{
+                    } else {
                         $message->business2phonenumber = $tel['val'][0];
                     }
-                }elseif(empty($message->homephonenumber)){
+                } elseif (empty($message->homephonenumber)) {
                     $message->homephonenumber = $tel['val'][0];
-                }elseif(empty($message->home2phonenumber)){
+                } elseif (empty($message->home2phonenumber)) {
                     $message->home2phonenumber = $tel['val'][0];
-                }else{
+                } else {
                     $message->radiophonenumber = $tel['val'][0];
                 }
             }
         }
         //;;street;city;state;postalcode;country
-        if(isset($vcard['adr'])){
-            foreach($vcard['adr'] as $adr) {
-                if(empty($adr['type'])){
+        if (isset($vcard['adr'])) {
+            foreach ($vcard['adr'] as $adr) {
+                if (empty($adr['type'])) {
                     $a = 'other';
-                }elseif(in_array('home', $adr['type'])){
+                } elseif (in_array('home', $adr['type'])) {
                     $a = 'home';
-                }elseif(in_array('work', $adr['type'])){
+                } elseif (in_array('work', $adr['type'])) {
                     $a = 'business';
-                }else{
+                } else {
                     $a = 'other';
                 }
-                if(!empty($adr['val'][2])){
-                    $b=$a.'street';
+                if (!empty($adr['val'][2])) {
+                    $b = $a.'street';
                     $message->$b = w2ui($adr['val'][2]);
                 }
-                if(!empty($adr['val'][3])){
-                    $b=$a.'city';
+                if (!empty($adr['val'][3])) {
+                    $b = $a.'city';
                     $message->$b = w2ui($adr['val'][3]);
                 }
-                if(!empty($adr['val'][4])){
-                    $b=$a.'state';
+                if (!empty($adr['val'][4])) {
+                    $b = $a.'state';
                     $message->$b = w2ui($adr['val'][4]);
                 }
-                if(!empty($adr['val'][5])){
-                    $b=$a.'postalcode';
+                if (!empty($adr['val'][5])) {
+                    $b = $a.'postalcode';
                     $message->$b = w2ui($adr['val'][5]);
                 }
-                if(!empty($adr['val'][6])){
-                    $b=$a.'country';
+                if (!empty($adr['val'][6])) {
+                    $b = $a.'country';
                     $message->$b = w2ui($adr['val'][6]);
                 }
             }
         }
 
-        if(!empty($vcard['fn'][0]['val'][0]))
+        if (!empty($vcard['fn'][0]['val'][0])) {
             $message->fileas = w2ui($vcard['fn'][0]['val'][0]);
-        if(!empty($vcard['n'][0]['val'][0]))
+        }
+        if (!empty($vcard['n'][0]['val'][0])) {
             $message->lastname = w2ui($vcard['n'][0]['val'][0]);
-        if(!empty($vcard['n'][0]['val'][1]))
+        }
+        if (!empty($vcard['n'][0]['val'][1])) {
             $message->firstname = w2ui($vcard['n'][0]['val'][1]);
-        if(!empty($vcard['n'][0]['val'][2]))
+        }
+        if (!empty($vcard['n'][0]['val'][2])) {
             $message->middlename = w2ui($vcard['n'][0]['val'][2]);
-        if(!empty($vcard['n'][0]['val'][3]))
+        }
+        if (!empty($vcard['n'][0]['val'][3])) {
             $message->title = w2ui($vcard['n'][0]['val'][3]);
-        if(!empty($vcard['n'][0]['val'][4]))
+        }
+        if (!empty($vcard['n'][0]['val'][4])) {
             $message->suffix = w2ui($vcard['n'][0]['val'][4]);
-        if(!empty($vcard['bday'][0]['val'][0])){
+        }
+        if (!empty($vcard['bday'][0]['val'][0])) {
             $tz = date_default_timezone_get();
             date_default_timezone_set('UTC');
             $message->birthday = strtotime($vcard['bday'][0]['val'][0]);
             date_default_timezone_set($tz);
         }
-        if(!empty($vcard['org'][0]['val'][0]))
+        if (!empty($vcard['org'][0]['val'][0])) {
             $message->companyname = w2ui($vcard['org'][0]['val'][0]);
-        if(!empty($vcard['note'][0]['val'][0])){
+        }
+        if (!empty($vcard['note'][0]['val'][0])) {
             $message->body = w2ui($vcard['note'][0]['val'][0]);
             $message->bodysize = strlen($vcard['note'][0]['val'][0]);
             $message->bodytruncated = 0;
         }
-        if(!empty($vcard['role'][0]['val'][0]))
+        if (!empty($vcard['role'][0]['val'][0])) {
             $message->jobtitle = w2ui($vcard['role'][0]['val'][0]);//$vcard['title'][0]['val'][0]
-        if(!empty($vcard['url'][0]['val'][0]))
+        }
+        if (!empty($vcard['url'][0]['val'][0])) {
             $message->webpage = w2ui($vcard['url'][0]['val'][0]);
-        if(!empty($vcard['categories'][0]['val']))
+        }
+        if (!empty($vcard['categories'][0]['val'])) {
             $message->categories = $vcard['categories'][0]['val'];
+        }
 
-        if(!empty($vcard['photo'][0]['val'][0]))
+        if (!empty($vcard['photo'][0]['val'][0])) {
             $message->picture = base64_encode($vcard['photo'][0]['val'][0]);
+        }
 
         return $message;
     }
@@ -456,14 +492,16 @@ class BackendVCardDir extends BackendDiff {
      * @access public
      * @return array
      */
-    public function StatMessage($folderid, $id) {
+    public function StatMessage($folderid, $id)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, 'VCDir::StatMessage('.$folderid.', '.$id.')');
-        if($folderid != "root")
+        if ($folderid != "root") {
             return false;
+        }
 
         $stat = stat($this->getPath() . "/" . $id);
 
-        $message = array();
+        $message = [];
         $message["mod"] = $stat["mtime"];
         $message["id"] = $id;
         $message["flags"] = 1;
@@ -484,9 +522,10 @@ class BackendVCardDir extends BackendDiff {
      * @return array                        same return value as StatMessage()
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function ChangeMessage($folderid, $id, $message, $contentParameters) {
+    public function ChangeMessage($folderid, $id, $message, $contentParameters)
+    {
         ZLog::Write(LOGLEVEL_DEBUG, 'VCDir::ChangeMessage('.$folderid.', '.$id.', ..)');
-        $mapping = array(
+        $mapping = [
             'fileas' => 'FN',
             'lastname;firstname;middlename;title;suffix' => 'N',
             'email1address' => 'EMAIL;INTERNET',
@@ -508,51 +547,56 @@ class BackendVCardDir extends BackendDiff {
             'body' => 'NOTE',
             'jobtitle' => 'ROLE',
             'webpage' => 'URL',
-        );
+        ];
         $data = "BEGIN:VCARD\nVERSION:2.1\nPRODID:Z-Push\n";
-        foreach($mapping as $k => $v){
+        foreach ($mapping as $k => $v) {
             $val = '';
             $ks = explode(';', $k);
-            foreach($ks as $i){
-                if(!empty($message->$i))
+            foreach ($ks as $i) {
+                if (!empty($message->$i)) {
                     $val .= $this->escape($message->$i);
-                $val.=';';
+                }
+                $val .= ';';
             }
-            if(empty($val))
+            if (empty($val)) {
                 continue;
-            $val = substr($val,0,-1);
-            if(strlen($val)>50){
+            }
+            $val = substr($val, 0, -1);
+            if (strlen($val) > 50) {
                 $data .= $v.":\n\t".substr(chunk_split($val, 50, "\n\t"), 0, -1);
-            }else{
+            } else {
                 $data .= $v.':'.$val."\n";
             }
         }
-        if(!empty($message->categories))
+        if (!empty($message->categories)) {
             $data .= 'CATEGORIES:'.implode(',', $this->escape($message->categories))."\n";
-        if(!empty($message->picture))
+        }
+        if (!empty($message->picture)) {
             $data .= 'PHOTO;ENCODING=BASE64;TYPE=JPEG:'."\n\t".substr(chunk_split($message->picture, 50, "\n\t"), 0, -1);
-        if(isset($message->birthday))
+        }
+        if (isset($message->birthday)) {
             $data .= 'BDAY:'.date('Y-m-d', $message->birthday)."\n";
+        }
         $data .= "END:VCARD";
 
 // not supported: anniversary, assistantname, assistnamephonenumber, children, department, officelocation, radiophonenumber, spouse, rtf
 
-        if(!$id){
-            if(!empty($message->fileas)){
+        if (!$id) {
+            if (!empty($message->fileas)) {
                 $name = u2wi($message->fileas);
-            }elseif(!empty($message->lastname)){
+            } elseif (!empty($message->lastname)) {
                 $name = $name = u2wi($message->lastname);
-            }elseif(!empty($message->firstname)){
+            } elseif (!empty($message->firstname)) {
                 $name = $name = u2wi($message->firstname);
-            }elseif(!empty($message->companyname)){
+            } elseif (!empty($message->companyname)) {
                 $name = $name = u2wi($message->companyname);
-            }else{
+            } else {
                 $name = 'unknown';
             }
             $name = preg_replace('/[^a-z0-9 _-]/i', '', $name);
             $id = $name.'.vcf';
             $i = 0;
-            while(file_exists($this->getPath().'/'.$id)){
+            while (file_exists($this->getPath().'/'.$id)) {
                 $i++;
                 $id = $name.$i.'.vcf';
             }
@@ -573,7 +617,8 @@ class BackendVCardDir extends BackendDiff {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function SetReadFlag($folderid, $id, $flags, $contentParameters) {
+    public function SetReadFlag($folderid, $id, $flags, $contentParameters)
+    {
         return false;
     }
 
@@ -588,7 +633,8 @@ class BackendVCardDir extends BackendDiff {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_STATUS_* exceptions
      */
-    public function DeleteMessage($folderid, $id, $contentParameters) {
+    public function DeleteMessage($folderid, $id, $contentParameters)
+    {
         return unlink($this->getPath() . '/' . $id);
     }
 
@@ -605,7 +651,8 @@ class BackendVCardDir extends BackendDiff {
      * @return boolean                      status of the operation
      * @throws StatusException              could throw specific SYNC_MOVEITEMSSTATUS_* exceptions
      */
-    public function MoveMessage($folderid, $id, $newfolderid, $contentParameters) {
+    public function MoveMessage($folderid, $id, $newfolderid, $contentParameters)
+    {
         return false;
     }
 
@@ -620,7 +667,8 @@ class BackendVCardDir extends BackendDiff {
      * @access private
      * @return string
      */
-    private function getPath() {
+    private function getPath()
+    {
         return str_replace('%u', $this->store, VCARDDIR_DIR);
     }
 
@@ -632,7 +680,8 @@ class BackendVCardDir extends BackendDiff {
      * @access private
      * @return string
      */
-    function escape($data){
+    function escape($data)
+    {
         if (is_array($data)) {
             foreach ($data as $key => $val) {
                 $data[$key] = $this->escape($val);
@@ -641,7 +690,7 @@ class BackendVCardDir extends BackendDiff {
         }
         $data = str_replace("\r\n", "\n", $data);
         $data = str_replace("\r", "\n", $data);
-        $data = str_replace(array('\\', ';', ',', "\n"), array('\\\\', '\\;', '\\,', '\\n'), $data);
+        $data = str_replace(['\\', ';', ',', "\n"], ['\\\\', '\\;', '\\,', '\\n'], $data);
         return u2wi($data);
     }
 
@@ -653,8 +702,9 @@ class BackendVCardDir extends BackendDiff {
      * @access private
      * @return string
      */
-    function unescape($data){
-        $data = str_replace(array('\\\\', '\\;', '\\,', '\\n','\\N'),array('\\', ';', ',', "\n", "\n"),$data);
+    function unescape($data)
+    {
+        $data = str_replace(['\\\\', '\\;', '\\,', '\\n','\\N'], ['\\', ';', ',', "\n", "\n"], $data);
         return $data;
     }
 };

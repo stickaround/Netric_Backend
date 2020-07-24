@@ -103,7 +103,7 @@ class Group
      */
     public function toArray()
     {
-        $data = array(
+        $data = [
             "group_id" => $this->getGroupId(),
             "name" => $this->getName(),
             "f_system" => $this->isSystem,
@@ -111,7 +111,7 @@ class Group
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
             "commit_id" => $this->commitId
-        );
+        ];
 
         if ($this->userId) {
             $data["user_id"] = $this->userId;
@@ -343,7 +343,7 @@ class Group
 
     /**
      * Get the name of this group
-     * 
+     *
      * @return string
      */
     public function getName(): string
@@ -353,7 +353,7 @@ class Group
 
     /**
      * Set the name of this group
-     * 
+     *
      * @param string $name
      */
     public function setName(string $name): void
@@ -373,7 +373,7 @@ class Group
 
     /**
      * Set the commit id of the last save on this group
-     * 
+     *
      * @param int $commitId
      */
     public function setCommitId(int $commitId): void

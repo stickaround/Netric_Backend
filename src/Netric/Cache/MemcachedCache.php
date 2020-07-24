@@ -35,7 +35,7 @@ class MemcachedCache implements CacheInterface
             if (is_array($config->host)) {
                 $servers = [];
                 foreach ($config->host as $svr) {
-                    $servers[] = array($svr, 11211, 100);
+                    $servers[] = [$svr, 11211, 100];
                 }
 
                 $this->memCached->addServers($servers);

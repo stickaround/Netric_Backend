@@ -25,7 +25,8 @@
 * Consult LICENSE file for details
 ************************************************/
 
-class WebserviceDevice {
+class WebserviceDevice
+{
 
     /**
      * Returns a list of all known devices of the Request::GetGETUser().
@@ -33,16 +34,18 @@ class WebserviceDevice {
      * @access public
      * @return array
      */
-    public function ListDevicesDetails() {
+    public function ListDevicesDetails()
+    {
         $user = Request::GetGETUser();
         $devices = ZPushAdmin::ListDevices($user);
-        $output = array();
+        $output = [];
 
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceDevice::ListDevicesDetails(): found %d devices of user '%s'", count($devices), $user));
         ZPush::GetTopCollector()->AnnounceInformation(sprintf("Retrieved details of %d devices", count($devices)), true);
 
-        foreach ($devices as $devid)
+        foreach ($devices as $devid) {
             $output[] = ZPushAdmin::GetDeviceDetails($devid, $user);
+        }
 
         return $output;
     }
@@ -55,7 +58,8 @@ class WebserviceDevice {
      * @access public
      * @return ASDevice object
      */
-    public function GetDeviceDetails($deviceId, $withHierarchyCache = false) {
+    public function GetDeviceDetails($deviceId, $withHierarchyCache = false)
+    {
         $user = Request::GetGETUser();
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceDevice::GetDeviceDetails('%s'): getting device details from state of user '%s'", $deviceId, $user));
@@ -73,7 +77,8 @@ class WebserviceDevice {
      * @return boolean
      * @throws SoapFault
      */
-    public function RemoveDevice($deviceId) {
+    public function RemoveDevice($deviceId)
+    {
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceDevice::RemoveDevice('%s'): remove device state data of user '%s'", $deviceId, Request::GetGETUser()));
 
@@ -95,7 +100,8 @@ class WebserviceDevice {
      * @return boolean
      * @throws SoapFault
      */
-    public function WipeDevice($deviceId) {
+    public function WipeDevice($deviceId)
+    {
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceDevice::WipeDevice('%s'): mark device of user '%s' for remote wipe", $deviceId, Request::GetGETUser()));
 
@@ -117,7 +123,8 @@ class WebserviceDevice {
      * @return boolean
      * @throws SoapFault
      */
-    public function ResyncDevice($deviceId) {
+    public function ResyncDevice($deviceId)
+    {
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceDevice::ResyncDevice('%s'): mark device of user '%s' for resynchronization", $deviceId, Request::GetGETUser()));
 
@@ -140,7 +147,8 @@ class WebserviceDevice {
      * @return boolean
      * @throws SoapFault
      */
-    public function ResyncFolder($deviceId, $folderId) {
+    public function ResyncFolder($deviceId, $folderId)
+    {
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         $folderId = preg_replace("/[^A-Za-z0-9]/", "", $folderId);
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceDevice::ResyncFolder('%s','%s'): mark folder of a device of user '%s' for resynchronization", $deviceId, $folderId, Request::GetGETUser()));
@@ -162,15 +170,16 @@ class WebserviceDevice {
      * @access public
      * @return array
      */
-    public function AdditionalFolderList($deviceId) {
+    public function AdditionalFolderList($deviceId)
+    {
         $user = Request::GetGETUser();
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         $folders = ZPushAdmin::AdditionalFolderList($user, $deviceId);
         ZLog::Write(LOGLEVEL_INFO, sprintf("WebserviceDevice::AdditionalFolderList(): found %d folders for device '%s' of user '%s'", count($folders), $deviceId, $user));
         // retrieve the permission flags from the backend and convert associative array into stdClass object for PHP7 support
-        $folderObjects = array();
+        $folderObjects = [];
         $backend = ZPush::GetBackend();
-        foreach($folders as $folder) {
+        foreach ($folders as $folder) {
             $folderObject = new stdClass();
             $folderObject->store = $folder['store'];
             $folderObject->folderid = $folder['folderid'];
@@ -201,7 +210,8 @@ class WebserviceDevice {
      * @access public
      * @return boolean
      */
-    public function AdditionalFolderAdd($deviceId, $add_store, $add_folderid, $add_name, $add_type, $add_flags) {
+    public function AdditionalFolderAdd($deviceId, $add_store, $add_folderid, $add_name, $add_type, $add_flags)
+    {
         $user = Request::GetGETUser();
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         $add_folderid = preg_replace("/[^A-Za-z0-9]/", "", $add_folderid);
@@ -230,7 +240,8 @@ class WebserviceDevice {
      * @access public
      * @return boolean
      */
-    public function AdditionalFolderEdit($deviceId, $add_folderid, $add_name, $add_flags) {
+    public function AdditionalFolderEdit($deviceId, $add_folderid, $add_name, $add_flags)
+    {
         $user = Request::GetGETUser();
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         $add_folderid = preg_replace("/[^A-Za-z0-9]/", "", $add_folderid);
@@ -256,7 +267,8 @@ class WebserviceDevice {
      * @access public
      * @return boolean
      */
-    public function AdditionalFolderRemove($deviceId, $add_folderid) {
+    public function AdditionalFolderRemove($deviceId, $add_folderid)
+    {
         $user = Request::GetGETUser();
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
         $add_folderid = preg_replace("/[^A-Za-z0-9]/", "", $add_folderid);
@@ -289,14 +301,23 @@ class WebserviceDevice {
      * @access public
      * @return boolean
      */
-    public function AdditionalFolderSetList($deviceId, $set_store, $set_folders) {
+    public function AdditionalFolderSetList($deviceId, $set_store, $set_folders)
+    {
         $user = Request::GetGETUser();
         $deviceId = preg_replace("/[^A-Za-z0-9]/", "", $deviceId);
-        array_walk($set_folders, function(&$folder) {
-            if (!isset($folder['folderid']))    $folder['folderid'] = "";
-            if (!isset($folder['parentid']))    $folder['parentid'] = "0";
-            if (!isset($folder['type']))        $folder['type'] = SYNC_FOLDER_TYPE_USER_MAIL;
-            if (!isset($folder['flags']))       $folder['flags'] = 0;
+        array_walk($set_folders, function (&$folder) {
+            if (!isset($folder['folderid'])) {
+                $folder['folderid'] = "";
+            }
+            if (!isset($folder['parentid'])) {
+                $folder['parentid'] = "0";
+            }
+            if (!isset($folder['type'])) {
+                $folder['type'] = SYNC_FOLDER_TYPE_USER_MAIL;
+            }
+            if (!isset($folder['flags'])) {
+                $folder['flags'] = 0;
+            }
 
             $folder['folderid'] = preg_replace("/[^A-Za-z0-9]/", "", $folder['folderid']);
             $folder['parentid'] = preg_replace("/[^A-Za-z0-9]/", "", $folder['parentid']);

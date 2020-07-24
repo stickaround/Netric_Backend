@@ -73,12 +73,12 @@ class Bootstrap
 
     protected static function initAutoloader()
     {
-        $autoLoader = new StandardAutoloader(array(
-            'namespaces' => array(
+        $autoLoader = new StandardAutoloader([
+            'namespaces' => [
                 __NAMESPACE__ => __DIR__ . '/' . __NAMESPACE__,
-            ),
+            ],
             'fallback_autoloader' => true,
-        ));
+        ]);
         $autoLoader->register();
     }
 

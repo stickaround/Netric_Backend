@@ -38,9 +38,9 @@ class BulkSmtpFactory implements AccountServiceFactoryInterface
         /*
          * Set the default application level email settings from the system config
          */
-        $options = array(
+        $options = [
             'host' => $config->email["bulk_server"],
-        );
+        ];
 
         if ($config->email["bulk_port"]) {
             $options['port'] = $config->email["bulk_port"];
@@ -49,10 +49,10 @@ class BulkSmtpFactory implements AccountServiceFactoryInterface
         // Add username and password if needed for sending messages
         if (isset($config->email['bulk_user']) && isset($config->email['bulk_password'])) {
             $options['connection_class'] = 'login';
-            $options['connection_config'] = array(
+            $options['connection_config'] = [
                 'username' => $config->email['bulk_user'],
                 'password' => $config->email['bulk_password'],
-            );
+            ];
         }
 
         /*
@@ -70,10 +70,10 @@ class BulkSmtpFactory implements AccountServiceFactoryInterface
             // Check for login information
             if ($username && $password) {
                 $options['connection_class'] = 'login';
-                $options['connection_config'] = array(
+                $options['connection_config'] = [
                     'username' => $username,
                     'password' => $password,
-                );
+                ];
             } else {
                 unset($options['connection_class']);
                 unset($options['connection_config']);

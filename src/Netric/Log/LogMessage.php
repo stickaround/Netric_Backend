@@ -257,7 +257,7 @@ class LogMessage
     {
         return $this->applicationName;
     }
-    
+
     /**
      * Set the body which can either be a string of any size, or an array for structured
      *

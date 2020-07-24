@@ -61,11 +61,11 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
      */
     protected function returnError($message, $file = null, $line = null, $retVal = false)
     {
-        $this->errors[] = array(
+        $this->errors[] = [
             'message' => $message,
             'file' => $file,
             'line' => $line,
-        );
+        ];
 
         if ($this->getAccount()) {
             $log = $this->getAccount()->getApplication()->getLog();

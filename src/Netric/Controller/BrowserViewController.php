@@ -21,14 +21,14 @@ class BrowserViewController extends Mvc\AbstractAccountController
 
         $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         $serviceManager = $this->account->getServiceManager();
@@ -40,7 +40,7 @@ class BrowserViewController extends Mvc\AbstractAccountController
         try {
             $result = $browserViewService->saveView($view);
         } catch (\RuntimeException $ex) {
-            return $this->sendOutput(array("error" => "Error saving browser view: " . $ex->getMessage()));
+            return $this->sendOutput(["error" => "Error saving browser view: " . $ex->getMessage()]);
         }
 
         if (!$view->isSystem() && $view->isDefault()) {
@@ -56,14 +56,14 @@ class BrowserViewController extends Mvc\AbstractAccountController
 
         $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
+            return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
         $serviceManager = $this->account->getServiceManager();
@@ -73,7 +73,7 @@ class BrowserViewController extends Mvc\AbstractAccountController
         $view->fromArray($objData);
 
         if (!$view->getId()) {
-            return $this->sendOutput(array("error" => "Browser View should be saved first before setting as the default view."));
+            return $this->sendOutput(["error" => "Browser View should be saved first before setting as the default view."]);
         }
 
         $browserViewService->setDefaultViewForUser($view->getObjType(), $this->account->getUser(), $view->getId());
@@ -98,14 +98,14 @@ class BrowserViewController extends Mvc\AbstractAccountController
 
         $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['id'])) {
-            return $this->sendOutput(array("error" => "id is a required param"));
+            return $this->sendOutput(["error" => "id is a required param"]);
         }
 
         $serviceManager = $this->account->getServiceManager();
@@ -118,7 +118,7 @@ class BrowserViewController extends Mvc\AbstractAccountController
             // Return true since we have successfully deleted the browser view
             return $this->sendOutput(true);
         } else {
-            return $this->sendOutput(array("error" => "Error while trying to delete the browser view"));
+            return $this->sendOutput(["error" => "Error while trying to delete the browser view"]);
         }
     }
 
