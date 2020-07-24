@@ -107,8 +107,8 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             return false;
         }
 
-        $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE account_id=:id';
-        $result = $this->database->query($sql, ["id" => $id]);
+        $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE account_id=:account_id';
+        $result = $this->database->query($sql, ["account_id" => $id]);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
