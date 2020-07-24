@@ -50,6 +50,13 @@ class NetricStateMachine implements IStateMachine
     const VERSION = "version";
 
     /**
+     * Set the version
+     *
+     * @var int
+     */
+    private $stateVersion = self::SUPPORTED_STATE_VERSION;
+
+    /**
      * Constructor
      *
      * @param LogInterface $log Logger for recording what is going on
@@ -452,7 +459,7 @@ class NetricStateMachine implements IStateMachine
      */
     public function GetStateVersion()
     {
-        return self::SUPPORTED_STATE_VERSION;
+        return $this->stateVersion;
 
         /*
         $settings = $this->getSettings();
@@ -479,6 +486,7 @@ class NetricStateMachine implements IStateMachine
      */
     public function SetStateVersion($version)
     {
+        $this->stateVersion = $version;
         return true;
         /*
         $settings = $this->getSettings();

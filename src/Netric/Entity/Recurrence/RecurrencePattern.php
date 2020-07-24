@@ -297,8 +297,8 @@ class RecurrencePattern implements ErrorAwareInterface
         $dateEnd = ($this->dateEnd) ? $this->dateEnd->format("Y-m-d") : null;
         $dateProcessedTo = ($this->dateProcessedTo) ? $this->dateProcessedTo->format("Y-m-d") : null;
 
-        return array(
-            "entity_recurrence_id" => $this->entityRecurrenceId,
+        return [
+            "entity_recurrence_id" => $this->getId(),
             "recur_type" => $this->recurType,
             "interval" => $this->interval,
             "instance" => $this->instance,
@@ -317,7 +317,7 @@ class RecurrencePattern implements ErrorAwareInterface
             "field_date_end" => $this->fieldDateEnd,
             "field_time_start" => $this->fieldTimeStart,
             "field_time_end" => $this->fieldTimeEnd,
-        );
+        ];
     }
 
     /**
@@ -358,7 +358,7 @@ class RecurrencePattern implements ErrorAwareInterface
      */
     public function setId($id)
     {
-        $this->id = $id;
+        $this->entityRecurrenceId = $id;
     }
 
     /**
@@ -368,7 +368,7 @@ class RecurrencePattern implements ErrorAwareInterface
      */
     public function getId()
     {
-        return $this->id;
+        return $this->entityRecurrenceId;
     }
 
     /**

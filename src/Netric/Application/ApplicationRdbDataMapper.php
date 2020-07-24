@@ -238,7 +238,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             $result = $this->database->insert(
                 self::TABLE_ACCOUNT_USER,
                 $insertData,
-                'id'
+                'account_id'
             );
             $ret = ($result) ? true : false;
         }

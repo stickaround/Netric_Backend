@@ -23,7 +23,7 @@ class DataMapperRdb extends DataMapperAbstract
      * was sustaining 100,000 commits per second without pause the whole year. One bigint could
      * keep up with those commits for 2,924,712 years before wrapping.
      */
-    private $sSequenceName = "object_commit_seq";
+    private $sSequenceName = "entity_commit_seq";
 
     /**
      * Get next id
@@ -58,13 +58,13 @@ class DataMapperRdb extends DataMapperAbstract
         $whereData = ["type_key" => $key];
 
         // Check to see if this exists already
-        $sql = "SELECT head_commit_id FROM object_sync_commit_heads WHERE type_key=:type_key";
+        $sql = "SELECT head_commit_id FROM entity_sync_commit_head WHERE type_key=:type_key";
         $result = $this->database->query($sql, $whereData);
 
         if ($result->rowCount()) {
-            $this->database->update("object_sync_commit_heads", $headData, $whereData);
+            $this->database->update("entity_sync_commit_head", $headData, $whereData);
         } else {
-            $this->database->insert("object_sync_commit_heads", array_merge($headData, $whereData));
+            $this->database->insert("entity_sync_commit_head", array_merge($headData, $whereData));
         }
 
         return true;
@@ -78,7 +78,7 @@ class DataMapperRdb extends DataMapperAbstract
      */
     public function getHead(string $key): int
     {
-        $sql = "SELECT head_commit_id FROM object_sync_commit_heads WHERE type_key=:type_key";
+        $sql = "SELECT head_commit_id FROM entity_sync_commit_head WHERE type_key=:type_key";
         $result = $this->database->query($sql, ["type_key" => $key]);
 
         if ($result->rowCount()) {

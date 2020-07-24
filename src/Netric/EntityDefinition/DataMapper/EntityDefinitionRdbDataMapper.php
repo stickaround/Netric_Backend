@@ -315,7 +315,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
         $this->database->delete(
             self::ENTITY_TYPE_TABLE,
-            ['id' => $def->getEntityDefinitionId()]
+            ['entity_definition_id' => $def->getEntityDefinitionId()]
         );
 
         return true;

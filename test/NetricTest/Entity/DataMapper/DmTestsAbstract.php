@@ -697,7 +697,7 @@ abstract class DmTestsAbstract extends TestCase
         $tid = $dm->save($task, $this->user);
 
         $recurId = $recurrencePattern->getId();
-        $this->assertTrue($recurId > 0);
+        $this->assertNotEmpty($recurId);
 
         // Delete the object and make sure the pattern cannot be loaded
         $dm->delete($task, true);

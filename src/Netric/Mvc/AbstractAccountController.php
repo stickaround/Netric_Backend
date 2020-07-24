@@ -1,7 +1,9 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2016 Aereus Corporation (http://www.aereus.com)
  */
+
 namespace Netric\Mvc;
 
 use Netric\Account\Account;
@@ -19,7 +21,7 @@ abstract class AbstractAccountController extends AbstractController
      * @param Application $application The current application instance
      * @param Account $account The tenant we are running under
      */
-    function __construct(Application $application, Account $account)
+    function __construct(Application $application, Account $account = null)
     {
         if (!$account) {
             throw new \RuntimeException("Account is required for an account controller");

@@ -84,15 +84,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
         ];
 
         // Insert the new value
-        $ret = $this->database->insert("settings", $insertData, 'id');
-
-        // Throw a runtime exception if insert query did not return a value
-        if (!$ret) {
-            // Check again, maybe schema has been saved but did not return a value during insert
-            if (!$this->getLastAppliedSchemaHash()) {
-                throw new \RuntimeException("Could not set last_applied_definition using the value: $schemaHash");
-            }
-        }
+        $this->database->insert("settings", $insertData);
     }
 
     /**
@@ -147,7 +139,6 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
                 throw new \RuntimeException("Could not create table $bucketName");
             }
         }
-
 
         // Create primary key
         if (isset($bucketDefinition['PRIMARY_KEY'])) {
@@ -229,6 +220,11 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
             $constraint = 'NOT NULL';
         }
 
+        // Add constraint
+        if (isset($columnDefinition['unique']) && $columnDefinition['unique'] === true) {
+            $constraint .= ' UNIQUE';
+        }
+
         /*
          * If this is a new table we do not want to run an alter, but rather just add
          * the column name so that it can be added to a create statement and return true.
@@ -296,9 +292,6 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
         if (strlen($foreignKeyName) > 63) {
             throw new \RuntimeException("Key name '$foreignKeyName' on table '$tableName' is too long");
         }
-
-        // TODO: right now we don't do anything with keys
-        return true;
 
         /*
          * TODO: What should we do with the keys?

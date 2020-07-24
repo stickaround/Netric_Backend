@@ -248,7 +248,7 @@ class BackendNetricTest extends TestCase
         $this->testEntities[] = $file;
 
         // Get the file attachment and check the contents of the stream
-        $addObj = $this->backend->GetAttachmentData($file->getId());
+        $addObj = $this->backend->GetAttachmentData($file->getEntityId());
         $buf = fread($addObj->data, strlen($testData));
 
         // Check results
@@ -301,7 +301,7 @@ class BackendNetricTest extends TestCase
         $groupingsLoader->save($groupings);
 
         // Set the folder id to use
-        $folderId = \EntityProvider::FOLDER_TYPE_EMAIL . "-" . $group->id;
+        $folderId = \EntityProvider::FOLDER_TYPE_EMAIL . ":" . $group->getGroupId();
         $this->backend->ChangesSinkInitialize($folderId);
 
         // Fast forward the collection as if was initialized
@@ -321,7 +321,7 @@ class BackendNetricTest extends TestCase
         $email->setValue("subject", "Test message");
         $email->setValue("flag_seen", 'f');
         $email->setValue("owner_id", $this->user->getEntityId());
-        $email->setValue("mailbox_id", $group->id);
+        $email->setValue("mailbox_id", $group->getGroupId());
         $entityLoader->save($email);
         $this->testEntities[] = $email;
 
@@ -347,7 +347,7 @@ class BackendNetricTest extends TestCase
         $this->assertEquals(0, count($changedFolders), var_export($changedFolders, true));
 
         // Cleanup
-        $groupings->delete($group->id);
+        $groupings->delete($group->getGroupId());
     }
 
     /**
@@ -357,7 +357,7 @@ class BackendNetricTest extends TestCase
     {
         $getSyncCollection = new \ReflectionMethod('\BackendNetric', 'getSyncCollection');
         $getSyncCollection->setAccessible(true);
-        $folderId = \EntityProvider::FOLDER_TYPE_TASK . "-my";
+        $folderId = \EntityProvider::FOLDER_TYPE_TASK . ":my";
         $collection = $getSyncCollection->invokeArgs($this->backend, [$folderId]);
         $this->assertNotNull($collection);
     }
@@ -369,7 +369,7 @@ class BackendNetricTest extends TestCase
     {
         $getSyncCollection = new \ReflectionMethod('\BackendNetric', 'getSyncCollection');
         $getSyncCollection->setAccessible(true);
-        $folderId = \EntityProvider::FOLDER_TYPE_CONTACT . "-my";
+        $folderId = \EntityProvider::FOLDER_TYPE_CONTACT . ":my";
         $collection = $getSyncCollection->invokeArgs($this->backend, [$folderId]);
         $this->assertNotNull($collection);
     }

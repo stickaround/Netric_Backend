@@ -531,9 +531,10 @@ class Entity implements EntityInterface
      */
     public function toArray()
     {
-        $data = array(
-            "obj_type" => $this->objType,
-        );
+        // Handle any pre-processing like default values
+        $this->onBeforeToArray();
+
+        $data = ["obj_type" => $this->objType];
 
         // If this is a recurring object, indicate if this is an exception
         if ($this->def->recurRules) {
@@ -681,6 +682,13 @@ class Entity implements EntityInterface
      * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
     public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
+    {
+    }
+
+    /**
+     * This function is called just before we export entity as data
+     */
+    public function onBeforeToArray(): void
     {
     }
 

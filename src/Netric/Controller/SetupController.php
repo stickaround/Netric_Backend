@@ -87,18 +87,22 @@ class SetupController extends Mvc\AbstractController
         // Update the application database
         $log->info("SetupController:: Updating application.");
         $response->write("Updating application");
-        $applicationSetup = new Setup();
-        if (!$applicationSetup->updateApplication($this->getApplication())) {
-            $log->error(
-                "SetupController: Failed to update application: " .
-                    $applicationSetup->getLastError()->getMessage()
-            );
+        $serviceManager = $this->getApplication()->getServiceManager();
+        $dbSetup = $serviceManager->get(DatabaseSetupFactory::class);
+        $dbSetup->updateDatabaseSchema();
 
-            throw new \Exception(
-                "Failed to update application: " .
-                    $applicationSetup->getLastError()->getMessage()
-            );
-        }
+//        $applicationSetup = new Setup();
+//        if (!$applicationSetup->updateApplication($this->getApplication())) {
+//            $log->error(
+//                "SetupController: Failed to update application: " .
+//                    $applicationSetup->getLastError()->getMessage()
+//            );
+//
+//            throw new \Exception(
+//                "Failed to update application: " .
+//                    $applicationSetup->getLastError()->getMessage()
+//            );
+//        }
 
         $response->write("\t\t[done]\n");
 

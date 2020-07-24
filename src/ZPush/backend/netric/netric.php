@@ -171,8 +171,8 @@ class BackendNetric implements IBackend
              */
             $db = $application->getServiceManager()->get(RelationalDbFactory::class);
             $cache = $application->getServiceManager()->get(CacheFactory::class);
-            $settings = $application->getServiceManager()->get(SettingsFactory::class);
-            $this->stateMachine = new NetricStateMachine($log, $db, $cache, $settings);
+            //$settings = $application->getServiceManager()->get(SettingsFactory::class);
+            $this->stateMachine = new NetricStateMachine($log, $db, $cache);
         }
 
         return $this->stateMachine;
@@ -512,7 +512,7 @@ class BackendNetric implements IBackend
      */
     public function GetAttachmentData($fileId)
     {
-        if (!is_numeric($fileId)) {
+        if (empty($fileId)) {
             throw new StatusException(
                 sprintf("GetAttachmentData('%s'): Attachment requested for non-existing file", $fileId),
                 SYNC_ITEMOPERATIONSSTATUS_INVALIDATT

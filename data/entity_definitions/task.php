@@ -119,9 +119,10 @@ return [
             'subtype' => 'customer'
         ],
         'recur_id' => [
-            'title' => 'Recurrence',
-            'readonly' => true,
-            'type' => Field::TYPE_INTEGER,
+            'title' => 'Recurrance',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => 36,
+            'readonly' => true
         ],
         'obj_reference' => [
             'title' => 'Reference',

@@ -89,7 +89,18 @@ class Router
     public function __construct(Application $application, Account $account = null)
     {
         $this->application = $application;
-        $this->account = ($account) ? $account : $application->getAccount();
+
+        // See if we can get the account from the application
+        if (!$account) {
+            $account = $application->getAccount();
+        }
+
+        // Now create an empty default account
+        if (!$account) {
+            $account = new Account($this->application);
+        }
+
+        $this->account = $account;
     }
 
     /**
@@ -313,7 +324,7 @@ class Router
     private function currentUserHasPermission(RequestInterface $request)
     {
         // If running from the console then allow the request
-        if ($request instanceof ConsoleRequest) {
+        if ($request instanceof ConsoleRequest || empty($this->account->getAccountId())) {
             // No account which means this is probably a console request
             return true;
         }

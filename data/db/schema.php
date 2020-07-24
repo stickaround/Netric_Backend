@@ -14,7 +14,7 @@ return [
     "account" => [
         "PROPERTIES" => [
             'account_id' => ['type' => SchemaProperty::TYPE_UUID],
-            'name' => ['type' => SchemaProperty::TYPE_CHAR_256],
+            'name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'unique' => true],
             'database' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'ts_started' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
             'server' => ['type' => SchemaProperty::TYPE_CHAR_256],
@@ -31,17 +31,14 @@ return [
      */
     "account_user" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'guid' => ['type' => SchemaProperty::TYPE_UUID],
             'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'email_address' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'username' => ['type' => SchemaProperty::TYPE_CHAR_256],
         ],
-        'PRIMARY_KEY' => 'id',
-        // TODO: constraints for unique account_id, email_alias
+        'PRIMARY_KEY' => ['account_id', 'email_address'],
         "INDEXES" => [
             ['properties' => ["email_address"]],
-        ]
+        ],
     ],
 
     /**
@@ -90,7 +87,7 @@ return [
     "entity_form" => [
         "PROPERTIES" => [
             'entity_form_id' => ['type' => SchemaProperty::TYPE_UUID],
-            'type_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID],
             'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'team_id' => ['type' => SchemaProperty::TYPE_UUID],
             'user_id' => ['type' => SchemaProperty::TYPE_UUID],
@@ -99,7 +96,7 @@ return [
         ],
         'PRIMARY_KEY' => 'entity_form_id',
         "INDEXES" => [
-            ['properties' => ["type_id"]],
+            ['properties' => ["entity_definition_id"]],
             ['properties' => ["team_id"]],
             ['properties' => ["user_id"]],
             ['properties' => ["scope"]],
@@ -136,14 +133,13 @@ return [
         ],
         'PRIMARY_KEY' => 'entity_definition_id',
         "INDEXES" => [
-            ['properties' => ["name"]],
-            ['properties' => ["application_id"]],
+            ['properties' => ["name", "account_id"]],
         ]
     ],
 
-    "app_object_views" => [
+    "entity_view" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_view_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'scope' => ['type' => SchemaProperty::TYPE_CHAR_16],
             'description' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
@@ -151,7 +147,7 @@ return [
             'f_default' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
             'user_id' => ['type' => SchemaProperty::TYPE_UUID],
             'team_id' => ['type' => SchemaProperty::TYPE_UUID],
-            'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID],
+            'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'report_id' => ['type' => SchemaProperty::TYPE_UUID],
             'owner_id' => ['type' => SchemaProperty::TYPE_UUID],
             'conditions_data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
@@ -159,20 +155,19 @@ return [
             'table_columns_data' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'group_first_order_by' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
         ],
-        'PRIMARY_KEY' => 'id',
+        'PRIMARY_KEY' => 'entity_view_id',
         "INDEXES" => [
             ['properties' => ["owner_id"]],
             ['properties' => ["entity_definition_id"]],
-            ['properties' => ["report_id"]],
         ]
     ],
 
     /**
      * Where we store all the modules
      */
-    "applications" => [
+    "account_module" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'account_module_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'account_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
             'name' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
             'short_title' => ['type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true],
@@ -188,8 +183,9 @@ return [
             'icon' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
             'default_route' => ['type' => SchemaProperty::TYPE_CHAR_TEXT],
         ],
-        'PRIMARY_KEY' => 'id',
+        'PRIMARY_KEY' => 'account_module_id',
         "INDEXES" => [
+            ['properties' => ['account_id']],
             ['properties' => ["user_id"]],
             ['properties' => ["team_id"]],
         ]
@@ -308,34 +304,11 @@ return [
         ]
     ],
 
-    "workflow_instances" => [
-        "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
-            'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID, 'notnull' => true],
-            'object_type' => ['type' => SchemaProperty::TYPE_CHAR_128],
-            'object_uid' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
-            'workflow_id' => ['type' => SchemaProperty::TYPE_INT],
-            'ts_started' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'ts_completed' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
-            'f_completed' => ['type' => SchemaProperty::TYPE_BOOL, "default" => "false"],
-        ],
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => [
-            ['properties' => ["entity_definition_id", "app_object_types", "id"]],
-            ['properties' => ["workflow_id", "workflows", "id"]],
-        ],
-        "INDEXES" => [
-            ['properties' => ["object_type"]],
-            ['properties' => ["object_uid"]],
-        ]
-    ],
-
     /**
      * Store history of commit heads
      */
-    "object_sync_commit_heads" => [
+    "entity_sync_commit_head" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'type_key' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'head_commit_id' => ['type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true],
         ],
@@ -343,22 +316,22 @@ return [
         "INDEXES" => []
     ],
 
-    "object_sync_partners" => [
+    "entity_sync_partner" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_sync_partner_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'pid' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'owner_id' => ['type' => SchemaProperty::TYPE_UUID],
             'ts_last_sync' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
         ],
-        'PRIMARY_KEY' => 'id',
+        'PRIMARY_KEY' => 'entity_sync_partner_id',
         "INDEXES" => [
             ['properties' => ["pid"]],
         ]
     ],
 
-    "object_sync_partner_collections" => [
+    "entity_sync_collection" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_sync_collection_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'type' => ['type' => SchemaProperty::TYPE_INT],
             'partner_id' => ['type' => SchemaProperty::TYPE_INT],
             'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID],
@@ -371,7 +344,7 @@ return [
             'revision' => ['type' => SchemaProperty::TYPE_BIGINT],
             'last_commit_id' => ['type' => SchemaProperty::TYPE_BIGINT],
         ],
-        'PRIMARY_KEY' => 'id',
+        'PRIMARY_KEY' => 'entity_sync_collection_id',
         "KEYS" => [
             [
                 "property" => 'partner_id',
@@ -392,9 +365,9 @@ return [
         "INDEXES" => []
     ],
 
-    "object_sync_import" => [
+    "entity_sync_import" => [
         "PROPERTIES" => [
-            'id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
+            'entity_sync_import_id' => ['type' => SchemaProperty::TYPE_BIGSERIAL],
             'collection_id' => ['type' => SchemaProperty::TYPE_BIGINT],
             'entity_definition_id' => ['type' => SchemaProperty::TYPE_UUID],
             // Local object id once imported
@@ -410,7 +383,7 @@ return [
             // The unique id of the remote object we have imported
             'unique_id' => ['type' => SchemaProperty::TYPE_CHAR_512],
         ],
-        'PRIMARY_KEY' => 'id',
+        'PRIMARY_KEY' => 'entity_sync_import_id',
         "KEYS" => [
             [
                 "property" => 'collection_id',

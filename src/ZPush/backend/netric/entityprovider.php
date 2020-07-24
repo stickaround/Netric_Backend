@@ -385,7 +385,7 @@ class EntityProvider
                     return false;
                 }
 
-                $groupings->delete($group->id);
+                $groupings->delete($group->getGroupId());
                 return $groupingsLoader->save($groupings);
 
             case self::FOLDER_TYPE_CALENDAR:
@@ -514,10 +514,15 @@ class EntityProvider
          * TODO: Comments this out to get all folders again
          */
         //$groups = $groupings->getAll();
-        $groups = [$groupings->getByName("Inbox")];
+        $group = $groupings->getByName("Inbox");
+        if (!$group) {
+            return $folders;
+        }
+
+        $groups = [$group];
         foreach ($groups as $group) {
             $folder = new SyncFolder();
-            $folder->serverid = $this->packFolderId(self::FOLDER_TYPE_EMAIL, $group->id);
+            $folder->serverid = $this->packFolderId(self::FOLDER_TYPE_EMAIL, $group->getGroupId());
             $folder->parentid = ($group->parentId) ? $this->packFolderId(self::FOLDER_TYPE_EMAIL, $group->parentId) : "0";
             $folder->displayname = mb_convert_encoding($group->name, "UTF-8", "UTF-7");
 
@@ -536,7 +541,7 @@ class EntityProvider
             $folders[] = $folder;
 
             // If we are only trying to get one id, return it if found
-            if ($id == $group->id) {
+            if ($id == $group->getGroupId()) {
                 return array($folder);
             }
         }
@@ -615,13 +620,13 @@ class EntityProvider
         {
             $folder = new SyncFolder();
             $folder->type = SYNC_FOLDER_TYPE_NOTE;
-            $folder->serverid = $this->packFolderId(self::FOLDER_TYPE_NOTE, $group->id);
+            $folder->serverid = $this->packFolderId(self::FOLDER_TYPE_NOTE, $group->getGroupId());
             $folder->parentid = ($group->parentId) ? $this->packFolderId(self::FOLDER_TYPE_NOTE, $group->parentId) : 0;
             $folder->displayname = mb_convert_encoding($group->name, "UTF-8", "UTF-7");
             $folders[] = $folder;
 
             // If we are only trying to get one id, return it if found
-            if ($id == $group->id) {
+            if ($id == $group->getGroupId()) {
                 return array($folder);
             }
         }
@@ -1169,9 +1174,9 @@ class EntityProvider
                 $fldr = $antfs->openFolder("%userdir%/Contact Files/$id", true);
                 $file = $fldr->createFile("profilepic.jpg");
                 $size = $file->write($picbinary);
-                if ($file->id)
+                if ($file->getEntityId())
                 {
-                    $obj->setValue('image_id', $file->id);
+                    $obj->setValue('image_id', $file->getEntityId());
                 }
             }
              */
@@ -1214,7 +1219,7 @@ class EntityProvider
                 // See if there is a grouping with this category name
                 $group = $groupings->getByPath($catName);
                 if ($group) {
-                    $entity->addMultiValue("groups", $group->id);
+                    $entity->addMultiValue("groups", $group->getGroupId());
                 } else {
                     // TODO: We should dynamically add it here
                 }
@@ -1354,7 +1359,7 @@ class EntityProvider
         $entity->setValue("sharing", 1);
         $entity->setValue("owner_id", $this->user->getEntityId());
         $entity->setValue("all_day", ($syncAppointment->alldayevent) ? 't' : 'f');
-        $entity->setValue(ObjectTypes::CALENDAR, $calendarId);
+        $entity->setValue('calendar', $calendarId);
         if ($syncAppointment->starttime)
             $entity->setValue("ts_start", $syncAppointment->starttime);
         if ($syncAppointment->endtime)
@@ -1818,22 +1823,22 @@ class EntityProvider
      *
      * @param int $type The type of folder we are representing
      * @param string $id The unique id of the folder for the given type
-     * @return string {typeid}-{id}
+     * @return string {typeid}:{id}
      */
     private function packFolderId($type, $id)
     {
-        return $type . "-" . $id;
+        return $type . ":" . $id;
     }
 
     /**
      * A folderid in z-push can represent any type entity folder, so we unpack the type and id
 
-     * @param string $folderid Encoded folder id in form {typeid}-{id}
+     * @param string $folderid Encoded folder id in form {typeid}:{id}
      * @return array('type'=>type id from self::FOLDER_TYPE_*, 'id'=>unique folder id or null if none)
      */
     public function unpackFolderId($folderid)
     {
-        $parts = explode('-', $folderid);
+        $parts = explode(':', $folderid);
         return array(
             'type' => $parts[0],
             'id' => (isset($parts[1])) ? $parts[1] : null

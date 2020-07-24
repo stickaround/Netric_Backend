@@ -12,7 +12,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
 
-class AuthenticationController extends Mvc\AbstractAccountController
+class AuthenticationController extends Mvc\AbstractController
 {
     /**
      * Override to allow anonymous users to access this controller for authentication

@@ -70,6 +70,11 @@ class BrowserViewService
     private $groupingLoader = null;
 
     /**
+     * Table where entity views are stored
+     */
+    const TABLE_VIEWS = 'entity_view';
+
+    /**
      * Class constructor to set up dependencies
      *
      * @param RelationalDbInterface $rdb
@@ -347,9 +352,13 @@ class BrowserViewService
         ];
 
         if ($viewId && is_numeric($viewId)) {
-            $this->database->update("app_object_views", $saveViewData, ['id' => $viewId]);
+            $this->database->update(self::TABLE_VIEWS, $saveViewData, ['entity_view_id' => $viewId]);
         } else {
-            $viewId = $this->database->insert("app_object_views", $saveViewData, 'id');
+            $viewId = $this->database->insert(
+                self::TABLE_VIEWS,
+                $saveViewData,
+                'entity_view_id'
+            );
             $view->setId($viewId);
         }
 
@@ -371,8 +380,8 @@ class BrowserViewService
         }
 
         $result = $this->database->delete(
-            "app_object_views",
-            ['id' => $view->getId()]
+            self::TABLE_VIEWS,
+            ['entity_view_id' => $view->getId()]
         );
 
         if ($result) {
@@ -474,16 +483,16 @@ class BrowserViewService
         }
 
         // Now get all views from the DB
-        $sql = "SELECT id, name, scope, description, filter_key,
+        $sql = "SELECT entity_view_id, name, scope, description, filter_key,
                     entity_definition_id, f_default, team_id,
                     owner_id, conditions_data, order_by_data, table_columns_data,
                     group_first_order_by
-                FROM app_object_views WHERE entity_definition_id=:entity_definition_id";
+                FROM " . self::TABLE_VIEWS  . " WHERE entity_definition_id=:entity_definition_id";
 
         $result = $this->database->query($sql, ["entity_definition_id" => $def->getEntityDefinitionId()]);
         foreach ($result->fetchAll() as $row) {
             $viewData = [
-                'id' => $row['id'],
+                'id' => $row['entity_view_id'],
                 'obj_type' => $objType,
                 'name' => $row['name'],
                 'description' => $row['description'],

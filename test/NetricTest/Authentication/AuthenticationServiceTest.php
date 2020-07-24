@@ -112,12 +112,12 @@ class AuthenticationServiceTest extends TestCase
         $this->assertNotEquals($orig, $notSamePass);
     }
 
-    public function testGenerateSalt()
-    {
-        $first = $this->authService->generateSalt();
-        $second = $this->authService->generateSalt();
-        $this->assertNotEquals($first, $second);
-    }
+//    public function testGenerateSalt()
+//    {
+//        $first = $this->authService->generateSalt();
+//        $second = $this->authService->generateSalt();
+//        $this->assertNotEquals($first, $second);
+//    }
 
     /**
      * Test authenticate with good credentials
@@ -210,7 +210,8 @@ class AuthenticationServiceTest extends TestCase
      */
     public function testGetIdentityPrivateKey()
     {
-        $authHeader = AuthenticationService::METHOD_PRIVATE_KEY . " " . self::PRIVATE_KEY;
+        $authHeader = AuthenticationService::METHOD_PRIVATE_KEY .
+            " " . $this->account->getAccountId() . ':' . self::PRIVATE_KEY;
 
         // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
         $req = $this->getMockBuilder(RequestInterface::class)->getMock();

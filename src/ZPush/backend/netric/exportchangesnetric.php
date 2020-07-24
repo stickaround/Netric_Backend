@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Netric exporter handles exporting entity changes to the device
  *
  * The reason all the files are lowercase in here is because that is the z-push standard
  * so we stick with it to be consistent.
  */
-$zPushRoot = dirname(__FILE__) ."/../../";
+$zPushRoot = dirname(__FILE__) . "/../../";
 
 // Interfaces
 require_once($zPushRoot . 'lib/interface/iexportchanges.php');
@@ -108,7 +109,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
         $this->step = 0;
         $this->importer = $importer;
 
-        if(!$this->folderId) {
+        if (!$this->folderId) {
             throw new StatusException("Tried to use ExportChangesNetric for hierarchy. Class should have been ExportFolderChangesnetric");
         }
 
@@ -151,11 +152,10 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
     public function Synchronize()
     {
         // Get one of our stored changes and send it to the importer, store the new state it succeeds
-        if($this->step < count($this->changes)) {
+        if ($this->step < count($this->changes)) {
             $change = $this->changes[$this->step];
 
-            switch($change["action"])
-            {
+            switch ($change["action"]) {
                 case "change":
                     // Note: because 'parseMessage' and 'statMessage' are two seperate
                     // calls, we have a chance that the message has changed between both
@@ -176,8 +176,8 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                         $this->log->error("ZPUSH->ExportChangeNetric->Synchronize: {$change['id']} is invalid syncObject");
                     }
 
-                    if($message) {
-                        if($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportMessageChange($change["id"], $message) == true) {
+                    if ($message) {
+                        if ($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportMessageChange($change["id"], $message) == true) {
                             // Update the collection to set change to successfully exported
                             $this->collection->setLastCommitId($change['commit_id']);
                             $this->collection->logExported($change['id'], $change['commit_id']);
@@ -192,12 +192,12 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                 case "delete":
                     // Entity was deleted
                     if ($this->foundInSyncState($change['id'])) {
-                        if(
+                        if (
                             $this->flags & BACKEND_DISCARD_DATA ||
                             $this->importer->ImportMessageDeletion($change["id"]) == true
                         ) {
 
-                            $this->collection->logExported($change['id'], null);
+                            $this->collection->logExported($change['id'], 0);
                             $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: exported delete {$change['id']}");
                         }
                     } else {
@@ -208,7 +208,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                         );
 
                         // Log it as exported so we don't get this change again
-                        $this->collection->logExported($change['id'], null);
+                        $this->collection->logExported($change['id'], 0);
                     }
 
                     break;
@@ -223,7 +223,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                 array(
                     "type" => $change['action'],
                     "id" => $change['id'],
-                    "flags"=> 0,
+                    "flags" => 0,
                     "mod" => (isset($change['commit_id'])) ? $change['commit_id'] : 0
                 )
             );

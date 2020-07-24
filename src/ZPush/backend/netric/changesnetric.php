@@ -46,7 +46,7 @@ class ChangesNetric implements IChanges
      *          )
      *      )
      */
-    protected $syncState = array();
+    protected $syncState = [];
 
     /**
      * Config flags

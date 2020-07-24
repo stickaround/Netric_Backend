@@ -142,6 +142,37 @@ class UserEntity extends Entity implements EntityInterface
     }
 
     /**
+     * This function is called just before we export entity as data
+     *
+     * @return void
+     */
+    public function onBeforeToArray(): void
+    {
+        // Make sure default groups are set correctly
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+
+        // Add to authenticated users group if we have determined this is a valid user
+        $groupUser = $userGroups->getByName(self::GROUP_USERS);
+        if (
+            $this->getEntityId() &&
+            !$this->isAnonymous() &&
+            !$this->getValueName('groups', $groupUser->getGroupId())
+        ) {
+            $this->addMultiValue('groups', $groupUser->getGroupId(), 'Users');
+        }
+
+        // Of course every user is part of everyone
+        $groupEveryone = $userGroups->getByName(self::GROUP_EVERYONE);
+        if (
+            $this->getEntityId() &&
+            !$this->isAnonymous() &&
+            !$this->getValueName('groups', $groupEveryone->getGroupId())
+        ) {
+            $this->addMultiValue('groups', $groupEveryone->getGroupId(), 'Users');
+        }
+    }
+
+    /**
      * Set clear text password
      *
      * This will generate a salt and encrypt the password
@@ -154,7 +185,7 @@ class UserEntity extends Entity implements EntityInterface
 
         // Check for salt and create if missing
         if (!$salt) {
-            $salt = $authService->generateSalt();
+            $salt = bin2hex(openssl_random_pseudo_bytes(64));
             $this->setValue("password_salt", $salt);
         }
 

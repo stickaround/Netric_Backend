@@ -93,12 +93,8 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             throw new \InvalidArgumentException("No object type set for recurring pattern");
         }
 
-        // get/set entity_recurrence_id
-        $entityRecurrenceId = isset($data['entity_recurrence_id'])
-            ? $data['entity_recurrence_id'] : Uuid::uuid4()->toString();
-
         $recurrenceData = [
-            'entity_recurrence_id' => $entityRecurrenceId,
+            'entity_recurrence_id' => $data['entity_recurrence_id'],
             'account_id' => $this->accountId,
             'entity_definition_id' => $data['entity_definition_id'],
             'date_processed_to' => $data['date_processed_to'],
@@ -122,13 +118,11 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $daysOfWeekMaskData["6"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_FRIDAY;
         $daysOfWeekMaskData["7"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_SATURDAY;
 
-        $recurrenceId = null;
         if ($recurPattern->getId()) {
-            $recurrenceId = $recurPattern->getId();
             $sql = 'SELECT entity_recurrence_id FROM ' .
                 self::ENTITY_RECUR_TABLE .
                 ' WHERE entity_recurrence_id=:entity_recurrence_id';
-            $result = $this->database->query($sql, ["entity_recurrence_id" => $recurrenceId]);
+            $result = $this->database->query($sql, ["entity_recurrence_id" => $recurPattern->getId()]);
 
             if ($result->rowCount()) {
                 /*
@@ -137,7 +131,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                  * case we will need to make sure we include the id in the insert statement
                  * because we cannot ever assume that if it already has an id that it was previously saved.
                  */
-                $recurrenceData['entity_recurrence_id'] = $recurrenceId;
+                $recurrenceData['entity_recurrence_id'] = $recurPattern->getId();
 
                 // Add update statements for recurrence fields
                 $updateStatements = [];
@@ -157,17 +151,20 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                 $sql .= " WHERE entity_recurrence_id=:entity_recurrence_id";
 
                 // Run the update and return the id as the result
-                $updateParams["entity_recurrence_id"] = $recurrenceId;
                 $result = $this->database->query($sql, $updateParams);
 
-                return $recurrenceId;
+                return $recurPattern->getId();
             }
         }
 
         // Override the recurrence id if the $useId is set
         if ($useId) {
             $recurrenceData["entity_recurrence_id"] = $useId;
-            $recurrenceId = $useId;
+        }
+
+        // get/set entity_recurrence_id
+        if (empty($recurrenceData['entity_recurrence_id'])) {
+            $recurrenceData['entity_recurrence_id'] = $this->getNextId();
         }
 
         $insertColumns = array_keys($recurrenceData);
@@ -185,14 +182,13 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         // Run query, get next value (if selected), and commit
         $this->database->query($sql, $recurrenceData);
 
-        // If the recurrence pattern do not have an Id, then we will get the last inserted id
+
+        // If the recurrence pattern do not have an Id, then set it with the newly created id 
         if (!$recurPattern->getId()) {
-            // Get the last inserted id in the table
-            $recurrenceId = $this->database->getLastInsertId(self::ENTITY_RECUR_TABLE . "_id_seq");
-            $recurPattern->setId($recurrenceId);
+            $recurPattern->setId($recurrenceData["entity_recurrence_id"]);
         }
 
-        return $recurrenceId;
+        return $recurPattern->getId();
     }
 
     /**
@@ -347,7 +343,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     public function deleteById($recurId)
     {
 
-        $result = $this->database->delete(self::ENTITY_RECUR_TABLE, ["id" => $recurId]);
+        $result = $this->database->delete(self::ENTITY_RECUR_TABLE, ["entity_recurrence_id" => $recurId]);
         return ($result) ? true : false;
     }
 

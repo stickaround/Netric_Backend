@@ -34,7 +34,7 @@ class PrivateKeyTokenTest extends TestCase
     }
     public function testTokenIsValid(): void
     {
-        $token = new PrivateKeyToken("SECRET", "SECRET", $this->entityLoaderMock);
+        $token = new PrivateKeyToken("SECRET", "ACCOUNT:SECRET", $this->entityLoaderMock);
         $this->assertTrue($token->tokenIsValid());
     }
 
@@ -46,13 +46,25 @@ class PrivateKeyTokenTest extends TestCase
 
     public function testTokenIsValidFailsWhenMismatch()
     {
-        $token = new PrivateKeyToken("SECRET", "", $this->entityLoaderMock);
+        $token = new PrivateKeyToken("SECRET", "BLAH", $this->entityLoaderMock);
         $this->assertFalse($token->tokenIsValid());
     }
 
-    public function testGetUserGuid(): void
+    public function testTokenIsValidFailsWhenNoAccount()
     {
         $token = new PrivateKeyToken("SECRET", "SECRET", $this->entityLoaderMock);
+        $this->assertFalse($token->tokenIsValid());
+    }
+
+    public function testGetUserId(): void
+    {
+        $token = new PrivateKeyToken("SECRET", "ACCOUNT:SECRET", $this->entityLoaderMock);
         $this->assertEquals(self::TEST_UUID, $token->getUserGuid());
+    }
+
+    public function testGetAccountId(): void
+    {
+        $token = new PrivateKeyToken("SECRET", "ACCOUNT:SECRET", $this->entityLoaderMock);
+        $this->assertEquals('ACCOUNT', $token->getAccountId());
     }
 }

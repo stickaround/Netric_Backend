@@ -134,11 +134,12 @@ class Forms
     {
         // Check for user specific form
         $sql = "SELECT form_layout_xml FROM entity_form
-                WHERE user_id=:user_id AND scope=:scope AND type_id=:type_id";
+                WHERE user_id=:user_id AND scope=:scope 
+                AND entity_definition_id=:entity_definition_id";
 
         $params = [
             "scope" => $device,
-            "type_id" => $def->getEntityDefinitionId()
+            "entity_definition_id" => $def->getEntityDefinitionId()
         ];
         $result = $this->database->query($sql, array_merge(["user_id" => $user->getEntityId()], $params));
 
@@ -152,7 +153,8 @@ class Forms
         // Check for team specific form
         if ($user->getValue("team_id")) {
             $sql = "SELECT form_layout_xml FROM entity_form
-                    WHERE team_id=:team_id AND scope=:scope AND type_id=:type_id";
+                    WHERE team_id=:team_id AND scope=:scope 
+                    AND entity_definition_id=:entity_definition_id";
 
             $result = $this->database->query($sql, array_merge(["team_id" => $user->getValue("team_id")], $params));
 
@@ -166,7 +168,9 @@ class Forms
 
         // Check for default custom that applies to all users and teams
         $sql = "SELECT form_layout_xml FROM entity_form
-                WHERE scope=:scope AND type_id=:type_id AND team_id IS NULL AND user_id IS NULL";
+                WHERE scope=:scope 
+                AND entity_definition_id=:entity_definition_id 
+                AND team_id IS NULL AND user_id IS NULL";
 
         $result = $this->database->query($sql, $params);
 
@@ -296,7 +300,7 @@ class Forms
 
         $params = [
             "scope" => $deviceType,
-            "type_id" => $def->getEntityDefinitionId()
+            "entity_definition_id" => $def->getEntityDefinitionId()
         ];
 
         $params["user_id"] = null;
@@ -320,7 +324,7 @@ class Forms
                 "scope" => $deviceType,
                 "team_id" => $teamId,
                 "user_id" => $userId,
-                "type_id" => $def->getEntityDefinitionId(),
+                "entity_definition_id" => $def->getEntityDefinitionId(),
                 "form_layout_xml" => $xmlForm,
                 "account_id" => $this->accountId,
             ];

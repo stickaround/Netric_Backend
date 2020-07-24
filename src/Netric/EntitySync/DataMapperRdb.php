@@ -42,9 +42,9 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         );
 
         if ($partner->getId()) {
-            $this->database->update("object_sync_partners", $data, ["id" => $partner->getId()]);
+            $this->database->update("entity_sync_partner", $data, ["entity_sync_partner_id" => $partner->getId()]);
         } else {
-            $partnerId = $this->database->insert("object_sync_partners", $data, 'id');
+            $partnerId = $this->database->insert("entity_sync_partner", $data, 'entity_sync_partner_id');
             $partner->setId(intval($partnerId));
         }
 
@@ -120,15 +120,15 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             return null;
         }
 
-        $sql = "SELECT id, pid, owner_id, ts_last_sync 
-				  FROM object_sync_partners WHERE ";
+        $sql = "SELECT entity_sync_partner_id, pid, owner_id, ts_last_sync 
+				  FROM entity_sync_partner WHERE ";
 
         $params = [];
 
         // Add condition based on the type of id passed
         if ($systemId) {
-            $sql .= "id=:id";
-            $params["id"] = $systemId;
+            $sql .= "entity_sync_partner_id=:entity_sync_partner_id";
+            $params["entity_sync_partner_id"] = $systemId;
         } else {
             $sql .= "pid=:pid";
             $params["pid"] = $partnerId;
@@ -140,7 +140,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             $row = $result->fetch();
 
             $partner = new Partner($this);
-            $partner->setId($row['id']);
+            $partner->setId($row['entity_sync_partner_id']);
             $partner->setRemotePartnerId($row['pid']);
             $partner->setOwnerId($row['owner_id']);
 
@@ -169,9 +169,9 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
     {
         if ($partner->getId()) {
             $params = [];
-            $params["id"] = $partner->getId();
+            $params["entity_sync_partner_id"] = $partner->getId();
 
-            $this->database->delete("object_sync_partners", $params);
+            $this->database->delete("entity_sync_partner", $params);
             return true;
         }
 
@@ -190,7 +190,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             return $this->returnError("Cannot get collections because partner is not saved", __FILE__, __LINE__);
         }
 
-        $sql = "SELECT * FROM object_sync_partner_collections WHERE partner_id=:partner_id";
+        $sql = "SELECT * FROM entity_sync_collection WHERE partner_id=:partner_id";
         $result = $this->database->query($sql, ["partner_id" => $partner->getId()]);
 
         foreach ($result->fetchAll() as $row) {
@@ -258,9 +258,9 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         ];
 
         if ($collection->getCollectionId()) {
-            $this->database->update("object_sync_partner_collections", $data, ["id" => $collection->getCollectionId()]);
+            $this->database->update("entity_sync_collection", $data, ["entity_sync_collection_id" => $collection->getCollectionId()]);
         } else {
-            $collectionId = $this->database->insert("object_sync_partner_collections", $data, 'id');
+            $collectionId = $this->database->insert("entity_sync_collection", $data, 'entity_sync_collection_id');
             $collection->setCollectionId(intval($collectionId));
         }
 
@@ -279,7 +279,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             return $this->returnError("Collection id is a required param", __FILE__, __LINE__);
         }
 
-        $this->database->delete("object_sync_partner_collections", ["id" => $collectionId]);
+        $this->database->delete("entity_sync_collection", ["entity_sync_collection_id" => $collectionId]);
         return true;
     }
 
@@ -413,10 +413,11 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         $importedStats = [];
 
         // Get everything from the exported log that is set as stale
-        $sql = "SELECT unique_id, remote_revision, object_id, revision FROM object_sync_import
+        $sql = "SELECT unique_id, remote_revision, object_id, revision 
+                FROM entity_sync_import
     			WHERE collection_id=:collection_id";
 
-        $result = $this->database->query($sql, ["collection_id" => $collectionId]);
+        $result = $this->database->query($sql, ["collection_id" => $collectionId ]);
         foreach ($result->fetchAll() as $row) {
             $importedStats[] = [
                 'remote_id' => $row['unique_id'],
@@ -462,22 +463,22 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
                 "remote_revision" => $remoteRevision
             ];
 
-            $sql = "SELECT unique_id FROM object_sync_import
+            $sql = "SELECT unique_id FROM entity_sync_import
     				  WHERE collection_id=:collection_id
     				  	AND unique_id=:unique_id";
             $result = $this->database->query($sql, ["collection_id" => $collectionId, "unique_id" => $remoteId]);
 
             if ($result->rowCount()) {
-                $this->database->update("object_sync_import", $syncData, $whereData);
+                $this->database->update("entity_sync_import", $syncData, $whereData);
             } else {
-                $this->database->insert("object_sync_import", array_merge($syncData, $whereData));
+                $this->database->insert("entity_sync_import", array_merge($syncData, $whereData));
             }
         } else {
             /*
              * If we have no localId then that means the import is no longer part of the local store
              * and has not been imported so delete the log entry.
              */
-            $this->database->delete("object_sync_import", $whereData);
+            $this->database->delete("entity_sync_import", $whereData);
         }
 
         return true;

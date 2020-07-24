@@ -184,7 +184,7 @@ class EntitySearchProviderTest extends TestCase
         $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email->setValue("subject", "test message");
         $email->setValue("owner_id", $this->user->getEntityId());
-        $email->setValue("mailbox_id", $this->groupInbox->id);
+        $email->setValue("mailbox_id", $this->groupInbox->getGroupId());
         $entityLoader->save($email);
         $this->testEntities[] = $email;
 
@@ -192,7 +192,7 @@ class EntitySearchProviderTest extends TestCase
         $cpo = new \ContentParameters();
         $cpo->SetSearchFreeText("test");
         $cpo->SetSearchRange("0-10");
-        $cpo->GetSearchFolderid(\EntityProvider::FOLDER_TYPE_EMAIL . "-" . $this->groupInbox->id);
+        $cpo->GetSearchFolderid(\EntityProvider::FOLDER_TYPE_EMAIL . ":" . $this->groupInbox->getGroupId());
 
         // Run the search
         $items = $this->provider->GetMailboxSearchResults($cpo);
@@ -203,7 +203,7 @@ class EntitySearchProviderTest extends TestCase
         $foundItem = null;
 
         foreach ($items as $item) {
-            if (is_array($item) && $item['longid'] == $email->getId()) {
+            if (is_array($item) && $item['longid'] == $email->getEntityId()) {
                 $foundItem = $item;
             }
         }

@@ -156,6 +156,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
+
         // Check if the parameters are posted via Post.
         $rawBody = $this->getRequest()->getBody();
         if ($rawBody) {
@@ -164,6 +165,11 @@ class EntityController extends Mvc\AbstractAccountController
             $params['entity_id'] = (isset($body['entity_id'])) ? $body['entity_id'] : null;
             $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
             $params['uname_conditions'] = (isset($body['uname_conditions'])) ? $body['uname_conditions'] : [];
+        }
+
+        // Use id for backwards compatibility
+        if (empty($params['entity_id']) && !empty($params['id'])) {
+            $params['entity_id'] = $params['id'];
         }
 
         // Get the entity utilizing whatever params were passed in

@@ -3,7 +3,6 @@ namespace Netric\Application\Setup;
 
 use Netric\Application\Application;
 use Netric\Account\Account;
-use Netric\Application\Schema\SchemaDataMapperFactory;
 use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaRdbDataMapper;
 use Netric\Db\Relational\PgsqlDb;
@@ -24,13 +23,13 @@ class Setup extends AbstractHasErrors
      */
     public function updateApplication(Application $application)
     {
-        $schemaDataMapper = $this->getApplicationSchemaDataMapper($application);
-
-        // Update the schema for this application
-        if (!$schemaDataMapper->update()) {
-            // Die if we could not create the schema for the account
-            throw new \RuntimeException("Could not update application " . $schemaDataMapper->getLastError()->getMessage());
-        }
+//        $schemaDataMapper = $this->getApplicationSchemaDataMapper($application);
+//
+//        // Update the schema for this application
+//        if (!$schemaDataMapper->update()) {
+//            // Die if we could not create the schema for the account
+//            throw new \RuntimeException("Could not update application " . $schemaDataMapper->getLastError()->getMessage());
+//        }
 
         return true;
     }
@@ -45,7 +44,7 @@ class Setup extends AbstractHasErrors
      */
     public function setupAccount(Account $account, $adminUserName, $adminPassword)
     {
-        $this->updateAccountSchema($account);
+        //$this->updateAccountSchema($account);
 
         // Fast forward this new account to the latest version and run always updates
         $updater = new AccountUpdater($account);
@@ -77,29 +76,11 @@ class Setup extends AbstractHasErrors
      */
     public function updateAccount(Account $account)
     {
-        $this->updateAccountSchema($account);
-
         // Run all update scripts and return the last version run
         $updater = new AccountUpdater($account);
         $version = $updater->runUpdates();
 
         return $version;
-    }
-
-    /**
-     * Update an account to the latest schema
-     *
-     * @param Account $account The account to update
-     */
-    private function updateAccountSchema(Account $account): void
-    {
-        $schemaDataMapper = $account->getServiceManager()->get(SchemaDataMapperFactory::class);
-
-        // Update or create the schema for this account
-        if (!$schemaDataMapper->update($account->getAccountId())) {
-            // Die if we could not create the schema for the account
-            throw new \RuntimeException("Cannot update account " . $schemaDataMapper->getLastError()->getMessage());
-        }
     }
 
     /**
@@ -114,32 +95,32 @@ class Setup extends AbstractHasErrors
      * @param Application $application
      * @return SchemaDataMapperInterface
      */
-    private function getApplicationSchemaDataMapper(Application $application)
-    {
-        // Get application config
-        $config = $application->getConfig();
-
-        // Get the application definition
-        $schemaDefinition = require(__DIR__ . "/../../../../data/schema/application.php");
-
-        // Now get the system DataMapper
-        switch ($config->db['type']) {
-            case 'pgsql':
-                // Get handle to system database
-                $rdb = new PgsqlDb(
-                    $config->db['syshost'],
-                    $config->db['dbname'],
-                    $config->db['user'],
-                    $config->db['password']
-                );
-
-                // Return DataMapper for this database type
-                return new SchemaRdbDataMapper($rdb, $schemaDefinition);
-
-                break;
-            default:
-                // Protect ourselves in the future to make sure new types are added here
-                throw new \RuntimeException("Database type not yet supported: " . $config->db['type']);
-        }
-    }
+//    private function getApplicationSchemaDataMapper(Application $application)
+//    {
+//        // Get application config
+//        $config = $application->getConfig();
+//
+//        // Get the application definition
+//        $schemaDefinition = require(__DIR__ . "/../../../../data/schema/application.php");
+//
+//        // Now get the system DataMapper
+//        switch ($config->db['type']) {
+//            case 'pgsql':
+//                // Get handle to system database
+//                $rdb = new PgsqlDb(
+//                    $config->db['syshost'],
+//                    $config->db['dbname'],
+//                    $config->db['user'],
+//                    $config->db['password']
+//                );
+//
+//                // Return DataMapper for this database type
+//                return new SchemaRdbDataMapper($rdb, $schemaDefinition);
+//
+//                break;
+//            default:
+//                // Protect ourselves in the future to make sure new types are added here
+//                throw new \RuntimeException("Database type not yet supported: " . $config->db['type']);
+//        }
+//    }
 }

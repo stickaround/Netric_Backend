@@ -109,8 +109,7 @@ pipeline {
             }
         }
 
-        // TODO: triggering test
-
+        // TODO: We are not using the integration enviornment for now
         // stage('Integration Setup') {
         //     steps {
         //         // Call stack deploy to upgrade
@@ -165,26 +164,27 @@ pipeline {
             }
         }
 
-        stage('Production') {
-            when {
-                // Do not publish
-                expression {
-                    return !params.DIFF_ID
-                }
-            }
-            steps {
-                script {
-                    script {
-                        deployToSwarm(
-                            environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
-                            stackName: PROJECT_NAME,
-                            imageTag: APPLICATION_VERSION,
-                            serviceDomain: '*.netric.com'
-                        )
-                    }
-                }
-            }
-        }
+        // TODOO: Hold off on deploying for now, we just want to get setup working
+        // stage('Production') {
+        //     when {
+        //         // Do not publish
+        //         expression {
+        //             return !params.DIFF_ID
+        //         }
+        //     }
+        //     steps {
+        //         script {
+        //             script {
+        //                 deployToSwarm(
+        //                     environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
+        //                     stackName: PROJECT_NAME,
+        //                     imageTag: APPLICATION_VERSION,
+        //                     serviceDomain: '*.netric.com'
+        //                 )
+        //             }
+        //         }
+        //     }
+        // }
 
     }
     post {

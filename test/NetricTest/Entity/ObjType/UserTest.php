@@ -128,6 +128,20 @@ class UserTest extends TestCase
 
         // Make sure we have hashed and encoded the password
         $this->assertNotEquals($user->getValue("password"), self::TEST_USER_PASS);
+
+        // Make sure we created a random salt
+        $this->assertNotEmpty($user->getValue('password_salt'));
+    }
+
+    public function testGenerateSaltForPasswords()
+    {
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $user->setValue("name", self::TEST_USER);
+        $user->setValue("password", self::TEST_USER_PASS);
+        $user->onBeforeSave($this->account->getServiceManager());
+
+        // Make sure we have hashed and encoded the password
+        $this->assertNotEquals($user->getValue("password"), self::TEST_USER_PASS);
     }
 
     public function testOnAfterSaveAppicationEmailMapSet()

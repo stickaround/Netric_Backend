@@ -45,7 +45,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     /**
      * Table where we store module data
      */
-    const TABLE_MODULES = 'applications';
+    const TABLE_MODULES = 'account_module';
 
     /**
      * Construct and initialize dependencies
@@ -88,11 +88,11 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
 
         // Compose either an update or insert statement
         if ($module->getModuleId()) {
-            $this->db->update(self::TABLE_MODULES, $data, ['id' => $module->getModuleId()]);
+            $this->db->update(self::TABLE_MODULES, $data, [self::TABLE_MODULES . '_id' => $module->getModuleId()]);
             return true;
         }
 
-        $id = $this->db->insert(self::TABLE_MODULES, $data, 'id');
+        $id = $this->db->insert(self::TABLE_MODULES, $data, self::TABLE_MODULES . '_id');
         $module->setModuleId($id);
         return true;
     }
@@ -164,7 +164,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             throw new \InvalidArgumentException("Missing ID - cannot delete an unsaved module");
         }
 
-        $this->db->delete('applications', ['id' => $module->getModuleId()]);
+        $this->db->delete(self::TABLE_MODULES, [self::TABLE_MODULES . '_id' => $module->getModuleId()]);
         return true;
     }
 
@@ -178,17 +178,10 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     {
         $module = new Module();
 
-        /*
-         * Legacy settings used to be stored in xml_navigation
-         * but we no longer use this
-         *
-        if (isset($row['xml_navigation']) && !empty($row['xml_navigation'])) {
-            // Convert the xmlNavigation to array
-            $navigation = $module->convertXmltoNavigation($row['xml_navigation']);
-            $module->setNavigation($navigation);
+        // Make sure that we set an 'id' in the row from the table id
+        if (!isset($row['id'])) {
+            $row['id'] = $row[self::TABLE_MODULES . '_id'];
         }
-        */
-
         // Now, Import the module data coming from the database and override what was set using the default navigation file
         $module->fromArray($row);
 

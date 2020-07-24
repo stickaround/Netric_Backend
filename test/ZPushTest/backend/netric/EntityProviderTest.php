@@ -162,7 +162,7 @@ class EntityProviderTest extends TestCase
         $found = false;
 
         foreach ($folders as $folder) {
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_CONTACT . "-" . "my") {
+            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_CONTACT . ':' . "my") {
                 $found = true;
             }
         }
@@ -182,7 +182,7 @@ class EntityProviderTest extends TestCase
         $found = false;
 
         foreach ($folders as $folder) {
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_TASK . "-" . "my") {
+            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_TASK . ':' . "my") {
                 $found = true;
             }
         }
@@ -211,7 +211,7 @@ class EntityProviderTest extends TestCase
 
         $found = false;
         foreach ($folders as $folder) {
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_CALENDAR . "-" . $calendar->getId()) {
+            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_CALENDAR . ':' . $calendar->getEntityId()) {
                 $found = true;
             }
         }
@@ -257,13 +257,13 @@ class EntityProviderTest extends TestCase
          * TODO: We have removed the ability to have multiple folders and just return the inbox
         $found = false;
         foreach ($folders as $folder) {
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_EMAIL . "-" . $savedGroup->id) {
+            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_EMAIL . ':' . $savedGroup->getGroupId()) {
                 $found = true;
             }
         }
 
         // Cleanup first
-        $groupings->delete($savedGroup->id);
+        $groupings->delete($savedGroup->getGroupId());
 
         // Test result
         $this->assertTrue($found);
@@ -281,7 +281,7 @@ class EntityProviderTest extends TestCase
         $found = false;
 
         foreach ($folders as $folder) {
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_NOTE . "-" . "my") {
+            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_NOTE . ':' . "my") {
                 $found = true;
             }
         }
@@ -365,7 +365,7 @@ class EntityProviderTest extends TestCase
         $this->testEntities[] = $event;
 
         $syncEvent = $this->provider->getSyncObject(
-            \EntityProvider::FOLDER_TYPE_CALENDAR . "-" . $calid,
+            \EntityProvider::FOLDER_TYPE_CALENDAR . ':' . $calid,
             $cid,
             new \ContentParameters()
         );
@@ -402,7 +402,7 @@ class EntityProviderTest extends TestCase
         $task->subject = "UnitTest TaskName";
         $task->startdate = strtotime("11/17/2016");
         $task->duedate = strtotime("11/18/2016");
-        $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_TASK . "-my", null, $task);
+        $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_TASK . ":my", null, $task);
         $this->assertNotNull($id);
 
         // Open and check the data
@@ -414,7 +414,7 @@ class EntityProviderTest extends TestCase
 
         // Save changes to existing
         $task->subject = "UnitTest TaskName - edited";
-        $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_TASK . "-my", $id, $task);
+        $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_TASK . ":my", $id, $task);
 
         // Test the new value
         $openedEntity = $this->entityLoader->getByGuid($id);
@@ -502,7 +502,7 @@ class EntityProviderTest extends TestCase
         $contact = new \SyncContact();
         $contact->firstname = "test";
         $contact->lastname = "contact";
-        $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_CONTACT . "-my", null, $contact);
+        $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_CONTACT . ":my", null, $contact);
         $this->assertNotNull($id);
 
         // Open and check the data
@@ -514,7 +514,7 @@ class EntityProviderTest extends TestCase
 
         // Save changes to existing
         $contact->firstname = "test - edited";
-        $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_CONTACT . "-my", $id, $contact);
+        $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_CONTACT . ":my", $id, $contact);
 
         // Test the new value
         $openedEntity = $this->entityLoader->getByGuid($id);
@@ -540,7 +540,7 @@ class EntityProviderTest extends TestCase
         $note->asbody->type = SYNC_BODYPREFERENCE_HTML;
         $note->asbody->data = \StringStreamWrapper::Open("<p>My Body</p>");
         $note->categories = array($savedGroup->name);
-        $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . "-my", null, $note);
+        $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . ":my", null, $note);
         $this->assertNotNull($id);
 
         // Open and check the data
@@ -548,7 +548,7 @@ class EntityProviderTest extends TestCase
         $this->testEntities[] = $entity;
 
         // Cleanup before testing
-        $groupings->delete($savedGroup->id);
+        $groupings->delete($savedGroup->getGroupId());
 
         // Test values
         $this->assertNotEmpty($entity->getValue("owner_id"));
@@ -559,7 +559,7 @@ class EntityProviderTest extends TestCase
 
         // Save changes without setting body type and meta data for legacy active sync
         $note->asbody = "<p>My Edited Body</p>";
-        $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . "-my", $id, $note);
+        $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . ":my", $id, $note);
 
         // Test the new value
         $openedEntity = $this->entityLoader->getByGuid($id);
@@ -591,13 +591,13 @@ class EntityProviderTest extends TestCase
 
         $ret = $this->provider->moveEntity(
             $id,
-            \EntityProvider::FOLDER_TYPE_EMAIL . "-" . $grpDrafts->id,
-            \EntityProvider::FOLDER_TYPE_EMAIL . "-" . $grpInbox->id
+            \EntityProvider::FOLDER_TYPE_EMAIL . ':' . $grpDrafts->getGroupId(),
+            \EntityProvider::FOLDER_TYPE_EMAIL . ':' . $grpInbox->getGroupId()
         );
         $this->assertTrue($ret);
 
         $loadedEntity = $this->entityLoader->getByGuid($id);
-        $this->assertEquals($grpInbox->id, $loadedEntity->getValue("mailbox_id"));
+        $this->assertEquals($grpInbox->getGroupId(), $loadedEntity->getValue("mailbox_id"));
     }
 
     public function testMoveEntity_Appointment()
@@ -612,14 +612,14 @@ class EntityProviderTest extends TestCase
         $this->testEntities[] = $calendar2;
 
         $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
-        $entity->setValue(ObjectTypes::CALENDAR, $calendar1->getId());
+        $entity->setValue(ObjectTypes::CALENDAR, $calendar1->getEntityId());
         $id = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->moveEntity(
             $id,
-            \EntityProvider::FOLDER_TYPE_CALENDAR . "-" . $calendar1->getId(),
-            \EntityProvider::FOLDER_TYPE_CALENDAR . "-" . $calendar2->getId()
+            \EntityProvider::FOLDER_TYPE_CALENDAR . ':' . $calendar1->getEntityId(),
+            \EntityProvider::FOLDER_TYPE_CALENDAR . ':' . $calendar2->getEntityId()
         );
         $this->assertTrue($ret);
 
@@ -635,24 +635,24 @@ class EntityProviderTest extends TestCase
         $this->assertFalse(
             $this->provider->moveEntity(
                 1,
-                \EntityProvider::FOLDER_TYPE_NOTE . "-my",
-                \EntityProvider::FOLDER_TYPE_NOTE . "-new"
+                \EntityProvider::FOLDER_TYPE_NOTE . ":my",
+                \EntityProvider::FOLDER_TYPE_NOTE . ":new"
             )
         );
 
         $this->assertFalse(
             $this->provider->moveEntity(
                 1,
-                \EntityProvider::FOLDER_TYPE_CONTACT . "-my",
-                \EntityProvider::FOLDER_TYPE_CONTACT . "-new"
+                \EntityProvider::FOLDER_TYPE_CONTACT . ":my",
+                \EntityProvider::FOLDER_TYPE_CONTACT . ":new"
             )
         );
 
         $this->assertFalse(
             $this->provider->moveEntity(
                 1,
-                \EntityProvider::FOLDER_TYPE_TASK . "-my",
-                \EntityProvider::FOLDER_TYPE_TASK . "-new"
+                \EntityProvider::FOLDER_TYPE_TASK . ":my",
+                \EntityProvider::FOLDER_TYPE_TASK . ":new"
             )
         );
     }
@@ -661,12 +661,12 @@ class EntityProviderTest extends TestCase
     {
         $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $entity->setValue("name", "test event for stats");
-        $entity->setValue(ObjectTypes::CALENDAR, $this->testCalendar->getId());
+        $entity->setValue(ObjectTypes::CALENDAR, $this->testCalendar->getEntityId());
         $id = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
         $stat = $this->provider->getEntityStat(
-            \EntityProvider::FOLDER_TYPE_CALENDAR . "-" . $this->testCalendar->getId(),
+            \EntityProvider::FOLDER_TYPE_CALENDAR . ':' . $this->testCalendar->getEntityId(),
             $id
         );
 
@@ -679,7 +679,7 @@ class EntityProviderTest extends TestCase
         // Get folders, at least one will be there because we created Inbox in $this->setUp
         $emailFolders = $this->provider->getEmailFolders();
         // Mailboxes are stored in '[obj_type]-[id]' format so get the id beflow
-        $folderParts = explode("-", $emailFolders[0]->serverid);
+        $folderParts = explode(':', $emailFolders[0]->serverid);
         $mailboxId = $folderParts[1];
 
         $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
@@ -705,7 +705,7 @@ class EntityProviderTest extends TestCase
         $emailFolders = $this->provider->getEmailFolders();
 
         // Mailboxes are stored in '[obj_type]-[id]' format so get the id beflow
-        $folderParts = explode("-", $emailFolders[0]->serverid);
+        $folderParts = explode(':', $emailFolders[0]->serverid);
         $mailboxId = $folderParts[1];
 
         $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
@@ -737,7 +737,7 @@ class EntityProviderTest extends TestCase
             $groupingsLoader->save($groupings);
         }
 
-        $ret = $this->provider->deleteFolder(\EntityProvider::FOLDER_TYPE_EMAIL . '-' . $group->id);
+        $ret = $this->provider->deleteFolder(\EntityProvider::FOLDER_TYPE_EMAIL . ':' . $group->getGroupId());
         $this->assertTrue($ret);
     }
 
@@ -749,7 +749,7 @@ class EntityProviderTest extends TestCase
         $this->assertEquals($first, $emailFolders[0]);
 
         // Try with 'my' static folder
-        $folderId = \EntityProvider::FOLDER_TYPE_TASK . '-my';
+        $folderId = \EntityProvider::FOLDER_TYPE_TASK . ':my';
         $this->assertEquals(
             $folderId,
             $this->provider->getFolder($folderId)->serverid
@@ -768,14 +768,14 @@ class EntityProviderTest extends TestCase
         $foundEmail = false;
 
         foreach ($folders as $folder) {
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_TASK . "-" . "my") {
+            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_TASK . ':' . "my") {
                 $foundTask = true;
             }
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_CONTACT . "-" . "my") {
+            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_CONTACT . ':' . "my") {
                 $foundContact = true;
             } else {
                 // Test all other types that do not have static folders
-                $parts = explode("-", $folder->serverid);
+                $parts = explode(':', $folder->serverid);
                 switch ($parts[0]) {
                     case \EntityProvider::FOLDER_TYPE_EMAIL:
                         $foundEmail = true;

@@ -144,7 +144,7 @@ class RecurrenceDataMapperTest extends TestCase
 
         $opened = $this->dataMapper->load($rid);
 
-        $this->assertTrue($opened->getId() > 0);
+        $this->assertNotEmpty($opened->getId());
         $this->assertEquals($data['recur_type'], $opened->getRecurType());
         $this->assertEquals($data['interval'], $opened->getInterval());
         $this->assertEquals(new \DateTime($data['date_start']), $opened->getDateStart());

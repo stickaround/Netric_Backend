@@ -16,4 +16,11 @@ interface AuthenticationTokenInterface
      * @return string
      */
     public function getUserGuid(): string;
+
+    /**
+     * Get the account ID for this user
+     *
+     * @return string
+     */
+    public function getAccountId(): string;
 }

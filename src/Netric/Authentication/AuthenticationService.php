@@ -52,6 +52,7 @@ class AuthenticationService
     const SESSIONPART_EXPIRES = 1;
     const SESSIONPART_PASSWORD = 2;
     const SESSIONPART_SIGNATURE = 3;
+    const SESSIONPART_ACCOUNTID = 4;
 
     /**
      * Error codes
@@ -366,27 +367,12 @@ class AuthenticationService
     }
 
     /**
-     * Generate a new random salt
-     *
-     * @param int $length The length of the salt
-     * @return string Unique random string
-     */
-    public function generateSalt($length = 128)
-    {
-        /*
-         * Bin2hex over the raondom bites will double the size so
-         * we are dividing by 2 to make the output match $length
-         */
-        return bin2hex(openssl_random_pseudo_bytes($length / 2));
-    }
-
-    /**
      * Generate signature from a normalized string
      *
      * @param string $data The data string to sign
      * @return string A hashed signature
      */
-    public function getHmacSignature($data)
+    private function getHmacSignature($data)
     {
         return hash_hmac("sha256", $data, $this->privateKey);
     }

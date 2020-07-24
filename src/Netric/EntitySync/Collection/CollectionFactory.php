@@ -79,8 +79,8 @@ class CollectionFactory implements CollectionFactoryInterface
 
         // Initialize data if set
         if ($data && $collection) {
-            if ($data['id']) {
-                $collection->setCollectionId($data['id']);
+            if ($data['entity_sync_collection_id']) {
+                $collection->setCollectionId($data['entity_sync_collection_id']);
             }
             if ($data['object_type']) {
                 $collection->setObjType($data['object_type']);

@@ -30,7 +30,7 @@ class PrivateKeyToken implements AuthenticationTokenInterface
 
     /**
      * Load users
-     * 
+     *
      * @var EntityLoader
      */
     private $entityLoader = null;
@@ -60,8 +60,16 @@ class PrivateKeyToken implements AuthenticationTokenInterface
             return false;
         }
 
+        // Split the token
+        $tokenParts = explode(':', $this->authToken);
+        if (count($tokenParts) != 2) {
+            return false;
+        }
+
+        $tokenKey = $tokenParts[1];
+
         // It is only valid if the keys match
-        return ($this->privateKey === $this->authToken);
+        return ($this->privateKey === $tokenKey);
     }
 
     /**
@@ -78,5 +86,20 @@ class PrivateKeyToken implements AuthenticationTokenInterface
         // Load the system user and return it
         $systemUser = $this->entityLoader->getByUniqueName(ObjectTypes::USER, UserEntity::USER_SYSTEM);
         return $systemUser->getEntityId();
+    }
+
+    /**
+     * Get the account ID for this user
+     *
+     * @return string
+     */
+    public function getAccountId(): string
+    {
+        if (!$this->tokenIsValid()) {
+            return "";
+        }
+
+        $tokenParts = explode(':', $this->authToken);
+        return $tokenParts[0];
     }
 }
