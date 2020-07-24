@@ -430,7 +430,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $filterValues = array_merge($namespaceFieldValues, $parentFieldCondition, ['uname' => $uname]);
         $matches = $this->getIdsFromFieldValues($objType, $filterValues);
 
-        if (count($matches) == 1) {
+        if (count($matches) == 1 || !empty($matches[0])) {
             $entity = $this->getByGuid($matches[0]);
             return $entity;
         }
