@@ -67,13 +67,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $sql = "UPDATE $tableName
                 SET tsv_fulltext=to_tsvector('english', :full_text_terms)
-                WHERE entity_id=:id";
+                WHERE entity_id=:entity_id";
 
         /*
          * We will be using rdb::query() here instead of rdb::update()
          * since we are using to_vector() pgsql function and not updating a field using a normal data
          */
-        $queryParams = ["id" => $entity->getEntityid(), "full_text_terms" => implode(" ", $fieldTextValues)];
+        $queryParams = ["entity_id" => $entity->getEntityid(), "full_text_terms" => implode(" ", $fieldTextValues)];
         $result = $this->database->query($sql, $queryParams);
 
         return $result->rowCount() > 0;
@@ -277,8 +277,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $entityData = json_decode($rawData['field_data'], true);
 
             // If field_data->>id is empty, then we need to retrieve it from the actual field id column.
-            if (empty($entityData['id'])) {
-                $entityData['id'] = $rawData['id'];
+            if (empty($entityData['entity_id'])) {
+                $entityData['entity_id'] = $rawData['entity_id'];
             }
 
             // Decode multival fields into arrays of values
