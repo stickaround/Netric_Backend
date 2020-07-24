@@ -60,13 +60,13 @@ pipeline {
                     junit '.reports/junit.xml'
 
                     // Send reports to server for code quality metrics
-                    codeQualityReport(
-                       repositoryName: 'netric.svc',
-                       teamName: 'Netric',
-                       cloverFile: '.reports/clover.xml',
-                       pmdFile: '.reports/pmd.xml',
-                       checkStyleFile: '.reports/checkstyle.xml'
-                    )
+//                     codeQualityReport(
+//                        repositoryName: 'netric.svc',
+//                        teamName: 'Netric',
+//                        cloverFile: '.reports/clover.xml',
+//                        pmdFile: '.reports/pmd.xml',
+//                        checkStyleFile: '.reports/checkstyle.xml'
+//                     )
                 }
                 script {
                     // Check container for security vulnerabilities
