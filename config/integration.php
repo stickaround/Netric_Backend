@@ -29,6 +29,7 @@ return [
         'user' => "aereus",
         'password' => "kryptos78",
         'syshost' => "dat1-int-locsea.aereus.com",
+        'dbname' => 'netric',
     ],
     // Files settings
     'files' => [

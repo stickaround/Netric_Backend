@@ -28,6 +28,7 @@ return [
         'user' => "vagrant",
         'password' => "vagrant",
         'syshost' => "db1",
+        'dbname' => 'netric',
     ],
     // Files settings
     'files' => [

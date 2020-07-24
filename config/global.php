@@ -72,7 +72,7 @@ return [
         'host' => "10.4.6.22",
         'user' => "aereus",
         'password' => "kryptos78",
-        'dbname' => 'netric',
+        'dbname' => 'aereus_ant',
         'syshost' => "10.4.26.26",
     ],
     // Files settings
