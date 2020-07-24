@@ -102,10 +102,10 @@ class AssignActionTest extends AbstractActionTests
             $hits[$task->getValue('owner_id')]++;
         }
 
-        // Make sure probabilities are in acceptable ranges ~20% to each
-        $this->assertGreaterThan(20, $hits[$userGuid1]);
-        $this->assertGreaterThan(20, $hits[$userGuid2]);
-        $this->assertGreaterThan(20, $hits[$userGuid3]);
+        // Make sure probabilities are in acceptable ranges ~19% to each
+        $this->assertGreaterThanOrEqual(19, $hits[$userGuid1]);
+        $this->assertGreaterThanOrEqual(19, $hits[$userGuid2]);
+        $this->assertGreaterThanOrEqual(19, $hits[$userGuid3]);
     }
 
     /**
