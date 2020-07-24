@@ -77,14 +77,14 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $row = $result->fetch();
         $entityData = json_decode($row['field_data'], true);
 
+        // If entityId is missing from the entity data, then add it
+        if (empty($entityData['entity_id'])) {
+            $entityData['entity_id'] = $row['entity_id'];
+        }
+
         $def = $entity->getDefinition();
         $allFields = $def->getFields();
         foreach ($allFields as $field) {
-            // If entityId is missing from the entity data, then add it
-            if (empty($entityData['entity_id'])) {
-                $entityData['entity_id'] = $row['entity_id'];
-            }
-
             // Sanitize the entity value.
             $value = $this->sanitizeDbValuesToEntityFieldValue($field, $entityData[$field->name]);
 
