@@ -12,4 +12,5 @@
 // Used to convert into to uuid in postgresql
 guid = CAST(LPAD(TO_HEX(id), 32, '0') AS UUID)
 
+select CAST(LPAD(COALESCE(TO_HEX(id), TO_HEX(object_type_id)), 32, '0') AS UUID) as guid from objects limit 10;
 */
