@@ -65,7 +65,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             list_title, icon, system_definition_hash
             from " . self::ENTITY_TYPE_TABLE . " 
             where name=:name AND account_id=:account_id";
-        echo var_export($this->getAccount()->toArray(), true);
         $result = $this->database->query($sql, [
             'name' => $objType,
             'account_id' => $this->getAccount()->getAccountId()

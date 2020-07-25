@@ -328,6 +328,11 @@ class Application
             if (!empty($headers['X-NTRC-ACCOUNT'])) {
                 return $headers['X-NTRC-ACCOUNT'];
             }
+
+            // Some proxies covert to lower case
+            if (!empty($headers['x-ntrc-account'])) {
+                return $headers['x-ntrc-account'];
+            }
         }
 
         // Check url - 3rd level domain is the account name
