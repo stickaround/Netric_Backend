@@ -335,16 +335,6 @@ class Application
             }
         }
 
-        // Check url - 3rd level domain is the account name
-        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
-            && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)
-        ) {
-            $left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
-            if ($left) {
-                return $left;
-            }
-        }
-
         // No account has been set or loaded
         return '';
     }

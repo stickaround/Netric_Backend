@@ -66,7 +66,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
     /**
      * Load an account by id
      *
-     * @param string $accountId The unique id of the account to get
+     * @param string $id The unique id of the account to get
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
@@ -116,7 +116,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
         }
 
         // Now try cache
-        $cachedId = $this->cache->get("netric/account/nametoid/$name");
+        $cachedId = $this->cache->get("netric/account/nametoidmap/$name");
         if ($cachedId) {
             return $this->loadById($cachedId, $application);
         }
@@ -130,7 +130,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
 
             // Save the maps
             $this->nameToIdMap[$name] = $account->getAccountId();
-            $this->cache->set("netric/account/nametoid/$name", $account->getAccountId());
+            $this->cache->set("netric/account/nametoidmap/$name", $account->getAccountId());
             return $account;
         }
 
@@ -163,7 +163,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
             }
 
             // Clear save the maps
-            $this->cache->delete("netric/account/nametoid/$accountName");
+            $this->cache->delete("netric/account/nametoidmap/$accountName");
 
             if (isset($this->nameToIdMap[$accountName])) {
                 unset($this->nameToIdMap[$accountName]);
@@ -220,11 +220,11 @@ class AccountIdentityMapper implements ErrorAwareInterface
         $data = $this->cache->get("netric/account/$id");
         if ($data) {
             if (isset($data["account_id"]) && isset($data["name"])) {
-                if ($account->fromArray($data)) {
-                    // Put in local memory for even faster retrieval next time
-                    $this->setLocalMemory($account);
-                    return true;
-                }
+                $account->fromArray($data);
+                // Put in local memory for even faster retrieval next time
+                $this->setLocalMemory($account);
+
+                return true;
             }
         }
 
