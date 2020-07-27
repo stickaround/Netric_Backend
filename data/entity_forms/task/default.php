@@ -43,7 +43,7 @@
 	</row>
 	<row>
 		<fieldset name='Comments'>
-			<field name='comments'></field>
+			<comments />
 		</fieldset>
 	</row>
 </tab>

@@ -43,7 +43,7 @@
         </row>
         <row>
             <column>
-                <field name='comments'></field>
+                <comments />
             </column>
         </row>
     </tab>

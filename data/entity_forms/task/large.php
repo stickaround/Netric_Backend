@@ -46,7 +46,7 @@
                 <tabs>
                     <tab name='Comments'>
                         <column>
-                            <field name='comments'></field>
+                            <comments />
                         </column>
                     </tab>
                     <tab name='Dependent Tasks'>
