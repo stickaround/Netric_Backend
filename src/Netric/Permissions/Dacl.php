@@ -365,6 +365,22 @@ class Dacl
     }
 
     /**
+     * Get the permissions for the user provided
+     *
+     * @param UserEntity $user The user to check for access     
+     * @param EntityInterface $entity Optional. If entity is provided, then we can check if the $user is assigned as owner/creator/user of $entity
+     * @return object Returns the permissions (view, edit, delete) for the user
+     */
+    public function getUserPermissions(UserEntity $user, $entity = null)
+    {
+        return ([
+            'view' => $this->isAllowed($user, Dacl::PERM_VIEW, $entity),
+            'edit' => $this->isAllowed($user, Dacl::PERM_EDIT, $entity),
+            'delete' => $this->isAllowed($user, Dacl::PERM_DELETE, $entity)
+        ]);
+    }
+
+    /**
      * Check if a specific group has permissions
      *
      * @param int $groupId

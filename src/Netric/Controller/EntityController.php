@@ -82,6 +82,7 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type must be set"]);
         }
 
+        $user = $this->account->getUser();
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
@@ -116,12 +117,24 @@ class EntityController extends Mvc\AbstractAccountController
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 
-            // Export to array
-            $entityData = $ent->toArray();
-
             // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
             $dacl = $daclLoader->getForEntity($ent);
-            $entityData["applied_dacl"] = $dacl->toArray();
+            $currentUserPermissions = $dacl->getUserPermissions($user, $ent);
+            
+            // Always reset $entityData when loading the next entity
+            $entityData = [];
+
+            // Export the entity to array if the current user has access to view this entity
+            if ($currentUserPermissions['view']) {
+                $entityData = $ent->toArray();
+                $entityData["applied_dacl"] = $dacl->toArray();
+            } else {
+                $entityData['entity_id'] = $ent->getEntityId();
+                $entityData['name'] = $ent->getName();
+            }
+            
+            
+            $entityData['currentuser_permissions'] = $currentUserPermissions;
 
             // Print full details
             $entities[] = $entityData;
@@ -208,17 +221,27 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(
                 [
                     "error" => "You do not have permission to view this.",
-                    "entity_id" => $entity->getValue('entity_id'),
+                    "entity_id" => $entity->getEntityId(),
                     "params" => $params
                 ]
             );
         }
 
-        $entityData = $entity->toArray();
-
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $dacl = $daclLoader->getForEntity($entity);
-        $entityData["applied_dacl"] = $dacl->toArray();
+        $user = $this->account->getUser();
+        $currentUserPermissions = $dacl->getUserPermissions($user, $entity);
+            
+        // Export the entity to array if the current user has access to view this entity
+        if ($currentUserPermissions['view']) {
+            $entityData = $entity->toArray();
+            $entityData["applied_dacl"] = $dacl->toArray();
+        } else {
+            $entityData['entity_id'] = $entity->getEntityId();
+            $entityData['name'] = $entity->getName();
+        }
+                
+        $entityData['currentuser_permissions'] = $currentUserPermissions;
 
         return $this->sendOutput($entityData);
     }
@@ -253,6 +276,17 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
+        // Make sure that the user has a permission to save this entity
+        if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
+            return $this->sendOutput(
+                [
+                    "error" => "You do not have permission to edit this.",
+                    "entity_id" => $entity->getEntityId(),
+                    "params" => $params
+                ]
+            );
+        }
+
         // Parse the params
         $entity->fromArray($objData);
 
@@ -275,8 +309,20 @@ class EntityController extends Mvc\AbstractAccountController
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
-        $entityData["applied_dacl"] = $dacl->toArray();
-
+        $user = $this->account->getUser();
+        $currentUserPermissions = $dacl->getUserPermissions($user, $entity);
+            
+        // Export the entity to array if the current user has access to view this entity
+        if ($currentUserPermissions['view']) {
+            $entityData = $entity->toArray();
+            $entityData["applied_dacl"] = $dacl->toArray();
+        } else {
+            $entityData['entity_id'] = $entity->getEntityId();
+            $entityData['name'] = $entity->getName();
+        }
+                
+        $entityData['currentuser_permissions'] = $currentUserPermissions;
+        
         // Return the saved entity
         return $this->sendOutput($entityData);
     }
@@ -459,7 +505,7 @@ class EntityController extends Mvc\AbstractAccountController
         // Add the currently applied DACL for this entity definition
         $defDacl = $daclLoader->getForEntityDefinition($def);
         $ret['applied_dacl'] = $defDacl->toArray();
-
+        
         return $ret;
     }
 

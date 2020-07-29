@@ -226,4 +226,37 @@ class DaclTest extends TestCase
         $userNotAssigned->setValue("entity_id", Uuid::uuid4()->toString());
         $this->assertFalse($dacl->isAllowed($userNotAssigned, null, $task));
     }
+
+    /**
+     * Run tests that will check for user permissions
+     */
+    public function testGetUserPermissions() {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $entityLoader->create(ObjectTypes::USER);
+        $user->setValue("entity_id", Uuid::uuid4()->toString());
+
+        $userOwner = $entityLoader->create(ObjectTypes::USER);
+        $userOwner->setValue("entity_id", Uuid::uuid4()->toString());
+
+        $task = $entityLoader->create(ObjectTypes::TASK);
+        $task->setValue('owner_id', $userOwner->getEntityId());
+
+        $dacl = new Dacl();
+        $ownerPermissions = $dacl->getUserPermissions($userOwner, $task);
+        $this->assertEquals($ownerPermissions, ['view' => true, 'edit' => true, 'delete' => true]);
+
+        // This should be false since the $userNotAssigned is not assigned in the task
+        $userPermissions = $dacl->getUserPermissions($user, $task);
+        $this->assertEquals($userPermissions, ['view' => false, 'edit' => false, 'delete' => false]);
+
+        // Now let's try allowing user to view this task
+        $dacl->allowUser($user->getEntityId(), DACL::PERM_VIEW);
+        $updatedPermissions = $dacl->getUserPermissions($user);
+        $this->assertEquals($updatedPermissions, ['view' => true, 'edit' => false, 'delete' => false]);
+
+        // Give the user full access to the task entity
+        $dacl->allowUser($user->getEntityId(), DACL::PERM_FULL);
+        $fullPermission = $dacl->getUserPermissions($user);
+        $this->assertEquals($fullPermission, ['view' => true, 'edit' => true, 'delete' => true]);        
+    }
 }

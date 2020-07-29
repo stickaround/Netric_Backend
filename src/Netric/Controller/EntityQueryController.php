@@ -5,6 +5,7 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Permissions\DaclLoaderFactory;
+use Netric\Permissions\Dacl;
 
 /**
  * This is just a simple test controller
@@ -33,6 +34,7 @@ class EntityQueryController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type must be set"]);
         }
 
+        $user = $this->account->getUser();
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
@@ -67,10 +69,22 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $entities = [];
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
-
-            $entityData = $ent->toArray();
             $dacl = $daclLoader->getForEntity($ent);
-            $entityData["applied_dacl"] = $dacl->toArray();
+            $currentUserPermissions = $dacl->getUserPermissions($user, $ent);
+
+            // Always reset $entityData when loading the next entity
+            $entityData = [];
+
+            // Export the entity to array if the current user has access to view this entity            
+            if ($currentUserPermissions['view']) {
+                $entityData = $ent->toArray();
+                $entityData["applied_dacl"] = $dacl->toArray();
+            } else {
+                $entityData['entity_id'] = $ent->getEntityId();
+                $entityData['name'] = $ent->getName();
+            }
+            
+            $entityData['currentuser_permissions'] = $currentUserPermissions;
 
             // Print full details
             $entities[] = $entityData;
