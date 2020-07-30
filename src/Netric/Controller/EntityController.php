@@ -272,19 +272,30 @@ class EntityController extends Mvc\AbstractAccountController
             if (isset($objData['entity_id']) && !empty($objData['entity_id'])) {
                 $entity = $entityLoader->getByGuid($objData['entity_id']);
             }
+
+            // If no entity is found, then return an error.
+            if (!$entity) {
+                return $this->sendOutput(
+                    [
+                        "error" => "No entity found.",
+                        "entity_id" => $objData['entity_id'],
+                        "params" => $params
+                    ]
+                );
+            }
+
+            // Make sure that the user has a permission to save this entity
+            if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
+                return $this->sendOutput(
+                    [
+                        "error" => "You do not have permission to edit this.",
+                        "entity_id" => $entity->getEntityId(),
+                        "params" => $params
+                    ]
+                );
+            }
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
-        }
-
-        // Make sure that the user has a permission to save this entity
-        if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
-            return $this->sendOutput(
-                [
-                    "error" => "You do not have permission to edit this.",
-                    "entity_id" => $entity->getEntityId(),
-                    "params" => $params
-                ]
-            );
         }
 
         // Parse the params
