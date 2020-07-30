@@ -339,6 +339,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     public function getByGuid(string $guid): ?EntityInterface
     {
+        // Make sure that a valid guid is provided, if not then just return null
+        if (!Uuid::isValid($guid)) {
+            return null;
+        }
+
         $serviceManager = $this->getAccount()->getServiceManager();
         $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
         $data = $this->fetchDataByGuid($guid);
