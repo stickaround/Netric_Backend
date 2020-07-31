@@ -57,7 +57,7 @@ class Bootstrap
             $adminUser->setValue("email", 'automated_test@netric.com');
             $adminUser->setValue("password", 'password');
             $adminUser->setIsAdmin(true);
-            $entityLoader->save($adminUser);
+            $entityLoader->save($adminUser, static::$account->getSystemUser());
         }
 
         static::$user = $user;

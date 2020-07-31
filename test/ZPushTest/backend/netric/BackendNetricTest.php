@@ -99,7 +99,7 @@ class BackendNetricTest extends TestCase
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
         $user->setValue('account_id', $this->account->getAccountId());
-        $dm->save($user);
+        $dm->save($user, $this->account->getSystemUser());
         $this->user = $user;
         $this->testEntities[] = $user; // cleanup automatically
 
@@ -209,7 +209,7 @@ class BackendNetricTest extends TestCase
         $task->setValue("start_date", date("m/d/Y"));
         $task->setValue("date_completed", date("m/d/Y"));
         $task->setValue("deadline", date("m/d/Y"));
-        $tid = $entityLoader->save($task);
+        $tid = $entityLoader->save($task, $this->user);
 
         // Queue for cleanup
         $this->testEntities[] = $task;
@@ -323,7 +323,7 @@ class BackendNetricTest extends TestCase
         $email->setValue("flag_seen", 'f');
         $email->setValue("owner_id", $this->user->getEntityId());
         $email->setValue("mailbox_id", $group->getGroupId());
-        $entityLoader->save($email);
+        $entityLoader->save($email, $this->user);
         $this->testEntities[] = $email;
 
         // Get changes for Inbox - should be 1

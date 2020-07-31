@@ -113,7 +113,7 @@ class EntitySearchProviderTest extends TestCase
         $user->setValue("full_name", "Test User");
         $user->setValue("active", true);
         $user->setValue("email", "test@test.com");
-        $dm->save($user);
+        $dm->save($user, $this->account->getSystemUser());
         $this->user = $user;
         $this->testEntities[] = $user; // cleanup automatically
 
@@ -135,7 +135,7 @@ class EntitySearchProviderTest extends TestCase
         $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UTest provider");
         $calendar->setValue("user_id", $this->user->getEntityId());
-        $this->entityLoader->save($calendar);
+        $this->entityLoader->save($calendar, $this->user);
         $this->testEntities[] = $calendar;
         $this->testCalendar = $calendar;
 
@@ -185,7 +185,7 @@ class EntitySearchProviderTest extends TestCase
         $email->setValue("subject", "test message");
         $email->setValue("owner_id", $this->user->getEntityId());
         $email->setValue("mailbox_id", $this->groupInbox->getGroupId());
-        $entityLoader->save($email);
+        $entityLoader->save($email, $this->user);
         $this->testEntities[] = $email;
 
         // Create content params object

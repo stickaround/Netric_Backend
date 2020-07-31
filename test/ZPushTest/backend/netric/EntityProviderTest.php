@@ -107,7 +107,7 @@ class EntityProviderTest extends TestCase
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
-        $dm->save($user);
+        $dm->save($user, $this->account->getSystemUser());
         $this->user = $user;
         $this->testEntities[] = $user; // cleanup automatically
 
@@ -128,7 +128,7 @@ class EntityProviderTest extends TestCase
         $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UTest provider");
         $calendar->setValue("owner_id", $this->user->getEntityId());
-        $this->entityLoader->save($calendar);
+        $this->entityLoader->save($calendar, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $calendar;
         $this->testCalendar = $calendar;
 
@@ -201,7 +201,7 @@ class EntityProviderTest extends TestCase
         $calendar = $entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "a test calendar");
         $calendar->setValue("owner_id", $this->user->getEntityId());
-        $entityLoader->save($calendar);
+        $entityLoader->save($calendar, $this->account->getAuthenticatedUser());
 
         // Queue for cleanup
         $this->testEntities[] = $calendar;
@@ -301,7 +301,7 @@ class EntityProviderTest extends TestCase
         $task->setValue("start_date", date("m/d/Y"));
         $task->setValue("date_completed", date("m/d/Y"));
         $task->setValue("deadline", date("m/d/Y"));
-        $tid = $this->entityLoader->save($task);
+        $tid = $this->entityLoader->save($task, $this->account->getAuthenticatedUser());
 
         // Queue for cleanup
         $this->testEntities[] = $task;
@@ -327,7 +327,7 @@ class EntityProviderTest extends TestCase
         $contact->setValue("first_name", "John");
         $contact->setValue("last_name", "Doe");
         $contact->setValue("owner_id", $this->user->getEntityId());
-        $cid = $this->entityLoader->save($contact);
+        $cid = $this->entityLoader->save($contact, $this->account->getAuthenticatedUser());
 
         // Queue for cleanup
         $this->testEntities[] = $contact;
@@ -350,7 +350,7 @@ class EntityProviderTest extends TestCase
         // Create a new calendar for this event
         $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UT_TEST_CALENDAR");
-        $calid = $this->entityLoader->save($calendar);
+        $calid = $this->entityLoader->save($calendar, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $calendar;
 
         // Create an event
@@ -359,7 +359,7 @@ class EntityProviderTest extends TestCase
         $event->setValue("ts_start", "10/8/2011 2:30 PM");
         $event->setValue("ts_end", "10/8/2011 3:30 PM");
         $event->setValue(ObjectTypes::CALENDAR, $calid);
-        $cid = $this->entityLoader->save($event);
+        $cid = $this->entityLoader->save($event, $this->account->getAuthenticatedUser());
 
         // Queue for cleanup
         $this->testEntities[] = $event;
@@ -381,7 +381,7 @@ class EntityProviderTest extends TestCase
         $email = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email->setValue("subject", "A test message");
         $email->setValue("sent_from", "sky@stebnicki.net");
-        $eid = $this->entityLoader->save($email);
+        $eid = $this->entityLoader->save($email, $this->account->getAuthenticatedUser());
 
         // Queue for cleanup
         $this->testEntities[] = $email;
@@ -608,12 +608,12 @@ class EntityProviderTest extends TestCase
         $calendar2 = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar2->setValue("name", "UTest provider 2");
         $calendar2->setValue("owner_id", $this->user->getEntityId());
-        $this->entityLoader->save($calendar2);
+        $this->entityLoader->save($calendar2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $calendar2;
 
         $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $entity->setValue(ObjectTypes::CALENDAR, $calendar1->getEntityId());
-        $id = $this->entityLoader->save($entity);
+        $id = $this->entityLoader->save($entity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->moveEntity(
@@ -662,7 +662,7 @@ class EntityProviderTest extends TestCase
         $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $entity->setValue("name", "test event for stats");
         $entity->setValue(ObjectTypes::CALENDAR, $this->testCalendar->getEntityId());
-        $id = $this->entityLoader->save($entity);
+        $id = $this->entityLoader->save($entity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity;
 
         $stat = $this->provider->getEntityStat(
@@ -685,7 +685,7 @@ class EntityProviderTest extends TestCase
         $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity->setValue("flag_seen", false);
         $entity->setValue("mailbox_id", $mailboxId);
-        $id = $this->entityLoader->save($entity);
+        $id = $this->entityLoader->save($entity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->markEntitySeen(
@@ -711,7 +711,7 @@ class EntityProviderTest extends TestCase
         $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity->setValue("subject", "testDeleteEntity in provider");
         $entity->setValue("mailbox_id", $mailboxId);
-        $id = $this->entityLoader->save($entity);
+        $id = $this->entityLoader->save($entity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->deleteEntity(

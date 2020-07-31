@@ -60,7 +60,7 @@ class DaclTest extends TestCase
         $this->user = $entityLoader->create(ObjectTypes::USER);
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->addMultiValue("groups", $this->userGroup->getGroupId());
-        $entityLoader->save($this->user);
+        $entityLoader->save($this->user, $this->account->getSystemUser());
         $this->testEntities[] = $this->user;
     }
 
@@ -150,7 +150,7 @@ class DaclTest extends TestCase
         $user2 = $entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "utest-dacl-" . rand());
         $user2->addMultiValue("groups", $this->userGroup->getGroupId());
-        $entityLoader->save($user2);
+        $entityLoader->save($user2, $this->account->getSystemUser());
         $this->testEntities[] = $user2;
 
         // Make make sure groups were populated

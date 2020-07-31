@@ -61,7 +61,7 @@ class DaclLoaderTest extends TestCase
         $this->user = $entityLoader->create(ObjectTypes::USER);
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->addMultiValue("groups", UserEntity::GROUP_USERS);
-        $entityLoader->save($this->user);
+        $entityLoader->save($this->user, $this->user);
         $this->testEntities[] = $this->user;
 
         // Let's store the current file DACL since we will modify it, and we want to restore it on shutdonw
@@ -110,7 +110,7 @@ class DaclLoaderTest extends TestCase
             ],
         ];
         $file->setValue("dacl", json_encode($daclData));
-        $entityLoader->save($file);
+        $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
 
         $dacl = $this->daclLoader->getForEntity($file);
@@ -139,14 +139,14 @@ class DaclLoaderTest extends TestCase
             ],
         ];
         $folder->setValue("dacl", json_encode($daclData));
-        $entityLoader->save($folder);
+        $entityLoader->save($folder, $this->user);
         $this->testEntities[] = $folder;
 
         // New file that is a child of the parent
         $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("folder_id", $folder->getEntityId());
         $file->setValue("name", "myFiletest.txt");
-        $entityLoader->save($file);
+        $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
 
         // The file does not have an explicit DACL, so it should load from the folder
@@ -167,7 +167,7 @@ class DaclLoaderTest extends TestCase
         // New file
         $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
-        $entityLoader->save($file);
+        $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
 
         // Set the DACL for the entity type
@@ -194,7 +194,7 @@ class DaclLoaderTest extends TestCase
         $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
         $file->setValue("owner_id", $this->user->getEntityId());
-        $entityLoader->save($file);
+        $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
 
         $dacl = $this->daclLoader->getForEntity($file);
