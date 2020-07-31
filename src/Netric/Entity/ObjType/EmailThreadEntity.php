@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -184,7 +185,8 @@ class EmailThreadEntity extends Entity implements EntityInterface
         for ($i = 0; $i < $num; $i++) {
             $emailMessage = $results->getEntity($i);
             $emailMessage->setValue("f_deleted", false);
-            $this->entityLoader->save($emailMessage);
+            $messageUser = $this->entityLoader->getByGuid($emailMessage->getValue('owner_id'));
+            $this->entityLoader->save($emailMessage, $messageUser);
         }
     }
 }

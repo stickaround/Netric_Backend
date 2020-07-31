@@ -102,6 +102,9 @@ class ProjectEntity extends Entity implements EntityInterface
         $res = $this->indexInterface->executeQuery($query);
         $num = $res->getNum();
 
+        // Get the owner of the project
+        $userProjectOwner = $this->entityLoader->getByGuid($this->getValue('owner_id'));
+
         // Loop through each task of this project entity
         for ($i = 0; $i < $num; $i++) {
             $task = $res->getEntity($i);
@@ -115,7 +118,7 @@ class ProjectEntity extends Entity implements EntityInterface
             $toTask->setValue("project", $toEntity->getEntityId());
 
             // Save the task
-            $this->entityLoader->save($toTask);
+            $this->entityLoader->save($toTask, $userProjectOwner);
         }
     }
 }

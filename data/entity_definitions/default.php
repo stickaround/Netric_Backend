@@ -5,149 +5,156 @@ namespace data\entity_definitions;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\UserEntity;
 
-return array(
-    "entity_id" => array(
+return [
+    "entity_id" => [
         'title' => "ID",
         'type' => Field::TYPE_UUID,
         'subtype' => "",
         'readonly' => true,
         'system' => true,
-    ),
-    'associations' => array(
+    ],
+    "account_id" => [
+        'title' => "Account ID",
+        'type' => Field::TYPE_UUID,
+        'subtype' => "",
+        'readonly' => true,
+        'system' => true,
+    ],
+    'associations' => [
         'title' => 'Associations',
         'type' => Field::TYPE_OBJECT_MULTI,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-    ),
-    'attachments' => array(
+    ],
+    'attachments' => [
         'title' => 'Attachments',
         'type' => Field::TYPE_OBJECT_MULTI,
         'subtype' => 'file',
         'readonly' => true,
         'system' => true,
-    ),
-    'followers' => array(
+    ],
+    'followers' => [
         'title' => 'Followers',
         'type' => Field::TYPE_OBJECT_MULTI,
         'subtype' => 'user',
         'readonly' => true,
         'system' => true,
-    ),
-    'activity' => array(
+    ],
+    'activity' => [
         'title' => 'Activity',
         'type' => Field::TYPE_OBJECT_MULTI,
         'subtype' => 'activity',
         'system' => true,
-    ),
-    'comments' => array(
+    ],
+    'comments' => [
         'title' => 'Comments',
         'type' => Field::TYPE_OBJECT_MULTI,
         'subtype' => 'comment',
         'readonly' => false,
         'system' => true,
-    ),
-    'num_comments' => array(
+    ],
+    'num_comments' => [
         'title' => 'Num Comments',
         'type' => 'number',
         'subtype' => Field::TYPE_INTEGER,
         'readonly' => true,
         'system' => true,
-    ),
-    'commit_id' => array(
+    ],
+    'commit_id' => [
         'title' => 'Commit Revision',
         'type' => Field::TYPE_NUMBER,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-    ),
-    'f_deleted' => array(
+    ],
+    'f_deleted' => [
         'title' => 'Deleted',
         'type' => Field::TYPE_BOOL,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-    ),
-    'owner_id' => array(
+    ],
+    'owner_id' => [
         'title' => 'Assigned To',
         'type' => Field::TYPE_OBJECT,
         'subtype' => 'user',
-        'default' => array("value" => UserEntity::USER_CURRENT, "on" => "null")
-    ),
-    'creator_id' => array(
+        'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
+    ],
+    'creator_id' => [
         'title' => 'Creator',
         'type' => Field::TYPE_OBJECT,
         'subtype' => 'user',
         'readonly' => true,
-        'default' => array("value" => UserEntity::USER_CURRENT, "on" => "null")
-    ),
+        'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
+    ],
 
-    // Default is true on null for this so not every entity is marked as unseen (annoying)
-    'f_seen' => array(
+    // Default is true on null for this so not every entity is marked as unseen (annoying]
+    'f_seen' => [
         'title' => 'Seen',
         'type' => Field::TYPE_BOOL,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-        'default' => array(
+        'default' => [
             "value" => true,
             "on" => "null"
-        ),
-    ),
-    'revision' => array(
+        ],
+    ],
+    'revision' => [
         'title' => 'Revision',
         'type' => Field::TYPE_NUMBER,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-    ),
+    ],
 
     // The full path based on parent objects
     // DEPRICATED: appears to no longer be used, but maybe we should start
     // because searches would be a lot easier in the future.
-    'path' => array(
+    'path' => [
         'title' => 'Path',
         'type' => Field::TYPE_TEXT,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-    ),
+    ],
 
     // Unique name in URL escaped form if object type uses it, otherwise the id
-    'uname' => array(
+    'uname' => [
         'title' => 'Uname',
         'type' => Field::TYPE_TEXT,
         'subtype' => '256',
         'readonly' => true,
         'system' => true,
-    ),
-    'dacl' => array(
+    ],
+    'dacl' => [
         'title' => 'Security',
         'type' => Field::TYPE_TEXT,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-    ),
-    'ts_entered' => array(
+    ],
+    'ts_entered' => [
         'title' => 'Time Entered',
         'type' => Field::TYPE_TIMESTAMP,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-        'default' => array(
+        'default' => [
             "value" => "now",
             "on" => "create"
-        ),
-    ),
-    'ts_updated' => array(
+        ],
+    ],
+    'ts_updated' => [
         'title' => 'Time Last Changed',
         'type' => Field::TYPE_TIMESTAMP,
         'subtype' => '',
         'readonly' => true,
         'system' => true,
-        'default' => array(
+        'default' => [
             "value" => "now",
             "on" => "update"
-        ),
-    ),
-);
+        ],
+    ],
+];

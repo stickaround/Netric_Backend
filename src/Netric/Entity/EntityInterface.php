@@ -24,6 +24,13 @@ interface EntityInterface
 
 
     /**
+     * Every entity must have an accountId
+     *
+     * @return string
+     */
+    public function getAccountId(): string;
+
+    /**
      * Get definition
      *
      * @return EntityDefinition
@@ -94,15 +101,6 @@ interface EntityInterface
      * @return array Associative array of all fields in array(field_name=>value) format
      */
     public function toArray();
-
-    /**
-     * Save this object to a datamapper
-     *
-     * @param Entity_DataMapperInterface $dm The datamapper for saving data
-     * @param AntUser $user The user who is saving this object
-     */
-    //public function save(Entity_DataMapperInterface $dm, $user);
-
     /**
      * Callback function used for derrived subclasses
      *

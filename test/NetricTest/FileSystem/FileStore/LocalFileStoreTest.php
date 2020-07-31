@@ -1,13 +1,15 @@
 <?php
+
 /**
  * Test saving files locally to disk
  */
+
 namespace NetricTest\FileSystem\FileStore;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileStore\LocalFileStore;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 
 class LocalFileStoreTest extends AbstractFileStoreTests
 {
@@ -32,7 +34,7 @@ class LocalFileStoreTest extends AbstractFileStoreTests
 
         $accId = $account->getAccountId();
         $dataPath = __DIR__ . "/tmp";
-        $dataMapper = $sm->get(DataMapperFactory::class);
+        $dataMapper = $sm->get(EntityDataMapperFactory::class);
 
         $this->localFileStore = new LocalFileStore($accId, $dataPath, $dataMapper);
         $this->localPath = $dataPath;
@@ -65,10 +67,10 @@ class LocalFileStoreTest extends AbstractFileStoreTests
 
             foreach ($objects as $object) {
                 if ($object != "." && $object != "..") {
-                    if (is_dir($dir."/".$object)) {
-                        $this->rrmdir($dir."/".$object);
+                    if (is_dir($dir . "/" . $object)) {
+                        $this->rrmdir($dir . "/" . $object);
                     } else {
-                        unlink($dir."/".$object);
+                        unlink($dir . "/" . $object);
                     }
                 }
             }

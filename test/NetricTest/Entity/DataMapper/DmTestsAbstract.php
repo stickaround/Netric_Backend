@@ -12,7 +12,7 @@ namespace NetricTest\Entity\DataMapper;
 
 use Netric;
 use Netric\Entity\Entity;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
@@ -71,14 +71,14 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dm = $this->getDataMapper();
         foreach ($this->testEntities as $entity) {
-            $dm->delete($entity, true);
+            $dm->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 
     /**
      * Setup datamapper for the parent DataMapperTests class
      *
-     * @return DataMapperInterface
+     * @return EntityDataMapperInterface
      */
     abstract protected function getDataMapper();
 
@@ -147,7 +147,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the object through the loader which should cache it
-        $ent = $dm->getByGuid($cid);
+        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
         $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
@@ -184,7 +184,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the entity by guid (no need for obj_type)
-        $loadedCustomer = $dm->getByGuid($entityId);
+        $loadedCustomer = $dm->getEntityById($entityId, $this->account->getAuthenticatedUser());
         $this->assertEquals($customer->getEntityId(), $loadedCustomer->getEntityId());
     }
 
@@ -223,7 +223,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the object through the loader which should cache it
-        $ent = $dm->getByGuid($cid);
+        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
         $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
@@ -266,7 +266,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($cid, $cmsSite->getEntityId());
 
         // And finally soft-delete and once again assure the IDs are unchanged
-        $dm->delete($cmsSite);
+        $dm->delete($cmsSite, $this->account->getAuthenticatedUser());
         $this->assertEquals($cid, $cmsSite->getEntityId());
     }
 
@@ -300,7 +300,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the object through the loader which should cache it
-        $ent = $dm->getByGuid($cid);
+        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
 
         $this->assertEquals([], $ent->getValue("groups"));
         $this->assertEquals([], $ent->getValueNames("groups"));
@@ -352,19 +352,19 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertNotEquals(false, $cid);
 
         // Test soft delete first
-        $ret = $dm->delete($customer);
+        $ret = $dm->delete($customer, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         // Reload and test if flagged but still in database
-        $customer = $dm->getByGuid($cid);
+        $customer = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
         $this->assertEquals(true, $customer->isDeleted());
 
         // Now delete and make sure the object cannot be reloaded
-        $ret = $dm->delete($customer);
+        $ret = $dm->delete($customer, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
         $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $this->assertNull($dm->getByGuid($cid)); // Not found
+        $this->assertNull($dm->getEntityById($cid, $this->account->getAuthenticatedUser())); // Not found
 
         // Test a dynamic table object
         // ------------------------------------------------------------------------
@@ -376,18 +376,18 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertNotEquals(false, $cid);
 
         // Test soft delete first
-        $ret = $dm->delete($story);
+        $ret = $dm->delete($story, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         // Reload and test if flagged but still in database
-        $story = $dm->getByGuid($cid);
+        $story = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
         $this->assertEquals(true, $story->isDeleted());
 
         // Now delete and make sure the object cannot be reloaded
-        $ret = $dm->delete($story);
+        $ret = $dm->delete($story, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
-        $this->assertNull($dm->getByGuid($cid));
+        $this->assertNull($dm->getEntityById($cid, $this->account->getAuthenticatedUser()));
     }
 
     /**
@@ -418,57 +418,61 @@ abstract class DmTestsAbstract extends TestCase
 
         // Set moved to
         $def = $customer->getDefinition();
-        $ret = $dm->setEntityMovedTo($def, $customer->getEntityId(), $customer2->getEntityId());
+        $ret = $dm->setEntityMovedTo(
+            $customer->getEntityId(),
+            $customer2->getEntityId(),
+            $this->account->getAccountId()
+        );
         $this->assertTrue($ret);
     }
 
-    /**
-     * Test Set Entity Moved To
-     */
-    public function testUpdateOldReferences()
-    {
-        $dm = $this->getDataMapper();
-        if (!$dm) {
-            return;
-        }
+    // /**
+    //  * Test Set Entity Moved To
+    //  */
+    // public function testUpdateOldReferences()
+    // {
+    //     $dm = $this->getDataMapper();
+    //     if (!$dm) {
+    //         return;
+    //     }
 
-        // Get entity definition
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+    //     // Get entity definition
+    //     $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
-        // Create first entity
-        $user = $entityLoader->create(ObjectTypes::USER);
-        $user->setValue("name", "testSetEntityMovedTo");
-        $userId1 = $dm->save($user, $this->user);
+    //     // Create first entity
+    //     $user = $entityLoader->create(ObjectTypes::USER);
+    //     $user->setValue("name", "testSetEntityMovedTo");
+    //     $userId1 = $dm->save($user, $this->user);
 
-        // Queue for cleanup
-        $this->testEntities[] = $user;
+    //     // Queue for cleanup
+    //     $this->testEntities[] = $user;
 
-        // Create second entity
-        $user2 = $entityLoader->create(ObjectTypes::USER);
-        $user2->setValue("name", "testSetEntityMovedTo");
-        $userId2 = $dm->save($user2, $this->user);
+    //     // Create second entity
+    //     $user2 = $entityLoader->create(ObjectTypes::USER);
+    //     $user2->setValue("name", "testSetEntityMovedTo");
+    //     $userId2 = $dm->save($user2, $this->user);
 
-        // Queue for cleanup
-        $this->testEntities[] = $user2;
+    //     // Queue for cleanup
+    //     $this->testEntities[] = $user2;
 
-        // Create a task entity and set the user entity as owner
-        $task = $entityLoader->create(ObjectTypes::TASK);
-        $task->setValue("name", "ReferencedEntity");
-        $task->setValue("owner_id", $user->getEntityId());
-        $taskId = $dm->save($task, $this->user);
+    //     // Create a task entity and set the user entity as owner
+    //     $task = $entityLoader->create(ObjectTypes::TASK);
+    //     $task->setValue("name", "ReferencedEntity");
+    //     $task->setValue("owner_id", $user->getEntityId());
+    //     $taskId = $dm->save($task, $this->user);
 
-        // Queue for cleanup
-        $this->testEntities[] = $task;
+    //     // Queue for cleanup
+    //     $this->testEntities[] = $task;
 
-        // Update Entity References
-        $def = $user->getDefinition();
-        $dm->updateOldReferences($def, $user->getEntityId(), $user2->getEntityId());
+    //     // Update Entity References
+    //     $def = $user->getDefinition();
+    //     $dm->updateOldReferences($def, $user->getEntityId(), $user2->getEntityId());
 
-        // Get the entity of $taskId using the datamapper and it should update the owner_id to $userId2
-        $taskEntity = $dm->getByGuid($taskId);
+    //     // Get the entity of $taskId using the datamapper and it should update the owner_id to $userId2
+    //     $taskEntity = $dm->getEntityById($taskId);
 
-        $this->assertEquals($user2->getEntityId(), $taskEntity->getValue("owner_id"));
-    }
+    //     $this->assertEquals($user2->getEntityId(), $taskEntity->getValue("owner_id"));
+    // }
 
     /**
      * Test entity has moved functionalty
@@ -498,13 +502,17 @@ abstract class DmTestsAbstract extends TestCase
 
         // Set moved to
         $def = $customer->getDefinition();
-        $ret = $dm->setEntityMovedTo($def, $customer->getEntityId(), $customer2->getEntityId());
+        $ret = $dm->setEntityMovedTo(
+            $customer->getEntityId(),
+            $customer2->getEntityId(),
+            $this->account->getAccountId()
+        );
 
         // Get access to protected entityHasMoved with reflection object
         $refIm = new \ReflectionObject($dm);
         $entityHasMoved = $refIm->getMethod("entityHasMoved");
         $entityHasMoved->setAccessible(true);
-        $movedTo = $entityHasMoved->invoke($dm, $customer->getDefinition(), $oid1);
+        $movedTo = $entityHasMoved->invoke($dm, $oid1, $this->account->getAccountId());
 
         // Now make sure the movedTo works
         $this->assertEquals($oid2, $movedTo);
@@ -531,13 +539,13 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals(2, $customer->getValue("revision"));
 
         // Get the revisions and make sure old value is stored
-        $revisions = $dm->getRevisions(ObjectTypes::CONTACT, $cid);
+        $revisions = $dm->getRevisions($cid, $this->account->getAccountId());
         $this->assertEquals("First", $revisions[1]->getValue("name"));
         $this->assertEquals("Second", $revisions[2]->getValue("name"));
 
         // Delete and make sure revisions got deleted
-        $dm->delete($customer, true);
-        $this->assertEquals(0, count($dm->getRevisions(ObjectTypes::CONTACT, $cid)));
+        $dm->delete($customer, $this->account->getAuthenticatedUser());
+        $this->assertEquals(0, count($dm->getRevisions($cid, $this->account->getAccountId())));
     }
 
     /**
@@ -557,7 +565,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals(1, $customer->getValue("revision"));
 
         // Make sure revisions got deleted
-        $this->assertEquals(0, count($dm->getRevisions(ObjectTypes::CONTACT, $cid)));
+        $this->assertEquals(0, count($dm->getRevisions($cid, $this->account->getAccountId())));
 
         // Turn back on and save changes
         $customer->getDefinition()->storeRevisions = true;
@@ -565,11 +573,11 @@ abstract class DmTestsAbstract extends TestCase
         $dm->save($customer, $this->user);
 
         // Get the revisions and make sure old value is stored
-        $revisions = $dm->getRevisions(ObjectTypes::CONTACT, $cid);
+        $revisions = $dm->getRevisions($cid, $this->account->getAccountId());
         $this->assertEquals("Second", $revisions[2]->getValue("name"));
 
         // Cleanup
-        $dm->delete($customer, true);
+        $dm->delete($customer, $this->account->getAuthenticatedUser());
     }
 
     /**
@@ -639,7 +647,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load into a new entity
-        $ent = $dm->getByGuid($oid);
+        $ent = $dm->getEntityById($oid, $this->account->getAuthenticatedUser());
 
         // Even though we just loaded all the data into the entity, it should not be marked as dirty
         $this->assertFalse($ent->isDirty());
@@ -672,7 +680,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertNotNull($task2->getRecurrencePattern());
 
         // Cleanup
-        $dm->delete($task2, true);
+        $dm->delete($task2, $this->account->getAuthenticatedUser());
     }
 
     /**
@@ -700,7 +708,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertNotEmpty($recurId);
 
         // Delete the object and make sure the pattern cannot be loaded
-        $dm->delete($task, true);
+        $dm->delete($task, $this->account->getAuthenticatedUser());
 
         // Try to load recurId which should result in null
         $recurDm = $this->account->getServiceManager()->get(RecurrenceDataMapperFactory::class);
@@ -752,7 +760,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the entity from the datamapper
-        $ent = $dm->getByGuid($cid);
+        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
 
         // Make sure the fvals for references are updated
         $this->assertEquals($ent->getValueName("status_id", $statGrp->getGroupId()), $statGrp->getName(), var_export($ent->getValue('status_id_fkey'), true));
@@ -794,7 +802,11 @@ abstract class DmTestsAbstract extends TestCase
 
         // Set moved to
         $def = $customer->getDefinition();
-        $ret = $dm->setEntityMovedTo($def, $customer->getEntityId(), $customer2->getEntityId());
+        $ret = $dm->setEntityMovedTo(
+            $customer->getEntityId(),
+            $customer2->getEntityId(),
+            $this->account->getAccountId()
+        );
 
         $movedTo = $dm->checkEntityHasMoved($customer->getDefinition(), $oid1);
 
@@ -917,7 +929,7 @@ abstract class DmTestsAbstract extends TestCase
         $customer->setValue("owner_id", $this->user->getEntityId());
         $cid = $dm->save($customer, $this->user);
 
-        $customerEntity = $dm->getByGuid($cid);
+        $customerEntity = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
 
         // Create reminder and set the customer as our object reference
         $customerReminder = "Customer Reminder";
@@ -930,7 +942,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
         $this->testEntities[] = $reminder;
 
-        $reminderEntity = $dm->getByGuid($rid);
+        $reminderEntity = $dm->getEntityById($rid, $this->account->getAuthenticatedUser());
         $this->assertEquals($customerEntity->getName(), $customerName);
         $this->assertEquals($reminderEntity->getName(), $customerReminder);
         $this->assertEquals($reminderEntity->getValue("obj_reference"), $customer->getEntityId());

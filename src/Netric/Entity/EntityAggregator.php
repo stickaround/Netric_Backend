@@ -12,6 +12,7 @@ namespace Netric\Entity;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Aggregation;
 use Netric\EntityQuery\Index\IndexInterface;
@@ -66,9 +67,10 @@ class EntityAggregator
     /**
      * Update any aggregates related to this entity
      *
-     * @param Entity $entity
+     * @param EntityInterface $entity
+     * @param UserEntity $user The user performing the action
      */
-    public function updateAggregates(Entity $entity)
+    public function updateAggregates(EntityInterface $entity, UserEntity $user)
     {
         $def = $entity->getDefinition();
         $aggregates = $def->aggregates;
@@ -117,7 +119,7 @@ class EntityAggregator
                     // Update $agg['refField'] of referenced entity
                     $entityToUpdate = $this->entityLoader->getByGuid($referencedId);
                     $entityToUpdate->setValue($agg->refField, $aggValue);
-                    $this->entityLoader->save($entityToUpdate);
+                    $this->entityLoader->save($entityToUpdate, $user);
                 }
             }
         }

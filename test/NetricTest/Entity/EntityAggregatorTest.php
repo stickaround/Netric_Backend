@@ -73,7 +73,7 @@ class EntityAggregatorTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->testEntities as $entity) {
-            $this->entityLoader->delete($entity, true);
+            $this->entityLoader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 

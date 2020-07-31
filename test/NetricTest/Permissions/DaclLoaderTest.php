@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Permissions;
 
 use PHPUnit\Framework\TestCase;
@@ -81,7 +82,7 @@ class DaclLoaderTest extends TestCase
         // Delete any test entities
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $entityLoader->delete($entity, true);
+            $entityLoader->delete($entity, $this->account->getAuthenticatedUser());
         }
 
         // Restore original permissions to the file definition

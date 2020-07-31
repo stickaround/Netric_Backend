@@ -1,11 +1,12 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\Entity\EntityFactoryFactory;
 use Netric\Cache\CacheFactory;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 /**
@@ -16,16 +17,16 @@ class EntityLoaderFactory implements AccountServiceFactoryInterface
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntityLoader
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $dm = $sl->get(DataMapperFactory::class);
-        $definitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
-        $entityFactory = $sl->get(EntityFactoryFactory::class);
-        $cache = $sl->get(CacheFactory::class);
+        $entityDataMapper = $serviceLocator->get(EntityDataMapperFactory::class);
+        $definitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
+        $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
+        $cache = $serviceLocator->get(CacheFactory::class);
 
-        return new EntityLoader($dm, $definitionLoader, $entityFactory, $cache);
+        return new EntityLoader($entityDataMapper, $definitionLoader, $entityFactory, $cache);
     }
 }

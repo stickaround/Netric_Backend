@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Application\Setup;
 
 use Netric\Application\Application;
@@ -23,13 +24,13 @@ class Setup extends AbstractHasErrors
      */
     public function updateApplication(Application $application)
     {
-//        $schemaDataMapper = $this->getApplicationSchemaDataMapper($application);
-//
-//        // Update the schema for this application
-//        if (!$schemaDataMapper->update()) {
-//            // Die if we could not create the schema for the account
-//            throw new \RuntimeException("Could not update application " . $schemaDataMapper->getLastError()->getMessage());
-//        }
+        //        $schemaDataMapper = $this->getApplicationSchemaDataMapper($application);
+        //
+        //        // Update the schema for this application
+        //        if (!$schemaDataMapper->update()) {
+        //            // Die if we could not create the schema for the account
+        //            throw new \RuntimeException("Could not update application " . $schemaDataMapper->getLastError()->getMessage());
+        //        }
 
         return true;
     }
@@ -57,7 +58,7 @@ class Setup extends AbstractHasErrors
         $adminUser->setValue("name", $adminUserName);
         $adminUser->setValue("password", $adminPassword);
         $adminUser->setIsAdmin(true);
-        $entityLoader->save($adminUser);
+        $entityLoader->save($adminUser, $account->getSystemUser());
 
         // TODO: Send new account registration to Aereus netric for admin
 
@@ -95,32 +96,32 @@ class Setup extends AbstractHasErrors
      * @param Application $application
      * @return SchemaDataMapperInterface
      */
-//    private function getApplicationSchemaDataMapper(Application $application)
-//    {
-//        // Get application config
-//        $config = $application->getConfig();
-//
-//        // Get the application definition
-//        $schemaDefinition = require(__DIR__ . "/../../../../data/schema/application.php");
-//
-//        // Now get the system DataMapper
-//        switch ($config->db['type']) {
-//            case 'pgsql':
-//                // Get handle to system database
-//                $rdb = new PgsqlDb(
-//                    $config->db['syshost'],
-//                    $config->db['dbname'],
-//                    $config->db['user'],
-//                    $config->db['password']
-//                );
-//
-//                // Return DataMapper for this database type
-//                return new SchemaRdbDataMapper($rdb, $schemaDefinition);
-//
-//                break;
-//            default:
-//                // Protect ourselves in the future to make sure new types are added here
-//                throw new \RuntimeException("Database type not yet supported: " . $config->db['type']);
-//        }
-//    }
+    //    private function getApplicationSchemaDataMapper(Application $application)
+    //    {
+    //        // Get application config
+    //        $config = $application->getConfig();
+    //
+    //        // Get the application definition
+    //        $schemaDefinition = require(__DIR__ . "/../../../../data/schema/application.php");
+    //
+    //        // Now get the system DataMapper
+    //        switch ($config->db['type']) {
+    //            case 'pgsql':
+    //                // Get handle to system database
+    //                $rdb = new PgsqlDb(
+    //                    $config->db['syshost'],
+    //                    $config->db['dbname'],
+    //                    $config->db['user'],
+    //                    $config->db['password']
+    //                );
+    //
+    //                // Return DataMapper for this database type
+    //                return new SchemaRdbDataMapper($rdb, $schemaDefinition);
+    //
+    //                break;
+    //            default:
+    //                // Protect ourselves in the future to make sure new types are added here
+    //                throw new \RuntimeException("Database type not yet supported: " . $config->db['type']);
+    //        }
+    //    }
 }

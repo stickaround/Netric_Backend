@@ -3,6 +3,7 @@
 namespace Netric\Account;
 
 use Netric\Application\Application;
+use Netric\Authentication\AuthenticationIdentity;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceManager;
 use Netric\Entity\ObjType\UserEntity;
@@ -195,6 +196,8 @@ class Account
     }
 
     /**
+     * @deprecated We now use the AuthenticationService
+     * 
      * Override the currently authenticated user with a specific user
      *
      * This is often used in testing and in background services where
@@ -209,6 +212,61 @@ class Account
 
         // Clear the service locator since user is often injected as a dependency
         $this->getServiceManager()->clearLoadedServices();
+
+        $identity = new AuthenticationIdentity($this->getAccountId(), $user->getEntityId());
+        $this->getServiceManager()->get(AuthenticationServiceFactory::class)->setIdentity($identity);
+    }
+
+    /**
+     * Get the system user which can be used for 'god' rights when needed
+     *
+     * @return UserEntity
+     */
+    public function getSystemUser(): UserEntity
+    {
+        $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
+        $systemUser = $entityLoader->create(ObjectTypes::USER);
+        $systemUser->setValue("uname", UserEntity::USER_SYSTEM);
+        $systemUser->setValue("name", UserEntity::USER_SYSTEM);
+        $systemUser->setValue("account_id", $this->getAccountId());
+        return $systemUser;
+    }
+
+    /**
+     * Get the anonymous user which can be used for unauthenticated operations
+     *
+     * @return UserEntity
+     */
+    public function getAnonymousUser(): UserEntity
+    {
+        $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
+        $anonymousUser = $entityLoader->create(ObjectTypes::USER);
+        $anonymousUser->setValue("uname", UserEntity::USER_ANONYMOUS);
+        $anonymousUser->setValue("name", UserEntity::USER_ANONYMOUS);
+        $anonymousUser->setValue("account_id", $this->getAccountId());
+        return $anonymousUser;
+    }
+
+    /**
+     * Get the currently authenticated user from the authentication service
+     *
+     * @return UserEntity
+     */
+    public function getAuthenticatedUser(): UserEntity
+    {
+        // Entity loader will be needed once we have determined a user id to load
+        $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // Get the authentication service
+        $auth = $this->getServiceManager()->get(AuthenticationServiceFactory::class);
+
+        // Check if the current session is authenticated
+        if ($auth->getIdentity()) {
+            return $entityLoader->getByGuid($auth->getIdentity()->getUserId());
+        }
+
+        // Return anonymous user since we could not find the authenticated user
+        return $this->getAnonymousUser();
     }
 
     /**
@@ -231,15 +289,15 @@ class Account
         // Entity loader will be needed once we have determined a user id to load
         $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
 
-        /*
-         * Try to get the currently logged in user from the authentication service if not provided
-         */
+        // Try to get the currently logged in user from theauthentication service if not provided
         if (!$userId && !$username) {
             // Get the authentication service
             $auth = $this->getServiceManager()->get(AuthenticationServiceFactory::class);
 
             // Check if the current session is authenticated
-            $userId = $auth->getIdentity();
+            if ($auth->getIdentity()) {
+                return $entityLoader->getByGuid($auth->getIdentity()->getUserId());
+            }
         }
 
         /*
@@ -262,11 +320,8 @@ class Account
             return null;
         }
 
-        // Return anonymous user
-        $anon = $entityLoader->create(ObjectTypes::USER);
-        $anon->setValue("uname", UserEntity::USER_ANONYMOUS);
-        $anon->setValue("name", UserEntity::USER_ANONYMOUS);
-        return $anon;
+        // Return anonymous user since we could not find the authenticated user
+        return $this->getAnonymousUser();
     }
 
     /**

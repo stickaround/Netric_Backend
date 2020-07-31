@@ -1,17 +1,12 @@
 <?php
-/**
- * Service factory for the entity series manager
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
+
 namespace Netric\Entity\Recurrence;
 
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 /**
@@ -29,7 +24,7 @@ class RecurrenceSeriesManagerFactory implements AccountServiceFactoryInterface
     {
         $recurIdentityMapper = $sl->get(RecurrenceIdentityMapperFactory::class);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $entityDataMapper = $sl->get(DataMapperFactory::class);
+        $entityDataMapper = $sl->get(EntityDataMapperFactory::class);
         $entityIndex = $sl->get(IndexFactory::class);
         $entityDefinitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
         return new RecurrenceSeriesManager(

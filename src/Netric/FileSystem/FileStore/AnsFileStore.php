@@ -11,7 +11,7 @@ namespace Netric\FileSystem\FileStore;
 
 use Netric\Error;
 use Netric\Entity\ObjType\FileEntity;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\FileSystem\FileStore\exception;
 
 /**
@@ -62,7 +62,7 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Entity DataMapper for pulling revision data
      *
-     * @var DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $entityDataMapper = null;
 
@@ -93,7 +93,7 @@ class AnsFileStore implements FileStoreInterface
      * Class constructor
      *
      * @param string $accountId The unique id of the tennant's account
-     * @param DataMapperInterface $dataMapper An entity DataMapper for saving entities
+     * @param EntityDataMapperInterface $dataMapper An entity DataMapper for saving entities
      * @param string $ansServer The server URL
      * @param string $ansAccount The ANS account to store files under
      * @param string $ansPassword The ANS account password
@@ -101,7 +101,7 @@ class AnsFileStore implements FileStoreInterface
      */
     public function __construct(
         $accountId,
-        DataMapperInterface $dataMapper,
+        EntityDataMapperInterface $dataMapper,
         $ansServer,
         $ansAccount,
         $ansPassword,
@@ -255,7 +255,7 @@ class AnsFileStore implements FileStoreInterface
         // If set, then clear. Path will remain in saved revision.
         $file->setValue("dat_local_path", "");
         $file->setValue("dat_ans_key", $key);
-        $this->entityDataMapper->save($file);
+        $this->entityDataMapper->save($file, $this->u);
 
         return true;
     }
@@ -291,7 +291,7 @@ class AnsFileStore implements FileStoreInterface
         }
 
         // Delete all past revisions
-        $revisions = $this->entityDataMapper->getRevisions("file", $file->getEntityId());
+        $revisions = $this->entityDataMapper->getRevisions($file->getEntityId(), $file->getValue('account_id'));
         foreach ($revisions as $fileRev) {
             if ($fileRev->getValue("dat_ans_key")) {
                 try {

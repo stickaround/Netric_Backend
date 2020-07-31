@@ -23,7 +23,7 @@ class CommentEntity extends Entity implements EntityInterface
     public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         $entityLoader = $sm->get(EntityLoaderFactory::class);
-        $currentUser = $sm->getAccount()->getUser();
+        $currentUser = $sm->getAccount()->getAuthenticatedUser();
         $objReference = $this->getValue('obj_reference');
         $entityCommentedOn = $entityLoader->getByGuid($objReference);
 
@@ -62,11 +62,11 @@ class CommentEntity extends Entity implements EntityInterface
 
             // Save the entity we are commenting on if there were changes
             if ($entityCommentedOn->isDirty()) {
-                $entityLoader->save($entityCommentedOn);
+                $entityLoader->save($entityCommentedOn, $currentUser);
             }
 
             // Set who this was sent by if not already set
-            if (!$this->getValue('sent_by')) {
+            if (!$this->getValue('sent_by') && $currentUser->getEntityId()) {
                 $this->setValue("sent_by", $currentUser->getEntityId());
             }
         }

@@ -1,8 +1,11 @@
-version: "2"
+version: "3.4"
 
 services:
   netric_server:
-    build: .
+    build:
+      context: ./
+      target: development
+      dockerfile: ./Dockerfile
     ports:
       - "80:80"
       - "443:443"
@@ -19,28 +22,38 @@ services:
       - db1
       - mogilefs
       - mogilestore
-    entrypoint: 'bash -c "composer install && /start.sh"'
+    entrypoint: 'bash -c "rm -f composer.lock && composer install && /start.sh"'
 
-  #  netric_daemon:
-  #     build: .
-  #     entrypoint: /start-daemon.sh
-  #     volumes:
-  #       - ./:/var/www/html/
-  #     environment:
-  #       APPLICATION_ENV: development
-  #       APPLICATION_VER: daemon-dev
-  #     depends_on:
-  #       - memcached
-  #       - gearmand
-  #       - db1
-  #       - mogilefs
-  #       - mogilestore
+  # netric_daemon:
+  #   build:
+  #     context: ./
+  #     target: development
+  #     dockerfile: ./Dockerfile
+  #   entrypoint: /start-daemon.sh
+  #   volumes:
+  #     - ./:/var/www/html/
+  #   environment:
+  #     APPLICATION_ENV: development
+  #     APPLICATION_VER: daemon-dev
+  #   depends_on:
+  #     - memcached
+  #     - gearmand
+  #     - db1
+  #     - mogilefs
+  #     - mogilestore
 
   memcached:
     image: memcached
 
   gearmand:
     image: kendu/gearman
+    # environment:
+    #   PGHOST: db1
+    #   PGPORT: 5432
+    #   PGUSER: vagrant
+    #   PGPASSWORD: vagrant
+    #   PGDATABASE: netric
+    # command: "-q Postgres --libpq-table=gearman_queue --verbose DEBUG"
 
   db1:
     image: dockerhub.aereus.com/pgsql:latest

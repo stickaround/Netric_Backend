@@ -10,7 +10,7 @@
 namespace Netric\Entity\Validator;
 
 use Netric\Entity\Entity;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Error;
 
 /**
@@ -46,10 +46,10 @@ class EntityValidator implements Error\ErrorAwareInterface
      *  - If a field is marked as 'unique' then make sure it is unique combined with parentId
      *
      * @param Entity $entity
-     * @param DataMapperInterface $entityDataMapper
+     * @param EntityDataMapperInterface $entityDataMapper
      * @return bool
      */
-    public function isValid(Entity $entity, DataMapperInterface $entityDataMapper)
+    public function isValid(Entity $entity, EntityDataMapperInterface $entityDataMapper)
     {
         // Check if a manually set unique name is unique
         if (!$this->uniqueNameIsUnique($entity, $entityDataMapper)) {
@@ -83,7 +83,7 @@ class EntityValidator implements Error\ErrorAwareInterface
     /**
      * Check that a manually set uname of an entity is unique
      */
-    private function uniqueNameIsUnique(Entity $entity, DataMapperInterface $entityDataMapper)
+    private function uniqueNameIsUnique(Entity $entity, EntityDataMapperInterface $entityDataMapper)
     {
         // Default to true if there is no uname
         if (!$entity->getValue('uname')) {

@@ -73,7 +73,7 @@ class NotificationTest extends TestCase
         $query->where("name")->equals("notificationtest");
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {
-            $this->entityLoader->delete($result->getEntity($i), true);
+            $this->entityLoader->delete($result->getEntity($i), $this->account->getAuthenticatedUser());
         }
 
         // Create a test user to assign a task and notification to
@@ -92,7 +92,7 @@ class NotificationTest extends TestCase
         // Make sure any test entities created are deleted
         foreach ($this->testEntities as $entity) {
             // Second param is a 'hard' delete which actually purges the data
-            $this->entityLoader->delete($entity, true);
+            $this->entityLoader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 

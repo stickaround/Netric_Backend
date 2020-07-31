@@ -1,14 +1,16 @@
 <?php
+
 /**
  * Test saving files locally to disk
  */
+
 namespace NetricTest\FileSystem\FileStore;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileStore;
-use Netric\Entity\DataMapperInterface;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -31,12 +33,12 @@ abstract class AbstractFileStoreTests extends TestCase
     /**
      * Get the DataMapper for files
      *
-     * @return DataMapperInterface
+     * @return EntityDataMapperInterface
      */
     private function getEntityDataMapper()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        return $account->getServiceManager()->get(DataMapperFactory::class);
+        return $account->getServiceManager()->get(EntityDataMapperFactory::class);
     }
 
     private function createTestFile()
@@ -67,7 +69,7 @@ abstract class AbstractFileStoreTests extends TestCase
                 $fileStore->deleteFile($file);
             }
 
-            $dataMapper->delete($file, true);
+            $dataMapper->delete($file, \NetricTest\Bootstrap::getAccount()->getAuthenticatedUser());
         }
     }
 

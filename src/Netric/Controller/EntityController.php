@@ -2,6 +2,7 @@
 
 namespace Netric\Controller;
 
+use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\Entity;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
@@ -17,7 +18,7 @@ use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
@@ -184,6 +185,7 @@ class EntityController extends Mvc\AbstractAccountController
             $entity = $entityLoader->getByUniqueName(
                 $params['obj_type'],
                 $params['uname'],
+                $this->account->getAuthenticatedUser(),
                 $params['uname_conditions']
             );
         } else {
@@ -257,10 +259,10 @@ class EntityController extends Mvc\AbstractAccountController
         $entity->fromArray($objData);
 
         // Save the entity
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+        $currentUser = $this->account->getAuthenticatedUser();
         try {
-            if (!$dataMapper->save($entity)) {
+            if (!$dataMapper->save($entity, $currentUser)) {
                 return $this->sendOutput(["error" => "Error saving: " . $dataMapper->getLastError()]);
             }
         } catch (\RuntimeException $ex) {
@@ -323,7 +325,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper to delete
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         try {
             foreach ($ids as $did) {
@@ -332,7 +334,7 @@ class EntityController extends Mvc\AbstractAccountController
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
                     // Proceed with the deleting this entity
-                    if ($dataMapper->delete($entity)) {
+                    if ($dataMapper->delete($entity, $this->account->getAuthenticatedUser())) {
                         $ret[] = $did;
                     }
                 } else {
@@ -470,8 +472,9 @@ class EntityController extends Mvc\AbstractAccountController
     private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $fields = $entity->getDefinition()->getFields();
+        $currentUser = $this->account->getAuthenticatedUser();
 
         // Flag that will determine if we should save the $entity
         $entityShouldUpdate = false;
@@ -487,7 +490,8 @@ class EntityController extends Mvc\AbstractAccountController
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if ($field->subtype // Make sure that this field has a subtype
+                    if (
+                        $field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
@@ -501,7 +505,7 @@ class EntityController extends Mvc\AbstractAccountController
                             $waitingObjectEntity->fromArray($data);
 
                             // Save the awaiting entity object
-                            if (!$dataMapper->save($waitingObjectEntity)) {
+                            if (!$dataMapper->save($waitingObjectEntity, $currentUser)) {
                                 return $this->sendOutput(["error" => "Error saving object reference " . $field->name . ": " . $dataMapper->getLastError()]);
                             }
 
@@ -517,7 +521,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         if ($entityShouldUpdate) {
-            $dataMapper->save($entity);
+            $dataMapper->save($entity, $currentUser);
         }
     }
 
@@ -676,7 +680,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         try {
             foreach ($guids as $guid) {
@@ -688,7 +692,7 @@ class EntityController extends Mvc\AbstractAccountController
                     $entity->fromArray($entityData, true);
 
                     // Save the entity
-                    $dataMapper->save($entity);
+                    $dataMapper->save($entity, $this->account->getAuthenticatedUser());
 
                     // Return the entities that were updated
                     $ret[] = $entity->toArray();
@@ -720,6 +724,8 @@ class EntityController extends Mvc\AbstractAccountController
     public function getMergeEntitiesAction()
     {
         $rawBody = $this->getRequest()->getBody();
+        $authService = $this->account->getServiceManager()->get(AuthenticationServiceFactory::class);
+        $identity = $authService->getIdentityRequired();
 
         if (!$rawBody) {
             return $this->sendOutput(["error" => "Request input is not valid"]);
@@ -744,7 +750,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Create the new entity where we merge all field values
         $mergedEntity = $entityLoader->create($requestData['obj_type']);
@@ -754,7 +760,7 @@ class EntityController extends Mvc\AbstractAccountController
             * Let's save the merged entity initially so we can get its entity id.
             * We will use the merged entity id as our moved object id when we loop thru the mergedData
             */
-            $mergedEntityId = $dataMapper->save($mergedEntity);
+            $mergedEntityId = $dataMapper->save($mergedEntity, $this->account->getAuthenticatedUser());
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
@@ -788,17 +794,17 @@ class EntityController extends Mvc\AbstractAccountController
                 $entityDef = $entity->getDefinition();
 
                 // Now set the original entity id to point to the new merged entity so future requests to the old id will load the new entity
-                $dataMapper->setEntityMovedTo($entityDef, $entityId, $mergedEntityId);
+                $dataMapper->setEntityMovedTo($entityId, $mergedEntityId, $identity->getAccountId());
 
                 // Let's flag the original entity as deleted
-                $dataMapper->delete($entity);
+                $dataMapper->delete($entity, $this->account->getAuthenticatedUser());
             }
 
             // Set the fields with the merged data.
             $mergedEntity->fromArray($entityData, true);
 
             // Now save the the entity where all merged data are set
-            $dataMapper->save($mergedEntity);
+            $dataMapper->save($mergedEntity, $this->account->getAuthenticatedUser());
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }

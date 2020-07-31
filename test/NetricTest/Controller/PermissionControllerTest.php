@@ -14,7 +14,7 @@ use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
@@ -83,7 +83,7 @@ class PermissionControllerTest extends TestCase
         // Cleanup any test entities
         $loader = $this->serviceManager->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $loader->delete($entity, true);
+            $loader->delete($entity, $this->account->getAuthenticatedUser());
         }
 
         // Cleanup any test definitions

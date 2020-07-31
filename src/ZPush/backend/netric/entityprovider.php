@@ -177,7 +177,7 @@ class EntityProvider
                 }
 
                 $entity->setValue("mailbox_id", $newFolder['id']);
-                $entityLoader->save($entity);
+                $entityLoader->save($entity, $this->user);
                 return true;
 
             case self::FOLDER_TYPE_CALENDAR:
@@ -188,7 +188,7 @@ class EntityProvider
                 }
 
                 $entity->setValue(ObjectTypes::CALENDAR, $newFolder['id']);
-                $entityLoader->save($entity);
+                $entityLoader->save($entity, $this->user);
                 return true;
 
             case self::FOLDER_TYPE_CONTACT:
@@ -311,7 +311,7 @@ class EntityProvider
             } else {
                 $entity->setValue("f_seen", ($flags) ? true : false);
             }
-            $entityLoader->save($entity);
+            $entityLoader->save($entity, $this->user);
         }
 
         return true;
@@ -353,7 +353,7 @@ class EntityProvider
 
         if ($entity) {
             // If the entity was found, delete it and return the results (bool)
-            return $entityLoader->delete($entity);
+            return $entityLoader->delete($entity, $this->user);
         } else {
             // Not found
             return false;
@@ -399,7 +399,7 @@ class EntityProvider
                     return false;
                 }
 
-                return $entityLoader->delete($entity);
+                return $entityLoader->delete($entity, $this->user);
 
             case self::FOLDER_TYPE_CONTACT:
             case self::FOLDER_TYPE_NOTE:
@@ -1218,7 +1218,7 @@ class EntityProvider
 
         $this->log->info("ZPUSH->EntityProvider->saveContact: returning " . $entity->getEntityId() . ':' . $entity->getName());
 
-        return $this->entityLoader->save($entity);
+        return $this->entityLoader->save($entity, $this->user);
     }
 
     /**
@@ -1260,7 +1260,8 @@ class EntityProvider
         }
 
 
-        if (isset($syncNote->asbody) &&
+        if (
+            isset($syncNote->asbody) &&
             isset($syncNote->asbody->type) &&
             isset($syncNote->asbody->data)
         ) {
@@ -1307,7 +1308,7 @@ class EntityProvider
 
         $this->log->info("ZPUSH->EntityProvider->saveNote: returning " . $entity->getEntityId());
 
-        return $this->entityLoader->save($entity);
+        return $this->entityLoader->save($entity, $this->user);
     }
 
     /**
@@ -1340,7 +1341,7 @@ class EntityProvider
 
         $this->log->info("ZPUSH->EntityProvider->saveTask: returning " . $entity->getEntityId());
 
-        return $this->entityLoader->save($entity);
+        return $this->entityLoader->save($entity, $this->user);
     }
 
     /**
@@ -1377,7 +1378,8 @@ class EntityProvider
          * nokia sends an yearly event with 0 mins duration but as all day event,
          * so make it end next day
          */
-        if ($syncAppointment->starttime == $syncAppointment->endtime
+        if (
+            $syncAppointment->starttime == $syncAppointment->endtime
             && isset($syncAppointment->alldayevent)
             && $syncAppointment->alldayevent
         ) {
@@ -1552,7 +1554,7 @@ class EntityProvider
 
         $this->log->info("ZPUSH->EntityProvider->saveAppointment: returning " . $entity->getEntityId());
 
-        return $this->entityLoader->save($entity);
+        return $this->entityLoader->save($entity, $this->user);
     }
 
     /**
@@ -1628,8 +1630,7 @@ class EntityProvider
         }
 
         // TODO: save other fields here. Not sure there's much of a need, but just in case. - Sky
-
-        return $this->entityLoader->save($entity);
+        return $this->entityLoader->save($entity, $this->user);
     }
 
     // Timezone Helpers
@@ -1772,7 +1773,8 @@ class EntityProvider
      */
     private function isDST($localtime, $tz)
     {
-        if (!isset($tz) || !is_array($tz) ||
+        if (
+            !isset($tz) || !is_array($tz) ||
             !isset($tz["dstbias"]) || $tz["dstbias"] == 0 ||
             !isset($tz["dststartmonth"]) || $tz["dststartmonth"] == 0 ||
             !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0

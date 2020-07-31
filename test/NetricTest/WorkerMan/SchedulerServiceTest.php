@@ -68,7 +68,7 @@ class SchedulerServiceTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->tempEntitiesToDelete as $entity) {
-            $this->entityLoader->delete($entity, true);
+            $this->entityLoader->delete($entity, Bootstrap::getAccount()->getAuthenticatedUser());
         }
     }
 
@@ -79,7 +79,12 @@ class SchedulerServiceTest extends TestCase
     {
         // Add the job to the queue
         $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
+        $id = $this->scheduler->scheduleAtTime(
+            Bootstrap::getAccount()->getAuthenticatedUser(),
+            'Test',
+            $now,
+            ['myvar' => 'testval']
+        );
         $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
 
         $this->assertNotNull($id);
@@ -93,6 +98,7 @@ class SchedulerServiceTest extends TestCase
         // Add the job to the queue
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtInterval(
+            $this->account->getAuthenticatedUser(),
             'Test',
             ['myvar' => 'testval'],
             RecurrencePattern::RECUR_DAILY,
@@ -110,7 +116,12 @@ class SchedulerServiceTest extends TestCase
     {
         // Create a scheduled job to run now
         $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
+        $id = $this->scheduler->scheduleAtTime(
+            Bootstrap::getAccount()->getAuthenticatedUser(),
+            'Test',
+            $now,
+            ['myvar' => 'testval']
+        );
         $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
 
         $jobs = $this->scheduler->getScheduledToRun();
@@ -132,6 +143,7 @@ class SchedulerServiceTest extends TestCase
     {
         // Create a job that should recur every day
         $id = $this->scheduler->scheduleAtInterval(
+            $this->account->getAuthenticatedUser(),
             'Test',
             ['myvar' => 'testval'],
             RecurrencePattern::RECUR_DAILY,
@@ -159,7 +171,12 @@ class SchedulerServiceTest extends TestCase
     public function testSetJobAsExecuted()
     {
         $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
+        $id = $this->scheduler->scheduleAtTime(
+            Bootstrap::getAccount()->getAuthenticatedUser(),
+            'Test',
+            $now,
+            ['myvar' => 'testval']
+        );
         $jobEntity = $this->entityLoader->getByGuid($id);
         $this->tempEntitiesToDelete[] = $jobEntity;
 

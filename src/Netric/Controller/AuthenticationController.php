@@ -1,18 +1,17 @@
 <?php
 
+namespace Netric\Controller;
+
+use Netric\Console\Console;
+use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Permissions\Dacl;
+use Netric\Mvc\AbstractController;
+
 /**
  * Controller for handling user authentication
  */
-
-namespace Netric\Controller;
-
-use Netric\Mvc;
-use Netric\Console\Console;
-use Netric\Authentication\AuthenticationServiceFactory;
-use Netric\Permissions\Dacl;
-use Netric\Entity\ObjType\UserEntity;
-
-class AuthenticationController extends Mvc\AbstractController
+class AuthenticationController extends AbstractController
 {
     /**
      * Override to allow anonymous users to access this controller for authentication
@@ -36,37 +35,29 @@ class AuthenticationController extends Mvc\AbstractController
     {
         $username = $this->request->getParam("username");
         $password = $this->request->getParam("password");
+        $account = $this->request->getParam("account");
 
         // Check if the request was sent as a json object
         if ($this->request->getParam('Content-Type') === 'application/json') {
             $body = json_decode($this->request->getBody(), true);
             $username = $body['username'];
             $password = $body['password'];
+            $account = $body['account'];
         }
 
-        if (!$username || !$password) {
+        if (!$username || !$password || !$account) {
             return $this->sendOutput(
                 [
                     "result" => "FAIL",
-                    "reason" => "Both username and password are required fields"
-                ]
-            );
-        }
-
-        // If auth is running without an account, then fail automatically
-        if (!$this->account) {
-            return $this->sendOutput(
-                [
-                    "result" => "FAIL",
-                    "reason" => "Invalid account",
+                    "reason" => "username, password and account are required fields"
                 ]
             );
         }
 
         // Get the authentication service and authenticate the credentials
-        $sm = $this->account->getServiceManager();
+        $sm = $this->getApplication()->getServiceManager();
         $authService = $sm->get(AuthenticationServiceFactory::class);
-        $sessionStr = $authService->authenticate($username, $password);
+        $sessionStr = $authService->authenticate($username, $password, $account);
 
         // Assume failure
         $ret = [
@@ -82,10 +73,12 @@ class AuthenticationController extends Mvc\AbstractController
             }
 
             // Return session token
+            $identity = $authService->getIdentity();
             $ret = [
                 "result" => "SUCCESS",
                 "session_token" => $sessionStr,
-                "user_id" => $authService->getIdentity()
+                "user_id" => $identity->getUserId(),
+                "account_id" => $identity->getAccountId(),
             ];
         }
 
@@ -133,17 +126,7 @@ class AuthenticationController extends Mvc\AbstractController
      */
     public function getCheckinAction()
     {
-        // If auth is running without an account, then fail automatically
-        if (!$this->account) {
-            return $this->sendOutput(
-                [
-                    "result" => "FAIL",
-                    "reason" => "Invalid account",
-                ]
-            );
-        }
-
-        $sm = $this->account->getServiceManager();
+        $sm = $this->getApplication()->getServiceManager();
         $authService = $sm->get(AuthenticationServiceFactory::class);
 
         $ret = [
@@ -196,7 +179,7 @@ class AuthenticationController extends Mvc\AbstractController
         $ret = [];
 
         if ($email) {
-            $ret = $this->account->getApplication()->getAccountsByEmail($email);
+            $ret = $this->getApplication()->getAccountsByEmail($email);
         }
 
         return $this->sendOutput($ret);

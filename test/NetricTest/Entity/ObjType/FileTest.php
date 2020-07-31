@@ -14,7 +14,8 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\FileEntity;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\EntityDefinition\ObjectTypes;
 
 class FileTest extends TestCase
@@ -43,7 +44,7 @@ class FileTest extends TestCase
     /**
      * Entity DataMapper for creating, updating, and deleting files entities
      *
-     * @var Entity\DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $entityDataMapper = null;
 
@@ -54,7 +55,7 @@ class FileTest extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
-        $this->entityDataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $this->entityDataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
     }
 
@@ -65,7 +66,7 @@ class FileTest extends TestCase
     {
         foreach ($this->testFiles as $file) {
             if ($file->getEntityId()) {
-                $this->entityDataMapper->delete($file, true);
+                $this->entityDataMapper->delete($file, $this->account->getAuthenticatedUser());
             }
         }
     }
@@ -90,9 +91,8 @@ class FileTest extends TestCase
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $file = $loader->create(ObjectTypes::FILE);
         $file->setValue("name", "test.txt");
-        $this->entityDataMapper->save($file);
-        $this->testFiles[] = $file;
-        ;
+        $this->entityDataMapper->save($file, $this->account->getAuthenticatedUser());
+        $this->testFiles[] = $file;;
 
         // Write data to the file
         $fileStore->writeFile($file, "my test data");
@@ -100,10 +100,10 @@ class FileTest extends TestCase
 
         // Open a copy to check the store later since the DataMapper will zero out $file
         $fileCopy = $loader->create(ObjectTypes::FILE);
-        $this->entityDataMapper->getByGuid($file->getEntityId());
+        $this->entityDataMapper->getEntityById($file->getEntityId(), $this->account->getAuthenticatedUser());
 
         // Purge the file -- second param is a delete hard param
-        $this->entityDataMapper->delete($file, true);
+        $this->entityDataMapper->delete($file, $this->account->getAuthenticatedUser());
 
         // Test to make sure the data was deleted
         $this->assertFalse($fileStore->fileExists($fileCopy));

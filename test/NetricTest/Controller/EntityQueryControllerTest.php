@@ -3,6 +3,7 @@
 /**
  * Test the entity query controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric\Controller\EntityQueryController;
@@ -57,7 +58,7 @@ class EntityQueryControllerTest extends TestCase
         // Cleanup any test entities
         $loader = $this->serviceManager->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $loader->delete($entity, true);
+            $loader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 

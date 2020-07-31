@@ -16,7 +16,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\FolderEntity;
 use Netric\Entity\ObjType\FileEntity;
 use Netric\Entity\EntityLoader;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\FileSystem\FileStore\FileStoreInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
@@ -45,7 +45,7 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Entity saver
      *
-     * @var DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $entityDataMapper = null;
 
@@ -88,14 +88,14 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param FileStoreInterface $fileStore Default fileStore for file data
      * @param UserEntity $user Current user
      * @param EntityLoader $entityLoader Used to load foldes and files
-     * @param DataMapperInterface $dataMapper DataMapper for account
+     * @param EntityDataMapperInterface $dataMapper DataMapper for account
      * @param IndexInterface $entityQueryIndex Index to find entities
      */
     public function __construct(
         FileStoreInterface $fileStore,
         UserEntity $user,
         EntityLoader $entityLoader,
-        DataMapperInterface $dataMapper,
+        EntityDataMapperInterface $dataMapper,
         IndexInterface $entityQueryIndex
     ) {
         $this->fileStore = $fileStore;
@@ -142,7 +142,7 @@ class FileSystem implements Error\ErrorAwareInterface
         }
 
         $file->setValue("folder_id", $parentFolder->getEntityId());
-        $this->entityDataMapper->save($file);
+        $this->entityDataMapper->save($file, $this->user);
 
         // Upload the file to the FileStore
         $result = $this->fileStore->uploadFile($file, $localFilePath);
@@ -181,7 +181,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function deleteFile(FileEntity $file, $purge = false)
     {
-        $ret = $this->entityDataMapper->delete($file, $purge);
+        $ret = $this->entityDataMapper->delete($file, $this->user);
         if ($ret) {
             $this->entityLoader->clearCacheByGuid($file->getEntityId());
         }
@@ -197,7 +197,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function deleteFolder(FolderEntity $folder, $purge = false)
     {
-        return $this->entityDataMapper->delete($folder, $purge);
+        return $this->entityDataMapper->delete($folder, $this->user);
     }
 
     /**
@@ -382,7 +382,7 @@ class FileSystem implements Error\ErrorAwareInterface
 
         // Change file to new folder
         $file->setValue("folder_id", $toFolder->getEntityId());
-        $this->entityDataMapper->save($file);
+        $this->entityDataMapper->save($file, $this->user);
 
         return true;
     }
@@ -421,7 +421,7 @@ class FileSystem implements Error\ErrorAwareInterface
         $file->setValue("name", $this->escapeFilename($fileName));
         $file->setValue("owner_id", $this->user->getEntityId());
         $file->setValue("file_size", 0);
-        $this->entityDataMapper->save($file);
+        $this->entityDataMapper->save($file, $this->user);
 
         return $file;
     }
@@ -436,7 +436,7 @@ class FileSystem implements Error\ErrorAwareInterface
     public function setFileDacl(FileEntity $file, Dacl $dacl)
     {
         $file->setValue('dacl', json_encode($dacl->toArray()));
-        $this->entityLoader->save($file);
+        $this->entityLoader->save($file, $this->user);
     }
 
     /**
@@ -449,7 +449,7 @@ class FileSystem implements Error\ErrorAwareInterface
     public function setFolderDacl(FolderEntity $folder, Dacl $dacl)
     {
         $folder->setValue('dacl', json_encode($dacl->toArray()));
-        $this->entityLoader->save($folder);
+        $this->entityLoader->save($folder, $this->user);
     }
 
     /**
@@ -519,7 +519,7 @@ class FileSystem implements Error\ErrorAwareInterface
                 $nextFolder->setValue("name", $nextFolderName);
                 $nextFolder->setValue("parent_id", $lastFolder->getEntityId());
                 $nextFolder->setValue("owner_id", $this->user->getEntityId());
-                $this->entityDataMapper->save($nextFolder);
+                $this->entityDataMapper->save($nextFolder, $this->user);
 
                 $folders[] = $nextFolder;
             } else {
@@ -630,7 +630,7 @@ class FileSystem implements Error\ErrorAwareInterface
             $rootFolder->setValue("name", "/");
             $rootFolder->setValue("owner_id", $this->user->getEntityId());
             $rootFolder->setValue("f_system", true);
-            $this->entityDataMapper->save($rootFolder);
+            $this->entityDataMapper->save($rootFolder, $this->user);
 
             // Now set it for later reference
             $this->rootFolder = $rootFolder;

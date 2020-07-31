@@ -10,7 +10,7 @@
 namespace Netric\FileSystem\FileStore;
 
 use Netric\Error\Error;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\FileSystem\FileStore\Exception;
 use Netric\Entity\ObjType\FileEntity;
 
@@ -44,7 +44,7 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Entity DataMapper for pulling revision data
      *
-     * @var DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $entityDataMapper = null;
 
@@ -53,9 +53,9 @@ class LocalFileStore implements FileStoreInterface
      *
      * @param string $accountId The unique id of the tennant's account
      * @param string $dataPath The local file path where netric stores data
-     * @param DataMapperInterface $dataMapper An entity DataMapper for saving entities
+     * @param EntityDataMapperInterface $dataMapper An entity DataMapper for saving entities
      */
-    public function __construct($accountId, $dataPath, DataMapperInterface $dataMapper)
+    public function __construct($accountId, $dataPath, EntityDataMapperInterface $dataMapper)
     {
         $this->accountId = $accountId;
         $this->dataPath = $dataPath;
@@ -237,7 +237,7 @@ class LocalFileStore implements FileStoreInterface
         }
 
         // Delete all past revisions
-        $revisions = $this->entityDataMapper->getRevisions("file", $file->getEntityId());
+        $revisions = $this->entityDataMapper->getRevisions($file->getEntityId(), $file->getValue('account_id'));
         foreach ($revisions as $fileRev) {
             try {
                 $filePath = $this->getFullLocalPath($fileRev);

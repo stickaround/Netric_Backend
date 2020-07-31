@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:7.4-apache as base
 
 ###############################################################################
 # Setup PHP and apache
@@ -17,15 +17,14 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libneon27-dev \
     libsodium-dev \
-    uuid-dev \
     unzip \
     git \
     curl \
     && docker-php-ext-install -j$(nproc) iconv pgsql \
     && docker-php-ext-install pdo pdo_pgsql pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-configure gd \
     && docker-php-ext-install -j$(nproc) gd \
-    && pecl install channel://pecl.php.net/mcrypt-1.0.1 \
+    && pecl install channel://pecl.php.net/mcrypt \
     && docker-php-ext-enable mcrypt \
     && pecl install memcached \
     && docker-php-ext-enable memcached \
@@ -35,16 +34,13 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable pcntl \
     && pecl install libsodium \
     && docker-php-ext-enable sodium \
-    && pecl install uuid \
-    && docker-php-ext-enable uuid \
     && pecl install mailparse \
     && docker-php-ext-enable mailparse
 
 # Install gearman since the pecl version will not work with PHP7
 RUN cd /tmp \
-    && git clone https://github.com/wcgallego/pecl-gearman.git \
-    && cd pecl-gearman \
-    && git checkout gearman-2.0.3 \
+    && git clone https://github.com/php/pecl-networking-gearman.git \
+    && cd pecl-networking-gearman \
     && phpize \
     && ./configure \
     && make \
@@ -102,11 +98,7 @@ COPY docker/server/ssl/gd_bundle.crt /etc/apache2/ssl/gd_bundle.crt
 COPY docker/server/ssl/netric.crt /etc/apache2/ssl/netric.crt
 COPY docker/server/ssl/netric.key /etc/apache2/ssl/netric.key
 
-###############################################################################
-# Copy files and run composer to install source
-###############################################################################
-
-COPY ./ /var/www/html/
+# Copy scripts for interacting with the sever
 COPY docker/server/bin/netric-setup.sh /
 COPY docker/server/bin/netric-update.sh /
 COPY docker/server/bin/netric-tests.sh /
@@ -120,18 +112,40 @@ RUN chmod +x /netric-tests.sh
 RUN chmod +x /start.sh
 RUN chmod +x /start-daemon.sh
 
-# Make sure data/log is owned by www-data
-RUN chown -R www-data:www-data /var/www/html/data/
-
-# Clean out any copied dependencies - avoid platoform problems
-RUN rm -rf /var/www/html/vendor/
-
-# Run composer install to get all required dependencies
-RUN cd /var/www/html && composer install
+# Set workdir
+WORKDIR /var/www/html
 
 EXPOSE 80
-EXPOSE 443
 
 HEALTHCHECK CMD bin/netric health/test
 
 ENTRYPOINT ["/start.sh"]
+
+###########################################################################
+FROM base as development
+
+###########################################################################
+FROM development as test
+
+# Copy everything
+COPY . /var/www/html
+
+# Make sure data/log is owned by www-data
+RUN chown -R www-data:www-data /var/www/html/data/
+
+# In a base well change this to ONBUILD
+#ONBUILD RUN --mount=type=ssh composer install
+RUN composer install
+
+###########################################################################
+FROM base as release
+
+# TODO: Only copy production files
+COPY . /var/www/html
+
+# Make sure data/log is owned by www-data
+RUN chown -R www-data:www-data /var/www/html/data/
+
+# In a base well change this to ONBUILD
+RUN composer install --no-dev --no-scripts
+#ONBUILD RUN --mount=type=ssh composer install --no-dev --no-scripts --optimize-autoloader

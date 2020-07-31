@@ -1,33 +1,36 @@
 <?php
+
 /**
  * Factory used to initialize the netric filesystem filestore
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem\FileStore;
 
 use Netric\Config\ConfigFactory;
-use Netric\ServiceManager;
-use netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a file system storage service
  */
-class LocalFileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
+class LocalFileStoreFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return LocalFileStore
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $config = $sl->get(ConfigFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
         $dataPath = $config->data_path;
-        $accountId = $sl->getAccount()->getAccountId();
-        $dataMapper = $sl->get(DataMapperFactory::class);
+        $accountId = $serviceLocator->getAccount()->getAccountId();
+        $dataMapper = $serviceLocator->get(EntityDataMapperFactory::class);
 
         return new LocalFileStore($accountId, $dataPath, $dataMapper);
     }

@@ -7,15 +7,14 @@
 namespace NetricTest\Entity;
 
 use Netric\Cache\CacheFactory;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityFactoryFactory;
-use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use NetricTest\Bootstrap;
 use Ramsey\Uuid\Uuid;
@@ -51,7 +50,7 @@ class EntityLoaderTest extends TestCase
     {
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $loader->delete($entity, true);
+            $loader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 
@@ -63,7 +62,7 @@ class EntityLoaderTest extends TestCase
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a test object
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $cust = $loader->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "EntityLoaderTest:testGet");
         $dataMapper->save($cust);
@@ -85,7 +84,7 @@ class EntityLoaderTest extends TestCase
         $this->assertTrue(is_array($getCached->invoke($loader, $cust->getEntityId())));
 
         // Cleanup
-        $dataMapper->delete($cust, true);
+        $dataMapper->delete($cust, $this->account->getAuthenticatedUser());
     }
 
     public function testByUniqueName()
@@ -94,12 +93,9 @@ class EntityLoaderTest extends TestCase
         $task = $entityFactory->create(ObjectTypes::TASK);
 
         // Configure a mock datamapper
-        $dataMapper = $this->getMockBuilder(DataMapperInterface::class)->getMock();
-        ;
+        $dataMapper = $this->getMockBuilder(EntityDataMapperInterface::class)->getMock();
         $dataMapper->method('getByUniqueName')
             ->willReturn($task);
-        $dataMapper->method('getAccount')
-            ->willReturn($this->account);
 
         $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
         $cache = $this->account->getServiceManager()->get(CacheFactory::class);

@@ -109,6 +109,20 @@ class Entity implements EntityInterface
     }
 
     /**
+     * Get account id for this entity
+     *
+     * @return string
+     */
+    public function getAccountId(): string
+    {
+        if (!empty($this->getValue('account_id'))) {
+            return $this->getValue('account_id');
+        }
+
+        return '';
+    }
+
+    /**
      * Get definition
      *
      * @return EntityDefinition
@@ -788,7 +802,8 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if ($field->type == FIELD::TYPE_TEXT) {
-                if ($field->name == "description"
+                if (
+                    $field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
                     || $field->name == "comment"

@@ -54,7 +54,7 @@ class EmailMessageTest extends TestCase
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $entityLoader->delete($entity, true);
+            $entityLoader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 
@@ -356,7 +356,7 @@ class EmailMessageTest extends TestCase
         $this->assertEquals(2, $thread->getValue("num_messages"));
 
         // Delete one of the messages
-        $entityLoader->delete($email2);
+        $entityLoader->delete($email2, $this->account->getAuthenticatedUser());
 
         // Should have decremented num_messages but not deleted the thread
         $entityLoader->clearCacheByGuid($email1->getValue("thread"));
@@ -365,7 +365,7 @@ class EmailMessageTest extends TestCase
         $this->assertFalse($thread->isDeleted());
 
         // Delete the last message
-        $entityLoader->delete($email1);
+        $entityLoader->delete($email1, $this->account->getAuthenticatedUser());
 
         // Should have decremented num_messages but not deleted the thread
         $entityLoader->clearCacheByGuid($email1->getValue("thread"));
@@ -392,7 +392,7 @@ class EmailMessageTest extends TestCase
         $fileId = $file->getEntityId();
 
         // Purge the email message and make sure the file goes with it
-        $entityLoader->delete($emailMessage, true);
+        $entityLoader->delete($emailMessage, $this->account->getAuthenticatedUser());
         $this->assertNull($fileSystem->openFileById($fileId));
     }
 

@@ -10,7 +10,7 @@ use Netric\Entity\Entity;
 use Netric\FileSystem\FileSystemFactory;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\ObjType\UserEntity;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
@@ -58,7 +58,7 @@ class EntityTest extends TestCase
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $entityLoader->delete($entity, true);
+            $entityLoader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 
@@ -150,7 +150,7 @@ class EntityTest extends TestCase
         $this->assertEquals($cust->getValue("company"), $data["company"]);
 
         // Let's save $cust entity and try using ::fromArray() with an existing entity
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $dataMapper->save($cust);
 
         // Now let's test the updating of entity with only specific fields
@@ -209,7 +209,7 @@ class EntityTest extends TestCase
 
         $fileSystem = $sm->get(FileSystemFactory::class);
         $entityLoader = $sm->get(EntityLoaderFactory::class);
-        $dataMapper = $sm->get(DataMapperFactory::class);
+        $dataMapper = $sm->get(EntityDataMapperFactory::class);
 
         // Temp file
         $file = $fileSystem->createFile("%tmp%", "testfile.txt", true);

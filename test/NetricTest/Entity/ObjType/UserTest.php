@@ -14,7 +14,7 @@ use Netric\Entity\EntityLoaderFactory;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
@@ -61,7 +61,7 @@ class UserTest extends TestCase
         $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Make sure old test user does not exist
         $query = new EntityQuery(ObjectTypes::USER);
@@ -70,7 +70,7 @@ class UserTest extends TestCase
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
-            $dm->delete($user, true);
+            $dm->delete($user, $this->account->getAuthenticatedUser());
         }
 
         // Create a test user
@@ -88,8 +88,8 @@ class UserTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->user) {
-            $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
-            $dm->delete($this->user, true);
+            $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+            $dm->delete($this->user, $this->account->getAuthenticatedUser());
         }
     }
 

@@ -1,14 +1,16 @@
 <?php
+
 /**
  * Test calling the authentication controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Controller\AuthenticationController;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
@@ -46,6 +48,7 @@ class AuthenticationControllerTest extends TestCase
      */
     const TEST_USER = "test_auth";
     const TEST_USER_PASS = "testpass";
+    const TEST_ACCOUNT_ID = "32b05ad3-895e-47f0-bab6-609b22f323fc";
 
     protected function setUp(): void
     {
@@ -56,7 +59,7 @@ class AuthenticationControllerTest extends TestCase
         $this->controller->testMode = true;
 
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Make sure old test user does not exist
         $query = new \Netric\EntityQuery(ObjectTypes::USER);
@@ -65,13 +68,14 @@ class AuthenticationControllerTest extends TestCase
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
-            $dm->delete($user, true);
+            $dm->delete($user, $this->account->getAuthenticatedUser());
         }
 
         // Create a test user
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $user = $loader->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
+        $user->setValue("uname", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
         $dm->save($user);
@@ -81,8 +85,8 @@ class AuthenticationControllerTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->user) {
-            $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
-            $dm->delete($this->user, true);
+            $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+            $dm->delete($this->user, $this->account->getAuthenticatedUser());
         }
     }
 
@@ -92,6 +96,7 @@ class AuthenticationControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setParam("username", self::TEST_USER);
         $req->setParam("password", self::TEST_USER_PASS);
+        $req->setParam("account", $this->account->getName());
 
 
         // Try to authenticate
@@ -105,6 +110,7 @@ class AuthenticationControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setParam("username", "notreal");
         $req->setParam("password", "notreal");
+        $req->setParam("account", $this->account->getName());
 
 
         // Try to authenticate
@@ -118,6 +124,7 @@ class AuthenticationControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setParam("username", self::TEST_USER);
         $req->setParam("password", self::TEST_USER_PASS);
+        $req->setParam("account", $this->account->getName());
 
 
         // Try to authenticate
@@ -132,6 +139,7 @@ class AuthenticationControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setParam("username", self::TEST_USER);
         $req->setParam("password", self::TEST_USER_PASS);
+        $req->setParam("account", $this->account->getName());
         $ret = $this->controller->postAuthenticateAction();
         $sessionToken = $ret['session_token'];
 
@@ -147,11 +155,12 @@ class AuthenticationControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $req->setParam("username", self::TEST_USER);
         $req->setParam("password", self::TEST_USER_PASS);
+        $req->setParam("account", $this->account->getName());
         $ret = $this->controller->postAuthenticateAction();
 
         // Clear the identity to force rechecking
         $sm = $this->account->getServiceManager();
-        $sm->get(AuthenticationServiceFactory::class)->clearIdentity();
+        $sm->get(AuthenticationServiceFactory::class)->clearAuthorizedCache();
 
         // Checkin with the valid token
         $this->controller->getRequest()->setParam("Authentication", "BADTOKEN");

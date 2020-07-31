@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem\FileStore;
 
 use Netric\Error;
@@ -139,7 +141,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
             } else {
                 throw new Exception\FileNotFoundException(
                     "Key '" . $file->getValue("dat_ans_key") . "' is not in the MogileFS store: " .
-                    $this->getLastError()->getMessage()
+                        $this->getLastError()->getMessage()
                 );
             }
         }
@@ -292,7 +294,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         }
 
         // Delete all past revisions
-        $revisions = $this->entityLoader->getRevisions("file", $file->getEntityId());
+        $revisions = $this->entityLoader->getRevisions($file->getEntityId(), $file->getValue('account_id'));
         foreach ($revisions as $fileRev) {
             if ($fileRev->getValue("dat_ans_key")) {
                 try {

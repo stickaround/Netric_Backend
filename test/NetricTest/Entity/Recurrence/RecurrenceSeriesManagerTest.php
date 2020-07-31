@@ -11,14 +11,15 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Entity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
-use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\Recurrence\RecurrenceSeriesManagerFactory;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use PHPUnit\Framework\TestCase;
 
 class RecurrenceSeriesManagerTest extends TestCase
 {
@@ -39,7 +40,7 @@ class RecurrenceSeriesManagerTest extends TestCase
     /**
      * Datamapper for saving entities
      *
-     * @var Entity\DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $entityDataMapper = null;
 
@@ -73,7 +74,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
 
         $sm = $this->account->getServiceManager();
-        $this->entityDataMapper = $sm->get(DataMapperFactory::class);
+        $this->entityDataMapper = $sm->get(EntityDataMapperFactory::class);
         $this->entityLoader = $sm->get(EntityLoaderFactory::class);
         $this->recurSeriesManager = $sm->get(RecurrenceSeriesManagerFactory::class);
         $this->recurIndentityMapper = $sm->get(RecurrenceIdentityMapperFactory::class);
@@ -177,7 +178,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertEquals($firstEnd->format("H:m:s"), $secondEnd->format("H:m:s"));
 
         // Cleanup
-        $this->entityDataMapper->delete($event, true);
+        $this->entityDataMapper->delete($event, $this->account->getAuthenticatedUser());
     }
 
     public function testRemoveSeries()
@@ -214,7 +215,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertNull($this->recurIndentityMapper->getById($recurId));
 
         // Cleanup
-        $this->entityDataMapper->delete($event, true);
+        $this->entityDataMapper->delete($event, $this->account->getAuthenticatedUser());
     }
 
     public function testCreateInstancesFromQuery()
@@ -250,6 +251,6 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertEquals($dateProcessedTo->format("Y-m-d"), $dateTo->format("Y-m-d"));
 
         // Cleanup
-        $this->entityDataMapper->delete($event, true);
+        $this->entityDataMapper->delete($event, $this->account->getAuthenticatedUser());
     }
 }

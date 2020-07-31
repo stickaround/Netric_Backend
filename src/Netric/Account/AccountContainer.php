@@ -4,17 +4,17 @@ namespace Netric\Account;
 
 use Netric\Application\DataMapperInterface;
 use Netric\Application\Application;
-use Netric\Cache;
+use Netric\Cache\CacheInterface;
 use Netric\Error\Error;
 use Netric\Error\ErrorAwareInterface;
 
 /**
  * IdentityMapper for loading accounts
  */
-class AccountIdentityMapper implements ErrorAwareInterface
+class AccountContainer implements AccountContainerInterface, ErrorAwareInterface
 {
     /**
-     * Application datamapper
+     * Application Data Mapper for persistence
      *
      * @var DataMapperinterface
      */
@@ -23,7 +23,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
     /**
      * System cache used to spare the db from too many hits
      *
-     * @var \Netric\Cache\CacheInterface
+     * @var CacheInterface
      */
     private $cache = null;
 
@@ -50,10 +50,10 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * Construct and setup dependencies
      *
      * @param DataMapperinterface $appDm Application DataMapper
-     * @param \Netric\Cache\CacheInterface $cache
+     * @param CacheInterface $cache
      * @throws \Exception If all required dependencies were not passed
      */
-    public function __construct(DataMapperInterface $appDm, Cache\CacheInterface $cache)
+    public function __construct(DataMapperInterface $appDm, CacheInterface $cache, Application $application)
     {
         if (!$appDm) {
             throw new \Exception("Application datamapper is required");
@@ -61,6 +61,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
 
         $this->appDm = $appDm;
         $this->cache = $cache;
+        $this->application = $application;
     }
 
     /**
@@ -70,7 +71,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadById(string $accountId, Application $application): ?Account
+    public function loadById(string $accountId): ?Account
     {
         // First check to see if we have it cached in local memory
         $account = $this->loadFromMemory($accountId);
@@ -81,7 +82,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
         }
 
         // Account is not already loaded so create a new instance
-        $account = new Account($application);
+        $account = new Account($this->application);
 
         // Try from cache if not loaded in memeory
         if ($this->loadFromCache($accountId, $account)) {
@@ -105,24 +106,23 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * Get an account by the unique name
      *
      * @param string $name
-     * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadByName(string $name, Application $application): ?Account
+    public function loadByName(string $name): ?Account
     {
         // Try local memory first
         if (isset($this->nameToIdMap[$name])) {
-            return $this->loadById($this->nameToIdMap[$name], $application);
+            return $this->loadById($this->nameToIdMap[$name], $this->application);
         }
 
         // Now try cache
         $cachedId = $this->cache->get("netric/account/nametoidmap/$name");
         if ($cachedId) {
-            return $this->loadById($cachedId, $application);
+            return $this->loadById($cachedId);
         }
 
         // Load from the datamapper by name
-        $account = new Account($application);
+        $account = new Account($this->application);
         if ($this->appDm->getAccountByName($name, $account)) {
             // Save the data to cache and memory
             $this->setLocalMemory($account);

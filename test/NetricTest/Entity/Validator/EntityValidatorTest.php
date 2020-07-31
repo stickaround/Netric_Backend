@@ -6,7 +6,7 @@ use Netric\Account\Account;
 
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use PHPUnit\Framework\TestCase;
 use Netirc\Entity\Validator\EntityValidator;
 use Netric\Entity\Validator\EntityValidatorFactory;
@@ -55,9 +55,9 @@ class EntityValidatorTest extends TestCase
      */
     protected function tearDown(): void
     {
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         foreach ($this->testEntities as $entityToDelete) {
-            $dataMapper->delete($entityToDelete, true);
+            $dataMapper->delete($entityToDelete, $this->account->getAuthenticatedUser());
         }
     }
 
@@ -69,7 +69,7 @@ class EntityValidatorTest extends TestCase
     public function testIsValidNotunique()
     {
         $serviceManager = $this->account->getServiceManager();
-        $entityDataMapper = $serviceManager->get(DataMapperFactory::class);
+        $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 
         $uname = 'utest-cust-' . rand(0, 1000);
 

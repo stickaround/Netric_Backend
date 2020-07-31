@@ -60,7 +60,7 @@ class EmailThreadTest extends TestCase
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $entityLoader->delete($entity, true);
+            $entityLoader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 
@@ -92,7 +92,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $message;
 
         // Remove the thread
-        $entityLoader->delete($thread);
+        $entityLoader->delete($thread, $this->account->getAuthenticatedUser());
 
         // Check to make sure the message was soft-deleted as well
         $reloadedMessage = $entityLoader->getByGuid($message->getEntityId());
@@ -118,7 +118,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $message;
 
         // Soft delete the thread which will also soft delete the message (see testOnAfterSave_Remove)
-        $entityLoader->delete($thread);
+        $entityLoader->delete($thread, $this->account->getAuthenticatedUser());
 
         // Now undelete the thread which should undelete the messsage
         $thread->setValue("f_deleted", false);
@@ -148,7 +148,7 @@ class EmailThreadTest extends TestCase
         $this->testEntities[] = $message;
 
         // Remove the thread
-        $entityLoader->delete($thread, true);
+        $entityLoader->delete($thread, $this->account->getAuthenticatedUser());
 
         // Make sure message was also purged
         $this->assertNull($entityLoader->getByGuid($eid));

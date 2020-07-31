@@ -1,20 +1,13 @@
 <?php
 
-/**
- * New discretionary access control list
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
-
 namespace Netric\Permissions;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
-use Netric\Permissions\Dacl\Entry;
+use Netric\Permissions\Dacl\Entry as DaclEntry;
 
 /**
- * Discretionary access controll list
+ * Discretionary access control list
  */
 class Dacl
 {
@@ -33,9 +26,9 @@ class Dacl
     private $name = null;
 
     /**
-     * Associative array with either group or user assoicated with an permission
+     * Associative array with either group or user associated with an permission
      *
-     * @var Dacl\Entry[]
+     * @var DaclEntry[]
      */
     private $entries = [];
 
@@ -50,7 +43,6 @@ class Dacl
      * The default permission to check if none is supplied
      */
     const PERM_DEFAULT = "View";
-
 
     /**
      * Permission entry constants
@@ -85,7 +77,7 @@ class Dacl
         // Create default entries
         foreach ($this->defaultEntries as $entName) {
             if (!isset($this->entries[$entName])) {
-                $this->entries[$entName] = new Entry(['name' => $entName]);
+                $this->entries[$entName] = new DaclEntry(['name' => $entName]);
             }
         }
     }
@@ -150,7 +142,7 @@ class Dacl
     private function setEntries(array $entries)
     {
         foreach ($entries as $pname => $entryData) {
-            $entry = new Dacl\Entry();
+            $entry = new DaclEntry();
             $entry->fromArray($entryData);
 
             $permissionName = ($entryData['name']) ? $entryData['name'] : $pname;
@@ -215,7 +207,7 @@ class Dacl
         } else {
             // Create entry if it does not exist
             if (!isset($this->entries[$permission])) {
-                $this->entries[$permission] = new Dacl\Entry();
+                $this->entries[$permission] = new DaclEntry();
             }
 
             // Add the user
@@ -240,7 +232,7 @@ class Dacl
         } else {
             // Add specific permission
             if (!isset($this->entries[$permission])) {
-                $this->entries[$permission] = new Dacl\Entry();
+                $this->entries[$permission] = new DaclEntry();
             }
 
             // Grant group access

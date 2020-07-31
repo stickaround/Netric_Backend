@@ -230,7 +230,7 @@ class BackendNetric implements IBackend
         // Get the authentication service and authenticate the credentials
         $sm = $this->account->getServiceManager();
         $authService = $sm->get(AuthenticationServiceFactory::class);
-        if (!$authService->authenticate($username, $password)) {
+        if (!$authService->authenticate($username, $password, $domain)) {
             throw new AuthenticationRequiredException("Bad username and/or password");
         }
 
@@ -533,8 +533,7 @@ class BackendNetric implements IBackend
         }
 
         $attachment = new SyncItemOperationsAttachment();
-        $attachment->data = $fileSystem->openFileStreamById($fileId);
-        ;
+        $attachment->data = $fileSystem->openFileStreamById($fileId);;
         $attachment->contenttype = $file->getMimeType();
         return $attachment;
     }

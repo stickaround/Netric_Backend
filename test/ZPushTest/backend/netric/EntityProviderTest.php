@@ -9,7 +9,7 @@ namespace ZPushTest\backend\netric;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\FileSystem\FileSystemFactory;
@@ -89,7 +89,7 @@ class EntityProviderTest extends TestCase
         $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Make sure old test user does not exist
         $query = new EntityQuery(ObjectTypes::USER);
@@ -98,7 +98,7 @@ class EntityProviderTest extends TestCase
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
-            $dm->delete($user, true);
+            $dm->delete($user, $this->account->getAuthenticatedUser());
         }
 
         // Create a test user
@@ -147,7 +147,7 @@ class EntityProviderTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->testEntities as $entity) {
-            $this->entityLoader->delete($entity, true);
+            $this->entityLoader->delete($entity, $this->account->getAuthenticatedUser());
         }
     }
 

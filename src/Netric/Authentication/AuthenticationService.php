@@ -3,12 +3,18 @@
 namespace Netric\Authentication;
 
 use Netric\Authentication\Token\AuthenticationTokenInterface;
+use Netric\Authentication\Token\HmakToken;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Request\RequestInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Authentication\Token\PrivateKeyToken;
+use Netric\Authentication\Token\JsonWebToken;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Account\AccountContainerInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Authentication\Exception\NotAuthenticatedException;
 
 /**
  * Authenticate an external request
@@ -23,18 +29,11 @@ class AuthenticationService
     private $privateKey = null;
 
     /**
-     * User index
+     * Account container loader
      *
-     * @var IndexInterface
+     * @var AccountContainerInterface
      */
-    private $userIndex = null;
-
-    /**
-     * User loader
-     *
-     * @var EntityLoader
-     */
-    private $userLoader = null;
+    private $accountContainer = null;
 
     /**
      * Update request object
@@ -42,57 +41,6 @@ class AuthenticationService
      * @var RequestInterface
      */
     private $request = null;
-
-    /**
-     * Indexes of important fields in an client-side session string
-     *
-     * @const int
-     */
-    const SESSIONPART_USERID = 0;
-    const SESSIONPART_EXPIRES = 1;
-    const SESSIONPART_PASSWORD = 2;
-    const SESSIONPART_SIGNATURE = 3;
-    const SESSIONPART_ACCOUNTID = 4;
-
-    /**
-     * Error codes
-     *
-     * @const string
-     */
-    const IDENTITY_NOT_FOUND = 'identityNotFound';
-    const IDENTITY_AMBIGUOUS = 'identityAmbiguous';
-    const CREDENTIAL_INVALID = 'credentialInvalid';
-    const IDENTITY_DISABLED  = 'identityDisabled';
-    const UNCATEGORIZED      = 'uncategorized';
-    const GENERAL            = 'general';
-
-    /**
-     * Last error code
-     *
-     * @var string
-     */
-    private $lastErrorMessage = null;
-
-    /**
-     * Error Messages
-     *
-     * @var array
-     */
-    protected $messageTemplates = [
-        self::IDENTITY_NOT_FOUND => 'Invalid identity',
-        self::IDENTITY_AMBIGUOUS => 'Identity is ambiguous',
-        self::IDENTITY_DISABLED  => 'User is no longer active',
-        self::CREDENTIAL_INVALID => 'Invalid password',
-        self::UNCATEGORIZED      => 'Authentication failed',
-        self::GENERAL            => 'Authentication failed',
-    ];
-
-    /**
-     * The number of params expected in each auth string
-     *
-     * @const int
-     */
-    const NUM_AUTH_PARAMS = 4;
 
     /**
      * The number of hash iterations to perform
@@ -113,11 +61,46 @@ class AuthenticationService
     const DEFAULT_EXPIRES = -1;
 
     /**
-     * Cache the currently authenticated user id so we don't re-validate every request
+     * Error codes
      *
-     * @var int
+     * @const string
      */
-    private $validatedIdentityUid = null;
+    const IDENTITY_NOT_FOUND = 'identityNotFound';
+    const IDENTITY_AMBIGUOUS = 'identityAmbiguous';
+    const CREDENTIAL_INVALID = 'credentialInvalid';
+    const IDENTITY_DISABLED  = 'identityDisabled';
+    const ACCOUNT_NOT_FOUND  = 'accountNotFound';
+    const UNCATEGORIZED      = 'uncategorized';
+    const GENERAL            = 'general';
+
+    /**
+     * Last error code
+     *
+     * @var string
+     */
+    private $lastErrorMessage = null;
+
+    /**
+     * Error Messages
+     *
+     * @var array
+     */
+    protected $messageTemplates = [
+        self::IDENTITY_NOT_FOUND => 'Invalid identity',
+        self::IDENTITY_AMBIGUOUS => 'Identity is ambiguous',
+        self::IDENTITY_DISABLED  => 'User is no longer active',
+        self::CREDENTIAL_INVALID => 'Invalid password',
+        self::ACCOUNT_NOT_FOUND  => 'Account does not exist or could not be loaded',
+        self::UNCATEGORIZED      => 'Authentication failed',
+        self::GENERAL            => 'Authentication failed',
+    ];
+
+    /**
+     * Cache the currently authenticated user so we don't re-validate and load every call
+     *
+     * @var UserEntity
+     */
+    private $cachedIdentity = null;
 
     /**
      * Supported token schemas
@@ -125,6 +108,7 @@ class AuthenticationService
     const METHOD_PRIVATE_KEY = 'NTRC-PKY';
     const METHOD_JSON_WEB_TOKEN = 'NTRC-JWT';
     const METHOD_HMAC = 'NTRC-HMC';
+    const METHOD_DEFAULT = self::METHOD_JSON_WEB_TOKEN;
 
     /**
      * Class constructor
@@ -136,63 +120,62 @@ class AuthenticationService
      */
     public function __construct(
         string $privateKey,
-        IndexInterface $userIndex,
-        EntityLoader $userLoader,
+        AccountContainerInterface $accountContainer,
         RequestInterface $request
     ) {
         $this->privateKey = $privateKey;
-        $this->userIndex = $userIndex;
-        $this->userLoader = $userLoader;
+        $this->accountContainer = $accountContainer;
         $this->request = $request;
     }
 
     /**
-     * Get the id of the current authenticated user (if any)
+     * If there is a valid user token, return the identity
      *
-     * @return string Unique id of the user who is authenticated
+     * @return AuthenticationIdentity|null
      */
-    public function getIdentity()
+    public function getIdentity(): ?AuthenticationIdentity
     {
         // Check to see if this user id has already been validated
-        if ($this->validatedIdentityUid) {
-            return $this->validatedIdentityUid;
+        if ($this->cachedIdentity) {
+            return $this->cachedIdentity;
         }
 
-        // Try loading up a mechanism token here (newer approach)
+        // Get the token
         $token = $this->getTokenFromRequest();
         if ($token && $token->tokenIsValid()) {
-            $userGuid = $token->getUserGuid();
-            $user = $this->userLoader->getByGuid($userGuid);
-            $this->validatedIdentityUid = $user->getEntityId();
-            return $user->getEntityId();
+            $this->cachedIdentity = new AuthenticationIdentity(
+                $token->getAccountId(),
+                $token->getUserId()
+            );
+            return $this->cachedIdentity;
         }
 
-        /*
-         * Get auth data array which is a : separated string
-         * User the SESSIONPART_* constants in this class to access the decoded array parts
-         */
-        $sessionData = $this->getSessionData();
+        return null;
+    }
 
-        if (!$sessionData) {
-            return null;
+    /**
+     * Get identity and throw an exception if none exists
+     *
+     * @throws NotAuthenticatedException
+     */
+    public function getIdentityRequired(): AuthenticationIdentity
+    {
+        if (!$this->getIdentity()) {
+            throw new NotAuthenticatedException("No user has been authenticated yet.");
         }
 
-        // Get variables from the session data
-        $uid = $sessionData[self::SESSIONPART_USERID];
-        $expires = $sessionData[self::SESSIONPART_EXPIRES];
-        $password = $sessionData[self::SESSIONPART_PASSWORD];
-        $signature = $sessionData[self::SESSIONPART_SIGNATURE];
+        return $this->getIdentity();
+    }
 
-        // Validate the sessionData
-        if (!$this->sessionSignatureIsValid($uid, $expires, $password, $signature)) {
-            return null;
-        }
-
-        // Cache because validation can be expensive.
-        $this->validatedIdentityUid = $uid;
-
-        // Return the id of the authorized user
-        return $uid;
+    /**
+     * Set the current identity
+     *
+     * @param AuthenticationIdentity $identity
+     * @return void
+     */
+    public function setIdentity(AuthenticationIdentity $identity): void
+    {
+        $this->cachedIdentity = $identity;
     }
 
     /**
@@ -206,44 +189,48 @@ class AuthenticationService
     }
 
     /**
-     * Clear authenticated identity
+     * Clear authenticated user cache to force re-authentication
      */
-    public function clearIdentity()
+    public function clearAuthorizedCache()
     {
-        $this->validatedIdentityUid = null;
+        $this->cachedIdentity = null;
     }
 
     /**
-     * Authenticate a user
+     * Authenticate a user and return a header session string that can be used
      *
      * @param string $username Unique username
      * @param string $password Clear text password for the selected user
+     * @param string $accountName The name of the account the user belongs to
      * @return string on success a session string, null on failure
      */
-    public function authenticate($username, $password)
+    public function authenticate(string $username, string $password, string $accountName)
     {
         // Set all initial values and remove validated cache
-        $this->clearIdentity();
+        $this->clearAuthorizedCache();
         $user = null;
 
         // Make sure we were given credentials
-        if (!$username || !$password) {
+        if (!$username || !$password || !$accountName) {
             $this->lastErrorMessage = self::IDENTITY_AMBIGUOUS;
             return null;
         }
 
-        // Load the user by username
-        $query = new EntityQuery(ObjectTypes::USER);
-        $query->where("active")->equals(true);
-        $query->andWhere('name')->equals(strtolower($username));
-        $query->orWhere('email')->equals(strtolower($username));
-        $res = $this->userIndex->executeQuery($query);
-        if (!$res->getTotalNum()) {
-            $this->lastErrorMessage = self::IDENTITY_NOT_FOUND;
+        // Get the account
+        $account = $this->accountContainer->loadByName($accountName);
+        if (!$account) {
+            $this->lastErrorMessage = self::ACCOUNT_NOT_FOUND;
             return null;
         }
 
-        $user = $res->getEntity(0);
+        // Load the user by username
+        // TODO: We really should stop using the service manager in classes like this
+        $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $entityLoader->getByUniqueName(ObjectTypes::USER, strtolower($username), $account->getSystemUser());
+        if (!$user) {
+            $this->lastErrorMessage = self::IDENTITY_NOT_FOUND;
+            return null;
+        }
 
         // Make sure user is active
         if (false == $user->getValue("active")) {
@@ -262,10 +249,13 @@ class AuthenticationService
         }
 
         // Cache for future calls to getIdentity because validation can be expensive
-        $this->validatedIdentityUid = $user->getEntityId();
+        $this->cachedIdentity = new AuthenticationIdentity(
+            $account->getAccountId(),
+            $user->getEntityId()
+        );
 
-        // Create a session string
-        return $this->getSignedSession($user->getEntityId(), $this->getExpiresTs(), $hashedPass, $salt);
+        // Create a session to
+        return $this->getEncodedToken($user);
     }
 
     /**
@@ -279,61 +269,15 @@ class AuthenticationService
     }
 
     /**
-     * Generate an authentication string to send to the client
+     * Create a session token to be used by a client for authenticated requests
      *
-     * @return string Signed session token
-     */
-    public function getSignedSession($uid, $expires, $password, $salt)
-    {
-        $hashedPass = $this->hashPassword($password, $salt);
-
-        // Put together basic data
-        $sessionData = $this->packSessionString($uid, $expires, $hashedPass);
-
-        // Sign
-        $signature = $this->getHmacSignature($sessionData);
-
-        return  $sessionData . ":" . $signature;
-    }
-
-    /**
-     * Retrieve the authentication header or cookie value
-     *
+     * @param UserEntity $user
      * @return string
      */
-    private function getSessionData()
+    private function getEncodedToken(UserEntity $user, $method = self::METHOD_DEFAULT): string
     {
-        // Get authentication from either headers/get/post
-        $authStr = $this->request->getParam("Authentication");
-
-        // Extract the parts
-        $authData = explode(":", $authStr);
-
-        // Make sure all the required data is in place and no more
-        if (self::NUM_AUTH_PARAMS != count($authData)) {
-            return null;
-        }
-
-        // Appears to have a valid number of params
-        return $authData;
-    }
-
-    /**
-     * Pack session data into a session string
-     *
-     * @param string $uid The unique id of the authenticated user
-     * @param string $expires A timestamp or -1 for no expiration
-     * @param string $password A pre-hashed encoded password (needs to be hashed once more)
-     * @return string Authorize string
-     */
-    public function packSessionString($uid, $expires, $password)
-    {
-        $sessionDataArr = [
-            self::SESSIONPART_USERID => $uid,
-            self::SESSIONPART_EXPIRES => $expires,
-            self::SESSIONPART_PASSWORD => $password,
-        ];
-        return implode(":", $sessionDataArr);
+        $token = $this->createTokenInstance($method);
+        return $method . " " . $token->createToken($user);
     }
 
     /**
@@ -367,17 +311,6 @@ class AuthenticationService
     }
 
     /**
-     * Generate signature from a normalized string
-     *
-     * @param string $data The data string to sign
-     * @return string A hashed signature
-     */
-    private function getHmacSignature($data)
-    {
-        return hash_hmac("sha256", $data, $this->privateKey);
-    }
-
-    /**
      * Set the local request object
      *
      * This is a required dependency and injected at construction,
@@ -389,38 +322,6 @@ class AuthenticationService
     public function setRequest(RequestInterface $request)
     {
         $this->request = $request;
-    }
-
-    /**
-     * Validate that auth data retrieved from a client session is valid
-     *
-     * @param string $uid The unique id of the authenticated user
-     * @param string $expires A timestamp or -1 for no expiration
-     * @param string $password A pre-hashed encoded password (needs to be hashed once more)
-     * @param string $signature HMAC signature of the previous params
-     * @return bool true if the session is valid, false if invalid or expired
-     */
-    private function sessionSignatureIsValid($uid, $expires, $password, $signature)
-    {
-        // Make sure session data is valid via HMAC
-        $challengeSignature = $this->getHmacSignature($this->packSessionString($uid, $expires, $password));
-
-        // Check to see if the request has been changed since we last signed it
-        if ($challengeSignature != $signature) {
-            return false;
-        }
-
-        /*
-         * TODO: Make sure the user's password has not changed?
-         *
-         * This Would definitely add to the security, but it also requires a user load
-         * every single request from cache. This may not be a problem however because
-         * it can be assumed if we are checking authenticated state that we will shortly
-         * be loading the user. If we always use the \Netric\EntityLoader then it will
-         * always load only once.
-         */
-
-        return true;
     }
 
     /**
@@ -437,23 +338,29 @@ class AuthenticationService
             return null;
         }
 
-        // Check if legacy header was passed (with no method)
-        //        if (substr($fullAuthHeader, 0, 5) != 'NTRC-') {
-        //            // Return default token
-        //            return new HmacToken($fullAuthHeader);
-        //        }
-
         list($methodName, $token) = explode(" ", $fullAuthHeader);
-        switch ($methodName) {
-            case self::METHOD_PRIVATE_KEY:
-                return new PrivateKeyToken($this->privateKey, $token, $this->userLoader);
-                break;
+
+        return $this->createTokenInstance($methodName, $token);
+    }
+
+    /**
+     * Token factory
+     *
+     * @param string $tokenMethod one of self::METHOD_*
+     * @param string $encodedToken Encoded token from request
+     * @return AuthenticationTokenInterface
+     */
+    private function createTokenInstance(string $tokenMethod, $encodedToken = ""): AuthenticationTokenInterface
+    {
+        if (self::METHOD_PRIVATE_KEY == $tokenMethod) {
+            return new PrivateKeyToken($this->privateKey, $encodedToken);
         }
 
-        // TODO: Default to HMAC
-        // Once we move all the HMAC logic in this service to an external class, we'll
-        // just return it as a default here.
-        //return new HmacToken($this->privateKey, $token);
-        return null;
+        if (self::METHOD_HMAC == $tokenMethod) {
+            return new HmakToken($this->privateKey, $encodedToken);
+        }
+
+        // Default to JWT
+        return new JsonWebToken($this->privateKey, $encodedToken);
     }
 }

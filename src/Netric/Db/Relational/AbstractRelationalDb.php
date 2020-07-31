@@ -85,7 +85,8 @@ abstract class AbstractRelationalDb
             \PDO::ATTR_PERSISTENT => true,
         ];
 
-        // If we haven't set an explicit timeout in the connection attributes, use the timeout provided in the constructor
+        // If we haven't set an explicit timeout in the connection attributes,
+        // use the timeout provided in the constructor
         if (!isset($this->connectionAttributes[\PDO::ATTR_TIMEOUT])) {
             $this->connectionAttributes[\PDO::ATTR_TIMEOUT] = $timeoutInSeconds;
         }

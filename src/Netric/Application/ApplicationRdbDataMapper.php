@@ -9,7 +9,7 @@ use Netric\Error\Error;
 use Netric\Db\Relational\PgsqlDb;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionRdbDataMapper;
-use Netric\Entity\DataMapper\EntityRdbDataMapper;
+use Netric\Entity\DataMapper\EntityPgsqlDataMapper;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -286,7 +286,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $cleanup = [
             self::TABLE_ACCOUNT_USER,
             EntityDefinitionRdbDataMapper::ENTITY_TYPE_TABLE,
-            EntityRdbDataMapper::ENTITY_TABLE,
+            EntityPgsqlDataMapper::ENTITY_TABLE,
             ModuleRdbDataMapper::TABLE_MODULES,
         ];
         foreach ($cleanup as $table) {

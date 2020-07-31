@@ -1,20 +1,16 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\Entity\Notifier;
 
-use Netric\Entity\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery;
+use Netric\EntityQuery\OrderBy;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Authentication\AuthenticationService;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -37,34 +33,37 @@ class Notifier
     /**
      * Current user
      *
-     * @var UserEntity
+     * @var AuthenticationService
      */
-    private $user = null;
+    private AuthenticationService $authService;
 
     /**
      * Entity loader for getting and saving entities
      *
      * @var EntityLoader
      */
-    private $entityLoader = null;
+    private EntityLoader $entityLoader;
 
     /**
      * An entity index for querying existing notifications
      *
      * @var IndexInterface
      */
-    private $entityIndex = null;
+    private IndexInterface $entityIndex;
 
     /**
      * Class constructor and dependency setter
      *
-     * @param UserEntity $user The current authenticated user
+     * @param AuthenticationService $authService The current authenticated user & account
      * @param EntityLoader $entityLoader To create, find, and save entities
      * @param IndexInterface $index An entity index for querying existing notifications
      */
-    public function __construct(UserEntity $user, EntityLoader $entityLoader, IndexInterface $index)
-    {
-        $this->user = $user;
+    public function __construct(
+        AuthenticationService $authService,
+        EntityLoader $entityLoader,
+        IndexInterface $index
+    ) {
+        $this->authService = $authService;
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $index;
     }
@@ -141,7 +140,8 @@ class Notifier
              * We also do not want to send notifications to users if the system does
              * something like adding a new email.
              */
-            if (Uuid::isValid($userGuid) && $userGuid != $this->user->getEntityId() && !$this->user->isSystem() && !$this->user->isAnonymous()) {
+            $user = $this->getUser();
+            if (Uuid::isValid($userGuid) && $userGuid != $user->getEntityId() && !$user->isSystem() && !$user->isAnonymous()) {
                 // Create new notification, or update an existing unseen one
                 $notification = $this->getNotification($objReference, $userGuid);
                 $notification->setValue("name", $name);
@@ -151,7 +151,7 @@ class Notifier
                 $notification->setValue("f_sms", false);
                 $notification->setValue("f_seen", false);
 
-                $notificationIds[] = $this->entityLoader->save($notification);
+                $notificationIds[] = $this->entityLoader->save($notification, $user);
             }
         }
 
@@ -173,7 +173,7 @@ class Notifier
     {
         // If we did not manually pass a user, then use the current user
         if (!$user) {
-            $user = $this->user;
+            $user = $this->getUser();
         }
 
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
@@ -185,7 +185,7 @@ class Notifier
         for ($i = 0; $i < $num; $i++) {
             $notification = $result->getEntity($i);
             $notification->setValue("f_seen", true);
-            $this->entityLoader->save($notification);
+            $this->entityLoader->save($notification, $user);
         }
     }
 
@@ -208,23 +208,23 @@ class Notifier
         $query = new EntityQuery(ObjectTypes::NOTIFICATION);
         $query->where("owner_id")->equals($userGuid);
         $query->andWhere("obj_reference")->equals($objReference);
-        $query->andWhere("creator_id")->equals($this->user->getEntityId());
+        $query->andWhere("creator_id")->equals($this->getUser()->getEntityId());
         $query->andWhere("f_seen")->equals(false);
 
         // Make sure we get the latest notification if there are multiple
-        $query->orderBy("ts_updated", EntityQuery\OrderBy::DESCENDING);
+        $query->orderBy("ts_updated", OrderBy::DESCENDING);
 
         // Get the results
         $result = $this->entityIndex->executeQuery($query);
         if ($result->getNum()) {
-            $notification = $result->getEntity(0);
-        } else {
-            // There are no outstanding/unseen notifications, create a new one
-            $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
-            $notification->setValue("obj_reference", $objReference);
-            $notification->setValue("owner_id", $userGuid);
-            $notification->setValue("creator_id", $this->user->getEntityId(), $this->user->getName());
+            return $result->getEntity(0);
         }
+
+        // There are no outstanding/unseen notifications, create a new one
+        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
+        $notification->setValue("obj_reference", $objReference);
+        $notification->setValue("owner_id", $userGuid);
+        $notification->setValue("creator_id", $this->getUser()->getEntityId(), $this->getUser()->getName());
 
         return $notification;
     }
@@ -277,5 +277,19 @@ class Notifier
         }
 
         return $followers;
+    }
+
+    /**
+     * Get the entity from the authenticated identity
+     *
+     * @return UserEntity
+     */
+    private function getUser(): UserEntity
+    {
+        $identity = $this->authService->getIdentity();
+
+        // TODO: if no identity, then return aunonymous
+
+        return $this->entityLoader->getByGuid($identity->getUserId());
     }
 }

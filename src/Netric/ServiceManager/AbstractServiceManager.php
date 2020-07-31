@@ -56,7 +56,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      *
      * @return Application
      */
-    public function getApplication()
+    public function getApplication(): Application
     {
         return $this->application;
     }
@@ -174,10 +174,12 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         $numCharsInFactory = 7;
         if (strlen($sServiceName) > $numCharsInFactory) {
             if (substr($sServiceName, $numCharsInFactory * -1) != 'Factory') {
-                $sServiceName .= 'Factory';
+                return $sServiceName .= 'Factory';
             }
-        } else {
-            // Just append factory since the word is too short to have it
+        }
+
+        // Just append factory since the word is too short to have it
+        if (strlen($sServiceName) < $numCharsInFactory) {
             $sServiceName .= 'Factory';
         }
 
@@ -192,12 +194,13 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     public function isLoaded($serviceName)
     {
-        if (isset($this->loadedServices[$serviceName])
+        if (
+            isset($this->loadedServices[$serviceName])
             && $this->loadedServices[$serviceName] != null
         ) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

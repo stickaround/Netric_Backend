@@ -92,7 +92,7 @@ class FilesControllerTest extends TestCase
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
-            $loader->delete($user, true);
+            $loader->delete($user, $this->account->getAuthenticatedUser());
         }
 
         // Create a temporary user
@@ -125,7 +125,7 @@ class FilesControllerTest extends TestCase
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $entityLoader = $sl->get(EntityLoader::class);
-        $entityLoader->delete($this->user, true);
+        $entityLoader->delete($this->user, $this->account->getAuthenticatedUser());
     }
 
     /**

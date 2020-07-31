@@ -77,15 +77,16 @@ class PrivateKeyToken implements AuthenticationTokenInterface
      *
      * @return string
      */
-    public function getUserGuid(): string
+    public function getUserId(): string
     {
         if (!$this->tokenIsValid()) {
             return "";
         }
 
-        // Load the system user and return it
-        $systemUser = $this->entityLoader->getByUniqueName(ObjectTypes::USER, UserEntity::USER_SYSTEM);
-        return $systemUser->getEntityId();
+        // TODO: Return something here so that we know to pull the system user
+        // // Load the system user and return it
+        // $systemUser = $this->entityLoader->getByUniqueName(ObjectTypes::USER, UserEntity::USER_SYSTEM);
+        // return $systemUser->getEntityId();
     }
 
     /**
@@ -101,5 +102,16 @@ class PrivateKeyToken implements AuthenticationTokenInterface
 
         $tokenParts = explode(':', $this->authToken);
         return $tokenParts[0];
+    }
+
+    /**
+     * Generate a token that can be used to verify the authenticity of a request
+     *
+     * @param UserEntity $user
+     * @return string
+     */
+    public function createToken(UserEntity $user): string
+    {
+        return '';
     }
 }

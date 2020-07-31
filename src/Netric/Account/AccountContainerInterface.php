@@ -11,25 +11,23 @@ use Netric\Error\ErrorAwareInterface;
 /**
  * IdentityMapper interface for loading accounts
  */
-interface AccountIdentityMapperInterface
+interface AccountContainerInterface
 {
     /**
      * Load an account by id
      *
      * @param string $accountId The unique id of the account to get
-     * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadById(string $accountId, Application $application): ?Account;
+    public function loadById(string $accountId): ?Account;
 
     /**
      * Get an account by the unique name
      *
      * @param string $name
-     * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
      */
-    public function loadByName(string $name, Application $application): ?Account;
+    public function loadByName(string $name): ?Account;
 
     /**
      * Delete an account

@@ -8,7 +8,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Controller\EntityController;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
@@ -87,7 +87,7 @@ class EntityControllerTest extends TestCase
         // Cleanup any test entities
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $loader->delete($entity, true);
+            $loader->delete($entity, $this->account->getAuthenticatedUser());
         }
 
         // Cleanup any test entity definitions
@@ -262,7 +262,7 @@ class EntityControllerTest extends TestCase
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = $loader->create(ObjectTypes::NOTE);
         $entity->setValue("name", "Test");
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $dm->save($entity);
         $entityId = $entity->getEntityId();
 
@@ -435,7 +435,7 @@ class EntityControllerTest extends TestCase
     {
         // Setup the loaders
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         $groupings = $groupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->account->getUser()->getEntityId());
@@ -498,7 +498,7 @@ class EntityControllerTest extends TestCase
     {
         // Setup the loaders
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // First create entities to merge
         $entity1 = $loader->create(ObjectTypes::NOTE);

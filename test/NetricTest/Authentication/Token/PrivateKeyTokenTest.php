@@ -59,12 +59,24 @@ class PrivateKeyTokenTest extends TestCase
     public function testGetUserId(): void
     {
         $token = new PrivateKeyToken("SECRET", "ACCOUNT:SECRET", $this->entityLoaderMock);
-        $this->assertEquals(self::TEST_UUID, $token->getUserGuid());
+        $this->assertEquals(self::TEST_UUID, $token->getUserId());
     }
 
     public function testGetAccountId(): void
     {
         $token = new PrivateKeyToken("SECRET", "ACCOUNT:SECRET", $this->entityLoaderMock);
         $this->assertEquals('ACCOUNT', $token->getAccountId());
+    }
+
+    /**
+     * Make sure you cannot create a token with private keys
+     *
+     * @return void
+     */
+    public function testCreateToken(): void
+    {
+        $entityMock = $this->createStub(UserEntity::class);
+        $token = new PrivateKeyToken("SECRET", "ACCOUNT:SECRET", $this->entityLoaderMock);
+        $this->assertEmpty($token->createToken($entityMock));
     }
 }

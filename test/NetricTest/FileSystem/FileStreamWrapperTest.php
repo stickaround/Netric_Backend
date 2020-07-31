@@ -1,12 +1,13 @@
 <?php
+
 /**
  * Test that we can wrap a file
  */
+
 namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\FileStreamWrapper;
-use Netric\Entity\DataMapperInterface;
 use Netric\EntityQuery;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType;
@@ -126,7 +127,7 @@ class FileStreamWrapperTest extends TestCase
         }
         $this->assertEquals($buf, $data);
 
-         // Read through stream 2
+        // Read through stream 2
         $buf = "";
         while (!feof($stream2)) {
             $ch = fread($stream2, 1);

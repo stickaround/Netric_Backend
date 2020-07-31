@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Define common tests that will need to be run with all data mappers.
  *
@@ -6,12 +7,13 @@
  * to extend this class and create a getDataMapper class that returns the
  * datamapper to be tested
  */
+
 namespace NetricTest\EntityQuery\Index\Aggregation;
 
 use Netric\EntityQuery\Aggregation;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Aggregation\Terms;
@@ -69,7 +71,7 @@ abstract class AggregateTestsAbstract extends TestCase
         $this->deleteTestData();
 
         // Get datamapper
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Create a campaign for filtering
         $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::MARKETING_CAMPAIGN);
@@ -110,7 +112,7 @@ abstract class AggregateTestsAbstract extends TestCase
             return;
         }
 
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Find campaign id if not set
         if (!$this->campaignId) {
@@ -133,12 +135,12 @@ abstract class AggregateTestsAbstract extends TestCase
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity(0);
-            $dm->delete($ent, true); // delete hard
+            $dm->delete($ent, $this->account->getAuthenticatedUser()); // delete hard
         }
 
         // Delete the campaign
         $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::MARKETING_CAMPAIGN, $this->campaignId);
-        $dm->delete($ent, true);
+        $dm->delete($ent, $this->account->getAuthenticatedUser());
     }
 
     /**

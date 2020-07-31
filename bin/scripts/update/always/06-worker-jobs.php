@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Add scheduled jobs
  */
+
 use Netric\EntityQuery;
 use Netric\WorkerMan\SchedulerService;
 use Netric\Entity\EntityLoaderFactory;
@@ -36,9 +38,10 @@ foreach ($workerJobsData as $jobToSchedule) {
     if (!$result->getTotalNum()) {
         // Create at least one instance
         $schedulerService->scheduleAtInterval(
-            $jobToSchedule['worker_name'], 
-            $jobToSchedule['job_data'], 
-            $jobToSchedule['recurrence']['type'], 
+            $account->getSystemUser(),
+            $jobToSchedule['worker_name'],
+            $jobToSchedule['job_data'],
+            $jobToSchedule['recurrence']['type'],
             $jobToSchedule['recurrence']['interval']
         );
     }

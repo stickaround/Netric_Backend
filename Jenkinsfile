@@ -42,7 +42,7 @@ pipeline {
                         sh "arc patch ${params.DIFF_ID}"
                     }
 
-                    dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", ".");
+                    dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", ". --target release");
                 }
             }
         }

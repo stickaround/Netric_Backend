@@ -5,7 +5,9 @@ namespace Netric\Entity;
 use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Entity\Entity;
+use Netric\Entity\ObjType\UserEntity;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -23,7 +25,7 @@ class EntityLoader
     /**
      * Datamapper for entities
      *
-     * @var DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $dataMapper = null;
 
@@ -51,13 +53,13 @@ class EntityLoader
     /**
      * Class constructor
      *
-     * @param DataMapperInterface $dm The entity datamapper
+     * @param EntityDataMapperInterface $dm The entity datamapper
      * @param EntityDefinitionLoader $defLoader The entity definition loader
      * @param EntityFactory $entityFactory
      * @param CacheInterface $cache
      */
     public function __construct(
-        DataMapperInterface $dm,
+        EntityDataMapperInterface $dm,
         EntityDefinitionLoader $defLoader,
         EntityFactory $entityFactory,
         CacheInterface $cache
@@ -89,70 +91,9 @@ class EntityLoader
      */
     private function getCached(string $entityId)
     {
-        $key = $this->dataMapper->getAccount()->getName() . "/entity/" . $entityId;
+        $key = "entity/" . $entityId;
         return $this->cache->get($key);
     }
-
-    /**
-     * Get the post by id from the datamapper
-     *
-     * @param string $objType The type of object we are getting
-     * @param string $id The unique id of the object
-     * @param EntityInterface $entityToFill Optional entity to fill rather than creating a new one
-     * @return EntityInterface
-     */
-    //    public function get($objType, $id, EntityInterface $entityToFill = null, $skipObjRefUpdate = false)
-    //    {
-    //        /*
-    //         * We need to check if the id provided here is a guid or just an id
-    //         * With the latest update made in object references, we are now using the entity's guid instead of id
-    //         * Once we have fully migrated to guid and updated all the entities to use guid, then we can remove this function
-    //         *  and just used the $this->getByGuid() - Marl 02/14/2020
-    //         */
-    //        if (Uuid::isValid($id)) {
-    //            return $this->getByGuid($id);
-    //        }
-    //
-    //        if ($this->isLoaded($objType, $id)) {
-    //            return $this->loadedEntities[$objType][$id];
-    //        }
-    //
-    //        // Create entity to load data into
-    //        $entity = ($entityToFill) ? $entityToFill : $this->create($objType);
-    //
-    //        // First check to see if the object is cached
-    //        $data = $this->getCached($objType, $id);
-    //        if ($data) {
-    //            $entity->fromArray($data);
-    //            if ($entity->getEntityId()) {
-    //                // Clear dirty status
-    //                $entity->resetIsDirty();
-    //
-    //                // Save in loadedEntities so we don't hit the cache again
-    //                $this->loadedEntities[$objType][$id] = $entity;
-    //
-    //                // Stat a cache hit
-    //                StatsPublisher::increment("entity.cache.hit");
-    //
-    //                return $entity;
-    //            }
-    //        }
-    //
-    //        // Stat a cache miss
-    //        StatsPublisher::increment("entity.cache.miss");
-    //
-    //        // Load from datamapper
-    //        if ($this->dataMapper->getById($entity, $id, $skipObjRefUpdate)) {
-    //            $this->loadedEntities[$objType][$id] = $entity;
-    //            $this->cache->set($this->dataMapper->getAccount()->getName() . "/objects/$objType/$id", $entity->toArray());
-    //            return $entity;
-    //        } else {
-    //            // TODO: make sure it is deleted from the index?
-    //        }
-    //
-    //        // Could not be loaded
-    //        return null;
-    //    }
 
     /**
      * Get an entity by the global universal ID (no need for obj_type)
@@ -189,11 +130,11 @@ class EntityLoader
         StatsPublisher::increment("entity.cache.miss");
 
         // Load from datamapper
-        $entity = $this->dataMapper->getByGuid($guid);
+        $entity = $this->dataMapper->getEntityById($guid);
         if ($entity) {
             $this->loadedEntities[$guid] = $entity;
             $this->cache->set(
-                $this->dataMapper->getAccount()->getName() . "/entity/" . $guid,
+                "entity/" . $guid,
                 $entity->toArray()
             );
             return $entity;
@@ -215,13 +156,14 @@ class EntityLoader
      *
      * @param string $objType The entity to populate if we find the data
      * @param string $uniqueNamePath The path to the entity
+     * @param UserEntity $user The current user
      * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
      * @return EntityInterface $entity if found or null if not found
      */
-    public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = [])
+    public function getByUniqueName(string $objType, string $uniqueNamePath, UserEntity $user, array $namespaceFieldValues = [])
     {
         // TODO: We should definitely handle caching here since this function can be expensive
-        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $namespaceFieldValues);
+        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $user, $namespaceFieldValues);
     }
 
     /**
@@ -239,16 +181,16 @@ class EntityLoader
      * Save an entity
      *
      * @param EntityInterface $entity The entity to save
+     * @param UserEntity Entity with user details
      * @return int|string|null Id of entity saved or null on failure
      */
-    public function save(EntityInterface $entity)
+    public function save(EntityInterface $entity, UserEntity $user)
     {
-        $ret = $this->dataMapper->save($entity);
+        $ret = $this->dataMapper->save($entity, $user);
 
-
-        // Also clear the cache for entity guid
-        if ($entity->getEntityId()) {
-            $this->clearCacheByGuid($entity->getEntityId());
+        // Also clear the cache for entity id
+        if ($ret) {
+            $this->clearCacheByGuid($ret);
         }
 
         return $ret;
@@ -258,14 +200,14 @@ class EntityLoader
      * Save an entity
      *
      * @param EntityInterface $entity The entity to delete
-     * @param bool $forceHard If true the force a hard delete - purge!
+     * @param UserEntity Entity with user details
      * @return bool True on success, false on failure
      */
-    public function delete(EntityInterface $entity, $forceHard = false)
+    public function delete(EntityInterface $entity, UserEntity $user)
     {
         $this->clearCacheByGuid($entity->getEntityId());
 
-        return $this->dataMapper->delete($entity, $forceHard);
+        return $this->dataMapper->delete($entity, $user);
     }
 
     /**
@@ -277,7 +219,7 @@ class EntityLoader
     {
         if ($guid) {
             $this->loadedEntities[$guid] = null;
-            $this->cache->remove($this->dataMapper->getAccount()->getName() . "/entity/$guid");
+            $this->cache->remove("entity/$guid");
         }
     }
 
@@ -288,8 +230,8 @@ class EntityLoader
      * @param string $guid The unique id of the object to get revisions for
      * @return array("revisionNum"=>Entity)
      */
-    public function getRevisions($objType, $guid)
+    public function getRevisions(string $entityId, string $accountId): array
     {
-        return $this->dataMapper->getRevisions($objType, $guid);
+        return $this->dataMapper->getRevisions($entityId, $accountId);
     }
 }

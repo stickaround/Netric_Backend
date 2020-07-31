@@ -1,6 +1,8 @@
 <?php
+
 namespace Netric\Entity\Notifier;
 
+use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\Entity\EntityLoaderFactory;
@@ -19,9 +21,10 @@ class NotifierFactory implements AccountServiceFactoryInterface
      */
     public function createService(AccountServiceManagerInterface $serviceManager)
     {
+        // TODO: The below is causing a circular reference so we need to figure that out
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityIndex = $serviceManager->get(IndexFactory::class);
-        $currentUser = $serviceManager->getAccount()->getUser();
-        return new Notifier($currentUser, $entityLoader, $entityIndex);
+        $authService = $serviceManager->get(AuthenticationServiceFactory::class);
+        return new Notifier($authService, $entityLoader, $entityIndex);
     }
 }

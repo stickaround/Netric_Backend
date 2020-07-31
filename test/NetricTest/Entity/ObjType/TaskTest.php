@@ -14,7 +14,7 @@ use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 
 class TaskTest extends TestCase
 {
@@ -43,10 +43,10 @@ class TaskTest extends TestCase
 
     protected function tearDown(): void
     {
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         foreach ($this->tasks as $task) {
-            $dm->delete($task, true);
+            $dm->delete($task, $this->account->getAuthenticatedUser());
         }
     }
 
@@ -71,7 +71,7 @@ class TaskTest extends TestCase
     public function testOnRecurrence()
     {
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         $rp = new RecurrencePattern();

@@ -7,6 +7,7 @@ use Netric\Entity\ObjType\WorkerJobEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\WorkerMan\Scheduler\ScheduledJob;
 use Netric\WorkerMan\Scheduler\RecurringJob;
 use Netric\Entity\Recurrence\RecurrencePattern;
@@ -46,30 +47,32 @@ class SchedulerService
     /**
      * Schedule a job to run at a specific date and time
      *
+     * @param UserEntity $user The user to schedule the job under
      * @param string $workerName The unique name of the worker to schedule
      * @param DateTime $execute Specific time to execute in the future
      * @param array $data Data to pass to the job when run
-     * @return int Scheduled job ID
+     * @return string Scheduled job ID
      */
-    public function scheduleAtTime($workerName, DateTime $execute, array $data = [])
+    public function scheduleAtTime(UserEntity $user, string $workerName, DateTime $execute, array $data = []): string
     {
         $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB);
         $scheduledJob->setValue('worker_name', $workerName);
         $scheduledJob->setValue('ts_scheduled', $execute->getTimestamp());
         $scheduledJob->setValue('job_data', json_encode($data));
-        return $this->entityLoader->save($scheduledJob);
+        return $this->entityLoader->save($scheduledJob, $user);
     }
 
     /**
      * Schedule a job to run at a specific interval
      *
+     * @param UserEntity $user The user to schedule the job under
      * @param string $workerName
      * @param array $data Data to pass to the job when run
      * @param int $type One of RecurrencePattern::RECUR_*
      * @param int $interval How many $units to wait between runs
-     * @return int Recurring job id
+     * @return string Recurring job id
      */
-    public function scheduleAtInterval($workerName, array $data = [], $type, $interval)
+    public function scheduleAtInterval(UserEntity $user, string $workerName, array $data = [], $type, $interval): string
     {
         $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB);
         $scheduledJob->setValue('worker_name', $workerName);
@@ -83,7 +86,7 @@ class SchedulerService
         $recurrence->setDateStart(new DateTime());
         $scheduledJob->setRecurrencePattern($recurrence);
 
-        return $this->entityLoader->save($scheduledJob);
+        return $this->entityLoader->save($scheduledJob, $user);
     }
 
     /**
@@ -136,7 +139,8 @@ class SchedulerService
 
         // Set the scheduled job as executed which should remove it from any queues for nex time
         $scheduledJob->setValue("ts_executed", time());
-        $this->entityLoader->save($scheduledJob);
+        $owner = $this->entityLoader->getByGuid($scheduledJob->getValue('owner_id'));
+        $this->entityLoader->save($scheduledJob, $owner);
     }
 
     /**

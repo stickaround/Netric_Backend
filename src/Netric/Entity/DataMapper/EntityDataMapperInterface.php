@@ -2,20 +2,24 @@
 
 namespace Netric\Entity\DataMapper;
 
+use Netric\Account\Account;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
- * Entity DataMapper used for entity persistence
+ * A DataMapper is responsible for writing and reading data from a persistant store
  */
 interface EntityDataMapperInterface
 {
     /**
-     * Get an entity by unique id
+     * Get an entity by id
      *
      * @param string $entityId The unique id of the entity to load
-     * @return EntityInterface | null
+     * @param UserEntity $user The user that is acting on this entity
+     * @return EntityInterface|null
      */
-    public function getEntityById(string $entityId): ?EntityInterface;
+    public function getEntityById(string $entityId, UserEntity $user): ?EntityInterface;
 
     /**
      * Get an entity by a unique name path
@@ -27,49 +31,60 @@ interface EntityDataMapperInterface
      *
      * @param string $objType The entity to populate if we find the data
      * @param string $uniqueNamePath The path to the entity
+     * @param UserEntity $user Current user
      * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
      * @return EntityInterface $entity if found or null if not found
      */
-    //public function getEntityByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = []);
+    public function getByUniqueName(
+        string $objType,
+        string $uniqueNamePath,
+        UserEntity $user,
+        array $namespaceFieldValues = []
+    ): ?EntityInterface;
 
     /**
      * Delete an entity
      *
      * @param EntityInterface $entity The entity to delete
+     * @param UserEntity $user The user that is acting on this entity
      * @return bool true on success, false on failure
      */
-    //public function deleteEntity($entity): bool;
+    public function delete(EntityInterface $entity, UserEntity $user): bool;
 
     /**
-     * Save object data
+     * Save entity data
      *
      * @param EntityInterface $entity The entity to save
-     * @return string entity id on success, empty string on failure
+     * @param UserEntity $user The user that is acting on this entity
+     * @return string entity id on success, false on failure
      */
-    public function saveEntity(EntityInterface $entity): string;
+    public function save(EntityInterface $entity, UserEntity $user): string;
 
     /**
-     * Point an old entity ID to a new entity ID (used with merging mostly)
+     * Set this object as having been moved to another object
      *
-     * @param string $fromEntityId The id to move
-     * @param string $toEntityId The unique id of the entity this was moved to
+     * @param string $fromId The id to move
+     * @param string $toId The unique id of the object this was moved to
+     * @param string $accountId
      * @return bool true on succes, false on failure
      */
-    //public function setEntityMovedTo(string $fromEntityId, string $toEntityId): bool;
+    public function setEntityMovedTo(string $fromId, string $toId, string $accountId): bool;
 
     /**
-     * Check if an entity was moved to another object
+     * Check if an object has moved
      *
-     * @param string $oldEntityId The id of the entity that no longer exists - may have moved
-     * @return string unique id of new entity if the oldEntityId was previously moved
+     * @param EntityDefinition $def The defintion of this object type
+     * @param string $id The id of the object that no longer exists - may have moved
+     * @return string New entity id if moved, otherwise false
      */
-    //public function getEntityMovedId(string $oldEntityId): string;
+    public function checkEntityHasMoved(EntityDefinition $def, string $id): string;
 
     /**
-     * Get each entity revision
+     * Get Revisions for this object
      *
      * @param string $entityId The unique id of the entity to get revisions for
-     * @return array("revisionId"=>EntityInterface)
+     * @param string $accountId
+     * @return array("revisionNum"=>Entity)
      */
-    //public function getRevisions(string $entityId): array;
+    public function getRevisions(string $entityId, string $accontId): array;
 }

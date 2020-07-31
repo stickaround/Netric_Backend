@@ -1,15 +1,9 @@
 <?php
 
-/**
- * Handle a series of recurring entities based on a recurrence pattern
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2014-2015 Aereus
- */
-
 namespace Netric\Entity\Recurrence;
 
 use Netric\Entity;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Entity\EntityLoader;
@@ -33,7 +27,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
     /**
      * Entity DataMapper for saving new entities
      *
-     * @var Entity\DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $entityDataMapper = null;
 
@@ -70,14 +64,14 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      *
      * @param RecurrenceIdentityMapper $identityMapper For loading/saving/caching patterns
      * @param EntityLoader $entityLoader To load and create new entities
-     * @param Entity\DataMapperInterface $entityDataMapper To save new entities
+     * @param EntityDataMapperInterface $entityDataMapper To save new entities
      * @param IndexInterface $entityIndex Index used to querying entities
      * @param EntityDefinitionLoader $entityDefinitionLoader
      */
     public function __construct(
         RecurrenceIdentityMapper $identityMapper,
         EntityLoader $entityLoader,
-        Entity\DataMapperInterface $entityDataMapper,
+        EntityDataMapperInterface $entityDataMapper,
         IndexInterface $entityIndex,
         EntityDefinitionLoader $entityDefinitionLoader
     ) {
@@ -234,7 +228,8 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $processTo = 0;
         $conditions = $query->getWheres();
         foreach ($conditions as $cond) {
-            if ($cond->fieldName == $recurRules['field_date_start']
+            if (
+                $cond->fieldName == $recurRules['field_date_start']
                 || $cond->fieldName == $recurRules['field_date_end']
             ) {
                 if (is_numeric($cond->value)) {

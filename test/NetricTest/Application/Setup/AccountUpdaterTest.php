@@ -7,7 +7,7 @@ namespace NetricTest\Application\Setup;
 use Netric\Account\Account;
 use Netric\Application\Application;
 use Netric\Application\Setup\AccountUpdater;
-use Netric\Account\AccountIdentityMapper;
+use Netric\Account\AccountContainer;
 use Netric\Application\Setup\Setup;
 use Netric\Settings\SettingsFactory;
 use PHPUnit\Framework\TestCase;

@@ -218,7 +218,7 @@ class ActivityLog
 
         // Try saving the new activity
         try {
-            if ($this->entityLoader->save($actEntity)) {
+            if ($this->entityLoader->save($actEntity, $this->currentUser)) {
                 return $actEntity;
             }
 

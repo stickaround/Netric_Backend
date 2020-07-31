@@ -10,14 +10,15 @@ use Netric\Mvc\Router;
 use Aereus\Config\Config;
 use Netric\Log\LogInterface;
 use Netric\Log\Log;
-use Netric\Cache\MemcachedCache;
 use Netric\Cache\CacheInterface;
-use Netric\Account\AccountIdentityMapper;
+use Netric\Account\AccountContainer;
+use Netric\Account\AccountContainerFactory;
 use Netric\ServiceManager\ApplicationServiceManager;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Request\RequestFactory;
 use Netric\Application\Setup\AccountUpdater;
+use Netric\Cache\CacheFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use RuntimeException;
@@ -48,7 +49,7 @@ class Application
     /**
      * Application DataMapper
      *
-     * @var DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $dm = null;
 
@@ -62,9 +63,9 @@ class Application
     /**
      * Accounts identity mapper
      *
-     * @var AccountIdentityMapper
+     * @var AccountContainer
      */
-    private $accountsIdentityMapper = null;
+    private $accountContainer = null;
 
     /**
      * Request made when launching the application
@@ -121,13 +122,11 @@ class Application
         // Setup application datamapper
         $this->dm = $this->serviceManager->get(DataMapperFactory::class);
 
-        // TODO: Convert the below to service factories
-
         // Setup application cache
-        $this->cache = new MemcachedCache($config->cache);
+        $this->cache = $this->serviceManager->get(CacheFactory::class);
 
         // Setup account identity mapper
-        $this->accountsIdentityMapper = new AccountIdentityMapper($this->dm, $this->cache);
+        $this->accountContainer = $this->serviceManager->get(AccountContainerFactory::class);
     }
 
     /**
@@ -243,15 +242,14 @@ class Application
 
         if (!$accountId && !$accountName) {
             return null;
-            //throw new \Exception("Cannot get account without accountName");
         }
 
         // Get the account with either $accountId or $accountName
         if ($accountId) {
-            return $this->accountsIdentityMapper->loadById($accountId, $this);
+            return $this->accountContainer->loadById($accountId);
         }
 
-        return $this->accountsIdentityMapper->loadByName($accountName, $this);
+        return $this->accountContainer->loadByName($accountName);
     }
 
     /**
@@ -266,7 +264,7 @@ class Application
 
         $accounts = [];
         foreach ($accountsData as $data) {
-            $accounts[] = $this->accountsIdentityMapper->loadById($data['account_id'], $this);
+            $accounts[] = $this->accountContainer->loadById($data['account_id']);
         }
 
         return $accounts;
@@ -350,24 +348,24 @@ class Application
     public function createAccount($accountName, $adminUserName, $adminEmail, $adminPassword)
     {
         // Make sure the account does not already exists
-        if ($this->accountsIdentityMapper->loadByName($accountName, $this)) {
+        if ($this->accountContainer->loadByName($accountName)) {
             throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
         }
 
         // TODO: Check the account name is valid
 
         // Create new account
-        $accountId = $this->accountsIdentityMapper->createAccount($accountName);
+        $accountId = $this->accountContainer->createAccount($accountName);
 
         // Make sure the created account is valid
         if (!$accountId) {
             throw new Exception\CouldNotCreateAccountException(
-                "Failed creating account " . $this->accountsIdentityMapper->getLastError()->getMessage()
+                "Failed creating account " . $this->accountContainer->getLastError()->getMessage()
             );
         }
 
         // Load the newly created account
-        $account = $this->accountsIdentityMapper->loadById($accountId, $this);
+        $account = $this->accountContainer->loadById($accountId);
 
         // Make sure it worked
         if ($account === null) {
@@ -386,7 +384,7 @@ class Application
         $adminUser->setValue("email", $adminEmail);
         $adminUser->setValue("password", $adminPassword);
         $adminUser->setIsAdmin(true);
-        $entityLoader->save($adminUser);
+        $entityLoader->save($adminUser, $account->getSystemUser());
 
         // If the username is an email address then set the email address to be the username
         if (strpos($adminEmail, '@') !== false) {
@@ -410,7 +408,7 @@ class Application
 
         // Delete the account if it is valid
         if ($account->getAccountId()) {
-            return $this->accountsIdentityMapper->deleteAccount($account);
+            return $this->accountContainer->deleteAccount($account);
         }
 
         return false;

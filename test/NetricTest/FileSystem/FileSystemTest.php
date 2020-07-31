@@ -7,12 +7,12 @@
 namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\FileSystem;
-use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\EntityQuery;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType;
 use Netric\FileSystem\FileSystemFactory;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -37,7 +37,7 @@ class FileSystemTest extends TestCase
     /**
      * Entity DataMapper
      *
-     * @var DataMapperInterface
+     * @var EntityDataMapperInterface
      */
     private $dataMapper = null;
 
@@ -75,7 +75,7 @@ class FileSystemTest extends TestCase
         $sl = $this->account->getServiceManager();
 
         $this->fileSystem = $sl->get(FileSystemFactory::class);
-        $this->dataMapper = $sl->get(DataMapperFactory::class);
+        $this->dataMapper = $sl->get(EntityDataMapperFactory::class);
         $this->entityLoader = $sl->get(EntityLoaderFactory::class);
         $this->entityIndex = $sl->get(IndexFactory::class);
     }
@@ -167,12 +167,12 @@ class FileSystemTest extends TestCase
         // First delete test path if it exists
         $folder = $this->fileSystem->openFolder("/testOpenSubCreate/Child");
         if ($folder) {
-            $this->dataMapper->delete($folder);
+            $this->dataMapper->delete($folder, $this->account->getAuthenticatedUser());
         }
         $folder = $this->fileSystem->openFolder("/testOpenSubCreate");
         if ($folder) {
             $origChildId = $folder->getEntityId();
-            $this->dataMapper->delete($folder);
+            $this->dataMapper->delete($folder, $this->account->getAuthenticatedUser());
         }
 
         // Now open the folder with create flag (second)
@@ -290,7 +290,7 @@ class FileSystemTest extends TestCase
         $testPath = "/testFolderExists";
         $folder = $this->fileSystem->openFolder($testPath);
         if ($folder) {
-            $this->dataMapper->delete($folder);
+            $this->dataMapper->delete($folder, $this->account->getAuthenticatedUser());
         }
 
         // Test a non-existent folder

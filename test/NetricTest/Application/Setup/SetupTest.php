@@ -8,7 +8,7 @@ namespace NetricTest\Application\Setup;
 
 use Netric\Account\Account;
 use Netric\Application\Application;
-use Netric\Account\AccountIdentityMapper;
+use Netric\Account\AccountContainer;
 use Netric\Application\Setup\Setup;
 use Netric\Application\Setup\AccountUpdater;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +21,7 @@ class SetupTest extends TestCase
     /**
      * Account identity mapper used for testing
      *
-     * @var AccountIdentityMapper
+     * @var AccountContainer
      */
     private $mapper = null;
 
@@ -65,7 +65,7 @@ class SetupTest extends TestCase
         $this->cache = $serviceManager->get(CacheFactory::class);
         $dataMapper = $serviceManager->get(DataMapperFactory::class);
 
-        $this->mapper = new AccountIdentityMapper($dataMapper, $this->cache);
+        $this->mapper = new AccountContainer($dataMapper, $this->cache, $this->account->getApplication());
         $this->setup = new Setup();
     }
 

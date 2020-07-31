@@ -9,7 +9,7 @@ use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
-use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -126,7 +126,7 @@ class PermissionController extends Mvc\AbstractAccountController
             $dacl->fromArray($objData);
             $entity->setValue("dacl", json_encode($dacl->toArray()));
 
-            if ($entityDataMapper->save($entity)) {
+            if ($entityDataMapper->save($entity, $this->account->getAuthenticatedUser())) {
                 return $this->sendOutput($dacl->toArray());
             } else {
                 return $this->sendOutput(["error" => "Error saving Dacl: " . $entityDataMapper->getLastError()]);

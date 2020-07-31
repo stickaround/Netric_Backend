@@ -394,10 +394,10 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
             throw new \InvalidArgumentException("Only a valid WorkFlowLegacyInstance id must be passed");
         }
 
-//        $this->database->delete(
-//            'workflow_instances',
-//            ['id' => $workFlowInstanceId]
-//        );
+        //        $this->database->delete(
+        //            'workflow_instances',
+        //            ['id' => $workFlowInstanceId]
+        //        );
     }
 
     /**

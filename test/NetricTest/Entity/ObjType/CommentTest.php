@@ -73,13 +73,13 @@ class CommentTest extends TestCase
         $this->assertEquals(1, $openedCustomer->getValue("num_comments"));
 
         // Delete the comment and make sure num_comments is decremented
-        $entityLoader->delete($comment);
+        $entityLoader->delete($comment, $this->account->getAuthenticatedUser());
         $reopenedCustomer = $entityLoader->getByGuid($cid);
         $this->assertEquals(0, $reopenedCustomer->getValue("num_comments"));
 
         // Cleanup
-        $entityLoader->delete($comment, true);
-        $entityLoader->delete($openedCustomer, true);
+        $entityLoader->delete($comment, $this->account->getAuthenticatedUser());
+        $entityLoader->delete($openedCustomer, $this->account->getAuthenticatedUser());
     }
 
     /**
@@ -110,7 +110,7 @@ class CommentTest extends TestCase
         $this->assertTrue(in_array($userGuid, $followers));
 
         // Cleanup
-        $entityLoader->delete($comment, true);
-        $entityLoader->delete($customer, true);
+        $entityLoader->delete($comment, $this->account->getAuthenticatedUser());
+        $entityLoader->delete($customer, $this->account->getAuthenticatedUser());
     }
 }

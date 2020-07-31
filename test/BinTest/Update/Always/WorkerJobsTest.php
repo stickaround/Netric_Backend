@@ -3,6 +3,7 @@
 /**
  * Make sure the bin/scripts/update/always/06-worker-jobs.php script works
  */
+
 namespace BinTest\Update\Always;
 
 use Netric\WorkerMan\SchedulerService;
@@ -98,6 +99,7 @@ class WorkerJobsTest extends TestCase
 
         // Manually add one of the jobs
         $this->schedulerService->scheduleAtInterval(
+            $this->account->getAuthenticatedUser(),
             $scheduledJobsData[0]['worker_name'],
             $scheduledJobsData[0]['job_data'],
             $scheduledJobsData[0]['recurrence']['type'],

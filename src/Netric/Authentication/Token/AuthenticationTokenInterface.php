@@ -1,5 +1,8 @@
 <?php
+
 namespace Netric\Authentication\Token;
+
+use Netric\Entity\ObjType\UserEntity;
 
 interface AuthenticationTokenInterface
 {
@@ -15,7 +18,7 @@ interface AuthenticationTokenInterface
      *
      * @return string
      */
-    public function getUserGuid(): string;
+    public function getUserId(): string;
 
     /**
      * Get the account ID for this user
@@ -23,4 +26,12 @@ interface AuthenticationTokenInterface
      * @return string
      */
     public function getAccountId(): string;
+
+    /**
+     * Generate a token that can be used to verify the authenticity of a request
+     *
+     * @param UserEntity $user
+     * @return string
+     */
+    public function createToken(UserEntity $user): string;
 }

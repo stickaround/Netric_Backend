@@ -3,8 +3,8 @@
 namespace NetricTest\Entity\DataMapper;
 
 use Netric;
-use Netric\Entity\DataMapper\EntityRdbDataMapper;
-use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\EntityPgsqlDataMapper;
+use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 
@@ -16,8 +16,8 @@ class DataMapperFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            EntityRdbDataMapper::class,
-            $sm->get(DataMapperFactory::class)
+            EntityPgsqlDataMapper::class,
+            $sm->get(EntityDataMapperFactory::class)
         );
     }
 }

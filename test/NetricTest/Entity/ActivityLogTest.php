@@ -7,6 +7,7 @@
 namespace NetricTest\Entity;
 
 use Netric;
+use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\ActivityLog;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
@@ -53,6 +54,7 @@ class ActivityLogTest extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
+        $authService = $this->account->getServiceManager()->get(AuthenticationServiceFactory::class);
         $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
         $this->activityLog = $this->account->getServiceManager()->get(ActivityLogFactory::class);
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -78,6 +80,6 @@ class ActivityLogTest extends TestCase
         $this->assertNotEmpty($openedAct->getValueName("subject"));
 
         // Cleanup
-        $this->entityLoader->delete($customerEntity, true);
+        $this->entityLoader->delete($customerEntity, $this->account->getAuthenticatedUser());
     }
 }

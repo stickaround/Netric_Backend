@@ -94,9 +94,9 @@ class ProjectTest extends TestCase
         $this->assertEquals($newTask->getValue("name"), "Project One");
 
         // Cleanup
-        $entityLoader->delete($proj1, true);
-        $entityLoader->delete($proj2, true);
-        $entityLoader->delete($task, true);
-        $entityLoader->delete($newTask, true);
+        $entityLoader->delete($proj1, $this->account->getAuthenticatedUser());
+        $entityLoader->delete($proj2, $this->account->getAuthenticatedUser());
+        $entityLoader->delete($task, $this->account->getAuthenticatedUser());
+        $entityLoader->delete($newTask, $this->account->getAuthenticatedUser());
     }
 }

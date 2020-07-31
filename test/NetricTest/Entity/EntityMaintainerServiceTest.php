@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Entity;
 
 use PHPUnit\Framework\TestCase;
@@ -71,8 +72,7 @@ class EntityMaintainerServiceTest extends TestCase
         // Setup a mock definition loader since we don't want to test all definitions
         $entityDefinitionLoader = $this->getMockBuilder(EntityDefinitionLoader::class)
             ->disableOriginalConstructor()
-            ->getMock();
-        ;
+            ->getMock();;
         $entityDefinitionLoader->method('getAll')->willReturn([$def]);
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -96,7 +96,7 @@ class EntityMaintainerServiceTest extends TestCase
         // Cleanup test entities
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $ent) {
-            $entityLoader->delete($ent, true);
+            $entityLoader->delete($ent, $this->account->getAuthenticatedUser());
         }
 
         // Cleanup the entity definition
@@ -173,7 +173,7 @@ class EntityMaintainerServiceTest extends TestCase
         // Create then soft delete two entities
         $entity1 = $entityLoader->create($this->testDefinition->getObjType());
         $entityLoader->save($entity1);
-        $entityLoader->delete($entity1, false);
+        $entityLoader->delete($entity1, $this->account->getAuthenticatedUser());
 
         // Get a cutoff
         $cutoff = new \DateTime();
@@ -184,7 +184,7 @@ class EntityMaintainerServiceTest extends TestCase
         // This entity will be deleted after the cutoff so it should be left alone
         $entity2 = $entityLoader->create($this->testDefinition->getObjType());
         $entityLoader->save($entity2);
-        $entityLoader->delete($entity2, false);
+        $entityLoader->delete($entity2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity2;
 
         // Run trimCappedForType
@@ -204,7 +204,7 @@ class EntityMaintainerServiceTest extends TestCase
         // Create an entity to purge after deleted
         $entity1 = $entityLoader->create($this->testDefinition->getObjType());
         $entityLoader->save($entity1);
-        $entityLoader->delete($entity1, false);
+        $entityLoader->delete($entity1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity1;
 
         // Create an entity that is before the cutoff but not deleted
@@ -221,7 +221,7 @@ class EntityMaintainerServiceTest extends TestCase
         // This entity will be deleted after the cutoff so it should be left alone
         $entity3 = $entityLoader->create($this->testDefinition->getObjType());
         $entityLoader->save($entity3);
-        $entityLoader->delete($entity3, false);
+        $entityLoader->delete($entity3, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity3;
 
         // Purge entities deleted before the cutoff date

@@ -116,6 +116,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     {
         if ($this->isDeleted()) {
             $thread = $this->entityLoader->getByGuid($this->getValue("thread"));
+            $currentUser = $sm->getAccount()->getAuthenticatedUser();
 
             // Decrement the number of messages in the thread if it exists
             if ($thread) {
@@ -127,7 +128,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
                     // Otherwise reduce the number of messages
                     $numMessages = $thread->getValue("num_messages");
                     $thread->setValue("num_messages", --$numMessages);
-                    $this->entityLoader->save($thread);
+                    $this->entityLoader->save($thread, $currentUser);
                 }
             }
         }
@@ -615,7 +616,8 @@ class EmailMessageEntity extends Entity implements EntityInterface
         // Update the delivered date
         if ($this->getValue("message_date")) {
             // Only update if this is newer than the last message added
-            if (!$thread->getValue("ts_delivered")
+            if (
+                !$thread->getValue("ts_delivered")
                 || $thread->getValue("ts_delivered") < $this->getValue("message_date")
             ) {
                 // Set  the last delivered date of the thread to this message date
@@ -623,8 +625,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
             }
         }
 
+        $threadUser = $this->entityLoader->getByGuid($thread->getValue('owner_id'));
+
         // Save the changes
-        if (!$this->entityLoader->save($thread)) {
+        if (!$this->entityLoader->save($thread, $threadUser)) {
             throw new RuntimeException("Failed saving thread!");
         }
     }
