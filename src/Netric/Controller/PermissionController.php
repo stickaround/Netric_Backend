@@ -76,7 +76,7 @@ class PermissionController extends Mvc\AbstractAccountController
 
         // Get the group details
         foreach ($groups as $groupDetails) {
-            $retData["group_names"][$groupDetails["id"]] = $groupDetails["name"];
+            $retData["group_names"][$groupDetails["group_id"]] = $groupDetails["name"];
         }
 
         return $this->sendOutput($retData);
