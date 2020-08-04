@@ -132,12 +132,17 @@ class PermissionControllerTest extends TestCase
         // Get creator owner group to test
         $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
         $creatorGroup = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
+        $adminGroup = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
 
         // Should get default dacl for this entity since we did not set any dacl yet
         $this->assertNotNull($ret);
         $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['entries']);
         $this->assertEquals(Dacl::PERM_VIEW, $ret['entries'][Dacl::PERM_VIEW]['name']);
         $this->assertTrue(in_array($creatorGroup->getGroupId(), $ret['entries'][Dacl::PERM_VIEW]['groups']));
+
+        // Make sure that creator owner and administrators names are set in group_names
+        $this->assertEquals($ret['group_names'][$creatorGroup->getGroupId()], $creatorGroup->getName());
+        $this->assertEquals($ret['group_names'][$adminGroup->getGroupId()], $adminGroup->getName());
     }
 
     public function testGetGetDaclForEntityActionForObjType()
