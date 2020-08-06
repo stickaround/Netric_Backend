@@ -53,9 +53,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $tableName = self::ENTITY_TABLE;
 
-        // @deprecated We no longer partition by _del and _act, this can be deleted
-        //$tableName .= ($entity->isDeleted()) ? "_del" : "_act";
-
         // Get indexed text
         $fields = $def->getFields();
         $fieldTextValues = [];
@@ -292,7 +289,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                if ($fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
+                if (
+                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
                     || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
@@ -305,7 +303,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             }
 
             // Set and add entity
-            $entity = $this->entityFactory->create($entityDefinition->getObjType());
+            $entity = $this->entityFactory->create($entityDefinition->getObjType(), $entityDefinition->getAccountId());
             $entity->fromArray($entityData);
             $entity->resetIsDirty();
             $results->addEntity($entity);
@@ -424,7 +422,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     case FIELD::TYPE_TEXT:
                         break;
                     case FIELD::TYPE_OBJECT:
-                        if (!empty($field->subtype)
+                        if (
+                            !empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
                             && is_numeric($value)
                         ) {

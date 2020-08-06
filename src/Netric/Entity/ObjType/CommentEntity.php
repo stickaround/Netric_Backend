@@ -25,15 +25,18 @@ class CommentEntity extends Entity implements EntityInterface
         $entityLoader = $sm->get(EntityLoaderFactory::class);
         $currentUser = $sm->getAccount()->getAuthenticatedUser();
         $objReference = $this->getValue('obj_reference');
-        $entityCommentedOn = $entityLoader->getByGuid($objReference);
+        $entityCommentedOn = $entityLoader->getEntityById(
+            $objReference,
+            $sm->getAccount()->getAccountId()
+        );
 
         // Set comments associations to all directly associated objects if new
         if ($entityCommentedOn) {
             // Update the num_comments field of the entity we are commenting on
             // Only if the comment is new and/or just deleted
-            if ($this->getValue('revision') <= 1 || ($this->isDeleted() && $this->fieldValueChanged('f_deleted'))) {
+            if ($this->getValue('revision') <= 1 || ($this->isArchived() && $this->fieldValueChanged('f_deleted'))) {
                 // Determine if we should increment or decrement
-                $added = ($this->isDeleted()) ? false : true;
+                $added = ($this->isArchived()) ? false : true;
                 $entityCommentedOn->setHasComments($added);
             }
 

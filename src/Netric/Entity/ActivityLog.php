@@ -109,7 +109,7 @@ class ActivityLog
         // If we created a comment, then get the name from the object commented on
         if (($objType == ObjectTypes::COMMENT) && $objReference) {
             // Get the referenced entity
-            $entityReferenced = $this->entityLoader->getByGuid($objReference);
+            $entityReferenced = $this->entityLoader->getEntityById($objReference, $this->currentUser->getAccountId());
 
             if ($entityReferenced) {
                 // Only if the entity exists
@@ -133,7 +133,7 @@ class ActivityLog
             }
         }
 
-        $actEntity = $this->entityLoader->create(ObjectTypes::ACTIVITY);
+        $actEntity = $this->entityLoader->create(ObjectTypes::ACTIVITY, $subject->getAccountId());
         $actEntity->setValue("name", $name);
         $actEntity->setValue("notes", $notes);
         $actEntity->setValue("verb", $verb);
@@ -184,7 +184,7 @@ class ActivityLog
         foreach ($fields as $field) {
             $objReference = $object->getValue($field->name);
             if ($field->type == FIELD::TYPE_OBJECT && $objReference) {
-                $referencedEntity = $this->entityLoader->getByGuid($objReference);
+                $referencedEntity = $this->entityLoader->getEntityById($objReference, $this->currentUser->getAccountId());
 
                 if ($referencedEntity) {
                     $actEntity->addMultiValue("associations", $referencedEntity->getEntityId(), $referencedEntity->getName());

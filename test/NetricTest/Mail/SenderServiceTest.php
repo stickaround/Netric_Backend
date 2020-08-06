@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Mail;
 
 use Netric\Mail\Transport\TransportInterface;
@@ -76,7 +77,7 @@ class SenderServiceTest extends TestCase
         $message = $this->getMessage();
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $emailMessage->fromMailMessage($message);
         $this->senderService->send($emailMessage);
         $this->assertEquals($message->getTo(), $this->transport->getLastMessage()->getTo());
@@ -87,7 +88,7 @@ class SenderServiceTest extends TestCase
         $message = $this->getMessage();
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $emailMessage->fromMailMessage($message);
         $this->senderService->sendBulk($emailMessage);
         $this->assertEquals($message->getTo(), $this->bulkTransport->getLastMessage()->getTo());

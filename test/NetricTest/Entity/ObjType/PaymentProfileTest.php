@@ -40,7 +40,7 @@ class PaymentProfileTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::SALES_PAYMENT_PROFILE);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::SALES_PAYMENT_PROFILE, $this->account->getAccountId());
         $this->assertInstanceOf(PaymentProfileEntity::class, $entity);
     }
 }

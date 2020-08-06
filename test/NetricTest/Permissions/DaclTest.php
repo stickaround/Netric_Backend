@@ -57,7 +57,7 @@ class DaclTest extends TestCase
         $this->userGroup = $userGroups->getByName(UserEntity::GROUP_USERS);
 
         // Create a temporary user
-        $this->user = $entityLoader->create(ObjectTypes::USER);
+        $this->user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->addMultiValue("groups", $this->userGroup->getGroupId());
         $entityLoader->save($this->user, $this->account->getSystemUser());
@@ -147,7 +147,7 @@ class DaclTest extends TestCase
 
         // Make a new user and add them to the group to test
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user2 = $entityLoader->create(ObjectTypes::USER);
+        $user2 = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user2->setValue("name", "utest-dacl-" . rand());
         $user2->addMultiValue("groups", $this->userGroup->getGroupId());
         $entityLoader->save($user2, $this->account->getSystemUser());
@@ -209,20 +209,20 @@ class DaclTest extends TestCase
     public function testIsAllowedOnEntity()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $entityLoader->create(ObjectTypes::USER);
+        $user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("entity_id", Uuid::uuid4()->toString());
 
-        $userOwner = $entityLoader->create(ObjectTypes::USER);
+        $userOwner = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $userOwner->setValue("entity_id", Uuid::uuid4()->toString());
 
-        $task = $entityLoader->create(ObjectTypes::TASK);
+        $task = $entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue('owner_id', $userOwner->getEntityId());
 
         $dacl = new Dacl();
         $this->assertTrue($dacl->isAllowed($userOwner, null, $task));
 
         // This should be false since the $userNotAssigned is not assigned in the task
-        $userNotAssigned = $entityLoader->create(ObjectTypes::USER);
+        $userNotAssigned = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $userNotAssigned->setValue("entity_id", Uuid::uuid4()->toString());
         $this->assertFalse($dacl->isAllowed($userNotAssigned, null, $task));
     }

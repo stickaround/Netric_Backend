@@ -75,10 +75,10 @@ class UserTest extends TestCase
 
         // Create a test user
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->create(ObjectTypes::USER);
+        $user = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
-        $dm->save($user);
+        $dm->save($user, $this->account->getSystemUser());
         $this->user = $user;
 
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
@@ -99,7 +99,7 @@ class UserTest extends TestCase
     public function testFactory()
     {
         $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER);
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->assertInstanceOf(UserEntity::class, $entity);
     }
 
@@ -121,7 +121,7 @@ class UserTest extends TestCase
 
     public function testOnBeforeSaveNewUserPasswordSet()
     {
-        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->onBeforeSave($this->account->getServiceManager());
@@ -135,7 +135,7 @@ class UserTest extends TestCase
 
     public function testGenerateSaltForPasswords()
     {
-        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->onBeforeSave($this->account->getServiceManager());
@@ -146,7 +146,7 @@ class UserTest extends TestCase
 
     public function testOnAfterSaveAppicationEmailMapSet()
     {
-        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("email", self::TEST_EMAIL);
         $user->setValue("password", self::TEST_USER_PASS);
@@ -163,7 +163,7 @@ class UserTest extends TestCase
     {
         $app = $this->account->getApplication();
 
-        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("email", self::TEST_EMAIL);
         $user->setValue("password", self::TEST_USER_PASS);
@@ -223,13 +223,13 @@ class UserTest extends TestCase
     public function testGetOwnerGuid()
     {
         $sm = $this->account->getServiceManager();
-        $user = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $user = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
 
         $userGuid = Uuid::uuid4()->toString();
         $user->setValue('entity_id', $userGuid);
         $user->setValue('owner_id', Uuid::uuid4()->toString());
 
         // Normally the entity would return the owner_id, but users always return themselves
-        $this->assertEquals($userGuid, $user->getOwnerGuid());
+        $this->assertEquals($userGuid, $user->getOwnerId());
     }
 }

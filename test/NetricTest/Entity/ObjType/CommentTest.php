@@ -46,7 +46,7 @@ class CommentTest extends TestCase
     public function testFactory()
     {
         $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::COMMENT);
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT, $this->account->getAccountId());
         $this->assertInstanceOf(CommentEntity::class, $entity);
     }
 
@@ -56,25 +56,25 @@ class CommentTest extends TestCase
     public function testHasCommentsOnReferencedEntity()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT, $this->account->getAccountId());
 
         // Save customer so we have it to work with
         $customer->setValue("name", "test num_comments");
-        $cid = $entityLoader->save($customer);
+        $cid = $entityLoader->save($customer, $this->account->getSystemUser());
 
         // Now save the comment which should increment the num_comments of $customer
         $comment->setValue("obj_reference", $customer->getEntityId(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
-        $entityLoader->save($comment);
+        $entityLoader->save($comment, $this->account->getSystemUser());
 
         // Now re-open the referenced customer just to make sure it was saved right
-        $openedCustomer = $entityLoader->getByGuid($cid);
+        $openedCustomer = $entityLoader->getEntityById($cid, $this->account->getAccountId());
         $this->assertEquals(1, $openedCustomer->getValue("num_comments"));
 
         // Delete the comment and make sure num_comments is decremented
-        $entityLoader->delete($comment, $this->account->getAuthenticatedUser());
-        $reopenedCustomer = $entityLoader->getByGuid($cid);
+        $entityLoader->archive($comment, $this->account->getAuthenticatedUser());
+        $reopenedCustomer = $entityLoader->getEntityById($cid, $this->account->getAccountId());
         $this->assertEquals(0, $reopenedCustomer->getValue("num_comments"));
 
         // Cleanup
@@ -91,19 +91,19 @@ class CommentTest extends TestCase
     public function testSyncFollowers()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT, $this->account->getAccountId());
 
         $userGuid = $uuid4 = Uuid::uuid4()->toString();
         // Save customer with a fake user callout for testing
         $customer->setValue("name", "test sync followers");
         $customer->setValue("notes", "Hey [user:$userGuid:Dave], check this out please.");
-        $cid = $entityLoader->save($customer);
+        $cid = $entityLoader->save($customer, $this->account->getSystemUser());
 
         // Now create a comment on the customer which should sync the followers
         $comment->setValue("obj_reference", $customer->getEntityId(), $customer->getName());
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
-        $entityLoader->save($comment);
+        $entityLoader->save($comment, $this->account->getSystemUser());
 
         // Check to make sure the comment has user 456 as a follower copied from customer
         $followers = $comment->getValue("followers");

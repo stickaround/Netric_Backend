@@ -92,7 +92,7 @@ class BackendNetricTest extends TestCase
 
         // Create a test user
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->create(ObjectTypes::USER);
+        $user = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("full_name", self::TEST_USER_FULL_NAME);
         $user->setValue("email", self::TEST_USER_EMAIL);
@@ -203,7 +203,7 @@ class BackendNetricTest extends TestCase
     public function testFetch()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $task = $entityLoader->create(ObjectTypes::TASK);
+        $task = $entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("name", "My Unit Test Task");
         $task->setValue("owner_id", $this->user->getEntityId());
         $task->setValue("start_date", date("m/d/Y"));
@@ -318,7 +318,7 @@ class BackendNetricTest extends TestCase
 
         // Create a dummy email message which will add the to stats
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $email->setValue("subject", "Test message");
         $email->setValue("flag_seen", 'f');
         $email->setValue("owner_id", $this->user->getEntityId());

@@ -379,7 +379,7 @@ class Application
 
         // Create the default account
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $adminUser = $entityLoader->create(ObjectTypes::USER);
+        $adminUser = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
         $adminUser->setValue("name", $adminUserName);
         $adminUser->setValue("email", $adminEmail);
         $adminUser->setValue("password", $adminPassword);

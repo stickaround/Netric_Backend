@@ -58,7 +58,7 @@ class DaclLoaderTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a temporary user
-        $this->user = $entityLoader->create(ObjectTypes::USER);
+        $this->user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->addMultiValue("groups", UserEntity::GROUP_USERS);
         $entityLoader->save($this->user, $this->user);
@@ -99,7 +99,7 @@ class DaclLoaderTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New file
-        $file = $entityLoader->create(ObjectTypes::FILE);
+        $file = $entityLoader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "myFiletest.txt");
         $daclData = [
             "entries" => [
@@ -113,7 +113,7 @@ class DaclLoaderTest extends TestCase
         $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
 
-        $dacl = $this->daclLoader->getForEntity($file);
+        $dacl = $this->daclLoader->getForEntity($file, $this->user);
         $this->assertNotNull($dacl);
 
         // Test if the user added worked
@@ -128,7 +128,7 @@ class DaclLoaderTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New folder which is the parent of a file
-        $folder = $entityLoader->create(ObjectTypes::FOLDER);
+        $folder = $entityLoader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $folder->setValue("name", "MyFolder");
         $daclData = [
             "entries" => [
@@ -143,14 +143,14 @@ class DaclLoaderTest extends TestCase
         $this->testEntities[] = $folder;
 
         // New file that is a child of the parent
-        $file = $entityLoader->create(ObjectTypes::FILE);
+        $file = $entityLoader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("folder_id", $folder->getEntityId());
         $file->setValue("name", "myFiletest.txt");
         $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
 
         // The file does not have an explicit DACL, so it should load from the folder
-        $dacl = $this->daclLoader->getForEntity($file);
+        $dacl = $this->daclLoader->getForEntity($file, $this->user);
         $this->assertNotNull($dacl);
 
         // Test if the user added worked
@@ -165,7 +165,7 @@ class DaclLoaderTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New file
-        $file = $entityLoader->create(ObjectTypes::FILE);
+        $file = $entityLoader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "myFiletest.txt");
         $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
@@ -176,7 +176,7 @@ class DaclLoaderTest extends TestCase
         $defDacl->allowUser($this->user->getEntityId(), Dacl::PERM_FULL);
         $def->setDacl($defDacl);
 
-        $dacl = $this->daclLoader->getForEntity($file);
+        $dacl = $this->daclLoader->getForEntity($file, $this->user);
         $this->assertNotNull($dacl);
 
         // Test if the DACL we got back came from the definition (only one that gives the user access)
@@ -191,13 +191,13 @@ class DaclLoaderTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New file with no DACL
-        $file = $entityLoader->create(ObjectTypes::FILE);
+        $file = $entityLoader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "myFiletest.txt");
         $file->setValue("owner_id", $this->user->getEntityId());
         $entityLoader->save($file, $this->user);
         $this->testEntities[] = $file;
 
-        $dacl = $this->daclLoader->getForEntity($file);
+        $dacl = $this->daclLoader->getForEntity($file, $this->user);
         $this->assertNotNull($dacl);
 
         // It will pull the default which only gives access to admins and creator owner

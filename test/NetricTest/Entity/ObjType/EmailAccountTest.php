@@ -48,13 +48,13 @@ class EmailAccountEntityTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
         $this->assertInstanceOf(EmailAccountEntity::class, $entity);
     }
 
     public function testOnBeforeSavePasswordEncrypt()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
         $entity->setValue("address", "test@test.com");
         $entity->setValue("password", "test");
 

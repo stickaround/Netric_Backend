@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Service factory for the Entity Definition Loader
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\EntityDefinition;
 
 use Netric\Cache\CacheFactory;
@@ -27,6 +29,6 @@ class EntityDefinitionLoaderFactory implements ServiceManager\AccountServiceFact
         $dm = $sl->get(DataMapperFactory::class);
         $cache = $sl->get(CacheFactory::class);
 
-        return new EntityDefinitionLoader($dm, $cache);
+        return new EntityDefinitionLoader($dm, $cache, $sl->getAccount());
     }
 }

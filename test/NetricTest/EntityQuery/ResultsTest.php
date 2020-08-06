@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\EntityQuery;
 
 use Netric;
@@ -27,7 +28,7 @@ class ResultsTest extends TestCase
     {
         $account = Bootstrap::getAccount();
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $testDefinition = new EntityDefinition("test");
+        $testDefinition = new EntityDefinition("test", $account->getAccountId());
 
         $query = new EntityQuery("test");
         $query->setOffset(0);

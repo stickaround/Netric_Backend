@@ -11,6 +11,7 @@ use Netric\EntityQuery;
 use Netric\Entity\EntityLoader;
 use DateInterval;
 use DateTime;
+use Netric\Account\AccountContainer;
 use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -55,6 +56,11 @@ class EntityMaintainerService extends AbstractHasErrors
     private $fileSystem = null;
 
     /**
+     * Account container used to get accounts
+     */
+    private AccountContainer $accountContainer;
+
+    /**
      * EntityMaintainerService constructor
      *
      * @param LogInterface $log
@@ -68,27 +74,30 @@ class EntityMaintainerService extends AbstractHasErrors
         EntityLoader $entityLoader,
         EntityDefinitionLoader $entityDefinitionLoader,
         IndexInterface $entityIndex,
-        FileSystem $fileSystem
+        FileSystem $fileSystem,
+        AccountContainer $accountContainer
     ) {
         $this->log = $log;
         $this->entityLoader = $entityLoader;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
+        $this->accountContainer = $accountContainer;
     }
 
     /**
      * Run all maintenance tasks
      *
+     * @param string $accountId
      * @return array
      */
-    public function runAll()
+    public function runAll(string $accountId)
     {
         $ret = [];
-        $ret['trimmed'] = $this->trimAllCappedTypes();
-        $ret['purged'] = $this->purgeAllStaleDeleted();
-        $ret['deleted_spam'] = $this->deleteOldSpamMessages();
-        $ret['deleted_temp_files'] = $this->cleanTempFolder();
+        $ret['trimmed'] = $this->trimAllCappedTypes($accountId);
+        $ret['purged'] = $this->purgeAllStaleDeleted($accountId);
+        $ret['deleted_spam'] = $this->deleteOldSpamMessages($accountId);
+        $ret['deleted_temp_files'] = $this->cleanTempFolder($accountId);
         return $ret;
     }
 
@@ -96,9 +105,10 @@ class EntityMaintainerService extends AbstractHasErrors
      * Iterate through all capped entity object types and delete entities past the limit
      *
      * @see trimCappedForType
+     * @param string $accountId
      * @return array('objType'=>array(deletedIds))|null on failure
      */
-    public function trimAllCappedTypes()
+    public function trimAllCappedTypes(string $accountId)
     {
         $allDefinitions = $this->entityDefinitionLoader->getAll();
 
@@ -106,7 +116,7 @@ class EntityMaintainerService extends AbstractHasErrors
 
         foreach ($allDefinitions as $def) {
             if ($def->capped) {
-                $ret[$def->getObjType()] = $this->trimCappedForType($def);
+                $ret[$def->getObjType()] = $this->trimCappedForType($def, $accountId);
             }
         }
 
@@ -121,9 +131,10 @@ class EntityMaintainerService extends AbstractHasErrors
      * there are never more than capped number of entities.
      *
      * @param EntityDefinition $def The entity definition to trim
+     * @param string $accountId
      * @return array|null Array with an id of each entity deleted, or null on failure
      */
-    public function trimCappedForType(EntityDefinition $def)
+    public function trimCappedForType(EntityDefinition $def, string $accountId)
     {
         if (!$def->capped) {
             return null;
@@ -165,9 +176,10 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->getByGuid($entityId);
+            $entity = $this->entityLoader->getEntityById($entityId, $def->getAccountId());
             if ($entity) {
-                $this->entityLoader->delete($entity);
+                $account = $this->accountContainer->loadById($accountId);
+                $this->entityLoader->delete($entity, $account->getSystemUser());
                 $deletedEntities[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->trimCappedForType: deleted " .
@@ -184,16 +196,17 @@ class EntityMaintainerService extends AbstractHasErrors
      *
      * @param DateTime $cutoff If set then this will be the earliest
      *                         cutoff to start purging, default = today -1 year
+     * @param string $accountId
      * @return array
      */
-    public function purgeAllStaleDeleted(DateTime $cutoff = null)
+    public function purgeAllStaleDeleted(string $accountId, DateTime $cutoff = null)
     {
         $allDefinitions = $this->entityDefinitionLoader->getAll();
 
         $ret = [];
 
         foreach ($allDefinitions as $def) {
-            $ret[$def->getObjType()] = $this->purgeStaleDeletedForType($def, $cutoff);
+            $ret[$def->getObjType()] = $this->purgeStaleDeletedForType($def, $accountId, $cutoff);
         }
 
         return $ret;
@@ -205,9 +218,10 @@ class EntityMaintainerService extends AbstractHasErrors
      * @param EntityDefinition $def
      * @param DateTime $cutoff If set then this will be the earliest
      *                         cutoff to start purging, default = today -1 year
+     * @param string $accountId
      * @return int[] Array of deleted entity IDs
      */
-    public function purgeStaleDeletedForType(EntityDefinition $def, DateTime $cutoff = null)
+    public function purgeStaleDeletedForType(EntityDefinition $def, string $accountId, DateTime $cutoff = null)
     {
         // Buffer storing which entities get deleted to return to the caller
         $deletedEntities = [];
@@ -244,9 +258,10 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->getByGuid($entityId);
+            $entity = $this->entityLoader->getEntityById($entityId, $accountId);
             if ($entity) {
-                $this->entityLoader->delete($entity, true);
+                $account = $this->accountContainer->loadById($def->getAccountId());
+                $this->entityLoader->delete($entity, $account->getSystemUser());
                 $deletedEntities[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->purgeStaleDeletedForType: deleted " .
@@ -266,9 +281,10 @@ class EntityMaintainerService extends AbstractHasErrors
      * like lead and case objects that need spam detection.
      *
      * @param DateTime|null $cutoff
+     * @param string $accountId
      * @return array
      */
-    public function deleteOldSpamMessages(DateTime $cutoff = null)
+    public function deleteOldSpamMessages(string $accountId, DateTime $cutoff = null)
     {
         // Buffer storing which entities get deleted to return to the caller
         $deletedEntities = [];
@@ -302,9 +318,10 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->getByGuid($entityId);
+            $entity = $this->entityLoader->getEntityById($entityId, $accountId);
             if ($entity) {
-                $this->entityLoader->delete($entity, true);
+                $account = $this->accountContainer->loadById($accountId);
+                $this->entityLoader->delete($entity, $account->getSystemUser());
                 $deletedEntities[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->deleteOldSpamMessages: deleted " .
@@ -319,11 +336,12 @@ class EntityMaintainerService extends AbstractHasErrors
     /**
      * Delete any files in the temp folder that are older than a cutoff date
      *
+     * @param string $accountId
      * @param DateTime|null $cutoff
      * @param string $tmpPath Optional override of the system temp path
      * @return array
      */
-    public function cleanTempFolder(DateTime $cutoff = null, $tmpPath = FileSystem::PATH_TEMP)
+    public function cleanTempFolder(string $accountId, DateTime $cutoff = null, $tmpPath = FileSystem::PATH_TEMP)
     {
         $deletedFiles = [];
         $tmpFolder = $this->fileSystem->openFolder($tmpPath);
@@ -359,9 +377,10 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->getByGuid($entityId);
+            $entity = $this->entityLoader->getEntityById($entityId, $accountId);
             if ($entity) {
-                $this->entityLoader->delete($entity);
+                $account = $this->accountContainer->loadById($accountId);
+                $this->entityLoader->archive($entity, $account->getSystemUser());
                 $deletedFiles[] = $entity->getEntityId();
                 $this->log->info(
                     "EntityMaintainerService->cleanTempFolder: deleted " .

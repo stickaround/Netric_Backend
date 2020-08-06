@@ -96,12 +96,12 @@ class FilesControllerTest extends TestCase
         }
 
         // Create a temporary user
-        $user = $loader->create(ObjectTypes::USER);
+        $user = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
         $user->setValue("groups", [UserEntity::GROUP_EVERYONE]);
-        $loader->save($user);
+        $loader->save($user, $this->account->getAuthenticatedUser());
         $this->user = $user;
     }
 
@@ -147,7 +147,7 @@ class FilesControllerTest extends TestCase
         // Create folder with permissions that allow the user to upload
         $folderEntity = $this->fileSystem->openFolder("/testUpload", true);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($folderEntity);
+        $dacl = $daclLoader->getForEntity($folderEntity, $this->user);
         $dacl->allowUser($this->user);
 
         // Setup the request
@@ -194,9 +194,9 @@ class FilesControllerTest extends TestCase
         $sl = $this->account->getServiceManager();
         $loader = $sl->get(EntityLoader::class);
 
-        $file = $loader->create(ObjectTypes::FILE);
+        $file = $loader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "newFile.jpg");
-        $loader->save($file);
+        $loader->save($file, $this->account->getAuthenticatedUser());
         $this->testFiles[] = $file;
 
         /*
@@ -498,7 +498,7 @@ class FilesControllerTest extends TestCase
         // Set the newly imported file as the user's profile pic
         $this->user->setValue('image_id', $importedFile->getEntityId());
         $loader = $this->account->getServiceManager()->get(EntityLoader::class);
-        $loader->save($this->user);
+        $loader->save($this->user, $this->account->getAuthenticatedUser());
 
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();

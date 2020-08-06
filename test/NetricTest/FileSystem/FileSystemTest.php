@@ -121,21 +121,21 @@ class FileSystemTest extends TestCase
 
         // Cleanup first
         if ($this->fileSystem->openFolder("/testOpenSub")) {
-            $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testOpenSub"), true);
+            $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testOpenSub"), $this->account->getAuthenticatedUser());
         }
 
         // Create /testOpenSub
-        $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
+        $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $subFolder->setValue("name", "testOpenSub");
         $subFolder->setValue("parent_id", $rootFolder->getEntityId());
-        $this->dataMapper->save($subFolder);
+        $this->dataMapper->save($subFolder, $this->account->getSystemUser());
         $this->queueFolderForCleanup($subFolder);
 
         // Create /testOpenSub/Child
-        $childFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
+        $childFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $childFolder->setValue("name", "Child");
         $childFolder->setValue("parent_id", $subFolder->getEntityId());
-        $this->dataMapper->save($childFolder);
+        $this->dataMapper->save($childFolder, $this->account->getSystemUser());
         $this->queueFolderForCleanup($childFolder);
 
         // Try opening /testOpenSub
@@ -226,9 +226,9 @@ class FileSystemTest extends TestCase
         $fileToImport = __DIR__ . "/FileStore/fixtures/file-to-upload-existing.txt";
 
         // Create an existing file
-        $file = $this->entityLoader->create("file");
+        $file = $this->entityLoader->create("file", $this->account->getAccountId());
         $file->setValue("name", "newFile.jpg");
-        $this->entityLoader->save($file);
+        $this->entityLoader->save($file, $this->account->getSystemUser());
         $this->testFiles[] = $file;
 
         // Test importing a local file
@@ -318,9 +318,9 @@ class FileSystemTest extends TestCase
 
     public function testDeleteFile()
     {
-        $testFile = $this->entityLoader->create("file");
+        $testFile = $this->entityLoader->create("file", $this->account->getAccountId());
         $testFile->setValue("name", "myfile.txt");
-        $this->dataMapper->save($testFile);
+        $this->dataMapper->save($testFile, $this->account->getSystemUser());
         $fileId = $testFile->getEntityId();
 
         $ret = $this->fileSystem->deleteFile($testFile, true);
@@ -341,10 +341,10 @@ class FileSystemTest extends TestCase
         }
 
         // Create /testDeleteFolder
-        $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
+        $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $subFolder->setValue("name", "testDeleteFolder");
         $subFolder->setValue("parent_id", $rootFolder->getEntityId());
-        $this->dataMapper->save($subFolder);
+        $this->dataMapper->save($subFolder, $this->account->getSystemUser());
 
         $ret = $this->fileSystem->deleteFolder($subFolder, true);
         $this->assertTrue($ret);
@@ -411,7 +411,7 @@ class FileSystemTest extends TestCase
         $testData = "test data";
 
         $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
-        $retSizeUploaded = $this->fileSystem->writeFile($file, $testData);
+        $retSizeUploaded = $this->fileSystem->writeFile($file, $testData, $this->account->getSystemUser());
         $this->assertGreaterThan(0, $retSizeUploaded);
         $this->assertEquals($testData, $this->fileSystem->readFile($file));
     }

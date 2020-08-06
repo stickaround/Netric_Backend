@@ -21,6 +21,7 @@ use Netric\EntityQuery\Aggregation\Sum;
 use Netric\EntityQuery\Aggregation\Stats;
 use Netric\EntityQuery\Aggregation\Avg;
 use Netric\EntityQuery\Aggregation\Min;
+use Netric\EntityDefinition\ObjectTypes;
 
 abstract class AggregateTestsAbstract extends TestCase
 {
@@ -74,30 +75,30 @@ abstract class AggregateTestsAbstract extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Create a campaign for filtering
-        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::MARKETING_CAMPAIGN);
+        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::MARKETING_CAMPAIGN, $this->account->getAccountId());
         $obj->setValue("name", "Unit Test Aggregates");
-        $this->campaignId = $dm->save($obj);
+        $this->campaignId = $dm->save($obj, $this->account->getSystemUser());
         if (!$this->campaignId) {
             throw new \Exception("Could not create campaign");
         }
 
         // Create first opportunity
-        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::OPPORTUNITY);
+        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $obj->setValue("name", "Website");
         $obj->setValue("f_won", false);
         $obj->setValue("probability_per", 50);
         $obj->setValue("campaign_id", $this->campaignId);
         $obj->setValue("amount", 100);
-        $oid = $dm->save($obj);
+        $oid = $dm->save($obj, $this->account->getSystemUser());
 
         // Create first opportunity
-        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::OPPORTUNITY);
+        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $obj->setValue("name", "Application");
         $obj->setValue("f_won", true);
         $obj->setValue("probability_per", 75);
         $obj->setValue("campaign_id", $this->campaignId);
         $obj->setValue("amount", 50);
-        $oid = $dm->save($obj);
+        $oid = $dm->save($obj, $this->account->getSystemUser());
     }
 
 

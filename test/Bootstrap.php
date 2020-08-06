@@ -52,7 +52,7 @@ class Bootstrap
         if (!$user) {
             // Create the default account
             $entityLoader = static::$account->getServiceManager()->get(EntityLoaderFactory::class);
-            $adminUser = $entityLoader->create(ObjectTypes::USER);
+            $adminUser = $entityLoader->create(ObjectTypes::USER, static::$account->getAccountId());
             $adminUser->setValue("name", 'automated_test');
             $adminUser->setValue("email", 'automated_test@netric.com');
             $adminUser->setValue("password", 'password');

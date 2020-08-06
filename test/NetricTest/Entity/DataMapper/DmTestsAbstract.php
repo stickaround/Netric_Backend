@@ -89,7 +89,7 @@ abstract class DmTestsAbstract extends TestCase
      */
     protected function createCustomer()
     {
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         // text
         $customer->setValue("name", "Entity_DataMapperTests");
         // bool
@@ -120,7 +120,7 @@ abstract class DmTestsAbstract extends TestCase
         $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
         $statGrp = $groupingsStat->getByName("Unit Test Status");
         if (!$statGrp) {
-            $statGrp = $groupingsStat->create("Unit Test Status");
+            $statGrp = $groupingsStat->create("Unit Test Status", $this->account->getAccountId());
         }
         $groupingsStat->add($statGrp);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
@@ -128,7 +128,7 @@ abstract class DmTestsAbstract extends TestCase
         $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
         $groupsGrp = $groupingsGroups->getByName("Unit Test Group");
         if (!$groupsGrp) {
-            $groupsGrp = $groupingsGroups->create("Unit Test Group");
+            $groupsGrp = $groupingsGroups->create("Unit Test Group", $this->account->getAccountId());
         }
         $groupingsGroups->add($groupsGrp);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
@@ -147,7 +147,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the object through the loader which should cache it
-        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
+        $ent = $dm->getEntityById($cid, $this->account->getAccountId());
         $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
@@ -184,7 +184,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the entity by guid (no need for obj_type)
-        $loadedCustomer = $dm->getEntityById($entityId, $this->account->getAuthenticatedUser());
+        $loadedCustomer = $dm->getEntityById($entityId, $this->account->getAccountId());
         $this->assertEquals($customer->getEntityId(), $loadedCustomer->getEntityId());
     }
 
@@ -198,13 +198,13 @@ abstract class DmTestsAbstract extends TestCase
         // Create a few test groups
         $groupingsStat = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/status_id");
         if (!$groupingsStat->getByName("Unit Test Status")) {
-            $statGrp = $groupingsStat->create("Unit Test Status");
+            $statGrp = $groupingsStat->create("Unit Test Status", $this->account->getAccountId());
             $groupingsStat->add($statGrp);
             $this->groupingDataMapper->saveGroupings($groupingsStat);
         }
 
         $groupingsGroups = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
-        $groupsGrp = $groupingsGroups->create("Unit Test Group");
+        $groupsGrp = $groupingsGroups->create("Unit Test Group", $this->account->getAccountId());
         $groupingsGroups->add($groupsGrp);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
 
@@ -223,7 +223,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the object through the loader which should cache it
-        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
+        $ent = $dm->getEntityById($cid, $this->account->getAccountId());
         $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
         $this->assertTrue($ent->getValue("f_nocall"));
@@ -252,7 +252,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create an entity and initialize values
-        $cmsSite = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::SITE);
+        $cmsSite = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::SITE, $this->account->getAccountId());
         $cmsSite->setValue("name", "test site");
         $cid = $dm->save($cmsSite, $this->user);
 
@@ -261,7 +261,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Save the entity again and make sure the IDs are the same
         $cmsSite->setValue("name", 'utest-edited');
-        $savedAgainCid = $dm->save($cmsSite);
+        $savedAgainCid = $dm->save($cmsSite, $this->user);
         $this->assertEquals($cid, $savedAgainCid);
         $this->assertEquals($cid, $cmsSite->getEntityId());
 
@@ -300,7 +300,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the object through the loader which should cache it
-        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
+        $ent = $dm->getEntityById($cid, $this->account->getAccountId());
 
         $this->assertEquals([], $ent->getValue("groups"));
         $this->assertEquals([], $ent->getValueNames("groups"));
@@ -321,7 +321,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create an entity and initialize values
-        $cmsSite = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::SITE);
+        $cmsSite = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::SITE, $this->account->getAccountId());
         $cmsSite->setValue("name", "test site");
         $dm->save($cmsSite, $this->user);
 
@@ -346,48 +346,25 @@ abstract class DmTestsAbstract extends TestCase
         // ------------------------------------------------------------------------
 
         // Create a test customer to delete
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "Entity_DataMapperTests");
         $cid = $dm->save($customer, $this->user);
         $this->assertNotEquals(false, $cid);
 
         // Test soft delete first
-        $ret = $dm->delete($customer, $this->account->getAuthenticatedUser());
+        $ret = $dm->archive($customer, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         // Reload and test if flagged but still in database
-        $customer = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
+        $customer = $dm->getEntityById($cid, $this->account->getAccountId());
         $this->assertTrue($ret);
-        $this->assertEquals(true, $customer->isDeleted());
+        $this->assertEquals(true, $customer->isArchived());
 
         // Now delete and make sure the object cannot be reloaded
         $ret = $dm->delete($customer, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
-        $this->assertNull($dm->getEntityById($cid, $this->account->getAuthenticatedUser())); // Not found
-
-        // Test a dynamic table object
-        // ------------------------------------------------------------------------
-
-        // Create a test customer to delete
-        $story = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
-        $story->setValue("name", "Entity_DataMapperTests");
-        $cid = $dm->save($story, $this->user);
-        $this->assertNotEquals(false, $cid);
-
-        // Test soft delete first
-        $ret = $dm->delete($story, $this->account->getAuthenticatedUser());
-        $this->assertTrue($ret);
-
-        // Reload and test if flagged but still in database
-        $story = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
-        $this->assertTrue($ret);
-        $this->assertEquals(true, $story->isDeleted());
-
-        // Now delete and make sure the object cannot be reloaded
-        $ret = $dm->delete($story, $this->account->getAuthenticatedUser());
-        $this->assertTrue($ret);
-        $this->assertNull($dm->getEntityById($cid, $this->account->getAuthenticatedUser()));
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $this->assertNull($dm->getEntityById($cid, $this->account->getAccountId())); // Not found
     }
 
     /**
@@ -401,7 +378,7 @@ abstract class DmTestsAbstract extends TestCase
         }
 
         // Create first entity
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "testSetEntityMovedTo");
         $oid1 = $dm->save($customer, $this->user);
 
@@ -409,7 +386,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Create second entity
-        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer2->setValue("name", "testSetEntityMovedTo");
         $oid2 = $dm->save($customer2, $this->user);
 
@@ -485,7 +462,7 @@ abstract class DmTestsAbstract extends TestCase
         }
 
         // Create first entity
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "testSetEntityMovedTo");
         $oid1 = $dm->save($customer, $this->user);
 
@@ -493,7 +470,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Create second entity
-        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer2->setValue("name", "testSetEntityMovedTo");
         $oid2 = $dm->save($customer2, $this->user);
 
@@ -526,7 +503,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Save first time
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "First");
         $cid = $dm->save($customer, $this->user);
         $this->testEntities[] = $customer;
@@ -556,7 +533,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Save first time
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         // Set saveRevisions to false
         $customer->getDefinition()->storeRevisions = false;
         $customer->setValue("name", "First");
@@ -588,7 +565,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Save first time
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         // Set saveRevisions to false
         $customer->setValue("name", "testCommitIncrement First");
@@ -618,7 +595,7 @@ abstract class DmTestsAbstract extends TestCase
         }
 
         // Create first entity
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "testNotDirty");
         $dm->save($customer, $this->user);
 
@@ -639,7 +616,7 @@ abstract class DmTestsAbstract extends TestCase
         }
 
         // Create first entity
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "testNotDirty");
         $oid = $dm->save($customer, $this->user);
 
@@ -647,7 +624,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load into a new entity
-        $ent = $dm->getEntityById($oid, $this->account->getAuthenticatedUser());
+        $ent = $dm->getEntityById($oid, $this->account->getAccountId());
 
         // Even though we just loaded all the data into the entity, it should not be marked as dirty
         $this->assertFalse($ent->isDirty());
@@ -661,22 +638,22 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a simple recurrence pattern
-        $recurrencePattern = new RecurrencePattern();
+        $recurrencePattern = new RecurrencePattern($this->account->getAccountId());
         $recurrencePattern->setRecurType(RecurrencePattern::RECUR_DAILY);
         $recurrencePattern->setDateStart(new \DateTime("2015-12-01"));
         $recurrencePattern->setDateEnd(new \DateTime("2015-12-02"));
 
         // Now save a task with this pattern and make sure it is given an id
-        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("name", "A test task");
         $task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
         $task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
         $task->setRecurrencePattern($recurrencePattern);
-        $tid = $dm->save($task, $this->user);
+        $tid = $dm->save($task, $this->account->getAuthenticatedUser());
         $this->assertNotNull($recurrencePattern->getId());
 
         // Now close the task and reload it to make sure recurrence is still set
-        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getByGuid($tid);
+        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($tid, $this->account->getAccountId());
         $this->assertNotNull($task2->getRecurrencePattern());
 
         // Cleanup
@@ -691,13 +668,13 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a simple recurrence pattern
-        $recurrencePattern = new RecurrencePattern();
+        $recurrencePattern = new RecurrencePattern($this->account->getAccountId());
         $recurrencePattern->setRecurType(RecurrencePattern::RECUR_DAILY);
         $recurrencePattern->setDateStart(new \DateTime("2015-12-01"));
         $recurrencePattern->setDateEnd(new \DateTime("2015-12-02"));
 
         // Now save a task with this pattern
-        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("name", "A test task");
         $task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
         $task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
@@ -760,7 +737,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the entity from the datamapper
-        $ent = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
+        $ent = $dm->getEntityById($cid, $this->account->getAccountId());
 
         // Make sure the fvals for references are updated
         $this->assertEquals($ent->getValueName("status_id", $statGrp->getGroupId()), $statGrp->getName(), var_export($ent->getValue('status_id_fkey'), true));
@@ -785,7 +762,7 @@ abstract class DmTestsAbstract extends TestCase
         }
 
         // Create first entity
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "testSetEntityMovedTo");
         $oid1 = $dm->save($customer, $this->user);
 
@@ -793,7 +770,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Create second entity
-        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer2->setValue("name", "testSetEntityMovedTo");
         $oid2 = $dm->save($customer2, $this->user);
 
@@ -824,7 +801,7 @@ abstract class DmTestsAbstract extends TestCase
         $uniqueName = uniqid();
 
         // Try saving an entity with an obviously unique name
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $isUnique = $dm->verifyUniqueName($customer, $uniqueName);
         $this->assertEquals(true, $isUnique);
     }
@@ -839,7 +816,7 @@ abstract class DmTestsAbstract extends TestCase
         $uniqueName = uniqid();
 
         // Try saving a dashboard entity with an obviously unique name
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
         $customer->setValue("uname", $uniqueName);
         $dm->save($customer, $this->user);
 
@@ -848,7 +825,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Create a second entity and make sure we could not set the same uname
-        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD);
+        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
         $isUnique = $dm->verifyUniqueName($customer2, $uniqueName);
         $this->assertEquals(false, $isUnique);
     }
@@ -861,7 +838,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Try saving an entity with an obviously unique name
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
         $customer->setValue("name", "test unique name");
         $dm->save($customer, $this->user);
 
@@ -880,24 +857,24 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Create site
-        $site = $entityLoader->create(ObjectTypes::SITE);
+        $site = $entityLoader->create(ObjectTypes::SITE, $this->account->getAccountId());
         $site->setValue("name", 'www.test.com');
-        $dm->save($site);
+        $dm->save($site, $this->user);
         $this->testEntities[] = $site; // for cleanup
 
         // Create root page for site
-        $homePage = $entityLoader->create(ObjectTypes::PAGE);
+        $homePage = $entityLoader->create(ObjectTypes::PAGE, $this->account->getAccountId());
         $homePage->setValue("name", 'testgetbyunamehome'); // for uname
         $homePage->setValue("site_id", $site->getEntityId());
-        $dm->save($homePage);
+        $dm->save($homePage, $this->user);
         $this->testEntities[] = $homePage; // for cleanup
 
         // Create a subpage for the site
-        $subPage = $entityLoader->create(ObjectTypes::PAGE);
+        $subPage = $entityLoader->create(ObjectTypes::PAGE, $this->account->getAccountId());
         $subPage->setValue("name", "testgetbyunamefile");  // for uname
         $subPage->setValue('parent_id', $homePage->getEntityId());
         $subPage->setValue("site_id", $site->getEntityId());
-        $dm->save($subPage);
+        $dm->save($subPage, $this->user);
         $this->testEntities[] = $subPage; // for cleanup
 
         // Try to get the file by path
@@ -909,6 +886,7 @@ abstract class DmTestsAbstract extends TestCase
         $retrievedPage = $dm->getByUniqueName(
             ObjectTypes::PAGE,
             $fullPath,
+            $this->account->getAuthenticatedUser(),
             ['site_id' => $site->getEntityId()]
         );
 
@@ -929,11 +907,11 @@ abstract class DmTestsAbstract extends TestCase
         $customer->setValue("owner_id", $this->user->getEntityId());
         $cid = $dm->save($customer, $this->user);
 
-        $customerEntity = $dm->getEntityById($cid, $this->account->getAuthenticatedUser());
+        $customerEntity = $dm->getEntityById($cid, $this->account->getAccountId());
 
         // Create reminder and set the customer as our object reference
         $customerReminder = "Customer Reminder";
-        $reminder = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
+        $reminder = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER, $this->account->getAccountId());
         $reminder->setValue("name", $customerReminder);
         $reminder->setValue("obj_reference", $customer->getEntityId());
         $rid = $dm->save($reminder, $this->user);
@@ -942,7 +920,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
         $this->testEntities[] = $reminder;
 
-        $reminderEntity = $dm->getEntityById($rid, $this->account->getAuthenticatedUser());
+        $reminderEntity = $dm->getEntityById($rid, $this->account->getAccountId());
         $this->assertEquals($customerEntity->getName(), $customerName);
         $this->assertEquals($reminderEntity->getName(), $customerReminder);
         $this->assertEquals($reminderEntity->getValue("obj_reference"), $customer->getEntityId());

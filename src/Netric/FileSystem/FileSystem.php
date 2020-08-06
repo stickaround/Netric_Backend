@@ -127,11 +127,11 @@ class FileSystem implements Error\ErrorAwareInterface
 
         // Check first if we have $fileId, if so then we will just load that file id
         if ($fileEntityData && isset($fileEntityData["entity_id"]) && !empty($fileEntityData["entity_id"])) {
-            $file = $this->entityLoader->getByGuid($fileEntityData["entity_id"]);
+            $file = $this->entityLoader->getEntityById($fileEntityData["entity_id"], $this->user->getAccountId());
             $file->setValue("name", $fileEntityData["name"]);
         } else {
             // Create a new file that will represent the file data
-            $file = $this->entityLoader->create(ObjectTypes::FILE);
+            $file = $this->entityLoader->create(ObjectTypes::FILE, $this->user->getAccountId());
             $file->setValue("owner_id", $this->user->getEntityId());
 
             // In some cases you may want to name the file something other than the local file name
@@ -145,7 +145,7 @@ class FileSystem implements Error\ErrorAwareInterface
         $this->entityDataMapper->save($file, $this->user);
 
         // Upload the file to the FileStore
-        $result = $this->fileStore->uploadFile($file, $localFilePath);
+        $result = $this->fileStore->uploadFile($file, $localFilePath, $this->user);
 
         // If it fails then try to get the last error
         if (!$result && $this->fileStore->getLastError()) {
@@ -208,7 +208,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function openFileById($fid)
     {
-        $file = $this->entityLoader->getByGuid($fid);
+        $file = $this->entityLoader->getEntityById($fid, $this->user->getAccountId());
         return ($file && $file->getEntityId()) ? $file : null;
     }
 
@@ -264,7 +264,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function openFolderById($folderId)
     {
-        return $this->entityLoader->getByGuid($folderId);
+        return $this->entityLoader->getEntityById($folderId, $this->user->getAccountId());
     }
 
     /**
@@ -415,7 +415,7 @@ class FileSystem implements Error\ErrorAwareInterface
         }
 
         // Create the new empty file
-        $file = $this->entityLoader->create(ObjectTypes::FILE);
+        $file = $this->entityLoader->create(ObjectTypes::FILE, $this->user->getAccountId());
         $file->setValue("name", $fileName);
         $file->setValue("folder_id", $folder->getEntityId());
         $file->setValue("name", $this->escapeFilename($fileName));
@@ -457,13 +457,13 @@ class FileSystem implements Error\ErrorAwareInterface
      *
      * @param FileEntity $file The meta-data Entity for this file
      * @param $dataOrStream $data Binary data to write or a stream resource
-     * @param bool $append If false then file will be overwritten
+     * @param UserEntity $user
      * @return int number of bytes written
      */
-    public function writeFile(FileEntity $file, $dataOrStream, $append = true)
+    public function writeFile(FileEntity $file, $dataOrStream, UserEntity $user)
     {
         // TODO: add append to fileStore->writeFile
-        return $this->fileStore->writeFile($file, $dataOrStream);
+        return $this->fileStore->writeFile($file, $dataOrStream, $user);
     }
 
     /**
@@ -515,7 +515,7 @@ class FileSystem implements Error\ErrorAwareInterface
             } elseif ($createIfMissing) {
                 // TODO: Check permissions to see if we have access to create
 
-                $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
+                $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $this->user->getAccountId());
                 $nextFolder->setValue("name", $nextFolderName);
                 $nextFolder->setValue("parent_id", $lastFolder->getEntityId());
                 $nextFolder->setValue("owner_id", $this->user->getEntityId());
@@ -619,14 +619,14 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function setRootFolder()
     {
-        $folderEntity = $this->entityLoader->create(ObjectTypes::FOLDER);
+        $folderEntity = $this->entityLoader->create(ObjectTypes::FOLDER, $this->user->getAccountId());
         $rootFolderEntity = $folderEntity->getRootFolder();
 
         if ($rootFolderEntity) {
             $this->rootFolder = $rootFolderEntity;
         } else {
             // Create root folder
-            $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
+            $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $this->user->getAccountId());
             $rootFolder->setValue("name", "/");
             $rootFolder->setValue("owner_id", $this->user->getEntityId());
             $rootFolder->setValue("f_system", true);

@@ -2,7 +2,11 @@
 
 namespace NetricTest\Controller;
 
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
 use Netric\Application\Response\HttpResponse;
+use Netric\Authentication\AuthenticationIdentity;
+use Netric\Authentication\AuthenticationService;
 use Netric\Entity\EntityLoader;
 use Netric\Controller\EmailController;
 use Netric\Entity\ObjType\EmailMessageEntity;
@@ -19,6 +23,51 @@ use Ramsey\Uuid\Uuid;
 class EmailControllerTest extends TestCase
 {
     /**
+     * Dependency mocks
+     */
+    private EntityLoader $mockEntityLoader;
+    private AuthenticationService $mockAuthService;
+    private LogInterface $mockLog;
+    private SenderService $mockSenderService;
+    private DeliveryService $mockDeliveryService;
+
+    /**
+     * Initialized controller with mock dependencies
+     */
+    private EmailController $emailController;
+
+    protected function setUp(): void
+    {
+        // Create mocks
+        $this->mockEntityLoader = $this->createMock(EntityLoader::class);
+        $this->mockSenderService = $this->createMock(SenderService::class);
+        $this->mockLog = $this->createMock(LogInterface::class);
+
+        $this->mockDeliveryService = $this->createMock(DeliveryService::class);
+
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
+
+        // Return mock authenticated account
+        $mockAccount = $this->createStub(Account::class);
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $accountContainer->method('loadById')->willReturn($mockAccount);
+
+        // Create the controller with mocks
+        $this->emailController = new EmailController(
+            $this->mockEntityLoader,
+            $this->mockSenderService,
+            $this->mockDeliveryService,
+            $this->mockLog,
+            $this->mockAuthService,
+            $accountContainer
+        );
+        $this->emailController->testMode = true;
+    }
+
+    /**
      * Try sending a draft email
      */
     public function testPostSendAction()
@@ -27,27 +76,16 @@ class EmailControllerTest extends TestCase
         $mockEmailMessage = $this->createMock(EmailMessageEntity::class);
 
         // Mock the entity loader service which is used to load the email_message by guid
-        $entityLoader = $this->createMock(EntityLoader::class);
-        $entityLoader->method('getByGuid')->willReturn($mockEmailMessage);
+        $this->mockEntityLoader->method('getEntityById')->willReturn($mockEmailMessage);
 
         // Create a mock sender service that is used to actually transport the message to SMTP
-        $senderService = $this->createMock(SenderService::class);
-        $senderService->method('send')->willReturn(true);
-
-        // Create a mock delivery service that will handle receiving a message and saving it
-        $deliveryService = $this->createMock(DeliveryService::class);
-
-        // Create mock log
-        $log = $this->createMock(LogInterface::class);
-
-        // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log);
+        $this->mockSenderService->method('send')->willReturn(true);
 
         // Make sure send is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
         $request->setBody(json_encode(['entity_id' => Uuid::uuid4()->toString()]));
-        $response = $controller->postSendAction($request);
+        $response = $this->emailController->postSendAction($request);
         $this->assertEquals(['result' => true], $response->getOutputBuffer());
     }
 
@@ -61,9 +99,11 @@ class EmailControllerTest extends TestCase
         $senderService = $this->createMock(SenderService::class);
         $deliveryService = $this->createMock(DeliveryService::class);
         $log = $this->createMock(LogInterface::class);
+        $authServiceMock = $this->createStub(AuthenticationService::class);
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
 
         // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log);
+        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log, $authServiceMock, $accountContainer);
 
         // Make sure send is called and we get a response
         $request = new HttpRequest();
@@ -83,9 +123,11 @@ class EmailControllerTest extends TestCase
         $senderService = $this->createMock(SenderService::class);
         $deliveryService = $this->createMock(DeliveryService::class);
         $log = $this->createMock(LogInterface::class);
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $authServiceMock = $this->createMock(AuthenticationService::class);
 
         // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log);
+        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log, $authServiceMock, $accountContainer);
 
         // Make sure send is called and we get a response
         $request = new HttpRequest();
@@ -106,18 +148,8 @@ class EmailControllerTest extends TestCase
         // Crate mock guid for a new message
         $mockGuid = uniqid();
 
-        // Create mocks
-        $entityLoader = $this->createMock(EntityLoader::class);
-        $senderService = $this->createMock(SenderService::class);
-        $log = $this->createMock(LogInterface::class);
-
-        // Create a mock delivery service that will handle receiving a message and saving it
-        $deliveryService = $this->createMock(DeliveryService::class);
-        $deliveryService->method('deliverMessageFromFile')->willReturn($mockGuid);
-
-        // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log);
-        $controller->testMode = true;
+        // Return a mock of the ID of the message delivered
+        $this->mockDeliveryService->method('deliverMessageFromFile')->willReturn($mockGuid);
 
         // Make sure send is called and we get a response
         $request = new HttpRequest();
@@ -127,7 +159,7 @@ class EmailControllerTest extends TestCase
         ]]);
         $request->setParam('recipient', 'test@netric.com');
 
-        $response = $controller->postReceiveAction($request);
+        $response = $this->emailController->postReceiveAction($request);
         $this->assertEquals(['result' => true, 'entity_id' => $mockGuid], $response->getOutputBuffer());
     }
 
@@ -143,9 +175,16 @@ class EmailControllerTest extends TestCase
         $senderService = $this->createMock(SenderService::class);
         $log = $this->createMock(LogInterface::class);
         $deliveryService = $this->createMock(DeliveryService::class);
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $authServiceMock = $this->createMock(AuthenticationService::class);
+
+        // Return mock authenticated account
+        $mockAccount = $this->createStub(Account::class);
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $accountContainer->method('loadById')->willReturn($mockAccount);
 
         // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log);
+        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log, $authServiceMock, $accountContainer);
 
         // Create a request that is missing 'message' and 'recipient'
         $request = new HttpRequest();

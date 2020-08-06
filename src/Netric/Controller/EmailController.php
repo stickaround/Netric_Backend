@@ -2,9 +2,12 @@
 
 namespace Netric\Controller;
 
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
 use Netric\Log\LogInterface;
 use Netric\Mvc\ControllerInterface;
 use Netric\Application\Response\HttpResponse;
+use Netric\Authentication\AuthenticationService;
 use Netric\Request\HttpRequest;
 use Netric\Entity\EntityLoader;
 use Netric\Mail\SenderService;
@@ -19,29 +22,33 @@ class EmailController extends AbstractFactoriedController implements ControllerI
 {
     /**
      * Entity loader to get messages
-     *
-     * @var EntityLoader
      */
-    private $entityLoader;
+    private EntityLoader $entityLoader;
 
     /**
      * Sender service to interact with SMTP transport
-     *
-     * @var SenderService
      */
-    private $senderService;
+    private SenderService $senderService;
 
     /**
      * Delivery service saves imported messages
-     *
-     * @var DeliveryService
      */
-    private $deliveryService;
+    private DeliveryService $deliveryService;
 
     /**
-     * @var LogInterface
+     * Application log
      */
-    private $log;
+    private LogInterface $log;
+
+    /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
 
     /**
      * If in test mode, we don't do file upload validation
@@ -62,12 +69,16 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         EntityLoader $entityLoader,
         SenderService $senderService,
         DeliveryService $deliveryService,
-        LogInterface $log
+        LogInterface $log,
+        AuthenticationService $authService,
+        AccountContainerInterface $accountContainer
     ) {
         $this->entityLoader = $entityLoader;
         $this->senderService = $senderService;
         $this->deliveryService = $deliveryService;
         $this->log = $log;
+        $this->authService = $authService;
+        $this->accountContainer = $accountContainer;
     }
 
     /**
@@ -98,7 +109,11 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         }
 
         // Get the email entity to send
-        $emailMessage = $this->entityLoader->getByGuid($objData['entity_id']);
+        $currentAccount = $this->getAuthenticatedAccount();
+        $emailMessage = $this->entityLoader->getEntityById(
+            $objData['entity_id'],
+            $currentAccount->getAccountId()
+        );
 
         // Return 404 if message was not found to send
         if ($emailMessage === null) {
@@ -152,7 +167,11 @@ class EmailController extends AbstractFactoriedController implements ControllerI
 
         // Try to import message
         try {
-            $messageGuid = $this->deliveryService->deliverMessageFromFile($recipient, $files['message']['tmp_name']);
+            $messageGuid = $this->deliveryService->deliverMessageFromFile(
+                $recipient,
+                $files['message']['tmp_name'],
+                $this->getAuthenticatedAccount()
+            );
             $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
             $response->write(['result' => true, 'entity_id' => $messageGuid]);
             return $response;
@@ -165,5 +184,20 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             $response->write(['error' => $exception->getMessage()]);
             return $response;
         }
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount(): Account
+    {
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 }

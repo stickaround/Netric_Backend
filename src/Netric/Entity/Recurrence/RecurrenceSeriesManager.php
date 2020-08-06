@@ -2,7 +2,6 @@
 
 namespace Netric\Entity\Recurrence;
 
-use Netric\Entity;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Index\IndexInterface;
@@ -11,6 +10,8 @@ use Netric\Error;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use RuntimeException;
+use DateTime;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Class creates and deletes entities from a RecurrencePattern series
@@ -86,10 +87,10 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      * Create all entities in a recurrence pattern up to a specified date
      *
      * @param RecurrencePattern $pattern
-     * @param \DateTime $toDate
+     * @param DateTime $toDate
      * @return int number of entities created
      */
-    public function createSeries(RecurrencePattern $pattern, \DateTime $toDate)
+    public function createSeries(RecurrencePattern $pattern, DateTime $toDate)
     {
         // Make sure we are working with a valid pattern
         if (!$pattern->validatePattern()) {
@@ -141,9 +142,10 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      * Remove a series of entities and the associated recurrence pattern
      *
      * @param EntityInterface $entity Any entity in the series
+     * @param UserEntity $user
      * @return bool
      */
-    public function removeSeries(EntityInterface $entity)
+    public function removeSeries(EntityInterface $entity, UserEntity $user)
     {
         $recurrencePattern = $entity->getRecurrencePattern();
         $recurRules = $entity->getDefinition()->recurRules;
@@ -161,7 +163,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $num = $result->getNum();
         for ($i = 0; $i < $num; $i++) {
             $entity = $result->getEntity($i);
-            $this->entityDataMapper->delete($entity);
+            $this->entityLoader->archive($entity, $user);
         }
 
         // Delete the recurrence pattern
@@ -295,14 +297,19 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      * Create an instance of an entity in a recurring pattern
      *
      * @param RecurrencePattern $recurrencePattern The recurring pattern to get rules from
-     * @param \DateTime $date The date of the instance to create
+     * @param DateTime $date The date of the instance to create
      * @return bool|string false if fail, unique id of new saved entity if success
      */
-    private function createInstance(RecurrencePattern $recurrencePattern, \DateTime $date)
+    private function createInstance(RecurrencePattern $recurrencePattern, DateTime $date)
     {
-        $firstEntity = $this->entityLoader->getByGuid($recurrencePattern->getFirstEntityId());
+        $firstEntity = $this->entityLoader->getEntityById(
+            $recurrencePattern->getFirstEntityId(),
+            $recurrencePattern->getAccountId()
+        );
         if (!$firstEntity) {
-            throw new RuntimeException('First entity in recurrence not found ' . $recurrencePattern->getFirstEntityId());
+            throw new RuntimeException(
+                'First entity in recurrence not found ' . $recurrencePattern->getFirstEntityId()
+            );
         }
 
         $objType = $firstEntity->getDefinition()->getObjType();
@@ -311,7 +318,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
             return false;
         }
 
-        $newInstanceEntity = $this->entityLoader->create($objType);
+        $newInstanceEntity = $this->entityLoader->create($objType, $recurrencePattern->getAccountId());
         $entityDefinition = $firstEntity->getDefinition();
         $recurRules = $entityDefinition->recurRules;
 
@@ -359,7 +366,11 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
          */
 
         // Send new entity id back
-        return $this->entityDataMapper->save($newInstanceEntity);
+        $user = $this->entityDataMapper->getEntityById(
+            $firstEntity->getOwnerId(),
+            $recurrencePattern->getAccountId()
+        );
+        return $this->entityDataMapper->save($newInstanceEntity, $user);
     }
 
     /**

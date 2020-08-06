@@ -177,11 +177,20 @@ class EntityDefinition
     private $dacl = null;
 
     /**
-     * Class constructor
+     * The ID of the account this definition belongs to
      */
-    public function __construct($objType)
+    private string $accountId;
+
+    /**
+     * Class constructor
+     * 
+     * @param string $objType The type of entity
+     * @param string $accountId the account this definition belongs to
+     */
+    public function __construct(string $objType, string $accountId)
     {
         $this->objType = trim($objType);
+        $this->accountId = $accountId;
 
         // Set default fields
         $this->setDefaultFields();
@@ -205,6 +214,27 @@ class EntityDefinition
     public function getEntityDefinitionId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set the account this definition belongs to
+     *
+     * @param string $accountId
+     * @return void
+     */
+    public function setAccountId(string $accountId)
+    {
+        $this->accountId = $accountId;
+    }
+
+    /**
+     * Get the account this definition belongs to
+     *
+     * @return string
+     */
+    public function getAccountId(): string
+    {
+        return $this->accountId;
     }
 
     /**

@@ -35,7 +35,7 @@ class EntityDefinitionTest extends TestCase
      */
     public function testGetObjType()
     {
-        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         $this->assertEquals(ObjectTypes::CONTACT, $entDef->getObjType());
     }
@@ -46,7 +46,7 @@ class EntityDefinitionTest extends TestCase
     public function testSetDefaultFields()
     {
         // Constructor add default fields
-        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         $field = $entDef->getField("entity_id");
         $this->assertEquals("entity_id", $field->name);
@@ -59,7 +59,7 @@ class EntityDefinitionTest extends TestCase
      */
     public function testFromArray()
     {
-        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         // Dacl
         $dacl = new Dacl();
@@ -126,7 +126,7 @@ class EntityDefinitionTest extends TestCase
      */
     public function testToArray()
     {
-        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT, $this->account->getAccountId());
         $data = $entDef->toArray();
         $this->assertTrue(is_array($data));
         // TODO: test more abotu the data returned
@@ -138,7 +138,7 @@ class EntityDefinitionTest extends TestCase
     public function testSetAndGetTitle()
     {
         $title = "Test";
-        $definition = new EntityDefinition(ObjectTypes::CONTACT);
+        $definition = new EntityDefinition(ObjectTypes::CONTACT, $this->account->getAccountId());
         $definition->setTitle($title);
         $this->assertEquals($title, $definition->getTitle());
     }
@@ -146,7 +146,7 @@ class EntityDefinitionTest extends TestCase
     public function testSetAndGetDacl()
     {
         $dacl = new Dacl();
-        $definition = new EntityDefinition(ObjectTypes::CONTACT);
+        $definition = new EntityDefinition(ObjectTypes::CONTACT, $this->account->getAccountId());
         $definition->setDacl($dacl);
         $this->assertEquals($dacl, $definition->getDacl());
     }

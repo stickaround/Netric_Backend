@@ -105,14 +105,14 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Save a test object
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $customer = $loader->create(ObjectTypes::CONTACT);
+        $customer = $loader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", $uniName);
         $customer->setValue("f_nocall", true);
         $customer->setValue("type_id", $typeId);
         $customer->setValue("last_contacted", time());
         $customer->setValue("status_id", $statusG['group_id'], $statusG['name']);
         $customer->addMultiValue("groups", $groupsG['group_id'], $groupsG['name']);
-        $loader->save($customer);
+        $loader->save($customer, $this->account->getSystemUser());
         $this->testEntities[] = $customer;
 
         return $customer;
@@ -188,10 +188,10 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals($sanitizedValue, $currentAccountUser->getEntityId());
 
         // Now let's create a project entity and set the value of owner_id to current user's id
-        $projectEntity = $entityLoader->create(ObjectTypes::PROJECT);
+        $projectEntity = $entityLoader->create(ObjectTypes::PROJECT, $this->account->getAccountId());
         $projectEntity->setValue("name", "new project test");
         $projectEntity->setValue("owner_id", $currentAccountUser->getEntityId());
-        $entityLoader->save($projectEntity);
+        $entityLoader->save($projectEntity, $this->account->getSystemUser());
 
         $this->testEntities[] = $projectEntity;
 
@@ -224,7 +224,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Create customer test object
         $customer = $this->createTestCustomer();
 
-        $res = $index->save($customer);
+        $res = $index->save($customer, $this->account->getSystemUser());
         $this->assertTrue($res);
     }
 
@@ -281,7 +281,7 @@ abstract class IndexTestsAbstract extends TestCase
          * We will update the activity's verb_object, then we will try to query it
          */
         $customer->setValue("verb_object", $customer->getEntityId());
-        $entityLoader->save($customer);
+        $entityLoader->save($customer, $this->account->getSystemUser());
 
         $query = new EntityQuery(ObjectTypes::ACTIVITY);
         $query->where('verb_object')->equals($customer->getEntityId());
@@ -404,17 +404,17 @@ abstract class IndexTestsAbstract extends TestCase
         $loader = $serviceManager->get(EntityLoaderFactory::class);
         $index = $serviceManager->get(IndexFactory::class);
 
-        $member = $loader->create(ObjectTypes::USER);
-        $loader->save($member);
+        $member = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
+        $loader->save($member, $this->account->getSystemUser());
 
-        $member1 = $loader->create(ObjectTypes::USER);
-        $loader->save($member1);
+        $member1 = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
+        $loader->save($member1, $this->account->getSystemUser());
 
-        $member2 = $loader->create(ObjectTypes::USER);
-        $loader->save($member2);
+        $member2 = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
+        $loader->save($member2, $this->account->getSystemUser());
 
-        $member3 = $loader->create(ObjectTypes::USER);
-        $loader->save($member3);
+        $member3 = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
+        $loader->save($member3, $this->account->getSystemUser());
 
         $this->testEntities[] = $member;
         $this->testEntities[] = $member1;
@@ -427,31 +427,31 @@ abstract class IndexTestsAbstract extends TestCase
         $memberId3 = $member3->getEntityId();
 
         // Create a project that only has 1 member
-        $projectEntity = $loader->create(ObjectTypes::PROJECT);
+        $projectEntity = $loader->create(ObjectTypes::PROJECT, $this->account->getAccountId());
         $projectEntity->setValue("name", "Test Project 4");
         $projectEntity->addMultiValue("members", $memberId, "Member");
-        $pid = $loader->save($projectEntity);
+        $pid = $loader->save($projectEntity, $this->account->getSystemUser());
 
         // Create a project that has 1 member
-        $projectEntity1 = $loader->create(ObjectTypes::PROJECT);
+        $projectEntity1 = $loader->create(ObjectTypes::PROJECT, $this->account->getAccountId());
         $projectEntity1->setValue("name", "Test Project 1");
         $projectEntity1->addMultiValue("members", $memberId1, "Member One");
-        $pid1 = $loader->save($projectEntity1);
+        $pid1 = $loader->save($projectEntity1, $this->account->getSystemUser());
 
         // Create a project that has 2 members
-        $projectEntity2 = $loader->create(ObjectTypes::PROJECT);
+        $projectEntity2 = $loader->create(ObjectTypes::PROJECT, $this->account->getAccountId());
         $projectEntity2->setValue("name", "Test Project 2");
         $projectEntity2->addMultiValue("members", $memberId1, "Member One");
         $projectEntity2->addMultiValue("members", $memberId2, "Member Two");
-        $pid2 = $loader->save($projectEntity2);
+        $pid2 = $loader->save($projectEntity2, $this->account->getSystemUser());
 
         // Create a project that only has 3 members
-        $projectEntity3 = $loader->create(ObjectTypes::PROJECT);
+        $projectEntity3 = $loader->create(ObjectTypes::PROJECT, $this->account->getAccountId());
         $projectEntity3->setValue("name", "Test Project 3");
         $projectEntity3->addMultiValue("members", $memberId1, "Member One");
         $projectEntity3->addMultiValue("members", $memberId2, "Member Two");
         $projectEntity3->addMultiValue("members", $memberId3, "Member Three");
-        $pid3 = $loader->save($projectEntity3);
+        $pid3 = $loader->save($projectEntity3, $this->account->getSystemUser());
 
         // Set the entities so it will be cleaned up properly
         $this->testEntities[] = $projectEntity;
@@ -608,7 +608,7 @@ abstract class IndexTestsAbstract extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $customerName = "customer's new name with double \"";
         $testEnt->setValue('name', $customerName);
-        $entityLoader->save($testEnt);
+        $entityLoader->save($testEnt, $this->account->getSystemUser());
 
         $query->where('name')->equals($customerName);
         $res = $index->executeQuery($query);
@@ -650,7 +650,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Test null
         // -------------------------------------------------
         $testEnt->setValue("type_id", null);
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->equals(null);
         $res = $index->executeQuery($query);
@@ -705,7 +708,10 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $cachedStatus = $testEnt->getValue("status_id");
         $testEnt->setValue("status_id", null);
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->equals(null);
         $res = $index->executeQuery($query);
@@ -772,7 +778,10 @@ abstract class IndexTestsAbstract extends TestCase
 
         $cachedGroups = $testEnt->getValue("groups");
         $testEnt->setValue("groups", null);
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         // Test null for groups
         // -------------------------------------------------
@@ -792,7 +801,10 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Test empty groups
         $testEnt->setValue("groups", []);
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         // Test null for groups
         // -------------------------------------------------
@@ -876,10 +888,10 @@ abstract class IndexTestsAbstract extends TestCase
         $testEnt = $this->createTestCustomer();
 
         // Create a test case attached to the customer
-        $case = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ISSUE);
+        $case = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ISSUE, $this->account->getAccountId());
         $case->setValue("name", "Unit Test Case");
         $case->setValue("customer_id", $testEnt->getEntityId(), $testEnt->getName());
-        $cid = $dm->save($case);
+        $cid = $dm->save($case, $this->account->getSystemUser());
 
         // Make sure this gets cleaned up
         $this->testEntities[] = $case;
@@ -892,7 +904,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Query with null customer id
         $case->setValue("customer_id", "");
-        $dm->save($case);
+        $dm->save($case, $this->account->getSystemUser());
         $query = new EntityQuery($case->getObjType());
         $query->where('entity_id')->equals($case->getEntityId());
         $query->where('customer_id')->equals("");
@@ -915,10 +927,10 @@ abstract class IndexTestsAbstract extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Create a test project with a member
-        $project = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT);
+        $project = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT, $this->account->getAccountId());
         $project->setValue("name", "Unit Test Project");
         $project->setValue("members", $this->user->getEntityId(), $this->user->getName());
-        $pid = $dm->save($project);
+        $pid = $dm->save($project, $this->account->getSystemUser());
 
         // Make sure this gets cleaned up
         $this->testEntities[] = $project;
@@ -948,10 +960,10 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Create a notification for this customer
         $objReference = $testEnt->getEntityId();
-        $notification = $entityLoader->create(ObjectTypes::NOTIFICATION);
+        $notification = $entityLoader->create(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
         $notification->setValue("name", "Unit Test Notification");
         $notification->setValue("obj_reference", $objReference);
-        $entityLoader->save($notification);
+        $entityLoader->save($notification, $this->account->getSystemUser());
 
         // Make sure this gets cleaned up
         $this->testEntities[] = $notification;
@@ -964,7 +976,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Now set the object reference to null for testing empty
         $notification->setValue("obj_reference", "");
-        $entityLoader->save($notification);
+        $entityLoader->save($notification, $this->account->getSystemUser());
 
         // Query the null condition
         $query = new EntityQuery($notification->getDefinition()->getObjType());
@@ -1502,7 +1514,7 @@ abstract class IndexTestsAbstract extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $customerName = "customer's new name with double \"";
         $testEnt->setValue('name', $customerName);
-        $entityLoader->save($testEnt);
+        $entityLoader->save($testEnt, $this->account->getSystemUser());
 
         // Test begin with using a condition value with single quote
         $query = new EntityQuery($testEnt->getObjType());
@@ -1545,7 +1557,7 @@ abstract class IndexTestsAbstract extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $customerName = "customer's new name with double \"";
         $testEnt->setValue('name', $customerName);
-        $entityLoader->save($testEnt);
+        $entityLoader->save($testEnt, $this->account->getSystemUser());
 
         // Test contains using a condition value with single quote
         $query = new EntityQuery($testEnt->getObjType());
@@ -1628,7 +1640,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 days"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1649,7 +1664,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 weeks"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1670,7 +1688,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 months"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1691,7 +1712,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 years"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1724,7 +1748,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 days"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1745,7 +1772,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 weeks"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1766,7 +1796,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 months"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1787,7 +1820,10 @@ abstract class IndexTestsAbstract extends TestCase
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 years"));
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($testEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $testEnt,
+            $this->account->getSystemUser()
+        );
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('entity_id')->equals($testEnt->getEntityId());
@@ -1841,9 +1877,9 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Save a test object
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
-        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $obj->setValue("name", "testSearchDeleted");
-        $oid = $dm->save($obj);
+        $oid = $dm->save($obj, $this->account->getSystemUser());
         $dm->delete($obj, $this->account->getAuthenticatedUser());
 
         // First test regular query without f_deleted flag set
@@ -1878,15 +1914,15 @@ abstract class IndexTestsAbstract extends TestCase
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
-        $folder1 = $loader->create(ObjectTypes::FOLDER);
+        $folder1 = $loader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $folder1->setValue("name", "My Test Folder");
-        $dm->save($folder1);
+        $dm->save($folder1, $this->account->getSystemUser());
         $this->assertNotNull($folder1->getEntityId());
 
-        $folder2 = $loader->create(ObjectTypes::FOLDER);
+        $folder2 = $loader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $folder2->setValue("name", "My Test SubFolder");
         $folder2->setValue("parent_id", $folder1->getEntityId());
-        $dm->save($folder2);
+        $dm->save($folder2, $this->account->getSystemUser());
         $this->assertNotNull($folder2->getEntityId());
 
         $children = $index->getHeiarchyDownObj(ObjectTypes::FOLDER, $folder1->getEntityId());
@@ -1922,15 +1958,15 @@ abstract class IndexTestsAbstract extends TestCase
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
-        $folder1 = $loader->create(ObjectTypes::FOLDER);
+        $folder1 = $loader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $folder1->setValue("name", "My Test Folder");
-        $dm->save($folder1);
+        $dm->save($folder1, $this->account->getSystemUser());
         $this->assertNotNull($folder1->getEntityId());
 
-        $folder2 = $loader->create(ObjectTypes::FOLDER);
+        $folder2 = $loader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $folder2->setValue("name", "My Test SubFolder");
         $folder2->setValue("parent_id", $folder1->getEntityId());
-        $dm->save($folder2);
+        $dm->save($folder2, $this->account->getSystemUser());
         $this->assertNotNull($folder2->getEntityId());
 
         $children = $index->getHeiarchyUpObj(ObjectTypes::FOLDER, $folder2->getEntityId());
@@ -2017,17 +2053,17 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Create an entity and initialize values
         $customerName = "Test Customer";
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", $customerName);
         $customer->setValue("owner_id", $this->user->getEntityId());
         $cid = $dm->save($customer, $this->user);
 
-        $customerEntity = $dm->getEntityId($cid);
+        $customerEntity = $dm->getEntityById($cid);
         $this->assertEquals($customerEntity->getName(), $customerName);
 
         // Create reminder and set the customer as our object reference
         $customerReminder = "Customer Reminder";
-        $reminder = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
+        $reminder = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER, $this->account->getAccountId());
         $reminder->setValue("name", $customerReminder);
         $reminder->setValue("obj_reference", $customer->getEntityId());
         $rid = $dm->save($reminder, $this->user);
@@ -2068,7 +2104,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Create an entity and initialize values
         $customerName1 = "Test Customer 1";
-        $customer1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer1->setValue("name", $customerName1);
         $customer1->setValue("owner_id", $this->user->getEntityId());
         $customer1->setValue("type_id", "1");
@@ -2076,7 +2112,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cid1 = $dm->save($customer1, $this->user);
 
         $customerName2 = "Test Customer 2";
-        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer2->setValue("name", $customerName2);
         $customer2->setValue("owner_id", $this->user->getEntityId());
         $customer2->setValue("type_id", "1");
@@ -2084,7 +2120,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cid2 = $dm->save($customer2, $this->user);
 
         $customerName3 = "Test Customer 3";
-        $customer3 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer3 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer3->setValue("name", $customerName3);
         $customer3->setValue("owner_id", $this->user->getEntityId());
         $customer3->setValue("type_id", "2");
@@ -2092,7 +2128,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cid3 = $dm->save($customer3, $this->user);
 
         $customerName4 = "Test Customer 4";
-        $customer4 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer4 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer4->setValue("name", $customerName3);
         $customer4->setValue("owner_id", $this->user->getEntityId());
         $customer4->setValue("type_id", "2");
@@ -2160,7 +2196,7 @@ abstract class IndexTestsAbstract extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         $customerName1 = "Test Customer 1";
-        $customer1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer1->setValue("name", $customerName1);
         $customer1->setValue("owner_id", $this->user->getEntityId());
         $customer1->setValue("type_id", "1");
@@ -2190,12 +2226,12 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
 
-        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("name", "Task 1");
         $task->setValue("cost_actual", 1);
 
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
-        $taskId = $dm->save($task);
+        $taskId = $dm->save($task, $this->account->getSystemUser());
 
         // Set the entities so it will be cleaned up properly
         $this->testEntities[] = $task;

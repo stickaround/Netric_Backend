@@ -80,7 +80,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
 
         $workflowEntity = null;
         if ($workFlow->getWorkFlowLegacyId()) {
-            $workflowEntity = $this->entityLoader->getByGuid($workFlow->getWorkFlowLegacyId());
+            $workflowEntity = $this->entityLoader->getEntityById($workFlow->getWorkFlowLegacyId());
         } else {
             $workflowEntity = $this->entityLoader->create(ObjectTypes::WORKFLOW);
         }
@@ -149,7 +149,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
         }
 
         // Delete the workflow
-        $workflowEntity = $this->entityLoader->getByGuid($workFlow->getWorkFlowLegacyId());
+        $workflowEntity = $this->entityLoader->getEntityById($workFlow->getWorkFlowLegacyId());
         if ($workflowEntity) {
             $this->entityLoader->delete($workflowEntity, true);
             return true;
@@ -170,7 +170,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
             return null;
         }
 
-        $entityWorkflow = $this->entityLoader->getByGuid($workflowId);
+        $entityWorkflow = $this->entityLoader->getEntityById($workflowId);
 
         if ($entityWorkflow) {
             return $this->constructWorkFlowLegacyFromRow($entityWorkflow->toArray());
@@ -334,7 +334,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
         $workFlowInstanceId = $workFlowInstance->getWorkFlowLegacyInstanceId();
 
         if ($workFlowInstanceId) {
-            $entity = $this->entityLoader->getByGuid($workFlowInstanceId);
+            $entity = $this->entityLoader->getEntityById($workFlowInstanceId);
         } else {
             $entity = $this->entityLoader->create(ObjectTypes::WORKFLOW_INSTANCE);
         }
@@ -354,7 +354,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
      */
     public function getWorkFlowLegacyInstanceById($workFlowInstanceId)
     {
-        $workflowInstanceEntity = $this->entityLoader->getByGuid($workFlowInstanceId);
+        $workflowInstanceEntity = $this->entityLoader->getEntityById($workFlowInstanceId);
 
         if ($workflowInstanceEntity) {
             $objectType = $workflowInstanceEntity->getValue("object_type");
@@ -362,7 +362,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
             $workflowId = $workflowInstanceEntity->getValue("workflow_id");
             $completedFlag = $workflowInstanceEntity->getValue("f_completed");
 
-            $entity = $this->entityLoader->getByGuid($objectUid);
+            $entity = $this->entityLoader->getEntityById($objectUid);
 
             // Entity was deleted
             if (!$entity) {
@@ -485,7 +485,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
 
         // First purge any actions queued to be deleted
         foreach ($actionsToRemove as $action) {
-            $actionEntity = $this->entityLoader->getByGuid($action->getWorkFlowLegacyActionId());
+            $actionEntity = $this->entityLoader->getEntityById($action->getWorkFlowLegacyActionId());
             if (!$this->entityLoader->delete($actionEntity, true)) {
                 throw new \RuntimeException("Could not delete action");
             }
@@ -691,7 +691,7 @@ class WorkFlowLegacyRdbDataMapper extends AbstractDataMapper implements DataMapp
             throw new \InvalidArgumentException("First param is required to load an action");
         }
 
-        $actionEntity = $this->entityLoader->getByGuid($actionId);
+        $actionEntity = $this->entityLoader->getEntityById($actionId);
         if ($actionEntity) {
             $workflowData = $actionEntity->toArray();
 

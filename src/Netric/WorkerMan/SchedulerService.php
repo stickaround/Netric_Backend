@@ -3,6 +3,7 @@
 namespace Netric\WorkerMan;
 
 use DateTime;
+use RuntimeException;
 use Netric\Entity\ObjType\WorkerJobEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
@@ -55,7 +56,7 @@ class SchedulerService
      */
     public function scheduleAtTime(UserEntity $user, string $workerName, DateTime $execute, array $data = []): string
     {
-        $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB);
+        $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB, $user->getAccountId());
         $scheduledJob->setValue('worker_name', $workerName);
         $scheduledJob->setValue('ts_scheduled', $execute->getTimestamp());
         $scheduledJob->setValue('job_data', json_encode($data));
@@ -74,13 +75,13 @@ class SchedulerService
      */
     public function scheduleAtInterval(UserEntity $user, string $workerName, array $data = [], $type, $interval): string
     {
-        $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB);
+        $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB, $user->getAccountId());
         $scheduledJob->setValue('worker_name', $workerName);
         $scheduledJob->setValue('job_data', json_encode($data));
         $scheduledJob->setValue("ts_scheduled", time());
 
         // Create a new recurrence pattern from unit and interval
-        $recurrence = new RecurrencePattern();
+        $recurrence = new RecurrencePattern($user->getAccountId());
         $recurrence->setInterval($interval);
         $recurrence->setRecurType($type);
         $recurrence->setDateStart(new DateTime());
@@ -131,41 +132,18 @@ class SchedulerService
      *
      * @param WorkerJobEntity $scheduledJob
      */
-    public function setJobAsExecuted(WorkerJobEntity $scheduledJob)
+    public function setJobAsExecuted(WorkerJobEntity $scheduledJob, UserEntity $user)
     {
         if (!$scheduledJob->getEntityId()) {
-            throw new \RuntimeException("Cannot mark an unsaved job as complete");
+            throw new RuntimeException("Cannot mark an unsaved job as complete");
         }
 
         // Set the scheduled job as executed which should remove it from any queues for nex time
         $scheduledJob->setValue("ts_executed", time());
-        $owner = $this->entityLoader->getByGuid($scheduledJob->getValue('owner_id'));
+        $owner = $this->entityLoader->getEntityById(
+            $scheduledJob->getValue('owner_id'),
+            $user->getAccountId()
+        );
         $this->entityLoader->save($scheduledJob, $owner);
-    }
-
-    /**
-     * Add scheduled jobs to the queue and return immediately with a job handle (id)
-     *
-     * Work can be deferred until a later date, this will get work that should execute on
-     * or before the provided date and submit the work as jobs.
-     *
-     * @param \DateTime $timeRunBy Get jobs that should have run on or before
-     *        this date. If the value is null then now in UTC will be used.
-     * @return array("A unique id/handle to the queued job")
-     */
-    public function doScheduledWork(\DateTime $timeRunBy = null)
-    {
-        $jobIds = [];
-        $scheduledWork = $this->scheduler->getScheduledToRun();
-        foreach ($scheduledWork as $scheduled) {
-            $jobIds[] = $this->doWorkBackground(
-                $scheduled['worker_name'],
-                $scheduled['job_data']
-            );
-
-            // Make sure we don't try to execute this job again
-            $this->scheduler->setJobAsExecuted($scheduled['id']);
-        }
-        return $jobIds;
     }
 }

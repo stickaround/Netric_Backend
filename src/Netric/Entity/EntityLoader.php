@@ -11,7 +11,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Ramsey\Uuid\Uuid;
 
 /**
- * The identity map (loader) is responsible for loading a specific entity and caching it for future calls.
+ * Entity service used to get/save/delete entities
  */
 class EntityLoader
 {
@@ -53,22 +53,21 @@ class EntityLoader
     /**
      * Class constructor
      *
-     * @param EntityDataMapperInterface $dm The entity datamapper
+     * @param EntityDataMapperInterface $dataMapper The entity datamapper
      * @param EntityDefinitionLoader $defLoader The entity definition loader
      * @param EntityFactory $entityFactory
      * @param CacheInterface $cache
      */
     public function __construct(
-        EntityDataMapperInterface $dm,
+        EntityDataMapperInterface $dataMapper,
         EntityDefinitionLoader $defLoader,
         EntityFactory $entityFactory,
         CacheInterface $cache
     ) {
-        $this->dataMapper = $dm;
+        $this->dataMapper = $dataMapper;
         $this->definitionLoader = $defLoader;
         $this->entityFactory = $entityFactory;
         $this->cache = $cache;
-        return $this;
     }
 
     /**
@@ -98,26 +97,27 @@ class EntityLoader
     /**
      * Get an entity by the global universal ID (no need for obj_type)
      *
-     * @param string $guid
+     * @param string $entityId
+     * @param string $accountId
      * @return EntityInterface|null
      */
-    public function getByGuid(string $guid): ?EntityInterface
+    public function getEntityById(string $entityId, string $accountId): ?EntityInterface
     {
-        if ($this->isLoaded($guid)) {
-            return $this->loadedEntities[$guid];
+        if ($this->isLoaded($entityId)) {
+            return $this->loadedEntities[$entityId];
         }
 
         // First check to see if the object is cached
-        $data = $this->getCached($guid);
+        $data = $this->getCached($entityId);
         if ($data && isset($data['obj_type'])) {
-            $entity = $this->create($data['obj_type']);
+            $entity = $this->create($data['obj_type'], $accountId);
             $entity->fromArray($data);
             if ($entity->getEntityId()) {
                 // Clear dirty status
                 $entity->resetIsDirty();
 
                 // Save in loadedEntities so we don't hit the cache again
-                $this->loadedEntities[$guid] = $entity;
+                $this->loadedEntities[$entityId] = $entity;
 
                 // Stat a cache hit
                 StatsPublisher::increment("entity.cache.hit");
@@ -130,11 +130,11 @@ class EntityLoader
         StatsPublisher::increment("entity.cache.miss");
 
         // Load from datamapper
-        $entity = $this->dataMapper->getEntityById($guid);
+        $entity = $this->dataMapper->getEntityById($entityId, $accountId);
         if ($entity) {
-            $this->loadedEntities[$guid] = $entity;
+            $this->loadedEntities[$entityId] = $entity;
             $this->cache->set(
-                "entity/" . $guid,
+                "entity/" . $entityId,
                 $entity->toArray()
             );
             return $entity;
@@ -169,12 +169,13 @@ class EntityLoader
     /**
      * Shortcut for constructing an Entity
      *
-     * @param string $objType The name of the object type
-     * @return \Netric\Entity\EntityInterface
+     * @param string $definitionName The name of the entity definition
+     * @param string $accountId The account ID that will own the entity
+     * @return EntityInterface
      */
-    public function create($objType)
+    public function create(string $definitionName, string $accountId)
     {
-        return $this->entityFactory->create($objType);
+        return $this->entityFactory->create($definitionName, $accountId);
     }
 
     /**
@@ -208,6 +209,20 @@ class EntityLoader
         $this->clearCacheByGuid($entity->getEntityId());
 
         return $this->dataMapper->delete($entity, $user);
+    }
+
+    /**
+     * Save an entity
+     *
+     * @param EntityInterface $entity The entity to delete
+     * @param UserEntity Entity with user details
+     * @return bool True on success, false on failure
+     */
+    public function archive(EntityInterface $entity, UserEntity $user)
+    {
+        $this->clearCacheByGuid($entity->getEntityId());
+
+        return $this->dataMapper->archive($entity, $user);
     }
 
     /**

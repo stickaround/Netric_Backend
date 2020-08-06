@@ -117,7 +117,7 @@ class EntityAggregator
                     $aggValue = $this->entityIndex->executeQuery($query)->getAggregation("update");
 
                     // Update $agg['refField'] of referenced entity
-                    $entityToUpdate = $this->entityLoader->getByGuid($referencedId);
+                    $entityToUpdate = $this->entityLoader->getEntityById($referencedId, $user->getAccountId());
                     $entityToUpdate->setValue($agg->refField, $aggValue);
                     $this->entityLoader->save($entityToUpdate, $user);
                 }

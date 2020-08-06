@@ -83,9 +83,9 @@ class NotifierTest extends TestCase
         }
 
         // Create a test user to assign a task and notification to
-        $this->testUser = $this->entityLoader->create(ObjectTypes::USER);
+        $this->testUser = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->testUser->setValue("name", "notifiertest");
-        $this->entityLoader->save($this->testUser);
+        $this->entityLoader->save($this->testUser, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $this->testUser;
     }
 
@@ -107,10 +107,10 @@ class NotifierTest extends TestCase
     public function testSend()
     {
         // Create a test task entity and assign it to $this->testUser
-        $task = $this->entityLoader->create(ObjectTypes::TASK);
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("owner_id", $this->testUser->getEntityId());
         $task->setValue("name", "test task");
-        $this->entityLoader->save($task);
+        $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->testEntities[] = $task;
 
         // Saving created notices automatically, mark them all as read for the test
@@ -123,7 +123,7 @@ class NotifierTest extends TestCase
         $this->assertEquals(1, count($notificationIds));
 
         // Check that the test notification has the right values
-        $notification = $this->entityLoader->getByGuid($notificationIds[0]);
+        $notification = $this->entityLoader->getEntityById($notificationIds[0], $this->account->getAccountId());
         $this->testEntities[] = $notification;
 
         // Make sure we created a notice for the test user
@@ -146,27 +146,27 @@ class NotifierTest extends TestCase
     public function testCreateComment()
     {
         // Create a test task entity and assign it to $this->testUser
-        $task = $this->entityLoader->create(ObjectTypes::TASK);
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("owner_id", $this->testUser->getEntityId());
         $task->setValue("name", "test task");
-        $this->entityLoader->save($task);
+        $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->testEntities[] = $task;
 
         // Saving created notices automatically, mark them all as read for the test
         $this->notifier->markNotificationsSeen($task);
 
         // Create a test user that will create the notification
-        $user = $this->entityLoader->create(ObjectTypes::USER);
+        $user = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", "Comment User");
-        $this->entityLoader->save($user);
+        $this->entityLoader->save($user, $this->account->getSystemUser());
         $this->testEntities[] = $user;
 
         // Create a test comment entity and set its object reference to the test task
-        $comment = $this->entityLoader->create(ObjectTypes::COMMENT);
+        $comment = $this->entityLoader->create(ObjectTypes::COMMENT, $this->account->getAccountId());
         $comment->setValue("comment", "Test Comment");
         $comment->setValue("obj_reference", $task->getEntityId());
         $comment->setValue("owner_id", $user->getEntityId());
-        $this->entityLoader->save($comment);
+        $this->entityLoader->save($comment, $this->account->getSystemUser());
         $this->testEntities[] = $comment;
 
         // Now re-create notifications
@@ -176,7 +176,7 @@ class NotifierTest extends TestCase
         $this->assertEquals(2, count($notificationIds));
 
         // Check that the test notification has the right values
-        $notification = $this->entityLoader->getByGuid($notificationIds[0]);
+        $notification = $this->entityLoader->getEntityById($notificationIds[0], $this->account->getAccountId());
         $this->testEntities[] = $notification;
 
         // Make sure that the notification included the comment in the description
@@ -189,34 +189,34 @@ class NotifierTest extends TestCase
     public function testUserCallout()
     {
         // Create a test task entity and assign it to $this->testUser
-        $task = $this->entityLoader->create(ObjectTypes::TASK);
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("owner_id", $this->testUser->getEntityId());
         $task->setValue("name", "test task");
-        $this->entityLoader->save($task);
+        $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->testEntities[] = $task;
 
         // Saving created notices automatically, mark them all as read for the test
         $this->notifier->markNotificationsSeen($task);
 
         // Create a test user that will create the notification
-        $user = $this->entityLoader->create(ObjectTypes::USER);
+        $user = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", "Comment User");
-        $this->entityLoader->save($user);
+        $this->entityLoader->save($user, $this->account->getSystemUser());
         $this->testEntities[] = $user;
 
         // Create a test user that will will be called out
-        $userCallout = $this->entityLoader->create(ObjectTypes::USER);
+        $userCallout = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $userCallout->setValue("name", "calledoutUser");
-        $this->entityLoader->save($userCallout);
+        $this->entityLoader->save($userCallout, $this->account->getSystemUser());
         $this->testEntities[] = $userCallout;
 
         // Create a test comment entity and set its object reference to the test task
-        $comment = $this->entityLoader->create(ObjectTypes::COMMENT);
+        $comment = $this->entityLoader->create(ObjectTypes::COMMENT, $this->account->getAccountId());
         $comment->setValue("comment", "@calledoutUser Check this comment.");
         $comment->setValue("obj_reference", $task->getEntityId());
         $comment->setValue("owner_id", $user->getEntityId());
         $comment->setValue("followers", [$userCallout->getEntityId()]);
-        $this->entityLoader->save($comment);
+        $this->entityLoader->save($comment, $this->account->getSystemUser());
         $this->testEntities[] = $comment;
 
         // Now re-create notifications
@@ -231,7 +231,7 @@ class NotifierTest extends TestCase
         $this->assertEquals(3, count($notificationIds));
 
         // Check that the test notification has the right values
-        $notification = $this->entityLoader->getByGuid($notificationIds[0]);
+        $notification = $this->entityLoader->getEntityById($notificationIds[0], $this->account->getAccountId());
         $this->testEntities[] = $notification;
 
         // Make sure that the notification included the comment in the description
@@ -247,10 +247,10 @@ class NotifierTest extends TestCase
         $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
 
         // Create a test task entity and assign it to $this->testUser
-        $task = $this->entityLoader->create(ObjectTypes::TASK);
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("owner_id", $this->testUser->getEntityId());
         $task->setValue("name", "test task");
-        $this->entityLoader->save($task);
+        $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->testEntities[] = $task;
 
         // Now re-create notifications

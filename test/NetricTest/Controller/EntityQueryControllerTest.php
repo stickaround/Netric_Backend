@@ -65,9 +65,9 @@ class EntityQueryControllerTest extends TestCase
     public function testPostExecuteAction()
     {
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
-        $taskEntity = $entityLoader->create(ObjectTypes::TASK);
+        $taskEntity = $entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $taskEntity->setValue("name", "UnitTestTask");
-        $entityLoader->save($taskEntity);
+        $entityLoader->save($taskEntity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $taskEntity;
 
         // Set params in the request

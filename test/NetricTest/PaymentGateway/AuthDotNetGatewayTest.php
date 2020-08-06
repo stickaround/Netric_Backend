@@ -11,6 +11,7 @@ use NetricTest\Bootstrap;
 use \net\authorize\api\constants\ANetEnvironment;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\CustomerEntity;
+use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -92,7 +93,7 @@ class AuthDotNetGatewayTest extends TestCase
     {
         $serviceManager = Bootstrap::getAccount()->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
-        $customer = $entityLoader->create('customer');
+        $customer = $entityLoader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue('entity_id', Uuid::uuid4()->toString());
         $customer->setValue('first_name', 'Ellen');
         $customer->setValue('last_name', 'Johnson');
@@ -156,7 +157,7 @@ class AuthDotNetGatewayTest extends TestCase
         // Create a local netric payment_profile entity with the token above
         $serviceManager = Bootstrap::getAccount()->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
-        $paymentProfile = $entityLoader->create('payment_profile');
+        $paymentProfile = $entityLoader->create(ObjectTypes::SALES_PAYMENT_PROFILE, $this->account->getAccountId());
         $paymentProfile->setValue('token', $profileToken);
 
         $result = $this->gateway->chargeProfile($paymentProfile, rand(1, 1000));

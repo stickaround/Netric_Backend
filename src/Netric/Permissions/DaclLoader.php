@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
-
 namespace Netric\Permissions;
 
 use Netric\Entity\EntityInterface;
@@ -52,10 +47,10 @@ class DaclLoader
      * 3. If there is no parent dacl, then use the dacl for the object type
      *
      * @param EntityInterface $entity
-     * @param bool $fallBackToObjType If true and no entity dacl is found get dacl for all objects of that type
+     * @param UserEntity $user
      * @return Dacl Access control list
      */
-    public function getForEntity(EntityInterface $entity, $fallBackToObjType = true)
+    public function getForEntity(EntityInterface $entity, UserEntity $user): ?Dacl
     {
         $daclData = $entity->getValue("dacl");
         if (!empty($daclData)) {
@@ -66,29 +61,62 @@ class DaclLoader
         }
 
         // Check to see if the entity type has a parent
+        $parentDacl = $this->getForParentEntity($entity, $user);
+        if ($parentDacl) {
+            return $parentDacl;
+        }
+        // $objDef = $entity->getDefinition();
+        // if ($objDef->parentField) {
+        //     $fieldDef = $objDef->getField($objDef->parentField);
+        //     if ($entity->getValue($objDef->parentField) && $fieldDef->subtype) {
+        //         $parentEntity = $this->entityLoader->getEntityById($entity->getValue($objDef->parentField));
+        //         if ($parentEntity) {
+        //             $dacl = $this->getForEntity($parentEntity, false);
+        //             if ($dacl) {
+        //                 return $dacl;
+        //             }
+        //         }
+        //     }
+        // }
+
+        // Now try to get DACL for obj type
+        $objDef = $entity->getDefinition();
+        // Try to get for from the object definition if permissions have been customized
+        if (!empty($objDef->getDacl())) {
+            return $objDef->getDacl();
+        }
+
+        // If none is found, return a default where admin and creator owner has access only
+        return $this->createDefaultDacl();
+    }
+
+    /**
+     * Walk up a tree of parent entities to see if any of them have a dacl
+     *
+     * @param EntityInterface $entity
+     * @param UserEntity $user
+     * @return Dacl|null
+     */
+    private function getForParentEntity(EntityInterface $entity, UserEntity $user): ?Dacl
+    {
+        // Check to see if the entity type has a parent
         $objDef = $entity->getDefinition();
         if ($objDef->parentField) {
             $fieldDef = $objDef->getField($objDef->parentField);
             if ($entity->getValue($objDef->parentField) && $fieldDef->subtype) {
-                $parentEntity = $this->entityLoader->getByGuid($entity->getValue($objDef->parentField));
+
+                // See if we can retrieve the parent entity
+                $parentEntity = $this->entityLoader->getEntityById($entity->getValue(
+                    $objDef->parentField
+                ), $user->getAccountId());
+
                 if ($parentEntity) {
-                    $dacl = $this->getForEntity($parentEntity, false);
+                    $dacl = $this->getForParentEntity($parentEntity, $user);
                     if ($dacl) {
                         return $dacl;
                     }
                 }
             }
-        }
-
-        // Now try to get DACL for obj type
-        if ($fallBackToObjType) {
-            // Try to get for from the object definition if permissions have been customized
-            if (!empty($objDef->getDacl())) {
-                return $objDef->getDacl();
-            }
-
-            // If none is found, return a default where admin and creator owner has access only
-            return $this->createDefaultDacl();
         }
 
         return null;

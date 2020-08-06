@@ -107,7 +107,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $def = new EntityDefinition("utest_save");
+        $def = new EntityDefinition("utest_save", $this->account->getAccountId());
         $def->setTitle("Unit Test Save");
         $def->setSystem(false);
         $dacl = new Dacl();
@@ -134,7 +134,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $def = new EntityDefinition("utest_delete");
+        $def = new EntityDefinition("utest_delete", $this->account->getAccountId());
         $def->setTitle("Unit Test Delete");
         $def->setSystem(false);
         $dacl = new Dacl();
@@ -157,7 +157,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $def = new EntityDefinition("utest_delete_by_name1");
+        $def = new EntityDefinition("utest_delete_by_name1", $this->account->getAccountId());
         $def->setTitle("Unit Test Delete1");
         $def->setSystem(false);
         $dacl = new Dacl();
@@ -199,7 +199,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $def = new EntityDefinition("utest_save_dacl");
+        $def = new EntityDefinition("utest_save_dacl", $this->account->getAccountId());
         $def->setTitle("Unit Test Dacl");
         $def->setSystem(false);
         $dacl = new Dacl();
@@ -232,7 +232,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $def = new EntityDefinition("utest_save_empty_dacl");
+        $def = new EntityDefinition("utest_save_empty_dacl", $this->account->getAccountId());
         $def->setTitle("Unit Test Dacl");
         $def->setSystem(false);
         $dacl = new Dacl();

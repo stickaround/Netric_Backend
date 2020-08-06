@@ -53,7 +53,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             throw new \RuntimeException('objType is a required param');
         }
 
-        $def = new EntityDefinition($objType);
+        $def = new EntityDefinition($objType, $this->account->getAccountId());
 
         // Get basic object definition
         // ------------------------------------------------------

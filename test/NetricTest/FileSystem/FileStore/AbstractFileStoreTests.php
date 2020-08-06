@@ -7,6 +7,7 @@
 namespace NetricTest\FileSystem\FileStore;
 
 use Netric;
+use Netric\Account\Account;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileStore;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
@@ -37,19 +38,22 @@ abstract class AbstractFileStoreTests extends TestCase
      */
     private function getEntityDataMapper()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
-        return $account->getServiceManager()->get(EntityDataMapperFactory::class);
+        return $this->getAccount()->getServiceManager()->get(EntityDataMapperFactory::class);
+    }
+
+    private function getAccount(): Account
+    {
+        return \NetricTest\Bootstrap::getAccount();;
     }
 
     private function createTestFile()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
-        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
+        $loader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->getEntityDataMapper();
 
-        $file = $loader->create(ObjectTypes::FILE);
+        $file = $loader->create(ObjectTypes::FILE, $this->getAccount()->getAccountId());
         $file->setValue("name", "test.txt");
-        $dataMapper->save($file);
+        $dataMapper->save($file, $this->getAccount()->getSystemUser());
 
         $this->testFiles[] = $file;
 
@@ -81,7 +85,11 @@ abstract class AbstractFileStoreTests extends TestCase
         $fileStore = $this->getFileStore();
         $testFile = $this->createTestFile();
 
-        $bytesWritten = $fileStore->writeFile($testFile, "test contents");
+        $bytesWritten = $fileStore->writeFile(
+            $testFile,
+            "test contents",
+            $this->getAccount()->getSystemUser()
+        );
         $this->assertNotEquals(-1, $bytesWritten);
         $this->assertEquals($testFile->getValue("file_size"), $bytesWritten);
     }
@@ -99,7 +107,11 @@ abstract class AbstractFileStoreTests extends TestCase
         fwrite($fileStream, "test contents");
         fseek($fileStream, 0);
 
-        $bytesWritten = $fileStore->writeFile($testFile, $fileStream);
+        $bytesWritten = $fileStore->writeFile(
+            $testFile,
+            $fileStream,
+            $this->getAccount()->getSystemUser()
+        );
         $this->assertNotEquals(-1, $bytesWritten);
         $this->assertEquals($testFile->getValue("file_size"), $bytesWritten);
 
@@ -115,7 +127,11 @@ abstract class AbstractFileStoreTests extends TestCase
         $testFile = $this->createTestFile();
         $content = "testReadFile Contents";
 
-        $fileStore->writeFile($testFile, $content);
+        $fileStore->writeFile(
+            $testFile,
+            $content,
+            $this->getAccount()->getSystemUser()
+        );
 
         $buf = $fileStore->readFile($testFile);
         $this->assertEquals($content, $buf);
@@ -222,7 +238,11 @@ abstract class AbstractFileStoreTests extends TestCase
         $testFile = $this->createTestFile();
 
         // Now write an actual file and make sure it exists
-        $fileStore->writeFile($testFile, "test contents");
+        $fileStore->writeFile(
+            $testFile,
+            "test contents",
+            $this->getAccount()->getSystemUser()
+        );
         $this->assertTrue($fileStore->fileExists($testFile));
 
         // Delete it and then make sure fileExists returns false

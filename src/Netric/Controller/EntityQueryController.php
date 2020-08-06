@@ -69,7 +69,7 @@ class EntityQueryController extends Mvc\AbstractAccountController
             $ent = $res->getEntity($i);
 
             $entityData = $ent->toArray();
-            $dacl = $daclLoader->getForEntity($ent);
+            $dacl = $daclLoader->getForEntity($ent, $this->account->getAuthenticatedUser());
             $entityData["applied_dacl"] = $dacl->toArray();
 
             // Print full details

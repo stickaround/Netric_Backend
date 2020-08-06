@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test all common functionality of any DataMappers to make sure they all work the same
  */
+
 namespace NetricTest\WorkFlow\DataMapper;
 
 use Netric\WorkFlow\WorkFlowInstance;

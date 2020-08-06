@@ -197,6 +197,21 @@ class RecurrencePattern implements ErrorAwareInterface
     public $epLocked = 0;
 
     /**
+     * The ID of the account that this recurrence pattern belongs to
+     */
+    private string $accountId;
+
+    /**
+     * Class constructor
+     *
+     * @param string $accountId
+     */
+    public function __construct(string $accountId)
+    {
+        $this->accountId = $accountId;
+    }
+
+    /**
      * Set or load this pattern from an associative array
      *
      * @param array $data
@@ -299,6 +314,7 @@ class RecurrencePattern implements ErrorAwareInterface
 
         return [
             "entity_recurrence_id" => $this->getId(),
+            "account_id" => $this->getAccountId(),
             "recur_type" => $this->recurType,
             "interval" => $this->interval,
             "instance" => $this->instance,
@@ -369,6 +385,14 @@ class RecurrencePattern implements ErrorAwareInterface
     public function getId()
     {
         return $this->entityRecurrenceId;
+    }
+
+    /**
+     * Get the account that this pattern belongs to
+     */
+    public function getAccountId(): string
+    {
+        return $this->accountId;
     }
 
     /**

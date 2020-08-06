@@ -35,7 +35,7 @@ class EntityDefinitionLoaderTest extends TestCase
      */
     public function testGet()
     {
-        $taskDefinition = new EntityDefinition(ObjectTypes::TASK);
+        $taskDefinition = new EntityDefinition(ObjectTypes::TASK, $this->account->getAccountId());
         $taskDefinition->id = 123;
 
         // Configure a mock DataMapper
@@ -50,7 +50,7 @@ class EntityDefinitionLoaderTest extends TestCase
         $cache->method('get')->willReturn(null);
 
         // Load the object through the loader which should cache it
-        $loader = new EntityDefinitionLoader($dm, $cache);
+        $loader = new EntityDefinitionLoader($dm, $cache, $this->account);
         $taskDefinitionLoaded = $loader->get(ObjectTypes::TASK);
 
         $this->assertSame($taskDefinition, $taskDefinitionLoaded);
@@ -89,7 +89,7 @@ class EntityDefinitionLoaderTest extends TestCase
      */
     public function testGetAll()
     {
-        $taskDefinition = new EntityDefinition(ObjectTypes::TASK);
+        $taskDefinition = new EntityDefinition(ObjectTypes::TASK, $this->account->getAccountId());
         $taskDefinition->id = 123;
 
         // Configure a mock DataMapper
@@ -103,7 +103,7 @@ class EntityDefinitionLoaderTest extends TestCase
         $cache->method('get')->willReturn(null);
 
         // Load the object through the loader which should cache it
-        $loader = new EntityDefinitionLoader($dm, $cache);
+        $loader = new EntityDefinitionLoader($dm, $cache, $this->account);
         $allDefinitions = $loader->getAll();
 
         $this->assertEquals([$taskDefinition], $allDefinitions);

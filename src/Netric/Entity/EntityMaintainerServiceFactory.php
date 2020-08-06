@@ -4,8 +4,10 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2017 Aereus
  */
+
 namespace Netric\Entity;
 
+use Netric\Account\AccountContainerFactory;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\FileSystem\FileSystemFactory;
@@ -32,6 +34,14 @@ class EntityMaintainerServiceFactory implements AccountServiceFactoryInterface
         $entityIndex = $sl->get(IndexFactory::class);
         $entityDefinitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
         $fileSystem = $sl->get(FileSystemFactory::class);
-        return new EntityMaintainerService($log, $entityLoader, $entityDefinitionLoader, $entityIndex, $fileSystem);
+        $accountContainer = $sl->get(AccountContainerFactory::class);
+        return new EntityMaintainerService(
+            $log,
+            $entityLoader,
+            $entityDefinitionLoader,
+            $entityIndex,
+            $fileSystem,
+            $accountContainer
+        );
     }
 }

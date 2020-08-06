@@ -225,10 +225,9 @@ class Account
     public function getSystemUser(): UserEntity
     {
         $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
-        $systemUser = $entityLoader->create(ObjectTypes::USER);
+        $systemUser = $entityLoader->create(ObjectTypes::USER, $this->getAccountId());
         $systemUser->setValue("uname", UserEntity::USER_SYSTEM);
         $systemUser->setValue("name", UserEntity::USER_SYSTEM);
-        $systemUser->setValue("account_id", $this->getAccountId());
         return $systemUser;
     }
 
@@ -240,10 +239,9 @@ class Account
     public function getAnonymousUser(): UserEntity
     {
         $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
-        $anonymousUser = $entityLoader->create(ObjectTypes::USER);
+        $anonymousUser = $entityLoader->create(ObjectTypes::USER, $this->getAccountId());
         $anonymousUser->setValue("uname", UserEntity::USER_ANONYMOUS);
         $anonymousUser->setValue("name", UserEntity::USER_ANONYMOUS);
-        $anonymousUser->setValue("account_id", $this->getAccountId());
         return $anonymousUser;
     }
 
@@ -262,7 +260,10 @@ class Account
 
         // Check if the current session is authenticated
         if ($auth->getIdentity()) {
-            return $entityLoader->getByGuid($auth->getIdentity()->getUserId());
+            return $entityLoader->getEntityById(
+                $auth->getIdentity()->getUserId(),
+                $this->getAccountId()
+            );
         }
 
         // Return anonymous user since we could not find the authenticated user
@@ -296,7 +297,7 @@ class Account
 
             // Check if the current session is authenticated
             if ($auth->getIdentity()) {
-                return $entityLoader->getByGuid($auth->getIdentity()->getUserId());
+                return $entityLoader->getEntityById($auth->getIdentity()->getUserId(), $this->getAccountId());
             }
         }
 
@@ -307,7 +308,7 @@ class Account
          * of each user object in memory.
          */
         if ($userId) {
-            return $entityLoader->getByGuid($userId);
+            return $entityLoader->getEntityById($userId, $this->getAccountId());
         } elseif ($username) {
             $query = new EntityQuery(ObjectTypes::USER);
             $query->where('name')->equals($username);

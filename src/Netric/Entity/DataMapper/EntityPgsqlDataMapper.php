@@ -180,7 +180,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
     //             case Field::TYPE_GROUPING:
     //             case Field::TYPE_GROUPING_MULTI:
     //                 $fieldValue = $entity->getValue($field->name);
-    //                 $ownerGuid = $entity->getOwnerGuid();
+    //                 $ownerGuid = $entity->getOwnerId();
 
     //                 // Since we do not know if the group saved is a private grouping, we will just query both groupings and look for its id
     //                 $publicGroupings = $groupingLoader->get($entity->getObjType() . "/{$field->name}");
@@ -241,7 +241,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
 
     //                 if ($objValue) {
     //                     // Get the referenced entity
-    //                     $referencedEntity = $entityLoader->getByGuid($objValue);
+    //                     $referencedEntity = $entityLoader->getEntityById($objValue);
 
     //                     if ($referencedEntity) {
     //                         $entity->setValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
@@ -257,7 +257,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
     //                     foreach ($refValues as $value) {
     //                         if ($value) {
     //                             // Get the referenced entity
-    //                             $referencedEntity = $entityLoader->getByGuid($value);
+    //                             $referencedEntity = $entityLoader->getEntityById($value);
 
     //                             // If we have successfully loaded the referenced entity, then we will add its guid
     //                             if ($referencedEntity) {
@@ -385,21 +385,6 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
 
         // We just need to make sure the main object was deleted
         return ($result->rowCount() > 0);
-    }
-
-    /**
-     * Flag data as archived but don't actually delete it
-     *
-     * @var EntityInterface $entity The entity to load data into
-     * @var string $accountId The account that owns the entity
-     * @return bool true on success, false on failure
-     */
-    protected function archive(EntityInterface $entity, string $accountId): bool
-    {
-        // Update the deleted flag and save
-        $entity->setValue("f_deleted", true);
-        $ret = $this->saveData($entity);
-        return ($ret === false) ? false : true;
     }
 
     /**
@@ -653,7 +638,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
     //     $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
     //     $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
 
-    //     $toEntity = $entityLoader->getByGuid($toId);
+    //     $toEntity = $entityLoader->getEntityById($toId);
     //     $definitions = $entityDefinitionLoader->getAll();
 
     //     // Loop thru all the entity definitions and check if we have fields that needs to update the reference

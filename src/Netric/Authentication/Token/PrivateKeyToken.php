@@ -4,7 +4,6 @@ namespace Netric\Authentication\Token;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
-use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Token based on a private key.
@@ -29,24 +28,16 @@ class PrivateKeyToken implements AuthenticationTokenInterface
     private $privateKey = "";
 
     /**
-     * Load users
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
-    /**
      * HmacToken constructor.
      *
      * @param string $privateKey
      * @param string $authToken
      * @param Entityloader $entityLoader Used to get users
      */
-    public function __construct(string $privateKey, string $authToken, EntityLoader $entityLoader)
+    public function __construct(string $privateKey, string $authToken)
     {
         $this->privateKey = $privateKey;
         $this->authToken = $authToken;
-        $this->entityLoader = $entityLoader;
     }
 
     /**
@@ -83,10 +74,8 @@ class PrivateKeyToken implements AuthenticationTokenInterface
             return "";
         }
 
-        // TODO: Return something here so that we know to pull the system user
-        // // Load the system user and return it
-        // $systemUser = $this->entityLoader->getByUniqueName(ObjectTypes::USER, UserEntity::USER_SYSTEM);
-        // return $systemUser->getEntityId();
+        // Syste user constant
+        return UserEntity::USER_SYSTEM;
     }
 
     /**

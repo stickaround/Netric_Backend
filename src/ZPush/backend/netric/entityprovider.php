@@ -170,7 +170,7 @@ class EntityProvider
 
         switch ($oldFolder['type']) {
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->getByGuid($id);
+                $entity = $entityLoader->getEntityById($id, $this->account->getAccountId());
 
                 if (!$entity) {
                     return false;
@@ -181,7 +181,7 @@ class EntityProvider
                 return true;
 
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->getByGuid($id);
+                $entity = $entityLoader->getEntityById($id, $this->account->getAccountId());
 
                 if (!$entity) {
                     return false;
@@ -246,19 +246,11 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->getByGuid($id);
+                $entity = $entityLoader->getEntityById($id, $this->account->getAccountId());
                 break;
             default:
                 // Not supported
@@ -285,19 +277,11 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->getByGuid($id);
+                $entity = $entityLoader->getEntityById($id, $this->account->getAccountId());
                 break;
             default:
                 // Not supported
@@ -332,19 +316,11 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->getByGuid($id);
-                break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->getByGuid($id);
+                $entity = $entityLoader->getEntityById($id, $this->account->getAccountId());
                 break;
             default:
                 // Not supported
@@ -393,7 +369,7 @@ class EntityProvider
 
             case self::FOLDER_TYPE_CALENDAR:
                 $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-                $entity = $entityLoader->getByGuid($folder['id']);
+                $entity = $entityLoader->getEntityById($folder['id'], $this->account->getAccountId());
 
                 if (!$entity) {
                     return false;
@@ -697,7 +673,7 @@ class EntityProvider
     private function getContact($id, $contentParameters)
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $contactEntity = $entityLoader->getByGuid($id);
+        $contactEntity = $entityLoader->getEntityById($id, $this->account->getAccountId());
 
         $contact = new SyncContact();
         $contact->email1address = $contactEntity->getValue('email');
@@ -753,7 +729,7 @@ class EntityProvider
         $pulltz = 'utc';
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $entityEvent = $entityLoader->getByGuid($id);
+        $entityEvent = $entityLoader->getEntityById($id, $this->account->getAccountId());
 
         if (!$entityEvent->getValue("ts_end") || !$entityEvent->getValue("ts_start")) {
             return false;
@@ -907,7 +883,7 @@ class EntityProvider
     private function getTask($id, $contentParameters)
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $taskEntity = $entityLoader->getByGuid($id);
+        $taskEntity = $entityLoader->getEntityById($id, $this->account->getAccountId());
         $task = new SyncTask();
         $task->subject = $taskEntity->getValue('name');
         $task->body = $taskEntity->getValue('notes');
@@ -937,7 +913,7 @@ class EntityProvider
     private function getNote($id, $contentParameters)
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $noteEntity = $entityLoader->getByGuid($id);
+        $noteEntity = $entityLoader->getEntityById($id, $this->account->getAccountId());
         $syncNote = new SyncNote();
         $syncNote->messageclass = "IPM.Note";
         $syncNote->subject = $noteEntity->getValue('name');
@@ -989,7 +965,7 @@ class EntityProvider
         $bodypreference = $contentParameters->GetBodyPreference(); /* fmbiete's contribution r1528, ZP-320 */
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailEntity = $entityLoader->getByGuid($id);
+        $emailEntity = $entityLoader->getEntityById($id, $this->account->getAccountId());
 
         $output = new SyncMail();
 
@@ -1166,9 +1142,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->getByGuid($id);
+            $entity = $this->entityLoader->getEntityById($id, $this->account->getAccountId());
         } else {
-            $entity = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL);
+            $entity = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL, $this->account->getAccountId());
         }
 
         $entity->setValue('owner_id', $this->user->getEntityId());
@@ -1235,9 +1211,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->getByGuid($id);
+            $entity = $this->entityLoader->getEntityById($id, $this->account->getAccountId());
         } else {
-            $entity = $this->entityLoader->create(ObjectTypes::NOTE);
+            $entity = $this->entityLoader->create(ObjectTypes::NOTE, $this->account->getAccountId());
         }
 
         $entity->setValue('owner_id', $this->user->getEntityId());
@@ -1324,9 +1300,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->getByGuid($id);
+            $entity = $this->entityLoader->getEntityById($id, $this->account->getAccountId());
         } else {
-            $entity = $this->entityLoader->create(ObjectTypes::TASK);
+            $entity = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         }
 
         $entity->setValue('owner_id', $this->user->getEntityId());
@@ -1358,9 +1334,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->getByGuid($id);
+            $entity = $this->entityLoader->getEntityById($id, $this->account->getAccountId());
         } else {
-            $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
+            $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT, $this->account->getAccountId());
         }
 
         // Get timezone info
@@ -1423,7 +1399,7 @@ class EntityProvider
 
             // Add recurrence
             if (!$rp) {
-                $rp = new RecurrencePattern();
+                $rp = new RecurrencePattern($this->account->getAccountId());
             }
 
             $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
@@ -1615,9 +1591,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->getByGuid($id);
+            $entity = $this->entityLoader->getEntityById($id, $this->account->getAccountId());
         } else {
-            $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+            $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         }
 
         $entity->setValue('subject', $syncMail->subject);

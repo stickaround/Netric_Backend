@@ -37,9 +37,12 @@ class EntityCollectionTest extends AbstractCollectionTests
     protected function createLocal()
     {
         // Create new customer with the passed data
-        $newEnt = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $newEnt = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $newEnt->setValue("name", "EntityEyncTests");
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($newEnt);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $newEnt,
+            $this->account->getSystemUser()
+        );
         $this->newCreated[] = $newEnt;
         return ["id" => $newEnt->getEntityId(), "revision" => $newEnt->getValue("commit_id")];
     }
@@ -50,7 +53,10 @@ class EntityCollectionTest extends AbstractCollectionTests
             if ($createdEnt->getEntityId() == $id) {
                 // Record object change
                 $createdEnt->setValue("name", "EntityEyncTests_2");
-                $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($createdEnt);
+                $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+                    $createdEnt,
+                    $this->account->getSystemUser()
+                );
             }
         }
     }
@@ -72,9 +78,12 @@ class EntityCollectionTest extends AbstractCollectionTests
         $pid = "AntObjectSync_CollectionTest::testGetChangedObjects";
 
         // Create customer just in case there are none already in the database
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "EntityEyncTests");
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($customer);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $customer,
+            $this->account->getSystemUser()
+        );
 
         // Create and save partner with one collection watching customers
         $partner = new EntitySync\Partner($this->esDataMapper);
@@ -95,7 +104,10 @@ class EntityCollectionTest extends AbstractCollectionTests
 
         // Record object change
         $customer->setValue("name", "EntityEyncTests_2");
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($customer);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $customer,
+            $this->account->getSystemUser()
+        );
 
         // Make sure the one change is now returned
         $stats = $collection->getExportChanged();
@@ -115,9 +127,12 @@ class EntityCollectionTest extends AbstractCollectionTests
         $pid = "AntObjectSync_CollectionTest::testGetChangedObjects";
 
         // Create customer just in case there are none already in the database
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "EntityEyncTests");
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save($customer);
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
+            $customer,
+            $this->account->getSystemUser()
+        );
         $customerId = $customer->getEntityId();
 
         // Create and save partner with one collection watching customers
@@ -139,7 +154,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         $this->assertEquals(0, count($stats));
 
         // Soft delete the customer
-        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->delete($customer, $this->account->getAuthenticatedUser());
+        $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->archive($customer, $this->account->getAuthenticatedUser());
 
         // Make sure the one change is now returned for the deleted item
         $stats = $collection->getExportChanged();

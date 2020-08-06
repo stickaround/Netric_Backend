@@ -76,7 +76,10 @@ class FileTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::FILE);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(
+            ObjectTypes::FILE,
+            $this->account->getAccountId()
+        );
         $this->assertInstanceOf(FileEntity::class, $entity);
     }
 
@@ -89,18 +92,18 @@ class FileTest extends TestCase
 
         // Create a new file & upload data
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $file = $loader->create(ObjectTypes::FILE);
+        $file = $loader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "test.txt");
         $this->entityDataMapper->save($file, $this->account->getAuthenticatedUser());
         $this->testFiles[] = $file;;
 
         // Write data to the file
-        $fileStore->writeFile($file, "my test data");
+        $fileStore->writeFile($file, "my test data", $this->user);
         $this->assertTrue($fileStore->fileExists($file));
 
         // Open a copy to check the store later since the DataMapper will zero out $file
-        $fileCopy = $loader->create(ObjectTypes::FILE);
-        $this->entityDataMapper->getEntityById($file->getEntityId(), $this->account->getAuthenticatedUser());
+        $fileCopy = $loader->create(ObjectTypes::FILE, $this->account->getAccountId());
+        $this->entityDataMapper->getEntityById($file->getEntityId(), $this->account->getAccountId());
 
         // Purge the file -- second param is a delete hard param
         $this->entityDataMapper->delete($file, $this->account->getAuthenticatedUser());

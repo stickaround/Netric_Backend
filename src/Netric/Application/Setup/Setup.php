@@ -54,7 +54,7 @@ class Setup extends AbstractHasErrors
 
         // Create admin user
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $adminUser = $entityLoader->create(ObjectTypes::USER);
+        $adminUser = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
         $adminUser->setValue("name", $adminUserName);
         $adminUser->setValue("password", $adminPassword);
         $adminUser->setIsAdmin(true);

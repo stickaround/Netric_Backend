@@ -39,13 +39,13 @@ class RecurrencePatternTest extends TestCase
 
     public function testConstructor()
     {
-        $pattern = new RecurrencePattern();
+        $pattern = new RecurrencePattern($this->account->getAccountId());
         $this->assertInstanceof(RecurrencePattern::class, $pattern);
     }
 
     public function testSetDayOfWeek()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setDayOfWeek(RecurrencePattern::WEEKDAY_SUNDAY, true);
         $this->assertNotEquals(0, $rp->getDayOfWeekMask() & RecurrencePattern::WEEKDAY_SUNDAY);
         $this->assertEquals(0, $rp->getDayOfWeekMask() & RecurrencePattern::WEEKDAY_MONDAY);
@@ -59,7 +59,7 @@ class RecurrencePatternTest extends TestCase
 
     public function testGetNextStart_Daily()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/1/2010"));
@@ -85,7 +85,7 @@ class RecurrencePatternTest extends TestCase
 
     public function testGetNextStart_Weekly()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_WEEKLY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/2/2011")); // First sunday
@@ -109,7 +109,7 @@ class RecurrencePatternTest extends TestCase
 
     public function testGetNextStart_Monthly()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_MONTHLY);
         $rp->setInterval(1);
         $rp->setDayOfMonth(1);
@@ -124,7 +124,7 @@ class RecurrencePatternTest extends TestCase
         $this->assertEquals($tsNext, new \DateTime("03/01/2011"));
 
         // Skip over non-existant dates
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_MONTHLY);
         $rp->setInterval(1);
         $rp->setDayOfMonth(30);
@@ -140,7 +140,7 @@ class RecurrencePatternTest extends TestCase
 
     public function testGetNextStart_MonthNth()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_MONTHNTH);
         $rp->setDayOfWeek(RecurrencePattern::WEEKDAY_SUNDAY, true);
         $rp->setInterval(1);
@@ -154,7 +154,7 @@ class RecurrencePatternTest extends TestCase
         $this->assertEquals($tsNext, new \DateTime("02/27/2011")); // The 4th Sunday in February
 
         // Test last
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_MONTHNTH);
         $rp->setDayOfWeek(RecurrencePattern::WEEKDAY_SUNDAY, true);
         $rp->setInterval(1);
@@ -170,7 +170,7 @@ class RecurrencePatternTest extends TestCase
 
     public function testGetNextStart_Yearly()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_YEARLY);
         $rp->setInterval(1);
         $rp->setDayOfMonth(8);
@@ -188,7 +188,7 @@ class RecurrencePatternTest extends TestCase
 
     public function testGetNextStart_YearNth()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_YEARNTH);
         // The 4th Sunday of January
         $rp->setInstance(RecurrencePattern::NTH_4TH);
@@ -230,7 +230,7 @@ class RecurrencePatternTest extends TestCase
             "ep_locked" => time(),
         ];
 
-        $recur = new RecurrencePattern();
+        $recur = new RecurrencePattern($this->account->getAccountId());
         $recur->fromArray($import);
 
         // Convert back to an array and test

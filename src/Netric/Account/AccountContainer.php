@@ -4,6 +4,7 @@ namespace Netric\Account;
 
 use Netric\Application\DataMapperInterface;
 use Netric\Application\Application;
+use Netric\Authentication\AuthenticationService;
 use Netric\Cache\CacheInterface;
 use Netric\Error\Error;
 use Netric\Error\ErrorAwareInterface;
@@ -53,8 +54,11 @@ class AccountContainer implements AccountContainerInterface, ErrorAwareInterface
      * @param CacheInterface $cache
      * @throws \Exception If all required dependencies were not passed
      */
-    public function __construct(DataMapperInterface $appDm, CacheInterface $cache, Application $application)
-    {
+    public function __construct(
+        DataMapperInterface $appDm,
+        CacheInterface $cache,
+        Application $application
+    ) {
         if (!$appDm) {
             throw new \Exception("Application datamapper is required");
         }

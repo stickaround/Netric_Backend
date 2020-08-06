@@ -11,6 +11,7 @@ use Netric\FileSystem\FileStreamWrapper;
 use Netric\EntityQuery;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType;
+use Netric\EntityDefinition\ObjectTypes;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileSystemFactory;
 
@@ -72,9 +73,9 @@ class FileStreamWrapperTest extends TestCase
      */
     private function createTestFile($name = "streamtest.txt")
     {
-        $file = $this->entityLoader->create("file");
+        $file = $this->entityLoader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", $name);
-        $this->entityLoader->save($file);
+        $this->entityLoader->save($file, $this->account->getSystemUser());
         $this->testFiles[] = $file;
         return $file;
     }
@@ -88,7 +89,7 @@ class FileStreamWrapperTest extends TestCase
 
         // Create a test file and write to it
         $testFile = $this->createTestFile();
-        $bytesWritten = $this->fileSystem->writeFile($testFile, $data);
+        $bytesWritten = $this->fileSystem->writeFile($testFile, $data, $this->account->getSystemUser());
         $this->assertNotEquals(-1, $bytesWritten);
 
         // Now open a stream and read from it one byte at a time
@@ -111,9 +112,9 @@ class FileStreamWrapperTest extends TestCase
 
         // Create a test files and write to them
         $testFile = $this->createTestFile("streamtest1.txt");
-        $this->fileSystem->writeFile($testFile, $data);
+        $this->fileSystem->writeFile($testFile, $data, $this->account->getSystemUser());
         $testFile2 = $this->createTestFile("streamtest2.txt");
-        $this->fileSystem->writeFile($testFile2, $data2);
+        $this->fileSystem->writeFile($testFile2, $data2, $this->account->getSystemUser());
 
         // Open them both at once
         $stream1 = FileStreamWrapper::open($this->fileSystem, $testFile);

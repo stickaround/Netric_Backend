@@ -186,7 +186,7 @@ abstract class IndexAbstract
         $ret = [$oid];
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $ent = $entityLoader->getByGuid($oid);
+        $ent = $entityLoader->getEntityById($oid, $this->account->getAccountId());
         $ret[] = $ent->getEntityId();
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
@@ -221,7 +221,7 @@ abstract class IndexAbstract
         $aProtectCircular[] = $entityGuid;
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $ent = $entityLoader->getByGuid($entityGuid);
+        $ent = $entityLoader->getEntityById($entityGuid, $this->account->getAccountId());
 
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)

@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test an entity factory
  */
+
 namespace NetricTest\Entity;
 
 use Netric\Entity;
@@ -43,7 +45,7 @@ class EntityFactoryTest extends TestCase
      */
     public function testCreateUser()
     {
-        $user = $this->entityFactory->create(ObjectTypes::USER);
+        $user = $this->entityFactory->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->assertInstanceOf(UserEntity::class, $user);
     }
 }

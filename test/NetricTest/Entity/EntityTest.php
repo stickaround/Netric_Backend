@@ -67,7 +67,7 @@ class EntityTest extends TestCase
      */
     public function testOnCreateSetFieldDefaultTimestamp()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "testFieldDefaultTimestamp");
         $cust->setFieldsDefault('create'); // ts_entered has a 'now' on 'create' default
         $this->assertTrue(is_numeric($cust->getValue("ts_entered")));
@@ -78,7 +78,7 @@ class EntityTest extends TestCase
      */
     public function testOnUpdateSetFieldDefaultTimestamp()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "testFieldDefaultTimestamp");
         $cust->setFieldsDefault('update'); // ts_updated has a 'now' on 'update' default
         $this->assertTrue(is_numeric($cust->getValue("ts_updated")));
@@ -89,7 +89,7 @@ class EntityTest extends TestCase
      */
     public function testSetFieldsDefaultBool()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "testFieldDefaultTimestamp");
         $cust->setValue("f_deleted", true);
         $cust->setFieldsDefault('null');
@@ -101,7 +101,7 @@ class EntityTest extends TestCase
      */
     public function testToArray()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "Entity_DataMapperTests");
         // bool
         $cust->setValue("f_nocall", true);
@@ -138,7 +138,7 @@ class EntityTest extends TestCase
         ];
 
         // Load data into entity
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->fromArray($data);
 
         // Test values
@@ -151,7 +151,7 @@ class EntityTest extends TestCase
 
         // Let's save $cust entity and try using ::fromArray() with an existing entity
         $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
-        $dataMapper->save($cust);
+        $dataMapper->save($cust, $this->account->getAuthenticatedUser());
 
         // Now let's test the updating of entity with only specific fields
         $updatedData = [
@@ -163,7 +163,7 @@ class EntityTest extends TestCase
         ];
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $existingCust = $entityLoader->getByGuid($cust->getEntityId());
+        $existingCust = $entityLoader->getEntityById($cust->getEntityId(), $this->account->getAccountId());
 
         // Load the updated data into the entity
         $existingCust->fromArray($updatedData, true);
@@ -182,7 +182,7 @@ class EntityTest extends TestCase
      */
     public function testFromArrayEmptyMval()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         // Preset attachments
         $cust->addMultiValue("attachments", 1, "fakefile.txt");
@@ -216,10 +216,10 @@ class EntityTest extends TestCase
         $tempFolderId = $file->getValue("folder_id");
 
         // Create a customer
-        $cust = $entityLoader->create(ObjectTypes::CONTACT);
+        $cust = $entityLoader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "Aereus Corp");
         $cust->addMultiValue("attachments", $file->getEntityId(), $file->getValue("name"));
-        $dataMapper->save($cust);
+        $dataMapper->save($cust, $this->account->getAuthenticatedUser());
 
         // Test to see if file was moved
         $testFile = $fileSystem->openFileById($file->getEntityId());
@@ -234,7 +234,7 @@ class EntityTest extends TestCase
      */
     public function testCloneTo()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "Entity_DataMapperTests");
 
         // bool
@@ -253,7 +253,7 @@ class EntityTest extends TestCase
         $cust->setValue('entity_id', '82d264a2-8070-11e8-adc0-fa7ae01bbebc');
 
         // Clone it
-        $cloned = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cloned = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->cloneTo($cloned);
 
         $this->assertEmpty($cloned->getEntityId());
@@ -269,7 +269,7 @@ class EntityTest extends TestCase
      */
     public function testSetHasComments()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         // Should have incremented 'num_comments' to 1
         $cust->setHasComments();
@@ -318,12 +318,12 @@ class EntityTest extends TestCase
     public function testUpdateFollowers()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user1 = $entityLoader->create(ObjectTypes::USER);
+        $user1 = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user1->setValue("name", "John");
-        $entityLoader->save($user1);
+        $entityLoader->save($user1, $this->account->getAuthenticatedUser());
 
-        $user2 = $entityLoader->create(ObjectTypes::USER);
-        $entityLoader->save($user2);
+        $user2 = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
+        $entityLoader->save($user2, $this->account->getAuthenticatedUser());
 
         $this->testEntities[] = $user1;
         $this->testEntities[] = $user2;
@@ -331,12 +331,12 @@ class EntityTest extends TestCase
         $userGuid1 = $user1->getEntityId();
         $userGuid2 = $user2->getEntityId();
 
-        $entity = $entityLoader->create(ObjectTypes::TASK);
+        $entity = $entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $entity->setValue("owner_id", $userGuid1, $user1->getName());
         $entity->setValue("notes", "Hey [user:$userGuid2:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
 
         // Saving this entity will call the Entity::beforeSagetNameve() which will update the followers
-        $entityLoader->save($entity);
+        $entityLoader->save($entity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity;
 
         // Now make sure followers were set to the two references above
@@ -356,12 +356,12 @@ class EntityTest extends TestCase
     public function testSyncFollowers()
     {
         // Add some fake users to a test task
-        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "John");
         $task1->addMultiValue("followers", Uuid::uuid4()->toString(), "Dave");
 
         // Create a second task and synchronize
-        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task2->syncFollowers($task1);
 
         $this->assertEquals(2, count($task1->getValue("followers")));
@@ -374,7 +374,7 @@ class EntityTest extends TestCase
     public function testSyncFollowersWithInvalid()
     {
         // Add some fake users to a test task
-        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $johnGuid = Uuid::uuid4()->toString();
         $daveGuid = Uuid::uuid4()->toString();
         $task1->addMultiValue("followers", $johnGuid, "John");
@@ -383,7 +383,7 @@ class EntityTest extends TestCase
         $task1->addMultiValue("followers", null, "invalid null id");
 
         // Create a second task and synchronize
-        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task2->syncFollowers($task1);
 
         // It will count 4 followers here since we added additional 2 invalid followers
@@ -408,7 +408,7 @@ class EntityTest extends TestCase
     public function testSetValueObjectWithName()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue('owner_id', 123, 'fakeusername');
         $this->assertEquals('fakeusername', $task->getValueName('owner_id'));
     }
@@ -427,7 +427,7 @@ class EntityTest extends TestCase
         $username = 'fakeusername';
         $userid = Uuid::uuid4()->toString();
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue('followers', $userid, $username);
         $this->assertEquals($username, $task->getValueName('followers'));
         $this->assertEquals([$userid], $task->getValue('followers'));
@@ -439,11 +439,11 @@ class EntityTest extends TestCase
     public function testGetOwnerGuid()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
 
         $userGuid = Uuid::uuid4()->toString();
         $task->setValue('owner_id', $userGuid);
-        $this->assertEquals($userGuid, $task->getOwnerGuid());
+        $this->assertEquals($userGuid, $task->getOwnerId());
     }
 
     /**
@@ -452,11 +452,11 @@ class EntityTest extends TestCase
     public function testGetOwnerGuidCreatorId()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
 
         $userGuid = Uuid::uuid4()->toString();
         $task->setValue('creator_id', $userGuid);
-        $this->assertEquals($userGuid, $task->getOwnerGuid());
+        $this->assertEquals($userGuid, $task->getOwnerId());
     }
 
     /**
@@ -466,11 +466,11 @@ class EntityTest extends TestCase
     {
         $sm = $this->account->getServiceManager();
         // Activity has a owner_id field
-        $activity = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY);
+        $activity = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY, $this->account->getAccountId());
 
         $userGuid = Uuid::uuid4()->toString();
         $activity->setValue('owner_id', $userGuid);
-        $this->assertEquals($userGuid, $activity->getOwnerGuid());
+        $this->assertEquals($userGuid, $activity->getOwnerId());
     }
 
     /**
@@ -481,10 +481,10 @@ class EntityTest extends TestCase
         $sm = $this->account->getServiceManager();
         $entityLoader = $sm->get(EntityLoaderFactory::class);
         $index = $sm->get(IndexFactory::class);
-        $document = $entityLoader->create(ObjectTypes::DOCUMENT);
+        $document = $entityLoader->create(ObjectTypes::DOCUMENT, $this->account->getAccountId());
 
         $document->setValue('is_rootspace', true);
-        $entityLoader->save($document);
+        $entityLoader->save($document, $this->account->getAuthenticatedUser());
 
         $this->testEntities[] = $document;
 

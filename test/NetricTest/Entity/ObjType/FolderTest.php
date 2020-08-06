@@ -49,9 +49,9 @@ class FolderTest extends TestCase
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->getEntityDataMapper();
 
-        $file = $loader->create(ObjectTypes::FILE);
+        $file = $loader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "test.txt");
-        $dataMapper->save($file);
+        $dataMapper->save($file, $this->user);
 
         $this->testFiles[] = $file;
 
@@ -63,7 +63,7 @@ class FolderTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::FOLDER);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $this->assertInstanceOf(FolderEntity::class, $entity);
     }
 
@@ -71,7 +71,7 @@ class FolderTest extends TestCase
     {
         $account = Bootstrap::getAccount();
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $entity = $loader->create(ObjectTypes::FOLDER);
+        $entity = $loader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $rootFolderEntity = $entity->getRootFolder();
 
         $this->assertNotNull($rootFolderEntity);

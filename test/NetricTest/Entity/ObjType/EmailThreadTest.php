@@ -69,33 +69,33 @@ class EmailThreadTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_THREAD);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_THREAD, $this->account->getAccountId());
         $this->assertInstanceOf(EmailThreadEntity::class, $entity);
     }
 
     /**
      * When we soft-delete a thread, it should remove all messages
      */
-    public function testOnAfterSave_Remove()
+    public function testOnAfterSave_Archive()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a thread and an email message for testing
-        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD, $this->account->getAccountId());
         $thread->setValue("subject", "My New test Thread");
-        $tid = $entityLoader->save($thread);
+        $tid = $entityLoader->save($thread, $this->user);
         $this->testEntities[] = $thread;
 
-        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $message->setValue("thread", $thread->getEntityId());
-        $eid = $entityLoader->save($message);
+        $eid = $entityLoader->save($message, $this->user);
         $this->testEntities[] = $message;
 
-        // Remove the thread
-        $entityLoader->delete($thread, $this->account->getAuthenticatedUser());
+        // archive the thread
+        $entityLoader->archive($thread, $this->account->getAuthenticatedUser());
 
         // Check to make sure the message was soft-deleted as well
-        $reloadedMessage = $entityLoader->getByGuid($message->getEntityId());
+        $reloadedMessage = $entityLoader->getEntityById($message->getEntityId(), $this->account->getAccountId());
         $this->assertTrue($reloadedMessage->getValue("f_deleted"));
     }
 
@@ -107,25 +107,25 @@ class EmailThreadTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a thread and an email message for testing
-        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD, $this->account->getAccountId());
         $thread->setValue("subject", "My New test Thread");
-        $tid = $entityLoader->save($thread);
+        $tid = $entityLoader->save($thread, $this->user);
         $this->testEntities[] = $thread;
 
-        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $message->setValue("thread", $thread->getEntityId());
-        $eid = $entityLoader->save($message);
+        $eid = $entityLoader->save($message, $this->user);
         $this->testEntities[] = $message;
 
         // Soft delete the thread which will also soft delete the message (see testOnAfterSave_Remove)
-        $entityLoader->delete($thread, $this->account->getAuthenticatedUser());
+        $entityLoader->archive($thread, $this->account->getAuthenticatedUser());
 
         // Now undelete the thread which should undelete the messsage
         $thread->setValue("f_deleted", false);
-        $entityLoader->save($thread);
+        $entityLoader->save($thread, $this->user);
 
         // Check to make sure the message was soft-deleted as well
-        $reloadedMessage = $entityLoader->getByGuid($eid);
+        $reloadedMessage = $entityLoader->getEntityById($eid, $this->account->getAccountId());
         $this->assertFalse($reloadedMessage->getValue("f_deleted"));
     }
 
@@ -137,27 +137,27 @@ class EmailThreadTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a thread and an email message for testing
-        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD, $this->account->getAccountId());
         $thread->setValue("subject", "My New test Thread");
-        $tid = $entityLoader->save($thread);
+        $tid = $entityLoader->save($thread, $this->user);
         $this->testEntities[] = $thread;
 
-        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $message->setValue("thread", $thread->getEntityId());
-        $eid = $entityLoader->save($message);
+        $eid = $entityLoader->save($message, $this->user);
         $this->testEntities[] = $message;
 
         // Remove the thread
         $entityLoader->delete($thread, $this->account->getAuthenticatedUser());
 
         // Make sure message was also purged
-        $this->assertNull($entityLoader->getByGuid($eid));
+        $this->assertNull($entityLoader->getEntityById($eid, $this->account->getAccountId()));
     }
 
     public function testAddToSenders()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD, $this->account->getAccountId());
         $thread->addToSenders("test1@myaereus.com, test2@myaereus.com");
         $this->assertEquals("test1@myaereus.com,test2@myaereus.com", $thread->getValue("senders"));
 
@@ -173,7 +173,7 @@ class EmailThreadTest extends TestCase
     public function testAddToReceivers()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD, $this->account->getAccountId());
         $thread->addToSenders("test1@myaereus.com, test2@myaereus.com");
         $this->assertEquals("test1@myaereus.com,test2@myaereus.com", $thread->getValue("senders"));
 

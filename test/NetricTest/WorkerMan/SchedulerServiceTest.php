@@ -85,7 +85,7 @@ class SchedulerServiceTest extends TestCase
             $now,
             ['myvar' => 'testval']
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
 
         $this->assertNotNull($id);
     }
@@ -104,7 +104,7 @@ class SchedulerServiceTest extends TestCase
             RecurrencePattern::RECUR_DAILY,
             1
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
 
         $this->assertNotNull($id);
     }
@@ -122,7 +122,7 @@ class SchedulerServiceTest extends TestCase
             $now,
             ['myvar' => 'testval']
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
 
         $jobs = $this->scheduler->getScheduledToRun();
 
@@ -149,7 +149,7 @@ class SchedulerServiceTest extends TestCase
             RecurrencePattern::RECUR_DAILY,
             1
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->getByGuid($id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
 
         // Get scheduled jobs for the next three days
         $runTo = new DateTime();
@@ -177,11 +177,14 @@ class SchedulerServiceTest extends TestCase
             $now,
             ['myvar' => 'testval']
         );
-        $jobEntity = $this->entityLoader->getByGuid($id);
+        $jobEntity = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
         $this->tempEntitiesToDelete[] = $jobEntity;
 
         // Set a scheduled job as completed
-        $this->scheduler->setJobAsExecuted($jobEntity);
+        $this->scheduler->setJobAsExecuted(
+            $jobEntity,
+            Bootstrap::getAccount()->getAuthenticatedUser()
+        );
 
         // Make sure the the execute time of the scheduled job was set
         $this->assertNotNull($jobEntity->getValue("ts_executed"));

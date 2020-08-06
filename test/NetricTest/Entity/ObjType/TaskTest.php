@@ -55,13 +55,13 @@ class TaskTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $this->assertInstanceOf(TaskEntity::class, $entity);
     }
 
     public function testOnBeforeSaveFlagsDoneWhenCompleted()
     {
-        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue('status_id', 1, TaskEntity::STATUS_COMPLETED);
         $mockServiceManager = $this->getMockBuilder(AccountServiceManagerInterface::class)->getMock();
         $task->onBeforeSave($mockServiceManager);
@@ -74,21 +74,21 @@ class TaskTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/2/2010"));
         $rp->setDateEnd(new \DateTime("3/1/2010"));
 
-        $task = $loader->create(ObjectTypes::TASK);
+        $task = $loader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("name", "Test Task Recurrence");
         $task->setValue("deadline", strtotime("01 January 2010"));
         $task->setRecurrencePattern($rp);
-        $taskId = $dm->save($task);
+        $taskId = $dm->save($task, $this->account->getSystemUser());
         $this->tasks[] = $task;
 
         // Use the loader to get the task entity with recurrence
-        $ent = $loader->getByGuid($taskId);
+        $ent = $loader->getEntityById($taskId, $this->account->getAccountId());
         $taskRecurrence = $ent->getRecurrencePattern();
 
         // First instance should be today
@@ -108,13 +108,13 @@ class TaskTest extends TestCase
         $tsNext = $taskRecurrence->getNextStart();
         $this->assertEquals($tsNext, new \DateTime("01/07/2010"));
 
-        $noDeadlineTask = $loader->create(ObjectTypes::TASK);
+        $noDeadlineTask = $loader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $noDeadlineTask->setValue("name", "Task Without Deadline");
         $noDeadlineTask->setRecurrencePattern($rp);
 
         // This should throw an exception since it requires a task deadline when setting a recurrence
         $this->expectException(\RuntimeException::class);
-        $dm->save($noDeadlineTask);
+        $dm->save($noDeadlineTask, $this->account->getSystemUser());
         $this->tasks[] = $noDeadlineTask;
     }
 }

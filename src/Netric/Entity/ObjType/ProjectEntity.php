@@ -103,14 +103,14 @@ class ProjectEntity extends Entity implements EntityInterface
         $num = $res->getNum();
 
         // Get the owner of the project
-        $userProjectOwner = $this->entityLoader->getByGuid($this->getValue('owner_id'));
+        $userProjectOwner = $this->entityLoader->getEntityById($this->getValue('owner_id'), $this->getAccountId());
 
         // Loop through each task of this project entity
         for ($i = 0; $i < $num; $i++) {
             $task = $res->getEntity($i);
 
             // Create a new task to be cloned
-            $toTask = $this->entityLoader->create(ObjectTypes::TASK);
+            $toTask = $this->entityLoader->create(ObjectTypes::TASK, $this->getAccountId());
 
             $task->cloneTo($toTask);
 

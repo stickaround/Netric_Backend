@@ -84,7 +84,7 @@ class ScheduleRunnerWorkerTest extends TestCase
         // Create a temporary worker job to run
         $sl = $this->account->getServiceManager();
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $workerJob = $entityLoader->create(ObjectTypes::WORKER_JOB);
+        $workerJob = $entityLoader->create(ObjectTypes::WORKER_JOB, $this->account->getAccountId());
         $workerJob->setValue('entity_id', Uuid::uuid4()->toString());
         $workerJob->setValue("worker_name", "Test");
         $workerJob->setValue("job_data", json_encode(['myvar' => 'myval']));

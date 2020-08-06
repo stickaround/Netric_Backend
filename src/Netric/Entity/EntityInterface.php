@@ -150,11 +150,11 @@ interface EntityInterface
     public function getName();
 
     /**
-     * Check if the deleted flag is set for this object
+     * Check if the archived/deleted flag is set for this entity but it still exists
      *
      * @return bool
      */
-    public function isDeleted();
+    public function isArchived(): bool;
 
     /**
      * Set defaults for a field given an event

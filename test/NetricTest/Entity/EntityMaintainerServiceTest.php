@@ -11,6 +11,7 @@ use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\Account\Account;
+use Netric\Account\AccountContainer;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
@@ -59,7 +60,7 @@ class EntityMaintainerServiceTest extends TestCase
         $this->account = Bootstrap::getAccount();
 
         // Create a temporary definition with a max cap of 1 entity
-        $def = new EntityDefinition("utest_maint" . rand());
+        $def = new EntityDefinition("utest_maint" . rand(), $this->account->getAccountId());
         $def->setTitle("Unit Test Maintenance");
         $def->capped = 1;
         $def->setSystem(false);
@@ -79,12 +80,15 @@ class EntityMaintainerServiceTest extends TestCase
         $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
         $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
         $log = $this->getMockBuilder(LogInterface::class)->getMock();
+        $accountContainer = $this->createMock(AccountContainer::class);
+        $accountContainer->method('loadById')->willReturn($this->account);
         $this->maintainerService = new EntityMaintainerService(
             $log,
             $entityLoader,
             $entityDefinitionLoader,
             $entityIndex,
-            $fileSystem
+            $fileSystem,
+            $accountContainer
         );
     }
 
@@ -109,7 +113,7 @@ class EntityMaintainerServiceTest extends TestCase
      */
     public function testRunAll()
     {
-        $allStats = $this->maintainerService->runAll();
+        $allStats = $this->maintainerService->runAll($this->account->getAccountId());
 
         $this->assertArrayHasKey('trimmed', $allStats);
         $this->assertArrayHasKey('purged', $allStats);
@@ -125,16 +129,16 @@ class EntityMaintainerServiceTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create 2 entities which is one more than the cap
-        $entity1 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity1);
+        $entity1 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity1;
 
-        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity2);
+        $entity2 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity2;
 
         // Run trimCappedForType
-        $trimmed = $this->maintainerService->trimAllCappedTypes();
+        $trimmed = $this->maintainerService->trimAllCappedTypes($this->account->getAccountId());
 
         // assert that the number of deleted is 1
         $this->assertEquals(1, count($trimmed[$this->testDefinition->getObjType()]));
@@ -148,16 +152,16 @@ class EntityMaintainerServiceTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create 2 entities which is one more than the cap
-        $entity1 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity1);
+        $entity1 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity1;
 
-        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity2);
+        $entity2 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity2;
 
         // Run trimCappedForType (getAll definitions will return only this->testDefinition)
-        $trimmed = $this->maintainerService->trimCappedForType($this->testDefinition);
+        $trimmed = $this->maintainerService->trimCappedForType($this->testDefinition, $this->account->getAccountId());
 
         // assert that the number of deleted is 1
         $this->assertEquals(1, count($trimmed));
@@ -171,9 +175,9 @@ class EntityMaintainerServiceTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create then soft delete two entities
-        $entity1 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity1);
-        $entityLoader->delete($entity1, $this->account->getAuthenticatedUser());
+        $entity1 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity1, $this->account->getAuthenticatedUser());
+        $entityLoader->archive($entity1, $this->account->getAuthenticatedUser());
 
         // Get a cutoff
         $cutoff = new \DateTime();
@@ -182,13 +186,13 @@ class EntityMaintainerServiceTest extends TestCase
         sleep(1);
 
         // This entity will be deleted after the cutoff so it should be left alone
-        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity2);
-        $entityLoader->delete($entity2, $this->account->getAuthenticatedUser());
+        $entity2 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity2, $this->account->getAuthenticatedUser());
+        $entityLoader->archive($entity2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity2;
 
         // Run trimCappedForType
-        $purged = $this->maintainerService->purgeAllStaleDeleted($cutoff);
+        $purged = $this->maintainerService->purgeAllStaleDeleted($this->account->getAccountId(), $cutoff);
 
         // assert that the number of deleted is 1
         $this->assertEquals(1, count($purged[$this->testDefinition->getObjType()]));
@@ -202,14 +206,14 @@ class EntityMaintainerServiceTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create an entity to purge after deleted
-        $entity1 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity1);
-        $entityLoader->delete($entity1, $this->account->getAuthenticatedUser());
+        $entity1 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity1, $this->account->getAuthenticatedUser());
+        $entityLoader->archive($entity1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity1;
 
         // Create an entity that is before the cutoff but not deleted
-        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity2);
+        $entity2 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity2;
 
         // Get a cutoff
@@ -219,13 +223,13 @@ class EntityMaintainerServiceTest extends TestCase
         sleep(1);
 
         // This entity will be deleted after the cutoff so it should be left alone
-        $entity3 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity3);
-        $entityLoader->delete($entity3, $this->account->getAuthenticatedUser());
+        $entity3 = $entityLoader->create($this->testDefinition->getObjType(), $this->account->getAccountId());
+        $entityLoader->save($entity3, $this->account->getAuthenticatedUser());
+        $entityLoader->archive($entity3, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity3;
 
         // Purge entities deleted before the cutoff date
-        $purged = $this->maintainerService->purgeStaleDeletedForType($this->testDefinition, $cutoff);
+        $purged = $this->maintainerService->purgeStaleDeletedForType($this->testDefinition, $this->account->getAccountId(), $cutoff);
 
         // Assert that we deleted the first entity but not the second
         $this->assertEquals(1, count($purged));
@@ -238,17 +242,17 @@ class EntityMaintainerServiceTest extends TestCase
         $timeEnteredAndCutoff = time();
 
         // Create a spam message to delete that is made a little earlier than $timeEnteredAndCutoff
-        $entity1 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $entity1 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $entity1->setValue("ts_entered", $timeEnteredAndCutoff - 1000);
         $entity1->setValue("flag_spam", true);
-        $entityLoader->save($entity1);
+        $entityLoader->save($entity1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity1;
 
         // Create a second message that is not yet old enough to delete
-        $entity2 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $entity2 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $entity2->setValue("ts_entered", $timeEnteredAndCutoff + 1000);
         $entity2->setValue("flag_spam", true);
-        $entityLoader->save($entity2);
+        $entityLoader->save($entity2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity2;
 
         // Get a cutoff
@@ -256,7 +260,7 @@ class EntityMaintainerServiceTest extends TestCase
         $cutoff->setTimestamp($timeEnteredAndCutoff);
 
         // Delete messages created before or on the cutoff date
-        $deleted = $this->maintainerService->deleteOldSpamMessages($cutoff);
+        $deleted = $this->maintainerService->deleteOldSpamMessages($this->account->getAccountId(), $cutoff);
 
         // Assert that the message above was deleted but the second one was not
         $this->assertTrue(in_array($entity1->getEntityId(), $deleted));
@@ -278,7 +282,7 @@ class EntityMaintainerServiceTest extends TestCase
         // Import a file imto a temp folder
         $testData = "test data";
         $file1 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile.txt", true);
-        $fileSystem->writeFile($file1, $testData);
+        $fileSystem->writeFile($file1, $testData, $this->account->getSystemUser());
         $this->testEntities[] = $file1;
         $fileId1 = $file1->getEntityId();
 
@@ -287,16 +291,16 @@ class EntityMaintainerServiceTest extends TestCase
 
         // Create a second file with a later time than cutoff so we can make sure it is not purged
         $file2 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile2.txt", true);
-        $fileSystem->writeFile($file2, $testData);
+        $fileSystem->writeFile($file2, $testData, $this->account->getSystemUser());
         $this->testEntities[] = $file2;
         $fileId2 = $file2->getEntityId();
 
         // Bump the ts_created timestamp of the second file to make it later than the cutoff
         $file2->setValue('ts_entered', ((int) $file2->getValue('ts_entered') + 10));
-        $entityLoader->save($file2);
+        $entityLoader->save($file2, $this->account->getAuthenticatedUser());
 
         // Run cleanTempFolder
-        $deleted = $this->maintainerService->cleanTempFolder($cutoff, "/testCleanTempFolder");
+        $deleted = $this->maintainerService->cleanTempFolder($this->account->getAccountId(), $cutoff, "/testCleanTempFolder");
 
         // Assure that we deleted the first file
         $this->assertTrue(in_array($fileId1, $deleted));

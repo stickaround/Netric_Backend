@@ -24,7 +24,7 @@ foreach ($types as $objDefData) {
     // First try loading to see if it already exists
     $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
     if (!$def) {
-        $def = new EntityDefinition($objDefData['obj_type']);
+        $def = new EntityDefinition($objDefData['obj_type'], $account->getAccountId());
         $def->fromArray($objDefData);
         $entityDefinitionDataMapper->save($def);
         if (!$def->getEntityDefinitionId()) {

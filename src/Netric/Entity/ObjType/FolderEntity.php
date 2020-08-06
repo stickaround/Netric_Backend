@@ -118,7 +118,10 @@ class FolderEntity extends Entity implements EntityInterface
             return "/";
         }
 
-        $parentFolder = $this->entityLoader->getByGuid($this->getValue("parent_id"));
+        $parentFolder = $this->entityLoader->getEntityById(
+            $this->getValue("parent_id"),
+            $this->getOwner()->getAccountId()
+        );
         $pre = $parentFolder->getFullPath();
 
         // If our parent is the root, then just absolute path to root and avoid returing '//"
@@ -164,5 +167,10 @@ class FolderEntity extends Entity implements EntityInterface
         }
 
         return null;
+    }
+
+    private function getOwner(): ?UserEntity
+    {
+        return $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
     }
 }

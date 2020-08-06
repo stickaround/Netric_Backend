@@ -34,15 +34,14 @@ class EntityFactory
     }
 
     /**
-     * Service creation factory
+     * Factory to create an entity
      *
      * @param string $objType The name of the type of object the new entity represents
+     * @param string $accountId The ID of the account that will own this entity
      * @return EntityInterface
      */
-    public function create($objType)
+    public function create(string $objType, string $accountId): EntityInterface
     {
-        $obj = false;
-
         // First convert object name to file name - camelCase with upper case first
         $className = ucfirst($objType);
         if (strpos($objType, "_") !== false) {
@@ -56,25 +55,30 @@ class EntityFactory
 
         // Use factory if it exists
         if (class_exists($className)) {
-            return $className::create($this->serviceManager);
+            $entity = $className::create($this->serviceManager);
+            $entity->setValue('account_id', $accountId);
+            return $entity;
         }
 
         $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
         // TODO: if !$def then throw an exception
-        return new Entity($def, $entityLoader);
+        $entity = new Entity($def, $entityLoader);
+        $entity->setvalue('account_id', $accountId);
+        return $entity;
     }
 
     /**
      * Create a new entity from a definition id
      *
      * @param string $entityDefinitionId
+     * @param string $accountId
      * @return EntityInterface
      */
-    public function createEntityFromDefinitionId(string $entityDefinitionId): EntityInterface
+    public function createEntityFromDefinitionId(string $entityDefinitionId, string $accountId): EntityInterface
     {
         $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->getById($entityDefinitionId);
-        return $this->create($def->getObjType());
+        return $this->create($def->getObjType(), $accountId);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\WorkerMan\Worker;
 
 use Netric\Application\Application;
@@ -10,7 +11,7 @@ use InvalidArgumentException;
 
 /**
  * This worker is used find and execute scheduled jobs for an account
-*/
+ */
 class ScheduleRunnerWorker extends AbstractWorker
 {
     /**
@@ -103,7 +104,10 @@ class ScheduleRunnerWorker extends AbstractWorker
             $idsOfRunJobs[] = $this->workerService->doWorkBackground($workerName, $jobData);
 
             // Flag the job as executed so we do not try to run it again
-            $this->schedulerService->setJobAsExecuted($jobEntity);
+            $this->schedulerService->setJobAsExecuted(
+                $jobEntity,
+                $account->getSystemUser()
+            );
 
             $application->getLog()->info(
                 "ScheduleRunnerWorker->work: Executed $workerName for " . $jobData['account_id']

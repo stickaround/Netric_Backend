@@ -404,7 +404,7 @@ class Entity implements EntityInterface
      *
      * @return string
      */
-    public function getOwnerGuid()
+    public function getOwnerId()
     {
         $ownerGuid = '';
 
@@ -412,15 +412,6 @@ class Entity implements EntityInterface
             $ownerGuid = $this->getValue('creator_id');
         } elseif ($this->getValue('owner_id')) {
             $ownerGuid = $this->getValue('owner_id');
-        }
-
-        // If ownerGuid is not a valid guid, then we need to look for its guid
-        if (!Uuid::isValid($ownerGuid) && is_numeric($ownerGuid)) {
-            $ownerEntity = $this->entityLoader->getByGuid($ownerGuid);
-
-            if ($ownerEntity) {
-                $ownerGuid = $ownerEntity->getEntityId();
-            }
         }
 
         // No owner
@@ -523,9 +514,14 @@ class Entity implements EntityInterface
             }
         }
 
+        // Make sure account_id is set
+        if (empty($this->getValue('account_id')) && !empty($this->getDefinition()->getAccountId())) {
+            $this->setValue('account_id', $this->getDefinition()->getAccountId());
+        }
+
         // If the recurrence pattern data was passed then load it
         if (isset($data['recurrence_pattern']) && is_array($data['recurrence_pattern'])) {
-            $this->recurrencePattern = new RecurrencePattern();
+            $this->recurrencePattern = new RecurrencePattern($this->getAccountId());
             if (!isset($data['recurrence_pattern']['entity_definition_id'])) {
                 $data['recurrence_pattern']['entity_definition_id'] = $this->getDefinition()->getEntityDefinitionId();
             }
@@ -639,7 +635,7 @@ class Entity implements EntityInterface
         $folderPath = '/System/Entity/' . $this->getValue('entity_id');
         $entityFolder = $sm->get(FileSystemFactory::class)->openFolder($folderPath);
         if ($entityFolder && $entityFolder->getValue('entity_id')) {
-            $dacl = $sm->get(DaclLoaderFactory::class)->getForEntity($this);
+            $dacl = $sm->get(DaclLoaderFactory::class)->getForEntity($this, $sm->getAccount()->getAuthenticatedUser());
             if ($dacl) {
                 $sm->get(FileSystemFactory::class)->setFolderDacl($entityFolder, $dacl);
             }
@@ -881,13 +877,13 @@ class Entity implements EntityInterface
     }
 
     /**
-     * Check if the deleted flag is set for this object
+     * Check if the archived/deleted flag is set for this entity but it still exists
      *
      * @return bool
      */
-    public function isDeleted()
+    public function isArchived(): bool
     {
-        return $this->getValue("f_deleted");
+        return ($this->getValue("f_deleted") === true);
     }
 
     /**
@@ -1062,6 +1058,7 @@ class Entity implements EntityInterface
 
         foreach ($fields as $field) {
             $value = $this->getValue($field->name);
+            $valueName = $this->getValueName($field->name, $value);
 
             switch ($field->type) {
                 case FIELD::TYPE_TEXT:
@@ -1081,7 +1078,7 @@ class Entity implements EntityInterface
                     // Make sure we have associations added for any object reference
                     if ($value) {
                         if ($field->subtype == ObjectTypes::USER) {
-                            $this->addObjReferenceGuid("followers", $field->name, $value, ObjectTypes::USER);
+                            $this->addMultiValue("followers", $value, $valueName);
                         }
                     }
                     break;
@@ -1091,33 +1088,15 @@ class Entity implements EntityInterface
                         if (is_array($value)) {
                             foreach ($value as $guid) {
                                 if ($guid) {
-                                    $this->addObjReferenceGuid("followers", $field->name, $guid, ObjectTypes::USER);
+                                    $this->addMultiValue("followers", $guid);
                                 }
                             }
                         } elseif ($value) {
-                            $this->addObjReferenceGuid("followers", $field->name, $value, ObjectTypes::USER);
+                            $this->addMultiValue("followers", $value, $valueName);
                         }
                     }
                     break;
             }
-        }
-    }
-
-    /**
-     * Add an object reference guid to a field
-     *
-     * @param string $referenceType The type object reference we are adding (associations or followers)
-     * @param string $fieldName The name of the field that we will be referencing
-     * @param string $value The value of the object reference. This should be the guid of the referenced entity
-     * @param string $objType Optional. For backward compatibility, if the provided object reference value is an entity id,
-     *                        then it needs the objType so we can look for the referenced entity.
-     */
-    private function addObjReferenceGuid(string $referenceType, string $fieldName, string $value, string $objType = "")
-    {
-        // Get the referenced entity
-        $referencedEntity = $this->entityLoader->getByGuid($value);
-        if ($referencedEntity) {
-            $this->addMultiValue($referenceType, $referencedEntity->getEntityId(), $referencedEntity->getName());
         }
     }
 

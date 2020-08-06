@@ -284,7 +284,8 @@ abstract class AbstractAction implements ErrorAwareInterface
     public function removeAction(ActionInterface $action)
     {
         for ($i = 0; $i < count($this->childActions); $i++) {
-            if ($action === $this->childActions[$i] ||
+            if (
+                $action === $this->childActions[$i] ||
                 ($action->getWorkFlowLegacyActionId() != null && $action->getWorkFlowLegacyActionId() === $this->childActions[$i]->getWorkFlowLegacyActionId())
             ) {
                 array_splice($this->childActions, $i, 1);
@@ -329,7 +330,8 @@ abstract class AbstractAction implements ErrorAwareInterface
         // Check if previously added
         $previouslyAddedAt = -1;
         for ($i = 0; $i < count($this->childActions); $i++) {
-            if ($actionToAdd->getWorkFlowLegacyActionId() &&
+            if (
+                $actionToAdd->getWorkFlowLegacyActionId() &&
                 $this->childActions[$i]->getWorkFlowLegacyActionId() === $actionToAdd->getWorkFlowLegacyActionId()
             ) {
                 $previouslyAddedAt = $i;
@@ -564,7 +566,7 @@ abstract class AbstractAction implements ErrorAwareInterface
 
             if ($referencedEntityId && $field->type == FIELD::TYPE_OBJECT && $field->subtype) {
                 // Load the referenced entity
-                $referencedEntity = $this->entityLoader->getByGuid($referencedEntityId);
+                $referencedEntity = $this->entityLoader->getEntityById($referencedEntityId, $entity->getAccountId());
 
                 // Recursively call until we are at the last element of the fieldName
                 return $this->getParamVariableFieldValue($referencedEntity, $fieldNameRemainder);

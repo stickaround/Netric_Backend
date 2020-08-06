@@ -2,6 +2,7 @@
 
 namespace Netric\Mail;
 
+use Netric\Account\Account;
 use Netric\EntityGroupings\Group;
 use Netric\EntityQuery;
 use Netric\Error\AbstractHasErrors;
@@ -20,8 +21,6 @@ use PhpMimeMailParser;
 
 /**
  * Service responsible for delivering messages into netric
- *
- * @group integration
  */
 class DeliveryService extends AbstractHasErrors
 {
@@ -106,7 +105,8 @@ class DeliveryService extends AbstractHasErrors
      */
     public function deliverMessageFromFile(
         string $emailAddress,
-        string $filePath
+        string $filePath,
+        Account $account
     ): string {
         // TODO: Check if the email is a drop-box email and process accordingly
 
@@ -117,7 +117,10 @@ class DeliveryService extends AbstractHasErrors
         }
 
         // Get user entity from email account
-        $user = $this->entityLoader->getByGuid($emailAccount->getOwnerGuid());
+        $user = $this->entityLoader->getEntityById(
+            $emailAccount->getOwnerId(),
+            $account->getAccountId()
+        );
 
         // Get Inbox for user
         $mailboxGroups = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
@@ -133,7 +136,7 @@ class DeliveryService extends AbstractHasErrors
         $parser->setPath($filePath);
 
         // Create EmailMessageEntity and import Mail\Message
-        $emailEntity = $this->entityLoader->create("email_message");
+        $emailEntity = $this->entityLoader->create("email_message", $account->getAccountId());
         $plainbody = $parser->getMessageBody('text');
         $htmlbody = $parser->getMessageBody('html');
 
@@ -182,7 +185,7 @@ class DeliveryService extends AbstractHasErrors
 
         $attachments = $parser->getAttachments();
         foreach ($attachments as $att) {
-            $this->importMailParseAtt($att, $emailEntity);
+            $this->importMailParseAtt($att, $emailEntity, $user);
         }
 
         // Cleanup resources
@@ -205,7 +208,8 @@ class DeliveryService extends AbstractHasErrors
      */
     private function importMailParseAtt(
         PhpMimeMailParser\Attachment &$parserAttach,
-        EmailMessageEntity &$email
+        EmailMessageEntity &$email,
+        UserEntity $user
     ) {
         /*
          * Write attachment to temp file
@@ -225,7 +229,7 @@ class DeliveryService extends AbstractHasErrors
 
         // Stream the temp file into the fileSystem
         $file = $this->fileSystem->createFile("%tmp%", $parserAttach->getFilename(), true);
-        $result = $this->fileSystem->writeFile($file, $tmpFile);
+        $result = $this->fileSystem->writeFile($file, $tmpFile, $user);
         $email->addMultiValue("attachments", $file->getEntityId(), $file->getName());
     }
 
@@ -258,14 +262,14 @@ class DeliveryService extends AbstractHasErrors
     private function createInbox(EmailAccountEntity $emailAccount): Group
     {
         // Get user entity from email account
-        $user = $this->entityLoader->getByGuid($emailAccount->getOwnerGuid());
+        $user = $this->entityLoader->getEntityById($emailAccount->getOwnerId(), $emailAccount->getAccountId());
 
         $groupings = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
 
         $inbox = new Group();
         $inbox->name = "Inbox";
         $inbox->isSystem = true;
-        $inbox->user_id = $emailAccount->getOwnerGuid();
+        $inbox->user_id = $emailAccount->getOwnerId();
         $groupings->add($inbox);
         $this->groupingLoader->save($groupings);
         return $groupings->getByPath("Inbox");

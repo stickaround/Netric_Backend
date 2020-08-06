@@ -43,7 +43,7 @@ class WorkerJobTest extends TestCase
     public function testFactory()
     {
         $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::WORKER_JOB);
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::WORKER_JOB);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::WORKER_JOB, $this->account->getAccountId());
         $this->assertInstanceOf(WorkerJobEntity::class, $entity);
     }
 }

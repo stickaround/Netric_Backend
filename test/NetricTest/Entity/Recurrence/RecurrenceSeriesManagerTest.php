@@ -6,6 +6,7 @@
 
 namespace NetricTest\Entity\Recurrence;
 
+use Netric\Account\Account;
 use Netric\Entity\Recurrence;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Entity;
@@ -101,9 +102,9 @@ class RecurrenceSeriesManagerTest extends TestCase
                 "date_end" => "2016-01-05",
             ]
         ];
-        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT, $this->account->getAccountId());
         $event->fromArray($entityData);
-        $this->entityDataMapper->save($event);
+        $this->entityDataMapper->save($event, $this->account->getAuthenticatedUser());
 
         $recurRules = $event->getDefinition()->recurRules;
         $recurrencePattern = $event->getRecurrencePattern();
@@ -123,7 +124,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertEquals(3, $numCreated);
 
         // Delete the series
-        $this->recurSeriesManager->removeSeries($event);
+        $this->recurSeriesManager->removeSeries($event, $this->account->getSystemUser());
     }
 
     /**
@@ -148,9 +149,9 @@ class RecurrenceSeriesManagerTest extends TestCase
                 "date_end" => "2016-01-05",
             ]
         ];
-        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT, $this->account->getAccountId());
         $event->fromArray($entityData);
-        $this->entityDataMapper->save($event);
+        $this->entityDataMapper->save($event, $this->account->getAuthenticatedUser());
 
         // Create instance for next day
         $recurPattern = $event->getRecurrencePattern();
@@ -159,7 +160,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertNotEmpty($eid);
 
         // Open the new entity
-        $event2 = $this->entityLoader->getByGuid($eid);
+        $event2 = $this->entityLoader->getEntityById($eid, $this->account->getAccountId());
         $this->assertEquals($event->getName(), $event2->getName());
 
         // Make sure the dates are different but the times are the same
@@ -195,9 +196,9 @@ class RecurrenceSeriesManagerTest extends TestCase
                 "date_end" => "2016-01-05",
             ]
         ];
-        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT, $this->account->getAccountId());
         $event->fromArray($entityData);
-        $eventId = $this->entityDataMapper->save($event);
+        $eventId = $this->entityDataMapper->save($event, $this->account->getAuthenticatedUser());
         $recurId = $event->getRecurrencePattern()->getId();
 
         // Create the series for +5 days from start - should create five instances
@@ -205,11 +206,12 @@ class RecurrenceSeriesManagerTest extends TestCase
         $numCreated = $this->recurSeriesManager->createSeries($event->getRecurrencePattern(), $dateTo);
 
         // Delete the series
-        $ret = $this->recurSeriesManager->removeSeries($event);
+        $ret = $this->recurSeriesManager->removeSeries($event, $this->account->getSystemUser());
         $this->assertTrue($ret);
 
-        // Try to open the original and make sure it is deleted
-        $this->assertTrue($this->entityLoader->getByGuid($eventId)->isDeleted());
+        // Try to open the original and make sure it is archived
+        $entity = $this->entityLoader->getEntityById($eventId, $this->account->getAccountId());
+        $this->assertTrue($entity->isArchived());
 
         // Make sure the recurring pattern was also deleted
         $this->assertNull($this->recurIndentityMapper->getById($recurId));
@@ -232,9 +234,9 @@ class RecurrenceSeriesManagerTest extends TestCase
                 "date_end" => "2016-01-05",
             ]
         ];
-        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT, $this->account->getAccountId());
         $event->fromArray($entityData);
-        $this->entityDataMapper->save($event);
+        $this->entityDataMapper->save($event, $this->account->getAuthenticatedUser());
         $recurId = $event->getRecurrencePattern()->getId();
 
         // Create a query that gets events from January 1 to January 5

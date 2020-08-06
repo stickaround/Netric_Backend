@@ -211,7 +211,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             $folderEntity = $this->fileSystem->openFolder($folderPath);
 
             if ($folderEntity) {
-                $dacl = $daclLoader->getForEntity($folderEntity);
+                $dacl = $daclLoader->getForEntity($folderEntity, $user);
                 if (!$dacl->isAllowed($user)) {
                     // Log a warning to flag repeat offenders
                     $log->warning(
@@ -295,7 +295,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Make sure the current user has access
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($fileEntity);
+        $dacl = $daclLoader->getForEntity($fileEntity, $user);
         if (!$dacl->isAllowed($user, Dacl::PERM_VIEW)) {
             $log->warning(
                 "FilesController->getDownloadAction: User " . $user->getName() .
@@ -383,7 +383,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         $entiyLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Get the user entity for the user id
-        $userToGetImageFor = $entiyLoader->getByGuid($userGuid);
+        $userToGetImageFor = $entiyLoader->getEntityById($userGuid, $this->account->getAccountId());
         $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
 
         // 404 if the user was not found or there was no image_id uploaded

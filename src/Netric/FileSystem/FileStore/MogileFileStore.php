@@ -13,6 +13,7 @@ use Netric\Entity\EntityLoader;
 use Netric\FileSystem\FileStore\Exception\CannotConnectException;
 use MogileFs;
 use MogileFsException;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Store files in MogileFS
@@ -168,9 +169,10 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      *
      * @param FileEntity $file The meta-data Entity for this file
      * @param $dataOrStream $data Binary data to write or a stream resource
+     * @param UserEntity $user
      * @return int number of bytes written
      */
-    public function writeFile(FileEntity $file, $dataOrStream)
+    public function writeFile(FileEntity $file, $dataOrStream, UserEntity $user)
     {
         // 1. Write to temp
         $tempName = $this->getTempName($file);
@@ -192,7 +194,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         $bytesWritten = filesize($tempPath);
 
         // 2. Upload
-        if ($this->uploadFile($file, $tempPath)) {
+        if ($this->uploadFile($file, $tempPath, $user)) {
             // Cleanup
             unlink($tempPath);
 
@@ -211,9 +213,10 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      *
      * @param FileEntity $file Meta-data Entity for the file
      * @param string $localPath Path of a local file
+     * @param UserEntity $user
      * @return true on success, false on failure
      */
-    public function uploadFile(FileEntity $file, $localPath)
+    public function uploadFile(FileEntity $file, $localPath, UserEntity $user)
     {
         if (!file_exists($localPath)) {
             $this->addErrorFromMessage("Could not upload file: $localPath does not exist");
@@ -263,7 +266,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         $file->setValue("dat_local_path", "");
         $file->setValue("dat_ans_key", $key);
 
-        $this->entityLoader->save($file);
+        $this->entityLoader->save($file, $user);
         return true;
     }
 

@@ -66,13 +66,13 @@ class ActivityLogTest extends TestCase
     public function testLog()
     {
         // Create a test customer
-        $customerEntity = $this->entityLoader->create(ObjectTypes::CONTACT);
+        $customerEntity = $this->entityLoader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customerEntity->setValue("name", "Test Customer Log");
-        $this->entityLoader->save($customerEntity);
+        $this->entityLoader->save($customerEntity, $this->account->getAuthenticatedUser());
 
         // Log the activity
         $act = $this->activityLog->log($this->user, ActivityEntity::VERB_CREATED, $customerEntity);
-        $openedAct = $this->entityLoader->getByGuid($act->getEntityId());
+        $openedAct = $this->entityLoader->getEntityById($act->getEntityId(), $this->account->getAccountId());
 
         // Test activity
         $this->assertNotNull($openedAct);

@@ -77,10 +77,10 @@ class NotificationTest extends TestCase
         }
 
         // Create a test user to assign a task and notification to
-        $this->testUser = $this->entityLoader->create(ObjectTypes::USER);
+        $this->testUser = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->testUser->setValue("name", "notificationtest");
         $this->testUser->setValue("email", "test@netric.com");
-        $this->entityLoader->save($this->testUser);
+        $this->entityLoader->save($this->testUser, $this->account->getSystemUser());
         $this->testEntities[] = $this->testUser;
     }
 
@@ -101,7 +101,7 @@ class NotificationTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::NOTIFICATION);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
         $this->assertInstanceOf(NotificationEntity::class, $entity);
     }
 
@@ -111,13 +111,13 @@ class NotificationTest extends TestCase
     public function testSendEmailNotification()
     {
         // Set obj_reference to a task
-        $task = $this->entityLoader->create(ObjectTypes::TASK);
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("name", "A test task");
-        $this->entityLoader->save($task);
+        $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->testEntities[] = $task;
 
         // Create a new notification
-        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
+        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
         $notification->setValue("f_email", true);
         $notification->setValue("owner_id", $this->testUser->getEntityId());
         $notification->setValue("creator_id", $this->user->getEntityId());

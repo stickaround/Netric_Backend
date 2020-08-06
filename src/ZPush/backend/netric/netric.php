@@ -449,7 +449,7 @@ class BackendNetric implements IBackend
 
         // Create a new EmailMessage entity from the mail message
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailEntity = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $emailEntity = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $emailEntity->setValue("owner_id", $this->user->getEntityId());
 
         // Import the mail message into the entity

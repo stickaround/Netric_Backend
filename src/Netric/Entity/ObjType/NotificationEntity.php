@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -88,10 +89,16 @@ class NotificationEntity extends Entity implements EntityInterface
         }
 
         // Get the user that owns this notice
-        $user = $sm->get(EntityLoaderFactory::class)->getByGuid($this->getValue("owner_id"));
+        $user = $sm->get(EntityLoaderFactory::class)->getEntityById(
+            $this->getValue("owner_id"),
+            $sm->getAccount()->getAccountId()
+        );
 
         // Get the user that triggered this notice
-        $creator = $sm->get(EntityLoaderFactory::class)->getByGuid($this->getValue("creator_id"));
+        $creator = $sm->get(EntityLoaderFactory::class)->getEntityById(
+            $this->getValue("creator_id"),
+            $sm->getAccount()->getAccountId()
+        );
 
         // Make sure the user has an email
         if (!$user || !$user->getValue("email")) {
@@ -100,7 +107,10 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // Get the referenced entity
         $objReference = $this->getValue("obj_reference");
-        $referencedEntity = $sm->get(EntityLoaderFactory::class)->getByGuid($objReference);
+        $referencedEntity = $sm->get(EntityLoaderFactory::class)->getEntityById(
+            $objReference,
+            $sm->getAccount()->getAccountId()
+        );
         $def = $referencedEntity->getDefinition();
 
         $config = $sm->get(ConfigFactory::class);

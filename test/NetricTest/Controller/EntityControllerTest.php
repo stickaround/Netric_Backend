@@ -101,9 +101,9 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
+        $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
         $dashboardEntity->setValue("name", "activity-new");
-        $loader->save($dashboardEntity);
+        $loader->save($dashboardEntity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $dashboardEntity;
 
         // Set params in the request
@@ -121,11 +121,11 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
+        $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
         $dashboardName = "activity-test" . uniqid();
         $dashboardEntity->setValue("name", $dashboardName);
         $dashboardEntity->setValue("owner_id", $this->account->getUser()->getEntityId());
-        $loader->save($dashboardEntity);
+        $loader->save($dashboardEntity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $dashboardEntity;
 
         // Test The getting of entity using unique name
@@ -142,7 +142,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $dashboardEntity = $loader->getByGuid($ret['entity_id']);
+        $dashboardEntity = $loader->getEntityById($ret['entity_id'], $this->account->getAccountId());
         $this->assertEquals($dashboardEntity->getValue("name"), $dashboardName);
     }
 
@@ -150,9 +150,9 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $customer = $loader->create(ObjectTypes::CONTACT);
+        $customer = $loader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", "Test");
-        $loader->save($customer);
+        $loader->save($customer, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $customer;
 
         $data = [
@@ -173,15 +173,15 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $site = $loader->create("cms_site");
+        $site = $loader->create("cms_site", $this->account->getAccountId());
         $site->setValue("name", "www.testsite.com");
-        $loader->save($site);
+        $loader->save($site, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $site;
 
-        $page = $loader->create("cms_page");
+        $page = $loader->create("cms_page", $this->account->getAccountId());
         $page->setValue("name", "testPostGetEntityAction");
         $page->setValue("site_id", $site->getEntityId());
-        $loader->save($page);
+        $loader->save($page, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $page;
 
         $data = [
@@ -208,9 +208,9 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $site = $loader->create("cms_site");
+        $site = $loader->create("cms_site", $this->account->getAccountId());
         $site->setValue("name", "www.testsite.com");
-        $loader->save($site);
+        $loader->save($site, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $site;
 
         // Set params in the request
@@ -260,10 +260,10 @@ class EntityControllerTest extends TestCase
     {
         // First create an entity to save
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $entity = $loader->create(ObjectTypes::NOTE);
+        $entity = $loader->create(ObjectTypes::NOTE, $this->account->getAccountId());
         $entity->setValue("name", "Test");
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
-        $dm->save($entity);
+        $dm->save($entity, $this->account->getAuthenticatedUser());
         $entityId = $entity->getEntityId();
 
         // Set params in the request
@@ -452,17 +452,17 @@ class EntityControllerTest extends TestCase
         $this->testGroups[] = $group2->getGroupId();
 
         // First create entities to save
-        $entity1 = $loader->create(ObjectTypes::NOTE);
+        $entity1 = $loader->create(ObjectTypes::NOTE, $this->account->getAccountId());
         $entity1->setValue("body", "Note 1");
         $entity1->addMultiValue("groups", $group1->getGroupId(), $group1->getName());
-        $dm->save($entity1);
+        $dm->save($entity1, $this->account->getAuthenticatedUser());
         $entityGuid1 = $entity1->getEntityId();
         $this->testEntities[] = $entity1;
 
-        $entity2 = $loader->create(ObjectTypes::NOTE);
+        $entity2 = $loader->create(ObjectTypes::NOTE, $this->account->getAccountId());
         $entity2->setValue("body", "Note 2");
         $entity2->addMultiValue("groups", $group2->getGroupId(), $group2->getName());
-        $dm->save($entity2);
+        $dm->save($entity2, $this->account->getAuthenticatedUser());
         $entityGuid2 = $entity2->getEntityId();
         $this->testEntities[] = $entity2;
 
@@ -501,32 +501,32 @@ class EntityControllerTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // First create entities to merge
-        $entity1 = $loader->create(ObjectTypes::NOTE);
+        $entity1 = $loader->create(ObjectTypes::NOTE, $this->account->getAccountId());
         $entity1->setValue("body", "body 1");
         $entity1->setValue("name", "name 1");
         $entity1->setValue("title", "title 1");
         $entity1->setValue("website", "website 1");
         $entity1->addMultiValue("groups", 1, "note group 1");
-        $dm->save($entity1);
+        $dm->save($entity1, $this->account->getAuthenticatedUser());
         $entityId1 = $entity1->getEntityId();
 
-        $entity2 = $loader->create(ObjectTypes::NOTE);
+        $entity2 = $loader->create(ObjectTypes::NOTE, $this->account->getAccountId());
         $entity2->setValue("body", "body 2");
         $entity2->setValue("name", "name 2");
         $entity2->setValue("path", "path 2");
         $entity2->setValue("website", "website 2");
         $entity2->addMultiValue("groups", 2, "note group 2");
-        $dm->save($entity2);
+        $dm->save($entity2, $this->account->getAuthenticatedUser());
         $entityId2 = $entity2->getEntityId();
 
-        $entity3 = $loader->create(ObjectTypes::NOTE);
+        $entity3 = $loader->create(ObjectTypes::NOTE, $this->account->getAccountId());
         $entity3->setValue("body", "body 3");
         $entity3->setValue("name", "name 3");
         $entity3->setValue("path", "path 3");
         $entity3->setValue("website", "website 3");
         $entity3->addMultiValue("groups", 3, "note group 3");
         $entity3->addMultiValue("groups", 33, "note group 33");
-        $dm->save($entity3);
+        $dm->save($entity3, $this->account->getAuthenticatedUser());
         $entityId3 = $entity3->getEntityId();
 
         // Setup the merge data
@@ -566,15 +566,15 @@ class EntityControllerTest extends TestCase
         $mId3 = $dm->checkEntityHasMoved($entity3->getDefinition(), $entityId3);
         $this->assertEquals($mId3, $ret['entity_id']);
 
-        // Lets load the actual entities and check if they are deleted
-        $originalEntity1 = $loader->getByGuid($entityId1);
-        $this->assertEquals($originalEntity1->getValue("f_deleted"), 1);
+        // Lets load the actual entities and check if they are archived
+        $originalEntity1 = $loader->getEntityById($entityId1, $this->account->getAccountId());
+        $this->assertTrue($originalEntity1->isArchived());
 
-        $originalEntity2 = $loader->getByGuid($entityId2);
-        $this->assertEquals($originalEntity2->getValue("f_deleted"), 1);
+        $originalEntity2 = $loader->getEntityById($entityId2, $this->account->getAccountId());
+        $this->assertTrue($originalEntity2->isArchived());
 
-        $originalEntity3 = $loader->getByGuid($entityId3);
-        $this->assertEquals($originalEntity3->getValue("f_deleted"), 1);
+        $originalEntity3 = $loader->getEntityById($entityId3, $this->account->getAccountId());
+        $this->assertTrue($originalEntity3->isArchived());
     }
 
     public function testSaveGroup()
@@ -601,7 +601,7 @@ class EntityControllerTest extends TestCase
     public function testDeleteEntityDef()
     {
         $objType = "UnitTestObjType";
-        $def = new EntityDefinition($objType);
+        $def = new EntityDefinition($objType, $this->account->getAccountId());
         $def->setSystem(false);
 
         // Save the entity definition
@@ -698,7 +698,7 @@ class EntityControllerTest extends TestCase
         // Removing an entity with an empty object type should return an error
         $req->setParam('obj_type', '');
         $ret = $this->controller->getRemoveAction();
-        $this->assertEquals($ret['error'], 'obj_type is a required param');
+        $this->assertEquals($ret['error'], 'obj_type is a required param', var_export($ret, true));
     }
 
     public function testPostSaveGroupActionToReturnError()

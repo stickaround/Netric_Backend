@@ -63,12 +63,12 @@ class EntityLoaderTest extends TestCase
 
         // Create a test object
         $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
-        $cust = $loader->create(ObjectTypes::CONTACT);
+        $cust = $loader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "EntityLoaderTest:testGet");
-        $dataMapper->save($cust);
+        $dataMapper->save($cust, $this->account->getAuthenticatedUser());
 
         // Use the laoder to get the object
-        $ent = $loader->getByGuid($cust->getEntityId());
+        $ent = $loader->getEntityById($cust->getEntityId(), $this->account->getAccountId());
         $this->assertEquals($cust->getEntityId(), $ent->getEntityId());
 
         // Test to see if the isLoaded function indicates the entity has been loaded and cached locally
@@ -90,7 +90,7 @@ class EntityLoaderTest extends TestCase
     public function testByUniqueName()
     {
         $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
-        $task = $entityFactory->create(ObjectTypes::TASK);
+        $task = $entityFactory->create(ObjectTypes::TASK, $this->account->getAccountId());
 
         // Configure a mock datamapper
         $dataMapper = $this->getMockBuilder(EntityDataMapperInterface::class)->getMock();
@@ -102,7 +102,7 @@ class EntityLoaderTest extends TestCase
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $loader = new EntityLoader($dataMapper, $defLoader, $entityFactory, $cache);
 
-        $entity = $loader->getByUniqueName(ObjectTypes::TASK, "my_test");
+        $entity = $loader->getByUniqueName(ObjectTypes::TASK, "my_test", $this->account->getAuthenticatedUser());
 
         $this->assertEquals($task, $entity);
     }

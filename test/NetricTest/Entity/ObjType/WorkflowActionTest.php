@@ -46,7 +46,7 @@ class WorkflowActionTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::WORKFLOW_ACTION);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::WORKFLOW_ACTION, $this->account->getAccountId());
         $this->assertInstanceOf(WorkflowActionEntity::class, $entity);
     }
 }

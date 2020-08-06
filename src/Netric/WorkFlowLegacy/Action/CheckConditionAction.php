@@ -76,7 +76,7 @@ class CheckConditionAction extends AbstractAction implements ActionInterface
         $query->where("id")->equals($entity->getEntityId());
 
         // Query deleted if the entity is deleted
-        if ($entity->isDeleted()) {
+        if ($entity->isArchived()) {
             $query->andWhere("f_deleted")->equals(true);
         }
 

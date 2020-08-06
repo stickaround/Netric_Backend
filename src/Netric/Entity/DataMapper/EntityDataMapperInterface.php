@@ -16,10 +16,10 @@ interface EntityDataMapperInterface
      * Get an entity by id
      *
      * @param string $entityId The unique id of the entity to load
-     * @param UserEntity $user The user that is acting on this entity
+     * @param string $accountId
      * @return EntityInterface|null
      */
-    public function getEntityById(string $entityId, UserEntity $user): ?EntityInterface;
+    public function getEntityById(string $entityId, string $accountId): ?EntityInterface;
 
     /**
      * Get an entity by a unique name path
@@ -41,6 +41,15 @@ interface EntityDataMapperInterface
         UserEntity $user,
         array $namespaceFieldValues = []
     ): ?EntityInterface;
+
+    /**
+     * Archive an entity
+     *
+     * @param EntityInterface $entity The entity to delete
+     * @param UserEntity $user The user that is acting on this entity
+     * @return bool true on success, false on failure
+     */
+    public function archive(EntityInterface $entity, UserEntity $user): bool;
 
     /**
      * Delete an entity

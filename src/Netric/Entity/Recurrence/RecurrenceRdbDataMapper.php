@@ -259,7 +259,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             }
 
             // Create recurrence pattern to return
-            $recurPattern = new RecurrencePattern();
+            $recurPattern = new RecurrencePattern($this->accountId);
             $recurPattern->fromArray($recurrenceData);
 
             // Now set weekday bits

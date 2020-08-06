@@ -1,8 +1,6 @@
 <?php
 
 use Netric\EntityGroupings\Group;
-use Netric\EntityQuery;
-use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -36,7 +34,7 @@ $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
 
 foreach ($usersData as $userData) {
     if (!$entityLoader->getByUniqueName(ObjectTypes::USER, $userData['name'], $account->getSystemUser())) {
-        $user = $entityLoader->create(ObjectTypes::USER);
+        $user = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
         $user->fromArray($userData);
         $entityLoader->save($user, $account->getSystemUser());
     }

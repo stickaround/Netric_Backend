@@ -80,26 +80,26 @@ class EntityAggregatorTest extends TestCase
     public function testUpdateAggregates_Sum()
     {
         // Create a new task
-        $task = $this->entityLoader->create(ObjectTypes::TASK);
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("name", "utest aggregates-sum");
-        $tid = $this->entityLoader->save($task);
+        $tid = $this->entityLoader->save($task, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $task;
 
         // Add two time entries - saving calls trigger aggregator
-        $time = $this->entityLoader->create(ObjectTypes::TIME);
+        $time = $this->entityLoader->create(ObjectTypes::TIME, $this->account->getAccountId());
         $time->setValue("task_id", $tid);
         $time->setValue("hours", 1);
-        $this->entityLoader->save($time);
+        $this->entityLoader->save($time, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $time;
 
-        $time2 = $this->entityLoader->create(ObjectTypes::TIME);
+        $time2 = $this->entityLoader->create(ObjectTypes::TIME, $this->account->getAccountId());
         $time2->setValue("task_id", $tid);
         $time2->setValue("hours", 1);
-        $this->entityLoader->save($time2);
+        $this->entityLoader->save($time2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $time2;
 
         // Now check if the task has 2 hours in the cost_actual field
-        $task = $this->entityLoader->getByGuid($tid);
+        $task = $this->entityLoader->getEntityById($tid, $this->account->getAccountId());
         $this->assertEquals(2, $task->getValue("cost_actual"));
     }
 
@@ -107,26 +107,26 @@ class EntityAggregatorTest extends TestCase
     {
 
         // Create a new products
-        $task = $this->entityLoader->create(ObjectTypes::PRODUCT);
+        $task = $this->entityLoader->create(ObjectTypes::PRODUCT, $this->account->getAccountId());
         $task->setValue("name", "utest aggregates-avg");
-        $pid = $this->entityLoader->save($task);
+        $pid = $this->entityLoader->save($task, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $task;
 
         // Add two rating entries - saving calls trigger aggregator
-        $rating1 = $this->entityLoader->create(ObjectTypes::PRODUCT_REVIEW);
+        $rating1 = $this->entityLoader->create(ObjectTypes::PRODUCT_REVIEW, $this->account->getAccountId());
         $rating1->setValue(ObjectTypes::PRODUCT, $pid);
         $rating1->setValue("rating", 8);
-        $this->entityLoader->save($rating1);
+        $this->entityLoader->save($rating1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $rating1;
 
-        $rating2 = $this->entityLoader->create(ObjectTypes::PRODUCT_REVIEW);
+        $rating2 = $this->entityLoader->create(ObjectTypes::PRODUCT_REVIEW, $this->account->getAccountId());
         $rating2->setValue(ObjectTypes::PRODUCT, $pid);
         $rating2->setValue("rating", 2);
-        $this->entityLoader->save($rating2);
+        $this->entityLoader->save($rating2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $rating2;
 
         // The product rating should be an avg of 5 (8 + 2) / 2 ratings
-        $task = $this->entityLoader->getByGuid($pid);
+        $task = $this->entityLoader->getEntityById($pid, $this->account->getAccountId());
         $this->assertEquals(5, $task->getValue("rating"));
     }
 }

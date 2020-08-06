@@ -2,6 +2,7 @@
 
 namespace Netric\EntityDefinition;
 
+use Netric\Account\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
@@ -34,17 +35,25 @@ class EntityDefinitionLoader
     private $cache = null;
 
     /**
+     * Account we are loading definitions for
+     */
+    private Account $account;
+
+    /**
      * Setup IdentityMapper for loading objects
      *
      * @param EntityDefinitionDataMapperInterface $dataMapper Datamapper for entity definitions
      * @param CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
      */
-    public function __construct(EntityDefinitionDataMapperInterface $dataMapper, CacheInterface $cache = null)
-    {
+    public function __construct(
+        EntityDefinitionDataMapperInterface $dataMapper,
+        CacheInterface $cache = null,
+        Account $account
+    ) {
         $this->cache = $cache;
         $this->dataMapper = $dataMapper;
-        return $this;
+        $this->account = $account;
     }
 
     /**
@@ -199,7 +208,7 @@ class EntityDefinitionLoader
         $ret = $this->cache->get($this->getUniqueKeyForObjType($objType));
 
         if ($ret) {
-            $def = new EntityDefinition($objType);
+            $def = new EntityDefinition($objType, $this->account->getAccountId());
             $def->fromArray($ret);
             return $def;
         }

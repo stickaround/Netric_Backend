@@ -69,8 +69,8 @@ class EmailThreadEntity extends Entity implements EntityInterface
     public function onAfterSave(AccountServiceManagerInterface $sm)
     {
         // Check it see if the user deleted the whole thread
-        if ($this->isDeleted()) {
-            $this->removeMessages(false);
+        if ($this->isArchived()) {
+            $this->removeMessages(false, $sm->getAccount()->getAuthenticatedUser());
         } elseif ($this->fieldValueChanged("f_deleted")) {
             // Check if we un-deleted the thread
             $this->restoreMessages();
@@ -85,7 +85,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
     public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
     {
         // Purge all messages that were in this thread
-        $this->removeMessages(true); // Now purge
+        $this->removeMessages(true, $sm->getAccount()->getAuthenticatedUser()); // Now purge
     }
 
     /**
@@ -139,7 +139,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
      *
      * @param bool $hard Flag to indicate if we should just soft delete (save with flag) or purge
      */
-    private function removeMessages($hard = false)
+    private function removeMessages($hard = false, UserEntity $user)
     {
         if (!$this->getEntityId()) {
             return;
@@ -151,7 +151,11 @@ class EmailThreadEntity extends Entity implements EntityInterface
         $num = $results->getTotalNum();
         for ($i = 0; $i < $num; $i++) {
             $emailMessage = $results->getEntity($i);
-            $this->entityLoader->delete($emailMessage, $hard);
+            if ($hard) {
+                $this->entityLoader->delete($emailMessage, $user);
+            } else {
+                $this->entityLoader->archive($emailMessage, $user);
+            }
         }
 
         // If we are doing a hard delete, then also get previously deleted
@@ -163,7 +167,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
             $num = $results->getTotalNum();
             for ($i = 0; $i < $num; $i++) {
                 $emailMessage = $results->getEntity($i);
-                $this->entityLoader->delete($emailMessage, true);
+                $this->entityLoader->delete($emailMessage, $user);
             }
         }
     }
@@ -185,7 +189,10 @@ class EmailThreadEntity extends Entity implements EntityInterface
         for ($i = 0; $i < $num; $i++) {
             $emailMessage = $results->getEntity($i);
             $emailMessage->setValue("f_deleted", false);
-            $messageUser = $this->entityLoader->getByGuid($emailMessage->getValue('owner_id'));
+            $messageUser = $this->entityLoader->getEntityById(
+                $emailMessage->getValue('owner_id'),
+                $this->getAccountId()
+            );
             $this->entityLoader->save($emailMessage, $messageUser);
         }
     }

@@ -312,19 +312,19 @@ class UserEntity extends Entity implements EntityInterface
     }
 
     /**
-     * Override getOwnerGuid to always return $this->id for a user entity
+     * Override getOwnerId to always return $this->id for a user entity
      *
      * We do this because a user is always the owner of him or her self in
      * terms of permissions and/or delegation of responsibility.
      *
      * @return int
      */
-    public function getOwnerGuid()
+    public function getOwnerId()
     {
         if ($this->getEntityId()) {
             return $this->getEntityId();
         }
 
-        return parent::getOwnerGuid();
+        return parent::getOwnerId();
     }
 }

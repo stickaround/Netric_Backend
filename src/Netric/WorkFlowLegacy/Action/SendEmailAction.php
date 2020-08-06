@@ -71,7 +71,7 @@ class SendEmailAction extends AbstractAction implements ActionInterface
 
         // Check if we are using an html_template id for loading a template
         if (isset($params['fid'])) {
-            $template = $this->entityLoader->getByGuid($params['fid']);
+            $template = $this->entityLoader->getEntityById($params['fid'], $entity->getAccountId());
             $templateBody = $template->getValue("body_html");
             $templateSubject = ($template->getValue("subject")) ? $template->getValue("subject") : $template->getValue("name");
 

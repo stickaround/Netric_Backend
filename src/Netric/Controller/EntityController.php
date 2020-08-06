@@ -121,7 +121,7 @@ class EntityController extends Mvc\AbstractAccountController
             $entityData = $ent->toArray();
 
             // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-            $dacl = $daclLoader->getForEntity($ent);
+            $dacl = $daclLoader->getForEntity($ent, $this->account->getAuthenticatedUser());
             $entityData["applied_dacl"] = $dacl->toArray();
 
             // Print full details
@@ -179,7 +179,7 @@ class EntityController extends Mvc\AbstractAccountController
         //try {
         if (!empty($params['entity_id']) && Uuid::isValid($params['entity_id'])) {
             // Retrieve the entity by id
-            $entity = $entityLoader->getByGuid($params['entity_id']);
+            $entity = $entityLoader->getEntityById($params['entity_id'], $this->account->getAccountId());
         } elseif (!empty($params['uname']) && !empty($params['obj_type'])) {
             // Retrieve the entity by a unique name and optional condition
             $entity = $entityLoader->getByUniqueName(
@@ -219,7 +219,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entityData = $entity->toArray();
 
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-        $dacl = $daclLoader->getForEntity($entity);
+        $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
         $entityData["applied_dacl"] = $dacl->toArray();
 
         return $this->sendOutput($entityData);
@@ -245,11 +245,11 @@ class EntityController extends Mvc\AbstractAccountController
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         try {
             // Create a new entity to save
-            $entity = $entityLoader->create($objData['obj_type']);
+            $entity = $entityLoader->create($objData['obj_type'], $this->account->getAccountId());
 
             // If editing an existing etity, then load it rather than using the new entity
             if (isset($objData['entity_id']) && !empty($objData['entity_id'])) {
-                $entity = $entityLoader->getByGuid($objData['entity_id']);
+                $entity = $entityLoader->getEntityById($objData['entity_id'], $this->account->getAccountId());
             }
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
@@ -276,7 +276,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($entity);
+        $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
         $entityData["applied_dacl"] = $dacl->toArray();
 
         // Return the saved entity
@@ -329,7 +329,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             foreach ($ids as $did) {
-                $entity = $entityLoader->getByGuid($did);
+                $entity = $entityLoader->getEntityById($did, $this->account->getAccountId());
 
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
@@ -496,7 +496,7 @@ class EntityController extends Mvc\AbstractAccountController
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {
-                            $waitingObjectEntity = $entityLoader->create($field->subtype);
+                            $waitingObjectEntity = $entityLoader->create($field->subtype, $this->account->getAccountId());
 
                             // Specify the object reference for the awaiting entity to be saved
                             $data['obj_reference'] = $entity->getEntityId();
@@ -571,7 +571,7 @@ class EntityController extends Mvc\AbstractAccountController
             }
 
             // Otherwise create a new definition object to update
-            $def = new EntityDefinition($objData['obj_type']);
+            $def = new EntityDefinition($objData['obj_type'], $this->account->getAccountId());
         }
 
         // Import the $objData into the entity definition
@@ -686,7 +686,7 @@ class EntityController extends Mvc\AbstractAccountController
             foreach ($guids as $guid) {
                 if (Uuid::isValid($guid)) {
                     // Load the entity that we are going to update
-                    $entity = $entityLoader->getByGuid($guid);
+                    $entity = $entityLoader->getEntityById($guid, $this->account->getAccountId());
 
                     // Update the fields with the data. Make sure we only update the provided fields.
                     $entity->fromArray($entityData, true);
@@ -753,7 +753,7 @@ class EntityController extends Mvc\AbstractAccountController
         $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Create the new entity where we merge all field values
-        $mergedEntity = $entityLoader->create($requestData['obj_type']);
+        $mergedEntity = $entityLoader->create($requestData['obj_type'], $this->account->getAccountId());
 
         try {
             /*
@@ -778,7 +778,7 @@ class EntityController extends Mvc\AbstractAccountController
             * )
             */
             foreach ($mergeData as $entityId => $fields) {
-                $entity = $entityLoader->getByGuid($entityId);
+                $entity = $entityLoader->getEntityById($entityId, $this->account->getAccountId());
 
                 // Build the entity data and get the field values from the entity we want to merge
                 foreach ($fields as $field) {
@@ -797,7 +797,7 @@ class EntityController extends Mvc\AbstractAccountController
                 $dataMapper->setEntityMovedTo($entityId, $mergedEntityId, $identity->getAccountId());
 
                 // Let's flag the original entity as deleted
-                $dataMapper->delete($entity, $this->account->getAuthenticatedUser());
+                $dataMapper->archive($entity, $this->account->getAuthenticatedUser());
             }
 
             // Set the fields with the merged data.
@@ -936,7 +936,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
         // Check entity permission
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($entity);
+        $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
 
         return $dacl->isAllowed($this->account->getUser(), $permission, $entity);
     }

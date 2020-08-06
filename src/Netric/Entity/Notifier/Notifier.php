@@ -18,7 +18,7 @@ use Ramsey\Uuid\Uuid;
  *
  * Example for comment:
  *
- *  $comment = $entityLoader->create("comment");
+ *  $comment = $entityLoader->create("comment", $currentUser->getAccountId());
  *  $comment->setValue("comment", "[user:1:Test]"); // tag to send notice to user id 1
  *  $entityLoader->save($comment);
  *  $notifier = $sl->get("Netric/Entity/Notifier/Notifier");
@@ -105,7 +105,7 @@ class Notifier
         foreach ($followers as $userGuid) {
             // If the follower id is not a valid id, then we try to look for its user entity
             if (!Uuid::isValid($userGuid)) {
-                $userEntity = $this->entityLoader->getByGuid($userGuid);
+                $userEntity = $this->entityLoader->getEntityById($userGuid, $this->getUser()->getAccountId());
 
                 if ($userEntity) {
                     $userGuid = $userEntity->getEntityId();
@@ -221,7 +221,7 @@ class Notifier
         }
 
         // There are no outstanding/unseen notifications, create a new one
-        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
+        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION, $this->getUser()->getAccountId());
         $notification->setValue("obj_reference", $objReference);
         $notification->setValue("owner_id", $userGuid);
         $notification->setValue("creator_id", $this->getUser()->getEntityId(), $this->getUser()->getName());
@@ -270,7 +270,7 @@ class Notifier
          */
         $objReference = $entity->getValue("obj_reference");
         if ($objType == ObjectTypes::COMMENT && Uuid::isValid($objReference)) {
-            $refEntity = $this->entityLoader->getByGuid($objReference);
+            $refEntity = $this->entityLoader->getEntityById($objReference, $this->getUser()->getAccountId());
             if ($refEntity && is_array($refEntity->getValue('followers'))) {
                 $followers = array_unique(array_merge($followers, $refEntity->getValue('followers')));
             }
@@ -287,9 +287,7 @@ class Notifier
     private function getUser(): UserEntity
     {
         $identity = $this->authService->getIdentity();
-
-        // TODO: if no identity, then return aunonymous
-
-        return $this->entityLoader->getByGuid($identity->getUserId());
+        // Return actual user entity from the identity above
+        return $this->entityLoader->getEntityById($identity->getUserId(), $identity->getAccountId());
     }
 }

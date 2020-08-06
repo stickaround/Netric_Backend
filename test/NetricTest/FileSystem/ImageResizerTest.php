@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the FileSystem service
  */
+
 namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\FileSystem;
@@ -77,7 +79,11 @@ class ImageResizerTest extends TestCase
     {
         // Import local image that is 256x256
         $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", true);
-        $this->fileSystem->writeFile($file, file_get_contents(__DIR__ . '/../../data/image.png'));
+        $this->fileSystem->writeFile(
+            $file,
+            file_get_contents(__DIR__ . '/../../data/image.png'),
+            $this->account->getSystemUser()
+        );
         $this->testFiles[] = $file; // For cleanup
 
         // Resize the image
@@ -102,7 +108,11 @@ class ImageResizerTest extends TestCase
     {
         // Import local image that is 256x256
         $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", true);
-        $this->fileSystem->writeFile($file, file_get_contents(__DIR__ . '/../../data/image.png'));
+        $this->fileSystem->writeFile(
+            $file,
+            file_get_contents(__DIR__ . '/../../data/image.png'),
+            $this->account->getSystemUser()
+        );
         $this->testFiles[] = $file; // For cleanup
 
         // Resize the image
@@ -127,7 +137,11 @@ class ImageResizerTest extends TestCase
     {
         // Import local image that is 256x256
         $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", true);
-        $this->fileSystem->writeFile($file, file_get_contents(__DIR__ . '/../../data/image.png'));
+        $this->fileSystem->writeFile(
+            $file,
+            file_get_contents(__DIR__ . '/../../data/image.png'),
+            $this->account->getSystemUser()
+        );
         $this->testFiles[] = $file; // For cleanup
 
         // Resize the image

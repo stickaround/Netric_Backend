@@ -215,13 +215,13 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
 
         // Set the user name in the module if the user_id is set
         if ($module->getUserId()) {
-            $userEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getByGuid($module->getUserId());
+            $userEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($module->getUserId(), $this->user->getAccountId());
             $module->setUserName($userEntity->getName());
         }
 
         // Set the team name in the module if the team_id is set
         if ($module->getTeamId()) {
-            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getByGuid($module->getTeamId());
+            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($module->getTeamId(), $this->user->getAccountId());
             $module->setTeamName($teamEntity->getName());
         }
     }

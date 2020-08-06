@@ -72,10 +72,10 @@ class DeliveryServiceTest extends TestCase
 
         // Create a temporary user
         $this->origCurrentUser = $this->account->getUser();
-        $this->user = $entityLoader->create(ObjectTypes::USER);
+        $this->user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->setValue('email', self::TEST_EMAIL);
-        $entityLoader->save($this->user);
+        $entityLoader->save($this->user, $this->account->getSystemUser());
         $this->testEntities[] = $this->user;
         $this->account->setCurrentUser($this->user);
 
@@ -91,7 +91,7 @@ class DeliveryServiceTest extends TestCase
         $this->inbox = $groupings->getByPath("Inbox");
 
         // Create a new test email account
-        $this->emailAccount = $entityLoader->create(ObjectTypes::EMAIL_ACCOUNT);
+        $this->emailAccount = $entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
         $this->emailAccount->setValue("type", "imap");
         $this->emailAccount->setValue('address', self::TEST_EMAIL);
         $this->emailAccount->setValue('owner_id', $this->user->getEntityId());
@@ -99,7 +99,7 @@ class DeliveryServiceTest extends TestCase
         $this->emailAccount->setValue("host", getenv('TESTS_NETRIC_MAIL_HOST'));
         $this->emailAccount->setValue("username", getenv('TESTS_NETRIC_MAIL_USER'));
         $this->emailAccount->setValue("password", getenv('TESTS_NETRIC_MAIL_PASSWORD'));
-        $entityLoader->save($this->emailAccount);
+        $entityLoader->save($this->emailAccount, $this->account->getSystemUser());
         $this->testEntities[] = $this->emailAccount;
     }
 
@@ -137,12 +137,13 @@ class DeliveryServiceTest extends TestCase
         $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
         $messageGuid = $deliveryService->deliverMessageFromFile(
             self::TEST_EMAIL,
-            __DIR__ . '/_files/m6.complex.mime.unseen'
+            __DIR__ . '/_files/m6.complex.mime.unseen',
+            $this->account->getAuthenticatedUser()
         );
 
         $this->assertNotNull($messageGuid);
 
-        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getByGuid($messageGuid);
+        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($messageGuid, $this->account->getAccountId());
         $this->testEntities[] = $emailMessage;
 
         // Check some snippets of text that should be in the hrml body

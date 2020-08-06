@@ -5,10 +5,12 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem\FileStore;
 
 use Netric\Error;
 use Netric\Entity\ObjType\FileEntity;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Define
@@ -30,18 +32,20 @@ interface FileStoreInterface extends Error\ErrorAwareInterface
      *
      * @param FileEntity $file The meta-data Entity for this file
      * @param mixed $dataOrStream $data Binary data to write or a stream resource
+     * @param UserEntity The user that is uploading the file
      * @return int number of bytes written
      */
-    public function writeFile(FileEntity $file, $dataOrStream);
+    public function writeFile(FileEntity $file, $dataOrStream, UserEntity $user);
 
     /**
      * Upload a file to the data store
      *
      * @param FileEntity $file Meta-data Entity for the file
      * @param $localPath Path of a local file
+     * @param UserEntity $user The user uploading the file
      * @return true on success, false on failure
      */
-    public function uploadFile(FileEntity $file, $localPath);
+    public function uploadFile(FileEntity $file, $localPath, UserEntity $user);
 
     /**
      * Delete a file from the DataMapper

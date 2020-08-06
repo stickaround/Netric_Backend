@@ -76,12 +76,12 @@ class AuthenticationServiceTest extends TestCase
 
         // Create a test user
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->create(ObjectTypes::USER);
+        $user = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue('account_id', $this->account->getAccountId());
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
-        $dm->save($user);
+        $dm->save($user, $this->account->getSystemUser());
         $this->user = $user;
     }
 

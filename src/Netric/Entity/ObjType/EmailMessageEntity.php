@@ -24,7 +24,7 @@ use Netric\EntityDefinition\ObjectTypes;
  *
  * Example
  * <code>
- *  $email = $entityLoader->create("email_message");
+ *  $email = $entityLoader->create("email_message", $currentUser->getAccountId());
  *  $email->setValue("sent_from", "sky.stebnicki@aereus.com");
  *  $email->setValue("send_to", "someone@somewhere.com");
  *  $email->setValue("body", "Hello there");
@@ -114,16 +114,20 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function onAfterSave(AccountServiceManagerInterface $sm)
     {
-        if ($this->isDeleted()) {
-            $thread = $this->entityLoader->getByGuid($this->getValue("thread"));
+        if ($this->isArchived()) {
             $currentUser = $sm->getAccount()->getAuthenticatedUser();
+
+            $thread = $this->entityLoader->getEntityById(
+                $this->getValue("thread"),
+                $sm->getAccount()->getAccountId()
+            );
 
             // Decrement the number of messages in the thread if it exists
             if ($thread) {
                 // If this is the last message, then delete the thread
                 if (intval($thread->getValue("num_messages")) === 1) {
                     $thread->setValue("num_messages", 0);
-                    $this->entityLoader->delete($thread);
+                    $this->entityLoader->delete($thread, $currentUser);
                 } else {
                     // Otherwise reduce the number of messages
                     $numMessages = $thread->getValue("num_messages");
@@ -157,14 +161,17 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
     {
-        $thread = $this->entityLoader->getByGuid($this->getValue("thread"));
+        $thread = $this->entityLoader->getEntityById(
+            $this->getValue("thread"),
+            $sm->getAccount()->getAccountId()
+        );
 
         /*
          * If this is the last message, then purge the thread.
          * We need to perform the deleting of thread right after we deleted the message, to avoid infinite loop
          */
         if ($thread && intval($thread->getValue("num_messages")) === 1) {
-            $this->entityLoader->delete($thread, true);
+            $this->entityLoader->delete($thread, $sm->getAccount()->getAuthenticatedUser());
         }
     }
 
@@ -400,8 +407,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
             // Add all attachments if they have a name
             if ($mimePart->getFileName()) {
                 // This is an attachment - could either be inline or an attachment
+                $user = $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
                 $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), true);
-                $this->fileSystem->writeFile($file, $mimePart->getRawContent());
+                $this->fileSystem->writeFile($file, $mimePart->getRawContent(), $user);
                 $this->addMultiValue("attachments", $file->getEntityId(), $file->getName());
             } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
                 // If multipart/aleternative then this will come after 'plain' and overwrite
@@ -510,7 +518,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
             $results = $this->entityIndex->executeQuery($query);
             if ($results->getNum()) {
                 $emailMessage = $results->getEntity(0);
-                $thread = $this->entityLoader->getByGuid($emailMessage->getValue("thread"));
+                $thread = $this->entityLoader->getEntityById($emailMessage->getValue("thread"), $this->getAccountId());
             }
         }
 
@@ -536,7 +544,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
 
         // If we could not find a thread that already exists, then create a new one
         if (!$thread) {
-            $thread = $this->entityLoader->create(ObjectTypes::EMAIL_THREAD);
+            $thread = $this->entityLoader->create(ObjectTypes::EMAIL_THREAD, $this->getAccountId());
             $thread->setValue("owner_id", $this->getValue("owner_id"));
             $thread->setValue("num_messages", 0);
         }
@@ -586,13 +594,13 @@ class EmailMessageEntity extends Entity implements EntityInterface
         }
 
         // If the message is deleted then do not update the thread
-        if ($this->isDeleted()) {
+        if ($this->isArchived()) {
             return;
         }
 
         // If a thread was not passed, the load it from value
         if (!$thread) {
-            $thread = $this->entityLoader->getByGuid($this->getValue("thread"));
+            $thread = $this->entityLoader->getEntityById($this->getValue("thread"), $this->getAccountId());
         }
 
         /*
@@ -625,7 +633,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
             }
         }
 
-        $threadUser = $this->entityLoader->getByGuid($thread->getValue('owner_id'));
+        $threadUser = $this->entityLoader->getEntityById($thread->getValue('owner_id'), $this->getAccountId());
 
         // Save the changes
         if (!$this->entityLoader->save($thread, $threadUser)) {

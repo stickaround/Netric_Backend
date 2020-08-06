@@ -107,7 +107,7 @@ class EntitySearchProviderTest extends TestCase
 
         // Create a test user
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->create(ObjectTypes::USER);
+        $user = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("full_name", "Test User");
@@ -132,7 +132,7 @@ class EntitySearchProviderTest extends TestCase
         $this->groupInbox = $groupings->getByName("Inbox");
 
         // Create a calendar for the user to test
-        $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
+        $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR, $this->account->getAccountId());
         $calendar->setValue("name", "UTest provider");
         $calendar->setValue("user_id", $this->user->getEntityId());
         $this->entityLoader->save($calendar, $this->user);
@@ -181,7 +181,7 @@ class EntitySearchProviderTest extends TestCase
     {
         // Add test email message to inbox
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
+        $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $email->setValue("subject", "test message");
         $email->setValue("owner_id", $this->user->getEntityId());
         $email->setValue("mailbox_id", $this->groupInbox->getGroupId());

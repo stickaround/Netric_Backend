@@ -95,7 +95,7 @@ class RecurrenceDataMapperTest extends TestCase
 
     public function testSave()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setObjTypeId($this->taskEntityDefintion->getEntityDefinitionId());
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
@@ -110,7 +110,7 @@ class RecurrenceDataMapperTest extends TestCase
 
     public function testUpdateParentObjectId()
     {
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->setObjTypeId($this->taskEntityDefintion->getEntityDefinitionId());
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
@@ -134,7 +134,7 @@ class RecurrenceDataMapperTest extends TestCase
             "date_end" => "2015-03-01",
             "day_of_week_mask" => RecurrencePattern::WEEKDAY_SUNDAY,
         ];
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->fromArray($data);
 
         $rid = $this->dataMapper->save($rp);
@@ -169,7 +169,7 @@ class RecurrenceDataMapperTest extends TestCase
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
         ];
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
         $this->testRecurrence[] = $rp;
@@ -191,7 +191,7 @@ class RecurrenceDataMapperTest extends TestCase
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
         ];
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
         $this->testRecurrence[] = $rp;
@@ -220,7 +220,7 @@ class RecurrenceDataMapperTest extends TestCase
             "date_end" => "2015-03-01",
             "date_processed_to" => "2015-02-01",
         ];
-        $rp = new RecurrencePattern();
+        $rp = new RecurrencePattern($this->account->getAccountId());
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
         $this->testRecurrence[] = $rp;

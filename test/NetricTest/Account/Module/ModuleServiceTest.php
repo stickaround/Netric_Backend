@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Make sure the module service works
  */
+
 namespace NetricTest\Account\Module;
 
 use Netric\Account\Module\Module;
@@ -102,7 +104,7 @@ class ModuleServiceTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $entityLoader = $sm->get(EntityLoaderFactory::class);
-        $user = $entityLoader->create(ObjectTypes::USER);
+        $user = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
 
         // Make sure we can get modules for this entity
         $modules = $this->moduleService->getForUser($user);
