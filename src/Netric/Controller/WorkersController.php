@@ -10,10 +10,10 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Application\Response\ConsoleResponse;
 use Netric\Permissions\Dacl;
-use Netric\Entity\ObjType\UserEntity;
 use Netric\WorkerMan\WorkerService;
 use Netric\Request\RequestInterface;
 use Netric\Application\Application;
+use Netric\WorkerMan\Worker\ScheduleRunnerWorker;
 
 /**
  * Controller used for interacting with workers from the command line (or API)
@@ -208,7 +208,7 @@ class WorkersController extends Mvc\AbstractController
                  * can simply add more worker machines to the cluster
                  */
                 $jobData = ['account_id' => $account->getAccountId()];
-                $this->workerService->doWorkBackground("ScheduleRunner", $jobData);
+                $this->workerService->doWorkBackground(ScheduleRunnerWorker::class, $jobData);
             }
 
             // Renew the lock to make sure we do not expire since it times out in 2 minutes

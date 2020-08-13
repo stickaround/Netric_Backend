@@ -1,13 +1,15 @@
 <?php
+
 /**
  * ElasticSearch implementation of indexer for querying objects
  *
  * @author      Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright   Copyright (c) 2003-2014 Aereus (http://www.aereus.com)
  */
+
 namespace Netric\EntityQuery\Index;
 
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\Account\Account;
 use Netric\Entity\Entity;

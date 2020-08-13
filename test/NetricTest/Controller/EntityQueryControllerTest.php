@@ -81,5 +81,36 @@ class EntityQueryControllerTest extends TestCase
         $this->assertGreaterThan(0, $ret['total_num']);
         $this->assertGreaterThan(0, $ret['num']);
         $this->assertEquals("task", $ret["entities"][0]["obj_type"]);
+        $this->assertEquals($ret["entities"][0]["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
+
+        // Now let's try to query the entities using a user that has no permissions to access the entities
+        $userEntity = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
+        $userEntity->setValue("name", "Test User");
+        $entityLoader->save($userEntity, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $userEntity;
+
+        $account = Bootstrap::getAccount();
+        $account->setCurrentUser($userEntity);
+
+        // Create the controller
+        $controller = new EntityQueryController($this->account->getApplication(), $account);
+        $controller->testMode = true;
+
+        // Set params in the request
+        $data = ['obj_type' => ObjectTypes::TASK];
+        $req = $controller->getRequest();
+        $req->setBody(json_encode($data));
+        $req->setParam('content-type', 'application/json');
+
+        $ret = $controller->postExecuteAction();
+
+        // This should only retrieve 3 fields from the task since the user does not have
+        // permissions to see the full entity: entity_id, name, currentuser_permissions.
+        $this->assertEquals(count($ret["entities"][0]), 3);
+        $this->assertEquals($ret["entities"][0]["entity_id"], $taskEntity->getEntityId());
+        $this->assertEquals($ret["entities"][0]["name"], "UnitTestTask");
+        $this->assertEquals($ret["entities"][0]["currentuser_permissions"], [
+            'view' => false, 'edit' => false, 'delete' => false
+        ]);
     }
 }

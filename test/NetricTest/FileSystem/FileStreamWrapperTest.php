@@ -8,13 +8,16 @@ namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\FileStreamWrapper;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType;
 use Netric\EntityDefinition\ObjectTypes;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileSystemFactory;
 
+/**
+ * @group integration
+ */
 class FileStreamWrapperTest extends TestCase
 {
     /**

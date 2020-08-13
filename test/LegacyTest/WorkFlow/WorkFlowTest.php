@@ -7,13 +7,16 @@
 namespace NetricTest\WorkFlow;
 
 use Netric\WorkFlow\WorkFlowFactory;
-use Netric\WorkFlow\Action\ActionFactory;
+use Netric\WorkFlow\Action\ActionExecutorFactory;
 use Netric\EntityQuery\Where;
 use PHPUnit\Framework\TestCase;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class WorkFlowTest extends TestCase
 {
     /**
@@ -32,7 +35,7 @@ class WorkFlowTest extends TestCase
     /**
      * Action factory for testing
      *
-     * @var ActionFactory
+     * @var ActionExecutorFactory
      */
     protected $actionFactory = null;
 
@@ -47,7 +50,7 @@ class WorkFlowTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $this->sl = $this->account->getServiceManager();
-        $this->actionFactory = new ActionFactory($this->sl);
+        $this->actionFactory = new ActionExecutorFactory($this->sl);
     }
 
     /**

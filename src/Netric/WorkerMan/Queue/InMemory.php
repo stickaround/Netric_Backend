@@ -1,15 +1,16 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
+declare(strict_types=1);
 
 namespace Netric\WorkerMan\Queue;
 
+use Netric\WorkerMan\WorkerFactory;
 use Netric\WorkerMan\WorkerInterface;
 use Netric\WorkerMan\Job;
 
+/**
+ * The in-memory queue is essentially just an event queue interface
+ */
 class InMemory implements QueueInterface
 {
     /**
@@ -17,30 +18,35 @@ class InMemory implements QueueInterface
      *
      * @var array
      */
-    public $queuedJobs = [];
+    public array $queuedJobs = [];
 
     /**
      * Workers that are listening for jobs by workerName
      *
      * @var WorkerInterface[]
      */
-    private $listeners = [];
+    private array $listeners = [];
 
     /**
-     * Add a job to the queue and run it
-     *
-     * @param string $workerName The name of the worker to run
-     * @param array $jobData Data to be passed to the job
-     * @return mixed Whatever the result of the worker is
+     * The worker factory used to load workers
      */
-    public function doWork($workerName, array $jobData)
+    private WorkerFactory $workerFactory;
+
+    /**
+     * Class constructor
+     *
+     * @param WorkerFactory $workerFactory
+     */
+    public function __construct(WorkerFactory $workerFactory)
     {
-        $this->queuedJobs[] = [$workerName, $jobData];
-        return true;
+        $this->workerFactory = $workerFactory;
     }
 
     /**
-     * Add a job to the queue and run it
+     * Add a job to the queue and run it right away
+     *
+     * With other queues it puts it in the background, but for in-memory
+     * doWork and doWorkBackground are essentially the same thing.
      *
      * @param string $workerName The name of the worker to run
      * @param array $jobData Data to be passed to the job
@@ -49,6 +55,8 @@ class InMemory implements QueueInterface
     public function doWorkBackground($workerName, array $jobData)
     {
         $this->queuedJobs[] = [$workerName, $jobData];
+        // Run the jobs immediately - in a real job queue, this would happen asynchronously
+        $this->runJobImmediately($workerName, $jobData);
         return (string) count($this->queuedJobs);
     }
 
@@ -113,10 +121,11 @@ class InMemory implements QueueInterface
      * @param string $workerName The name of the queue to clear
      * @return int number of jobs cleared
      */
-    public function clearWorkerQueue($workerName)
+    public function clearJobQueue($workerName)
     {
         $toRemove = [];
-        for ($i = 0; $i < count($this->queuedJobs); $i++) {
+        $numQueuedJobs = count($this->queuedJobs);
+        for ($i = 0; $i < $numQueuedJobs; $i++) {
             if ($this->queuedJobs[$i][0] === $workerName) {
                 $toRemove[] = $i;
             }
@@ -127,5 +136,28 @@ class InMemory implements QueueInterface
         }
 
         return count($toRemove);
+    }
+
+
+    /**
+     * Run the job right away, similar to an event queue
+     *
+     * Normally queues would be processed in the background through the WorkerService
+     * but this in-memory queue will handle the jobs immediately in the same process
+     * as the main code that is executing. This essentially makes it an event dispatcher.
+     *
+     * @param string $workerName
+     * @param array $jobData
+     * @return void
+     */
+    private function runJobImmediately(string $workerName, array $jobData): void
+    {
+        $worker = $this->workerFactory->getWorkerByName($workerName);
+        if ($worker) {
+            // Construct job wrapper
+            $job = new Job();
+            $job->setWorkload($jobData);
+            $worker->work($job);
+        }
     }
 }

@@ -7,7 +7,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Log\LogInterface;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\EntityLoader;
 use DateInterval;
 use DateTime;
@@ -143,7 +143,7 @@ class EntityMaintainerService extends AbstractHasErrors
         // Buffer storing which entities get deleted to return to the caller
         $deletedEntities = [];
 
-        $query = new EntityQuery($def->getObjType());
+        $query = new EntityQuery($def->getObjType(), $accountId);
         $query->orderBy("ts_updated");
         $query->setLimit(1);
         $this->log->info("EntityMaintainerService->trimCappedForType: getting count for " . $def->getObjType());
@@ -232,7 +232,7 @@ class EntityMaintainerService extends AbstractHasErrors
             $cutoff->sub(new DateInterval('P1Y'));
         }
 
-        $query = new EntityQuery($def->getObjType());
+        $query = new EntityQuery($def->getObjType(), $accountId);
         $query->where('f_deleted')->equals(true);
         $query->andWhere("ts_updated")->isLessOrEqualTo($cutoff->getTimestamp());
         $result = $this->entityIndex->executeQuery($query);
@@ -295,7 +295,7 @@ class EntityMaintainerService extends AbstractHasErrors
             $cutoff->sub(new DateInterval('P1Y'));
         }
 
-        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE, $accountId);
         $query->where('flag_spam')->equals(true);
         $query->andWhere("ts_entered")->isLessOrEqualTo($cutoff->getTimestamp());
         $result = $this->entityIndex->executeQuery($query);
@@ -356,7 +356,7 @@ class EntityMaintainerService extends AbstractHasErrors
             $cutoff->sub(new DateInterval('P1D'));
         }
 
-        $query = new EntityQuery(ObjectTypes::FILE);
+        $query = new EntityQuery(ObjectTypes::FILE, $accountId);
         $query->where('folder_id')->equals($tmpFolder->getEntityId());
         $query->andWhere("ts_entered")->isLessOrEqualTo($cutoff->getTimestamp());
         $result = $this->entityIndex->executeQuery($query);

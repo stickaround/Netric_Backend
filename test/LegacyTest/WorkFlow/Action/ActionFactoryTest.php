@@ -5,9 +5,9 @@
 namespace NetricTest\WorkFlow\Action;
 
 use PHPUnit\Framework\TestCase;
-use Netric\WorkFlow\Action\ActionFactory;
+use Netric\WorkFlow\Action\ActionExecutorFactory;
 use Netric\WorkFlow\Action\Exception\ActionNotFoundException;
-use Netric\WorkFlow\Action\TestAction;
+use Netric\WorkFlow\Action\TestActionExecutor;
 
 class ActionFactoryTest extends TestCase
 {
@@ -21,7 +21,7 @@ class ActionFactoryTest extends TestCase
     /**
      * Action factory for testing
      *
-     * @var ActionFactory
+     * @var ActionExecutorFactory
      */
     private $actionFactory = null;
 
@@ -29,7 +29,7 @@ class ActionFactoryTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
-        $this->actionFactory = new ActionFactory($sl);
+        $this->actionFactory = new ActionExecutorFactory($sl);
     }
 
     /**
@@ -38,7 +38,7 @@ class ActionFactoryTest extends TestCase
     public function testCreate()
     {
         $testAction = $this->actionFactory->create("test");
-        $this->assertInstanceOf(TestAction::class, $testAction);
+        $this->assertInstanceOf(TestActionExecutor::class, $testAction);
     }
 
     /**

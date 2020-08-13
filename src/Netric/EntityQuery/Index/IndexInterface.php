@@ -5,9 +5,10 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
+
 namespace Netric\EntityQuery\Index;
 
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Results;
 
 /**

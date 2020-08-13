@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the Smtp service factory
  */
+
 namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\SmtpFactory;
@@ -10,6 +12,9 @@ use Netric\Settings\SettingsFactory;
 use Netric\Mail\Transport\Smtp;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class SmtpFactoryTest extends TestCase
 {
     /**

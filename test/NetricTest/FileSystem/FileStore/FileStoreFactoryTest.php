@@ -1,14 +1,19 @@
 <?php
+
 /**
  * Test the FileStoreFactory service
  *
  * This is used to construct a specific FileStoreInterface based on system configuration.
  */
+
 namespace NetricTest\FileSystem;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class FileStoreFactoryTest extends TestCase
 {
     /**

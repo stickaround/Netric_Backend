@@ -111,7 +111,7 @@ class DaclLoader
                 ), $user->getAccountId());
 
                 if ($parentEntity) {
-                    $dacl = $this->getForParentEntity($parentEntity, $user);
+                    $dacl = $this->getForEntity($parentEntity, $user);
                     if ($dacl) {
                         return $dacl;
                     }

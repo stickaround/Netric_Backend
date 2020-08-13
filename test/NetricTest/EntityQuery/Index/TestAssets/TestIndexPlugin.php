@@ -1,12 +1,14 @@
 <?php
+
 /**
  * Example plugin to use in unit tests
  */
+
 namespace NetricTest\EntityQuery\Index\TestAssets;
 
 use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 
 class TestIndexPlugin implements PluginInterface
 {

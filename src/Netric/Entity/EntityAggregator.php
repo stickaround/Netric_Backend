@@ -13,7 +13,7 @@ use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Aggregation;
 use Netric\EntityQuery\Index\IndexInterface;
 
@@ -87,7 +87,7 @@ class EntityAggregator
 
             if ($referencedId && $field->type == FIELD::TYPE_OBJECT && $field->subtype) {
                 // Create a new query to aggregate against
-                $query = new EntityQuery($def->getObjType());
+                $query = new EntityQuery($def->getObjType(), $user->getAccountId());
 
                 // Make sure we are referencing the same entity
                 $query->where($agg->field)->equals($entity->getValue($agg->field));

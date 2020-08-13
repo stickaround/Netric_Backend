@@ -19,6 +19,7 @@ use Netric\EntityDefinition\ObjectTypes;
 /**
  * Class PartnerTest
  * @package NetricTest\EntitySync
+ * @group integration
  */
 class PartnerTest extends TestCase
 {

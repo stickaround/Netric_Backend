@@ -17,7 +17,7 @@
     "lint-phpcs": "phpcs --standard=./vendor/aereus/codequality/phpcs.xml --report-checkstyle=.reports/checkstyle.xml ./src ./test",
     "lint-phpmd": "phpmd ./src xml ./vendor/aereus/codequality/phpmd.xml --reportfile .reports/pmd.xml",
     "lint-fix": "phpcbf --standard=./vendor/aereus/codequality/phpcs.xml ./src ./test",
-    "test": "vendor/bin/phpunit",
+    "test": "APPLICATION_ENV=testing vendor/bin/phpunit --no-coverage",
     "test-ci": [
       "@composer lint",
       "@composer test"
@@ -42,7 +42,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^8",
-    "aereus/codequality": "dev-master"
+    "aereus/codequality": "dev-master",
+    "spatie/phpunit-watcher": "^1.22"
   },
   "repositories": [
     {

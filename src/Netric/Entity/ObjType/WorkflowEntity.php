@@ -17,6 +17,7 @@ class WorkflowEntity extends Entity implements EntityInterface
     const EVENT_CREATE = 'create';
     const EVENT_UPDATE = 'update';
     const EVENT_DELETE = 'delete';
+    const EVENT_DAILY = 'daily';
 
     /**
      * Units of time for relative times

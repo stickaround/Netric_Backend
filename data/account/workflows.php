@@ -4,13 +4,14 @@ namespace data\account;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     [
-        "name" => "New Task Sendmail",
+        "name" => "New Task Assigned",
         "uname" => "new-task-sendmail",
-        "notes" => "This will send a notification email to the task owner",
-        "obj_type" => "task",
+        "notes" => "Sends an email to a task owner if someone else creates it",
+        "obj_type" => ObjectTypes::TASK,
         "active" => true,
         "on_create" => true,
         "on_update" => true,
@@ -35,49 +36,12 @@ return [
                 "params" => [
                     "from" => "no-reply@netric.com",
                     "subject" => "New Task",
-                    "body" => "You have been assigned a new task: <%object_link%>",
+                    "body" => "You have been assigned a new task: <%entity_link%>",
                     "to" => [
                         "<%owner_id.email%>"
                     ]
                 ],
             ],
         ],
-    ],
-    [
-        "name" => "Case Assigned Notification",
-        "uname" => "case-assigned",
-        "notes" => "This will send a notification email when a user is assigned to a case",
-        "obj_type" => "case",
-        "active" => true,
-        "on_create" => true,
-        "on_update" => true,
-        "on_delete" => false,
-        "on_daily" => false,
-        "singleton" => false,
-        "allow_manual" => false,
-        "only_on_conditions_unmet" => true,
-        "conditions" => [
-            // Only trigger if the case is assignged to someone other than the current user
-            [
-                "blogic" => Where::COMBINED_BY_AND,
-                "field_name" => "owner_id",
-                "operator" => Where::OPERATOR_NOT_EQUAL_TO,
-                "value" => UserEntity::USER_CURRENT,
-            ]
-        ],
-        "actions" => [
-            [
-                "name" => "Send Email",
-                "type" => "send_email",
-                "params" => [
-                    "from" => "no-reply@netric.com",
-                    "subject" => "New Task",
-                    "body" => "You have been assigned a case: <%object_link%>",
-                    "to" => [
-                        "<%owner_id.email%>"
-                    ]
-                ],
-            ],
-        ],
-    ],
+    ]
 ];

@@ -96,7 +96,8 @@ class AccountUpdater extends AbstractHasErrors
             $updated = true;
         } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor > $this->version->minor) {
             $updated = true;
-        } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
+        } elseif (
+            $this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
             && $this->updatedToVersion->point > $this->version->point
         ) {
             $updated = true;

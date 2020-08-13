@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Crypt;
 
 use PHPUnit\Framework\TestCase;
@@ -6,6 +7,9 @@ use Netric\Crypt\VaultServiceFactory;
 use Netric\Crypt\VaultService;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class VaultServiceFactoryTest extends TestCase
 {
     public function testCreateService()

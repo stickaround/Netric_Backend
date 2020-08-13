@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
+use DateTime;
 use Netric\EntityQuery\Index;
 use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Commit;
 use Netric\EntitySync\Commit\CommitManager;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityQuery\EntityQuery;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -24,18 +26,26 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
     private $index = null;
 
     /**
+     * ID of the account this collection belongs to
+     */
+    private string $accountId;
+
+    /**
      * Constructor
      *
      * @param DataMapperInterface $dm The sync datamapper
      * @param CommitManager $commitManager A manager used to keep track of commits
      * @param IndexInterface $idx Index for querying entities
+     * @param string $accountId The ID of the account this collection belongs to
      */
     public function __construct(
         DataMapperInterface $dm,
         Commit\CommitManager $commitManager,
-        IndexInterface $idx
+        IndexInterface $idx,
+        string $accountId
     ) {
         $this->index = $idx;
+        $this->accountId = $accountId;
 
         // Pass datamapper to parent
         parent::__construct($dm, $commitManager);
@@ -55,7 +65,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
      *  ]
      * @throws \Exception if the objType was not set
      */
-    public function getExportChanged($autoFastForward = true, \DateTime $limitUpdatesAfter = null)
+    public function getExportChanged($autoFastForward = true, DateTime $limitUpdatesAfter = null)
     {
         if (!$this->getObjType()) {
             throw new \Exception("Object type not set! Cannot export changes.");
@@ -72,7 +82,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 
         if ($this->isBehindHead()) {
             // Query local objects for commit_id with EntityList
-            $query = new \Netric\EntityQuery($this->getObjType());
+            $query = new EntityQuery($this->getObjType(), $this->accountId);
             $query->orderBy('commit_id');
             $query->setLimit(1000);
 

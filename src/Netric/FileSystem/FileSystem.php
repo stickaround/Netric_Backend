@@ -10,7 +10,7 @@
 namespace Netric\FileSystem;
 
 use Netric\Error;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\FolderEntity;
@@ -583,7 +583,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function getChildFolderByName($name, FolderEntity $parentFolder)
     {
-        $query = new EntityQuery(ObjectTypes::FOLDER);
+        $query = new EntityQuery(ObjectTypes::FOLDER, $parentFolder->getAccountId());
         $query->where("parent_id")->equals($parentFolder->getEntityId());
         $query->andWhere("name")->equals($name);
         $result = $this->entityIndex->executeQuery($query);
@@ -603,7 +603,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function getChildFileByName($fileName, FolderEntity $parentFolder)
     {
-        $query = new EntityQuery(ObjectTypes::FILE);
+        $query = new EntityQuery(ObjectTypes::FILE, $parentFolder->getAccountId());
         $query->where("folder_id")->equals($parentFolder->getEntityId());
         $query->andWhere("name")->equals($fileName);
         $result = $this->entityIndex->executeQuery($query);
@@ -619,22 +619,26 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function setRootFolder()
     {
-        $folderEntity = $this->entityLoader->create(ObjectTypes::FOLDER, $this->user->getAccountId());
-        $rootFolderEntity = $folderEntity->getRootFolder();
-
-        if ($rootFolderEntity) {
-            $this->rootFolder = $rootFolderEntity;
-        } else {
-            // Create root folder
-            $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $this->user->getAccountId());
-            $rootFolder->setValue("name", "/");
-            $rootFolder->setValue("owner_id", $this->user->getEntityId());
-            $rootFolder->setValue("f_system", true);
-            $this->entityDataMapper->save($rootFolder, $this->user);
-
-            // Now set it for later reference
-            $this->rootFolder = $rootFolder;
+        /// First try to get the existing folder root if it exists
+        $query = new EntityQuery(ObjectTypes::FOLDER, $this->user->getAccountId());
+        $query->where("parent_id")->equals("");
+        $query->andWhere("name")->equals("/");
+        $query->andWhere("f_system")->equals(true);
+        $result = $this->entityIndex->executeQuery($query);
+        if ($result->getNum()) {
+            $this->rootFolder = $result->getEntity();
+            return;
         }
+
+        // Create root folder
+        $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $this->user->getAccountId());
+        $rootFolder->setValue("name", "/");
+        $rootFolder->setValue("owner_id", $this->user->getEntityId());
+        $rootFolder->setValue("f_system", true);
+        $this->entityLoader->save($rootFolder, $this->user);
+
+        // Now set it for later reference
+        $this->rootFolder = $rootFolder;
     }
 
     /**

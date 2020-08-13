@@ -8659,7 +8659,7 @@ index 200b49c4..b2a71bb3 100644
  namespace Netric\FileSystem;
  
  use Netric\Error;
- use Netric\EntityQuery;
+ use Netric\EntityQuery\EntityQuery;
 +use Netric\Permissions\Dacl;
  use Netric\Entity\ObjType\UserEntity;
  use Netric\Entity\ObjType\FolderEntity;

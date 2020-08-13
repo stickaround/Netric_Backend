@@ -1,11 +1,16 @@
 <?php
+
 namespace NetricTest\WorkerMan;
 
 use Netric\WorkerMan\WorkerService;
-use Netric\WorkerMan\Queue;
+use Netric\WorkerMan\Queue\InMemory;
 use PHPUnit\Framework\TestCase;
-use Netric\WorkerMan\SchedulerService;
+use Netric\WorkerMan\WorkerFactory;
+use Netric\WorkerMan\Worker\TestWorker;
 
+/**
+ * @group integration
+ */
 class WorkerServicetest extends TestCase
 {
     /**
@@ -33,25 +38,20 @@ class WorkerServicetest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
+        $workerFactory = $this->createMock(WorkerFactory::class);
+        $queue = new InMemory($workerFactory);
 
-        $queue = new Queue\InMemory();
-
-        $this->workerService = new WorkerService($this->account->getApplication(), $queue);
-    }
-
-    public function testDoWork()
-    {
-        $this->assertTrue($this->workerService->doWork("Test", ["mystring" => "test"]));
+        $this->workerService = new WorkerService($this->account->getApplication(), $queue, $workerFactory);
     }
 
     public function testDoWorkBackground()
     {
-        $this->assertEquals("1", $this->workerService ->doWorkBackground("Test", ["mystring" => "test"]));
+        $this->assertEquals("1", $this->workerService->doWorkBackground(TestWorker::class, ["mystring" => "test"]));
     }
 
-    public function testProcessJobQueue()
-    {
-        $this->workerService->doWorkBackground("Test", ["mystring" => "test"]);
-        $this->assertTrue($this->workerService->processJobQueue());
-    }
+    // public function testProcessJobQueue()
+    // {
+    //     $this->workerService->doWorkBackground(TestWorker::class, ["mystring" => "test"]);
+    //     $this->assertTrue($this->workerService->processJobQueue());
+    // }
 }

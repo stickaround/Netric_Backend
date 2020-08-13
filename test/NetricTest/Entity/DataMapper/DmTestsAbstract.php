@@ -785,7 +785,7 @@ abstract class DmTestsAbstract extends TestCase
             $this->account->getAccountId()
         );
 
-        $movedTo = $dm->checkEntityHasMoved($customer->getDefinition(), $oid1);
+        $movedTo = $dm->checkEntityHasMoved($customer->getDefinition(), $oid1, $this->account->getAccountId());
 
         // Now make sure the movedTo works
         $this->assertEquals($oid2, $movedTo);

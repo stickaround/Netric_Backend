@@ -7,6 +7,9 @@ use Netric\Log\Log;
 use Netric\Log\LogFactory;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class LogFactoryTest extends TestCase
 {
     public function testCreateService()

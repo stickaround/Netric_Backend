@@ -98,7 +98,7 @@ class SchedulerServiceTest extends TestCase
         // Add the job to the queue
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtInterval(
-            $this->account->getAuthenticatedUser(),
+            Bootstrap::getAccount()->getAuthenticatedUser(),
             'Test',
             ['myvar' => 'testval'],
             RecurrencePattern::RECUR_DAILY,
@@ -124,7 +124,7 @@ class SchedulerServiceTest extends TestCase
         );
         $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
 
-        $jobs = $this->scheduler->getScheduledToRun();
+        $jobs = $this->scheduler->getScheduledToRun(Bootstrap::getAccount()->getAccountId());
 
         $jobFound = false;
         foreach ($jobs as $job) {
@@ -143,7 +143,7 @@ class SchedulerServiceTest extends TestCase
     {
         // Create a job that should recur every day
         $id = $this->scheduler->scheduleAtInterval(
-            $this->account->getAuthenticatedUser(),
+            Bootstrap::getAccount()->getAuthenticatedUser(),
             'Test',
             ['myvar' => 'testval'],
             RecurrencePattern::RECUR_DAILY,
@@ -154,7 +154,7 @@ class SchedulerServiceTest extends TestCase
         // Get scheduled jobs for the next three days
         $runTo = new DateTime();
         $runTo->add(new DateInterval("P3D"));
-        $jobs = $this->scheduler->getScheduledToRun($runTo);
+        $jobs = $this->scheduler->getScheduledToRun(Bootstrap::getAccount()->getAccountId(), $runTo);
 
         // Queue for cleanup
         foreach ($jobs as $job) {

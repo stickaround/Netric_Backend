@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Application\Health\DependencyCheck;
 
 use Netric\Application\Health\DependencyCheck\PgsqlDependencyCheck;
@@ -8,6 +9,8 @@ use NetricTest\Bootstrap;
 
 /**
  * Make sure we can test a connection to a database
+ * 
+ * @group integration
  */
 class PgsqlDependencyCheckTest extends TestCase
 {

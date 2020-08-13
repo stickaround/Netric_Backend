@@ -17,7 +17,7 @@ use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Log\LogFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Log\LogInterface;
 
 // Add all z-push required files
@@ -30,6 +30,9 @@ require_once(dirname(__FILE__) . '/../../../../config/zpush.config.php');
 require_once('backend/netric/netric.php');
 require_once('backend/netric/entityprovider.php');
 
+/**
+ * @group integration
+ */
 class BackendNetricTest extends TestCase
 {
     /**
@@ -81,7 +84,7 @@ class BackendNetricTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
@@ -245,7 +248,7 @@ class BackendNetricTest extends TestCase
         $testData = "test data";
         $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
         $file = $fileSystem->createFile("%tmp%", "testZPushAttachment.txt", true);
-        $fileSystem->writeFile($file, $testData);
+        $fileSystem->writeFile($file, $testData, $this->user);
         $this->testEntities[] = $file;
 
         // Get the file attachment and check the contents of the stream

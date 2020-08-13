@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test account setup functions
  */
+
 namespace NetricTest\Console;
 
 use Netric\Account\Account;
@@ -10,6 +12,9 @@ use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class BinScriptTest extends TestCase
 {
     /**

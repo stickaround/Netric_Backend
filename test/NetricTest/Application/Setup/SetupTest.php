@@ -16,6 +16,9 @@ use NetricTest\Bootstrap;
 use Netric\Cache\CacheFactory;
 use Netric\Application\DataMapperFactory;
 
+/**
+ * @group integration
+ */
 class SetupTest extends TestCase
 {
     /**

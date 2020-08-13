@@ -36,6 +36,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityQuery\EntityQuery;
 
 /**
  * Save and load sync objects from netric entities
@@ -329,11 +330,11 @@ class EntityProvider
 
         if ($entity) {
             // If the entity was found, delete it and return the results (bool)
-            return $entityLoader->delete($entity, $this->user);
-        } else {
-            // Not found
-            return false;
+            return $entityLoader->archive($entity, $this->user);
         }
+
+        // Not found
+        return false;
     }
 
     /**
@@ -375,7 +376,7 @@ class EntityProvider
                     return false;
                 }
 
-                return $entityLoader->delete($entity, $this->user);
+                return $entityLoader->archive($entity, $this->user);
 
             case self::FOLDER_TYPE_CONTACT:
             case self::FOLDER_TYPE_NOTE:
@@ -637,7 +638,7 @@ class EntityProvider
         $folders = [];
 
         // Setup the query
-        $query = new Netric\EntityQuery(ObjectTypes::CALENDAR);
+        $query = new EntityQuery(ObjectTypes::CALENDAR, $this->account->getAccountId());
         $query->where("owner_id")->equals($this->user->getEntityId());
 
         // Check fi we are only supposed to get a single calendar

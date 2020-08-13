@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the WorkFlow factory
  */
+
 namespace NetricTest\WorkFlow;
 
 use PHPUnit\Framework\TestCase;
@@ -9,6 +11,9 @@ use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\WorkFlowFactory;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class WorkFlowFactoryTest extends TestCase
 {
     public function testCreateService()

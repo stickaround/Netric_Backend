@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Controller;
 
 use PHPUnit\Framework\TestCase;
@@ -8,6 +9,8 @@ use Netric\Controller\TestController;
 
 /**
  * Test calling the test controller factory
+ * 
+ * @group integration
  */
 class TestControllerFactoryTest extends TestCase
 {

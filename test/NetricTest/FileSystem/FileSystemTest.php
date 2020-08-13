@@ -8,7 +8,7 @@ namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\FileSystem;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType;
 use Netric\FileSystem\FileSystemFactory;
@@ -18,6 +18,9 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class FileSystemTest extends TestCase
 {
     /**

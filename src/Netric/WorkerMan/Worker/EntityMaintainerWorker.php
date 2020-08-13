@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2017 Aereus
  */
+
 namespace Netric\WorkerMan\Worker;
 
 use Netric\WorkerMan\Job;
@@ -59,14 +61,14 @@ class EntityMaintainerWorker extends AbstractWorker
             $log->info("EntityMaintainerWorker->work: maintaining " . $account->getName());
 
             // Process all maintenance tasks
-            $processed = $maintainerService->runAll();
+            $processed = $maintainerService->runAll($account->getAccountId());
 
             // Log what we did
             $log->info(
                 "EntityMaintainerWorker->work: done " .
-                $account->getName() .
-                ": " .
-                var_export($processed, true)
+                    $account->getName() .
+                    ": " .
+                    var_export($processed, true)
             );
         }
 

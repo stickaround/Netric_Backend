@@ -1,8 +1,9 @@
 <?php
+
 namespace Netric\EntityQuery\Plugin;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\Recurrence\RecurrenceSeriesManager;
 
 /**

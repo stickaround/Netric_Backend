@@ -4,7 +4,7 @@ namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Where;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Aggregation;
@@ -177,7 +177,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $conditionString .= "entity_definition_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
 
         // Add account
-        $conditionString .= "account_id='" . $this->account->getAccountId() . "'";
+        $conditionString .= "account_id='" . $query->getAccountId() . "'";
 
         // Get order by from $query and setup the sort order
         $sortOrder = [];

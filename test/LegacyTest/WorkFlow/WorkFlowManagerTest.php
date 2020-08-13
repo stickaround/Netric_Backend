@@ -6,7 +6,7 @@
 
 namespace NetricTest\WorkFlow;
 
-use Netric\WorkFlow\Action\ActionFactory;
+use Netric\WorkFlow\Action\ActionExecutorFactory;
 use Netric\WorkFlow\WorkFlowFactory;
 use Netric\EntityQuery\Where;
 use Netric\Entity\EntityInterface;
@@ -24,7 +24,6 @@ use NetricTest\Bootstrap;
 /*
  * @group integration
  */
-
 class WorkFlowManagerTest extends TestCase
 {
     /**
@@ -45,7 +44,7 @@ class WorkFlowManagerTest extends TestCase
     /**
      * Action factory for testing
      *
-     * @var ActionFactory
+     * @var ActionExecutorFactory
      */
     private $actionFactory = null;
 
@@ -81,7 +80,7 @@ class WorkFlowManagerTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $this->sl = $this->account->getServiceManager();
-        $this->actionFactory = new ActionFactory($this->sl);
+        $this->actionFactory = new ActionExecutorFactory($this->sl);
         $this->entityLoader = $this->sl->get(EntityLoaderFactory::class);
         $this->workFlowManager = $this->sl->get(WorkFlowManagerFactory::class);
         $this->workFlowDataMapper = $this->sl->get(DataMapperFactory::class);

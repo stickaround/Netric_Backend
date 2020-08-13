@@ -1,8 +1,6 @@
 <?php
 
 return [
-    // The default account (db) to load if no third level domain
-    'default_account' => 'local',
     // Inerval vault file
     'vault_dir' => "/var/www/html/data/vault_secrets",
     // Log settings
@@ -45,8 +43,10 @@ return [
     ],
     // Background worker settings
     'workers' => [
-        'background_enabled' => false,
-        'queue' => 'gearman',
+        // The in-memory worker is really just an envent queue that
+        // executes the 'background' jobs immediately
+        'queue' => 'memory',
+        // We leave this for unit tests since we test gearman
         'server' => 'gearmand',
     ],
 ];

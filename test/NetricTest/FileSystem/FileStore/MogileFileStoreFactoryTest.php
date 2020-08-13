@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the AnsFileStoreFactory service
  */
+
 namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\FileStore\MogileFileStore;
@@ -9,6 +11,9 @@ use Netric\FileSystem\FileStore\MogileFileStoreFactory;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class MogileFileStoreFactoryTest extends TestCase
 {
     /**

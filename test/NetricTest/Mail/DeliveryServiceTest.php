@@ -13,6 +13,9 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Mail\DeliveryServiceFactory;
 
+/**
+ * @group integration
+ */
 class DeliveryServiceTest extends TestCase
 {
     /**
@@ -99,7 +102,7 @@ class DeliveryServiceTest extends TestCase
         $this->emailAccount->setValue("host", getenv('TESTS_NETRIC_MAIL_HOST'));
         $this->emailAccount->setValue("username", getenv('TESTS_NETRIC_MAIL_USER'));
         $this->emailAccount->setValue("password", getenv('TESTS_NETRIC_MAIL_PASSWORD'));
-        $entityLoader->save($this->emailAccount, $this->account->getSystemUser());
+        $entityLoader->save($this->emailAccount, $this->user);
         $this->testEntities[] = $this->emailAccount;
     }
 
@@ -112,14 +115,14 @@ class DeliveryServiceTest extends TestCase
         $groupings->delete($this->inbox->getGroupId());
         $groupingsLoader->save($groupings);
 
+        // Restore original current user
+        $this->account->setCurrentUser($this->origCurrentUser);
+
         // Delete any test entities
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
-            $entityLoader->delete($entity, $this->account->getAuthenticatedUser());
+            $entityLoader->delete($entity, $this->account->getSystemUser());
         }
-
-        // Restore original current user
-        $this->account->setCurrentUser($this->origCurrentUser);
     }
 
     /**
@@ -138,7 +141,7 @@ class DeliveryServiceTest extends TestCase
         $messageGuid = $deliveryService->deliverMessageFromFile(
             self::TEST_EMAIL,
             __DIR__ . '/_files/m6.complex.mime.unseen',
-            $this->account->getAuthenticatedUser()
+            $this->account
         );
 
         $this->assertNotNull($messageGuid);

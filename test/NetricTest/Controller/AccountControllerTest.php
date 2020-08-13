@@ -3,6 +3,7 @@
 /**
  * Test the account controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric;
@@ -10,6 +11,9 @@ use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Controller\AccountController;
 
+/**
+ * @group integration
+ */
 class AccountControllerTest extends TestCase
 {
     /**

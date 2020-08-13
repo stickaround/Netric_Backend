@@ -46,7 +46,6 @@ return [
     ],
     // Background worker settings
     'workers' => [
-        'background_enabled' => true,
         'queue' => 'gearman',
         'server' => 'dev1.aereus.com',
     ],

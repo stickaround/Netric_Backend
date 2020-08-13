@@ -12,7 +12,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
 
 // Add all z-push required files
@@ -25,6 +25,9 @@ require_once(dirname(__FILE__) . '/../../../../config/zpush.config.php');
 require_once('backend/netric/netric.php');
 require_once('backend/netric/entityprovider.php');
 
+/**
+ * @group integration
+ */
 class EntitySearchProviderTest extends TestCase
 {
     /**
@@ -96,7 +99,7 @@ class EntitySearchProviderTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
@@ -113,7 +116,7 @@ class EntitySearchProviderTest extends TestCase
         $user->setValue("full_name", "Test User");
         $user->setValue("active", true);
         $user->setValue("email", "test@test.com");
-        $dm->save($user, $this->account->getSystemUser());
+        $dm->save($user, $this->account->getAuthenticatedUser());
         $this->user = $user;
         $this->testEntities[] = $user; // cleanup automatically
 

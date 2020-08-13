@@ -9,6 +9,9 @@ use Netric\Cache\CacheFactory;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class CacheFactoryTest extends TestCase
 {
     public function testCreateService()

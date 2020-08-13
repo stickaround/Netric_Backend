@@ -3,7 +3,7 @@
 namespace NetricTest\WorkFlow\Action;
 
 use PHPUnit\Framework\TestCase;
-use Netric\WorkFlow\Action\ActionFactory;
+use Netric\WorkFlow\Action\ActionExecutorFactory;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
@@ -34,7 +34,7 @@ abstract class AbstractActionTests extends TestCase
     /**
      * Action factory for testing
      *
-     * @var ActionFactory
+     * @var ActionExecutorFactory
      */
     protected $actionFactory = null;
 
@@ -66,7 +66,7 @@ abstract class AbstractActionTests extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
-        $this->actionFactory = new ActionFactory($sl);
+        $this->actionFactory = new ActionExecutorFactory($sl);
         $this->entityLoader = $sl->get(EntityLoaderFactory::class);
         $this->workFlowDataMapper = $sl->get(DataMapperFactory::class);
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -13,15 +14,6 @@ use Netric\WorkerMan\WorkerInterface;
  */
 interface QueueInterface
 {
-    /**
-     * Add a job to the queue and run it (RPC)
-     *
-     * @param string $workerName The name of the worker to run
-     * @param array $jobData Data to be passed to the job
-     * @return mixed Whatever the result of the worker is
-     */
-    public function doWork($workerName, array $jobData);
-
     /**
      * Add a job to the queue and run it
      *
@@ -53,7 +45,7 @@ interface QueueInterface
      * @param string $workerName The name of the queue to clear
      * @return int number of jobs cleared
      */
-    public function clearWorkerQueue($workerName);
+    public function clearJobQueue($workerName);
 
     /**
      * Loop through the work queue and dispatch each job to the appropriate worker (pop)

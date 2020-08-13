@@ -8,7 +8,7 @@ namespace NetricTest\Entity\BrowserView;
 
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;

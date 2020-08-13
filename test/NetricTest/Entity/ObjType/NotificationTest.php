@@ -11,7 +11,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use Netric\Mail\Transport\InMemory;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\EntityLoaderFactory;
@@ -69,7 +69,7 @@ class NotificationTest extends TestCase
 
         // Make sure test user does not exist from previous failed query
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where("name")->equals("notificationtest");
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {

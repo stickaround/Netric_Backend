@@ -11,7 +11,7 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Mail;
@@ -512,7 +512,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
          * at least for cases where the sender includes in-reply-to in the header.
          */
         if (trim($this->getValue("in_reply_to"))) {
-            $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
+            $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE, $this->getAccountId());
             $query->where("message_id")->equals($this->getValue("in_reply_to"));
             $query->andWhere("owner_id")->equals($this->getValue("owner_id"));
             $results = $this->entityIndex->executeQuery($query);

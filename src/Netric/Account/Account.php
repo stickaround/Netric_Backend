@@ -7,7 +7,7 @@ use Netric\Authentication\AuthenticationIdentity;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceManager;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -197,7 +197,7 @@ class Account
 
     /**
      * @deprecated We now use the AuthenticationService
-     * 
+     *
      * Override the currently authenticated user with a specific user
      *
      * This is often used in testing and in background services where
@@ -310,7 +310,7 @@ class Account
         if ($userId) {
             return $entityLoader->getEntityById($userId, $this->getAccountId());
         } elseif ($username) {
-            $query = new EntityQuery(ObjectTypes::USER);
+            $query = new EntityQuery(ObjectTypes::USER, $this->getAccountId());
             $query->where('name')->equals($username);
             $index = $this->getServiceManager()->get(IndexFactory::class);
             $res = $index->executeQuery($query);

@@ -3,9 +3,7 @@
 return [
     // This is the url of the netric app. This is usually used when creating
     // the link of an entity in the email notification contents.
-    'application_url' => 'localhost:8080',
-    // The default account (db) to load if no third level domain
-    'default_account' => 'local',
+    'application_url' => 'http://localhost:8080',
     // Where secret files are stored - we keep this in the source code for local development
     'vault_dir' => "/var/www/html/data/vault_secrets",
     // Log settings
@@ -59,7 +57,6 @@ return [
     ],
     // Background worker settings
     'workers' => [
-        'background_enabled' => false,
         'queue' => 'gearman',
         'server' => 'gearmand',
     ],

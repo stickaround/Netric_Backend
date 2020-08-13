@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Application\Health\DependencyCheck;
 
 use Netric\Application\Health\DependencyCheck\DependenciesFactory;
@@ -7,6 +8,8 @@ use NetricTest\Bootstrap;
 
 /**
  * Make sure our dependencies factory works
+ *
+ * @group integration
  */
 class DependenciesFactoryTest extends TestCase
 {

@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\FileSystem;
 
 use Netric\Application\Health\HealthCheck;
@@ -8,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Make sure we can construct a HealthCheck with all the system dependencies
+ * @group integraation
  */
 class HealthCheckFactoryTest extends TestCase
 {

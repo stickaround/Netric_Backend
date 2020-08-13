@@ -11,6 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationServiceFactory;
 
+/**
+ * @group integration
+ */
 class AuthenticationServiceFactoryTest extends TestCase
 {
 

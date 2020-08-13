@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test account setup functions
  */
+
 namespace NetricTest\Application\Setup;
 
 use Netric\Account\Account;
@@ -13,6 +15,9 @@ use Netric\Settings\SettingsFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class AccountUpdaterTest extends TestCase
 {
     /**

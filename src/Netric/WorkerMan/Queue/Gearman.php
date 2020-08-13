@@ -1,14 +1,14 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\WorkerMan\Queue;
 
 use Netric\WorkerMan\WorkerInterface;
 use Netric\WorkerMan\Job;
+use Netric\WorkerMan\WorkerFactory;
+use GearmanClient;
+use GearmanWorker;
+use GearmanJob;
+use RuntimeException;
 
 class Gearman implements QueueInterface
 {
@@ -43,23 +43,11 @@ class Gearman implements QueueInterface
     /**
      * Initialize a Gearman job queue
      *
-     * @param $server
+     * @param string $server The gearman server to connect to
      */
-    public function __construct($server)
+    public function __construct(string $server)
     {
         $this->server = $server;
-    }
-
-    /**
-     * Add a job to the queue and wait for it to return (RPC)
-     *
-     * @param string $workerName The name of the worker to run
-     * @param array $jobData Data to be passed to the job
-     * @return mixed Whatever the result of the worker is
-     */
-    public function doWork($workerName, array $jobData)
-    {
-        return $this->getGmClient()->doNormal($workerName, json_encode($jobData));
     }
 
     /**
@@ -74,7 +62,7 @@ class Gearman implements QueueInterface
         $job = $this->getGmClient()->doBackground($workerName, json_encode($jobData));
 
         if ($this->getGmClient()->returnCode() != GEARMAN_SUCCESS) {
-            throw new \RuntimeException("Cannot run background job: " . $this->getGmClient()->error());
+            throw new RuntimeException("Cannot run background job: " . $this->getGmClient()->error());
         }
 
         $this->lastJobId = $job;
@@ -101,7 +89,7 @@ class Gearman implements QueueInterface
     /**
      * Array of listeners with the key bing the WorkerName
      *
-     * @return \Netric\WorkerMan\WorkerInterface[]
+     * @return WorkerInterface[]
      */
     public function getWorkers()
     {
@@ -133,7 +121,7 @@ class Gearman implements QueueInterface
 
         $error = $gmWorker->error();
         if ($error) {
-            throw new \RuntimeException("Job failed: " . $error);
+            throw new RuntimeException("Job failed: " . $error);
         }
 
         // No jobs
@@ -142,14 +130,18 @@ class Gearman implements QueueInterface
 
     /**
      * Local listener called when gearman submits a job
+     * 
+     * This is public only because gearman needs it to be for the callback.
+     * It should never be called outside this class though since it breaks the
+     * interface.
      *
      * @param \GearmanJob $gmJob
      * @return mixed Results of job
      */
-    public function sendJobToWorker(\GearmanJob $gmJob)
+    public function sendJobToWorker(GearmanJob $gmJob)
     {
         if (!isset($this->listeners[$gmJob->functionName()])) {
-            throw new \RuntimeException("No listeners for job: " . $gmJob->functionName());
+            throw new RuntimeException("No listeners for job: " . $gmJob->functionName());
         }
 
         // Construct job wrapper
@@ -168,7 +160,7 @@ class Gearman implements QueueInterface
      * @param string $workerName The name of the queue to clear
      * @return int number of jobs cleared
      */
-    public function clearWorkerQueue($workerName)
+    public function clearJobQueue($workerName)
     {
         $purged = 0;
         $gmWorker = $this->getGmWorker();
@@ -212,7 +204,7 @@ class Gearman implements QueueInterface
     {
         // Create a client instance and add the server
         if (!$this->gmClient) {
-            $this->gmClient = new \GearmanClient();
+            $this->gmClient = new GearmanClient();
             $this->gmClient->addServer($this->server, 4730);
         }
 
@@ -227,7 +219,7 @@ class Gearman implements QueueInterface
     private function getGmWorker()
     {
         if (!$this->gmWorker) {
-            $this->gmWorker = new \GearmanWorker();
+            $this->gmWorker = new GearmanWorker();
             $this->gmWorker->addServer($this->server, 4730);
 
             // Turn off blocking so that $this->gmWorker->work will return right away if no jobs

@@ -7,6 +7,9 @@ use Netric\Application\DataMapperInterface;
 use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class DataMapperFactoryTest extends TestCase
 {
     public function testCreateService()

@@ -115,6 +115,7 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->getGetAction();
         $this->assertEquals($dashboardEntity->getEntityId(), $ret['entity_id'], var_export($ret, true));
+        $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
 
     public function testPostGetEntityActionDashboardUname()
@@ -167,6 +168,7 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->postGetAction();
         $this->assertEquals($customer->getEntityId(), $ret['entity_id'], var_export($ret, true));
+        $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
 
     public function testPostGetEntityActionUname()
@@ -199,6 +201,7 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->postGetAction();
         $this->assertEquals($page->getEntityId(), $ret['entity_id'], var_export($ret, true));
+        $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
 
     /**
@@ -215,11 +218,12 @@ class EntityControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(['entity_id' => $site->getEntityId]));
+        $req->setBody(json_encode(['entity_id' => $site->getEntityId()]));
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $this->assertEquals($site->getEntityId, $ret['entity_id'], var_export($ret, true));
+        $this->assertEquals($site->getEntityId(), $ret['entity_id'], var_export($ret, true));
+        $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
 
     public function testGetDefinitionForms()
@@ -254,6 +258,7 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($data['obj_type'], $ret['obj_type']);
         $this->assertEquals($data['first_name'], $ret['first_name']);
         $this->assertEquals($data['last_name'], $ret['last_name']);
+        $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
 
     public function testDelete()
@@ -557,13 +562,13 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($ret['groups_fval'][33], $entity3->getValueName("groups", 33));
 
         // Test that the entities that were merged have been moved
-        $mId1 = $dm->checkEntityHasMoved($entity1->getDefinition(), $entityId1);
+        $mId1 = $dm->checkEntityHasMoved($entity1->getDefinition(), $entityId1, $this->account->getAccountId());
         $this->assertEquals($mId1, $ret['entity_id']);
 
-        $mId2 = $dm->checkEntityHasMoved($entity2->getDefinition(), $entityId2);
+        $mId2 = $dm->checkEntityHasMoved($entity2->getDefinition(), $entityId2, $this->account->getAccountId());
         $this->assertEquals($mId2, $ret['entity_id']);
 
-        $mId3 = $dm->checkEntityHasMoved($entity3->getDefinition(), $entityId3);
+        $mId3 = $dm->checkEntityHasMoved($entity3->getDefinition(), $entityId3, $this->account->getAccountId());
         $this->assertEquals($mId3, $ret['entity_id']);
 
         // Lets load the actual entities and check if they are archived
@@ -719,5 +724,56 @@ class EntityControllerTest extends TestCase
         $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK, 'field_name' => 'group']));
         $ret = $this->controller->postSaveGroupAction();
         $this->assertEquals($ret['error'], 'action is a required param');
+    }
+
+    public function testAccessEntityWithUserThatHasNoPermission()
+    {
+        // Create a task entity that that can be retrieved by a user that has no permission
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $taskEntity = $loader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $taskEntity->setValue("name", "Test Task");
+        $loader->save($taskEntity, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $taskEntity;
+
+        $userEntity = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
+        $userEntity->setValue("name", "Test User");
+        $loader->save($userEntity, $this->account->getSystemUser());
+        $this->testEntities[] = $userEntity;
+
+        $account = Bootstrap::getAccount();
+        $account->setCurrentUser($userEntity);
+
+        // Create the controller
+        $controller = new EntityController($this->account->getApplication(), $account);
+        $controller->testMode = true;
+
+        // Set params in the request
+        $req = $controller->getRequest();
+        $req->setBody(json_encode([
+            'obj_type' => ObjectTypes::TASK,
+            'entity_id' => $taskEntity->getEntityId()
+        ]));
+
+        $ret = $controller->getGetAction();
+
+        // Since we have no permission to view the task, it should return an error message.
+        $this->assertEquals(count($ret), 3);
+        $this->assertEquals($taskEntity->getEntityId(), $ret['entity_id'], var_export($ret, true));
+        $this->assertEquals($ret["error"], "You do not have permission to view this.");
+
+        // Let's try to update the task using the user that has no permission
+        $data = $taskEntity->toArray();
+        $data['name'] = 'Updated task name';
+
+        // Set params in the request
+        $req = $controller->getRequest();
+        $req->setBody(json_encode($data));
+
+        $ret = $controller->postSaveAction();
+
+        // Since we have no permission to edit the task, it should return an error message.
+        $this->assertEquals(count($ret), 3);
+        $this->assertEquals($taskEntity->getEntityId(), $ret['entity_id'], var_export($ret, true));
+        $this->assertEquals($ret["error"], "You do not have permission to edit this.");
     }
 }

@@ -6,9 +6,10 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
+
 namespace Netric\EntityQuery;
 
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 
 /**
  * Parse form fields to an actual query

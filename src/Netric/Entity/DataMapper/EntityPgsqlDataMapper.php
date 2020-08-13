@@ -20,7 +20,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Entity\Entity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\Notifier\Notifier;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
@@ -28,6 +28,7 @@ use Netric\Authentication\AuthenticationService;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Entity\EntityLoader;
 use Netric\ServiceManager\AccountServiceManager;
+use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
 use DateTime;
 use RuntimeException;
@@ -66,7 +67,6 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         CommitManager $commitManager,
         EntitySync $entitySync,
         EntityValidator $entityValidator,
-        AuthenticationService $authService,
         EntityFactory $entityFactory,
         Notifier $notifier = null,
         EntityAggregator $entityAggregator = null,
@@ -74,7 +74,8 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
         AccountServiceManager $serviceManager,
-        RelationalDbContainer $dbContainer
+        RelationalDbContainer $dbContainer,
+        WorkerService $workerService
     ) {
         // Pass in this aboslutely terrible list of dependencies
         parent::__construct(
@@ -82,14 +83,14 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
             $commitManager,
             $entitySync,
             $entityValidator,
-            $authService,
             $entityFactory,
             $notifier,
             $entityAggregator,
             $entityDefLoader,
             $activityLog,
             $groupingLoader,
-            $serviceManager
+            $serviceManager,
+            $workerService
         );
 
         // Used to get active database connection for the right account

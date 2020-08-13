@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Netric\Crypt\VaultServiceFactory;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class VaultServiceTest extends TestCase
 {
     public function testGetSecret()

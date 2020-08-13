@@ -1,4 +1,12 @@
 <?php
+
+namespace NetricTest\EntityQuery;
+
+use PHPUnit\Framework\TestCase;
+use Netric\EntityQuery\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery\FormParser;
+
 /**
  * Test querying ElasticSearch server
  *
@@ -7,20 +15,12 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
-namespace NetricTest\EntityQuery;
-
-use Netric;
-use PHPUnit\Framework\TestCase;
-use Netric\EntityQuery;
-use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityQuery\FormParser;
-
 class FormParserTest extends TestCase
 {
 
     public function testBuildQueryWheres()
     {
-        $query = new EntityQuery(ObjectTypes::CONTACT);
+        $query = new EntityQuery(ObjectTypes::CONTACT, 'TEST-ACCOUNT-ID');
         $params = [
             "where" => [
                 "and,first_name,is_equal,Sky",
@@ -53,7 +53,7 @@ class FormParserTest extends TestCase
 
     public function testBuildQueryOrderBy()
     {
-        $query = new EntityQuery(ObjectTypes::CONTACT);
+        $query = new EntityQuery(ObjectTypes::CONTACT, 'TEST-ACCOUNT-ID');
         $params = [
             "order_by" => [
                 "last_name",
@@ -76,7 +76,7 @@ class FormParserTest extends TestCase
 
     public function testBuildQueryOffsetLimit()
     {
-        $query = new EntityQuery(ObjectTypes::CONTACT);
+        $query = new EntityQuery(ObjectTypes::CONTACT, 'TEST-ACCOUNT-ID');
         $params = [
             "offset" => 100,
             "limit" => 73,

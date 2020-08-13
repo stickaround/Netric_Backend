@@ -12,6 +12,9 @@ use Netric\Entity\ObjType;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class ImageResizerTest extends TestCase
 {
     /**

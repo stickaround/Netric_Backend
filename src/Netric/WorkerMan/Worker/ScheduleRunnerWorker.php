@@ -90,7 +90,7 @@ class ScheduleRunnerWorker extends AbstractWorker
             $this->schedulerService = $account->getServiceManager()->get(SchedulerService::class);
         }
 
-        $scheduledJobs = $this->schedulerService->getScheduledToRun();
+        $scheduledJobs = $this->schedulerService->getScheduledToRun($account->getAccountId());
         $application->getLog()->info(
             "ScheduleRunnerWorker->work: Scheduling " . count($scheduledJobs) . " jobs to run"
         );

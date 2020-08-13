@@ -9,7 +9,9 @@
 
 namespace Netric\Entity\BrowserView;
 
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
+use Netric\EntityQuery\Where;
+use Netric\EntityQuery\OrderBy;
 
 /**
  * Represent a single browser view
@@ -205,7 +207,7 @@ class BrowserView
 
         if (isset($data['conditions']) && is_array($data['conditions'])) {
             foreach ($data['conditions'] as $cond) {
-                $where = new EntityQuery\Where($cond['field_name']);
+                $where = new Where($cond['field_name']);
                 $where->fromArray($cond);
                 $this->wheres[] = $where;
             }
@@ -213,7 +215,7 @@ class BrowserView
 
         if (isset($data['order_by']) && is_array($data['order_by'])) {
             foreach ($data['order_by'] as $sortData) {
-                $orBy = new EntityQuery\OrderBy($sortData['field_name'], $sortData['direction']);
+                $orBy = new OrderBy($sortData['field_name'], $sortData['direction']);
                 $this->orderBy[] = $orBy;
             }
         }

@@ -3,7 +3,7 @@
 namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
-use Netric\WorkFlow\Action\SendEmailAction;
+use Netric\WorkFlow\Action\SendEmailActionExecutor;
 use Netric\Mail\Transport\InMemory;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\Mail\SenderServiceFactory;
@@ -62,7 +62,7 @@ class SendEmailActionTest extends AbstractActionTests
         $this->testEntities[] = $user;
 
         // Setup an action
-        $action = new SendEmailAction($this->entityLoader, $this->actionFactory, $senderService);
+        $action = new SendEmailActionExecutor($this->entityLoader, $this->actionFactory, $senderService);
         $action->setParam("to", ["<%owner_id.email%>"]);
         $action->setParam("subject", "Automated Email");
         $action->setParam("body", "Hello <%owner_id.name%>");

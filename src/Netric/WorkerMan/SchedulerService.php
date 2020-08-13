@@ -5,7 +5,7 @@ namespace Netric\WorkerMan;
 use DateTime;
 use RuntimeException;
 use Netric\Entity\ObjType\WorkerJobEntity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
@@ -93,12 +93,13 @@ class SchedulerService
     /**
      * Get scheduled jobs up to now or a specific data if passed
      *
+     * @param string $accountId THe account to get scheduled tasks for
      * @param DateTime|null $toDate If null then 'now' will be used to get jobs
      *                      that should run now
      * @param string $workerName If set just look for a specific worker
      * @return WorkerJobEntity[]
      */
-    public function getScheduledToRun(DateTime $toDate = null, $workerName = "")
+    public function getScheduledToRun(string $accountId, DateTime $toDate = null, $workerName = "")
     {
         $jobsToReturn = [];
 
@@ -107,7 +108,7 @@ class SchedulerService
             $toDate = new DateTime();
         }
 
-        $query = new EntityQuery(ObjectTypes::WORKER_JOB);
+        $query = new EntityQuery(ObjectTypes::WORKER_JOB, $accountId);
         $query->where('ts_scheduled')->isLessOrEqualTo($toDate->getTimestamp());
 
         // If we are looking for a specific worker name then add it to the filter

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
  *
@@ -7,6 +8,7 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
+
 namespace NetricTest\EntitySync\Commit\DataMapper;
 
 use PHPUnit\Framework\TestCase;
@@ -14,6 +16,9 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntitySync\Commit\DataMapper\DataMapperRdb;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class DataMapperRdbTest extends DmTestsAbstract
 {
     /**

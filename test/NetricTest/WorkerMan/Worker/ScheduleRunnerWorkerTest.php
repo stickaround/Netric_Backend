@@ -18,6 +18,8 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * Make sure that the scheudle runner will queue jobs
+ *
+ * @group integration
  */
 class ScheduleRunnerWorkerTest extends TestCase
 {

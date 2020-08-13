@@ -7,6 +7,9 @@ use NetricTest\Bootstrap;
 use Aereus\Config\Config;
 use Netric\Config\ConfigFactory;
 
+/**
+ * @group integration
+ */
 class ConfigFactoryTest extends TestCase
 {
     public function testCreateService()

@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/always/04-modules.php script works
  */
+
 namespace BinTest\Update\Always;
 
 use Netric\Console\BinScript;
@@ -10,6 +12,9 @@ use PHPUnit\Framework\TestCase;
 use Netric\Account\Module\ModuleServiceFactory;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class ModulesTest extends TestCase
 {
     /**

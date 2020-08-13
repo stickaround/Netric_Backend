@@ -1,10 +1,14 @@
 <?php
+
 namespace NetricTest\Mail;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Mail\DeliveryService;
 use Netric\Mail\DeliveryServiceFactory;
 
+/**
+ * @group integration
+ */
 class DeliveryServiceFactoryTest extends TestCase
 {
     public function testCreateService()

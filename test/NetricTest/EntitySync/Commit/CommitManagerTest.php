@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test to make sure the commit manager is saving snapshots as expected
  */
+
 namespace NetricTest\EntitySync\Commit;
 
 use Netric;
@@ -9,6 +11,9 @@ use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 
+/**
+ * @group integration
+ */
 class CommitManagerTest extends TestCase
 {
     /**

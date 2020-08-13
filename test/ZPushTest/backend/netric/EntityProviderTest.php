@@ -6,6 +6,7 @@
 
 namespace ZPushTest\backend\netric;
 
+use Netric\Account\Account;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
@@ -16,7 +17,7 @@ use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Log\LogFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Log\LogInterface;
 
 // Add all z-push required files
@@ -29,6 +30,9 @@ require_once(dirname(__FILE__) . '/../../../../config/zpush.config.php');
 require_once('backend/netric/netric.php');
 require_once('backend/netric/entityprovider.php');
 
+/**
+ * @group integration
+ */
 class EntityProviderTest extends TestCase
 {
     /**
@@ -92,7 +96,7 @@ class EntityProviderTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
@@ -445,13 +449,13 @@ class EntityProviderTest extends TestCase
         $this->assertEquals($mail->subject, $openedEntity->getValue("subject"));
     }
 
-    public function testSaveSyncObject_Appointment()
+    public function testSaveSyncObjectAppointment()
     {
         $folderIds = $this->provider->getCalendarFolders();
 
         // Play with timezones to make sure it is working as designed
-        $cur_tz = date_default_timezone_get();
-        date_default_timezone_set('UTC');
+        // $cur_tz = date_default_timezone_get();
+        // date_default_timezone_set('UTC');
 
         $app = new \SyncAppointment();
         $app->timezone = base64_encode(\TimezoneUtil::GetSyncBlobFromTZ(\TimezoneUtil::GetFullTZ()));
@@ -474,8 +478,8 @@ class EntityProviderTest extends TestCase
         $eid = $this->provider->saveSyncObject($folderIds[0]->serverid, null, $app);
         $this->assertNotNull($eid);
 
-        // Test timezone by making the local timezone New York -5 hours
-        date_default_timezone_set('America/New_York');
+        // // Test timezone by making the local timezone New York -5 hours
+        // date_default_timezone_set('America/New_York');
 
         // Open and check the data
         $entity = $this->entityLoader->getEntityById($eid, $this->account->getAccountId());
@@ -493,8 +497,8 @@ class EntityProviderTest extends TestCase
         $this->assertEquals($recur->getDateEnd()->getTimestamp(), strtotime("3/1/2011"));
         $this->assertEquals($recur->getDayOfWeekMask(), RecurrencePattern::WEEKDAY_WEDNESDAY);
 
-        // Cleanup
-        date_default_timezone_set($cur_tz);
+        // // Cleanup
+        // date_default_timezone_set($cur_tz);
     }
 
     public function testSaveSyncObject_Contact()
@@ -586,17 +590,17 @@ class EntityProviderTest extends TestCase
         $entity->setValue("body", "unit tests provider");
         $entity->setValue("mailbox_id", $grpDrafts->guid);
         $entity->setValue("owner_id", $this->user->getEntityId());
-        $id = $this->entityLoader->save($entity);
+        $entityId = $this->entityLoader->save($entity, $this->user);
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->moveEntity(
-            $id,
+            $entityId,
             \EntityProvider::FOLDER_TYPE_EMAIL . ':' . $grpDrafts->getGroupId(),
             \EntityProvider::FOLDER_TYPE_EMAIL . ':' . $grpInbox->getGroupId()
         );
         $this->assertTrue($ret);
 
-        $loadedEntity = $this->entityLoader->getEntityById($id, $this->account->getAccountId());
+        $loadedEntity = $this->entityLoader->getEntityById($entityId, $this->account->getAccountId());
         $this->assertEquals($grpInbox->getGroupId(), $loadedEntity->getValue("mailbox_id"));
     }
 
@@ -702,25 +706,24 @@ class EntityProviderTest extends TestCase
     public function testDeleteEntity()
     {
         // Get folders, at least one will be there because we created Inbox in $this->setUp
-        $emailFolders = $this->provider->getEmailFolders();
+        $taskFolders = $this->provider->getTaskFolders();
 
         // Mailboxes are stored in '[obj_type]-[id]' format so get the id beflow
-        $folderParts = explode(':', $emailFolders[0]->serverid);
+        $folderParts = explode(':', $taskFolders[0]->serverid);
         $mailboxId = $folderParts[1];
 
-        $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $entity->setValue("subject", "testDeleteEntity in provider");
-        $entity->setValue("mailbox_id", $mailboxId);
-        $id = $this->entityLoader->save($entity, $this->account->getAuthenticatedUser());
+        $entity = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $entity->setValue("name", "testDeleteEntity in provider");
+        $entityId = $this->entityLoader->save($entity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->deleteEntity(
-            $emailFolders[0]->serverid,
-            $id
+            $taskFolders[0]->serverid,
+            $entityId
         );
         $this->assertTrue($ret);
 
-        $loadedEntity = $this->entityLoader->getEntityById($id, $this->account->getAccountId());
+        $loadedEntity = $this->entityLoader->getEntityById($entityId, $this->account->getAccountId());
         $this->assertTrue($loadedEntity->getValue("f_deleted"));
     }
 

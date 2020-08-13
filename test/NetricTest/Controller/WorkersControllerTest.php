@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test calling the workers controller
  */
+
 namespace NetricTest\Controller;
 
 use Netric;
@@ -10,6 +12,9 @@ use Netric\Controller\WorkersController;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class WorkersControllerTest extends TestCase
 {
     /**

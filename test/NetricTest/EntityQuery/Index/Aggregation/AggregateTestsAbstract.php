@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Aggregation\Terms;
 use Netric\EntityQuery\Aggregation\Sum;
 use Netric\EntityQuery\Aggregation\Stats;
@@ -117,7 +117,7 @@ abstract class AggregateTestsAbstract extends TestCase
 
         // Find campaign id if not set
         if (!$this->campaignId) {
-            $query = new EntityQuery(ObjectTypes::MARKETING_CAMPAIGN);
+            $query = new EntityQuery(ObjectTypes::MARKETING_CAMPAIGN, $this->account->getAccountId());
             $query->where('name')->equals("Unit Test Aggregates");
             $res = $index->executeQuery($query);
             if ($res->getTotalNum() > 0) {
@@ -131,7 +131,7 @@ abstract class AggregateTestsAbstract extends TestCase
         }
 
 
-        $query = new EntityQuery(ObjectTypes::OPPORTUNITY);
+        $query = new EntityQuery(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $query->where('campaign_id')->equals($this->campaignId);
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
@@ -164,7 +164,7 @@ abstract class AggregateTestsAbstract extends TestCase
             return;
         }
 
-        $query = new EntityQuery(ObjectTypes::OPPORTUNITY);
+        $query = new EntityQuery(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $query->where('campaign_id')->equals($this->campaignId);
 
         $agg = new Terms("test");
@@ -191,7 +191,7 @@ abstract class AggregateTestsAbstract extends TestCase
             return;
         }
 
-        $query = new EntityQuery(ObjectTypes::OPPORTUNITY);
+        $query = new EntityQuery(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $query->where('campaign_id')->equals($this->campaignId);
 
         $agg = new Sum("test");
@@ -212,7 +212,7 @@ abstract class AggregateTestsAbstract extends TestCase
             return;
         }
 
-        $query = new EntityQuery(ObjectTypes::OPPORTUNITY);
+        $query = new EntityQuery(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $query->where('campaign_id')->equals($this->campaignId);
 
         $agg = new Stats("test");
@@ -237,7 +237,7 @@ abstract class AggregateTestsAbstract extends TestCase
             return;
         }
 
-        $query = new EntityQuery(ObjectTypes::OPPORTUNITY);
+        $query = new EntityQuery(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $query->where('campaign_id')->equals($this->campaignId);
 
         $agg = new Avg("test");
@@ -258,7 +258,7 @@ abstract class AggregateTestsAbstract extends TestCase
             return;
         }
 
-        $query = new EntityQuery(ObjectTypes::OPPORTUNITY);
+        $query = new EntityQuery(ObjectTypes::OPPORTUNITY, $this->account->getAccountId());
         $query->where('campaign_id')->equals($this->campaignId);
 
         $agg = new Min("test");

@@ -15,6 +15,9 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use NetricTest\Bootstrap;
 
+/**
+ * @group integration
+ */
 class DaclLoaderTest extends TestCase
 {
     /**
@@ -61,7 +64,7 @@ class DaclLoaderTest extends TestCase
         $this->user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->addMultiValue("groups", UserEntity::GROUP_USERS);
-        $entityLoader->save($this->user, $this->user);
+        $entityLoader->save($this->user, $this->account->getSystemUser());
         $this->testEntities[] = $this->user;
 
         // Let's store the current file DACL since we will modify it, and we want to restore it on shutdonw

@@ -16,7 +16,7 @@ use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Where;
 
 class EntityTest extends TestCase
@@ -489,7 +489,7 @@ class EntityTest extends TestCase
         $this->testEntities[] = $document;
 
         // We will now create a query to get document with is_rootspace set to true
-        $query = new EntityQuery(ObjectTypes::DOCUMENT);
+        $query = new EntityQuery(ObjectTypes::DOCUMENT, $this->account->getAccountId());
         $query->where('is_rootspace')->equals(true);
         $query->where('entity_id')->equals($document->getEntityId());
         $res = $index->executeQuery($query);

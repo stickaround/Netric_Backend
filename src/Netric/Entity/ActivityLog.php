@@ -1,18 +1,12 @@
 <?php
 
-/**
- * Activity log for entities
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\Entity;
 
 use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\GroupingLoader;
@@ -31,13 +25,6 @@ class ActivityLog
      * @var EntityLoader
      */
     private $entityLoader = null;
-
-    /**
-     * Currently logged in user
-     *
-     * @var ObjType\UserEntity
-     */
-    private $currentUser = null;
 
     /**
      * Loader to get and save entity groupings
@@ -64,13 +51,11 @@ class ActivityLog
     public function __construct(
         LogInterface $log,
         EntityLoader $entityLoader,
-        GroupingLoader $groupingLoader,
-        ObjType\UserEntity $currentUser
+        GroupingLoader $groupingLoader
     ) {
         $this->log = $log;
         $this->entityLoader = $entityLoader;
         $this->groupingLoader = $groupingLoader;
-        $this->currentUser = $currentUser;
     }
 
     /**
@@ -81,14 +66,12 @@ class ActivityLog
      *  verb (what the action was)
      *  object (what the verb was performed on), notes
      *
-     * @param Entity $subject The entity performing the action - usually a user
+     * @param UserEntity $user The entity performing the action - usually a user
      * @param string $verb The action performed from ActivityEntity::VERB_*
-     * @param Entity $object The entity being acted on
-     * @param string $notes Details for the activity
-     * @param int $level Optional log level
+     * @param EntityInterface $object The entity being acted on
      * @return EntityInterface|null The created activity or null on failure
      */
-    public function log(Entity $subject, $verb, Entity $object, $notes = "", $level = null)
+    public function log(UserEntity $user, string $verb, EntityInterface $object)
     {
         $objDef = $object->getDefinition();
         $objType = $objDef->getObjType();
@@ -109,7 +92,7 @@ class ActivityLog
         // If we created a comment, then get the name from the object commented on
         if (($objType == ObjectTypes::COMMENT) && $objReference) {
             // Get the referenced entity
-            $entityReferenced = $this->entityLoader->getEntityById($objReference, $this->currentUser->getAccountId());
+            $entityReferenced = $this->entityLoader->getEntityById($objReference, $user->getAccountId());
 
             if ($entityReferenced) {
                 // Only if the entity exists
@@ -133,7 +116,7 @@ class ActivityLog
             }
         }
 
-        $actEntity = $this->entityLoader->create(ObjectTypes::ACTIVITY, $subject->getAccountId());
+        $actEntity = $this->entityLoader->create(ObjectTypes::ACTIVITY, $user->getAccountId());
         $actEntity->setValue("name", $name);
         $actEntity->setValue("notes", $notes);
         $actEntity->setValue("verb", $verb);
@@ -159,7 +142,7 @@ class ActivityLog
         $actEntity->setValue("type_id", $group->getGroupId(), $group->name);
 
         // Log which entity performed the action
-        $actEntity->setValue("subject", $subject->getEntityId(), $subject->getName());
+        $actEntity->setValue("subject", $user->getEntityId(), $user->getName());
 
         // Add referenced entity to activity associations
         $actEntity->addMultiValue("associations", $object->getEntityId(), $object->getName());
@@ -184,7 +167,7 @@ class ActivityLog
         foreach ($fields as $field) {
             $objReference = $object->getValue($field->name);
             if ($field->type == FIELD::TYPE_OBJECT && $objReference) {
-                $referencedEntity = $this->entityLoader->getEntityById($objReference, $this->currentUser->getAccountId());
+                $referencedEntity = $this->entityLoader->getEntityById($objReference, $user->getAccountId());
 
                 if ($referencedEntity) {
                     $actEntity->addMultiValue("associations", $referencedEntity->getEntityId(), $referencedEntity->getName());
@@ -192,12 +175,12 @@ class ActivityLog
             }
         }
 
-        // Associate with the currently active user
-        if ($this->currentUser) {
+        // Associate user with the entity
+        if ($user->getEntityId()) {
             $actEntity->addMultiValue(
                 "associations",
-                $this->currentUser->getEntityId(),
-                $this->currentUser->getName()
+                $user->getEntityId(),
+                $user->getName()
             );
         }
 
@@ -213,28 +196,15 @@ class ActivityLog
         }
 
         // Now set level - if system activity then put it low to keep logs clean
-        $level = ($this->currentUser && $this->currentUser->isSystem()) ? 1 : $objDef->defaultActivityLevel;
+        $level = ($user && $user->isSystem()) ? 1 : $objDef->defaultActivityLevel;
         $actEntity->setValue("level", $level);
 
         // Try saving the new activity
-        try {
-            if ($this->entityLoader->save($actEntity, $this->currentUser)) {
-                return $actEntity;
-            }
-
-            // Return failure
-            return null;
-        } catch (\InvalidArgumentException $ex) {
-            // There was a problem with the activity and it should not have been saved
-            // But since activities are non-critical we will continue and log the error
-            // $this->log->error(
-            //     'Could not save activity for ' .
-            //         $object->getObjRef() . ' - ' . $actEntity->getValue('obj_reference') . ', error:' .
-            //         $ex->getMessage()
-            // );
-            // Commented the above out because re-deleting an entity is apparently common in unit tests
-            return null;
+        if ($this->entityLoader->save($actEntity, $user)) {
+            return $actEntity;
         }
+
+        return null;
     }
 
     /**

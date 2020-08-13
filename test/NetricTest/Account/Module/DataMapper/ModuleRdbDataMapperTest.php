@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Account\Module\DataMapper;
 
 use Netric\Account\Module\DataMapper\ModuleRdbDataMapper;
@@ -9,6 +10,8 @@ use Netric\Config\ConfigFactory;
 
 /**
  * Db implementation of module DataMapper test
+ * 
+ * @group integration
  */
 class ModuleRdbDataMapperTest extends AbstractDataMapperTests
 {

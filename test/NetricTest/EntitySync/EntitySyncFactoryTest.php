@@ -9,6 +9,9 @@ use NetricTest\Bootstrap;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\EntitySyncFactory;
 
+/**
+ * @group integration
+ */
 class EntitySyncFactoryTest extends TestCase
 {
     public function testCreateService()

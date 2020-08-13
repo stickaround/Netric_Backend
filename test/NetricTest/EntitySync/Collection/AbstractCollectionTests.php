@@ -15,10 +15,6 @@ use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntitySync\Partner;
 use Netric\EntitySync\Collection\CollectionInterface;
 
-/*
- * @group integration
- */
-
 abstract class AbstractCollectionTests extends TestCase
 {
     /**

@@ -167,7 +167,7 @@ class BackendNetric implements IBackend
             /*
              * Attempt to get account prior to the user logging in.
              * This should work because it will step through the same logic
-             * as the main netric app does - third.level.domain > config.default_account...
+             * as the main netric app does.
              */
             $db = $application->getServiceManager()->get(RelationalDbFactory::class);
             $cache = $application->getServiceManager()->get(CacheFactory::class);

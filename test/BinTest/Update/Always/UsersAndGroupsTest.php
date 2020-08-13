@@ -1,12 +1,17 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/always/03-users-and-groups.php script works
  */
+
 namespace BinTest\Update\Always;
 
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class UserAndGroupsTest extends TestCase
 {
     /**

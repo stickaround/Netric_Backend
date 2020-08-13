@@ -4,7 +4,7 @@ namespace Netric\Mail;
 
 use Netric\Account\Account;
 use Netric\EntityGroupings\Group;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Error\AbstractHasErrors;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
@@ -111,7 +111,7 @@ class DeliveryService extends AbstractHasErrors
         // TODO: Check if the email is a drop-box email and process accordingly
 
         // First get the email account from the address
-        $emailAccount = $this->getEmailAccountFromAddress($emailAddress);
+        $emailAccount = $this->getEmailAccountFromAddress($emailAddress, $account->getAccountId());
         if (!$emailAccount) {
             throw new AddressNotFoundException("$emailAddress not found");
         }
@@ -123,7 +123,9 @@ class DeliveryService extends AbstractHasErrors
         );
 
         // Get Inbox for user
-        $mailboxGroups = $this->groupingLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
+        $mailboxGroups = $this->groupingLoader->get(
+            ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId()
+        );
         $inboxGroup = $mailboxGroups->getByPath('Inbox');
         if (!$inboxGroup) {
             // User exists, we need to create the inbox
@@ -237,12 +239,13 @@ class DeliveryService extends AbstractHasErrors
      * Get an email account from an address if it exists
      *
      * @param string $emailAddress
+     * @param string $accountId
      * @return EmailAccountEntity|null
      */
-    private function getEmailAccountFromAddress(string $emailAddress): ?EmailAccountEntity
+    private function getEmailAccountFromAddress(string $emailAddress, string $accountId): ?EmailAccountEntity
     {
         // Query email accounts for unique email address
-        $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT);
+        $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT, $accountId);
         $query->where("address")->equals($emailAddress);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();

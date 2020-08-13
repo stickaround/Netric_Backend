@@ -15,6 +15,9 @@ use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
+/**
+ * @group integration
+ */
 abstract class AbstractFileStoreTests extends TestCase
 {
     /**
@@ -147,7 +150,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $uploadFilePath = __DIR__ . "/fixtures/file-to-upload.txt";
 
         // Test importing a file into the FileSystem
-        $ret = $fileStore->uploadFile($testFile, $uploadFilePath);
+        $ret = $fileStore->uploadFile($testFile, $uploadFilePath, $this->getAccount()->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         // Try reading the file ato make sure data was imported
@@ -168,7 +171,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $uploadFile2Path = __DIR__ . "/fixtures/file-to-upload-2.txt";
 
         // Test importing a file into the FileSystem
-        $ret = $fileStore->uploadFile($testFile, $uploadFilePath);
+        $ret = $fileStore->uploadFile($testFile, $uploadFilePath, $this->getAccount()->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         /*
@@ -179,7 +182,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $this->assertEquals("FileHasContent", $buf);
 
         // Re-import again with a new file
-        $ret = $fileStore->uploadFile($testFile, $uploadFile2Path);
+        $ret = $fileStore->uploadFile($testFile, $uploadFile2Path, $this->getAccount()->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         /*
@@ -198,7 +201,7 @@ abstract class AbstractFileStoreTests extends TestCase
          * immediately after creating the file.
          */
         $dataMapper = $this->getEntityDataMapper();
-        $files = $dataMapper->getRevisions("file", $testFile->getEntityId());
+        $files = $dataMapper->getRevisions($testFile->getEntityId(), $this->getAccount()->getAccountId());
         $keys = array_keys($files); // $fiels is an assoicative with key being revid
         $this->assertEquals(3, count($files));
         // The second revision (index 1) should be the first import
@@ -215,15 +218,15 @@ abstract class AbstractFileStoreTests extends TestCase
         $uploadFile2Path = __DIR__ . "/fixtures/file-to-upload-2.txt";
 
         // Upload two files, then make sure they are both deleted
-        $fileStore->uploadFile($testFile, $uploadFilePath);
-        $fileStore->uploadFile($testFile, $uploadFile2Path);
+        $fileStore->uploadFile($testFile, $uploadFilePath, $this->getAccount()->getAuthenticatedUser());
+        $fileStore->uploadFile($testFile, $uploadFile2Path, $this->getAccount()->getAuthenticatedUser());
 
         // Delete the file - which will purge all revisions
         $this->assertTrue($fileStore->deleteFile($testFile));
 
         // Now loop through all revisions and make sure we purged them
         $dataMapper = $this->getEntityDataMapper();
-        $files = $dataMapper->getRevisions(ObjectTypes::FILE, $testFile->getEntityId());
+        $files = $dataMapper->getRevisions($testFile->getEntityId(), $this->getAccount()->getAccountId());
         foreach ($files as $rev => $file) {
             $this->assertFalse($fileStore->fileExists($file));
         }

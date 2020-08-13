@@ -3,6 +3,7 @@
 namespace Netric\ServiceManager;
 
 use Netric\Application\Application;
+use RuntimeException;
 
 /**
  * Class for constructing, caching, and finding services by name
@@ -33,6 +34,13 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      * @var Application
      */
     protected $application = null;
+
+    /**
+     * Used to track circular references
+     *
+     * @var array
+     */
+    protected $loading = [];
 
     /**
      * Class constructor
@@ -69,7 +77,20 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     public function get($serviceName)
     {
-        return $this->initializeServiceByFactory($serviceName, true);
+        // First make sure something is not already trying to load this,
+        // which means we have a circular refernces - muy mal!
+        // if (in_array($serviceName, $this->loading)) {
+        //     throw new RuntimeException(
+        //         'ServiceManager Circular Reference Detected: ' .
+        //             implode(' -> ', $this->loading)
+        //     );
+        // }
+        // $currentIndex = count($this->loading);
+        // $this->loading[$currentIndex] = $serviceName;
+        $service = $this->initializeServiceByFactory($serviceName, true);
+        // Indicate that we have finished loading
+        //unset($this->loading[$currentIndex]);
+        return $service;
     }
 
     /**

@@ -25,7 +25,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Account\Account;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 
 /**
  * Simple diff of changes
@@ -122,7 +122,7 @@ class EntitySearchProvider implements ISearchProvider
         $items = [];
 
         // Create entity query
-        $query = new \Netric\EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where("*")->contains($searchquery);
         $query->setOffset($offset);
         $query->setLimit($limit);
@@ -222,7 +222,7 @@ class EntitySearchProvider implements ISearchProvider
         $items = [];
 
         // Create entity query
-        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $query->where("*")->contains($searchText);
         if ($searchGreater) {
             $query->andWhere("ts_entered")->isGreaterOrEqualTo($searchGreater);
@@ -243,7 +243,7 @@ class EntitySearchProvider implements ISearchProvider
         $query->andWhere("owner_id")->equals($this->user->getEntityId());
 
         if (isset($searchRange[0]) && is_numeric($searchRange[0])) {
-            $query->setOffset($searchRange[0]);
+            $query->setOffset(intval($searchRange[0]));
         }
         if (isset($searchRange[1]) && is_numeric($searchRange[1])) {
             $query->setLimit($searchRange[1] - $searchRange[0]);

@@ -11,7 +11,6 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\ActivityLog;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
-use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ActivityLogFactory;
 use NetricTest\Bootstrap;
@@ -54,8 +53,7 @@ class ActivityLogTest extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
-        $authService = $this->account->getServiceManager()->get(AuthenticationServiceFactory::class);
-        $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getAuthenticatedUser();
         $this->activityLog = $this->account->getServiceManager()->get(ActivityLogFactory::class);
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
     }

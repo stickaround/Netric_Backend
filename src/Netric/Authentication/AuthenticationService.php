@@ -5,7 +5,7 @@ namespace Netric\Authentication;
 use Netric\Authentication\Token\AuthenticationTokenInterface;
 use Netric\Authentication\Token\HmakToken;
 use Netric\Entity\EntityLoader;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Request\RequestInterface;
 use Netric\EntityDefinition\ObjectTypes;

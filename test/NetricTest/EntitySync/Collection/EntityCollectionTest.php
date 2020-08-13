@@ -9,11 +9,15 @@ namespace NetricTest\EntitySync\Collection;
 use Netric\EntitySync;
 use Netric\EntitySync\Collection;
 use PHPUnit\Framework\TestCase;
+use Netric\EntitySync\Collection\EntityCollection;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 
+/**
+ * @group integration
+ */
 class EntityCollectionTest extends AbstractCollectionTests
 {
     /**
@@ -29,7 +33,12 @@ class EntityCollectionTest extends AbstractCollectionTests
     protected function getCollection()
     {
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $collection = new Collection\EntityCollection($this->esDataMapper, $this->commitManager, $index);
+        $collection = new EntityCollection(
+            $this->esDataMapper,
+            $this->commitManager,
+            $index,
+            $this->account->getAccountId()
+        );
         $collection->setObjType(ObjectTypes::CONTACT);
         return $collection;
     }

@@ -1,14 +1,16 @@
 <?php
+
 /**
  * FileSystem service
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\FileSystem;
 
 use Netric\Error;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\ObjType\FileEntity;
 
 /**

@@ -13,5 +13,5 @@
 <field name='cost_actual'></field>
 <all_additional></all_additional>
 <field name='notes' hidelabel='t' multiline='t'></field>
-<field name='comments'></field>
+<comments />
 <plugin name='logtime'></plugin>

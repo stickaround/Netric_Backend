@@ -13,7 +13,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -95,7 +95,7 @@ class ProjectEntity extends Entity implements EntityInterface
         $toEntity->setValue('entity_id', $toEntityId);
 
         // Query the tasks of this project entity
-        $query = new EntityQuery(ObjectTypes::TASK);
+        $query = new EntityQuery(ObjectTypes::TASK, $this->getAccountId());
         $query->where('project')->equals($this->getEntityId());
 
         // Execute query and get num results

@@ -7,7 +7,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Results;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
@@ -18,6 +18,8 @@ use PHPUnit\Framework\TestCase;
  * Only define index specific tests here and try to avoid name collision with the tests
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
+ *
+ * @group integration
  */
 class ResultsTest extends TestCase
 {
@@ -30,7 +32,7 @@ class ResultsTest extends TestCase
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $testDefinition = new EntityDefinition("test", $account->getAccountId());
 
-        $query = new EntityQuery("test");
+        $query = new EntityQuery("test", $account->getAccountId());
         $query->setOffset(0);
         $query->setLimit(2);
 
@@ -58,7 +60,8 @@ class ResultsTest extends TestCase
      */
     public function testGetEntityOutOfBounds()
     {
-        $query = new EntityQuery("customer");
+        $account = Bootstrap::getAccount();
+        $query = new EntityQuery("customer", $account->getAccountId());
         $results = new Results($query);
 
         $this->expectException(\RuntimeException::class);

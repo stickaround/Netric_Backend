@@ -7,7 +7,7 @@
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\EntityQueryIndexRdb;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
@@ -83,7 +83,7 @@ class ProjectTest extends TestCase
         $proj1->cloneTo($proj2);
 
         // Get the new task
-        $query = new EntityQuery(ObjectTypes::TASK);
+        $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
         $query->where('project')->equals($proj1->getEntityId());
 
         $queryIndex = new EntityQueryIndexRdb($this->account);

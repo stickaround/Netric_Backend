@@ -40,4 +40,19 @@ class WorkflowActionEntity extends Entity implements EntityInterface
     public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
     {
     }
+
+    /**
+     * Get data array for this action, since each action has different params
+     *
+     * @return array Associative array of action data
+     */
+    public function getData(): array
+    {
+        $data = $this->getValue('data');
+        if ($data) {
+            return json_decode($data, true);
+        }
+
+        return [];
+    }
 }

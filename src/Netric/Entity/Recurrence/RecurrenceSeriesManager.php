@@ -7,7 +7,7 @@ use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Error;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use RuntimeException;
 use DateTime;
@@ -157,7 +157,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         }
 
         // Query entities that are part of the series and delete them
-        $query = new EntityQuery($entity->getDefinition()->getObjType());
+        $query = new EntityQuery($entity->getDefinition()->getObjType(), $user->getAccountId());
         $query->where($recurRules['field_recur_id'])->equals($recurId);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();

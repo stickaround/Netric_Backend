@@ -18,6 +18,9 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
+/**
+ * @group integration
+ */
 class EntityQueryIndexRdbTest extends IndexTestsAbstract
 {
     /**

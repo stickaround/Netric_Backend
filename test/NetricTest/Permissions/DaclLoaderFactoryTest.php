@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Permissions;
 
 use Netric;
@@ -7,6 +8,9 @@ use NetricTest\Bootstrap;
 use Netric\Permissions\DaclLoader;
 use Netric\Permissions\DaclLoaderFactory;
 
+/**
+ * @group integration
+ */
 class DaclLoaderactoryTest extends TestCase
 {
     public function testCreateService()

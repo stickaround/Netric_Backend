@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
-
 namespace Netric\WorkerMan;
 
 use Netric\WorkerMan\Queue\QueueInterface;
@@ -37,6 +32,11 @@ class WorkerService
     private $workers = null;
 
     /**
+     * Factory for loading workers
+     */
+    private WorkerFactory $workerFactory;
+
+    /**
      * Setup the WorkerService
      *
      * @param Application $application Instance of current running netric application
@@ -44,22 +44,12 @@ class WorkerService
      */
     public function __construct(
         Application $application,
-        QueueInterface $queue
+        QueueInterface $queue,
+        WorkerFactory $workerFactory
     ) {
         $this->application = $application;
         $this->jobQueue = $queue;
-    }
-
-    /**
-     * Add a job to the queue and run it
-     *
-     * @param string $workerName The name of the worker to run
-     * @param array $jobData Data to be passed to the job
-     * @return mixed Whatever the result of the worker is
-     */
-    public function doWork($workerName, array $jobData)
-    {
-        return $this->jobQueue->doWork($workerName, $jobData);
+        $this->workerFactory = $workerFactory;
     }
 
     /**
@@ -100,10 +90,11 @@ class WorkerService
         // Load up all workers from the ../Worker directory
         foreach (glob(__DIR__ . "/Worker/*Worker.php") as $filename) {
             // Add each worker as a listener
-            $workerName = substr(basename($filename), 0, - (strlen("Worker.php")));
-            $workerClass = "\\Netric\\WorkerMan\\Worker\\" . $workerName . "Worker";
-            $this->workers[$workerName] = new $workerClass($this->application);
-            $this->jobQueue->addWorker($workerName, $this->workers[$workerName]);
+            $workerName = substr(basename($filename), 0, - (strlen(".php")));
+            $workerClass = __NAMESPACE__ . "\\" . $workerName;
+            $worker = $this->workerFactory->getWorkerByName($workerClass);
+            $this->workers[$workerClass] = $worker;
+            $this->jobQueue->addWorker($workerClass, $this->workers[$workerClass]);
         }
     }
 }

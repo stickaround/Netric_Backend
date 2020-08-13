@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Controller;
 
 use Netric\Account\Account;
@@ -9,7 +10,9 @@ use Netric\Controller\EmailControllerFactory;
 use Netric\Controller\EmailController;
 
 /**
- * Test calling the email controller facotry
+ * Test calling the email controller factory
+ *
+ * @group integration
  */
 class EmailControllerFactoryTest extends TestCase
 {

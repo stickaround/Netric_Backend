@@ -4,7 +4,7 @@ namespace Netric\EntityQuery;
 
 use Netric\Stats\StatsPublisher;
 use Netric\Entity\EntityInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Models\Entity;
 
@@ -18,21 +18,21 @@ class Results
      *
      * @var EntityQuery
      */
-    private $query = null;
+    private EntityQuery $query;
 
     /**
      * DataMapper reference used for automatic pagination after initial load
      *
      * @var IndexInterface
      */
-    private $index = null;
+    private ?IndexInterface $index = null;
 
     /**
      * Array of entities that are loaded in this collection
      *
-     * @param Entity
+     * @param EntityInterface
      */
-    private $entities = [];
+    private array $entities = [];
 
     /**
      * The starting offset of the next page
@@ -41,7 +41,7 @@ class Results
      *
      * @var int
      */
-    private $nextPageOffset = -1;
+    private int $nextPageOffset = -1;
 
     /**
      * The starting offset of the previous page
@@ -50,21 +50,21 @@ class Results
      *
      * @var int
      */
-    private $prevPageOffset = -1;
+    private int $prevPageOffset = -1;
 
     /**
      * Total number of entities in the collection
      *
      * @var int
      */
-    private $totalNum = 0;
+    private int $totalNum = 0;
 
     /**
      * Aggregation data
      *
      * @var array("name"=>array(data))
      */
-    private $aggregations = [];
+    private array $aggregations = [];
 
     /**
      * Class constructor
@@ -84,7 +84,7 @@ class Results
      *
      * @return string
      */
-    public function getObjType()
+    public function getObjType(): string
     {
         return $this->query->getObjType();
     }
@@ -92,7 +92,7 @@ class Results
     /**
      *  Set local reference to datamapper for loading objects and auto pagination
      *
-     * @param Index\IndexInterface &$index
+     * @param IndexInterface &$index
      */
     public function setIndex(IndexInterface $index)
     {
@@ -104,7 +104,7 @@ class Results
      *
      * @return int $offset
      */
-    public function getNextPageOffset()
+    public function getNextPageOffset(): int
     {
         return $this->nextPageOffset;
     }
@@ -114,7 +114,7 @@ class Results
      *
      * @return int $offset
      */
-    public function getPrevPageOffset()
+    public function getPrevPageOffset(): int
     {
         return $this->prevPageOffset;
     }
@@ -124,7 +124,7 @@ class Results
      *
      * @param int $offset
      */
-    public function setOffset($offset)
+    public function setOffset(int $offset)
     {
         $this->query->setOffset($offset);
     }
@@ -134,7 +134,7 @@ class Results
      *
      * @return int $offset
      */
-    public function getOffset()
+    public function getOffset(): int
     {
         return $this->query->getOffset();
     }
@@ -146,7 +146,7 @@ class Results
      *
      * @param int $num The total number of entities in this query collection
      */
-    public function setTotalNum($num)
+    public function setTotalNum(int $num)
     {
         $this->totalNum = $num;
     }
@@ -156,7 +156,7 @@ class Results
      *
      * @return int Total number of entities
      */
-    public function getTotalNum()
+    public function getTotalNum(): int
     {
         return $this->totalNum;
     }
@@ -166,7 +166,7 @@ class Results
      *
      * $return int Number of entities in the current page
      */
-    public function getNum()
+    public function getNum(): int
     {
         return count($this->entities);
     }
@@ -197,9 +197,10 @@ class Results
      * @param int $offset The offset of the entity to get in the collection
      * @return EntityInterface
      */
-    public function getEntity($offset = 0)
+    public function getEntity(int $offset = 0)
     {
-        if ($offset >= ($this->getOffset() + $this->query->getLimit()) ||
+        if (
+            $offset >= ($this->getOffset() + $this->query->getLimit()) ||
             $offset < $this->getOffset()
         ) {
             // Get total number of pages
@@ -213,7 +214,7 @@ class Results
             // Get current page offset
             $page = floor($offset / $this->query->getLimit());
             if ($page) {
-                $this->setOffset($page * $this->query->getLimit());
+                $this->setOffset(round($page * $this->query->getLimit(), 0));
             } else {
                 $this->setOffset(0);
             }
@@ -248,7 +249,7 @@ class Results
      * @param string $name The unique name of this aggregation
      * @param int|string|array $value
      */
-    public function setAggregation($name, $value)
+    public function setAggregation(string $name, $value)
     {
         $this->aggregations[$name] = $value;
     }
@@ -258,13 +259,13 @@ class Results
      *
      * @return []
      */
-    public function getAggregation($name)
+    public function getAggregation(string $name)
     {
         if (isset($this->aggregations[$name])) {
             return $this->aggregations[$name];
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -282,7 +283,7 @@ class Results
      *
      * @return bool true if aggs exist, otherwise false
      */
-    public function hasAggregations()
+    public function hasAggregations(): bool
     {
         return (count($this->aggregations) > 0) ? true : false;
     }

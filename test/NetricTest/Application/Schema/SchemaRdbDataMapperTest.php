@@ -12,6 +12,9 @@ use Netric\Db\Relational\PgsqlDb;
 use Netric\Application\Schema\SchemaRdbDataMapper;
 use Netric\Db\Relational\RelationalDbInterface;
 
+/**
+ * @group integration
+ */
 class SchemaRdbDataMapperTest extends AbstractSchemaDataMapperTests
 {
     /**

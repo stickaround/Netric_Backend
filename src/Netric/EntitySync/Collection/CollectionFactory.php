@@ -2,11 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
-
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\Commit\CommitManagerFactory;
@@ -14,6 +9,8 @@ use Netric\EntitySync\DataMapperFactory;
 use Netric\EntitySync\EntitySync;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityQuery\Index\IndexFactory;
+use RuntimeException;
+use DateTime;
 
 class CollectionFactory implements CollectionFactoryInterface
 {
@@ -66,14 +63,19 @@ class CollectionFactory implements CollectionFactoryInterface
         switch ($type) {
             case EntitySync::COLL_TYPE_ENTITY:
                 $index = $sm->get(IndexFactory::class);
-                $collection = new EntityCollection($dm, $commitManager, $index);
+                $collection = new EntityCollection(
+                    $dm,
+                    $commitManager,
+                    $index,
+                    $sm->getAccount()->getAccountId()
+                );
                 break;
             case EntitySync::COLL_TYPE_GROUPING:
                 break;
             case EntitySync::COLL_TYPE_ENTITYDEF:
                 break;
             default:
-                throw \Exception("Unrecognized type of entity!");
+                throw new RuntimeException("Unrecognized type of entity!");
                 break;
         }
 
@@ -92,7 +94,7 @@ class CollectionFactory implements CollectionFactoryInterface
                 $collection->setFieldName($data['field_name']);
             }
             if ($data['ts_last_sync']) {
-                $collection->setLastSync(new \DateTime($data['ts_last_sync']));
+                $collection->setLastSync(new DateTime($data['ts_last_sync']));
             }
             if ($data['conditions']) {
                 $collection->setConditions($data['conditions']);

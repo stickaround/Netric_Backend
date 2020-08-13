@@ -1,12 +1,17 @@
 <?php
+
 /**
  * Test the Settings service factory
  */
+
 namespace NetricTest\Settings;
 
 use Netric\Settings;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class SettingsTest extends TestCase
 {
     /**

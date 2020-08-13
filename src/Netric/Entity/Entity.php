@@ -628,7 +628,7 @@ class Entity implements EntityInterface
      */
     public function afterSave(AccountServiceManagerInterface $sm)
     {
-        // Process any temp files or attachments associated with this entity
+        // Process any temp files or attachments associated with this entity if it is not the root folder
         $this->processTempFiles($sm->get(FileSystemFactory::class));
 
         // Set permissions for entity folder (if we have attachments)

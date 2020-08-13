@@ -15,7 +15,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
 
 /**
@@ -156,7 +156,7 @@ class FolderEntity extends Entity implements EntityInterface
      */
     public function getRootFolder()
     {
-        $query = new EntityQuery(ObjectTypes::FOLDER);
+        $query = new EntityQuery(ObjectTypes::FOLDER, $this->getAccountId());
         $query->where("parent_id")->equals("");
         $query->andWhere("name")->equals("/");
         $query->andWhere("f_system")->equals(true);

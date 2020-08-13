@@ -14,6 +14,9 @@ use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
+/**
+ * @group integration
+ */
 class ModuleServiceTest extends TestCase
 {
     /**

@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Netric\EntitySync\Commit\CommitManager;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 
+/**
+ * @group integration
+ */
 class CommitManagerFactoryTest extends TestCase
 {
     public function testCreateService()

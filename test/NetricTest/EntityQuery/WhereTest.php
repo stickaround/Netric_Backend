@@ -1,12 +1,13 @@
 <?php
-/**
- * Test the Entity Query Where condition
- */
+
 namespace NetricTest\EntityQuery;
 
 use Netric\EntityQuery\Where;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Test the Entity Query Where condition
+ */
 class WhereTest extends TestCase
 {
     /**

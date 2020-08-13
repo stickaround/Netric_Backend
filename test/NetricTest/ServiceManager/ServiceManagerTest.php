@@ -14,6 +14,9 @@ use Aereus\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Config\ConfigFactory;
 
+/**
+ * @group integration
+ */
 class ServiceManagerTest extends TestCase
 {
     /**

@@ -9,7 +9,7 @@ namespace NetricTest\WorkFlow\DataMapper;
 use Netric\WorkFlow\WorkFlowInstance;
 use PHPUnit\Framework\TestCase;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
-use Netric\WorkFlow\Action\ActionFactory;
+use Netric\WorkFlow\Action\ActionExecutorFactory;
 use Netric\EntityQuery\Where;
 use Netric\WorkFlow\WorkFlowFactory;
 use Netric\Entity\EntityInterface;

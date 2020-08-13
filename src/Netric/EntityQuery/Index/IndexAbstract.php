@@ -9,7 +9,7 @@ namespace Netric\EntityQuery\Index;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\Entity\Entity;
@@ -228,7 +228,7 @@ abstract class IndexAbstract
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
             if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
                 $index = $this->account->getServiceManager()->get(IndexFactory::class);
-                $query = new EntityQuery($field->subtype);
+                $query = new EntityQuery($field->subtype, $this->account->getAccountId());
                 $query->where($ent->getDefinition()->parentField)->equals($ent->getEntityId());
                 $res = $index->executeQuery($query);
                 for ($i = 0; $i < $res->getTotalNum(); $i++) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
@@ -20,9 +21,8 @@ class ActivityLogFactory implements ServiceManager\AccountServiceFactoryInterfac
     {
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         $groupingsLoader = $sl->get(GroupingLoaderFactory::class);
-        $currentUser = $sl->getAccount()->getUser();
         $log = $sl->getAccount()->getApplication()->getLog();
 
-        return new ActivityLog($log, $entityLoader, $groupingsLoader, $currentUser);
+        return new ActivityLog($log, $entityLoader, $groupingsLoader);
     }
 }

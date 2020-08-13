@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test the the custom netric backend for ActiveSync
  */
+
 namespace ZPushTest\backend\netric;
 
 use NetricTest\Bootstrap;
@@ -18,17 +20,9 @@ require_once(dirname(__FILE__) . '/../../../../config/zpush.config.php');
 // Include backend classes
 require_once('backend/netric/lognetric.php');
 
+
 class LogNetricTest extends TestCase
 {
-    /**
-     * Setup each test
-     */
-    protected function setUp(): void
-    {
-        // We just do this to initailize the application
-        $account = Bootstrap::getAccount();
-    }
-
     /**
      * Test logging errors
      */

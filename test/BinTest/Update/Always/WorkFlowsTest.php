@@ -1,12 +1,17 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/always/05-workflows.php script works
  */
+
 namespace BinTest\Update\Always;
 
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class WorkFlowsTest extends TestCase
 {
     /**

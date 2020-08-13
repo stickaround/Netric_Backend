@@ -1,12 +1,17 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/always/02-groupings.php script works
  */
+
 namespace BinTest\Update\Admin;
 
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class GroupingsTest extends TestCase
 {
     /**

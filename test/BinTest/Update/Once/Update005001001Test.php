@@ -1,12 +1,17 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/once/004/001/002.php script works
  */
+
 namespace BinTest\Update\Once;
 
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class Update005001001Test extends TestCase
 {
     /**

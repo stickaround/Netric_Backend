@@ -6,7 +6,7 @@
 
 namespace NetricTest\Entity\Notifier;
 
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\Notifier\Notifier;
 use Netric\Entity\EntityLoader;
@@ -75,7 +75,7 @@ class NotifierTest extends TestCase
 
         // Make sure test user does not exist from previous failed query
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where("name")->equals("notifiertest");
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {
@@ -257,7 +257,7 @@ class NotifierTest extends TestCase
         $this->notifier->send($task, ActivityEntity::VERB_CREATED);
 
         // Query to make sure we have an unseen notification for the test user
-        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
         $query->where("owner_id")->equals($this->testUser->getEntityId());
         $query->andWhere("obj_reference")->equals($task->getEntityId());
         $query->andWhere("f_seen")->equals(false);
@@ -268,7 +268,7 @@ class NotifierTest extends TestCase
         $this->notifier->markNotificationsSeen($task, $this->testUser);
 
         // Query to make sure no unseen entities exist for the current user
-        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
         $query->where("owner_id")->equals($this->testUser->getEntityId());
         $query->andWhere("obj_reference")->equals("task:" . $task->getEntityId());
         $query->andWhere("f_seen")->equals(false);

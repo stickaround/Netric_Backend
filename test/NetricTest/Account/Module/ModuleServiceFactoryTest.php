@@ -1,13 +1,18 @@
 <?php
+
 /**
  * Test the module service facotry
  */
+
 namespace NetricTest\Account\Module;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Account\Module\ModuleService;
 use Netric\Account\Module\ModuleServiceFactory;
 
+/**
+ * @group integration
+ */
 class ModuleServiceFactoryTest extends TestCase
 {
     public function testCreateService()

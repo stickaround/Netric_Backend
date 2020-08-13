@@ -1,7 +1,9 @@
 <?php
+
 namespace NetricTest\WorkerMan\Queue;
 
 use Netric\WorkerMan\Queue\InMemory;
+use Netric\WorkerMan\WorkerFactory;
 
 class InMemeoryTest extends AbstractQueueTests
 {
@@ -12,6 +14,7 @@ class InMemeoryTest extends AbstractQueueTests
      */
     protected function getQueue()
     {
-        return new InMemory();
+        $workerFactoryMock = $this->createMock(WorkerFactory::class);
+        return new InMemory($workerFactoryMock);
     }
 }

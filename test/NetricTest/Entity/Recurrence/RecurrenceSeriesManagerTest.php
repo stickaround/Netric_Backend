@@ -11,7 +11,7 @@ use Netric\Entity\Recurrence;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Entity;
 use Netric\Entity\EntityLoader;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
@@ -241,7 +241,7 @@ class RecurrenceSeriesManagerTest extends TestCase
 
         // Create a query that gets events from January 1 to January 5
         $dateTo = new \DateTime("2016-01-05");
-        $query = new EntityQuery(ObjectTypes::CALENDAR_EVENT);
+        $query = new EntityQuery(ObjectTypes::CALENDAR_EVENT, $this->account->getAccountId());
         $query->where("ts_start")->isLessThan($dateTo->format("Y-m-d"));
 
         // Have the manager create instances using the query

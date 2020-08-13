@@ -6,7 +6,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\Entity;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\FormParser;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Mvc;
@@ -83,10 +83,11 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type must be set"]);
         }
 
+        $user = $this->account->getAuthenticatedUser();
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
-        $query = new EntityQuery($params["obj_type"]);
+        $query = new EntityQuery($params["obj_type"], $this->account->getAccountId());
 
         if (isset($params['offset'])) {
             $query->setOffset($params['offset']);
@@ -117,12 +118,24 @@ class EntityController extends Mvc\AbstractAccountController
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 
-            // Export to array
-            $entityData = $ent->toArray();
-
             // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-            $dacl = $daclLoader->getForEntity($ent, $this->account->getAuthenticatedUser());
-            $entityData["applied_dacl"] = $dacl->toArray();
+            $dacl = $daclLoader->getForEntity($ent, $user);
+            $currentUserPermissions = $dacl->getUserPermissions($user, $ent);
+
+            // Always reset $entityData when loading the next entity
+            $entityData = [];
+
+            // Export the entity to array if the current user has access to view this entity
+            if ($currentUserPermissions['view']) {
+                $entityData = $ent->toArray();
+                $entityData["applied_dacl"] = $dacl->toArray();
+            } else {
+                $entityData['entity_id'] = $ent->getEntityId();
+                $entityData['name'] = $ent->getName();
+            }
+
+
+            $entityData['currentuser_permissions'] = $currentUserPermissions;
 
             // Print full details
             $entities[] = $entityData;
@@ -210,17 +223,27 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(
                 [
                     "error" => "You do not have permission to view this.",
-                    "entity_id" => $entity->getValue('entity_id'),
+                    "entity_id" => $entity->getEntityId(),
                     "params" => $params
                 ]
             );
         }
 
-        $entityData = $entity->toArray();
-
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-        $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
-        $entityData["applied_dacl"] = $dacl->toArray();
+        $user = $this->account->getUser();
+        $dacl = $daclLoader->getForEntity($entity, $user);
+        $currentUserPermissions = $dacl->getUserPermissions($user, $entity);
+
+        // Export the entity to array if the current user has access to view this entity
+        if ($currentUserPermissions['view']) {
+            $entityData = $entity->toArray();
+            $entityData["applied_dacl"] = $dacl->toArray();
+        } else {
+            $entityData['entity_id'] = $entity->getEntityId();
+            $entityData['name'] = $entity->getName();
+        }
+
+        $entityData['currentuser_permissions'] = $currentUserPermissions;
 
         return $this->sendOutput($entityData);
     }
@@ -251,6 +274,28 @@ class EntityController extends Mvc\AbstractAccountController
             if (isset($objData['entity_id']) && !empty($objData['entity_id'])) {
                 $entity = $entityLoader->getEntityById($objData['entity_id'], $this->account->getAccountId());
             }
+
+            // If no entity is found, then return an error.
+            if (!$entity) {
+                return $this->sendOutput(
+                    [
+                        "error" => "No entity found.",
+                        "entity_id" => $objData['entity_id'],
+                        "params" => $params
+                    ]
+                );
+            }
+
+            // Make sure that the user has a permission to save this entity
+            if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
+                return $this->sendOutput(
+                    [
+                        "error" => "You do not have permission to edit this.",
+                        "entity_id" => $entity->getEntityId(),
+                        "params" => $params
+                    ]
+                );
+            }
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
@@ -277,7 +322,18 @@ class EntityController extends Mvc\AbstractAccountController
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
-        $entityData["applied_dacl"] = $dacl->toArray();
+        $currentUserPermissions = $dacl->getUserPermissions($this->account->getAuthenticatedUser(), $entity);
+
+        // Export the entity to array if the current user has access to view this entity
+        if ($currentUserPermissions['view']) {
+            $entityData = $entity->toArray();
+            $entityData["applied_dacl"] = $dacl->toArray();
+        } else {
+            $entityData['entity_id'] = $entity->getEntityId();
+            $entityData['name'] = $entity->getName();
+        }
+
+        $entityData['currentuser_permissions'] = $currentUserPermissions;
 
         // Return the saved entity
         return $this->sendOutput($entityData);

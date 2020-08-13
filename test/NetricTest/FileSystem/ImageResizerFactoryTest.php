@@ -1,9 +1,13 @@
 <?php
+
 namespace NetricTest\FileSystem;
 
 use Netric\FileSystem\ImageResizer;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class ImageResizerFactoryTest extends TestCase
 {
     public function testCreateService()

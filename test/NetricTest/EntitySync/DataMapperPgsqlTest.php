@@ -66,7 +66,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
         // Create a new collection and save it
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
-        $collection = new EntityCollection($dm, $commitManager, $index);
+        $collection = new EntityCollection($dm, $commitManager, $index, $this->account->getAccountId());
         $collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
 

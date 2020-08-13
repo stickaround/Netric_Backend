@@ -4,7 +4,7 @@ namespace Netric\Entity\Notifier;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\OrderBy;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
@@ -143,7 +143,7 @@ class Notifier
             $user = $this->getUser();
             if (Uuid::isValid($userGuid) && $userGuid != $user->getEntityId() && !$user->isSystem() && !$user->isAnonymous()) {
                 // Create new notification, or update an existing unseen one
-                $notification = $this->getNotification($objReference, $userGuid);
+                $notification = $this->getNotification($objReference, $userGuid, $user->getAccountId());
                 $notification->setValue("name", $name);
                 $notification->setValue("description", $description);
                 $notification->setValue("f_email", true);
@@ -176,7 +176,7 @@ class Notifier
             $user = $this->getUser();
         }
 
-        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION, $user->getAccountId());
         $query->where("owner_id")->equals($user->getEntityId());
         $query->andWhere("obj_reference")->equals($entity->getEntityId());
         $query->andWhere("f_seen")->equals(false);
@@ -194,9 +194,10 @@ class Notifier
      *
      * @param string $objReference The id of the entity reference
      * @param string $userGuid The id of the user
+     * @param string $accountId
      * @return EntityInterface
      */
-    private function getNotification(string $objReference, string $userGuid)
+    private function getNotification(string $objReference, string $userGuid, string $accountId)
     {
         // Initialize the notification variable to return
         $notification = null;
@@ -205,7 +206,7 @@ class Notifier
          * Query past notification entities to see if an entity is outstanding
          * and not yet seen for this entity/object reference.
          */
-        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION, $accountId);
         $query->where("owner_id")->equals($userGuid);
         $query->andWhere("obj_reference")->equals($objReference);
         $query->andWhere("creator_id")->equals($this->getUser()->getEntityId());

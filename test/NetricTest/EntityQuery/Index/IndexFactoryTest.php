@@ -7,6 +7,9 @@ use NetricTest\Bootstrap;
 use Netric\EntityQuery\Index\IndexFactory;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class IndexFactoryTest extends TestCase
 {
     public function testCreateService()

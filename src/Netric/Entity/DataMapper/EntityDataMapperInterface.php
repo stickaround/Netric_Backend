@@ -84,9 +84,10 @@ interface EntityDataMapperInterface
      *
      * @param EntityDefinition $def The defintion of this object type
      * @param string $id The id of the object that no longer exists - may have moved
+     * @param string $accountId The ID of the account where the potentially moved entity belongs
      * @return string New entity id if moved, otherwise false
      */
-    public function checkEntityHasMoved(EntityDefinition $def, string $id): string;
+    public function checkEntityHasMoved(EntityDefinition $def, string $entityId, string $accountId): string;
 
     /**
      * Get Revisions for this object

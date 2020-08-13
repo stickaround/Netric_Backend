@@ -3,14 +3,11 @@
 return [
     // Determine if secure pages should be offered (not forced) in https
     'use_https' => true,
-    // This is the root domain. Ant Accounts usually use third levels to parse
-    // accounts which will be defined in {localhost} below
+    // This is where netric is hosted
     'localhost_root' => 'netric.com',
-    // Default account to use if we cannot find any other accounts
-    'default_account' => 'aereus',
     // This is the url of the netric app. This is usually used when creating the
     // link of an entity in the email notification contents.
-    'application_url' => 'app.netric.com',
+    'application_url' => 'https://app.netric.com',
     // Set application path - default to constant defined in AntConfig.php
     'application_path' => '/var/www/html',
     // Set path to store data
@@ -99,7 +96,6 @@ return [
     ],
     // Background worker settings
     'workers' => [
-        'background_enabled' => true,
         'queue' => 'gearman',
         'server' => '10.4.26.26',
     ],

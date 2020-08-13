@@ -1,9 +1,10 @@
 <?php
+
 namespace NetricTest;
 
 use PHPUnit\Framework\TestCase;
 use Netric;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 use Netric\EntityQuery\OrderBy;
@@ -15,7 +16,7 @@ class EntityQueryTest extends TestCase
      */
     public function testWhere()
     {
-        $query = new EntityQuery(ObjectTypes::CONTACT);
+        $query = new EntityQuery(ObjectTypes::CONTACT, 'TEST-ACCOUNT-ID');
         $query->where('name')->equals("test");
         //$query->orWhere('fieldname')->isGreaterThan("value");
         //$query->andWhere('fieldname')->isLessThan("value");
@@ -36,7 +37,7 @@ class EntityQueryTest extends TestCase
      */
     public function testOrderBy()
     {
-        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
+        $query = new EntityQuery(ObjectTypes::CONTACT, 'TEST-ACCOUNT-ID');
         $query->orderBy("name");
         $orderBy = $query->getOrderBy();
 
@@ -50,7 +51,7 @@ class EntityQueryTest extends TestCase
      */
     public function testToArray()
     {
-        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
+        $query = new EntityQuery(ObjectTypes::CONTACT, 'TEST-ACCOUNT-ID');
         $query->where('name')->equals("test");
         $query->orderBy("name");
 
@@ -71,7 +72,7 @@ class EntityQueryTest extends TestCase
          * they are tested in Where::testToArray
          */
         $this->assertEquals(1, count($arrQuery['conditions']));
-        $this->assertEquals(EntityQuery\Where::COMBINED_BY_AND, $arrQuery['conditions'][0]['blogic']);
+        $this->assertEquals(Where::COMBINED_BY_AND, $arrQuery['conditions'][0]['blogic']);
     }
 
     /**
@@ -86,22 +87,22 @@ class EntityQueryTest extends TestCase
             'conditions' => [
                 [
                     'field_name' => 'name',
-                    'operator' => EntityQuery\Where::OPERATOR_EQUAL_TO,
+                    'operator' => Where::OPERATOR_EQUAL_TO,
                     'value' => 'realname'
                 ],
                 [
-                    'blogic' => EntityQuery\Where::COMBINED_BY_AND,
+                    'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'name',
-                    'operator' => EntityQuery\Where::OPERATOR_NOT_EQUAL_TO,
+                    'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                     'value' => 'fakename'
                 ]
             ],
             'order_by' => [
-                ['field_name' => 'name', 'direction' => EntityQuery\OrderBy::DESCENDING]
+                ['field_name' => 'name', 'direction' => OrderBy::DESCENDING]
             ]
         ];
 
-        $query = new EntityQuery($arrQueryData['obj_type']);
+        $query = new EntityQuery($arrQueryData['obj_type'], 'TEST-ACCOUNT-ID');
         $query->fromArray($arrQueryData);
 
         // Make sure it's all loaded up
@@ -130,7 +131,7 @@ class EntityQueryTest extends TestCase
      */
     public function testFieldIsInWheres()
     {
-        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
+        $query = new EntityQuery(ObjectTypes::CONTACT, 'TEST-ACCOUNT-ID');
         $query->where('name')->equals('test');
 
         // Test both positive and negative results

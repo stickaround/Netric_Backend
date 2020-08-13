@@ -13,6 +13,9 @@ use PHPUnit\Framework\TestCase;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
+/**
+ * @group integration
+ */
 class GroupingCollectionTest extends AbstractCollectionTests
 {
     /**

@@ -15,10 +15,11 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 
 /**
  * Test calling the files controller
+ * @group integration
  */
 class FilesControllerTest extends TestCase
 {
@@ -86,7 +87,7 @@ class FilesControllerTest extends TestCase
         $this->fileSystem = $sl->get(FileSystem::class);
 
         // Make sure old test user does not exist
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);

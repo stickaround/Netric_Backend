@@ -12,6 +12,9 @@ use Netric\Settings\SettingsFactory;
 use Netric\Mail\Transport\Smtp;
 use Netric\Mail\Transport\SmtpFactory;
 
+/**
+ * @group integration
+ */
 class BulkSmtpFactoryTest extends TestCase
 {
     /**

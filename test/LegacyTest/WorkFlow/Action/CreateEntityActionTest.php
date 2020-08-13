@@ -5,7 +5,7 @@ namespace NetricTest\WorkFlow\Action;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityQuery;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -52,7 +52,7 @@ class CreateEntityActionTest extends AbstractActionTests
 
         // Get and cleanup
         $newEntityFound = false;
-        $query = new EntityQuery(ObjectTypes::TASK);
+        $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
         $query->where('name')->equals($testLongName);
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $result = $index->executeQuery($query);
