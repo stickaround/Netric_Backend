@@ -5,7 +5,7 @@ services:
     build:
       context: ../
       target: test
-      dockerfile: ../Dockerfile
+      dockerfile: ./Dockerfile
     environment:
       APPLICATION_ENV: testing
     volumes:
