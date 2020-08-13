@@ -340,6 +340,11 @@ class AuthenticationService
 
         list($methodName, $token) = explode(" ", $fullAuthHeader);
 
+        // Make token an empty string if it does not exists (not a valid Authentication header)
+        if ($token === null) {
+            $token = "";
+        }
+
         return $this->createTokenInstance($methodName, $token);
     }
 
