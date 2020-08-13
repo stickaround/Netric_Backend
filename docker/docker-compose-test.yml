@@ -1,7 +1,11 @@
-version: "2"
+version: "3.4"
+
 services:
   netric_server:
-    build: ../
+    build:
+      context: ../
+      target: test
+      dockerfile: ../Dockerfile
     environment:
       APPLICATION_ENV: testing
     volumes:
