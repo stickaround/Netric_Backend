@@ -32,6 +32,9 @@ class EntityMaintainerWorker extends AbstractWorker
      */
     public function work(Job $job)
     {
+        // For now we are doing nothing
+        return true;
+
         $application = $this->getApplication();
         $log = $application->getLog();
         $workerLockUniqueName = 'EntityMaintainerWorker';
