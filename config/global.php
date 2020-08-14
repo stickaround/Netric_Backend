@@ -97,6 +97,7 @@ return [
     // Background worker settings
     'workers' => [
         'queue' => 'gearman',
-        'server' => '10.4.26.26',
+        // on netric_service network in swarm
+        'server' => 'gearman',
     ],
 ];
