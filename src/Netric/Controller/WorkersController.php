@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
-
 namespace Netric\Controller;
 
 use Netric\Mvc;

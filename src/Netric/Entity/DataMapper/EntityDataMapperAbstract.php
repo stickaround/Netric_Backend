@@ -646,7 +646,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 case Field::TYPE_OBJECT:
                     // If we are dealing with null or empty id, then there is no need to update this foreign key
                     if (!$value) {
-                        continue;
+                        continue 2;
                     }
 
                     // Get the referenced entity
@@ -655,7 +655,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                     // If we haven't found the referenced entity, chances are it was already removed, so we need to clear the value
                     if (!$referencedEntity) {
                         $entity->setValue($field->name, null);
-                        continue;
+                        continue 2;
                     }
 
                     // Since we have found the referenced entity, then add it in the entity

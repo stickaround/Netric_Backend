@@ -9,7 +9,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 /**
  * Construct worker called after each entity save
  */
-class ScheudleRunnerWorkerFactory
+class ScheduleRunnerWorkerFactory
 {
     /**
      * Entity creation factory

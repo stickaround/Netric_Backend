@@ -73,9 +73,10 @@ class Notifier
      *
      * @param EntityInterface $entity The entity that was just acted on
      * @param string $event The event that is triggering from ActivityEntity::VERB_*
+     * @param UserEntity $user The user performing the event
      * @return int[] List of notification entities created or updated
      */
-    public function send(EntityInterface $entity, $event)
+    public function send(EntityInterface $entity, string $event, UserEntity $user)
     {
         $objType = $entity->getDefinition()->getObjType();
 
@@ -95,7 +96,7 @@ class Notifier
         $name = $this->getNameFromEventVerb($event, $entity->getDefinition()->getTitle());
 
         // Get followers of the referenced entity
-        $followers = $this->getInterestedUsers($entity);
+        $followers = $this->getInterestedUsers($entity, $user);
 
         // If no values, then return empty array
         if (!is_array($followers)) {
@@ -103,12 +104,12 @@ class Notifier
         }
 
         foreach ($followers as $userGuid) {
-            // If the follower id is not a valid id, then we try to look for its user entity
+            // If the follower id is not a valid user id, then we try to look for its user entity
             if (!Uuid::isValid($userGuid)) {
-                $userEntity = $this->entityLoader->getEntityById($userGuid, $this->getUser()->getAccountId());
+                $followerEntity = $this->entityLoader->getEntityById($userGuid, $user->getAccountId());
 
-                if ($userEntity) {
-                    $userGuid = $userEntity->getEntityId();
+                if ($followerEntity) {
+                    $userGuid = $followerEntity->getEntityId();
                 }
             }
 
@@ -140,7 +141,6 @@ class Notifier
              * We also do not want to send notifications to users if the system does
              * something like adding a new email.
              */
-            $user = $this->getUser();
             if (Uuid::isValid($userGuid) && $userGuid != $user->getEntityId() && !$user->isSystem() && !$user->isAnonymous()) {
                 // Create new notification, or update an existing unseen one
                 $notification = $this->getNotification($objReference, $userGuid, $user->getAccountId());
@@ -169,13 +169,8 @@ class Notifier
      * @param EntityInterface $entity The entity that was seen by a user
      * @param UserEntity $user Optional user to set seen for, otherwise use current logged in user
      */
-    public function markNotificationsSeen(EntityInterface $entity, UserEntity $user = null)
+    public function markNotificationsSeen(EntityInterface $entity, UserEntity $user)
     {
-        // If we did not manually pass a user, then use the current user
-        if (!$user) {
-            $user = $this->getUser();
-        }
-
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $user->getAccountId());
         $query->where("owner_id")->equals($user->getEntityId());
         $query->andWhere("obj_reference")->equals($entity->getEntityId());
@@ -209,7 +204,6 @@ class Notifier
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $accountId);
         $query->where("owner_id")->equals($userGuid);
         $query->andWhere("obj_reference")->equals($objReference);
-        $query->andWhere("creator_id")->equals($this->getUser()->getEntityId());
         $query->andWhere("f_seen")->equals(false);
 
         // Make sure we get the latest notification if there are multiple
@@ -222,10 +216,9 @@ class Notifier
         }
 
         // There are no outstanding/unseen notifications, create a new one
-        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION, $this->getUser()->getAccountId());
+        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION, $accountId);
         $notification->setValue("obj_reference", $objReference);
         $notification->setValue("owner_id", $userGuid);
-        $notification->setValue("creator_id", $this->getUser()->getEntityId(), $this->getUser()->getName());
 
         return $notification;
     }
@@ -253,9 +246,10 @@ class Notifier
      * Return list of users that should be notified of an event
      *
      * @param EntityInterface $entity
+     * @param UserEntity $user The user performing the action
      * @return array
      */
-    private function getInterestedUsers(EntityInterface $entity): array
+    private function getInterestedUsers(EntityInterface $entity, UserEntity $user): array
     {
         $objType = $entity->getDefinition()->getObjType();
         $followers = [];
@@ -271,24 +265,12 @@ class Notifier
          */
         $objReference = $entity->getValue("obj_reference");
         if ($objType == ObjectTypes::COMMENT && Uuid::isValid($objReference)) {
-            $refEntity = $this->entityLoader->getEntityById($objReference, $this->getUser()->getAccountId());
+            $refEntity = $this->entityLoader->getEntityById($objReference, $user->getAccountId());
             if ($refEntity && is_array($refEntity->getValue('followers'))) {
                 $followers = array_unique(array_merge($followers, $refEntity->getValue('followers')));
             }
         }
 
         return $followers;
-    }
-
-    /**
-     * Get the entity from the authenticated identity
-     *
-     * @return UserEntity
-     */
-    private function getUser(): UserEntity
-    {
-        $identity = $this->authService->getIdentity();
-        // Return actual user entity from the identity above
-        return $this->entityLoader->getEntityById($identity->getUserId(), $identity->getAccountId());
     }
 }

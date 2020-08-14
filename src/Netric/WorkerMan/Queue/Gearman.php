@@ -119,9 +119,19 @@ class Gearman implements QueueInterface
             return $this->dispatchJobs();
         }
 
+        // No jobs, return false
+        if ($gmWorker->returnCode() == GEARMAN_NO_JOBS) {
+            return false;
+        }
+
         $error = $gmWorker->error();
         if ($error) {
-            throw new RuntimeException("Job failed: " . $error);
+            throw new RuntimeException(
+                "Job failed: " .
+                    $error .
+                    ", return code: " .
+                    $gmWorker->returnCode()
+            );
         }
 
         // No jobs
@@ -130,7 +140,7 @@ class Gearman implements QueueInterface
 
     /**
      * Local listener called when gearman submits a job
-     * 
+     *
      * This is public only because gearman needs it to be for the callback.
      * It should never be called outside this class though since it breaks the
      * interface.
@@ -223,7 +233,7 @@ class Gearman implements QueueInterface
             $this->gmWorker->addServer($this->server, 4730);
 
             // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
-            $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
+            $this->gmWorker->addOptions(GEARMAN_WORKER_NON_BLOCKING);
         }
 
         return $this->gmWorker;

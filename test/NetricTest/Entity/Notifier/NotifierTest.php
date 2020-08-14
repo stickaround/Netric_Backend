@@ -60,7 +60,7 @@ class NotifierTest extends TestCase
     /**
      * Test user to notify
      *
-     * @var User
+     * @var UserEntity
      */
     private $testUser = null;
 
@@ -114,10 +114,10 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $task;
 
         // Saving created notices automatically, mark them all as read for the test
-        $this->notifier->markNotificationsSeen($task);
+        $this->notifier->markNotificationsSeen($task, $this->testUser);
 
         // Now re-create notifications
-        $notificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED);
+        $notificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
 
         // Exactly one notification should have been created for the test user
         $this->assertEquals(1, count($notificationIds));
@@ -136,7 +136,7 @@ class NotifierTest extends TestCase
          * Test private getNotification by re-creating entities,
          * this should just reuse the unseen notices created above.
          */
-        $newNotificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED);
+        $newNotificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
         $this->assertEquals($notificationIds, $newNotificationIds);
     }
 
@@ -153,7 +153,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $task;
 
         // Saving created notices automatically, mark them all as read for the test
-        $this->notifier->markNotificationsSeen($task);
+        $this->notifier->markNotificationsSeen($task, $this->testUser);
 
         // Create a test user that will create the notification
         $user = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
@@ -170,7 +170,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $comment;
 
         // Now re-create notifications
-        $notificationIds = $this->notifier->send($comment, ActivityEntity::VERB_CREATED);
+        $notificationIds = $this->notifier->send($comment, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
 
         // Exactly two notification should have been created for the test user. One if for creating the comment, second is for updating the task.
         $this->assertEquals(2, count($notificationIds));
@@ -196,7 +196,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $task;
 
         // Saving created notices automatically, mark them all as read for the test
-        $this->notifier->markNotificationsSeen($task);
+        $this->notifier->markNotificationsSeen($task, $this->testUser);
 
         // Create a test user that will create the notification
         $user = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
@@ -220,7 +220,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $comment;
 
         // Now re-create notifications
-        $notificationIds = $this->notifier->send($comment, ActivityEntity::VERB_CREATED);
+        $notificationIds = $this->notifier->send($comment, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
 
         /**
          * Exactly three notification should have been created for the test user.
@@ -254,7 +254,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $task;
 
         // Now re-create notifications
-        $this->notifier->send($task, ActivityEntity::VERB_CREATED);
+        $this->notifier->send($task, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
 
         // Query to make sure we have an unseen notification for the test user
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $this->account->getAccountId());

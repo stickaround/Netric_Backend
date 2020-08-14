@@ -4,6 +4,7 @@ namespace Netric\WorkerMan;
 
 use Netric\WorkerMan\Queue\QueueInterface;
 use Netric\Application\Application;
+use RuntimeException;
 
 /**
  * Service used to interact with the worker manager
@@ -91,8 +92,11 @@ class WorkerService
         foreach (glob(__DIR__ . "/Worker/*Worker.php") as $filename) {
             // Add each worker as a listener
             $workerName = substr(basename($filename), 0, - (strlen(".php")));
-            $workerClass = __NAMESPACE__ . "\\" . $workerName;
+            $workerClass = __NAMESPACE__ . "\\Worker\\" . $workerName;
             $worker = $this->workerFactory->getWorkerByName($workerClass);
+            if (!$worker) {
+                throw new RuntimeException("Could not load worker: " . $workerClass);
+            }
             $this->workers[$workerClass] = $worker;
             $this->jobQueue->addWorker($workerClass, $this->workers[$workerClass]);
         }

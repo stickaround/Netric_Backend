@@ -530,7 +530,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
                 case 'fkey':
                     // If val is already guid, then this value is already saved in field_data
                     if (Uuid::isValid($val)) {
-                        continue;
+                        continue 2;
                     }
 
                     $ret[$fname] = $val ? $val : null;
@@ -538,7 +538,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
                 case 'object':
                     // If val is already guid, then this value is already saved in field_data
                     if (Uuid::isValid($val)) {
-                        continue;
+                        continue 2;
                     }
 
                     $ret[$fname] = $val ? $val : null;

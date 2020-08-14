@@ -61,7 +61,7 @@ class EntityPostSaveWorker extends AbstractWorker
 
         // Create or send notifications
         $notifierService = $serviceManager->get(NotifierFactory::class);
-        $notifierService->send($entity, $workload['event_name']);
+        $notifierService->send($entity, $workload['event_name'], $user);
 
         // Log the activity
         $activityLog = $serviceManager->get(ActivityLogFactory::class);
