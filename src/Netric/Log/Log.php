@@ -138,6 +138,7 @@ class Log implements LogInterface
         $logMessage = new LogMessage('netric-server', 'Applicaion Log');
         $logMessage->setLevelNumber($level);
         $logMessage->setApplicationEnvironment(getenv('APPLICATION_ENV'));
+        // This is actually used for daemon vs server - application name
         $logMessage->setApplicationVersion(getenv('APPLICATION_VER'));
 
         // Add remote client IP address
