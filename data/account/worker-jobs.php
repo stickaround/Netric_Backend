@@ -3,6 +3,7 @@
 namespace data\account;
 
 use Netric\Entity\Recurrence\RecurrencePattern;
+use Netric\WorkerMan\Worker\EntityMaintainerWorker;
 
 /*
  * Set any recurring work that each account needs to execute here
@@ -15,19 +16,20 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 
 return [
     [
-        'worker_name' => 'EntityMaintainer',
+        'worker_name' => EntityMaintainerWorker::class,
         'job_data' => [],
         'recurrence' => [
             'type' => RecurrencePattern::RECUR_DAILY,
             'interval' => 1
         ]
     ],
-    [
-        'worker_name' => 'AccountBilling',
-        'job_data' => [],
-        'recurrence' => [
-            'type' => RecurrencePattern::RECUR_DAILY,
-            'interval' => 1
-        ]
-    ]
 ];
+
+// [
+//     'worker_name' => 'AccountBilling',
+//     'job_data' => [],
+//     'recurrence' => [
+//         'type' => RecurrencePattern::RECUR_DAILY,
+//         'interval' => 1
+//     ]
+// ]
