@@ -33,6 +33,9 @@ services:
     secrets:
       - auth_private_key
       - entityenc
+    networks:
+      - service_netric
+      - default
     deploy:
       replicas: 1
       placement:
