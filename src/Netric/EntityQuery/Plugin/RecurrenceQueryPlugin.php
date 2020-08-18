@@ -4,7 +4,7 @@ namespace Netric\EntityQuery\Plugin;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityQuery\EntityQuery;
-use Netric\Entity\Recurrence\RecurrenceSeriesManager;
+use Netric\Entity\Recurrence\RecurrenceSeriesManagerFactory;
 
 /**
  * Plugin used to work with the recurrence series manager to
@@ -25,7 +25,7 @@ class RecurrenceQueryPlugin
      */
     public function onBeforeExecuteQuery(AccountServiceManagerInterface $sl, EntityQuery $query)
     {
-        $recurSeriesManager = $sl->get(RecurrenceSeriesManager::class);
+        $recurSeriesManager = $sl->get(RecurrenceSeriesManagerFactory::class);
 
         // Check to see if we have any recurring patterns to update based on this query
         $recurSeriesManager->createInstancesFromQuery($query);

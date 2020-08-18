@@ -7,6 +7,10 @@
  */
 namespace Netric\EntityQuery\Index;
 
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 
 /**
@@ -22,6 +26,20 @@ class IndexFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        return new EntityQueryIndexRdb($sl->getAccount());
+        $serviceManager = $sl->getAccount()->getServiceManager();
+        $database = $serviceManager->get(RelationalDbFactory::class);
+        $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
+        $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);        
+        $currentUser = $sl->getAccount()->getAuthenticatedUser();
+
+        return new EntityQueryIndexRdb(
+            $database,
+            $entityFactory,
+            $entityDefinitionLoader,
+            $entityLoader,
+            $currentUser, // User that is currently logged in
+            $serviceManager // ServiceManager for EntityQuery Plugin
+        );
     }
 }

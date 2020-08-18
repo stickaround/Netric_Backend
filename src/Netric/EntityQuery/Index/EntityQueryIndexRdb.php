@@ -12,7 +12,6 @@ use Netric\Account\Account;
 use Netric\Entity\Entity;
 use Netric\EntityQuery\Aggregation\AggregationInterface;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * Relational Database implementation of indexer for querying objects
@@ -23,23 +22,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * Set table const
      */
     const ENTITY_TABLE = 'entity';
-
-    /**
-     * Handle to database
-     *
-     * @var RelationalDbInterface
-     */
-    private $database = null;
-
-    /**
-     * Setup this index for the given account
-     *
-     * @param Account $account
-     */
-    protected function setUp(Account $account)
-    {
-        $this->database = $account->getServiceManager()->get(RelationalDbFactory::class);
-    }
 
     /**
      * Save an object to the index
@@ -394,7 +376,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         break;
                     case FIELD::TYPE_OBJECT:
                         if ($field->subtype) {
-                            $children = $this->getHeiarchyDownObj($field->subtype, $value);
+                            $children = $this->getHeiarchyDownObj($field->subtype, $value, $enityDefinition->getAccountId());
 
                             foreach ($children as $child) {
                                 $multiCond[] = "field_data->>'$fieldName' = '$child'";

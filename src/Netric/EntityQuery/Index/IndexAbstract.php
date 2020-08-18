@@ -6,6 +6,7 @@
 
 namespace Netric\EntityQuery\Index;
 
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
@@ -14,29 +15,56 @@ use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\Entity\Entity;
 use Netric\Account\Account;
-use Netric\Entity\EntityFactoryFactory;
 use Netric\Entity\EntityFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Db\Relational\PgsqlDb;
 use Ramsey\Uuid\Uuid;
 
 abstract class IndexAbstract
 {
     /**
-     * Handle to current account
+     * Handles the database actions
      *
-     * @var Account
+     * @var PgsqlDb
      */
-    protected $account = null;
+    protected $database = null;
 
     /**
-     * Entity factory used for instantiating new entities
+     * Handles the creating of new entities
      *
      * @var EntityFactory
      */
     protected $entityFactory = null;
+
+    /**
+     * Handles the loading of entity definition
+     *
+     * @var EntityDefinitionLoader
+     */
+    protected $entityDefinitionLoader = null;
+
+    /**
+     * Handles the loading of existing entities
+     *
+     * @var EntityLoader
+     */
+    protected $entityLoader = null;
+
+    /**
+     * User that is currently logged in
+     * 
+     * @var UserEntity
+     */
+    protected $currentUser = null;
+
+    /**
+     * A service manager that will be used when executing the entity query plugin
+     *
+     * @var AccountServiceManagerInterface
+     */
+    protected $serviceManagerForPlugin = null;
 
     /**
      * Index of plugins loaded by objName
@@ -47,24 +75,30 @@ abstract class IndexAbstract
 
     /**
      * Setup this index for the given account
-     *
-     * @param Account $account
+     * 
+     * @param PgsqlDb $database Handles the database actions
+     * @param EntityFactory $entityFactory Handles the creating of new entities
+     * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
+     * @param EntityLoader $entityLoader Handles the loading of existing entities
+     * @param UserEntity $currentUser User that is currently logged in
+     * @param AccountServiceManagerInterface $serviceManagerForPlugin A service manager that will be used when executing the entity query plugin
      */
-    public function __construct(Account $account)
-    {
-        $this->account = $account;
-        $this->entityFactory = $account->getServiceManager()->get(EntityFactoryFactory::class);
-
-        // Setup the index
-        $this->setUp($account);
+    public function __construct(
+        PgsqlDb $database,
+        EntityFactory $entityFactory,
+        EntityDefinitionLoader $entityDefinitionLoader,
+        EntityLoader $entityLoader,
+        UserEntity $currentUser,
+        AccountServiceManagerInterface $serviceManagerForPlugin
+        )
+    {   
+        $this->database = $database;
+        $this->entityFactory = $entityFactory;
+        $this->entityDefinitionLoader = $entityDefinitionLoader;
+        $this->entityLoader = $entityLoader;
+        $this->currentUser = $currentUser;
+        $this->serviceManagerForPlugin = $serviceManagerForPlugin;
     }
-
-    /**
-     * Setup this index for the given account
-     *
-     * @param Account $account
-     */
-    abstract protected function setUp(Account $account);
 
     /**
      * Save an object to the index
@@ -137,8 +171,7 @@ abstract class IndexAbstract
      */
     public function getDefinition($objType)
     {
-        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        return $defLoader->get($objType);
+        return $this->entityDefinitionLoader->get($objType);
     }
 
     /**
@@ -177,22 +210,21 @@ abstract class IndexAbstract
     /**
      * Get ids of all parent entries in a parent-child relationship of an object
      *
-     * @param string $table The table to query
-     * @param string $parent_field The field containing the id of the parent entry
-     * @param int $this_id The id of the child element
+     * @param string $objType The object type of the entity
+     * @param string $entityGuid The id of the entity
+     * @param string $accountId The account we are going to query entities for
      */
-    public function getHeiarchyUpObj($objType, $oid)
+    public function getHeiarchyUpObj($objType, $entityGuid, $accountId)
     {
-        $ret = [$oid];
+        $ret = [$entityGuid];
 
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $ent = $entityLoader->getEntityById($oid, $this->account->getAccountId());
+        $ent = $this->entityLoader->getEntityById($entityGuid, $accountId);
         $ret[] = $ent->getEntityId();
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
             if ($ent->getValue($field->name) && $field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
-                $children = $this->getHeiarchyUpObj($field->subtype, $ent->getValue($field->name));
+                $children = $this->getHeiarchyUpObj($field->subtype, $ent->getValue($field->name), $accountId);
                 if (count($children)) {
                     $ret = array_merge($ret, $children);
                 }
@@ -205,35 +237,33 @@ abstract class IndexAbstract
     /**
      * Get ids of all child entries in a parent-child relationship of an object
      *
-     * @param string $table The table to query
-     * @param string $parent_field The field containing the id of the parent entry
-     * @param int $this_id The id of the child element
+     * @param string $objType The object type of the entity
+     * @param string $entityGuid The id of the entity
+     * @param string $accountId The account we are going to query entities for
      * @param int[] $aProtectCircular Hold array of already referenced objects to chk for array
      */
-    public function getHeiarchyDownObj($objType, $entityGuid, $aProtectCircular = [])
+    public function getHeiarchyDownObj($objType, $entityId, $accountId, $aProtectCircular = [])
     {
         // Check for circular refrences
-        if (in_array($entityGuid, $aProtectCircular)) {
-            throw new \Exception("Circular reference found in $entityGuid");
+        if (in_array($entityId, $aProtectCircular)) {
+            throw new \Exception("Circular reference found in $entityId");
         }
 
-        $ret = [$entityGuid];
-        $aProtectCircular[] = $entityGuid;
+        $ret = [$entityId];
+        $aProtectCircular[] = $entityId;
 
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $ent = $entityLoader->getEntityById($entityGuid, $this->account->getAccountId());
+        $ent = $this->entityLoader->getEntityById($entityId, $accountId);
 
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
-                $index = $this->account->getServiceManager()->get(IndexFactory::class);
-                $query = new EntityQuery($field->subtype, $this->account->getAccountId());
+            if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {                
+                $query = new EntityQuery($field->subtype, $accountId);
                 $query->where($ent->getDefinition()->parentField)->equals($ent->getEntityId());
-                $res = $index->executeQuery($query);
+                $res = $this->executeQuery($query);
                 for ($i = 0; $i < $res->getTotalNum(); $i++) {
                     $subEnt = $res->getEntity($i);
-                    $children = $this->getHeiarchyDownObj($objType, $subEnt->getEntityId(), $aProtectCircular);
+                    $children = $this->getHeiarchyDownObj($objType, $subEnt->getEntityId(), $accountId, $aProtectCircular);
                     if (count($children)) {
                         $ret = array_merge($ret, $children);
                     }
@@ -250,13 +280,11 @@ abstract class IndexAbstract
      * This function also takes care of translating environment varials such as
      * current user and current user's team into IDs for the query.
      *
-     * @param Field $field
-     * @param mixed $value
+     * @param Field $field The field that are currently working on
+     * @param mixed $value The value that will be sanitized
      */
     public function sanitizeWhereCondition(Field $field, $value)
     {
-        $user = $this->account->getUser();
-
         // Cleanup bool
         if ($field->type == Field::TYPE_BOOL && is_string($value)) {
             switch ($value) {
@@ -286,10 +314,10 @@ abstract class IndexAbstract
         }
 
         // Replace user vars
-        if ($user) {
+        if ($this->currentUser) {
             // Replace current user
             if ($value == UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
-                return $user->getEntityId();
+                return $this->currentUser->getEntityId();
             }
 
             /*
@@ -310,7 +338,7 @@ abstract class IndexAbstract
             if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
                 && $value == "user:" . UserEntity::USER_CURRENT
             ) {
-                return $user->getEntityId();
+                return $this->currentUser->getEntityId();
             }
         }
 
@@ -364,12 +392,12 @@ abstract class IndexAbstract
     {
         $plugin = $this->getPlugin($query->getObjType());
         if ($plugin) {
-            $plugin->onBeforeExecuteQuery($this->account->getServiceManager(), $query);
+            $plugin->onBeforeExecuteQuery($this->serviceManagerForPlugin, $query);
         }
 
         // Recurrence plugin
         $recurrencePlugin = $this->getPlugin("Recurrence");
-        $recurrencePlugin->onBeforeExecuteQuery($this->account->getServiceManager(), $query);
+        $recurrencePlugin->onBeforeExecuteQuery($this->serviceManagerForPlugin, $query);
     }
 
     /**
@@ -381,12 +409,12 @@ abstract class IndexAbstract
     {
         $plugin = $this->getPlugin($query->getObjType());
         if ($plugin) {
-            $plugin->onAfterExecuteQuery($this->account->getServiceManager(), $query);
+            $plugin->onAfterExecuteQuery($this->serviceManagerForPlugin, $query);
         }
 
         // Recurrence plugin
         $recurrencePlugin = $this->getPlugin("Recurrence");
-        $recurrencePlugin->onAfterExecuteQuery($this->account->getServiceManager(), $query);
+        $recurrencePlugin->onAfterExecuteQuery($this->serviceManagerForPlugin, $query);
     }
 
     /**

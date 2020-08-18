@@ -1925,7 +1925,7 @@ abstract class IndexTestsAbstract extends TestCase
         $dm->save($folder2, $this->account->getSystemUser());
         $this->assertNotNull($folder2->getEntityId());
 
-        $children = $index->getHeiarchyDownObj(ObjectTypes::FOLDER, $folder1->getEntityId());
+        $children = $index->getHeiarchyDownObj(ObjectTypes::FOLDER, $folder1->getEntityId(), $this->account->getAccountId());
         $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;
@@ -1969,7 +1969,7 @@ abstract class IndexTestsAbstract extends TestCase
         $dm->save($folder2, $this->account->getSystemUser());
         $this->assertNotNull($folder2->getEntityId());
 
-        $children = $index->getHeiarchyUpObj(ObjectTypes::FOLDER, $folder2->getEntityId());
+        $children = $index->getHeiarchyUpObj(ObjectTypes::FOLDER, $folder2->getEntityId(), $this->account->getAccountId());
         $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;

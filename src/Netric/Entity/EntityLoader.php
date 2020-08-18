@@ -10,6 +10,7 @@ use Netric\Entity\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use Ramsey\Uuid\Uuid;
 
+
 /**
  * Entity service used to get/save/delete entities
  */
@@ -212,7 +213,7 @@ class EntityLoader
     }
 
     /**
-     * Save an entity
+     * Flag entity as archived but don't actually delete it
      *
      * @param EntityInterface $entity The entity to delete
      * @param UserEntity Entity with user details
