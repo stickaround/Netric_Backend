@@ -83,11 +83,13 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type must be set"]);
         }
 
-        $user = $this->account->getAuthenticatedUser();
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+        $account = $this->account;
+        $accountId = $this->account->getAccountId();
+        $user = $account->getAuthenticatedUser();
+        $index = $account->getServiceManager()->get(IndexFactory::class);
+        $daclLoader = $account->getServiceManager()->get(DaclLoaderFactory::class);
 
-        $query = new EntityQuery($params["obj_type"], $this->account->getAccountId(), $this->account->getAuthenticatedUser()->getEntityId());
+        $query = new EntityQuery($params["obj_type"], $accountId, $user->getEntityId());
 
         if (isset($params['offset'])) {
             $query->setOffset($params['offset']);

@@ -10,7 +10,6 @@ use Netric\Entity\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use Ramsey\Uuid\Uuid;
 
-
 /**
  * Entity service used to get/save/delete entities
  */
