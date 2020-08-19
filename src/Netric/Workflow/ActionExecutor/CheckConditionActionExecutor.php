@@ -70,7 +70,7 @@ class CheckConditionActionExecutor extends AbstractActionExecutor implements Act
 
         // We use the index for checking if conditions match since it
         // contains all the condition logic which can get pretty complex
-        $query = new EntityQuery($actOnEntity->getDefinition()->getObjType(), $user->getAccountId());
+        $query = new EntityQuery($actOnEntity->getDefinition()->getObjType(), $user->getAccountId(), $user->getEntityId());
 
         // Add the entity as a condition to see if it meets the criteria
         $query->where("entity_id")->equals($actOnEntity->getEntityId());

@@ -8,7 +8,7 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use Netric\EntityQuery\EntityQuery;
-use Netric\EntityQuery\Index\EntityQueryIndexRdb;
+use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
@@ -86,7 +86,7 @@ class ProjectTest extends TestCase
         $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
         $query->where('project')->equals($proj1->getEntityId());
 
-        $queryIndex = new EntityQueryIndexRdb($this->account);
+        $queryIndex = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $queryIndex->executeQuery($query);
         $num = $res->getNum();
         $newTask = $res->getEntity(0);

@@ -11,7 +11,10 @@ use Netric\EntityQuery\Aggregation;
 use Netric\Account\Account;
 use Netric\Entity\Entity;
 use Netric\EntityQuery\Aggregation\AggregationInterface;
+use Netric\Db\Relational\RelationalDbContainerInterface;
+use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Relational Database implementation of indexer for querying objects
@@ -24,6 +27,42 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     const ENTITY_TABLE = 'entity';
 
     /**
+     * Database container
+     *
+     * @var RelationalDbContainer
+     */
+    private $databaseContainer = null;
+
+    /**
+     * Optional. The unique id of the user that is set in the Entity Query.
+     * If provided, this will be used to sanitize current user in condition value 
+     * 
+     * @var string
+     */
+    private $userIdFromEntityQuery = "";
+
+    /**
+     * Setup this index
+     *
+     * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
+     */
+    protected function setUp(RelationalDbContainer $dbContainer)
+    {
+        $this->databaseContainer = $dbContainer;
+    }
+
+    /**
+     * Get active database handle
+     *
+     * @param string $accountId The account being acted on
+     * @return RelationalDbInterface
+     */
+    private function getDatabase(string $accountId): RelationalDbInterface
+    {
+        return $this->databaseContainer->getDbHandleForAccountId($accountId);
+    }
+
+    /**
      * Save an object to the index
      *
      * @param Entity $entity Entity to save
@@ -31,8 +70,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     public function save(Entity $entity)
     {
-        $def = $entity->getDefinition();
+        // Get the account id from the entity
+        $accountId = $entity->getAccountId();
 
+        $def = $entity->getDefinition();
         $tableName = self::ENTITY_TABLE;
 
         // Get indexed text
@@ -53,7 +94,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
          * since we are using to_vector() pgsql function and not updating a field using a normal data
          */
         $queryParams = ["entity_id" => $entity->getEntityid(), "full_text_terms" => implode(" ", $fieldTextValues)];
-        $result = $this->database->query($sql, $queryParams);
+        $result = $this->getDatabase($accountId)->query($sql, $queryParams);
 
         return $result->rowCount() > 0;
     }
@@ -88,6 +129,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         if ($results === null) {
             $results = new Results($query, $this);
         }
+
+        // Get the account id from the Entity Query
+        $accountId = $query->getAccountId();
+
+        // Get the unique id of the user that is set in Entity Query
+        $this->userIdFromEntityQuery = $query->getUserId();
 
         // Make sure that we have an entity definition before executing a query
         $entityDefinition = $this->getDefinition($query->getObjType());
@@ -159,7 +206,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $conditionString .= "entity_definition_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
 
         // Add account
-        $conditionString .= "account_id='" . $query->getAccountId() . "'";
+        $conditionString .= "account_id='$accountId'";
 
         // Get order by from $query and setup the sort order
         $sortOrder = [];
@@ -194,7 +241,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " OFFSET {$query->getOffset()}";
         }
 
-        $result = $this->database->query($sql);
+        $result = $this->getDatabase($accountId)->query($sql);
 
         // Process the raw data of entities and update the $results
         $this->processEntitiesRawData($entityDefinition, $result->fetchAll(), $results);
@@ -222,6 +269,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function setResultsTotalNum(EntityDefinition $entityDefinition, Results $results, $conditionString)
     {
+        // Get the account id from the entity definition
+        $accountId = $entityDefinition->getAccountId();
+
         // Get table to query
         $objectTable = self::ENTITY_TABLE;
 
@@ -233,7 +283,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " WHERE $conditionString";
         }
 
-        $result = $this->database->query($sql);
+        $result = $this->getDatabase($accountId)->query($sql);
         if ($result->rowCount()) {
             $row = $result->fetch();
             $results->setTotalNum($row["total_num"]);
@@ -251,7 +301,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         // Get fields for this object type (used in decoding multi-valued fields)
         $ofields = $entityDefinition->getFields();
-
+        
         foreach ($entitiesRawDataArray as $rawData) {
             $entityData = json_decode($rawData['field_data'], true);
 
@@ -299,14 +349,17 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param Array $condition The where condition that we are dealing with
      * @return string Query condition string with param values pre-populated and quoted
      */
-    public function buildConditionStringAndSetParams(EntityDefinition $enityDefinition, $condition): string
+    public function buildConditionStringAndSetParams(EntityDefinition $entityDefinition, $condition): string
     {
+        // Get the account id from the entity definition
+        $accountId = $entityDefinition->getAccountId();
+
         $fieldName = $condition->fieldName;
         $operator = $condition->operator;
 
         // If we have a full text condition, then return a vector search
         if ($fieldName === "*") {
-            return "(tsv_fulltext @@ plainto_tsquery(" . $this->database->quote($condition->value) . "))";
+            return "(tsv_fulltext @@ plainto_tsquery(" . $this->getDatabase($accountId)->quote($condition->value) . "))";
         }
 
         // Should never happen, but just in case if operator is missing throw an exception
@@ -315,10 +368,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Get the Field Definition using the field name provided in the $condition
-        $field = $this->getFieldUsingFieldName($enityDefinition, $fieldName);
+        $field = $this->getFieldUsingFieldName($entityDefinition, $fieldName);
 
         // Sanitize and replace environment variables like 'current_user' to concrete vals
-        $condition->value = $this->sanitizeWhereCondition($field, $condition->value);
+        $condition->value = $this->sanitizeWhereCondition($field, $condition->value, $this->userIdFromEntityQuery);
 
         // After sanitizing the condition value, then we are now ready to build the condition string
         $value = pg_escape_string($condition->value);
@@ -327,10 +380,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $conditionString = "";
         switch ($operator) {
             case Where::OPERATOR_EQUAL_TO:
-                $conditionString = $this->buildIsEqual($enityDefinition, $field, $condition);
+                $conditionString = $this->buildIsEqual($entityDefinition, $field, $condition);
                 break;
             case Where::OPERATOR_NOT_EQUAL_TO:
-                $conditionString = $this->buildIsNotEqual($enityDefinition, $field, $condition);
+                $conditionString = $this->buildIsNotEqual($entityDefinition, $field, $condition);
                 break;
             case Where::OPERATOR_GREATER_THAN:
                 switch ($field->type) {
@@ -376,7 +429,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         break;
                     case FIELD::TYPE_OBJECT:
                         if ($field->subtype) {
-                            $children = $this->getHeiarchyDownObj($field->subtype, $value, $enityDefinition->getAccountId());
+                            $children = $this->getHeiarchyDownObj($field->subtype, $value, $accountId);
 
                             foreach ($children as $child) {
                                 $multiCond[] = "field_data->>'$fieldName' = '$child'";
@@ -774,6 +827,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     private function queryAggregation(EntityDefinition $entityDefinition, AggregationInterface $agg, Results $results, $conditionQuery)
     {
+        // Get the account id from entity definition
+        $accountId = $entityDefinition->getAccountId();
+
         $fieldName = $agg->getField();
         $aggTypeName = $agg->getTypeName();
 
@@ -804,7 +860,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $sql .= " $orderBy";
 
-        $result = $this->database->query($sql);
+        $result = $this->getDatabase($accountId)->query($sql);
 
         // Make sure that we have results before we process the aggregates
         if ($result->rowCount()) {
@@ -844,14 +900,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     }
 
     /**
-     * Handle converting boolean to strings
+     * Sanitize condition values for querying
      *
-     * @param Field $field
-     * @param mixed $value
+     * @param Field $field The field that are currently working on
+     * @param mixed $value The value that will be sanitized
+     * @param string $userId Unique id of the user that will be used to sanitize current user in condition value 
      */
-    public function sanitizeWhereCondition(Field $field, $value)
+    public function sanitizeWhereCondition(Field $field, $value, string $userId = "")
     {
-        $value = parent::sanitizeWhereCondition($field, $value);
+        $value = parent::sanitizeWhereCondition($field, $value, $userId);
 
         // Convert bool to string
         if ($field->type == Field::TYPE_BOOL) {

@@ -19,18 +19,12 @@ use Netric\Entity\EntityFactory;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\Db\Relational\PgsqlDb;
+use Netric\Db\Relational\RelationalDbContainerInterface;
+use Netric\Db\Relational\RelationalDbContainer;
 use Ramsey\Uuid\Uuid;
 
 abstract class IndexAbstract
 {
-    /**
-     * Handles the database actions
-     *
-     * @var PgsqlDb
-     */
-    protected $database = null;
-
     /**
      * Handles the creating of new entities
      *
@@ -51,14 +45,7 @@ abstract class IndexAbstract
      * @var EntityLoader
      */
     protected $entityLoader = null;
-
-    /**
-     * User that is currently logged in
-     * 
-     * @var UserEntity
-     */
-    protected $currentUser = null;
-
+    
     /**
      * A service manager that will be used when executing the entity query plugin
      *
@@ -76,28 +63,27 @@ abstract class IndexAbstract
     /**
      * Setup this index for the given account
      * 
-     * @param PgsqlDb $database Handles the database actions
+     * @param RelationalDbContainer $database Handles the database actions
      * @param EntityFactory $entityFactory Handles the creating of new entities
      * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
-     * @param EntityLoader $entityLoader Handles the loading of existing entities
-     * @param UserEntity $currentUser User that is currently logged in
+     * @param EntityLoader $entityLoader Handles the loading of existing entities     
      * @param AccountServiceManagerInterface $serviceManagerForPlugin A service manager that will be used when executing the entity query plugin
      */
     public function __construct(
-        PgsqlDb $database,
+        RelationalDbContainer $dbContainer,
         EntityFactory $entityFactory,
         EntityDefinitionLoader $entityDefinitionLoader,
         EntityLoader $entityLoader,
-        UserEntity $currentUser,
         AccountServiceManagerInterface $serviceManagerForPlugin
         )
-    {   
-        $this->database = $database;
+    {
         $this->entityFactory = $entityFactory;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
         $this->entityLoader = $entityLoader;
-        $this->currentUser = $currentUser;
         $this->serviceManagerForPlugin = $serviceManagerForPlugin;
+
+        // Setup the entity query index
+        $this->setUp($dbContainer);
     }
 
     /**
@@ -282,8 +268,9 @@ abstract class IndexAbstract
      *
      * @param Field $field The field that are currently working on
      * @param mixed $value The value that will be sanitized
+     * @param string $userId Unique id of the user that will be used to sanitize current user in condition value 
      */
-    public function sanitizeWhereCondition(Field $field, $value)
+    public function sanitizeWhereCondition(Field $field, $value, string $userId)
     {
         // Cleanup bool
         if ($field->type == Field::TYPE_BOOL && is_string($value)) {
@@ -314,10 +301,10 @@ abstract class IndexAbstract
         }
 
         // Replace user vars
-        if ($this->currentUser) {
+        if ($userId) {
             // Replace current user
             if ($value == UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
-                return $this->currentUser->getEntityId();
+                return $userId;
             }
 
             /*
@@ -338,7 +325,7 @@ abstract class IndexAbstract
             if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
                 && $value == "user:" . UserEntity::USER_CURRENT
             ) {
-                return $this->currentUser->getEntityId();
+                return $userId;
             }
         }
 

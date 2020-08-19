@@ -11,35 +11,36 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Db\Relational\RelationalDbContainerFactory;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager;
 
 /**
  * Create a EntityQuery Index service
  */
-class IndexFactory implements ServiceManager\AccountServiceFactoryInterface
+class IndexFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return IndexInterface
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $serviceManager = $sl->getAccount()->getServiceManager();
-        $database = $serviceManager->get(RelationalDbFactory::class);
-        $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
-        $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);        
-        $currentUser = $sl->getAccount()->getAuthenticatedUser();
-
+        $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);        
+        $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
+        $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);        
+        
+        
         return new EntityQueryIndexRdb(
-            $database,
+            $relationalDbCon,
             $entityFactory,
             $entityDefinitionLoader,
             $entityLoader,
-            $currentUser, // User that is currently logged in
-            $serviceManager // ServiceManager for EntityQuery Plugin
+            $serviceLocator
         );
     }
 }
