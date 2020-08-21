@@ -9,8 +9,6 @@ use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\WorkerMan\Scheduler\ScheduledJob;
-use Netric\WorkerMan\Scheduler\RecurringJob;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\EntityDefinition\ObjectTypes;
 
