@@ -12,6 +12,7 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use RuntimeException;
 use DateTime;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class creates and deletes entities from a RecurrencePattern series
@@ -366,10 +367,22 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
          */
 
         // Send new entity id back
-        $user = $this->entityDataMapper->getEntityById(
-            $firstEntity->getOwnerId(),
-            $recurrencePattern->getAccountId()
-        );
+        if ($firstEntity->getOwnerId()) {
+            $user = $this->entityDataMapper->getEntityById(
+                $firstEntity->getOwnerId(),
+                $recurrencePattern->getAccountId()
+            );
+        }
+
+        // If there is no user then set it to system
+        if (!$user) {
+            $user = $this->entityDataMapper->getByUniqueName(
+                ObjectTypes::USER,
+                UserEntity::USER_SYSTEM,
+                $recurrencePattern->getAccountId()
+            );
+        }
+
         return $this->entityDataMapper->save($newInstanceEntity, $user);
     }
 

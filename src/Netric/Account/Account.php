@@ -262,6 +262,21 @@ class Account
     public function getSystemUser(): UserEntity
     {
         $entityLoader = $this->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // First check to see if the system user exists
+        $systemUser = $entityLoader->getByUniqueName(
+            ObjectTypes::USER,
+            UserEntity::USER_SYSTEM,
+            $this->getAccountId()
+        );
+
+        if ($systemUser) {
+            return $systemUser;
+        }
+
+        // If the system user does not yet exist, we are probably calling this function to create the first users
+        // and we can safely return a system user without an ID. This could cause downstream issues so we might
+        // want to actually create the system user here if it does not exist?
         $systemUser = $entityLoader->create(ObjectTypes::USER, $this->getAccountId());
         $systemUser->setValue("uname", UserEntity::USER_SYSTEM);
         $systemUser->setValue("name", UserEntity::USER_SYSTEM);

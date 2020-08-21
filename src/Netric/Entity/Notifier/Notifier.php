@@ -104,14 +104,12 @@ class Notifier
         }
 
         foreach ($followers as $userGuid) {
-            // If the follower id is not a valid user id, then we try to look for its user entity
+            // If the follower id is not a valid user id then just skip
             if (!Uuid::isValid($userGuid)) {
-                $followerEntity = $this->entityLoader->getEntityById($userGuid, $user->getAccountId());
-
-                if ($followerEntity) {
-                    $userGuid = $followerEntity->getEntityId();
-                }
+                continue;
             }
+
+            $followerEntity = $this->entityLoader->getEntityById($userGuid, $user->getAccountId());
 
             /*
              * Get the object reference which is the entity this notice is about.
@@ -141,7 +139,12 @@ class Notifier
              * We also do not want to send notifications to users if the system does
              * something like adding a new email.
              */
-            if (Uuid::isValid($userGuid) && $userGuid != $user->getEntityId() && !$user->isSystem() && !$user->isAnonymous()) {
+            if (
+                $followerEntity->getEntityId() != $user->getEntityId() &&
+                !$user->isSystem() &&
+                !$user->isAnonymous() &&
+                !$followerEntity->isSystem()
+            ) {
                 // Create new notification, or update an existing unseen one
                 $notification = $this->getNotification($objReference, $userGuid, $user->getAccountId());
                 $notification->setValue("name", $name);

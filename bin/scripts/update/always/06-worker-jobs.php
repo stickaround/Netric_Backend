@@ -5,7 +5,6 @@ use Netric\WorkerMan\SchedulerService;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use RuntimeException;
 
 $account = $this->getAccount();
 if (!$account) {
@@ -31,7 +30,7 @@ foreach ($workerJobsData as $jobToSchedule) {
      * at least one instance.
      */
     $query = new EntityQuery(ObjectTypes::WORKER_JOB, $account->getAccountId());
-    $query->where('worker_name', $jobToSchedule['worker_name']);
+    $query->where('worker_name')->equals($jobToSchedule['worker_name']);
     $result = $entityIndex->executeQuery($query);
     if (!$result->getTotalNum()) {
         // Create at least one instance

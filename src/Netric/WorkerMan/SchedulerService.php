@@ -82,6 +82,9 @@ class SchedulerService
         $recurrence = new RecurrencePattern($user->getAccountId());
         $recurrence->setInterval($interval);
         $recurrence->setRecurType($type);
+        if ($type == RecurrencePattern::RECUR_MONTHLY) {
+            $recurrence->setDayOfMonth((int) date('j'));
+        }
         $recurrence->setDateStart(new DateTime());
         $scheduledJob->setRecurrencePattern($recurrence);
 

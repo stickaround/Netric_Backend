@@ -117,7 +117,11 @@ class NotifierTest extends TestCase
         $this->notifier->markNotificationsSeen($task, $this->testUser);
 
         // Now re-create notifications
-        $notificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
+        $notificationIds = $this->notifier->send(
+            $task,
+            ActivityEntity::VERB_CREATED,
+            $this->account->getAuthenticatedUser()
+        );
 
         // Exactly one notification should have been created for the test user
         $this->assertEquals(1, count($notificationIds));
@@ -136,7 +140,11 @@ class NotifierTest extends TestCase
          * Test private getNotification by re-creating entities,
          * this should just reuse the unseen notices created above.
          */
-        $newNotificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
+        $newNotificationIds = $this->notifier->send(
+            $task,
+            ActivityEntity::VERB_CREATED,
+            $this->account->getAuthenticatedUser()
+        );
         $this->assertEquals($notificationIds, $newNotificationIds);
     }
 
