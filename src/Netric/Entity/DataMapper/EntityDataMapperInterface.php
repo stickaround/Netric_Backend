@@ -31,14 +31,14 @@ interface EntityDataMapperInterface
      *
      * @param string $objType The entity to populate if we find the data
      * @param string $uniqueNamePath The path to the entity
-     * @param UserEntity $user Current user
+     * @param string $accountId Current account ID
      * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
      * @return EntityInterface $entity if found or null if not found
      */
     public function getByUniqueName(
         string $objType,
         string $uniqueNamePath,
-        UserEntity $user,
+        string $accountId,
         array $namespaceFieldValues = []
     ): ?EntityInterface;
 

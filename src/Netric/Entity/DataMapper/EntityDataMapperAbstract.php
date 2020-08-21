@@ -4,7 +4,6 @@ namespace Netric\Entity\DataMapper;
 
 use Netric\Entity\ActivityLog;
 use Netric\Entity\EntityAggregator;
-use Netric\Entity\EntityLoader;
 use Netric\Entity\Notifier\Notifier;
 use Netric\Entity\Validator\EntityValidator;
 use Netric\EntityDefinition\EntityDefinitionLoader;
@@ -21,10 +20,7 @@ use Netric\Entity\EntityFactory;
 use Netric\DataMapperAbstract;
 use Netric\ServiceManager\AccountServiceManager;
 use Ramsey\Uuid\Uuid;
-use InvalidArgumentException;
-use Netric\Entity\ActivityLogFactory;
 use Netric\Entity\EntityAggregatorFactory;
-use Netric\Entity\Notifier\NotifierFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\WorkerService;
@@ -433,14 +429,14 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      *
      * @param string $objType The entity to populate if we find the data
      * @param string $uniqueNamePath The path to the entity
-     * @param UserEntity $user Current user
+     * @param string $accountId Current account ID
      * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
      * @return EntityInterface $entity if found or null if not found
      */
     public function getByUniqueName(
         string $objType,
         string $uniqueNamePath,
-        UserEntity $user,
+        string $accountId,
         array $namespaceFieldValues = []
     ): ?EntityInterface {
         $def = $this->entityDefLoader->get($objType);
@@ -472,7 +468,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 $parentEntity = $this->getByUniqueName(
                     $parentField->subtype,
                     implode('/', $segments),
-                    $user,
+                    $accountId,
                     $namespaceFieldValues
                 );
 
@@ -486,10 +482,10 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         $filterValues = array_merge($namespaceFieldValues, $parentFieldCondition, ['uname' => $uname]);
-        $matches = $this->getIdsFromFieldValues($objType, $filterValues, $user);
+        $matches = $this->getIdsFromFieldValues($objType, $filterValues, $accountId);
 
         if (count($matches) == 1 || !empty($matches[0])) {
-            $entity = $this->getEntityById($matches[0], $user->getAccountId());
+            $entity = $this->getEntityById($matches[0], $accountId);
             return $entity;
         }
 
@@ -502,15 +498,15 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      *
      * @param string $objType The type of entity we are querying
      * @param array $conditionValues Array of field values to query for
-     * @param UserEntity $user Current user
+     * @param string $accountId Current account ID
      * @return string[] Array of IDs that match the field values
      */
-    private function getIdsFromFieldValues($objType, array $conditionValues, UserEntity $user)
+    private function getIdsFromFieldValues($objType, array $conditionValues, string $accountId)
     {
         $entityIds = [];
 
         // Search objects to see if the uname exists
-        $query = new EntityQuery($objType, $user->getAccountId());
+        $query = new EntityQuery($objType, $accountId);
 
         foreach ($conditionValues as $fieldName => $fieldCondValue) {
             $query->andWhere($fieldName)->equals($fieldCondValue);

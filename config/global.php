@@ -1,5 +1,7 @@
 <?php
 
+use \net\authorize\api\constants\ANetEnvironment;
+
 return [
     // Determine if secure pages should be offered (not forced) in https
     'use_https' => true,
@@ -18,6 +20,8 @@ return [
     'pidfile' => '/var/run/netricd',
     // Where secret files are stored
     'vault_dir' => '/var/run/secrets',
+    // Netric account used for billing and support - netric supported by netric
+    'main_account_id' => '00000000-0000-0000-0000-00000000000c',
     // Log settings
     'log' => [
         'writer' => 'gelf',
@@ -100,4 +104,9 @@ return [
         // on netric_service network in swarm
         'server' => 'gearman',
     ],
+    'billing' => [
+        'anet_url' => ANetEnvironment::PRODUCTION,
+        'anet_login' => '6yEB38QFsp3E',
+        // The key is in the vault
+    ]
 ];

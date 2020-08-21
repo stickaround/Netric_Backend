@@ -377,7 +377,7 @@ class Application
         $updater->setCurrentAccountToLatestVersion();
         $updater->runUpdates();
 
-        // Create the default account
+        // Create the admin user
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $adminUser = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
         $adminUser->setValue("name", $adminUserName);

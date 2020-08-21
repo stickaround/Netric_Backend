@@ -109,7 +109,9 @@ class WorkersController extends Mvc\AbstractController
         if (!$request->getParam("daemon")) {
             $response->writeLine($textToWrite);
         } else {
-            $application->getLog()->info($textToWrite);
+            if ($numProcessed > 0) {
+                $application->getLog()->info($textToWrite);
+            }
         }
 
         return $response;

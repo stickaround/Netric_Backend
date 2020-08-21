@@ -13,6 +13,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Config\ConfigFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use DateTime;
 
 /**
  * Netric account instance
@@ -79,9 +80,27 @@ class Account
     const STATUS_DELETED = 3;
 
     /**
+     * The last time this account was successfully billed
+     */
+    private ?DateTime $billingLastBilled = null;
+
+    /**
+     * Flag used to push the admin user to update billing profile
+     */
+    private bool $billingForceUpdate = false;
+
+    /**
+     * Main account contact id - the id of the contact/customer for billing
+     *
+     * This contact is stored in the global settings mainAccountId's netric
+     * account for billing, marketing, and support (tickets).
+     */
+    private string $mainAccountContactId = '';
+
+    /**
      * Initialize netric account
      *
-     * @param \Netric\Application\Application $app
+     * @param Application $app
      */
     public function __construct(Application $app)
     {
@@ -117,6 +136,18 @@ class Account
             $this->description = $data['description'];
         }
 
+        if (isset($data['billing_last_billed'])) {
+            $this->billingLastBilled = new DateTime($data['billing_last_billed']);
+        }
+
+        if (isset($data['billing_force_update'])) {
+            $this->billingForceUpdate = $data['billing_force_update'];
+        }
+
+        if (isset($data['main_account_contact_id'])) {
+            $this->mainAccountContactId = $data['main_account_contact_id'];
+        }
+
         return true;
     }
 
@@ -132,6 +163,8 @@ class Account
             "name" => $this->name,
             "database" => $this->dbname,
             "description" => $this->description,
+            "billing_force_update" => $this->billingForceUpdate,
+            'main_account_contact_id' => $this->mainAccountContactId
         ];
     }
 
@@ -166,16 +199,6 @@ class Account
     }
 
     /**
-     * Get database name for this account
-     *
-     * @return string
-     */
-    // public function getDatabaseName()
-    // {
-    //     return $this->dbname;
-    // }
-
-    /**
      * Get ServiceManager for this account
      *
      * @return AccountServiceManagerInterface
@@ -188,11 +211,25 @@ class Account
     /**
      * Get application object
      *
-     * @return \Netric\Application\Application
+     * @return Application
      */
     public function getApplication()
     {
         return $this->application;
+    }
+
+    /**
+     * Get the main account contact id for billing, support, and marketing
+     *
+     * This is the ID of the contact in the main acccount (not the current account)
+     * where all billing and support is managed. This is most likely the parent company
+     * account (aereus) in production.
+     *
+     * @return string
+     */
+    public function getMainAccountContactId(): string
+    {
+        return $this->mainAccountContactId;
     }
 
     /**

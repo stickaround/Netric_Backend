@@ -198,7 +198,7 @@ class EntityController extends Mvc\AbstractAccountController
             $entity = $entityLoader->getByUniqueName(
                 $params['obj_type'],
                 $params['uname'],
-                $this->account->getAuthenticatedUser(),
+                $this->account->getAccountId(),
                 $params['uname_conditions']
             );
         } else {

@@ -11,7 +11,6 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
 use Netric\Entity\Notifier\NotifierFactory;
-use Netric\Entity\EntityAggregator\EntityAggregatorFactory;
 use RuntimeException;
 
 /**

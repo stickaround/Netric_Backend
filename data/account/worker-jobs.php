@@ -23,13 +23,12 @@ return [
             'interval' => 1
         ]
     ],
+    [
+        'worker_name' => 'AccountBilling',
+        'job_data' => [],
+        'recurrence' => [
+            'type' => RecurrencePattern::RECUR_MONTHLY,
+            'interval' => 1
+        ],
+    ],
 ];
-
-// [
-//     'worker_name' => 'AccountBilling',
-//     'job_data' => [],
-//     'recurrence' => [
-//         'type' => RecurrencePattern::RECUR_DAILY,
-//         'interval' => 1
-//     ]
-// ]

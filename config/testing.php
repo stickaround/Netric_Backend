@@ -1,5 +1,7 @@
 <?php
 
+use \net\authorize\api\constants\ANetEnvironment;
+
 return [
     // Inerval vault file
     'vault_dir' => "/var/www/html/data/vault_secrets",
@@ -49,4 +51,9 @@ return [
         // We leave this for unit tests since we test gearman
         'server' => 'gearmand',
     ],
+    'billing' => [
+        'anet_url' => ANetEnvironment::SANDBOX,
+        'anet_login' => '47zCW38But',
+        // The key is in the vault
+    ]
 ];

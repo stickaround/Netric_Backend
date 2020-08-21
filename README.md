@@ -24,7 +24,7 @@ Note: On some windows installations python is invoked by typing 'py'
 
 Run tests within the container by executing.
 
-    docker-compose exec netric_server vendor/bin/phpunit
+    docker-compose exec netric_server APPLICATION_ENV=testing vendor/bin/phpunit
 
 ### Accessing Services
 
@@ -57,28 +57,11 @@ netric.client.hybrid: Native device applications
 
 Each of the respective client repos will contain build and deployment instructions.
 
-## Scripts found in /scripts
-
-Note: Make sure you have python 3+ installed and working
-
-    python build-dev.py # build a local development environment
-    python start-dev.py # start a local development server
-    python test.py # run server tests
-
-    ./jenkins-tests.sh # script to execute all tests in jenkins build
-
 ## Directory Structure
 
-/src - all classes and functions
-
-/public - all served assets and where apache will look for index files
-
-/vendor - third party libraries
-
-/data - non-executable stored data
-
-/bin - binary scripts to run on the server
-
-/scripts - development scripts
-
-/docker - docker files used for building and working with containers
+- /src - all classes and functions
+- /public - all served assets and where apache will look for index files
+- /vendor - third party libraries
+- /data - non-executable stored data
+- /bin - binary scripts to run on the server
+- /docker - docker files used for building and working with containers

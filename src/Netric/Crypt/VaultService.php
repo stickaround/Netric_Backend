@@ -42,7 +42,6 @@ class VaultService
         }
 
         return trim(file_get_contents($filePath));
-        //return "fdsagfdaahah354h6gf4s3h2fgs65h46";
     }
 
     /**

@@ -20,6 +20,12 @@ return [
             'server' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'version' => ['type' => SchemaProperty::TYPE_CHAR_256],
             'active' => ['type' => SchemaProperty::TYPE_BOOL, 'default' => 't'],
+            // UUID of the 'contact' in the main account used for billing and support
+            'main_account_contact_id' => ['type' => SchemaProperty::TYPE_UUID],
+            // The last time the account was successfully billed
+            'billing_last_billed' => ['type' => SchemaProperty::TYPE_TIMESTAMP],
+            // If true, the user will be forced to update billing details before continuing
+            'billing_force_update' => ['type' => SchemaProperty::TYPE_BOOL],
         ],
         'PRIMARY_KEY' => 'account_id',
         // TODO: contraints for unique name

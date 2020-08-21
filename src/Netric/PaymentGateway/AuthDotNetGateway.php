@@ -542,11 +542,16 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     private function getBillingAddressFromCustomer(CustomerEntity $customer): AnetAPI\CustomerAddressType
     {
         $billTo = new AnetAPI\CustomerAddressType();
-        if ($customer->getValue('first_name')) {
+
+        if ($customer->getValue('billing_first_name')) {
+            $billTo->setFirstName($customer->getValue('billing_first_name'));
+        } elseif ($customer->getValue('first_name')) {
             $billTo->setFirstName($customer->getValue('first_name'));
         }
 
-        if ($customer->getValue('last_name')) {
+        if ($customer->getValue('billing_last_name')) {
+            $billTo->setLastName($customer->getValue('billing_last_name'));
+        } elseif ($customer->getValue('last_name')) {
             $billTo->setLastName($customer->getValue('last_name'));
         }
 

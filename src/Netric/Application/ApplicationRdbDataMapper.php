@@ -250,7 +250,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      * Adds an account to the database
      *
      * @param string $name A unique name for this account
-     * @return int Unique id of the created account, 0 on failure
+     * @return string Unique id of the created account, exception on failure
      */
     public function createAccount($name)
     {

@@ -102,7 +102,7 @@ class EntityLoaderTest extends TestCase
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $loader = new EntityLoader($dataMapper, $defLoader, $entityFactory, $cache);
 
-        $entity = $loader->getByUniqueName(ObjectTypes::TASK, "my_test", $this->account->getAuthenticatedUser());
+        $entity = $loader->getByUniqueName(ObjectTypes::TASK, "my_test", $this->account->getAccountId());
 
         $this->assertEquals($task, $entity);
     }

@@ -226,7 +226,7 @@ class AuthenticationService
         // Load the user by username
         // TODO: We really should stop using the service manager in classes like this
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $entityLoader->getByUniqueName(ObjectTypes::USER, strtolower($username), $account->getSystemUser());
+        $user = $entityLoader->getByUniqueName(ObjectTypes::USER, strtolower($username), $account->getAccountId());
         if (!$user) {
             $this->lastErrorMessage = self::IDENTITY_NOT_FOUND;
             return null;

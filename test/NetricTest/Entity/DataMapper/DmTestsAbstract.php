@@ -886,7 +886,7 @@ abstract class DmTestsAbstract extends TestCase
         $retrievedPage = $dm->getByUniqueName(
             ObjectTypes::PAGE,
             $fullPath,
-            $this->account->getAuthenticatedUser(),
+            $this->account->getAccountId(),
             ['site_id' => $site->getEntityId()]
         );
 

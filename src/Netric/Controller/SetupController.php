@@ -9,6 +9,7 @@ use Netric\Permissions\Dacl;
 use Netric\Application\Setup\Setup;
 use Netric\Console\BinScript;
 use Netric\Application\Response\HttpResponse;
+use Netric\Application\Setup\AccountUpdater;
 use Netric\Account\AccountSetupFactory;
 use Netric\Application\DatabaseSetupFactory;
 use Netric\Log\LogFactory;
@@ -30,7 +31,8 @@ class SetupController extends Mvc\AbstractController
         $response = new ConsoleResponse();
 
         // First make sure they passed the username and password params to the command
-        if (!$request->getParam("account") ||
+        if (
+            !$request->getParam("account") ||
             !$request->getParam("email") ||
             !$request->getParam("username") ||
             !$request->getParam("password")
@@ -90,18 +92,18 @@ class SetupController extends Mvc\AbstractController
         $dbSetup = $serviceManager->get(DatabaseSetupFactory::class);
         $dbSetup->updateDatabaseSchema();
 
-//        $applicationSetup = new Setup();
-//        if (!$applicationSetup->updateApplication($this->getApplication())) {
-//            $log->error(
-//                "SetupController: Failed to update application: " .
-//                    $applicationSetup->getLastError()->getMessage()
-//            );
-//
-//            throw new \Exception(
-//                "Failed to update application: " .
-//                    $applicationSetup->getLastError()->getMessage()
-//            );
-//        }
+        //        $applicationSetup = new Setup();
+        //        if (!$applicationSetup->updateApplication($this->getApplication())) {
+        //            $log->error(
+        //                "SetupController: Failed to update application: " .
+        //                    $applicationSetup->getLastError()->getMessage()
+        //            );
+        //
+        //            throw new \Exception(
+        //                "Failed to update application: " .
+        //                    $applicationSetup->getLastError()->getMessage()
+        //            );
+        //        }
 
         $response->write("\t\t[done]\n");
 
@@ -109,10 +111,10 @@ class SetupController extends Mvc\AbstractController
         $accounts = $this->getApplication()->getAccounts();
         foreach ($accounts as $account) {
             $response->write("Updating account {$account->getName()}. ");
-            $setup = new Setup();
-            if (!$setup->updateAccount($account)) {
-                $log->error("SetupController: Failed to update account: " . $setup->getLastError()->getMessage());
-                throw new \Exception("Failed to update account: " . $setup->getLastError()->getMessage());
+            $updater = new AccountUpdater($account);
+            if (!$updater->runUpdates()) {
+                $log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
+                throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
             }
 
             $response->write("\t[done]\n");

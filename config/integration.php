@@ -1,5 +1,7 @@
 <?php
 
+use \net\authorize\api\constants\ANetEnvironment;
+
 return [
     'localhost_root' => 'integ.netric.com',
     // Log settings
@@ -49,4 +51,9 @@ return [
         'queue' => 'gearman',
         'server' => 'dev1.aereus.com',
     ],
+    'billing' => [
+        'anet_url' => ANetEnvironment::SANDBOX,
+        'anet_login' => '47zCW38But',
+        // The key is in the vault
+    ]
 ];

@@ -1,5 +1,7 @@
 <?php
 
+use \net\authorize\api\constants\ANetEnvironment;
+
 return [
     // This is the url of the netric app. This is usually used when creating
     // the link of an entity in the email notification contents.
@@ -60,4 +62,9 @@ return [
         'queue' => 'gearman',
         'server' => 'gearmand',
     ],
+    'billing' => [
+        'anet_url' => ANetEnvironment::SANDBOX,
+        'anet_login' => '47zCW38But',
+        // The key is in the vault
+    ]
 ];

@@ -14,6 +14,7 @@ services:
     secrets:
       - auth_private_key
       - entityenc
+      - anet_key
     deploy:
       replicas: 2
       placement:
@@ -33,6 +34,7 @@ services:
     secrets:
       - auth_private_key
       - entityenc
+      - anet_key
     networks:
       - service_netric
       - default
@@ -59,3 +61,6 @@ secrets:
   auth_private_key:
     file: /var/aereusdata/secrets/netric/auth_private_key
     name: auth_private_key-${APPLICATION_VER}
+  anet_key:
+    file: /var/aereusdata/secrets/netric/anet_key
+    name: anet_key

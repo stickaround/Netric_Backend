@@ -1,5 +1,7 @@
 <?php
+
 use Netric\Entity\EntityMaintainerService;
+
 /**
  * Perform entity maintenance
  */

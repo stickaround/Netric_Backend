@@ -51,6 +51,30 @@ class AccountController extends Mvc\AbstractAccountController
     }
 
     /**
+     * Update account billing details
+     *
+     * @return void
+     */
+    public function postUpdateBillingAction()
+    {
+        // $response = new HttpResponse($this->getRequest());
+        // $response->setContentType(HttpResponse::TYPE_JSON);
+
+        // if ($this->testMode) {
+        //     $response->suppressOutput(true);
+        // }
+
+        // $rawBody = $this->getRequest()->getBody();
+
+        // if (!$rawBody) {
+        //     $response->write(['error' => 'Invalid params in body']);
+        //     return $response;
+        // }
+
+        // TODO: Create account updateBilling feature
+    }
+
+    /**
      * Just in case they use POST
      */
     public function postGetAction()

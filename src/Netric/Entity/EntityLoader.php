@@ -156,14 +156,14 @@ class EntityLoader
      *
      * @param string $objType The entity to populate if we find the data
      * @param string $uniqueNamePath The path to the entity
-     * @param UserEntity $user The current user
+     * @param string $accountId The current accountId
      * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
      * @return EntityInterface $entity if found or null if not found
      */
-    public function getByUniqueName(string $objType, string $uniqueNamePath, UserEntity $user, array $namespaceFieldValues = [])
+    public function getByUniqueName(string $objType, string $uniqueNamePath, string $accountId, array $namespaceFieldValues = [])
     {
         // TODO: We should definitely handle caching here since this function can be expensive
-        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $user, $namespaceFieldValues);
+        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $accountId, $namespaceFieldValues);
     }
 
     /**

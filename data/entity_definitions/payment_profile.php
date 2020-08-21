@@ -1,4 +1,5 @@
 <?php
+
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
@@ -27,6 +28,7 @@ return [
             'title' => 'Payment Method Token',
             'type' => Field::TYPE_TEXT,
         ],
+        // Default or preferred payment method
         'f_default' => [
             'title' => "Default",
             'type' => Field::TYPE_BOOL,

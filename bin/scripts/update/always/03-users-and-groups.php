@@ -33,7 +33,7 @@ $usersData = require(__DIR__ . "/../../../../data/account/users.php");
 $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
 
 foreach ($usersData as $userData) {
-    if (!$entityLoader->getByUniqueName(ObjectTypes::USER, $userData['name'], $account->getSystemUser())) {
+    if (!$entityLoader->getByUniqueName(ObjectTypes::USER, $userData['name'], $account->getAccountId())) {
         $user = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
         $user->fromArray($userData);
         $entityLoader->save($user, $account->getSystemUser());
