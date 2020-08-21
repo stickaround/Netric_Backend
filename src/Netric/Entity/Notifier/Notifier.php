@@ -111,6 +111,11 @@ class Notifier
 
             $followerEntity = $this->entityLoader->getEntityById($userGuid, $user->getAccountId());
 
+            // If the entity has been deleted, then skip
+            if (!$followerEntity) {
+                continue;
+            }
+
             /*
              * Get the object reference which is the entity this notice is about.
              * If this is a comment we are adding a notification for, then update
