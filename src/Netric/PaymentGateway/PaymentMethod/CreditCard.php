@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\PaymentGateway\PaymentMethod;
 
 class CreditCard
@@ -45,7 +46,7 @@ class CreditCard
      *
      * @return string
      */
-    public function getCardNumber() : string
+    public function getCardNumber(): string
     {
         return $this->cardNumber;
     }
@@ -68,10 +69,12 @@ class CreditCard
      *
      * @return string
      */
-    public function getExpiration($format = 'YYYY-MM') : string
+    public function getExpiration($format = 'YYYY-MM'): string
     {
         $merged = str_replace('YYYY', $this->expirationYear, $format);
-        $merged = str_replace('MM', $this->expirationMonth, $merged);
+        // Add leading 0 if the month is less than 10
+        $month = ($this->expirationMonth >= 10) ? $this->expirationMonth : '0' . $this->expirationMonth;
+        $merged = str_replace('MM', $month, $merged);
         return $merged;
     }
 
@@ -91,7 +94,7 @@ class CreditCard
      *
      * @return string
      */
-    public function getCardCode() : string
+    public function getCardCode(): string
     {
         return $this->cardCode;
     }

@@ -286,7 +286,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         // Create new global commit revision
-        $lastCommitId = $entity->getValue('commit_id');
+        $lastCommitId = (int) $entity->getValue('commit_id');
         $commitId = $this->commitManager->createCommit("entities/" . $def->getObjType());
         $entity->setValue('commit_id', $commitId);
 
@@ -641,7 +641,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             switch ($field->type) {
                 case Field::TYPE_OBJECT:
                     // If we are dealing with null or empty id, then there is no need to update this foreign key
-                    if (!$value) {
+                    if (!$value || !Uuid::isValid($value)) {
                         continue 2;
                     }
 
@@ -662,7 +662,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                     if (is_array($value)) {
                         foreach ($value as $id) {
                             // If we are dealing with null or empty id, then there is no need to update this foreign key
-                            if (!$id) {
+                            if (!$id || !Uuid::isValid($id)) {
                                 continue;
                             }
 

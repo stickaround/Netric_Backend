@@ -4,27 +4,28 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\PaymentGateway\SystemPaymentGatewayFactory;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Account\AccountContainerFactory;
 use RuntimeException;
 
-/**
- * Perform entity maintenance
- */
-$account = $this->getAccount();
-if (!$account) {
-    throw new \RuntimeException("This must be run only against a single account");
-}
-
-if ($accoun->getName() != 'aereus') {
-    return true;
-}
-
+$AEREUS_ACCOUNT_ID = '00000000-0000-0000-0000-00000000000c';
 $AEREUS_CONTACT_ID = '00000000-0000-0000-0000-000006b2d6ec';
+
+/**
+ * Update the billing information for the aereus account, including adding
+ * a credit card for payment details.
+ */
+$accountContainer = $this->getApplication()->getServiceManager()->get(AccountContainerFactory::class);
+$account = $accountContainer->loadById($AEREUS_ACCOUNT_ID);
+if (!$account) {
+    // The aereus account could not be loaded
+    throw new RuntimeException('Aereus account could not be found');
+}
 
 $paymentGateway = $account->getServiceManager()->get(SystemPaymentGatewayFactory::class);
 $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
 
 // Get the aereus contact and update the info
-$contact = $entityloader->getEntityById($AEREUS_CONTACT_ID, $account->getAccountId());
+$contact = $entityLoader->getEntityById($AEREUS_CONTACT_ID, $account->getAccountId());
 $contact->setValue('billing_first_name', 'Sky');
 $contact->setValue('billing_last_name', 'Stebnicki');
 $contact->setValue('billing_street', '1415 2nd Ave');
@@ -32,7 +33,7 @@ $contact->setValue('billing_street2', 'Unit 1410');
 $contact->setValue('billing_city', 'Seattle');
 $contact->setValue('billing_state', 'Washington');
 $contact->setValue('billing_zip', '98101');
-$entityLoader->save($entityLoader, $account->getSystemUser());
+$entityLoader->save($contact, $account->getSystemUser());
 
 // Create the billing credit card
 $card = new CreditCard();
@@ -50,6 +51,9 @@ $paymentProfile->setValue('token', $profileToken);
 $paymentProfile->setValue('f_default', true);
 $paymentProfile->setvalue('customer', $contact->getEntityId());
 $entityLoader->save($paymentProfile, $account->getSystemUser());
+
+// Below was the saved profile with Sky's card
+// {"customer_profile_id":"2024121765","payment_profile_id":"2043916084"}
 
 // Run a test transaction just to see if things are working
 $result = $paymentGateway->chargeProfile($paymentProfile, 20);

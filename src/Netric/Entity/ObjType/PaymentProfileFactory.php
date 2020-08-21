@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
@@ -21,7 +22,7 @@ class PaymentProfileFactory implements EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $serviceLocator)
     {
-        $def = $serviceLocator->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::SALES_PAYMENT);
+        $def = $serviceLocator->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::SALES_PAYMENT_PROFILE);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         return new PaymentProfileEntity($def, $entityLoader);
     }
