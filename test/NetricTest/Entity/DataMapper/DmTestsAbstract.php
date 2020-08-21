@@ -689,7 +689,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Try to load recurId which should result in null
         $recurDm = $this->account->getServiceManager()->get(RecurrenceDataMapperFactory::class);
-        $loadedPattern = $recurDm->load($recurId);
+        $loadedPattern = $recurDm->load($recurId, $this->account->getAccountId());
         $this->assertNull($loadedPattern);
     }
 

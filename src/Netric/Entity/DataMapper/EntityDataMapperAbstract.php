@@ -406,7 +406,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             // If we have a recurrence pattern id then load it
             $recurId = $entity->getValue($entity->getDefinition()->recurRules['field_recur_id']);
             if ($recurId) {
-                $recurPattern = $this->recurIdentityMapper->getById($recurId);
+                $recurPattern = $this->recurIdentityMapper->getById($recurId, $accountId);
                 if ($recurPattern) {
                     $entity->setRecurrencePattern($recurPattern);
                 }

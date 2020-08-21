@@ -214,7 +214,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertTrue($entity->isArchived());
 
         // Make sure the recurring pattern was also deleted
-        $this->assertNull($this->recurIndentityMapper->getById($recurId));
+        $this->assertNull($this->recurIndentityMapper->getById($recurId, $this->account->getAccountId()));
 
         // Cleanup
         $this->entityDataMapper->delete($event, $this->account->getAuthenticatedUser());
@@ -248,7 +248,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->recurSeriesManager->createInstancesFromQuery($query);
 
         // Open the recurrence pattern and make sure to date processed to was moved out
-        $recurrencePattern = $this->recurIndentityMapper->getById($recurId);
+        $recurrencePattern = $this->recurIndentityMapper->getById($recurId, $this->account->getAccountId());
         $dateProcessedTo = $recurrencePattern->getDateProcessedTo();
         $this->assertEquals($dateProcessedTo->format("Y-m-d"), $dateTo->format("Y-m-d"));
 

@@ -29,11 +29,10 @@ class IndexFactory implements AccountServiceFactoryInterface
      */
     public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);        
+        $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);        
-        
         
         return new EntityQueryIndexRdb(
             $relationalDbCon,

@@ -287,7 +287,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
             $dateTo = new \DateTime();
             $dateTo->setTimestamp($processTo);
             $objType = $def->getObjType();
-            $recurPatterns = $this->recurIdentityMapper->getStalePatterns($objType, $dateTo);
+            $recurPatterns = $this->recurIdentityMapper->getStalePatterns($objType, $dateTo, $query->getAccountId());
             foreach ($recurPatterns as $pattern) {
                 $this->createSeries($pattern, $dateTo);
             }

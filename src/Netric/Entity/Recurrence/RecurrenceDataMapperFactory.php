@@ -10,25 +10,26 @@
 namespace Netric\Entity\Recurrence;
 
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\ServiceManager;
-use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Db\Relational\RelationalDbContainerFactory;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a new Recurring DataMapper service
  */
-class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
+class RecurrenceDataMapperFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return RecurrenceDataMapper
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $entityDefinitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
-        $database = $sl->get(RelationalDbFactory::class);
-        $accountId = $sl->getAccount()->getAccountId();
-        return new RecurrenceRdbDataMapper($database, $entityDefinitionLoader, $accountId);
+        $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
+        $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
+
+        return new RecurrenceRdbDataMapper($relationalDbCon, $entityDefinitionLoader);
     }
 }
