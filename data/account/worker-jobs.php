@@ -4,6 +4,7 @@ namespace data\account;
 
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\WorkerMan\Worker\EntityMaintainerWorker;
+use Netric\WorkerMan\Worker\AccountBillingWorker;
 
 /*
  * Set any recurring work that each account needs to execute here
@@ -24,7 +25,7 @@ return [
         ]
     ],
     [
-        'worker_name' => 'AccountBilling',
+        'worker_name' => AccountBillingWorker::class,
         'job_data' => [],
         'recurrence' => [
             'type' => RecurrencePattern::RECUR_MONTHLY,
