@@ -36,6 +36,7 @@ foreach ($workerJobsData as $jobToSchedule) {
     if (!$result->getTotalNum()) {
         // Create at least one instance
         $schedulerService->scheduleAtInterval(
+            $account->getSystemUser(),
             $jobToSchedule['worker_name'],
             $jobToSchedule['job_data'],
             $jobToSchedule['recurrence']['type'],
