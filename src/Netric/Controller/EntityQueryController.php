@@ -38,7 +38,7 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
-        $query = new EntityQuery($params["obj_type"], $this->account->getAccountId());
+        $query = new EntityQuery($params["obj_type"], $this->account->getAccountId(), $user->getEntityId());
         $query->fromArray($params);
 
         // Execute the query

@@ -212,7 +212,7 @@ class EntityLoader
     }
 
     /**
-     * Save an entity
+     * Flag entity as archived but don't actually delete it
      *
      * @param EntityInterface $entity The entity to delete
      * @param UserEntity Entity with user details

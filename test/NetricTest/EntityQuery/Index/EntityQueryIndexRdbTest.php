@@ -14,9 +14,11 @@ namespace NetricTest\EntityQuery\Index;
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\EntityQuery\Index\EntityQueryIndexRdb;
+use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
+use NetricTest\Bootstrap;
 
 /**
  * @group integration
@@ -26,11 +28,12 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     /**
      * Use this funciton in all the indexes to construct the datamapper
      *
-     * @return EntityDefinition_DataMapperInterface
+     * @return EntityQueryIndexRdb
      */
     protected function getIndex()
     {
-        return new EntityQueryIndexRdb($this->account);
+        $account = Bootstrap::getAccount();
+        return $account->getServiceManager()->get(IndexFactory::class);
     }
 
     /**

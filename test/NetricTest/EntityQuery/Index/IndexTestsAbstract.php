@@ -184,7 +184,7 @@ abstract class IndexTestsAbstract extends TestCase
         $projectDef = $entityDefinitionLoader->get(ObjectTypes::PROJECT);
         $ownerIdField = $projectDef->getField("owner_id");
 
-        $sanitizedValue = $index->sanitizeWhereCondition($ownerIdField, UserEntity::USER_CURRENT);
+        $sanitizedValue = $index->sanitizeWhereCondition($ownerIdField, UserEntity::USER_CURRENT, $currentAccountUser->getEntityId());
         $this->assertEquals($sanitizedValue, $currentAccountUser->getEntityId());
 
         // Now let's create a project entity and set the value of owner_id to current user's id
@@ -196,7 +196,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->testEntities[] = $projectEntity;
 
         // We will now create a query using UserEntity::USER_CURRENT to get the $projectEntity
-        $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId());
+        $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId(), $currentAccountUser->getEntityId());
         $query->where('owner_id')->equals(UserEntity::USER_CURRENT);
         $res = $index->executeQuery($query);
 
@@ -1925,7 +1925,7 @@ abstract class IndexTestsAbstract extends TestCase
         $dm->save($folder2, $this->account->getSystemUser());
         $this->assertNotNull($folder2->getEntityId());
 
-        $children = $index->getHeiarchyDownObj(ObjectTypes::FOLDER, $folder1->getEntityId());
+        $children = $index->getHeiarchyDownObj(ObjectTypes::FOLDER, $folder1->getEntityId(), $this->account->getAccountId());
         $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;
@@ -1969,7 +1969,7 @@ abstract class IndexTestsAbstract extends TestCase
         $dm->save($folder2, $this->account->getSystemUser());
         $this->assertNotNull($folder2->getEntityId());
 
-        $children = $index->getHeiarchyUpObj(ObjectTypes::FOLDER, $folder2->getEntityId());
+        $children = $index->getHeiarchyUpObj(ObjectTypes::FOLDER, $folder2->getEntityId(), $this->account->getAccountId());
         $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;

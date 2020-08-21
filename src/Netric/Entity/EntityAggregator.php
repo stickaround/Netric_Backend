@@ -87,7 +87,7 @@ class EntityAggregator
 
             if ($referencedId && $field->type == FIELD::TYPE_OBJECT && $field->subtype) {
                 // Create a new query to aggregate against
-                $query = new EntityQuery($def->getObjType(), $user->getAccountId());
+                $query = new EntityQuery($def->getObjType(), $user->getAccountId(), $user->getEntityId());
 
                 // Make sure we are referencing the same entity
                 $query->where($agg->field)->equals($entity->getValue($agg->field));

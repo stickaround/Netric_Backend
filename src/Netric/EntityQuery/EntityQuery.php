@@ -29,6 +29,14 @@ class EntityQuery
     private string $accountId = "";
 
     /**
+     * Optional. The unique id of the user that is executing this entity query. 
+     * If provided, this will be used to sanitize current user in condition value 
+     * 
+     * @var string
+     */
+    private string $userId = "";
+
+    /**
      * Array of where conditions
      *
      * @var array [['blogic', 'field', 'operator', 'value']]
@@ -115,15 +123,17 @@ class EntityQuery
      *
      * @param string $objType Unique name of the object type we are querying
      * @param string $accountId The account we are going to query entities for
+     * @param string $userId Optional. The id of the user that is executing this entity query.
      */
-    public function __construct(string $objType, string $accountId)
+    public function __construct(string $objType, string $accountId, string $userId = '')
     {
         if (empty($accountId)) {
-            throw new InvalidArgumentException('acountId cannot be empty');
+            throw new InvalidArgumentException('accountId cannot be empty');
         }
 
         $this->objType = $objType;
         $this->accountId = $accountId;
+        $this->userId = $userId;
     }
 
     /**
@@ -144,6 +154,16 @@ class EntityQuery
     public function getAccountId(): string
     {
         return $this->accountId;
+    }
+
+    /**
+     * Get the userId that is executing the entity query
+     * 
+     * @return string Unique ID of the user executing this query
+     */
+    public function getUserId(): string
+    {
+        return $this->userId;
     }
 
     /**
