@@ -26,7 +26,6 @@ class AccountBillingServiceFactory implements ApplicationServiceFactoryInterface
         return new AccountBillingService(
             $serviceLocator->get(LogFactory::class),
             $serviceLocator->get(EntityLoaderFactory::class),
-            $serviceLocator->get(LogFactory::class),
             $config->main_account_id,
             $serviceLocator->get(SystemPaymentGatewayFactory::class),
             $serviceLocator->get(IndexFactory::class)
