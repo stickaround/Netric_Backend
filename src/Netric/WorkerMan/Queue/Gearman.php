@@ -47,6 +47,10 @@ class Gearman implements QueueInterface
      */
     public function __construct(string $server)
     {
+        if (empty($server)) {
+            throw new RuntimeException('server is a required param');
+        }
+
         $this->server = $server;
     }
 
