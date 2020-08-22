@@ -205,7 +205,7 @@ class AccountBillingService implements AccountBillingServiceInterface
     private function getNumActiveUsers(string $accountId): int
     {
         $query = new EntityQuery(ObjectTypes::USER, $accountId);
-        $query->where('f_active')->equals(true);
+        $query->andWhere('active')->equals(true);
         $query->andWhere('name')->doesNotEqual(UserEntity::USER_ANONYMOUS);
         $query->andWhere('name')->doesNotEqual(UserEntity::USER_CURRENT);
         $query->andWhere('name')->doesNotEqual(UserEntity::USER_SYSTEM);
