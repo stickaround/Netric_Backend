@@ -45,7 +45,7 @@ abstract class IndexAbstract
      * @var EntityLoader
      */
     protected $entityLoader = null;
-    
+
     /**
      * A service manager that will be used when executing the entity query plugin
      *
@@ -62,7 +62,7 @@ abstract class IndexAbstract
 
     /**
      * Setup this index for the given account
-     * 
+     *
      * @param RelationalDbContainer $database Handles the database actions
      * @param EntityFactory $entityFactory Handles the creating of new entities
      * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
@@ -75,8 +75,7 @@ abstract class IndexAbstract
         EntityDefinitionLoader $entityDefinitionLoader,
         EntityLoader $entityLoader,
         AccountServiceManagerInterface $serviceManagerForPlugin
-        )
-    {
+    ) {
         $this->entityFactory = $entityFactory;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
         $this->entityLoader = $entityLoader;
@@ -243,7 +242,7 @@ abstract class IndexAbstract
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {                
+            if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
                 $query = new EntityQuery($field->subtype, $accountId);
                 $query->where($ent->getDefinition()->parentField)->equals($ent->getEntityId());
                 $res = $this->executeQuery($query);
@@ -464,7 +463,7 @@ abstract class IndexAbstract
 
         // If we do not have a field then throw an exception
         if (!$field) {
-            throw new \RuntimeException("Could not get field {$parts[0]}");
+            throw new \RuntimeException("Could not get field {$parts[0]} of " . $entityDefinition->getObjType());
         }
 
         return $field;
