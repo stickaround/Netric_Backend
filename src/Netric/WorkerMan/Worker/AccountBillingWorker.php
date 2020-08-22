@@ -37,15 +37,21 @@ class AccountBillingWorker extends AbstractWorker
         $accountContainer = $serviceManager->get(AccountContainerFactory::class);
         $account = $accountContainer->loadById($workload['account_id']);
         $serviceManager = $account->getServiceManager();
+        $log = $serviceManager->get(LogFactory::class);
 
         // Get number of active users for the account
         $accBillingSvc = $serviceManager->get(AccountBillingServiceFactory::class);
+
+        $log->info(
+            __CLASS__ .
+                ': billing job ' .
+                var_export($workload, true)
+        );
 
         // Bill the account
         try {
             $accBillingSvc->billAmountDue($account);
         } catch (RuntimeException $exception) {
-            $log = $serviceManager->get(LogFactory::class);
             $log->error(
                 "Failed while trying to bill account(" .
                     $account->getAccountId() .
