@@ -9,6 +9,7 @@ services:
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}
       APPLICATION_VER: ${APPLICATION_VER}
+      RUN_SETUP_UPDATE: 1
     ports:
       - 10001:80
     secrets:
@@ -16,7 +17,7 @@ services:
       - entityenc
       - anet_key
     deploy:
-      replicas: 2
+      replicas: 1
       placement:
         constraints:
           - node.role!=manager

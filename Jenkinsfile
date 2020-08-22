@@ -141,29 +141,31 @@ pipeline {
         //     }
         // }
 
-        stage('Production Setup') {
-            when {
-                // Do not publish
-                expression {
-                    return !params.DIFF_ID
-                }
-            }
-            steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
-                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    // SSH into the server
-                    sshagent (credentials: ['aereus']) {
-                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
-                        "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com"
-                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
-                        "docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
-                        "-v /var/aereusdata/secrets/netric:/var/run/secrets:ro " +
-                        "--network=service_netric " +
-                        "--entrypoint='/netric-update.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
-                    }
-                }
-            }
-        }
+        // Update is now handled as part of the deploy, and longer-running jobs need to
+        // be put into the daemon - TODO
+        // stage('Production Setup') {
+        //     when {
+        //         // Do not publish
+        //         expression {
+        //             return !params.DIFF_ID
+        //         }
+        //     }
+        //     steps {
+        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
+        //             usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+        //             // SSH into the server
+        //             sshagent (credentials: ['aereus']) {
+        //                 sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
+        //                 "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com"
+        //                 sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
+        //                 "docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
+        //                 "-v /var/aereusdata/secrets/netric:/var/run/secrets:ro " +
+        //                 "--network=service_netric " +
+        //                 "--entrypoint='/netric-update.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Production') {
             when {
