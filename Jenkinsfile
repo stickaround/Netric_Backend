@@ -158,6 +158,7 @@ pipeline {
                         sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
                         "docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
                         "-v /var/aereusdata/secrets/netric:/var/run/secrets:ro " +
+                        "--network=service_netric " +
                         "--entrypoint='/netric-update.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                     }
                 }
