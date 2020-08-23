@@ -153,16 +153,16 @@ class WorkersController extends Mvc\AbstractController
         $uniqueLockName = 'WorkerScheduleAction-' . $config->version;
 
         // We only ever want one scheduler running so create a lock that expires in 2 minutes
-        if (!$application->acquireLock($uniqueLockName, $lockTimeout)) {
-            $response->writeLine("WorkersController->consoleScheduleAction: Exiting because another instance is running");
-            return $response;
-        }
+        // if (!$application->acquireLock($uniqueLockName, $lockTimeout)) {
+        //     $response->writeLine("WorkersController->consoleScheduleAction: Exiting because another instance is running");
+        //     return $response;
+        // }
 
         // Emit a background job for every account to run scheduled jobs every minute
         $this->queueScheduledJobs($application, $request, $uniqueLockName, $lockTimeout);
 
-        // Make sure we release the lock so that the scheduler can always be run
-        $application->releaseLock($uniqueLockName);
+        // // Make sure we release the lock so that the scheduler can always be run
+        // $application->releaseLock($uniqueLockName);
 
         $exitMessage = "WorkersController->consoleScheduleAction: Exiting job scheduler";
         if (!$request->getParam("daemon")) {
@@ -208,8 +208,8 @@ class WorkersController extends Mvc\AbstractController
                 $this->workerService->doWorkBackground(ScheduleRunnerWorker::class, $jobData);
             }
 
-            // Renew the lock to make sure we do not expire since it times out in 2 minutes
-            $application->extendLock($uniqueLockName);
+            // // Renew the lock to make sure we do not expire since it times out in 2 minutes
+            // $application->extendLock($uniqueLockName);
 
             // Exit if we have received a stop signal or are only supposed to run once
             if ($request->isStopping() || $request->getParam('runonce')) {
