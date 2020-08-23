@@ -2,6 +2,7 @@
 
 namespace Netric\WorkerMan\Worker;
 
+use DateTime;
 use Netric\Application\Application;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
@@ -89,6 +90,12 @@ class ScheduleRunnerWorker extends AbstractWorker
         if (!$this->schedulerService) {
             $this->schedulerService = $account->getServiceManager()->get(SchedulerService::class);
         }
+
+        $toDate = new DateTime();
+        $application->getLog()->info(
+            "ScheduleRunnerWorker->work: getting to time " .
+                date('c', $toDate->getTimestamp())
+        );
 
         $scheduledJobs = $this->schedulerService->getScheduledToRun($account->getAccountId());
         $application->getLog()->info(
