@@ -94,15 +94,15 @@ class WorkersControllerTest extends TestCase
                 $this->equalTo(['account_id' => $this->account->getAccountId()])
             );
 
-        // Artificially lock the test for 1 second
-        $uniqueLockName = 'WorkerScheduleAction-';
-        $uniqueLockName .= $this->account->getApplication()->getConfig()->version;
-        $this->account->getApplication()->acquireLock($uniqueLockName, 1);
+        // // Artificially lock the test for 1 second
+        // $uniqueLockName = 'WorkerScheduleAction-';
+        // $uniqueLockName .= $this->account->getApplication()->getConfig()->version;
+        // $this->account->getApplication()->acquireLock($uniqueLockName, 1);
 
-        // This should just exit due to the lock
-        $this->controller->consoleScheduleAction();
+        // // This should just exit due to the lock
+        // $this->controller->consoleScheduleAction();
 
-        // It will automatically release in 1 second, but clean-up anyway
-        $this->account->getApplication()->releaseLock($uniqueLockName);
+        // // It will automatically release in 1 second, but clean-up anyway
+        // $this->account->getApplication()->releaseLock($uniqueLockName);
     }
 }

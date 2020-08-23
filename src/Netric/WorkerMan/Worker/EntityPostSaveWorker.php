@@ -11,6 +11,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
 use Netric\Entity\Notifier\NotifierFactory;
+use Netric\Log\LogFactory;
 use RuntimeException;
 
 /**
@@ -36,6 +37,10 @@ class EntityPostSaveWorker extends AbstractWorker
 
         // Example of getting the current working application
         $serviceManager = $this->getApplication()->getServiceManager();
+
+        // Log it
+        $log = $serviceManager->get(LogFactory::class);
+        $log->info(__CLASS__ . ': worker processing job');
 
         // Get the account
         $accountContainer = $serviceManager->get(AccountContainerFactory::class);

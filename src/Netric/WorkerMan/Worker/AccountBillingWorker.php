@@ -44,7 +44,7 @@ class AccountBillingWorker extends AbstractWorker
 
         $log->info(
             __CLASS__ .
-                ': billing job ' .
+                ': entering ' .
                 var_export($workload, true)
         );
 
