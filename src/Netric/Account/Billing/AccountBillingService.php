@@ -81,7 +81,7 @@ class AccountBillingService implements AccountBillingServiceInterface
     {
         // If netric is running in an instance with no main account
         // then we don't charge montly fees.
-        if (!$this->mainAccountId) {
+        if (!$this->mainAccountId || $this->mainAccountId == '00000000-0000-0000-0000-00000000000c') {
             return true;
         }
 
@@ -104,27 +104,27 @@ class AccountBillingService implements AccountBillingServiceInterface
                 $account->getAccountId()
         );
         // Charge the gateway for the invoice amount
-        // $chargeResponse = $this->paymentGateway->chargeProfile($paymentProfile, (int) $invoice->getValue('amount'));
-        // if ($chargeResponse->getStatus() != ChargeResponse::STATUS_APPROVED) {
-        //     // Log it for debugging
-        //     $this->log->error(
-        //         'AccountBillingService::billAmountDue failed to bill for account=' .
-        //             $account->getAccountId() .
-        //             ', status=' .
-        //             $chargeResponse->getStatus() .
-        //             ', messages=' .
-        //             implode(', ', $chargeResponse->getMessages())
-        //     );
+        $chargeResponse = $this->paymentGateway->chargeProfile($paymentProfile, (int) $invoice->getValue('amount'));
+        if ($chargeResponse->getStatus() != ChargeResponse::STATUS_APPROVED) {
+            // Log it for debugging
+            $this->log->error(
+                'AccountBillingService::billAmountDue failed to bill for account=' .
+                    $account->getAccountId() .
+                    ', status=' .
+                    $chargeResponse->getStatus() .
+                    ', messages=' .
+                    implode(', ', $chargeResponse->getMessages())
+            );
 
-        //     /*
-        //      * TODO: Handle the failure gracefully
-        //      * 1. Send an email to the account owner letting them know it failed
-        //      * 2. Update the account to force them to update billing
-        //      * 3. Try again in 24 hours, for 3 days
-        //      */
+            /*
+             * TODO: Handle the failure gracefully
+             * 1. Send an email to the account owner letting them know it failed
+             * 2. Update the account to force them to update billing
+             * 3. Try again in 24 hours, for 3 days
+             */
 
-        //     return false;
-        // }
+            return false;
+        }
 
         $this->log->info(
             "Successfully billed " .
