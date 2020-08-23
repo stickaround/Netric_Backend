@@ -81,7 +81,7 @@ class AccountBillingService implements AccountBillingServiceInterface
     {
         // If netric is running in an instance with no main account
         // then we don't charge montly fees.
-        if (!$this->mainAccountId || $this->mainAccountId == '00000000-0000-0000-0000-00000000000c') {
+        if (!$this->mainAccountId) {
             return true;
         }
 
