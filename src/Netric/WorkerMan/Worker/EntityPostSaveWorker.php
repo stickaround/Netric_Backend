@@ -40,7 +40,7 @@ class EntityPostSaveWorker extends AbstractWorker
 
         // Log it
         $log = $serviceManager->get(LogFactory::class);
-        $log->info(__CLASS__ . ': worker processing job');
+        $log->info(__CLASS__ . ': worker processing job for ' . $workload['entity_id']);
 
         // Get the account
         $accountContainer = $serviceManager->get(AccountContainerFactory::class);

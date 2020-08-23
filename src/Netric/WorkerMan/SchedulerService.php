@@ -111,6 +111,7 @@ class SchedulerService
 
         $query = new EntityQuery(ObjectTypes::WORKER_JOB, $accountId);
         $query->where('ts_scheduled')->isLessOrEqualTo($toDate->getTimestamp());
+        $query->andWhere('ts_executed')->equals('');
 
         // If we are looking for a specific worker name then add it to the filter
         if ($workerName) {
