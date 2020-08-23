@@ -99,28 +99,32 @@ class AccountBillingService implements AccountBillingServiceInterface
         // Create an invoice for the number of users
         $invoice = $this->createInvoice($account->getAccountId(), $contactForAccount->getEntityId(), $numUsers);
 
+        $this->log->error(
+            'AccountBillingService::billAmountDue bypassing for logging: ' .
+                $account->getAccountId()
+        );
         // Charge the gateway for the invoice amount
-        $chargeResponse = $this->paymentGateway->chargeProfile($paymentProfile, (int) $invoice->getValue('amount'));
-        if ($chargeResponse->getStatus() != ChargeResponse::STATUS_APPROVED) {
-            // Log it for debugging
-            $this->log->error(
-                'AccountBillingService::billAmountDue failed to bill for account=' .
-                    $account->getAccountId() .
-                    ', status=' .
-                    $chargeResponse->getStatus() .
-                    ', messages=' .
-                    implode(', ', $chargeResponse->getMessages())
-            );
+        // $chargeResponse = $this->paymentGateway->chargeProfile($paymentProfile, (int) $invoice->getValue('amount'));
+        // if ($chargeResponse->getStatus() != ChargeResponse::STATUS_APPROVED) {
+        //     // Log it for debugging
+        //     $this->log->error(
+        //         'AccountBillingService::billAmountDue failed to bill for account=' .
+        //             $account->getAccountId() .
+        //             ', status=' .
+        //             $chargeResponse->getStatus() .
+        //             ', messages=' .
+        //             implode(', ', $chargeResponse->getMessages())
+        //     );
 
-            /*
-             * TODO: Handle the failure gracefully
-             * 1. Send an email to the account owner letting them know it failed
-             * 2. Update the account to force them to update billing
-             * 3. Try again in 24 hours, for 3 days
-             */
+        //     /*
+        //      * TODO: Handle the failure gracefully
+        //      * 1. Send an email to the account owner letting them know it failed
+        //      * 2. Update the account to force them to update billing
+        //      * 3. Try again in 24 hours, for 3 days
+        //      */
 
-            return false;
-        }
+        //     return false;
+        // }
 
         $this->log->info(
             "Successfully billed " .
