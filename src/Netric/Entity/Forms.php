@@ -5,6 +5,8 @@ namespace Netric\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Aereus\Config\Config;
+use Netric\Db\Relational\RelationalDbContainerInterface;
+use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Ramsey\Uuid\Uuid;
 
@@ -16,11 +18,11 @@ use Ramsey\Uuid\Uuid;
 class Forms
 {
     /**
-     * Handle to database
+     * Database container
      *
-     * @var RelationalDbInterface
+     * @var RelationalDbContainer
      */
-    private $database = null;
+    private $databaseContainer = null;
 
     /**
      * Netric configuration
@@ -30,24 +32,26 @@ class Forms
     private $config = null;
 
     /**
-     * Unique account ID
-     *
-     * @var string
-     */
-    private $accountId = "";
-
-    /**
      * Class constructor to set up dependencies
      *
-     * @param RelationalDbInterface $database Handles to database actions
+     * @param RelationalDbContainer $database Handles the database actions
      * @param Config $config Contains the configuration info
-     * @param string $accountId the ID of the account we are managing forms for
      */
-    public function __construct(RelationalDbInterface $database, Config $config, string $accountId)
+    public function __construct(RelationalDbContainer $dbContainer, Config $config)
     {
-        $this->database = $database;
+        $this->databaseContainer = $dbContainer;
         $this->config = $config;
-        $this->accountId = $accountId;
+    }
+
+    /**
+     * Get active database handle
+     *
+     * @param string $accountId The account being acted on
+     * @return RelationalDbInterface
+     */
+    private function getDatabase(string $accountId): RelationalDbInterface
+    {
+        return $this->databaseContainer->getDbHandleForAccountId($accountId);
     }
 
     /**
@@ -132,6 +136,9 @@ class Forms
      */
     public function getFormUiXml(EntityDefinition $def, UserEntity $user, $device)
     {
+        // Get the account id from the entity definition
+        $accountId = $def->getAccountId();
+
         // Check for user specific form
         $sql = "SELECT form_layout_xml FROM entity_form
                 WHERE user_id=:user_id AND scope=:scope 
@@ -141,7 +148,7 @@ class Forms
             "scope" => $device,
             "entity_definition_id" => $def->getEntityDefinitionId()
         ];
-        $result = $this->database->query($sql, array_merge(["user_id" => $user->getEntityId()], $params));
+        $result = $this->getDatabase($accountId)->query($sql, array_merge(["user_id" => $user->getEntityId()], $params));
 
         if ($result->rowCount()) {
             $row = $result->fetch();
@@ -156,7 +163,7 @@ class Forms
                     WHERE team_id=:team_id AND scope=:scope 
                     AND entity_definition_id=:entity_definition_id";
 
-            $result = $this->database->query($sql, array_merge(["team_id" => $user->getValue("team_id")], $params));
+            $result = $this->getDatabase($accountId)->query($sql, array_merge(["team_id" => $user->getValue("team_id")], $params));
 
             if ($result->rowCount()) {
                 $row = $result->fetch();
@@ -172,7 +179,7 @@ class Forms
                 AND entity_definition_id=:entity_definition_id 
                 AND team_id IS NULL AND user_id IS NULL";
 
-        $result = $this->database->query($sql, $params);
+        $result = $this->getDatabase($accountId)->query($sql, $params);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
@@ -279,6 +286,9 @@ class Forms
      */
     private function saveForm(EntityDefinition $def, $userId, $teamId, $deviceType, $xmlForm)
     {
+        // Get the account id from the entity definition
+        $accountId = $def->getAccountId();
+
         // Either team or user can be set, but not both
         if ($userId && $teamId) {
             throw new \InvalidArgumentException("You cannot set both the userId and teamId");
@@ -315,7 +325,7 @@ class Forms
         }
 
         // Clean any existing forms that match this deviceType (used to be called scope)
-        $this->database->delete("entity_form", $params);
+        $this->getDatabase($accountId)->delete("entity_form", $params);
 
         // Insert the new form if set, otherwise just leave it deleted
         if (!empty($xmlForm)) {
@@ -326,10 +336,10 @@ class Forms
                 "user_id" => $userId,
                 "entity_definition_id" => $def->getEntityDefinitionId(),
                 "form_layout_xml" => $xmlForm,
-                "account_id" => $this->accountId,
+                "account_id" => $accountId,
             ];
 
-            $this->database->insert("entity_form", $insertData);
+            $this->getDatabase($accountId)->insert("entity_form", $insertData);
 
             return true;
         }

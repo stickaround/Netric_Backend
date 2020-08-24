@@ -7,14 +7,12 @@
  */
 namespace Netric\EntityQuery\Index;
 
-use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Entity\EntityFactoryFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Db\Relational\RelationalDbContainerFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager;
+use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a EntityQuery Index service

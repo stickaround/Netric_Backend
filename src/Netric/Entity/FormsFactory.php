@@ -2,26 +2,27 @@
 
 namespace Netric\Entity;
 
-use Netric\ServiceManager;
 use Netric\Config\ConfigFactory;
-use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Db\Relational\RelationalDbContainerFactory;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Service factory for the Forms
  */
-class FormsFactory implements ServiceManager\AccountServiceFactoryInterface
+class FormsFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return FileSystem
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @return Forms
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $database = $sl->get(RelationalDbFactory::class);
-        $config = $sl->get(ConfigFactory::class);
-        $accountId = $sl->getAccount()->getAccountId();
-        return new Forms($database, $config, $accountId);
+        $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
+
+        return new Forms($relationalDbCon, $config);
     }
 }
