@@ -55,7 +55,7 @@ class FormsTest extends TestCase
     {
         $testXml = "<field name='name' />";
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $def = $defLoader->get(ObjectTypes::COMMENT);
+        $def = $defLoader->get(ObjectTypes::COMMENT, $this->account->getAccountId());
 
         // Save new small form
         $this->formService->saveForUser($def, $this->user->getEntityId(), "test", $testXml);
@@ -75,7 +75,7 @@ class FormsTest extends TestCase
     {
         $testXml = "<field name='name' />";
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $def = $defLoader->get(ObjectTypes::COMMENT);
+        $def = $defLoader->get(ObjectTypes::COMMENT, $this->account->getAccountId());
 
         // Save new small form
         $this->formService->saveForAccount($def, "test", $testXml);

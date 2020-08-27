@@ -12,7 +12,7 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\Account\Account;
 use Netric\Account\AccountContainer;
-use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -66,14 +66,14 @@ class EntityMaintainerServiceTest extends TestCase
         $def->setSystem(false);
         $dacl = new Dacl();
         $def->setDacl($dacl);
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDefinitionDataMapperFactory::class);
         $dataMapper->saveDef($def);
         $this->testDefinition = $def;
 
         // Setup a mock definition loader since we don't want to test all definitions
         $entityDefinitionLoader = $this->getMockBuilder(EntityDefinitionLoader::class)
             ->disableOriginalConstructor()
-            ->getMock();;
+            ->getMock();
         $entityDefinitionLoader->method('getAll')->willReturn([$def]);
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -104,7 +104,7 @@ class EntityMaintainerServiceTest extends TestCase
         }
 
         // Cleanup the entity definition
-        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $dataMapper = $this->account->getServiceManager()->get(EntityDefinitionDataMapperFactory::class);
         $dataMapper->deleteDef($this->testDefinition);
     }
 

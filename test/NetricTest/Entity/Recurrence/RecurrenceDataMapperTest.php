@@ -74,7 +74,7 @@ class RecurrenceDataMapperTest extends TestCase
         $this->dataMapper = $sm->get(RecurrenceDataMapperFactory::class);
 
         // Create entity definition for tasks
-        $this->taskEntityDefintion = $entDefLoader->get(ObjectTypes::TASK);
+        $this->taskEntityDefintion = $entDefLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
     }
 
     public function testConstruct()

@@ -154,9 +154,9 @@ abstract class IndexAbstract
      *
      * @param string $objType
      */
-    public function getDefinition($objType)
+    public function getDefinition(string $objType, string $accountId)
     {
-        return $this->entityDefinitionLoader->get($objType);
+        return $this->entityDefinitionLoader->get($objType, $accountId);
     }
 
     /**

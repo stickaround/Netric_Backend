@@ -110,7 +110,7 @@ class EntityMaintainerService extends AbstractHasErrors
      */
     public function trimAllCappedTypes(string $accountId)
     {
-        $allDefinitions = $this->entityDefinitionLoader->getAll();
+        $allDefinitions = $this->entityDefinitionLoader->getAll($accountId);
 
         $ret = [];
 
@@ -201,7 +201,7 @@ class EntityMaintainerService extends AbstractHasErrors
      */
     public function purgeAllStaleDeleted(string $accountId, DateTime $cutoff = null)
     {
-        $allDefinitions = $this->entityDefinitionLoader->getAll();
+        $allDefinitions = $this->entityDefinitionLoader->getAll($accountId);
 
         $ret = [];
 

@@ -26,7 +26,7 @@ class UserTeamFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER_TEAM);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER_TEAM, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new UserTeamEntity($def, $entityLoader);
     }

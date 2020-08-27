@@ -22,7 +22,7 @@ class PaymentProfileFactory implements EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $serviceLocator)
     {
-        $def = $serviceLocator->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::SALES_PAYMENT_PROFILE);
+        $def = $serviceLocator->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::SALES_PAYMENT_PROFILE, $serviceLocator->getAccount()->getAccountId());
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         return new PaymentProfileEntity($def, $entityLoader);
     }

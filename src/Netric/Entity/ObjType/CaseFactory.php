@@ -21,7 +21,7 @@ class CaseFactory implements Entity\EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ISSUE);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ISSUE, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new CaseEntity($def, $entityLoader);
     }

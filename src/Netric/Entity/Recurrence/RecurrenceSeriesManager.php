@@ -216,7 +216,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
     public function createInstancesFromQuery(EntityQuery $query)
     {
         // Get the recur rules for the queried object type
-        $def = $this->entityDefinitionLoader->get($query->getObjType());
+        $def = $this->entityDefinitionLoader->get($query->getObjType(), $query->getAccountId());
         $recurRules = $def->recurRules;
 
         // Do nothing if the object type passed is not recurring

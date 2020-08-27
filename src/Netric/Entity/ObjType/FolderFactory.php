@@ -28,7 +28,7 @@ class FolderFactory implements EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::FOLDER);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::FOLDER, $sl->getAccount()->getAccountId());
         $entityloader = $sl->get(EntityLoaderFactory::class);
         $entityIndex = $sl->get(IndexFactory::class);
 

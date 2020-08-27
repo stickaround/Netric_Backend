@@ -3,12 +3,12 @@
 namespace NetricTest\EntityDefinition\DataMapper;
 
 use Netric;
-use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionRdbDataMapper;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 
-class DataMapperFactoryTest extends TestCase
+class EntityDefinitionDataMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {
@@ -17,7 +17,7 @@ class DataMapperFactoryTest extends TestCase
 
         $this->assertInstanceOf(
             EntityDefinitionRdbDataMapper::class,
-            $sm->get(DataMapperFactory::class)
+            $sm->get(EntityDefinitionDataMapperFactory::class)
         );
     }
 }

@@ -69,7 +69,7 @@ class DaclLoaderTest extends TestCase
 
         // Let's store the current file DACL since we will modify it, and we want to restore it on shutdonw
         $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $fileDef = $definitionLoader->get(ObjectTypes::FILE);
+        $fileDef = $definitionLoader->get(ObjectTypes::FILE, $this->account->getAccountId());
         $this->origFileDacl = $fileDef->getDacl();
 
         // Reset DACL for files
@@ -90,7 +90,7 @@ class DaclLoaderTest extends TestCase
 
         // Restore original permissions to the file definition
         $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $fileDef = $definitionLoader->get(ObjectTypes::FILE);
+        $fileDef = $definitionLoader->get(ObjectTypes::FILE, $this->account->getAccountId());
         $fileDef->setDacl($this->origFileDacl);
     }
 

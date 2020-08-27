@@ -26,7 +26,7 @@ class CustomerFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::CONTACT);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::CONTACT, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new CustomerEntity($def, $entityLoader);
     }

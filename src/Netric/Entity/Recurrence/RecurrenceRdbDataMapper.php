@@ -247,8 +247,8 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
             // Load recurrence rules
             if ($row['entity_definition_id']) {
-                $def = $this->entityDefinitionLoader->getById($row['entity_definition_id']);
-                if ($this->entityDefinitionLoader->getById($row['entity_definition_id'])) {
+                $def = $this->entityDefinitionLoader->getById($row['entity_definition_id'], $accountId);
+                if ($this->entityDefinitionLoader->getById($row['entity_definition_id'], $accountId)) {
                     $recurrenceData['field_date_start'] = $def->recurRules['field_date_start'];
                     $recurrenceData['field_time_start'] = $def->recurRules['field_time_start'];
                     $recurrenceData['field_date_end'] = $def->recurRules['field_date_end'];
@@ -379,7 +379,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     {
         $ret = [];
 
-        $def = $this->entityDefinitionLoader->get($objType);
+        $def = $this->entityDefinitionLoader->get($objType, $accountId);
         $dateToString = $dateTo->format("Y-m-d");
 
         $sql = "SELECT entity_recurrence_id FROM " . self::ENTITY_RECUR_TABLE . "

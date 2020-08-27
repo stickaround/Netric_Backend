@@ -46,7 +46,7 @@ class MemberTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::MEMBER);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::MEMBER, $this->account->getAccountId());
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::MEMBER, $this->account->getAccountId());
         $this->assertInstanceOf(MemberEntity::class, $entity);
     }

@@ -439,7 +439,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         string $accountId,
         array $namespaceFieldValues = []
     ): ?EntityInterface {
-        $def = $this->entityDefLoader->get($objType);
+        $def = $this->entityDefLoader->get($objType, $accountId);
 
         // Sanitize in case the user passed in bad paths like '/my//path'
         $uniqueNamePath = str_replace("//", "/", $uniqueNamePath);

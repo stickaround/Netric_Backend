@@ -115,7 +115,7 @@ class BrowserViewService
 
         // Now load the system default
         if (!$defaultViewId) {
-            $sysViews = $this->getSystemViews($objType);
+            $sysViews = $this->getSystemViews($objType, $user->getAccountId());
             foreach ($sysViews as $view) {
                 if ($view->isDefault()) {
                     $defaultViewId = $view->getId();
@@ -163,10 +163,10 @@ class BrowserViewService
     {
         // If we have not loaded views from the database then do that now
         if (!isset($this->views[$objType])) {
-            $this->loadViewsFromDb($objType);
+            $this->loadViewsFromDb($objType, $user->getAccountId());
         }
 
-        $systemViews = $this->getSystemViews($objType);
+        $systemViews = $this->getSystemViews($objType, $user->getAccountId());
 
         // Add account views
         $accountViews = $this->getAccountViews($objType);
@@ -189,13 +189,15 @@ class BrowserViewService
      *
      * @param string $objType The object type for this view
      * @param string $viewId The unique id of the view
+     * @param string $accountId The account that owns the entity definition's view
+     * 
      * @return BrowserView
      */
-    public function getViewById(string $objType, string $viewId)
+    public function getViewById(string $objType, string $viewId, string $accountId)
     {
         // If we have not loaded views from the database then do that now
         if (!isset($this->views[$objType])) {
-            $this->loadViewsFromDb($objType);
+            $this->loadViewsFromDb($objType, $accountId);
         }
 
         foreach ($this->views[$objType] as $view) {
@@ -282,9 +284,11 @@ class BrowserViewService
      * Get system/default views from config files
      *
      * @param string $objType The object type to get browser views for
+     * @param string $accountId The account that owns the entity definition's view
+     * 
      * @return BrowserView[]
      */
-    public function getSystemViews(string $objType)
+    public function getSystemViews(string $objType, string $accountId)
     {
         if (!$objType) {
             return false;
@@ -313,7 +317,7 @@ class BrowserViewService
                 $view->setSystem(true);
 
                 // Traverse through the view's conditions and convert the grouping name to id
-                $this->convertGroupingNameToID($view);
+                $this->convertGroupingNameToID($view, $accountId);
                 $views[] = $view;
             }
         }
@@ -325,12 +329,14 @@ class BrowserViewService
      * Save this view to the database
      *
      * @param BrowserView $view The view to save
+     * @param string $accountId The account that owns the entity definition's view
+     * 
      * @throws \RuntimeException if it cannot load the entity definition
      * @return int Unique id of saved view
      */
-    public function saveView(BrowserView $view)
+    public function saveView(BrowserView $view, string $accountId)
     {
-        $def = $this->definitionLoader->get($view->getObjType());
+        $def = $this->definitionLoader->get($view->getObjType(), $accountId);
 
         if (!$def) {
             throw new \RuntimeException("Could not get entity definition for: " . $view->getObjType());
@@ -352,6 +358,7 @@ class BrowserViewService
         ];
 
         if ($viewId && is_numeric($viewId)) {
+            // TODO: Need to use RelationalDbContainerInterface and pass the $accountId when executing database actions
             $this->database->update(self::TABLE_VIEWS, $saveViewData, ['entity_view_id' => $viewId]);
         } else {
             $viewId = $this->database->insert(
@@ -464,14 +471,16 @@ class BrowserViewService
      * This will do a one-time load of all the views from the database and cache
      *
      * @param string $objType The object type to load
+     * @param string $accountId The account that owns the entity definition's view
+     * 
      * @throws \RuntimeException if it cannot load the entity definition
      */
-    private function loadViewsFromDb($objType)
+    private function loadViewsFromDb(string $objType, string $accountId)
     {
         // First clear out cache
         $this->views = [];
 
-        $def = $this->definitionLoader->get($objType);
+        $def = $this->definitionLoader->get($objType, $accountId);
 
         if (!$def) {
             throw new \RuntimeException("Could not get entity definition for $objType");
@@ -516,12 +525,14 @@ class BrowserViewService
      * Function that will convert the grouping name to id
      *
      * @param {BrowserView} $view The browser view that we will sanitize the value of its conditions
+     * @param string $accountId The account that owns the entity definition's view
+     * 
      * @throws Netric\EntityGroupings\Exception
      */
-    private function convertGroupingNameToID($view)
+    private function convertGroupingNameToID(BrowserView $view, string $accountId)
     {
         $objType = $view->getObjType();
-        $def = $this->definitionLoader->get($objType);
+        $def = $this->definitionLoader->get($objType, $accountId);
         $conditions = $view->getConditions();
 
         foreach ($conditions as $condition) {

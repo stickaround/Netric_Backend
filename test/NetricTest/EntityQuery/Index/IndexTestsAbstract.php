@@ -181,7 +181,7 @@ abstract class IndexTestsAbstract extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
-        $projectDef = $entityDefinitionLoader->get(ObjectTypes::PROJECT);
+        $projectDef = $entityDefinitionLoader->get(ObjectTypes::PROJECT, $this->account->getAccountId());
         $ownerIdField = $projectDef->getField("owner_id");
 
         $sanitizedValue = $index->sanitizeWhereCondition($ownerIdField, UserEntity::USER_CURRENT, $currentAccountUser->getEntityId());
@@ -247,7 +247,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Create customer test object. This will also create an activity log
         $customer = $this->createTestCustomer();
 
-        $activityDef = $entityDefinitionLoader->get(ObjectTypes::ACTIVITY);
+        $activityDef = $entityDefinitionLoader->get(ObjectTypes::ACTIVITY, $this->account->getAccountId());
         $verbObjectField = $activityDef->getField("verb_object");
 
         // Test first if verb_object field has no subtype

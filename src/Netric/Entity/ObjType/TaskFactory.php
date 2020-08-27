@@ -26,7 +26,7 @@ class TaskFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::TASK);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::TASK, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new TaskEntity($def, $entityLoader);
     }

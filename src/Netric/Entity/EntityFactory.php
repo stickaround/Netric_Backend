@@ -60,7 +60,7 @@ class EntityFactory
             return $entity;
         }
 
-        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
+        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType, $accountId);
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
         // TODO: if !$def then throw an exception
@@ -78,7 +78,7 @@ class EntityFactory
      */
     public function createEntityFromDefinitionId(string $entityDefinitionId, string $accountId): EntityInterface
     {
-        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->getById($entityDefinitionId);
+        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->getById($entityDefinitionId, $accountId);
         return $this->create($def->getObjType(), $accountId);
     }
 }

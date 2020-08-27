@@ -38,7 +38,7 @@ class BrowserViewController extends Mvc\AbstractAccountController
         $view->fromArray($objData);
 
         try {
-            $result = $browserViewService->saveView($view);
+            $result = $browserViewService->saveView($view, $this->account->getAccountId());
         } catch (\RuntimeException $ex) {
             return $this->sendOutput(["error" => "Error saving browser view: " . $ex->getMessage()]);
         }

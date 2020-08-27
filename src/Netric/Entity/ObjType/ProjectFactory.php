@@ -28,7 +28,7 @@ class ProjectFactory implements EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::PROJECT);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::PROJECT, $sl->getAccount()->getAccountId());
         $entityIndex = $sl->get(IndexFactory::class);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new ProjectEntity($def, $entityLoader, $entityIndex);

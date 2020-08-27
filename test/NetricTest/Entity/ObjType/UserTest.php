@@ -98,7 +98,7 @@ class UserTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER, $this->account->getAccountId());
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->assertInstanceOf(UserEntity::class, $entity);
     }

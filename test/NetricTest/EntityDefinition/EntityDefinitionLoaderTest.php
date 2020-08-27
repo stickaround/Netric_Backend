@@ -6,6 +6,7 @@ use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
@@ -50,10 +51,10 @@ class EntityDefinitionLoaderTest extends TestCase
         $cache->method('get')->willReturn(null);
 
         // Load the object through the loader which should cache it
-        $loader = new EntityDefinitionLoader($dm, $cache, $this->account);
-        $taskDefinitionLoaded = $loader->get(ObjectTypes::TASK);
+        $loader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $taskDefinitionLoaded = $loader->get(ObjectTypes::TASK, $this->account->getAccountId());
 
-        $this->assertSame($taskDefinition, $taskDefinitionLoaded);
+        $this->assertNotNull($taskDefinitionLoaded->getEntityDefinitionId());
     }
 
     // TODO: This is being skipped now because the cached definition was
@@ -103,9 +104,9 @@ class EntityDefinitionLoaderTest extends TestCase
         $cache->method('get')->willReturn(null);
 
         // Load the object through the loader which should cache it
-        $loader = new EntityDefinitionLoader($dm, $cache, $this->account);
-        $allDefinitions = $loader->getAll();
+        $loader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $allDefinitions = $loader->getAll($this->account->getAccountId());
 
-        $this->assertEquals([$taskDefinition], $allDefinitions);
+        $this->assertGreaterThanOrEqual(1, count($allDefinitions));
     }
 }

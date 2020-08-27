@@ -2,7 +2,7 @@
 
 namespace NetricTest\Controller;
 
-use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Controller\EntityController;
@@ -343,7 +343,7 @@ class EntityControllerTest extends TestCase
 
         // Get the newly created entity definition
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $testDef = $defLoader->get($objType);
+        $testDef = $defLoader->get($objType, $this->account->getAccountId());
         $this->testDefinitions[] = $testDef;
 
         // Test that the new entity definition was created
@@ -366,7 +366,7 @@ class EntityControllerTest extends TestCase
         $ret = $this->controller->postUpdateEntityDefAction();
 
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $deletedFieldDef = $defLoader->get($objType);
+        $deletedFieldDef = $defLoader->get($objType, $this->account->getAccountId());
 
         $this->assertNull($deletedFieldDef->getField("test_field"));
         $this->assertEquals($deletedFieldDef->revision, 2);
@@ -383,7 +383,7 @@ class EntityControllerTest extends TestCase
         $ret = $this->controller->postUpdateEntityDefAction();
 
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $updatedDef = $defLoader->get($objType);
+        $updatedDef = $defLoader->get($objType, $this->account->getAccountId());
 
         $this->assertEquals($updatedDef->getTitle(), "Updated Definition Title");
         $this->assertEquals($updatedDef->revision, 3);
@@ -415,7 +415,7 @@ class EntityControllerTest extends TestCase
 
         // Get the newly created entity definition
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $testDef = $defLoader->get($objType);
+        $testDef = $defLoader->get($objType, $this->account->getAccountId());
         $this->testDefinitions[] = $testDef;
 
         // Test that the new entity definition was created
@@ -614,7 +614,7 @@ class EntityControllerTest extends TestCase
         $dataMapper->save($def);
 
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $testDef = $defLoader->get($objType);
+        $testDef = $defLoader->get($objType, $this->account->getAccountId());
         $this->testDefinitions[] = $testDef;
 
         $result = $dataMapper->delete($testDef);
