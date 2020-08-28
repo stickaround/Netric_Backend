@@ -17,7 +17,7 @@ use Netric\Entity\FormsFactory;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Permissions\DaclLoaderFactory;
-use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityGroupings\GroupingLoader;
@@ -58,7 +58,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             // Get the definition data for this object type
-            $def = $defLoader->get($params['obj_type']);
+            $def = $defLoader->get($params['obj_type'], $this->account->getAccountId());
 
             if (!$def) {
                 return $this->sendOutput(["error" => $params['obj_type'] . " could not be loaded"]);
@@ -469,7 +469,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Load the entity definition
         $definitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $definitions = $definitionLoader->getAll();
+        $definitions = $definitionLoader->getAll($this->account->getAccountId());
 
         $ret = [];
         foreach ($definitions as $def) {
@@ -620,7 +620,7 @@ class EntityController extends Mvc\AbstractAccountController
         $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
         // Load existing if it is there
-        $def = $defLoader->get($objData['obj_type']);
+        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
 
         if (!$def) {
             // If we are trying to edit an existing entity that could not be found, error out
@@ -677,7 +677,7 @@ class EntityController extends Mvc\AbstractAccountController
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
-        $def = $defLoader->get($objData['obj_type']);
+        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
 
         if (!$def) {
             return $this->sendOutput(["error" => $objData['obj_type'] . ' could not be loaded']);
@@ -966,7 +966,7 @@ class EntityController extends Mvc\AbstractAccountController
         try {
             // Get the entity defintion of the $objType
             $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-            $def = $defLoader->get($objType);
+            $def = $defLoader->get($objType, $this->account->getAccountId());
             $path = "$objType/$fieldName";
 
             // If this is a private object then add the user entity_id in the unique path
@@ -1010,7 +1010,7 @@ class EntityController extends Mvc\AbstractAccountController
         $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $groupingDM = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
 
-        $def = $definitionLoader->get($objType);
+        $def = $definitionLoader->get($objType, $this->account->getAccountId());
         $group = $groupingDM->getGroupingsByObjType($def, $fieldName);
 
         return $this->sendOutput($group->toArray());

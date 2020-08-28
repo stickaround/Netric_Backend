@@ -48,7 +48,7 @@ class ProjectTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::PROJECT);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::PROJECT, $this->account->getAccountId());
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT, $this->account->getAccountId());
         $this->assertInstanceOf(ProjectEntity::class, $entity);
     }

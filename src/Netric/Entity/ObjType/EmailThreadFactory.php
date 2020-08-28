@@ -26,7 +26,7 @@ class EmailThreadFactory implements EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::EMAIL_THREAD);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::EMAIL_THREAD, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         $entityQueryIndex = $sl->get(IndexFactory::class);
         return new EmailThreadEntity($def, $entityLoader, $entityQueryIndex);

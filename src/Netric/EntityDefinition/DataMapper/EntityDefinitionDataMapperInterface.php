@@ -13,19 +13,22 @@ interface EntityDefinitionDataMapperInterface
     /**
      * Open an object definition by name
      *
-     * @var string $objType The name of the object type
-     * @var string $id The Id of the object
+     * @param string $objType The name of the object type
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return EntityDefinition
      */
-    public function fetchByName($objType);
+    public function fetchByName(string $objType, string $accountId);
 
     /**
      * Get an entity definition by id
      *
-     * @param string $definitionTypeId
+     * @param string $definitionTypeId Object type of the defintion
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return EntityDefinition
      */
-    public function fetchById(string $definitionTypeId): ?EntityDefinition;
+    public function fetchById(string $definitionTypeId, string $accountId): ?EntityDefinition;
 
     /**
      * Delete object definition
@@ -67,10 +70,12 @@ interface EntityDefinitionDataMapperInterface
     /**
      * Delete an object definition by name
      *
-     * @var string $objType The name of the object type
+     * @param string $objType The name of the object type
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return bool true on success, false on failure
      */
-    public function deleteByName($objType);
+    public function deleteByName(string $objType, string $accountId);
 
     /**
      * Get current account
@@ -81,10 +86,11 @@ interface EntityDefinitionDataMapperInterface
 
     /**
      * Get all the entity object types
-     *
+     * 
+     * @param string $accountId The account that owns the entity definition
      * @return array Collection of objects
      */
-    public function getAllObjectTypes();
+    public function getAllObjectTypes(string $accountId);
 
     /**
      * Get the latest hash for a system definition from the file system

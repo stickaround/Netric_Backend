@@ -25,7 +25,7 @@ class WorkerJobFactory implements EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::WORKER_JOB);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::WORKER_JOB, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new WorkerJobEntity($def, $entityLoader);
     }

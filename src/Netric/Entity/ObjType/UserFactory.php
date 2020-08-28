@@ -29,7 +29,7 @@ class UserFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         $groupingLoader = $sl->get(GroupingLoaderFactory::class);
         return new UserEntity($def, $entityLoader, $groupingLoader);

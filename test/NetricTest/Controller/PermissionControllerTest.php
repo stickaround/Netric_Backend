@@ -15,7 +15,7 @@ use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
-use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
@@ -161,7 +161,7 @@ class PermissionControllerTest extends TestCase
 
         // Set the dacl of the entity definition
         $defLoader = $this->serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $def = $defLoader->get(ObjectTypes::PRODUCT);
+        $def = $defLoader->get(ObjectTypes::PRODUCT, $this->account->getAccountId());
         $def->setDacl($dacl);
 
         // Save the entity definition

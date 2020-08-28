@@ -30,11 +30,11 @@ class RecurrenceIdentityMapper
     /**
      * Construct the identity mapper and set all dependencies
      *
-     * @param RecurrenceDataMapper $dataMapper To save and load patterns from the datastore
+     * @param RecurrenceDataMapper $recurrenceDataMapper To save and load patterns from the datastore
      */
-    public function __construct(RecurrenceRdbDataMapper $dataMapper)
+    public function __construct(RecurrenceRdbDataMapper $recurrenceDataMapper)
     {
-        $this->recurDataMapper = $dataMapper;
+        $this->recurDataMapper = $recurrenceDataMapper;
     }
 
     /**
@@ -46,8 +46,8 @@ class RecurrenceIdentityMapper
      * before saving the details of said recurrence.
      *
      * @param \Netric\Entity\Recurrence\RecurrencePattern $recurPattern
-     * @param int $useId We can reserve an ID to use when creating a new instace via getNextId()
-     * @return int Unique id of the pattern on success or null on failure this $this->lastError set
+     * @param string $useId We can reserve an ID to use when creating a new instace via getNextId()
+     * @return string Unique id of the pattern on success or null on failure this $this->lastError set
      */
     public function save(RecurrencePattern $recurPattern, $useId = null)
     {
@@ -58,16 +58,18 @@ class RecurrenceIdentityMapper
      * Load up an entity recurrence pattern by id
      *
      * @param id $id The unique id of the pattern to load
+     * @param string $accountId The accountId of the pattern we are going to load
+     * 
      * @return RecurrencePattern
      */
-    public function getById($id)
+    public function getById($id, string $accountId)
     {
         // First check to see if the pattern was already loaded and cached
         $pattern = $this->getLoadedPattern($id);
 
         // If we have not yet loaded it then load from db and cache locally
         if (!$pattern) {
-            $pattern = $this->recurDataMapper->load($id);
+            $pattern = $this->recurDataMapper->load($id, $accountId);
             if ($pattern) {
                 $this->cachedPatterns[$id] = $pattern;
             }
@@ -154,16 +156,18 @@ class RecurrenceIdentityMapper
      *
      * @param string $objType The object type to select patterns for
      * @param \DateTime $dateTo The date to indicate if a pattern is stale
+     * @param string $accountId Unique id of the account that this pattern belongs to
+     * 
      * @return array RecurrencePattern[]
      */
-    public function getStalePatterns($objType, \DateTime $dateTo)
+    public function getStalePatterns(string $objType, \DateTime $dateTo, string $accountId)
     {
         $recurrencePatterns = [];
-        $stalePatternIds = $this->recurDataMapper->getStalePatternIds($objType, $dateTo);
+        $stalePatternIds = $this->recurDataMapper->getStalePatternIds($objType, $dateTo, $accountId);
 
         // Load each through this identity mapper - which caches them - and return
         foreach ($stalePatternIds as $pid) {
-            $recurrencePatterns[] = $this->getById($pid);
+            $recurrencePatterns[] = $this->getById($pid, $accountId);
         }
 
         return $recurrencePatterns;

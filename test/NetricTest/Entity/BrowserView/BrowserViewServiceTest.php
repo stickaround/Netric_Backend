@@ -102,7 +102,7 @@ class BrowserViewServiceTest extends TestCase
         $view = new BrowserView();
         $view->fromArray($data);
 
-        $ret = $this->browserViewService->saveView($view);
+        $ret = $this->browserViewService->saveView($view, $this->account->getAccountId());
         $this->testViews[] = $view;
 
         $this->assertTrue(is_numeric($ret));
@@ -145,11 +145,11 @@ class BrowserViewServiceTest extends TestCase
         ];
         $view = new BrowserView();
         $view->fromArray($data);
-        $vid = $this->browserViewService->saveView($view);
+        $vid = $this->browserViewService->saveView($view, $this->account->getAccountId());
         $this->testViews[] = $view;
 
         // Load and test the values
-        $loaded = $this->browserViewService->getViewById(ObjectTypes::CONTACT, $vid);
+        $loaded = $this->browserViewService->getViewById(ObjectTypes::CONTACT, $vid, $this->account->getAccountId());
         $this->assertNotNull($loaded);
         $this->assertEquals($loaded->getObjType(), $data['obj_type']);
         $this->assertEquals(count($data['conditions']), count($view->getConditions()));
@@ -165,7 +165,7 @@ class BrowserViewServiceTest extends TestCase
         // Save a very simple view
         $view = new BrowserView();
         $view->setObjType(ObjectTypes::NOTE);
-        $vid = $this->browserViewService->saveView($view);
+        $vid = $this->browserViewService->saveView($view, $this->account->getAccountId());
         $this->testViews[] = $view;
 
         // Delete it
@@ -173,12 +173,12 @@ class BrowserViewServiceTest extends TestCase
         $this->assertTrue($ret);
 
         // Make sure we cannot load it from cache
-        $loadView = $this->browserViewService->getViewById($view->getObjType(), $vid);
+        $loadView = $this->browserViewService->getViewById($view->getObjType(), $vid, $this->account->getAccountId());
         $this->assertNull($loadView);
 
         // Now make sure we cannot load it from the DB
         $this->browserViewService->clearViewsCache();
-        $loadView = $this->browserViewService->getViewById($view->getObjType(), $vid);
+        $loadView = $this->browserViewService->getViewById($view->getObjType(), $vid, $this->account->getAccountId());
         $this->assertNull($loadView);
     }
 
@@ -188,7 +188,7 @@ class BrowserViewServiceTest extends TestCase
     public function testGetSystemViews()
     {
         // Use task because we know it has at least one BrowserView defined: default
-        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
+        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK, $this->account->getAccountId());
         $this->assertTrue(count($sysViews) >= 1);
         $this->assertInstanceOf(BrowserView::class, $sysViews[0]);
 
@@ -206,20 +206,20 @@ class BrowserViewServiceTest extends TestCase
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId(self::TEST_TEAM_ID);
-        $this->browserViewService->saveView($teamView);
+        $this->browserViewService->saveView($teamView, $this->account->getAccountId());
         $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
         $userView->setOwnerId(self::TEST_USER_ID);
-        $this->browserViewService->saveView($userView);
+        $this->browserViewService->saveView($userView, $this->account->getAccountId());
         $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
-        $this->browserViewService->saveView($accountView);
+        $this->browserViewService->saveView($accountView, $this->account->getAccountId());
         $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
@@ -253,20 +253,20 @@ class BrowserViewServiceTest extends TestCase
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId(self::TEST_TEAM_ID);
-        $this->browserViewService->saveView($teamView);
+        $this->browserViewService->saveView($teamView, $this->account->getAccountId());
         $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
         $userView->setOwnerId(self::TEST_USER_ID);
-        $this->browserViewService->saveView($userView);
+        $this->browserViewService->saveView($userView, $this->account->getAccountId());
         $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
-        $this->browserViewService->saveView($accountView);
+        $this->browserViewService->saveView($accountView, $this->account->getAccountId());
         $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
@@ -300,20 +300,20 @@ class BrowserViewServiceTest extends TestCase
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId(self::TEST_TEAM_ID);
-        $this->browserViewService->saveView($teamView);
+        $this->browserViewService->saveView($teamView, $this->account->getAccountId());
         $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
         $userView->setOwnerId(self::TEST_USER_ID);
-        $this->browserViewService->saveView($userView);
+        $this->browserViewService->saveView($userView, $this->account->getAccountId());
         $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
-        $this->browserViewService->saveView($accountView);
+        $this->browserViewService->saveView($accountView, $this->account->getAccountId());
         $this->testViews[] = $accountView;
 
         // Make sure getting accounts views does not return user or team views
@@ -352,20 +352,20 @@ class BrowserViewServiceTest extends TestCase
         $teamView = new BrowserView();
         $teamView->setObjType(ObjectTypes::NOTE);
         $teamView->setTeamId($this->user->getValue("team_id"));
-        $this->browserViewService->saveView($teamView);
+        $this->browserViewService->saveView($teamView, $this->account->getAccountId());
         $this->testViews[] = $teamView;
 
         // Setup user view
         $userView = new BrowserView();
         $userView->setObjType(ObjectTypes::NOTE);
         $userView->setOwnerId($this->user->getEntityId());
-        $this->browserViewService->saveView($userView);
+        $this->browserViewService->saveView($userView, $this->account->getAccountId());
         $this->testViews[] = $userView;
 
         // Set global account view
         $accountView  = new BrowserView();
         $accountView->setObjType(ObjectTypes::NOTE);
-        $this->browserViewService->saveView($accountView);
+        $this->browserViewService->saveView($accountView, $this->account->getAccountId());
         $this->testViews[] = $accountView;
 
         // Make sure we get at least the number of added views plus the sytem
@@ -392,7 +392,7 @@ class BrowserViewServiceTest extends TestCase
      */
     public function testTaskSystemBrowserViewsStatus()
     {
-        $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
+        $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK, $this->account->getAccountId());
 
         $foundDoneField = false;
         foreach ($systemViews as $sysView) {
@@ -417,7 +417,7 @@ class BrowserViewServiceTest extends TestCase
      */
     public function testTaskSystemBrowserViewIncompleteTask()
     {
-        $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK);
+        $systemViews = $this->browserViewService->getSystemViews(ObjectTypes::TASK, $this->account->getAccountId());
 
         $foundStatusField = false;
         foreach ($systemViews as $sysView) {

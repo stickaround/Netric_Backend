@@ -89,7 +89,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     public function saveGroupings(EntityGroupings $groupings): array
     {
         // Now save
-        $def = $this->entityDefinitionLoader->get($groupings->getObjType());
+        $def = $this->entityDefinitionLoader->get($groupings->getObjType(), $this->account->getAccountId());
         if (!$def) {
             throw new \RuntimeException(
                 'Could not get defition for entity type: ' . $groupings->getObjType()

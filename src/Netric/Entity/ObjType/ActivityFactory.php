@@ -21,7 +21,7 @@ class ActivityFactory implements Entity\EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ACTIVITY);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ACTIVITY, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new ActivityEntity($def, $entityLoader);
     }

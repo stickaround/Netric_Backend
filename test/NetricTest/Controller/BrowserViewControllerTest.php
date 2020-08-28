@@ -77,7 +77,7 @@ class BrowserViewControllerTest extends TestCase
         $browserViewId = $this->controller->postSaveAction();
 
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId);
+        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId, $this->account->getAccountId());
         $browserViewData = $browserView->toArray();
         $this->testBrowserViews[] = $browserView;
 
@@ -100,7 +100,7 @@ class BrowserViewControllerTest extends TestCase
         $browserViewId = $this->controller->postSaveAction();
 
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId);
+        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId, $this->account->getAccountId());
         $this->testBrowserViews[] = $browserView;
 
         // Set params in the request
@@ -125,7 +125,7 @@ class BrowserViewControllerTest extends TestCase
         $browserViewId = $this->controller->postSaveAction();
 
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId);
+        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId, $this->account->getAccountId());
         $this->testBrowserViews[] = $browserView;
 
         // Set default view

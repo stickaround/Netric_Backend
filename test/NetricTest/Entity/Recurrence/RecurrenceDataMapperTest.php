@@ -7,6 +7,7 @@
 namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence\RecurrenceRdbDataMapper;
+use Netric\Entity\Recurrence\RecurrenceDataMapperFactory;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\ObjType\UserEntity;
@@ -70,12 +71,10 @@ class RecurrenceDataMapperTest extends TestCase
 
         // Setup the recurrence datamapper
         $entDefLoader = $sm->get(EntityDefinitionLoaderFactory::class);
-        $database = $sm->get(RelationalDbFactory::class);
-        $accountId = $this->account->getAccountId();
-        $this->dataMapper = new RecurrenceRdbDataMapper($database, $entDefLoader, $accountId);
+        $this->dataMapper = $sm->get(RecurrenceDataMapperFactory::class);
 
         // Create entity definition for tasks
-        $this->taskEntityDefintion = $entDefLoader->get(ObjectTypes::TASK);
+        $this->taskEntityDefintion = $entDefLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
     }
 
     public function testConstruct()
@@ -120,7 +119,7 @@ class RecurrenceDataMapperTest extends TestCase
         $rid = $this->dataMapper->save($rp);
         $this->assertNotNull($rid);
 
-        $result = $this->dataMapper->updateParentEntityId($rid, self::TEST_ENTITY_ID);
+        $result = $this->dataMapper->updateParentEntityId($rid, self::TEST_ENTITY_ID, $rp->getAccountId());
         $this->assertTrue($result);
     }
 
@@ -142,7 +141,7 @@ class RecurrenceDataMapperTest extends TestCase
 
         $this->assertNotNull($rid);
 
-        $opened = $this->dataMapper->load($rid);
+        $opened = $this->dataMapper->load($rid, $this->account->getAccountId());
 
         $this->assertNotEmpty($opened->getId());
         $this->assertEquals($data['recur_type'], $opened->getRecurType());
@@ -178,7 +177,7 @@ class RecurrenceDataMapperTest extends TestCase
         $this->dataMapper->delete($rp);
 
         // Assure we cannot load it
-        $this->assertNull($this->dataMapper->load($rid));
+        $this->assertNull($this->dataMapper->load($rid, $this->account->getAccountId()));
     }
 
     public function testDeleteById()
@@ -197,10 +196,10 @@ class RecurrenceDataMapperTest extends TestCase
         $this->testRecurrence[] = $rp;
 
         // Delete
-        $this->dataMapper->deleteById($rid);
+        $this->dataMapper->deleteById($rid, $this->account->getAccountId());
 
         // Assure we cannot load it
-        $this->assertNull($this->dataMapper->load($rid));
+        $this->assertNull($this->dataMapper->load($rid, $this->account->getAccountId()));
     }
 
     /**
@@ -227,25 +226,25 @@ class RecurrenceDataMapperTest extends TestCase
 
         // Check before date-start, $rid should not be returned
         $dateTo = new \DateTime("2015-01-01");
-        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo, $rp->getAccountId());
         $this->assertFalse(in_array($rid, $staleIds));
 
         // Check the day after start date which should create entities
         $dateTo = new \DateTime("2015-02-02");
-        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo, $rp->getAccountId());
         $this->assertTrue(in_array($rid, $staleIds));
 
         // Check a couple days out which should also return the above
         $dateTo = new \DateTime("2015-02-20");
-        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo, $rp->getAccountId());
         $this->assertTrue(in_array($rid, $staleIds));
 
         // Go beyond the end date which should NOT return the above pattern
         $dateTo = new \DateTime("2015-05-01");
-        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo, $rp->getAccountId());
         $this->assertFalse(in_array($rid, $staleIds));
 
         // Cleanup
-        $this->dataMapper->deleteById($rid);
+        $this->dataMapper->deleteById($rid, $this->account->getAccountId());
     }
 }

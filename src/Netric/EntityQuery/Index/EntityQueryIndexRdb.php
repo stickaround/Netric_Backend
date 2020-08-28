@@ -137,7 +137,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $this->userIdFromEntityQuery = $query->getUserId();
 
         // Make sure that we have an entity definition before executing a query
-        $entityDefinition = $this->getDefinition($query->getObjType());
+        $entityDefinition = $this->getDefinition($query->getObjType(), $accountId);
 
         // Should never happen, but just in case if we do not have an entity definition throw an exception
         if (!$entityDefinition) {

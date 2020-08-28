@@ -10,7 +10,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
-use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
 /**
@@ -48,7 +48,7 @@ class PermissionController extends Mvc\AbstractAccountController
         }
 
         // Set the Dacl based on the obj_type provided in the params
-        $def = $defLoader->get($objData['obj_type']);
+        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
         $dacl = $daclLoader->getForEntityDefinition($def);
 
         // If id is set, then we will update the dacl and retrieve the entity by id
@@ -133,7 +133,7 @@ class PermissionController extends Mvc\AbstractAccountController
             }
         }
 
-        $def = $defLoader->get($objData['obj_type']);
+        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
         $dacl = $daclLoader->getForEntityDefinition($def);
         $dacl->fromArray($objData);
         $def->setDacl($dacl);

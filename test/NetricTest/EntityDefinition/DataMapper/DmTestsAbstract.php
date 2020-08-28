@@ -69,7 +69,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dm = $this->getDataMapper();
 
-        $entDef = $dm->fetchByName(ObjectTypes::CONTACT);
+        $entDef = $dm->fetchByName(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         // Make sure the ID is set
         $this->assertFalse(empty($entDef->id));
@@ -118,7 +118,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testDefinitions[] = $def;
 
         // Reload
-        $reloadedDef = $dataMapper->fetchByName("utest_save");
+        $reloadedDef = $dataMapper->fetchByName("utest_save", $this->account->getAccountId());
 
         // Were we given an ID?
         $this->assertNotNull($reloadedDef->id);
@@ -142,12 +142,13 @@ abstract class DmTestsAbstract extends TestCase
 
         // Test inserting with dacl
         $dataMapper->save($def);
+        $this->testDefinitions[] = $def;
 
         // Delete
         $dataMapper->delete($def);
 
         // Try to reload
-        $this->assertNull($dataMapper->fetchByName("utest_delete"));
+        $this->assertNull($dataMapper->fetchByName("utest_delete", $this->account->getAccountId()));
     }
 
     /**
@@ -166,12 +167,14 @@ abstract class DmTestsAbstract extends TestCase
 
         // Test inserting with dacl
         $dataMapper->save($def);
+        $this->testDefinitions[] = $def;
 
         // Delete
-        $dataMapper->deleteByName('utest_delete_by_name1');
+        $dataMapper->deleteByName('utest_delete_by_name1', $this->account->getAccountId());
 
         // Try to reload
-        $this->assertNull($dataMapper->fetchByName("utest_delete_by_name1"));
+        $deletedDef = $dataMapper->fetchByName("utest_delete_by_name1", $this->account->getAccountId());
+        $this->assertNull($deletedDef);
     }
 
     /**
@@ -189,7 +192,7 @@ abstract class DmTestsAbstract extends TestCase
     public function testGetAllObjectTypes()
     {
         $dataMapper = $this->getDataMapper();
-        $this->assertGreaterThan(0, count($dataMapper->getAllObjectTypes()));
+        $this->assertGreaterThan(0, count($dataMapper->getAllObjectTypes($this->account->getAccountId())));
     }
 
     /**
@@ -210,7 +213,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testDefinitions[] = $def;
 
         // Reload and check DACL
-        $reloadedDef = $dataMapper->fetchByName("utest_save_dacl");
+        $reloadedDef = $dataMapper->fetchByName("utest_save_dacl", $this->account->getAccountId());
         $this->assertNotNull($reloadedDef->getDacl());
 
         // Now test updating the dacl
@@ -219,7 +222,7 @@ abstract class DmTestsAbstract extends TestCase
         $id = $dataMapper->saveDef($def);
 
         // Reload and check DACL
-        $reloadedDef = $dataMapper->fetchByName("utest_save_dacl");
+        $reloadedDef = $dataMapper->fetchByName("utest_save_dacl", $this->account->getAccountId());
         $this->assertNotNull($reloadedDef->getDacl());
         $daclData = $reloadedDef->getDacl()->toArray();
         $this->assertEquals([UserEntity::GROUP_USERS], $daclData['entries']['View']['groups']);
@@ -243,7 +246,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testDefinitions[] = $def;
 
         // Reload and check DACL
-        $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl");
+        $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl", $this->account->getAccountId());
         $this->assertNotNull($reloadedDef->getDacl());
 
         // Now clear the dacl
@@ -251,7 +254,7 @@ abstract class DmTestsAbstract extends TestCase
         $id = $dataMapper->saveDef($def);
 
         // Reload
-        $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl");
+        $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl", $this->account->getAccountId());
         $this->assertNull($reloadedDef->getDacl());
     }
 
@@ -278,7 +281,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $taskDefinition = $dataMapper->fetchByName(ObjectTypes::TASK);
+        $taskDefinition = $dataMapper->fetchByName(ObjectTypes::TASK, $this->account->getAccountId());
         $previousRevision = (int)$taskDefinition->revision;
 
         // Clear out the system hash which will force it to update and increment the revision
@@ -286,7 +289,7 @@ abstract class DmTestsAbstract extends TestCase
         $dataMapper->updateSystemDefinition($taskDefinition);
 
         // Make sure we were updated
-        $reloadedTaskDefinition = $dataMapper->fetchByName(ObjectTypes::TASK);
+        $reloadedTaskDefinition = $dataMapper->fetchByName(ObjectTypes::TASK, $this->account->getAccountId());
         $this->assertNotEmpty($reloadedTaskDefinition->systemDefinitionHash);
         $this->assertGreaterThan($previousRevision, $reloadedTaskDefinition->revision);
     }

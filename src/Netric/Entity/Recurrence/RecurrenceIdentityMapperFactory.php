@@ -7,22 +7,24 @@
  */
 namespace Netric\Entity\Recurrence;
 
-use Netric\ServiceManager;
+use Netric\Db\Relational\RelationalDbContainerFactory;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a new recurrence indentity mapper service
  */
-class RecurrenceIdentityMapperFactory implements ServiceManager\AccountServiceFactoryInterface
+class RecurrenceIdentityMapperFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return RecurrenceIdentityMapper
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $recurDataMapper = $sl->get(RecurrenceDataMapperFactory::class);
-        return new RecurrenceIdentityMapper($recurDataMapper);
+        $recurrenceDataMapper = $serviceLocator->get(RecurrenceDataMapperFactory::class);
+        return new RecurrenceIdentityMapper($recurrenceDataMapper);
     }
 }

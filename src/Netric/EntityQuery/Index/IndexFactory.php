@@ -7,14 +7,12 @@
  */
 namespace Netric\EntityQuery\Index;
 
-use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Entity\EntityFactoryFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Db\Relational\RelationalDbContainerFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager;
+use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a EntityQuery Index service
@@ -29,11 +27,10 @@ class IndexFactory implements AccountServiceFactoryInterface
      */
     public function createService(AccountServiceManagerInterface $serviceLocator)
     {
-        $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);        
+        $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);        
-        
         
         return new EntityQueryIndexRdb(
             $relationalDbCon,

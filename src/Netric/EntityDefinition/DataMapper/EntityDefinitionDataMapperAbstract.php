@@ -2,21 +2,43 @@
 
 namespace Netric\EntityDefinition\DataMapper;
 
+use Netric\DataMapperAbstract;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Config\ConfigFactory;
+use Netric\WorkerMan\Worker\EntityDefinitionPostSaveWorker;
+use Netric\WorkerMan\WorkerService;
+use Aereus\Config\Config;
 
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
  */
-abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
+abstract class EntityDefinitionDataMapperAbstract extends DataMapperAbstract
 {
     /**
-     * The type of object this data mapper is handling
-     *
-     * @var string
+     * Used to schedule background jobs
+     * 
+     * @var WorkerService
      */
-    protected $objType = "";
+    private WorkerService $workerService;
+
+    /**
+     * Config loader that will be used to load the system config
+     *
+     * @var Config
+     */
+    private $config = null;
+
+    /**
+     * Class constructor
+     *
+     * @param AccountServiceManager $serviceManager
+     */
+    public function __construct(        
+        WorkerService $workerService,
+        Config $config
+    ) {
+        $this->workerService = $workerService;
+        $this->config = $config;        
+    }
 
     /**
      * Delete object definition
@@ -44,15 +66,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     {
         $result = $this->deleteDef($def);
 
-        // Clear cache the if we have successfully deleted a definition
+        // Check for result if we have successfully deleted the entity definition
         if ($result) {
-            $this->getLoader()->clearCache($def->getObjType());
+            $this->postSaveWorker($def);
         }
 
         return $result;
     }
 
     /**
+     * 
      * Save a definition
      *
      * @param EntityDefinition $def The definition to save
@@ -63,33 +86,42 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         // Increment revision
         $def->revision += 1;
 
-        // Save data
-        $this->saveDef($def);
+        // Save the entity definition data
+        $result = $this->saveDef($def);
 
-        // Clear cache
-        $this->getLoader()->clearCache($def->getObjType());
+        // Check for result if we have successfully saved the entity definition
+        if ($result) {
+            $this->postSaveWorker($def);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Send background job to do less expedient (but no less important) tasks
+     * 
+     * @param EntityDefinition $def The definition we are currently working on
+     */
+    private function postSaveWorker(EntityDefinition $def) {
+        $this->workerService->doWorkBackground(EntityDefinitionPostSaveWorker::class, [
+            'entity_definition_id' => $def->getEntityDefinitionId(),
+            'account_id' => $def->getAccountId(),
+            'obj_type' => $def->getObjType(),
+        ]);
     }
 
     /**
      * Delete an object definition by name
      *
-     * @var string $objType The name of the object type
+     * @param string $objType The name of the object type
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return bool true on success, false on failure
      */
-    public function deleteByName($objType)
+    public function deleteByName(string $objType, string $accountId)
     {
-        $def = $this->fetchByName($objType);
+        $def = $this->fetchByName($objType, $accountId);
         return $this->delete($def);
-    }
-
-    /**
-     * Get definition loader using this mapper
-     *
-     * @return EntityDefinitionLoader
-     */
-    public function getLoader()
-    {
-        return $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
     }
 
     /**
@@ -148,9 +180,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     {
         $ret = null;
 
-        // Check for system object
-        $config = $this->getAccount()->getServiceManager()->get(ConfigFactory::class);
-        $basePath = $config->application_path . "/data/entity_definitions";
+        // Check for system object        
+        $basePath = $this->config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $ret = include($basePath . "/" . $objType . ".php");
 
@@ -172,8 +203,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     private function setSysAggregates(EntityDefinition $def)
     {
         // Check for system object
-        $config = $this->getAccount()->getServiceManager()->get(ConfigFactory::class);
-        $basePath = $config->application_path . "/data/entity_definitions";
+        $basePath = $this->config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $def->getObjType() . ".php")) {
             $ret = include($basePath . "/" . $def->getObjType() . ".php");
 

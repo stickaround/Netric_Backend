@@ -2,7 +2,8 @@
 namespace NetricTest\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
-use Netric\EntityDefinition\DataMapper\EntityDefinitionRdbDataMapper;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
+use NetricTest\Bootstrap;
 
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
@@ -18,6 +19,9 @@ class EntityDefinitionRdbDataMapperTest extends DmTestsAbstract
      */
     protected function getDataMapper()
     {
-        return new EntityDefinitionRdbDataMapper($this->account);
+        $account = Bootstrap::getAccount();
+
+        $serviceManager = $account->getServiceManager();
+        return $serviceManager->get(EntityDefinitionDataMapperFactory::class);
     }
 }

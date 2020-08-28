@@ -45,7 +45,7 @@ class CommentTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::COMMENT);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::COMMENT, $this->account->getAccountId());
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT, $this->account->getAccountId());
         $this->assertInstanceOf(CommentEntity::class, $entity);
     }

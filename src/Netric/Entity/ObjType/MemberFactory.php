@@ -26,7 +26,7 @@ class MemberFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::MEMBER);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::MEMBER, $sl->getAccount()->getAccountId());
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new MemberEntity($def, $entityLoader);
     }

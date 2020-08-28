@@ -46,7 +46,7 @@ class CaseTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::ISSUE);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::ISSUE, $this->account->getAccountId());
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ISSUE, $this->account->getAccountId());
         $this->assertInstanceOf(CaseEntity::class, $entity);
     }

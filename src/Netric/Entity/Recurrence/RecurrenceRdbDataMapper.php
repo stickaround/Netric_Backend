@@ -2,8 +2,9 @@
 
 namespace Netric\Entity\Recurrence;
 
-use Netric\Db;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Db\Relational\RelationalDbContainerInterface;
+use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Error;
 use Netric\DataMapperAbstract;
@@ -15,11 +16,11 @@ use Ramsey\Uuid\Uuid;
 class RecurrenceRdbDataMapper extends DataMapperAbstract
 {
     /**
-     * Handle to database
+     * Database container
      *
-     * @var RelationalDbInterface
+     * @var RelationalDbContainerInterface
      */
-    private $database = null;
+    private $databaseContainer = null;
 
     /**
      * Entity definition loader
@@ -38,13 +39,6 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     private $lastError = "";
 
     /**
-     * The unique account ID we are getting recurrence for
-     *
-     * @var string
-     */
-    private $accountId = "";
-
-    /**
      * Define table names
      */
     const ENTITY_RECUR_TABLE = 'entity_recurrence';
@@ -52,18 +46,26 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     /**
      * Class constructor to set up dependencies
      *
-     * @param RelationalDbInterface $database Handles to database actions
-     * @param EntityDefinitionLoader $entityDefinitionLoader Used to get the id of objType
-     * @param string $accountId The unique account ID to get recurrence for
+     * @param RelationalDbContainer $database Handles the database actions     
+     * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition     
      */
     public function __construct(
-        RelationalDbInterface $database,
-        EntityDefinitionLoader $entityDefinitionLoader,
-        string $accountId
+        RelationalDbContainer $dbContainer,
+        EntityDefinitionLoader $entityDefinitionLoader
     ) {
-        $this->database = $database;
+        $this->databaseContainer = $dbContainer;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
-        $this->accountId = $accountId;
+    }
+
+    /**
+     * Get active database handle
+     *
+     * @param string $accountId the account that this pattern belongs to
+     * @return RelationalDbInterface
+     */
+    private function getDatabase(string $accountId): RelationalDbInterface
+    {
+        return $this->databaseContainer->getDbHandleForAccountId($accountId);
     }
 
     /**
@@ -74,9 +76,10 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      * sometimes used when we need to save a reference to a recurrence in an entity
      * before saving the details of said recurrence.
      *
-     * @param RecurrencePattern $recurPattern
-     * @param int $useId We can reserve an ID to use when creating a new instace via getNextId()
-     * @return int Unique id of the pattern on success or null on failure this $this->lastError set
+     * @param RecurrencePattern $recurPattern The recurrence pattern we are going to save
+     * @param string $useId We can reserve an ID to use when creating a new instace via getNextId()
+     * 
+     * @return string Unique id of the pattern on success or null on failure this $this->lastError set
      * @throws \InvalidArgumentException in the instance that the pattern is not valid
      * @throws \RuntimeException if saving failed for some reason
      */
@@ -86,6 +89,8 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             throw new \InvalidArgumentException($recurPattern->getLastError()->getMessage());
         }
 
+        // Get the unique id of the account that this pattern belongs to
+        $accountId = $recurPattern->getAccountId();
         $data = $recurPattern->toArray();
         $dayOfWeekMask = $recurPattern->getDayOfWeekMask();
 
@@ -95,7 +100,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
         $recurrenceData = [
             'entity_recurrence_id' => $data['entity_recurrence_id'],
-            'account_id' => $this->accountId,
+            'account_id' => $accountId,
             'entity_definition_id' => $data['entity_definition_id'],
             'date_processed_to' => $data['date_processed_to'],
             'parent_entity_id' => $data['first_entity_id'],
@@ -122,7 +127,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             $sql = 'SELECT entity_recurrence_id FROM ' .
                 self::ENTITY_RECUR_TABLE .
                 ' WHERE entity_recurrence_id=:entity_recurrence_id';
-            $result = $this->database->query($sql, ["entity_recurrence_id" => $recurPattern->getId()]);
+            $result = $this->getDatabase($accountId)->query($sql, ["entity_recurrence_id" => $recurPattern->getId()]);
 
             if ($result->rowCount()) {
                 /*
@@ -151,7 +156,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                 $sql .= " WHERE entity_recurrence_id=:entity_recurrence_id";
 
                 // Run the update and return the id as the result
-                $result = $this->database->query($sql, $updateParams);
+                $result = $this->getDatabase($accountId)->query($sql, $updateParams);
 
                 return $recurPattern->getId();
             }
@@ -180,7 +185,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $sql .= " VALUES(:" . implode(",:", $insertParams) . ")";
 
         // Run query, get next value (if selected), and commit
-        $this->database->query($sql, $recurrenceData);
+        $this->getDatabase($accountId)->query($sql, $recurrenceData);
 
 
         // If the recurrence pattern do not have an Id, then set it with the newly created id
@@ -199,25 +204,18 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     public function getNextId(): string
     {
         return Uuid::uuid4()->toString();
-        // $sql = "select nextval('" . self::ENTITY_RECUR_TABLE . "_id_seq') as id";
-        // $result = $this->database->query($sql);
-
-        // if ($result->rowCount()) {
-        //     $row = $result->fetch();
-        //     return $row["id"];
-        // }
-
-        // return false;
     }
 
     /**
      * Load up an entity recurrence pattern by id
      *
      * @param string $recurId The unique id of the pattern to load
+     * @param string $accountId Unique id of the account that this pattern belongs to
+     * 
      * @return RecurrencePattern
      * @throws \InvalidArgumentException if the id passed is not a valid number
      */
-    public function load($recurId)
+    public function load(string $recurId, string $accountId)
     {
         $sql = "SELECT entity_recurrence_id, entity_definition_id, date_processed_to, parent_entity_id,
                     type, interval, date_start,
@@ -227,7 +225,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 					dayofweekmask[7] as day7
 				  FROM " . self::ENTITY_RECUR_TABLE . " WHERE entity_recurrence_id=:entity_recurrence_id";
 
-        $result = $this->database->query($sql, ["entity_recurrence_id" => $recurId]);
+        $result = $this->getDatabase($accountId)->query($sql, ["entity_recurrence_id" => $recurId]);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
@@ -249,8 +247,8 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
             // Load recurrence rules
             if ($row['entity_definition_id']) {
-                $def = $this->entityDefinitionLoader->getById($row['entity_definition_id']);
-                if ($this->entityDefinitionLoader->getById($row['entity_definition_id'])) {
+                $def = $this->entityDefinitionLoader->getById($row['entity_definition_id'], $accountId);
+                if ($this->entityDefinitionLoader->getById($row['entity_definition_id'], $accountId)) {
                     $recurrenceData['field_date_start'] = $def->recurRules['field_date_start'];
                     $recurrenceData['field_time_start'] = $def->recurRules['field_time_start'];
                     $recurrenceData['field_date_end'] = $def->recurRules['field_date_end'];
@@ -259,7 +257,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             }
 
             // Create recurrence pattern to return
-            $recurPattern = new RecurrencePattern($this->accountId);
+            $recurPattern = new RecurrencePattern($accountId);
             $recurPattern->fromArray($recurrenceData);
 
             // Now set weekday bits
@@ -299,9 +297,11 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      *
      * @param string $recurrenceId The id of the recurrence that we will be updating
      * @param string $entityId The id of the entity that we will set as parent object id
+     * @param string $accountId Unique id of the account that this pattern belongs to
+     * 
      * @return bool
      */
-    public function updateParentEntityId(string $recurrenceId, string $entityId)
+    public function updateParentEntityId(string $recurrenceId, string $entityId, string $accountId)
     {
         if (!$recurrenceId) {
             throw new \InvalidArgumentException("Cannot update recurrence parent object id. Invalid recurrence id.");
@@ -311,7 +311,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             throw new \InvalidArgumentException("Cannot update recurrence parent object id. Invalid entity id.");
         }
 
-        $result = $this->database->update(
+        $result = $this->getDatabase($accountId)->update(
             self::ENTITY_RECUR_TABLE,
             ["parent_entity_id" => $entityId],
             ["entity_recurrence_id" => $recurrenceId]
@@ -331,19 +331,21 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         if (!$recurrencePattern->getId()) {
             throw new \InvalidArgumentException("You cannot delete a pattern that has not been saved");
         }
-        return $this->deleteById($recurrencePattern->getId());
+        return $this->deleteById($recurrencePattern->getId(), $recurrencePattern->getAccountId());
     }
 
     /**
      * Delete recurrence pattern by id
      *
-     * @param int $recurId The unique id of the recurring pattern to delete
+     * @param string $recurId The unique id of the recurring pattern to delete
+     * @param string $accountId Unique id of the account that this pattern belongs to
+     * 
      * @return bool true on success, false on failure
      */
-    public function deleteById($recurId)
+    public function deleteById(string $recurId, string $accountId)
     {
 
-        $result = $this->database->delete(self::ENTITY_RECUR_TABLE, ["entity_recurrence_id" => $recurId]);
+        $result = $this->getDatabase($accountId)->delete(self::ENTITY_RECUR_TABLE, ["entity_recurrence_id" => $recurId]);
         return ($result) ? true : false;
     }
 
@@ -369,13 +371,15 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      *
      * @param string $objType The object type to select patterns for
      * @param \DateTime $dateTo The date to indicate if a pattern is stale
+     * @param string $accountId Unique id of the account that this pattern belongs to
+     * 
      * @return array of IDs of stale patterns
      */
-    public function getStalePatternIds($objType, \DateTime $dateTo)
+    public function getStalePatternIds(string $objType, \DateTime $dateTo, string $accountId)
     {
         $ret = [];
 
-        $def = $this->entityDefinitionLoader->get($objType);
+        $def = $this->entityDefinitionLoader->get($objType, $accountId);
         $dateToString = $dateTo->format("Y-m-d");
 
         $sql = "SELECT entity_recurrence_id FROM " . self::ENTITY_RECUR_TABLE . "
@@ -385,10 +389,10 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                   AND entity_definition_id=:entity_definition_id
                   AND account_id=:account_id";
 
-        $result = $this->database->query($sql, [
+        $result = $this->getDatabase($accountId)->query($sql, [
             "date_to_string" => $dateToString,
             "entity_definition_id" => $def->getEntityDefinitionId(),
-            'account_id' => $this->accountId,
+            'account_id' => $accountId,
         ]);
 
         if ($result->rowCount()) {

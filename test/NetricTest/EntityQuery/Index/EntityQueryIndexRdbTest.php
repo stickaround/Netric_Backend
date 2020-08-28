@@ -46,7 +46,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
     public function testbuildConditionStringForFkey()
     {
-        $def = $this->defLoader->get(ObjectTypes::TASK);
+        $def = $this->defLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         // Get all groupings for this object type
@@ -70,7 +70,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
     public function testbuildConditionStringForFkeyMulti()
     {
-        $def = $this->defLoader->get(ObjectTypes::NOTE);
+        $def = $this->defLoader->get(ObjectTypes::NOTE, $this->account->getAccountId());
 
         // Test Equals
         $condition = new Where("groups");
@@ -99,7 +99,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
     public function testbuildConditionStringForObject()
     {
-        $def = $this->defLoader->get(ObjectTypes::TASK);
+        $def = $this->defLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
 
         // Test Equals
         $condition = new Where("owner_id");
@@ -110,7 +110,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
     public function testbuildConditionStringForString()
     {
-        $def = $this->defLoader->get(ObjectTypes::TASK);
+        $def = $this->defLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
         // Test Equals
         $condition = new Where("name");
         $condition->equals("Task Name");
@@ -146,7 +146,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
     public function testbuildConditionStringForNumber()
     {
-        $def = $this->defLoader->get(ObjectTypes::TASK);
+        $def = $this->defLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
         // Test Equals
         $condition = new Where("revision");
         $condition->equals(1);
@@ -266,7 +266,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
     public function testbuildConditionStringForBoolean()
     {
-        $def = $this->defLoader->get(ObjectTypes::TASK);
+        $def = $this->defLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
 
         // Test Equals
         $condition = new Where("f_seen");
@@ -283,7 +283,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
     public function testbuildConditionStringForDate()
     {
-        $def = $this->defLoader->get(ObjectTypes::TASK);
+        $def = $this->defLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
 
         // Test current day
         $currentDay = date("j");

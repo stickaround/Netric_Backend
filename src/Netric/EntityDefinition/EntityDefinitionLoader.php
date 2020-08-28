@@ -2,11 +2,11 @@
 
 namespace Netric\EntityDefinition;
 
+use Aereus\Config\Config;
 use Netric\Account\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
-use Netric\Config\ConfigFactory;
 
 /**
  * Class to handle to loading of object definitions
@@ -35,35 +35,41 @@ class EntityDefinitionLoader
     private $cache = null;
 
     /**
-     * Account we are loading definitions for
+     * Config loader that will be used to load the system config
+     *
+     * @var Config
      */
-    private Account $account;
+    private $config = null;
 
     /**
      * Setup IdentityMapper for loading objects
      *
-     * @param EntityDefinitionDataMapperInterface $dataMapper Datamapper for entity definitions
+     * @param EntityDefinitionDataMapperInterface $definitionDataMapper Datamapper for entity definitions
+     * @param Config $config Config loader that will be used to load the system config
      * @param CacheInterface $cache Optional cache object
+     * 
      * @return EntityDefinitionLoader
      */
     public function __construct(
-        EntityDefinitionDataMapperInterface $dataMapper,
-        CacheInterface $cache = null,
-        Account $account
+        EntityDefinitionDataMapperInterface $definitionDataMapper,
+        Config $config,
+        CacheInterface $cache = null
     ) {
+        $this->dataMapper = $definitionDataMapper;
+        $this->config = $config;
         $this->cache = $cache;
-        $this->dataMapper = $dataMapper;
-        $this->account = $account;
     }
 
     /**
      * Get an entity
      *
-     * @param string $objType
+     * @param string $objType The object type of the entity definition we are getting
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return EntityDefinition
      * @throws \InvalidArgumentException if non-string was passed
      */
-    public function get(string $objType)
+    public function get(string $objType, string $accountId)
     {
         if (!$objType || !is_string($objType)) {
             throw new \InvalidArgumentException('ObjType Paramater is required');
@@ -73,35 +79,38 @@ class EntityDefinitionLoader
             return $this->loadedDefinitions[$objType];
         }
 
-        return $this->loadDefinition($objType);
+        return $this->loadDefinition($objType, $accountId);
     }
 
     /**
      * Retrieve an entity definition by id
      *
-     * @param string $entityDefinitionId
+     * @param string $entityDefinitionId The id of the entity definition we are going to get
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return EntityDefinition|null
      */
-    public function getById(string $entityDefinitionId): ?EntityDefinition
+    public function getById(string $entityDefinitionId, string $accountId): ?EntityDefinition
     {
-        $def = $this->dataMapper->fetchById($entityDefinitionId);
+        $def = $this->dataMapper->fetchById($entityDefinitionId, $accountId);
         $objType = $def->getObjType();
         if ($this->isLoaded($objType)) {
             return $this->loadedDefinitions[$objType];
         }
 
-        return $this->loadDefinition($objType);
+        return $this->loadDefinition($objType, $accountId);
     }
 
     /**
      * Save a defintion from a system definition if it exists
      *
-     * @param string $objType
+     * @param string $objType The object type of the entity definition we are going to reset
+     * @param string $accountId The account that owns the entity definition
      */
-    public function forceSystemReset(string $objType)
+    public function forceSystemReset(string $objType, string $accountId)
     {
         $sysData = $this->getSysDef($objType);
-        $def = $this->loadDefinition($objType);
+        $def = $this->loadDefinition($objType, $accountId);
 
         // Check the revision to see if we need to update
         if ($sysData) {
@@ -115,13 +124,15 @@ class EntityDefinitionLoader
     /**
      * Check if an entity definition exists
      *
-     * @param string $objType
+     * @param string $objType The object type of the entity definition we are loading
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return bool
      */
-    public function definitionExists(string $objType): bool
+    public function definitionExists(string $objType, string $accountId): bool
     {
         try {
-            $def = $this->get($objType);
+            $def = $this->get($objType, $accountId);
             return ($def) ? true : false;
         } catch (\Exception $exception) {
             return false;
@@ -131,17 +142,16 @@ class EntityDefinitionLoader
     /**
      * Construct the definition class
      *
-     * @param string $objType
+     * @param string $objType The object type of the entity definition we are loading
+     * @param string $accountId The account that owns the entity definition
+     * 
      * @return EntityDefinition|null
      */
-    private function loadDefinition(string $objType)
+    private function loadDefinition(string $objType, string $accountId)
     {
-        // First try to load from cache
-        //$def = $this->getCached($objType);
-
         // No cache, then load from dataMapper
         if (!$def) {
-            $def = $this->dataMapper->fetchByName($objType);
+            $def = $this->dataMapper->fetchByName($objType, $accountId);
         }
 
         // Does not exist
@@ -162,7 +172,7 @@ class EntityDefinitionLoader
 
         // Cache the loaded definition for future requests
         $this->loadedDefinitions[$objType] = $def;
-        $this->cache->set($this->getUniqueKeyForObjType($objType), $def->toArray());
+        $this->cache->set($this->getUniqueKeyForObjType($objType, $accountId), $def->toArray());
 
         return $def;
     }
@@ -173,13 +183,15 @@ class EntityDefinitionLoader
      * @param string $objType
      * @return string
      */
-    private function getUniqueKeyForObjType($objType)
+    private function getUniqueKeyForObjType(string $objType, string $accountId)
     {
         $hash = $this->dataMapper->getLatestSystemDefinitionHash($objType);
+        
         if (!$hash) {
             $hash = 'custom';
         }
-        return $this->dataMapper->getAccount()->getAccountId() . '/entitydefinition/' . $hash . "-" . $objType;
+
+        return "$accountId/entitydefinition/$hash-$objType";
     }
 
 
@@ -200,15 +212,17 @@ class EntityDefinitionLoader
      * Check to see if an entity is cached
      *
      * @param string $objType The unique name of the object to that was cached
+     * @param string $accountId Account of the definition we are loading from cache
+     * 
      * @return EntityDefinition|bool EntityDefinition if found in cache, false if not cached
      */
-    private function getCached($objType)
+    private function getCached(string $objType, string $accountId)
     {
         // Load the cache DataMapper and put it into $this->loadedEntities
-        $ret = $this->cache->get($this->getUniqueKeyForObjType($objType));
+        $ret = $this->cache->get($this->getUniqueKeyForObjType($objType, $accountId));
 
         if ($ret) {
-            $def = new EntityDefinition($objType, $this->account->getAccountId());
+            $def = new EntityDefinition($objType, $accountId);
             $def->fromArray($ret);
             return $def;
         }
@@ -226,9 +240,8 @@ class EntityDefinitionLoader
     {
         $ret = false;
 
-        // Check for system object
-        $config = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class);
-        $basePath = $config->application_path . "/data/entity_definitions";
+        // Check for system object        
+        $basePath = $this->config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $ret = include($basePath . "/" . $objType . ".php");
 
@@ -249,9 +262,8 @@ class EntityDefinitionLoader
      */
     private function setSysAggregates(EntityDefinition $def)
     {
-        // Check for system object
-        $config = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class);
-        $basePath = $config->application_path . "/data/entity_definitions";
+        // Check for system object        
+        $basePath = $this->config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $def->getObjType() . ".php")) {
             $ret = include($basePath . "/" . $def->getObjType() . ".php");
 
@@ -284,9 +296,8 @@ class EntityDefinitionLoader
 
         $numViews = 0;
 
-        // Check for system object
-        $config = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class);
-        $basePath = $config->application_path . "/data/browser_views";
+        // Check for system object        
+        $basePath = $this->config->application_path . "/data/browser_views";
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $viewsData = include($basePath . "/" . $objType . ".php");
 
@@ -315,7 +326,7 @@ class EntityDefinitionLoader
         }
 
         // Check for system object
-        $basePath = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class)->application_path . "/data";
+        $basePath = $this->config->application_path . "/data";
         if (file_exists($basePath . "/entity_forms/" . $objType . "/default.php")) {
             $xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/default.php");
             if ($xml) {
@@ -342,14 +353,15 @@ class EntityDefinitionLoader
      * Clear cache
      *
      * @param string $objType The object type name
+     * @param string $accountId Account of the definitions we are clearing from cache
      */
-    public function clearCache($objType)
+    public function clearCache(string $objType, string $accountId)
     {
         $this->loadedDefinitions[$objType] = null;
-        $this->cache->remove($this->getUniqueKeyForObjType($objType));
+        $this->cache->remove($this->getUniqueKeyForObjType($objType, $accountId));
 
         // Remove cached all Object Types
-        $this->cache->remove($this->dataMapper->getAccount()->getAccountId() . "/objects/allObjectTypes");
+        $this->cache->remove("$accountId/objects/allObjectTypes");
     }
 
     /**
@@ -372,26 +384,28 @@ class EntityDefinitionLoader
 
     /**
      * Load all the definitions
-     *
+     * 
+     * @param string $accountId Account of the definitions we are loading from cache
+     * 
      * @return EntityDefinition[]
      */
-    public function getAll()
+    public function getAll(string $accountId)
     {
         // First try to load the definitions from cache
-        $allObjectTypes = $this->cache->get($this->dataMapper->getAccount()->getAccountId() . "/objects/allObjectTypes");
+        $allObjectTypes = $this->cache->get("$accountId/objects/allObjectTypes");
 
         // No cache, then load objects from dataMapper
         if (!$allObjectTypes) {
-            $allObjectTypes = $this->dataMapper->getAllObjectTypes();
+            $allObjectTypes = $this->dataMapper->getAllObjectTypes($accountId);
 
             // Cache the loaded objects for future requests
-            $this->cache->set($this->dataMapper->getAccount()->getAccountId() . "/objects/allObjectTypes", $allObjectTypes);
+            $this->cache->set("$accountId/objects/allObjectTypes", $allObjectTypes);
         }
 
         $ret = [];
         foreach ($allObjectTypes as $objType) {
             // Get the defintion of the current $objType
-            $ret[] = $this->get($objType);
+            $ret[] = $this->get($objType, $accountId);
         }
 
         return $ret;
