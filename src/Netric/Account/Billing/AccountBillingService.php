@@ -99,10 +99,6 @@ class AccountBillingService implements AccountBillingServiceInterface
         // Create an invoice for the number of users
         $invoice = $this->createInvoice($account->getAccountId(), $contactForAccount->getEntityId(), $numUsers);
 
-        $this->log->error(
-            'AccountBillingService::billAmountDue bypassing for logging: ' .
-                $account->getAccountId()
-        );
         // Charge the gateway for the invoice amount
         $chargeResponse = $this->paymentGateway->chargeProfile($paymentProfile, (int) $invoice->getValue('amount'));
         if ($chargeResponse->getStatus() != ChargeResponse::STATUS_APPROVED) {
