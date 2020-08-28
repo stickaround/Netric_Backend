@@ -28,7 +28,7 @@ return [
         // Set log level - 5 = NOTICE (DEFAULT), 7 = DEBUG
         'level' => 6,
         // Optional remote server for logging if writer supports it
-        'server' => '10.4.2.134',
+        'server' => 'pvt-logstash.aereus.com',
         // Optional remote server port - 12201=gelf
         'port' => '12201',
     ],
