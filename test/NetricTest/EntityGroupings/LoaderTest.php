@@ -38,7 +38,7 @@ class LoaderTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
 
         // Create test group
-        $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
+        $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups", $this->account->getAccountId());
         $newGroup = $groupings->create();
         $newGroup->name = "uttest-eg-loader-get";
         $groupings->add($newGroup);
@@ -50,7 +50,7 @@ class LoaderTest extends TestCase
         $groupingLoader->clearCache(ObjectTypes::CONTACT . "/groups");
 
         // Use the loader to get the object
-        $grp = $groupingLoader->get(ObjectTypes::CONTACT . "/groups")->getByName($newGroup->name);
+        $grp = $groupingLoader->get(ObjectTypes::CONTACT . "/groups", $this->account->getAccountId())->getByName($newGroup->name);
         $this->assertNotNull($grp);
         $this->assertEquals($newGroup->name, $grp->name);
 
@@ -70,7 +70,7 @@ class LoaderTest extends TestCase
          */
 
         // Cleanup
-        $groups = $groupingLoader->get(ObjectTypes::CONTACT . "/groups");
+        $groups = $groupingLoader->get(ObjectTypes::CONTACT . "/groups", $this->account->getAccountId());
         $grp = $groups->getByName($newGroup->name);
         $groups->delete($grp->id);
         $groups->save();

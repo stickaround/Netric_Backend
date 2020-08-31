@@ -72,9 +72,11 @@ class EntityGroupingStateManager
      * Get groupings for an entity field
      *
      * @param string $path The path of the grouping that we are going to load
+     * @param string $accountId The account that owns the groupings that we are about to save
+     * 
      * @return EntityGroupings
      */
-    public function get(string $path)
+    public function get(string $path, string $accountId)
     {
         if (!$path) {
             throw new InvalidArgumentException("$path is a required param.");
@@ -83,7 +85,7 @@ class EntityGroupingStateManager
         if ($this->isLoaded($path)) {
             $ret = $this->loadedGroupings[$path];
         } else {
-            $ret = $this->loadGroupings($path);
+            $ret = $this->loadGroupings($path, $accountId);
         }
 
         return $ret;
@@ -126,11 +128,13 @@ class EntityGroupingStateManager
      * Load the entity groupings using a path
      *
      * @param string $path The path of the grouping that we are going to load
+     * @param string $accountId The account that owns the groupings that we are about to save
+     * 
      * @return EntityGroupings
      */
-    private function loadGroupings(string $path)
+    private function loadGroupings(string $path, string $accountId)
     {
-        $groupings = $this->dataMapper->getGroupings($path);
+        $groupings = $this->dataMapper->getGroupings($path, $accountId);
 
         // Cache the loaded definition for future requests
         $this->loadedGroupings[$path] = $groupings;

@@ -298,7 +298,7 @@ class BackendNetricTest extends TestCase
     {
         // Get inbox - it was created in $this->setUp
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
         $group = $groupings->create('test-' . rand());
         $group->user_id = $this->user->getEntityId();
         $groupings->add($group);

@@ -122,8 +122,10 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                 $cutoffDate->setTimestamp($this->cutoffDate);
             }
 
+            $account = $this->provider->getAccount();
+
             // Second param does not fast-forward the collection so we have to do it manually
-            $this->changes = $this->collection->getExportChanged(false, $cutoffDate);
+            $this->changes = $this->collection->getExportChanged($account->getAccountId(), false, $cutoffDate);
         }
 
         $this->log->info("ZPUSH->ExportChangeNetric:InitializeExporter Initialized {$this->folderId} with " . count($this->changes) . " content changes");

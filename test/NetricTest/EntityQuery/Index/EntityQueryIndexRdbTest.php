@@ -50,7 +50,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
         // Get all groupings for this object type
-        $groupings = $groupingLoader->get(ObjectTypes::TASK . "/status_id");
+        $groupings = $groupingLoader->get(ObjectTypes::TASK . "/status_id", $this->account->getAccountId());
 
         $completedGroup = $groupings->getByName("Completed");
         $compledtedId = $completedGroup->getGroupId();

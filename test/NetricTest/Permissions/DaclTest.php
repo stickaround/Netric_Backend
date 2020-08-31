@@ -55,8 +55,8 @@ class DaclTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $gropingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $userGroups = $gropingsLoader->get(ObjectTypes::USER . '/groups');
+        $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        $userGroups = $groupingsLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
         $this->userGroup = $userGroups->getByName(UserEntity::GROUP_USERS);
 
         // Create a temporary user

@@ -28,6 +28,7 @@ interface CollectionInterface
     /**
      * Get a stats list of what has changed locally since the last sync
      *
+     * @param string $accountId The account that owns the the stats that we are getting
      * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
      * @param DateTime $limitUpdatesAfter If set, only pull updates after a specific date
      * @return array of associative array [
@@ -39,6 +40,7 @@ interface CollectionInterface
      *  ]
      */
     public function getExportChanged(
+        string $accountId,
         $autoFastForward = true,
         DateTime $limitUpdatesAfter = null
     );

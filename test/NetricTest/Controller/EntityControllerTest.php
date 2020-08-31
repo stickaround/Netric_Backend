@@ -443,7 +443,7 @@ class EntityControllerTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
 
-        $groupings = $groupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->account->getUser()->getEntityId());
+        $groupings = $groupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->account->getUser()->getEntityId(), $this->account->getAccountId());
 
         $group1 = new Group();
         $group2 = new Group();

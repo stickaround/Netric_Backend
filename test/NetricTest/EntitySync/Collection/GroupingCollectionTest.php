@@ -59,7 +59,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
         parent::tearDown();
 
         $dm = $this->groupingDataMapper;
-        $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups");
+        $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups", $this->account->getAccountId());
 
         // Cleanup the test groupings in groupings table
         foreach ($this->testObjectGroupings as $groupId) {
@@ -84,7 +84,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
     protected function createLocal()
     {
         // Create the grouping below
-        $this->groupings = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups");
+        $this->groupings = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT . "/groups", $this->account->getAccountId());
         $newGroup = $this->groupings->create();
         $newGroup->name = "UTEST CS::testGetExportChanged" . rand();
         $this->groupings->add($newGroup);

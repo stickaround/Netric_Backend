@@ -216,7 +216,7 @@ class ActivityLog
      */
     private function getActivityTypeGroup(EntityDefinition $objDef, $createIfMissing = true)
     {
-        $groupings = $this->groupingLoader->get(ObjectTypes::ACTIVITY . "/type_id");
+        $groupings = $this->groupingLoader->get(ObjectTypes::ACTIVITY . "/type_id", $objDef->getAccountId());
 
         $existing = $groupings->getByName($objDef->title);
         if ($existing) {

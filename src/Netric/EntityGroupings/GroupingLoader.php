@@ -53,9 +53,11 @@ class GroupingLoader
      * Get the entity grouping using a unique path
      *
      * @param string $path The path of the grouping that we are going to load
+     * @param string $accountId The account that owns the groupings that we are about to save
+     * 
      * @return EntityGroupings
      */
-    public function get(string $path): ?EntityGroupings
+    public function get(string $path, string $accountId): ?EntityGroupings
     {
         if (!$path) {
             throw new Exception('$path is a required param');
@@ -65,7 +67,7 @@ class GroupingLoader
             return $this->loadedGroupings[$path];
         }
 
-        return $this->loadGroupings($path);
+        return $this->loadGroupings($path, $accountId);
     }
 
     /**
@@ -93,10 +95,11 @@ class GroupingLoader
      * Load the entity groupings using a path
      *
      * @param string $path The path of the grouping that we are going to load
+     * @param string $accountId The account that owns the groupings that we are about to save
      */
-    private function loadGroupings(string $path)
+    private function loadGroupings(string $path, string $accountId)
     {
-        $groupings = $this->dataMapper->getGroupings($path);
+        $groupings = $this->dataMapper->getGroupings($path, $accountId);
         $groupings->setDataMapper($this->dataMapper);
 
         // Cache the loaded definition for future requests

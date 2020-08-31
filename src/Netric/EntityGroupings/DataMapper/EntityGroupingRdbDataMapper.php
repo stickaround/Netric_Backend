@@ -5,17 +5,14 @@ namespace Netric\EntityGroupings\DataMapper;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use Netric\Db\Relational\Exception\DatabaseQueryException;
-use Netric\Db\Relational\RelationalDbInterface;
 use Netric\EntitySync\Commit\CommitManager;
 use Netric\EntitySync\EntitySync;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\EntityDefinition\EntityDefinitionLoader;
-use Netric\Db\Relational\RelationalDbFactory;
-use Netric\EntitySync\EntitySyncFactory;
-use Netric\EntitySync\Commit\CommitManagerFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Account\Account;
+use Netric\Db\Relational\RelationalDbContainerInterface;
+use Netric\Db\Relational\RelationalDbContainer;
+use Netric\Db\Relational\RelationalDbInterface;
 use Ramsey\Uuid\Uuid;
 use DateTime;
 
@@ -25,11 +22,11 @@ use DateTime;
 class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 {
     /**
-     * Handle to database
+     * Database container
      *
-     * @var RelationalDbInterface
+     * @var RelationalDbContainer
      */
-    private $database = null;
+    private $databaseContainer = null;
 
     /**
      * Commit manager used to crate global commits for sync
@@ -67,29 +64,51 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     /**
      * Class constructor
      *
-     * @param Account $account Current netric account loaded
+     * @param RelationalDbContainer $dbContainer Handles the database actions     
+     * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
+     * @param EntityDefinitionLoader $entityDefinitionLoader Manage handles creating, getting, and working with commits
+     * @param EntitySync $entitySync Entity sync manager
      */
-    public function __construct(Account $account)
+    public function __construct(
+        RelationalDbContainer $dbContainer,
+        EntityDefinitionLoader $entityDefinitionLoader,
+        CommitManager $commitManager,
+        EntitySync $entitySync
+        )
     {
+        $this->databaseContainer = $dbContainer;
+        $this->entityDefinitionLoader = $entityDefinitionLoader;
+        $this->commitManager = $commitManager;
+        $this->entitySync = $entitySync;
+        
         // Clear the moved entities cache
-        $this->cacheMovedEntities = [];
-        $this->database = $account->getServiceManager()->get(RelationalDbFactory::class);
-        $this->commitManager = $account->getServiceManager()->get(CommitManagerFactory::class);
-        $this->entitySync = $account->getServiceManager()->get(EntitySyncFactory::class);
-        $this->entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $this->account = $account;
+        $this->cacheMovedEntities = [];        
+    }
+
+    /**
+     * Get active database handle
+     *
+     * @param string $accountId The account being acted on
+     * @return RelationalDbInterface
+     */
+    private function getDatabase(string $accountId): RelationalDbInterface
+    {
+        return $this->databaseContainer->getDbHandleForAccountId($accountId);
     }
 
     /**
      * Save groupings
      *
      * @param EntityGroupings $groupings Groupings object to save
+     * 
      * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
      */
     public function saveGroupings(EntityGroupings $groupings): array
     {
+        $accountId = $groupings->getAccountId();
+
         // Now save
-        $def = $this->entityDefinitionLoader->get($groupings->getObjType(), $this->account->getAccountId());
+        $def = $this->entityDefinitionLoader->get($groupings->getObjType(), $accountId);
         if (!$def) {
             throw new \RuntimeException(
                 'Could not get defition for entity type: ' . $groupings->getObjType()
@@ -111,7 +130,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
-            $this->database->query(
+            $this->getDatabase($accountId)->query(
                 'DELETE FROM ' . self::TABLE_GROUPINGS . ' WHERE group_id=:group_id',
                 ['group_id' => $grp->getGroupId()]
             );
@@ -160,14 +179,16 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * Get object groupings based on unique path
      *
      * @param string $path The path of the object groupings that we are going to query
+     * @param string $accountId The account that owns the groupings that we are about to save
+     * 
      * @return EntityGroupings
      */
-    public function getGroupings(string $path): EntityGroupings
+    public function getGroupings(string $path, string $accountId): EntityGroupings
     {
         $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE path = :path ORDER BY sort_order, name LIMIT 10000';
-        $result = $this->database->query($sql, ["path" => $path]);
+        $result = $this->getDatabase($accountId)->query($sql, ["path" => $path]);
 
-        $groupings = new EntityGroupings($path);
+        $groupings = new EntityGroupings($path, $accountId);
         foreach ($result->fetchAll() as $row) {
             $group = new Group();
             $group->fromArray($row);
@@ -188,10 +209,13 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      */
     public function getGroupingsByObjType($definition, $fieldName)
     {
-        $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE entity_definition_id = :definition_id ORDER BY sort_order, name LIMIT 10000';
-        $result = $this->database->query($sql, ["definition_id" => $definition->getEntityDefinitionId()]);
+        // Get the account id from the definition
+        $accountId = $definition->getAccountId();
 
-        $groupings = new EntityGroupings("{$definition->getObjType()}/$fieldName");
+        $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE entity_definition_id = :definition_id ORDER BY sort_order, name LIMIT 10000';
+        $result = $this->getDatabase($accountId)->query($sql, ["definition_id" => $definition->getEntityDefinitionId()]);
+
+        $groupings = new EntityGroupings("{$definition->getObjType()}/$fieldName", $accountId);
         foreach ($result->fetchAll() as $row) {
             $group = new Group();
             $group->fromArray($row);
@@ -223,11 +247,14 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             return false;
         }
 
+        // Get the account id from the definition
+        $accountId = $def->getAccountId();
+
         $groupData = $grp->toArray();
 
         if (!empty($grp->getGroupId())) {
             // Update if existing
-            $this->database->update(self::TABLE_GROUPINGS, $groupData, ['group_id' => $grp->getGroupId()]);
+            $this->getDatabase($accountId)->update(self::TABLE_GROUPINGS, $groupData, ['group_id' => $grp->getGroupId()]);
             return true;
         }
 
@@ -235,18 +262,18 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $grp->setGroupId(Uuid::uuid4()->toString());
         $groupData["group_id"] = $grp->getGroupId();
         $groupData['entity_definition_id'] = $def->getEntityDefinitionId();
-        $groupData['account_id'] = $this->account->getAccountId();
+        $groupData['account_id'] = $accountId;
 
         $path = $def->getObjType() . "/" . $field->name;
         if ($userGuid) {
             $path .= "/$userGuid";
-            $groupData["user_id"] = $this->account->getUser($userGuid)->getEntityId();
+            $groupData["user_id"] = $userGuid;
         }
 
         $groupData["path"] = $path;
 
         // Default to inserting
-        $this->database->insert(self::TABLE_GROUPINGS, $groupData);
+        $this->getDatabase($accountId)->insert(self::TABLE_GROUPINGS, $groupData);
         return true;
     }
 }

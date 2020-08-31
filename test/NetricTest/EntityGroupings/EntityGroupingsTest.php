@@ -6,25 +6,41 @@ use PHPUnit\Framework\TestCase;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\EntityDefinition\ObjectTypes;
+use NetricTest\Bootstrap;
 
 class EntityGroupingsTest extends TestCase
 {
+    /**
+     * Handle to account
+     *
+     * @var \Netric\Account\Account
+     */
+    private $account = null;
+
+    /**
+     * Setup each test
+     */
+    protected function setUp(): void
+    {
+        $this->account = Bootstrap::getAccount();
+    }
+
     /**
      * Test the path of grouping
      */
     public function testGroupingPath()
     {
-        $groupings = new EntityGroupings(ObjectTypes::CONTACT . "/group");
+        $groupings = new EntityGroupings(ObjectTypes::CONTACT . "/group", $this->account->getAccountId());
         $this->assertEquals($groupings->path, ObjectTypes::CONTACT . "/group");
         $this->assertEquals($groupings->getObjType(), ObjectTypes::CONTACT);
         $this->assertEquals($groupings->getFieldName(), "group");
 
-        $groupingsWithUserGuid = new EntityGroupings(ObjectTypes::CONTACT . "/group/0000-0000-user-guid");
+        $groupingsWithUserGuid = new EntityGroupings(ObjectTypes::CONTACT . "/group/0000-0000-user-guid", $this->account->getAccountId());
         $this->assertEquals($groupingsWithUserGuid->getUserGuid(), "0000-0000-user-guid");
 
         // Should throw an exception if we provide an invalid path for entity groupings
         $this->expectExceptionMessage("Entity groupings should at least have 2 parts obj_type/field_name.");
-        new EntityGroupings(ObjectTypes::CONTACT);
+        new EntityGroupings(ObjectTypes::CONTACT, $this->account->getAccountId());
     }
 
     /**
@@ -32,7 +48,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testAdd()
     {
-        $groupings = new EntityGroupings("test/group");
+        $groupings = new EntityGroupings("test/group", $this->account->getAccountId());
         $group = new Group();
         $group->setName("My Test");
         $groupings->add($group);
@@ -46,7 +62,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testDelete()
     {
-        $groupings = new EntityGroupings("test/group");
+        $groupings = new EntityGroupings("test/group", $this->account->getAccountId());
         $group = new Group();
         $group->setGroupId('910428e6-474f-4cc2-8935-36e84d00771d');
         $group->setName('My Test');
@@ -65,7 +81,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testGetById()
     {
-        $groupings = new EntityGroupings("test/group");
+        $groupings = new EntityGroupings("test/group", $this->account->getAccountId());
         $group = new Group();
         $group->setGroupId('910428e6-474f-4cc2-8935-36e84d00771d');
         $group->setName("My Test");
@@ -80,7 +96,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testGetByName()
     {
-        $groupings = new EntityGroupings("test/group");
+        $groupings = new EntityGroupings("test/group", $this->account->getAccountId());
         $group = new Group();
         $group->setGroupId('910428e6-474f-4cc2-8935-36e84d00771d');
         $group->setName("My Test");
@@ -95,7 +111,7 @@ class EntityGroupingsTest extends TestCase
      */
     public function testGetByPath()
     {
-        $groupings = new EntityGroupings("test/group");
+        $groupings = new EntityGroupings("test/group", $this->account->getAccountId());
 
         $group = new Group();
         $group->setGroupId('910428e6-474f-4cc2-8935-36e84d00771d');
@@ -114,7 +130,7 @@ class EntityGroupingsTest extends TestCase
 
     public function testCreate()
     {
-        $groupings = new EntityGroupings("test/group");
+        $groupings = new EntityGroupings("test/group", $this->account->getAccountId());
         $group = $groupings->create();
         $this->assertInstanceOf(Group::class, $group);
     }

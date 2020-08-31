@@ -149,7 +149,7 @@ class UserEntity extends Entity implements EntityInterface
     public function onBeforeToArray(): void
     {
         // Make sure default groups are set correctly
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
 
         // Add to authenticated users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
@@ -209,7 +209,7 @@ class UserEntity extends Entity implements EntityInterface
             $groups = [];
         }
 
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
 
         // Add to authenticated users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
@@ -249,7 +249,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function setIsAdmin($isAdmin = true)
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
         $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         if ($isAdmin) {
             $this->addMultiValue("groups", $adminGroup->getGroupId(), "Administrators");
@@ -265,7 +265,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isAdmin()
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
         $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         $groups = $this->getGroups();
         foreach ($groups as $group) {

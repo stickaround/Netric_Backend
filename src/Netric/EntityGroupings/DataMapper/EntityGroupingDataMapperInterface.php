@@ -12,9 +12,11 @@ interface EntityGroupingDataMapperInterface
      * Get object groupings based on unique path
      *
      * @param string $path The path of the object groupings that we are going to query
+     * @param string $accountId The account that owns the groupings that we are about to save
+     * 
      * @return EntityGroupings
      */
-    public function getGroupings(string $path) : EntityGroupings;
+    public function getGroupings(string $path, string $account) : EntityGroupings;
 
     /**
      * Save groupings

@@ -96,6 +96,16 @@ class EntityProvider
     }
 
     /**
+     * Get the account set for this entity provider
+     *
+     * @return Account
+     */
+    public function getAccount(): Account
+    {
+        return $this->account;
+    }
+
+    /**
      * Returns all available data of a single message
      *
      * @param string $folderId Encoded folder string which contains the obj-type and folder id
@@ -351,7 +361,7 @@ class EntityProvider
         switch ($folder['type']) {
             case self::FOLDER_TYPE_EMAIL:
                 $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-                $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
+                $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
 
                 $group = $groupings->getByGuidOrGroupId($folder['id']);
 
@@ -487,7 +497,7 @@ class EntityProvider
          */
         $serviceManager = $this->account->getServiceManager();
         $gloader = $serviceManager->get(GroupingLoaderFactory::class);
-        $groupings = $gloader->get(ObjectTypes::EMAIL_MESSAGE .  "/mailbox_id/" . $this->user->getEntityId());
+        $groupings = $gloader->get(ObjectTypes::EMAIL_MESSAGE .  "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
 
         /*
          * For now we are just limiting this to the inbox because apparently the
@@ -1223,7 +1233,7 @@ class EntityProvider
         if (isset($syncNote->categories)) {
             $sm = $this->account->getServiceManager();
             $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
-            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId());
+            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId(), $this->account->getAccountId());
 
             foreach ($syncNote->categories as $catName) {
                 // See if there is a grouping with this category name

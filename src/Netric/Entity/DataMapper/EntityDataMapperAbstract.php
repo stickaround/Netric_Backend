@@ -685,7 +685,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 case Field::TYPE_GROUPING:
                     if ($value) {
                         $objType = $entity->getDefinition()->getObjType();
-                        $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath");
+                        $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
 
                         // Clear the value in preparation for an update - or to remove it if group was deleted
                         $entity->setValue($field->name, null);
@@ -700,7 +700,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
 
                 case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
-                    $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath");
+                    $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
 
                     if (is_array($value)) {
                         foreach ($value as $id) {

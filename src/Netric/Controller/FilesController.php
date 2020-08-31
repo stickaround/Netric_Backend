@@ -90,7 +90,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Get user groupings
         $groupingLoader = $sl->get(GroupingLoaderFactory::class);
-        $this->userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups');
+        $this->userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
     }
 
     /**

@@ -2,7 +2,7 @@
 namespace NetricTest\EntityGroupings\DataMapper;
 
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
-use Netric\EntityGroupings\DataMapper\EntityGroupingRdbDataMapper;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
@@ -16,6 +16,6 @@ class EntityGroupingRdbDataMapperTest extends AbstractDataMapperTests
      */
     protected function getDataMapper()
     {
-        return new EntityGroupingRdbDataMapper($this->account);
+        return $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);        
     }
 }

@@ -15,7 +15,7 @@ if (!$account) {
  */
 $groupsData = require(__DIR__ . "/../../../../data/account/user-groups.php");
 $groupingsLoader = $account->getServiceManager()->get(GroupingLoaderFactory::class);
-$groupings = $groupingsLoader->get(ObjectTypes::USER . "/groups");
+$groupings = $groupingsLoader->get(ObjectTypes::USER . "/groups", $account->getAccountId());
 foreach ($groupsData as $groupData) {
     if (!$groupings->getByName($groupData['name'])) {
         $group = new Group();

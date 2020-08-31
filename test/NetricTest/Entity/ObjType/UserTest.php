@@ -82,7 +82,7 @@ class UserTest extends TestCase
         $this->user = $user;
 
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $this->userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups');
+        $this->userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
     }
 
     protected function tearDown(): void

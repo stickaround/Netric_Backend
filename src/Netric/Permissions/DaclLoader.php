@@ -87,7 +87,7 @@ class DaclLoader
         }
 
         // If none is found, return a default where admin and creator owner has access only
-        return $this->createDefaultDacl();
+        return $this->createDefaultDacl($objDef->getAccountId());
     }
 
     /**
@@ -135,17 +135,18 @@ class DaclLoader
         }
 
         // If none is found, return a default where admin and creator owner has access only
-        return $this->createDefaultDacl();
+        return $this->createDefaultDacl($entityDefinition->getAccountId());
     }
 
     /**
      * Private function that creates a default entries of Dacl
-     *
+     * 
+     * @param string $accountId The account that will be used to get the user groups
      * @return Dacl
      */
-    private function createDefaultDacl()
+    private function createDefaultDacl(string $accountId)
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $accountId);
         $default = new Dacl();
         $$groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
         $default->allowGroup($$groupAdmin->getGroupId(), Dacl::PERM_FULL);

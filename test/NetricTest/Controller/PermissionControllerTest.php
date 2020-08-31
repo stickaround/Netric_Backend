@@ -103,7 +103,7 @@ class PermissionControllerTest extends TestCase
         $ret = $this->controller->getGetDaclForEntityAction();
 
         // Get creator owner group to test
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
         $creatorGroup = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
 
         // We should get the default dacl data for this object type
@@ -130,7 +130,7 @@ class PermissionControllerTest extends TestCase
         $ret = $this->controller->getGetDaclForEntityAction();
 
         // Get creator owner group to test
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups');
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
         $creatorGroup = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
         $adminGroup = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
 

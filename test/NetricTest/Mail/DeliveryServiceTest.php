@@ -84,7 +84,7 @@ class DeliveryServiceTest extends TestCase
 
         // If it does not exist, create an inbox for the user
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
         $inbox = new Group();
         $inbox->name = "Inbox";
         $inbox->isSystem = true;
@@ -111,7 +111,7 @@ class DeliveryServiceTest extends TestCase
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
         $groupings->delete($this->inbox->getGroupId());
         $groupingsLoader->save($groupings);
 

@@ -46,6 +46,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
     /**
      * Get a stats list of what has changed locally since the last sync
      *
+     * @param string $accountId The account that owns the the stats that we are getting
      * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
      * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
      * @return array of associative array [
@@ -57,8 +58,9 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      *  ]
      */
     public function getExportChanged(
+        string $accountId,
         $autoFastForward = true,
-        DateTime $limitUpdatesAfter = null
+        DateTime $limitUpdatesAfter = null        
     ) {
         if (!$this->getObjType()) {
             throw new \InvalidArgumentException("Object type not set! Cannot export changes.");
@@ -83,7 +85,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
             // Get groupings
             $filters = $this->getFiltersFromConditions();
-            $groupings = $this->groupingDataMapper->getGroupings($this->getObjType() . "/" . $this->getFieldName());
+            $groupings = $this->groupingDataMapper->getGroupings($this->getObjType() . "/" . $this->getFieldName(), $accountId);
 
             // Loop through each change
             $grps = $groupings->getAll();

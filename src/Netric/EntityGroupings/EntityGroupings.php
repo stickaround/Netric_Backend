@@ -53,6 +53,11 @@ class EntityGroupings
     private $dataMapper = null;
 
     /**
+     * The ID of the account this EntityGroupings belongs to
+     */
+    private string $accountId;
+
+    /**
      * Unique path of the entity groupings
      *
      * @var string
@@ -63,8 +68,9 @@ class EntityGroupings
      * Initialize groupings
      *
      * @param string $path The path of the object groupings. This consists 2 or 3 parts: obj_type/field_name/user_guid. User guid is optional.
+     * @param string $accountId The account this EntityGroupings belongs to
      */
-    public function __construct($path)
+    public function __construct(string $path, string $accountId)
     {
         $this->path = $path;
         $parts = explode("/", $path);
@@ -82,6 +88,29 @@ class EntityGroupings
             $this->userGuid = $parts[2];
             $path .= "/{$this->userGuid}";
         }
+
+        $this->setAccountId($accountId);
+    }
+
+    /**
+     * Set the account this EntityGroupings belongs to
+     *
+     * @param string $accountId
+     * @return void
+     */
+    public function setAccountId(string $accountId)
+    {
+        $this->accountId = $accountId;
+    }
+
+    /**
+     * Get the account this EntityGroupings belongs to
+     *
+     * @return string
+     */
+    public function getAccountId(): string
+    {
+        return $this->accountId;
     }
 
     /**

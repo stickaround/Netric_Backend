@@ -129,7 +129,7 @@ abstract class IndexTestsAbstract extends TestCase
     protected function createGrouping($objType, $field, $name)
     {
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingLoader->get("$objType/$field");
+        $groupings = $groupingLoader->get("$objType/$field", $this->account->getAccountId());
 
         if ($groupings->getByName($name)) {
             return $groupings->getByName($name)->toArray();
@@ -159,7 +159,7 @@ abstract class IndexTestsAbstract extends TestCase
     protected function deleteGrouping($objType, $field, $id)
     {
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
-        $groupings = $dm->getGroupings("$objType/$field");
+        $groupings = $dm->getGroupings("$objType/$field", $this->account->getAccountId());
         $groupings->delete($id);
         $dm->saveGroupings($groupings);
     }

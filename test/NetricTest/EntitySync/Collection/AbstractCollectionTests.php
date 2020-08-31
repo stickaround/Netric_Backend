@@ -272,18 +272,18 @@ abstract class AbstractCollectionTests extends TestCase
         $localId = $localData['id'];
 
         // Initial pull should start with all objects
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertTrue(count($stats) >= 1);
 
         // Should be no changes now
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertEquals(0, count($stats));
 
         // Change the local object
         $this->changeLocal($localId);
 
         // Make sure the one change is now returned
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertTrue(count($stats) >= 1);
         $this->assertEquals($localId, $stats[0]['id'], var_export($stats, true));
     }
@@ -317,14 +317,14 @@ abstract class AbstractCollectionTests extends TestCase
         }
 
         // Now pull export changes which should be 0
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertEquals(0, count($stats));
 
         // Make a change after the import
         $localData = $this->createLocal();
         $localId = $localData['id'];
         // Make sure the one change is now returned
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertEquals(1, count($stats));
         $this->assertEquals($stats[0]['id'], $localId);
     }

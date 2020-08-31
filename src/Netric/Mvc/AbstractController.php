@@ -125,7 +125,7 @@ abstract class AbstractController
         // By default allow authenticated users to access a controller
         if ($this->account) {
             $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-            $userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups');
+            $userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
             $usersGroup = $userGroups->getByName(UserEntity::GROUP_USERS);
             $dacl->allowGroup($usersGroup->getGroupId());
         }

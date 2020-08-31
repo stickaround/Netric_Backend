@@ -975,7 +975,7 @@ class EntityController extends Mvc\AbstractAccountController
             }
 
             // Get all groupings using a unique path
-            $groupings = $groupingLoader->get($path);
+            $groupings = $groupingLoader->get($path, $this->account->getAccountId());
 
             // Return the groupings object
             return $groupings;

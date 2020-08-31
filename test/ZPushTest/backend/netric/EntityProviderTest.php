@@ -120,7 +120,7 @@ class EntityProviderTest extends TestCase
 
         // Create inbox mailbox for testing
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId(), $this->account->getAccountId());
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
             $inbox->user_id = $user->getEntityId();
@@ -232,7 +232,7 @@ class EntityProviderTest extends TestCase
         // Add a mail folder for the user
         $sm = $this->account->getServiceManager();
         $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
-        $groupings = $entityGroupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
+        $groupings = $entityGroupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
 
         /*
          * TODO: We have removed the ability to have multiple folders and just return the inbox
@@ -530,7 +530,7 @@ class EntityProviderTest extends TestCase
         // Add a grouping to use
         $sm = $this->account->getServiceManager();
         $entityGroupingsLoader = $sm->get(GroupingLoaderFactory::class);
-        $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId());
+        $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE . "/groups/" . $this->user->getEntityId(), $this->account->getAccountId());
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
         $newGroup->user_id = $this->user->getEntityId();
@@ -575,7 +575,7 @@ class EntityProviderTest extends TestCase
     {
         // Create drafts mailbox for testing - Inbox is already added in $this->setUp
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
         if (!$groupings->getByName("Drafts")) {
             $inbox = $groupings->create("Drafts");
             $inbox->user_id = $this->user->getEntityId();
@@ -731,7 +731,7 @@ class EntityProviderTest extends TestCase
     {
         // Create a grouping to delete
         $groupingsLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId());
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $this->user->getEntityId(), $this->account->getAccountId());
         $group = $groupings->getByName("Test");
         if (!$group) {
             $group = $groupings->create("Test");

@@ -103,12 +103,12 @@ class EntityCollectionTest extends AbstractCollectionTests
         $this->esDataMapper->savePartner($partner);
 
         // Initial pull should start with all objects
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertTrue(count($stats) >= 1);
         $collection->fastForwardToHead();
 
         // Should be no changes now
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertEquals(0, count($stats));
 
         // Record object change
@@ -119,7 +119,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         );
 
         // Make sure the one change is now returned
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertTrue(count($stats) >= 1);
         $this->assertEquals($stats[0]['id'], $customer->getEntityId());
 
@@ -154,25 +154,25 @@ class EntityCollectionTest extends AbstractCollectionTests
         $this->esDataMapper->savePartner($partner);
 
         // Get all exported which will cause the customer to be logged
-        while (count($stats = $collection->getExportChanged())) {
+        while (count($stats = $collection->getExportChanged($this->account->getAccountId()))) {
         }
 
         // Fast-forward past the created customer
         $collection->fastForwardToHead();
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertEquals(0, count($stats));
 
         // Soft delete the customer
         $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->archive($customer, $this->account->getAuthenticatedUser());
 
         // Make sure the one change is now returned for the deleted item
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertEquals(1, count($stats));
         $this->assertEquals($customerId, $stats[0]['id']);
         $this->assertEquals("delete", $stats[0]['action']);
 
         // Make sure a next call does not return the stale item again
-        $stats = $collection->getExportChanged();
+        $stats = $collection->getExportChanged($this->account->getAccountId());
         $this->assertEquals(0, count($stats));
 
         // Cleanup
