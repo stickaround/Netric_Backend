@@ -105,7 +105,8 @@ class ImageResizer implements ErrorAwareInterface
     {
         // First make sure it is an image
         $fileType = $source->getType();
-        if ('jpg' !== $fileType &&
+        if (
+            'jpg' !== $fileType &&
             'jpeg' !== $fileType &&
             'png' !== $fileType
         ) {
@@ -195,38 +196,38 @@ class ImageResizer implements ErrorAwareInterface
         $newWidth,
         $newHeight
     ) {
-        $processedImage = imagecreatetruecolor($newWidth, $newHeight);
+        $processedImage = \imagecreatetruecolor($newWidth, $newHeight);
         $imageResource = null;
 
         switch ($originalFileEntity->getType()) {
             case "jpg":
             case "jpeg":
-                $imageResource = imagecreatefromjpeg($localCopy);
+                $imageResource = \imagecreatefromjpeg($localCopy);
                 break;
             case "gif":
-                $imageResource = imagecreatefromgif($localCopy);
+                $imageResource = \imagecreatefromgif($localCopy);
                 break;
             case "png":
-                imageAntiAlias($processedImage, true);
-                imagealphablending($processedImage, false);
-                imagesavealpha($processedImage, true);
-                $transparent = imagecolorallocatealpha($processedImage, 255, 255, 255, 0);
+                \imageAntiAlias($processedImage, true);
+                \imagealphablending($processedImage, false);
+                \imagesavealpha($processedImage, true);
+                $transparent = \imagecolorallocatealpha($processedImage, 255, 255, 255, 0);
                 for ($x = 0; $x < $newWidth; $x++) {
                     for ($y = 0; $y < $newHeight; $y++) {
-                        imageSetPixel($processedImage, $x, $y, $transparent);
+                        \imageSetPixel($processedImage, $x, $y, $transparent);
                     }
                 }
-                $imageResource = imagecreatefrompng($localCopy);
+                $imageResource = \imagecreatefrompng($localCopy);
                 break;
             case "bmp":
-                $imageResource = imagecreatefromwbmp($localCopy);
+                $imageResource = \imagecreatefromwbmp($localCopy);
                 break;
             default:
                 break;
         }
 
         // Copy the image resized
-        imagecopyresampled(
+        \imagecopyresampled(
             $processedImage,
             $imageResource,
             0,
@@ -244,16 +245,16 @@ class ImageResizer implements ErrorAwareInterface
         switch ($originalFileEntity->getType()) {
             case "jpg":
             case "jpeg":
-                imagejpeg($processedImage, $resizedFilePath);
+                \imagejpeg($processedImage, $resizedFilePath);
                 break;
             case "gif":
-                imagegif($processedImage, $resizedFilePath);
+                \imagegif($processedImage, $resizedFilePath);
                 break;
             case "png":
-                imagepng($processedImage, $resizedFilePath);
+                \imagepng($processedImage, $resizedFilePath);
                 break;
             case "bmp":
-                imagewbmp($processedImage, $resizedFilePath);
+                \imagewbmp($processedImage, $resizedFilePath);
                 break;
             default:
                 break;
@@ -263,7 +264,7 @@ class ImageResizer implements ErrorAwareInterface
         $this->tempFilesToClean[] = $resizedFilePath;
 
         // Clean up image resource
-        imagedestroy($processedImage);
+        \imagedestroy($processedImage);
 
         return $resizedFilePath;
     }
