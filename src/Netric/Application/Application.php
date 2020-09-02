@@ -21,6 +21,7 @@ use Netric\Application\Setup\AccountUpdater;
 use Netric\Cache\CacheFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Authentication\AuthenticationServiceFactory;
 use RuntimeException;
 
 /**
@@ -235,9 +236,17 @@ class Application
      */
     public function getAccount($accountId = "", $accountName = "")
     {
-        // If no specific account is set to be loaded, then get current/default
+        // If no specific account is set to be loaded, then get current/authenticated
         if (!$accountId && !$accountName) {
-            $accountName = $this->getAccountName();
+            $authService = $this->serviceManager->get(AuthenticationServiceFactory::class);
+            $authIdentity = $authService->getIdentity();
+            if ($authIdentity) {
+                $accountId = $authIdentity->getAccountId();
+            }
+
+            if (!$accountId) {
+                $accountName = $this->getAccountName();
+            }
         }
 
         if (!$accountId && !$accountName) {

@@ -96,6 +96,9 @@ class Router
         }
 
         // Now create an empty default account
+        // @deprecated We should no longer be injecting account
+        // because it makes for a mess, each contorller should
+        // handle loading the account as they see fit.
         if (!$account) {
             $account = new Account($this->application);
         }

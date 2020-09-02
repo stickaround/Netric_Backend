@@ -7,7 +7,6 @@ use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Request\RequestFactory;
-use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Crypt\VaultServiceFactory;
 
 /**
