@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync;
 
+use Netric\EntitySync\DataMapperInterface;
+
 /**
  * Class used to represent a sync partner or endpoint
  */
@@ -74,7 +76,7 @@ class Partner
      * @param AntUser $user Current user object
      */
     public function __construct(
-        \Netric\EntitySync\DataMapperInterface $syncDm,
+        DataMapperInterface $syncDm,
         int $partnerId = null
     ) {
         $this->dataMapper = $syncDm;

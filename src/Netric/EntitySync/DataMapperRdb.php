@@ -7,6 +7,15 @@ namespace Netric\EntitySync;
 use Netric\EntitySync\Partner;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Collection\CollectionInterface;
+use Netric\EntitySync\Collection\CollectionFactory;
+use Netric\Db\Relational\RelationalDbContainerInterface;
+use Netric\Db\Relational\RelationalDbContainer;
+use Netric\Db\Relational\RelationalDbInterface;
+use Netric\WorkerMan\Worker\EntitySyncLogImportedWorker;
+use Netric\WorkerMan\Worker\EntitySyncLogExportedWorker;
+use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
+use Netric\WorkerMan\WorkerService;
+use RuntimeException;
 use DateTime;
 
 /**
@@ -14,14 +23,64 @@ use DateTime;
  */
 class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
 {
+    /**
+     * Database container
+     *
+     * @var RelationalDbContainer
+     */
+    private $databaseContainer = null;
+
+    /**
+     * Collection factory that will create an instance of entity/grouping collection
+     * 
+     * @var CollectionFactory
+     */
+    private $collectionFactory = null;
+
+    /**
+     * Used to schedule background jobs
+     * 
+     * @var WorkerService
+     */
+    private WorkerService $workerService;
+
+    /**
+     * Setup this datamapper
+     *
+     * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
+     * @param CollectionFactory $collectionFactory Collection factory that will create an instance of entity/grouping collection
+     * @param WorkerService $workerService Used to schedule background jobs
+     */
+    protected function setUp(
+        RelationalDbContainer $dbContainer,        
+        WorkerService $workerService,
+        CollectionFactory $collectionFactory
+    ) {
+        $this->databaseContainer = $dbContainer;
+        $this->collectionFactory = $collectionFactory;
+        $this->workerService = $workerService;
+    }
+
+    /**
+     * Get active database handle
+     *
+     * @param string $accountId The account being acted on
+     * @return RelationalDbInterface
+     */
+    private function getDatabase(string $accountId): RelationalDbInterface
+    {
+        return $this->databaseContainer->getDbHandleForAccountId($accountId);
+    }
 
     /**
      * Save partner
      *
      * @param Partner $partner The partner that we will be saving
+     * @param string $accountId The account that owns the Partner that we are about to save
+     * 
      * @return bool true on success, false on failure
      */
-    public function savePartner(Partner $partner): bool
+    public function savePartner(Partner $partner, string $accountId): bool
     {
         // PartnerID is a required param
         if (!$partner->getRemotePartnerId()) {
@@ -41,14 +100,14 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         ];
 
         if ($partner->getId()) {
-            $this->database->update("entity_sync_partner", $data, ["entity_sync_partner_id" => $partner->getId()]);
+            $this->getDatabase($accountId)->update("entity_sync_partner", $data, ["entity_sync_partner_id" => $partner->getId()]);
         } else {
-            $partnerId = $this->database->insert("entity_sync_partner", $data, 'entity_sync_partner_id');
+            $partnerId = $this->getDatabase($accountId)->insert("entity_sync_partner", $data, 'entity_sync_partner_id');
             $partner->setId(intval($partnerId));
         }
 
         // Save collections
-        $this->savePartnerCollections($partner);
+        $this->savePartnerCollections($partner, $accountId);
 
         return true;
     }
@@ -57,8 +116,9 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Save partner collections
      *
      * @param Partner $partner The partner that will be used to save its collections
+     * @param string $accountId The account that owns the Partner that we are about to save
      */
-    private function savePartnerCollections(Partner $partner)
+    private function savePartnerCollections(Partner $partner, string $accountId)
     {
         if (!$partner->getId()) {
             return $this->returnError("Cannot save collections because partner is not saved", __FILE__, __LINE__);
@@ -71,13 +131,13 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
                 $collections[$i]->setPartnerId($partner->getId());
             }
 
-            $this->saveCollection($collections[$i]);
+            $this->saveCollection($collections[$i], $accountId);
         }
 
         // Get removed collections
         $removed = $partner->getRemovedCollections();
         foreach ($removed as $removeId) {
-            $this->deleteCollection($removeId);
+            $this->deleteCollection($removeId, $accountId);
         }
 
         return true;
@@ -87,40 +147,46 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Get a partner by unique system id
      *
      * @param string $partnerId Netric unique partner id
+     * @param string $accountId The account that we will use to get active database handle
+     * 
      * @return Partner or null if id does not exist
      */
-    public function getPartnerById(string $partnerId): ?Partner
+    public function getPartnerById(string $partnerId, string $accountId): ?Partner
     {
-        return $this->getPartner($partnerId, null);
+        return $this->getPartner($accountId, $partnerId);
     }
 
     /**
      * Get a partner by the remote partner id
      *
-     * @param string $partnerId Remotely provided unique ident
+     * @param string $remoteId Remotely provided unique ident
+     * @param string $accountId The account that we will use to get active database handle
+     * 
      * @return Partner or null if id does not exist
      */
-    public function getPartnerByPartnerId(string $partnerId): ?Partner
+    public function getPartnerByRemoteId(string $remoteId, string $accountId): ?Partner
     {
-        return $this->getPartner(null, $partnerId);
+        return $this->getPartner($accountId, null, $remoteId);
     }
 
     /**
      * Get a partner by either a netric system id or a client partner device id
      *
+     * @param string $accountId The account that we will use to get active database handle
      * @param string $systemId System id
-     * @param string $partnerId Device id
+     * @param string $remoteId Device id
+     * 
      * @return Partner or null if id does not exist
      */
-    private function getPartner(string $systemId = null, string $partnerId = null): ?Partner
+    private function getPartner(string $accountId, string $systemId = null, string $remoteId = null): ?Partner
     {
         // Make sure we have at least one id to pull from
-        if (null == $systemId && null == $partnerId) {
+        if (null == $systemId && null == $remoteId) {
             return null;
         }
 
         $sql = "SELECT entity_sync_partner_id, pid, owner_id, ts_last_sync 
-				  FROM entity_sync_partner WHERE ";
+                FROM entity_sync_partner WHERE ";
 
         $params = [];
 
@@ -130,11 +196,11 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             $params["entity_sync_partner_id"] = $systemId;
         } else {
             $sql .= "pid=:pid";
-            $params["pid"] = $partnerId;
+            $params["pid"] = $remoteId;
         }
 
-        $result = $this->database->query($sql, $params);
-
+        $result = $this->getDatabase($accountId)->query($sql, $params);
+        
         if ($result->rowCount()) {
             $row = $result->fetch();
 
@@ -148,7 +214,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             }
 
             // Get collections
-            $this->populatePartnerCollections($partner);
+            $this->populatePartnerCollections($partner, $accountId);
 
             return $partner;
         }
@@ -161,16 +227,17 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Delete a partner
      *
      * @param Partner $partner The partner to delete
-     * @param bool $byPartnerId Option to delete by partner id which is useful for purging duplicates
+     * @param string $accountId The account that we will use to get active database handle
+     * 
      * @return bool true on success, false on failure
      */
-    public function deletePartner(Partner $partner): bool
+    public function deletePartner(Partner $partner, string $accountId): bool
     {
         if ($partner->getId()) {
             $params = [];
             $params["entity_sync_partner_id"] = $partner->getId();
 
-            $this->database->delete("entity_sync_partner", $params);
+            $this->getDatabase($accountId)->delete("entity_sync_partner", $params);
             return true;
         }
 
@@ -181,8 +248,9 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Populate collections array for a given partner using addCollection
      *
      * @param Partner $partner The partner that we will be loading its collections
+     * @param string $accountId The account that we will use to get active database handle
      */
-    private function populatePartnerCollections(Partner $partner)
+    private function populatePartnerCollections(Partner $partner, string $accountId)
     {
         // Make sure the partner was already loaded
         if (!$partner->getId()) {
@@ -190,7 +258,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         }
 
         $sql = "SELECT * FROM entity_sync_collection WHERE partner_id=:partner_id";
-        $result = $this->database->query($sql, ["partner_id" => $partner->getId()]);
+        $result = $this->getDatabase($accountId)->query($sql, ["partner_id" => $partner->getId()]);
 
         foreach ($result->fetchAll() as $row) {
             // Unserialize the conditions
@@ -199,7 +267,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
             }
 
             // Construct a new collection
-            if (!$this->getAccount()) {
+            if (!$accountId) {
                 throw new \Exception("This DataMapper requires a reference to account!");
             }
 
@@ -213,17 +281,10 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
                 } elseif ($row['object_type']) {
                     $row['type'] = EntitySync::COLL_TYPE_ENTITY;
                 }
-
-                /*
-                 * We do not need to auto-detect EntitySync::COLL_TYPE_ENTITYDEF
-                 * since it is a new collection type and it is now impossible to save without
-                 * the type since ::getType is an abstract requirement for all collections.
-                 */
             }
 
-            // Use a factory to construct the new collection
-            $serviceManager = $this->getAccount()->getServiceManager();
-            $collection = Collection\CollectionFactory::create($serviceManager, $row['type'], $row);
+            $collection = $this->collectionFactory->create($accountId, $row['type'], $row);
+            $collection->fromArray($row);
 
             // Add the collection to the partner object
             if ($collection) {
@@ -238,12 +299,17 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Save a collection
      *
      * @param CollectionInterface $collection A collection to save
+     * @param string $accountId The account that owns the Partner that we are about to save
      * @return bool true on success, false on failure
      */
-    private function saveCollection(CollectionInterface $collection)
+    private function saveCollection(CollectionInterface $collection, string $accountId)
     {
         if (!$collection->getPartnerId()) {
             return $this->returnError("Cannot save collections because partner is not saved", __FILE__, __LINE__);
+        }
+
+        if (!$accountId) {
+            return $this->returnError("Account id is a required param", __FILE__, __LINE__);
         }
 
         $data = [
@@ -257,9 +323,9 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         ];
 
         if ($collection->getCollectionId()) {
-            $this->database->update("entity_sync_collection", $data, ["entity_sync_collection_id" => $collection->getCollectionId()]);
+            $this->getDatabase($accountId)->update("entity_sync_collection", $data, ["entity_sync_collection_id" => $collection->getCollectionId()]);
         } else {
-            $collectionId = $this->database->insert("entity_sync_collection", $data, 'entity_sync_collection_id');
+            $collectionId = $this->getDatabase($accountId)->insert("entity_sync_collection", $data, 'entity_sync_collection_id');
             $collection->setCollectionId(intval($collectionId));
         }
 
@@ -270,48 +336,45 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Delete a collection
      *
      * @param int $collectionId The id of the collection to delete
+     * @param string $accountId The account that owns the Partner that we are about to delete
      * @return bool true on success, false on failure
      */
-    private function deleteCollection(int $collectionId)
+    private function deleteCollection(int $collectionId, string $accountId)
     {
         if (!$collectionId) {
             return $this->returnError("Collection id is a required param", __FILE__, __LINE__);
         }
 
-        $this->database->delete("entity_sync_collection", ["entity_sync_collection_id" => $collectionId]);
+        $this->getDatabase($accountId)->delete("entity_sync_collection", ["entity_sync_collection_id" => $collectionId]);
         return true;
     }
 
     /**
      * Mark a commit as stale for all sync collections
      *
+     * @param string $accountId The account that owns the collection
      * @param int $colType Type from EntitySync::COLL_TYPE_*
      * @param int $lastCommitId
      * @param int $newCommitId
      */
     public function setExportedStale(
+        string $accountId,
         int $collType,
-        int $lastCommitId,
-        int $newCommitId
-    ) {
-        $data = ["new_commit_id" => $newCommitId];
-
-        // Set previously exported commits as stale
-        $this->database->update("entity_sync_export", $data, [
-            "collection_type" => $collType,
-            "commit_id" => $lastCommitId
-        ]);
-
-        // Set previously stale commits as even more stale
-        $this->database->update("entity_sync_export", $data, [
-            "collection_type" => $collType,
-            "new_commit_id" => $lastCommitId
+        string $lastCommitId,
+        string $newCommitId
+    ) {        
+        return $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [            
+            'account_id' => $accountId,
+            'collection_type' => $collType,
+            'last_commit_id' => $lastCommitId,
+            'new_commit_id' => $newCommitId
         ]);
     }
 
     /**
      * Log that a commit was exported from this collection
      *
+     * @param string $accountId The account that owns the collection
      * @param int $colType Type from EntitySync::COLL_TYPE_*
      * @param int $collectionId The unique id of the collection we exported for
      * @param string $uniqueId Unique id of the object sent
@@ -319,167 +382,46 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @return bool true on success, false on failure
      */
     public function logExported(
+        string $accountId,
         int $collType,
         int $collectionId,
         string $uniqueId,
         int $commitId = null
     ) {
-        $whereParams = [
-            "collection_id" => $collectionId,
-            "unique_id" => $uniqueId
-        ];
-
-        $sql = "SELECT unique_id FROM entity_sync_export
-    				  WHERE collection_id=:collection_id
-    				  	AND unique_id=:unique_id";
-
-        $result = $this->database->query($sql, $whereParams);
-
-        if ($result->rowCount()) {
-            if ($commitId) {
-                $updateData = ["commit_id" => $commitId, "new_commit_id" => null];
-                $this->database->update("entity_sync_export", $updateData, $whereParams);
-            } else {
-                $this->database->delete("entity_sync_export", $whereParams);
-            }
-        } else {
-            $insertData = array_merge([
-                "collection_type" => $collType,
-                "commit_id" => $commitId
-            ], $whereParams);
-
-            $this->database->insert("entity_sync_export", $insertData);
-        }
-
-        return true;
-    }
-
-    /**
-     * Get a list of previously exported commits that have been updated
-     *
-     * This is used to get a list of objects that were previously synchronized
-     * but were later either moved outside the collection (no longer met conditions)
-     * or deleted.
-     *
-     * This function will only return 1000 entries at a time so it should be called
-     * repeatedly until the number of stats returned is 0 to process all the way
-     * through the queue.
-     *
-     * NOTE: THIS MUST BE RUN AFTER GETTING NEW/CHANGED OBJECTS IN A COLLECTION.
-     *  1. Get all new commits from last_commit and log the export
-     *  2. Once all new commit updates were retrieved for a collection then call this
-     *  3. Once this returns empty then fast-forward this collection to head
-     *
-     * @param int $collectionId The id of the collection we get stats for
-     * @return int[] Array of stale IDs
-     */
-    public function getExportedStale(int $collectionId)
-    {
-        if (!is_numeric($collectionId)) {
-            throw new \Exception("A valid $collectionId is a required param.");
-        }
-
-        $staleStats = [];
-
-        // Get everything from the exported log that is set as stale
-        $sql = "SELECT unique_id FROM entity_sync_export 
-    			WHERE collection_id=:collection_id
-    				AND new_commit_id IS NOT NULL LIMIT 1000;";
-
-        $result = $this->database->query($sql, ["collection_id" => $collectionId]);
-
-        foreach ($result->fetchAll() as $row) {
-            $staleStats[] = $row["unique_id"];
-        }
-
-        return $staleStats;
-    }
-
-    /**
-     * Get a list of previously imported objects
-     *
-     * @param int $collectionId The id of the collection we get stats for
-     * @throws \InvalidArgumentException If there is no collection id
-     * @throws \Exception if we cannot query the database
-     * @return array(array('remote_id', 'remote_revision', 'local_id', 'local_revision'))
-     */
-    public function getImported(int $collectionId)
-    {
-        if (!is_numeric($collectionId)) {
-            throw new \InvalidArgumentException("A valid $collectionId is a required param.");
-        }
-
-        $importedStats = [];
-
-        // Get everything from the exported log that is set as stale
-        $sql = "SELECT unique_id, remote_revision, object_id, revision 
-                FROM entity_sync_import
-    			WHERE collection_id=:collection_id";
-
-        $result = $this->database->query($sql, ["collection_id" => $collectionId ]);
-        foreach ($result->fetchAll() as $row) {
-            $importedStats[] = [
-                'remote_id' => $row['unique_id'],
-                'remote_revision' => $row['remote_revision'],
-                'local_id' => $row['object_id'],
-                'local_revision' => $row['revision'],
-            ];
-        }
-
-        return $importedStats;
+        return $this->workerService->doWorkBackground(EntitySyncLogExportedWorker::class, [            
+            'account_id' => $accountId,
+            'collection_id' => $collectionId,
+            'collection_type' => $collType,
+            'unique_id' => $uniqueId,
+            'commit_id' => $commitId
+        ]);
     }
 
     /**
      * Log that a commit was exported from this collection
      *
+     * @param string $accountId The account that owns the collection
      * @param int $collectionId The id of the collection we are logging changes to
      * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
      * @param string $localId If imported to a local object then record the id, if null the delete
      * @param int $localRevision The revision of the local object
-     * @return bool true if imported false if failure
      */
     public function logImported(
-        int $collectionId,
+        string $accountId,
+        string $collectionId,
         string $remoteId,
         int $remoteRevision = null,
         string $localId = null,
         int $localRevision = null
     ) {
-        if (!$remoteId) {
-            throw new \InvalidArgumentException("remoteId was not set and is required.");
-        }
-
-        $whereData = [
-            "collection_id" => $collectionId,
-            "unique_id" => $remoteId
-        ];
-
-        if ($localId) {
-            $syncData = [
-                "object_id" => $localId,
-                "revision" => $localRevision,
-                "remote_revision" => $remoteRevision
-            ];
-
-            $sql = "SELECT unique_id FROM entity_sync_import
-    				  WHERE collection_id=:collection_id
-    				  	AND unique_id=:unique_id";
-            $result = $this->database->query($sql, ["collection_id" => $collectionId, "unique_id" => $remoteId]);
-
-            if ($result->rowCount()) {
-                $this->database->update("entity_sync_import", $syncData, $whereData);
-            } else {
-                $this->database->insert("entity_sync_import", array_merge($syncData, $whereData));
-            }
-        } else {
-            /*
-             * If we have no localId then that means the import is no longer part of the local store
-             * and has not been imported so delete the log entry.
-             */
-            $this->database->delete("entity_sync_import", $whereData);
-        }
-
-        return true;
+        return $this->workerService->doWorkBackground(EntitySyncLogImportedWorker::class, [            
+            'account_id' => $accountId,
+            'collection_id' => $collectionId,
+            'unique_id' => $remoteId,
+            'object_id' => $localId,
+            'revision' => $localRevision,
+            'remote_revision' => $remoteRevision
+        ]);
     }
 }

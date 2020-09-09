@@ -8,10 +8,8 @@ namespace NetricTest\EntitySync;
 
 use Netric\EntitySync;
 use Netric\EntitySync\DataMapperRdb;
-use Netric\Db\Relational\RelationalDbFactory;
-use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntitySync\Commit\CommitManagerFactory;
-use Netric\EntitySync\Collection\EntityCollection;
+use Netric\EntitySync\DataMapperFactory;
+use Netric\EntitySync\Collection\EntityCollectionFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
 /**
@@ -27,8 +25,20 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
      */
     protected function getDataMapper()
     {
-        $database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
-        return new DataMapperRdb($this->account, $database);
+        return $this->account->getServiceManager()->get(DataMapperFactory::class);
+    }
+
+    /**
+     * Setup entity collection
+     *
+     * @return CollectionInterface
+     */
+    protected function getEntityCollection(string $accountId)
+    {
+        $entityCollection = $this->account->getServiceManager()->get(EntityCollectionFactory::class);
+        $entityCollection->setAccountId($accountId);
+
+        return $entityCollection;
     }
 
     /**
@@ -61,33 +71,31 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
         $partner = new EntitySync\Partner($dm);
         $partner->setRemotePartnerId("UTEST-DEVICE-SAVEANDLOAD");
         $partner->setOwnerId($this->user->getEntityId());
-        $ret = $dm->savePartner($partner);
+        $ret = $dm->savePartner($partner, $this->account->getAccountId());
 
-        // Create a new collection and save it
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
-        $collection = new EntityCollection($dm, $commitManager, $index, $this->account->getAccountId());
+        // Create a new collection and save it                
+        $collection = $this->getEntityCollection($this->account->getAccountId());
         $collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
 
-        $ret = $saveCollection->invoke($dm, $collection);
+        $ret = $saveCollection->invoke($dm, $collection, $this->account->getAccountId());
         $this->assertTrue($ret, $dm->getLastError());
         $this->assertNotNull($collection->getCollectionId());
         $this->assertEquals(ObjectTypes::CONTACT, $collection->getObjType());
 
         // Save changes to a collection
         $collection->setObjType(ObjectTypes::TASK);
-        $ret = $saveCollection->invoke($dm, $collection);
+        $ret = $saveCollection->invoke($dm, $collection, $this->account->getAccountId());
         $this->assertTrue($ret, $dm->getLastError());
         $this->assertNotNull($collection->getCollectionId());
         $this->assertEquals(ObjectTypes::TASK, $collection->getObjType());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner);
+        $dm->deletePartner($partner, $this->account->getAccountId());
 
         $deleteCollection = $refIm->getMethod("deleteCollection");
         $deleteCollection->setAccessible(true);
-        $ret = $deleteCollection->invoke($dm, $collection->getCollectionId());
+        $ret = $deleteCollection->invoke($dm, $collection->getCollectionId(), $collection->getCollectionId());
         $this->assertTrue($ret, $dm->getLastError());
     }
 }

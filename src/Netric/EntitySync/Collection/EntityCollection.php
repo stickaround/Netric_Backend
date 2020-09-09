@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
-use DateTime;
 use Netric\EntityQuery\Index;
 use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\EntitySync;
@@ -12,6 +11,9 @@ use Netric\EntitySync\Commit;
 use Netric\EntitySync\Commit\CommitManager;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery\EntityQuery;
+use Netric\WorkerMan\WorkerService;
+use Netric\Db\Relational\RelationalDbContainer;
+use DateTime;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -26,35 +28,36 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
     private $index = null;
 
     /**
-     * ID of the account this collection belongs to
+     * Relational database collectionDataMapper for Entity Sync Collection
+     *
+     * @var CollectionDataMapperInterface
      */
-    private string $accountId;
+    private $collectionDataMapper = null;
 
     /**
      * Constructor
      *
-     * @param DataMapperInterface $dm The sync datamapper
      * @param CommitManager $commitManager A manager used to keep track of commits
-     * @param IndexInterface $idx Index for querying entities
-     * @param string $accountId The ID of the account this collection belongs to
+     * @param IndexInterface $index Index for querying entities     
+     * @param WorkerService $workerService Used to schedule background jobs
+     * @param CollectionDataMapperInterface $collectionDataMapper Relational database dataMapper for Entity Sync Collection
      */
     public function __construct(
-        DataMapperInterface $dm,
-        Commit\CommitManager $commitManager,
-        IndexInterface $idx,
-        string $accountId
+        CommitManager $commitManager,
+        IndexInterface $index,
+        WorkerService $workerService,
+        CollectionDataMapperInterface $collectionDataMapper
     ) {
-        $this->index = $idx;
-        $this->accountId = $accountId;
+        $this->index = $index;
+        $this->collectionDataMapper = $collectionDataMapper;
 
-        // Pass datamapper to parent
-        parent::__construct($dm, $commitManager);
+        // Pass commitManager to parent
+        parent::__construct($commitManager, $workerService, $collectionDataMapper);
     }
 
     /**
      * Get a stats list of what has changed locally since the last sync
      *
-     * @param string $accountId The account that owns the the stats that we are getting
      * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
      * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
      * @return array of associative array [
@@ -66,10 +69,14 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
      *  ]
      * @throws \Exception if the objType was not set
      */
-    public function getExportChanged(string $accountId, $autoFastForward = true, DateTime $limitUpdatesAfter = null)
+    public function getExportChanged($autoFastForward = true, DateTime $limitUpdatesAfter = null)
     {
         if (!$this->getObjType()) {
             throw new \Exception("Object type not set! Cannot export changes.");
+        }
+
+        if (!$this->getAccountId()) {
+            throw new \Exception("Account is not set! Cannot export changes.");
         }
 
         // Set return array
@@ -83,13 +90,16 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 
         if ($this->isBehindHead()) {
             // Query local objects for commit_id with EntityList
-            $query = new EntityQuery($this->getObjType(), $this->accountId);
+            $query = new EntityQuery($this->getObjType(), $this->getAccountId());
             $query->orderBy('commit_id');
             $query->setLimit(1000);
 
             // Set base/common condition
             $query->where('commit_id')->isGreaterThan($lastCollectionCommit);
             $query->andWhere('commit_id')->doesNotEqual('');
+
+            // We need to have an OR condition for f_deleted = true, so we can include the archived entities
+            $query->orWhere('f_deleted')->equals(true);
 
             // Check to see if we should only pull updates after a specific date
             if ($limitUpdatesAfter) {
@@ -115,7 +125,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
              * Only get list if there are entities to export to save time
              */
             if ($this->getCollectionId() && $num) {
-                $imports = $this->dataMapper->getImported($this->getCollectionId());
+                $imports = $this->collectionDataMapper->getImported($this->getCollectionId(), $this->getAccountId());
             } else {
                 $imports = [];
             }
@@ -157,8 +167,14 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                     // Fast-forward $lastCommitId to last commit_id sent
                     $this->setLastCommitId($ent->getValue("commit_id"));
 
+                    if ($debug) {
+                        echo "debug: ";
+                        echo $ent->getEntityId() . "; ";
+                        echo $ent->getValue("commit_id") . "; ";
+                    }
+
                     // Save to exported log
-                    $this->logExported(
+                    $this->logExported(                        
                         $ent->getEntityId(),
                         $ent->getValue("commit_id")
                     );
@@ -201,7 +217,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 // $this->dataMapper->saveCollection($this);
             }
         }
-
+        
         return $retStats;
     }
 
@@ -224,6 +240,46 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 
         if ($headCommitId) {
             $this->setLastCommitId($headCommitId);
+        }
+    }
+
+    /**
+     * Load collection data from an associative array
+     *
+     * @param array $data
+     */
+    public function fromArray($data)
+    {
+        if ($data['entity_sync_collection_id']) {
+            $this->setCollectionId($data['entity_sync_collection_id']);
+        }
+        
+        if ($data['object_type']) {
+            $this->setObjType($data['object_type']);
+        }
+
+        if ($data['field_id']) {
+            $this->setFieldId($data['field_id']);
+        }
+
+        if ($data['field_name']) {
+            $this->setFieldName($data['field_name']);
+        }
+
+        if ($data['ts_last_sync']) {
+            $this->setLastSync(new DateTime($data['ts_last_sync']));
+        }
+
+        if ($data['conditions']) {
+            $this->setConditions($data['conditions']);
+        }
+
+        if ($data['revision']) {
+            $this->setRevision($data['revision']);
+        }
+
+        if ($data['last_commit_id']) {
+            $this->setLastCommitId($data['last_commit_id']);
         }
     }
 

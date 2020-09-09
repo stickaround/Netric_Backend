@@ -7,6 +7,7 @@ use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntitySync\EntitySyncFactory;
+use Netric\WorkerMan\WorkerServiceFactory;
 
 /**
  * Create a EntityGroupings DataMapper service
@@ -24,13 +25,13 @@ class EntityGroupingDataMapperFactory implements AccountServiceFactoryInterface
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
         $commitManager = $serviceLocator->get(CommitManagerFactory::class);
-        $entitySync = $serviceLocator->get(EntitySyncFactory::class);        
+        $workerService = $serviceLocator->get(WorkerServiceFactory::class);
 
         return new EntityGroupingRdbDataMapper(
             $relationalDbCon,
             $entityDefinitionLoader,
             $commitManager,
-            $entitySync
+            $workerService
         );
     }
 }

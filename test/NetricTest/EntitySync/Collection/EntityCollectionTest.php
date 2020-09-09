@@ -8,8 +8,10 @@ namespace NetricTest\EntitySync\Collection;
 
 use Netric\EntitySync;
 use Netric\EntitySync\Collection;
+use Netric\EntitySync\Partner;
 use PHPUnit\Framework\TestCase;
 use Netric\EntitySync\Collection\EntityCollection;
+use Netric\EntitySync\Collection\EntityCollectionFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -32,15 +34,10 @@ class EntityCollectionTest extends AbstractCollectionTests
      */
     protected function getCollection()
     {
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $collection = new EntityCollection(
-            $this->esDataMapper,
-            $this->commitManager,
-            $index,
-            $this->account->getAccountId()
-        );
-        $collection->setObjType(ObjectTypes::CONTACT);
-        return $collection;
+        $entityCollection = $this->account->getServiceManager()->get(EntityCollectionFactory::class);
+        $entityCollection->setAccountId($this->account->getAccountId());
+        $entityCollection->setObjType(ObjectTypes::CONTACT);
+        return $entityCollection;
     }
 
     protected function createLocal()
@@ -95,20 +92,20 @@ class EntityCollectionTest extends AbstractCollectionTests
         );
 
         // Create and save partner with one collection watching customers
-        $partner = new EntitySync\Partner($this->esDataMapper);
+        $partner = new Partner($this->esDataMapper);
         $partner->setRemotePartnerId($pid);
         $partner->setOwnerId($this->user->getEntityId());
         $collection = $this->getCollection();
         $collection->setObjType(ObjectTypes::CONTACT);
-        $this->esDataMapper->savePartner($partner);
+        $this->esDataMapper->savePartner($partner, $this->account->getAccountId());
 
         // Initial pull should start with all objects
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
         $collection->fastForwardToHead();
 
         // Should be no changes now
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertEquals(0, count($stats));
 
         // Record object change
@@ -119,12 +116,12 @@ class EntityCollectionTest extends AbstractCollectionTests
         );
 
         // Make sure the one change is now returned
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
         $this->assertEquals($stats[0]['id'], $customer->getEntityId());
 
         // Cleanup
-        $this->esDataMapper->deletePartner($partner);
+        $this->esDataMapper->deletePartner($partner, $this->account->getAccountId());
         $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->delete($customer, $this->account->getAuthenticatedUser());
     }
 
@@ -145,38 +142,59 @@ class EntityCollectionTest extends AbstractCollectionTests
         $customerId = $customer->getEntityId();
 
         // Create and save partner with one collection watching customers
-        $partner = new EntitySync\Partner($this->esDataMapper);
+        $partner = new Partner($this->esDataMapper);
         $partner->setRemotePartnerId($pid);
         $partner->setOwnerId($this->user->getEntityId());
+
         $collection = $this->getCollection();
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
-        $this->esDataMapper->savePartner($partner);
+
+        $this->esDataMapper->savePartner($partner, $this->account->getAccountId());
 
         // Get all exported which will cause the customer to be logged
-        while (count($stats = $collection->getExportChanged($this->account->getAccountId()))) {
+        while (count($stats = $collection->getExportChanged())) {
         }
-
+        
         // Fast-forward past the created customer
         $collection->fastForwardToHead();
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertEquals(0, count($stats));
 
         // Soft delete the customer
         $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->archive($customer, $this->account->getAuthenticatedUser());
 
         // Make sure the one change is now returned for the deleted item
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertEquals(1, count($stats));
         $this->assertEquals($customerId, $stats[0]['id']);
         $this->assertEquals("delete", $stats[0]['action']);
 
         // Make sure a next call does not return the stale item again
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertEquals(0, count($stats));
 
         // Cleanup
-        $this->esDataMapper->deletePartner($partner);
+        $this->esDataMapper->deletePartner($partner, $this->account->getAccountId());
         $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->delete($customer, $this->account->getAuthenticatedUser());
+    }
+
+    /**
+     * Make sure we can import data to collection
+     */
+    public function testFromArray()
+    {
+        $collection = $this->getCollection();
+
+        $data = [
+        'object_type' => ObjectTypes::CONTACT,
+        'field_name' => 'name',
+        'revision' => 1
+        ];
+
+        $collection->fromArray($data);
+        $this->assertEquals($collection->getRevision(), 1);
+        $this->assertEquals($collection->getObjType(), ObjectTypes::CONTACT);
+        $this->assertEquals($collection->getFieldName(), 'name');
     }
 }

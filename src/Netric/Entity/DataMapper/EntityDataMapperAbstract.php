@@ -25,6 +25,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Worker\EntityPostSaveWorker;
+use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
 use RuntimeException;
 
 /**
@@ -149,7 +150,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
         CommitManager $commitManager,
-        EntitySync $entitySync,
+        EntitySync $entitySync = null,
         EntityValidator $entityValidator,
         EntityFactory $entityFactory,
         Notifier $notifier = null,
@@ -162,7 +163,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     ) {
         $this->recurIdentityMapper = $recurIdentityMapper;
         $this->commitManager = $commitManager;
-        $this->entitySync = $entitySync;
+        // $this->entitySync = $entitySync;
         $this->entityValidator = $entityValidator;
         $this->entityFactory = $entityFactory;
         //$this->entityAggregator = $entityAggregator;
@@ -335,12 +336,13 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         // $this->entityIndex->save($entity);
 
         // Log the change in entity sync
-        if ($ret && $lastCommitId && $commitId) {
-            $this->entitySync->setExportedStale(
-                EntitySync::COLL_TYPE_ENTITY,
-                $lastCommitId,
-                $commitId
-            );
+        if ($ret && $lastCommitId && $commitId) {                        
+            $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [
+                'account_id' => $user->getAccountId(),
+                'collection_type' => EntitySync::COLL_TYPE_ENTITY,
+                'last_commit_id' => $lastCommitId,
+                'new_commit_id' => $commitId
+            ]);
         }
 
         // Send notifications
@@ -574,11 +576,12 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
 
         // Log the change in entity sync
         if ($ret && $lastCommitId && $commitId) {
-            $this->entitySync->setExportedStale(
-                EntitySync::COLL_TYPE_ENTITY,
-                $lastCommitId,
-                $commitId
-            );
+            $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [
+                'account_id' => $user->getAccountId(),
+                'collection_type' => EntitySync::COLL_TYPE_ENTITY,
+                'last_commit_id' => $lastCommitId,
+                'new_commit_id' => $commitId
+            ]);
         }
 
         return $ret;

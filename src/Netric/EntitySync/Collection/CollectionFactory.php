@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
-use Netric\EntitySync\Commit\CommitManagerFactory;
-use Netric\EntitySync\DataMapperFactory;
 use Netric\EntitySync\EntitySync;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\EntityQuery\Index\IndexFactory;
 use RuntimeException;
 use DateTime;
 
@@ -19,58 +17,50 @@ class CollectionFactory implements CollectionFactoryInterface
      *
      * @var AccountServiceManagerInterface
      */
-    private $serviceManager = null;
+    private $serviceLocator = null;
 
     /**
      * Construct an instance of this factory so we can inject it as a dependency
      *
-     * @param AccountServiceManagerInterface $serviceManager
+     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
      */
-    public function __construct(AccountServiceManagerInterface $serviceManager)
+    public function __construct(AccountServiceManagerInterface $sl)
     {
-        $this->serviceManager = $serviceManager;
+        $this->serviceLocator = $sl;
     }
 
     /**
      * Instantiated version of the static create function
      *
+     * @param string $accountId The account that owns the collection
      * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
      * @param array $data Optional data to initialize into the collection
      * @return CollectionInterface
      */
-    public function createCollection($type, array $data = null)
+    public function createCollection(string $accountId, int $type, array $data = null)
     {
-        return self::create($this->serviceManager, $type, $data);
+        return self::create($accountId, $type, $data);
     }
 
     /**
      * Factory for creating collections and injecting all dependencies
-     *
-     * @param AccountServiceManagerInterface $sm
+     * 
+     * @param string $accountId The account that owns the collection
      * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
      * @param array $data Optional data to initialize into the collection
      * @return CollectionInterface
      * @throws \Exception if an unsupported collection type is added
      */
-    public static function create(AccountServiceManagerInterface $sm, $type, array $data = null)
-    {
+    public function create(string $accountId, int $type, array $data = null)
+    {        
         $collection = null;
-
-        // Common dependency
-        $dm = $sm->get(DataMapperFactory::class);
-        $commitManager = $sm->get(CommitManagerFactory::class);
-
+        
         switch ($type) {
             case EntitySync::COLL_TYPE_ENTITY:
-                $index = $sm->get(IndexFactory::class);
-                $collection = new EntityCollection(
-                    $dm,
-                    $commitManager,
-                    $index,
-                    $sm->getAccount()->getAccountId()
-                );
+                $collection = $this->serviceLocator->get(EntityCollectionFactory::class);
                 break;
             case EntitySync::COLL_TYPE_GROUPING:
+                $collection = $this->serviceLocator->get(GroupingCollectionFactory::class);
                 break;
             case EntitySync::COLL_TYPE_ENTITYDEF:
                 break;
@@ -80,31 +70,9 @@ class CollectionFactory implements CollectionFactoryInterface
         }
 
         // Initialize data if set
-        if ($data && $collection) {
-            if ($data['entity_sync_collection_id']) {
-                $collection->setCollectionId($data['entity_sync_collection_id']);
-            }
-            if ($data['object_type']) {
-                $collection->setObjType($data['object_type']);
-            }
-            if ($data['field_id']) {
-                $collection->setFieldId($data['field_id']);
-            }
-            if ($data['field_name']) {
-                $collection->setFieldName($data['field_name']);
-            }
-            if ($data['ts_last_sync']) {
-                $collection->setLastSync(new DateTime($data['ts_last_sync']));
-            }
-            if ($data['conditions']) {
-                $collection->setConditions($data['conditions']);
-            }
-            if ($data['revision']) {
-                $collection->setRevision($data['revision']);
-            }
-            if ($data['last_commit_id']) {
-                $collection->setLastCommitId($data['last_commit_id']);
-            }
+        if ($accountId && $data && $collection) {
+            $collection->setAccountId($accountId);
+            $collection->fromArray($data);
         }
 
         return $collection;

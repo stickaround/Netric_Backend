@@ -8,9 +8,9 @@
 namespace Netric\EntityQuery\Index;
 
 use Netric\Db\Relational\RelationalDbContainerFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\Entity\EntityLoaderFactory;
 

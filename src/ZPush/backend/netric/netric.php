@@ -45,7 +45,7 @@ use Netric\EntitySync\EntitySyncFactory;
 use Netric\EntitySync\DataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
-use Netric\EntitySync\Collection\CollectionFactory;
+use Netric\EntitySync\Collection\EntityCollectionFactory;
 use Netric\EntitySync\EntitySync;
 
 /**
@@ -764,9 +764,9 @@ class BackendNetric implements IBackend
         if (!$this->partnership) {
             $serviceManager = $this->account->getServiceManager();
             $entitySync = $serviceManager->get(EntitySyncFactory::class);
-            $this->partnership = $entitySync->getPartner($this->deviceId);
+            $this->partnership = $entitySync->getPartner($this->deviceId, $this->account->getAccountId());
             if (!$this->partnership) {
-                $this->partnership = $entitySync->createPartner($this->deviceId, $this->user->getEntityId());
+                $this->partnership = $entitySync->createPartner($this->deviceId, $this->user->getEntityId(), $this->account->getAccountId());
             }
         }
 
@@ -860,18 +860,18 @@ class BackendNetric implements IBackend
         if (!$coll) {
             // Get service locator for account
             $serviceManager = $this->account->getServiceManager();
-            $coll = CollectionFactory::create(
-                $serviceManager,
-                EntitySync::COLL_TYPE_ENTITY
-            );
+            $coll = $serviceManager->get(EntityCollectionFactory::class);            
             $coll->setObjType($objType);
             $coll->setConditions($cond);
             $this->partnership->addCollection($coll);
-            $serviceManager->get(DataMapperFactory::class)->savePartner($this->partnership);
+            $serviceManager->get(DataMapperFactory::class)->savePartner($this->partnership, $this->account->getAccountId());
         }
 
         // Cache for future requests
         $this->syncCollections[$folderid] = $coll;
+
+        // Set the account for this collection
+        $coll->setAccountId($this->account->getAccountId());
 
         return $coll;
     }
@@ -1002,7 +1002,7 @@ class BackendNetric implements IBackend
          */
         if ($this->partnership) {
             $serviceManager = $this->account->getServiceManager();
-            $serviceManager->get(DataMapperFactory::class)->savePartner($this->partnership);
+            $serviceManager->get(DataMapperFactory::class)->savePartner($this->partnership, $this->account->getAccountId());
             $this->log->info("ZPUSH->Saved partnership: " . $this->partnership->getId());
         }
     }

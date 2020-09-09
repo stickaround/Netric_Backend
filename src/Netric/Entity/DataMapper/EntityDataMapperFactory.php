@@ -33,7 +33,7 @@ class EntityDataMapperFactory implements AccountServiceFactoryInterface
     {
         $recurIdentityMapper = $serviceLocator->get(RecurrenceIdentityMapperFactory::class);
         $commitManager = $serviceLocator->get(CommitManagerFactory::class);
-        $entitySync = $serviceLocator->get(EntitySyncFactory::class);
+        // $entitySync = $serviceLocator->get(EntitySyncFactory::class);
         $entityValidator = $serviceLocator->get(EntityValidatorFactory::class);
         $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
         //$notifier = $serviceLocator->get(NotifierFactory::class);
@@ -47,7 +47,7 @@ class EntityDataMapperFactory implements AccountServiceFactoryInterface
         return new EntityPgsqlDataMapper(
             $recurIdentityMapper,
             $commitManager,
-            $entitySync,
+            null, // $entitySync,
             $entityValidator,
             $entityFactory,
             null, // $notifier,

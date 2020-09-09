@@ -67,7 +67,7 @@ abstract class AbstractCollectionTests extends TestCase
         $this->partner = new Partner($this->esDataMapper);
         $this->partner->setRemotePartnerId("AbstractCollectionTests");
         $this->partner->setOwnerId($this->user->getEntityId());
-        $this->esDataMapper->savePartner($this->partner);
+        $this->esDataMapper->savePartner($this->partner, $this->account->getAccountId());
     }
 
     protected function tearDown(): void
@@ -75,7 +75,7 @@ abstract class AbstractCollectionTests extends TestCase
         $this->deleteLocal();
 
         // Cleanup partner
-        $this->esDataMapper->deletePartner($this->partner);
+        $this->esDataMapper->deletePartner($this->partner, $this->account->getAccountId());
     }
 
     /**
@@ -203,7 +203,7 @@ abstract class AbstractCollectionTests extends TestCase
         $partner->setRemotePartnerId("AbstractCollectionTests::testGetImportChanged");
         $partner->setOwnerId($this->user->getEntityId());
         $partner->addCollection($collection);
-        $this->esDataMapper->savePartner($partner);
+        $this->esDataMapper->savePartner($partner, $this->account->getAccountId());
 
         // Import original group of changes
         $customers = [
@@ -211,10 +211,11 @@ abstract class AbstractCollectionTests extends TestCase
             ['remote_id' => 'test2', 'remote_revision' => 1],
         ];
         $stats = $collection->getImportChanged($customers);
+        
         $this->assertEquals(count($stats), count($customers));
         foreach ($stats as $ostat) {
             $this->assertEquals('change', $ostat['action']);
-            $collection->logImported(
+            $collection->logImported(                
                 $ostat['remote_id'],
                 $ostat['remote_revision'],
                 '48d54ed0-9fc4-40f6-b22b-cdef1d07bc51', // test UUID
@@ -223,7 +224,7 @@ abstract class AbstractCollectionTests extends TestCase
         }
 
         // Try again with no changes
-        $stats = $collection->getImportChanged($customers);
+        $stats = $collection->getImportChanged($customers);        
         $this->assertEquals(count($stats), 0);
 
         // Change the revision of one of the objects
@@ -253,7 +254,7 @@ abstract class AbstractCollectionTests extends TestCase
         $this->assertEquals($stats[1]['action'], 'change');
 
         // Cleanup
-        $this->esDataMapper->deletePartner($partner);
+        $this->esDataMapper->deletePartner($partner, $this->account->getAccountId());
     }
 
     /**
@@ -264,7 +265,7 @@ abstract class AbstractCollectionTests extends TestCase
         // Create and save partner with one collection watching customers
         $collection = $this->getCollection();
         $this->partner->addCollection($collection);
-        $this->esDataMapper->savePartner($this->partner);
+        $this->esDataMapper->savePartner($this->partner, $this->account->getAccountId());
         $collection->fastForwardToHead();
 
         // Create a local object to work with
@@ -272,18 +273,18 @@ abstract class AbstractCollectionTests extends TestCase
         $localId = $localData['id'];
 
         // Initial pull should start with all objects
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
 
         // Should be no changes now
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertEquals(0, count($stats));
 
         // Change the local object
         $this->changeLocal($localId);
 
         // Make sure the one change is now returned
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
         $this->assertEquals($localId, $stats[0]['id'], var_export($stats, true));
     }
@@ -296,7 +297,7 @@ abstract class AbstractCollectionTests extends TestCase
         // Create and save partner with one collection watching customers
         $collection = $this->getCollection();
         $this->partner->addCollection($collection);
-        $this->esDataMapper->savePartner($this->partner);
+        $this->esDataMapper->savePartner($this->partner, $this->account->getAccountId());
         $collection->fastForwardToHead();
 
         // Import original group of changes
@@ -317,14 +318,14 @@ abstract class AbstractCollectionTests extends TestCase
         }
 
         // Now pull export changes which should be 0
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertEquals(0, count($stats));
 
         // Make a change after the import
         $localData = $this->createLocal();
         $localId = $localData['id'];
         // Make sure the one change is now returned
-        $stats = $collection->getExportChanged($this->account->getAccountId());
+        $stats = $collection->getExportChanged();
         $this->assertEquals(1, count($stats));
         $this->assertEquals($stats[0]['id'], $localId);
     }

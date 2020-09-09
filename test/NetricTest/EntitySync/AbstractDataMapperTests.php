@@ -15,10 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
 use NetricTest\Bootstrap;
 use Netric\EntitySync\Partner;
-use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntitySync\Collection\EntityCollection;
 
 /**
  * @group integration
@@ -68,17 +65,17 @@ abstract class AbstractDataMapperTests extends TestCase
         $partner = new Partner($dm);
         $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
-        $ret = $dm->savePartner($partner);
+        $ret = $dm->savePartner($partner, $this->account->getAccountId());
         $this->assertTrue($ret, $dm->getLastError());
         $this->assertNotNull($partner->getId());
 
         // Load the partner in another object and test
-        $partner2 = $dm->getPartnerById($partner->getId());
+        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());        
         $this->assertEquals($partner->getId(), $partner2->getId());
         $this->assertEquals($partner->getRemotePartnerId(), $partner2->getRemotePartnerId());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner);
+        $dm->deletePartner($partner, $this->account->getAccountId());
     }
 
     public function testDeletePartner()
@@ -90,13 +87,13 @@ abstract class AbstractDataMapperTests extends TestCase
         $partner = new Partner($dm);
         $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
-        $ret = $dm->savePartner($partner);
+        $ret = $dm->savePartner($partner, $this->account->getAccountId());
 
         // Now delete it
-        $dm->deletePartner($partner);
+        $dm->deletePartner($partner, $this->account->getAccountId());
 
         // Try to load the partner and verify it was not found
-        $partner2 = $dm->getPartnerById($partner->getId());
+        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());
         $this->assertNull($partner2);
     }
 
@@ -112,30 +109,28 @@ abstract class AbstractDataMapperTests extends TestCase
         ];
 
         // Create a partner
-        $partner = new EntitySync\Partner($dm);
+        $partner = new Partner($dm);
         $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
-        $collection = new EntityCollection($dm, $commitManager, $index, $this->account->getAccountId());
+        $collection = $this->getEntityCollection($this->account->getAccountId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $collection->setConditions($testConditions);
         $partner->addCollection($collection);
 
         // Save the partner
-        $dm->savePartner($partner);
+        $dm->savePartner($partner, $this->account->getAccountId());
 
         // Now load the parter fresh and check the collection
-        $partner2 = $dm->getPartnerById($partner->getId());
+        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());
         $collections = $partner2->getCollections();
         $this->assertEquals(1, count($collections));
         $this->assertEquals($testConditions, $collections[0]->getConditions());
         $this->assertEquals(ObjectTypes::CONTACT, $collections[0]->getObjType());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true);
+        $dm->deletePartner($partner, true , $this->account->getAccountId());
     }
 
     /*
@@ -150,29 +145,27 @@ abstract class AbstractDataMapperTests extends TestCase
         ];
 
         // Create a partner
-        $partner = new EntitySync\Partner($dm);
+        $partner = new Partner($dm);
         $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
-        $collection = new EntityCollection($dm, $commitManager, $index, $this->account->getAccountId());
+        $collection = $this->getEntityCollection($this->account->getAccountId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
 
         // Save the partner which should save the collection
-        $dm->savePartner($partner);
+        $dm->savePartner($partner, $this->account->getAccountId());
 
         // Reload the parter fresh and update it
-        $partner2 = $dm->getPartnerById($partner->getId());
-        $collections = $partner2->getCollections();
+        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());        
+        $collections = $partner2->getCollections();        
         $collections[0]->setFieldName("categories");
         $collections[0]->setConditions($testConditions);
-        $dm->savePartner($partner2);
+        $dm->savePartner($partner2, $this->account->getAccountId());
 
         // Reload the parter fresh and update it
-        $partner3 = $dm->getPartnerById($partner->getId());
+        $partner3 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());
         $collections = $partner3->getCollections();
         $this->assertEquals(1, count($collections));
         $this->assertEquals($testConditions, $collections[0]->getConditions());
@@ -180,7 +173,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertEquals("categories", $collections[0]->getFieldName());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner);
+        $dm->deletePartner($partner, $this->account->getAccountId());
     }
 
     /**
@@ -192,31 +185,29 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a partner
-        $partner = new EntitySync\Partner($dm);
+        $partner = new Partner($dm);
         $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection and save
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
-        $collection = new EntityCollection($dm, $commitManager, $index, $this->account->getAccountId());
+        $collection = $this->getEntityCollection($this->account->getAccountId());
         //$collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
-        $dm->savePartner($partner);
+        $dm->savePartner($partner, $this->account->getAccountId());
 
         // Now load the parter and delete the collection
-        $partner2 = $dm->getPartnerById($partner->getId());
+        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());
         $collections = $partner2->getCollections();
         $partner2->removeCollection($collections[0]->getCollectionId());
-        $dm->savePartner($partner2);
+        $dm->savePartner($partner2, $this->account->getAccountId());
 
         // Load it once more and make sure there are no collections
-        $partner3 = $dm->getPartnerById($partner->getId());
+        $partner3 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());
         $this->assertEquals(0, count($partner3->getCOllections()));
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner);
+        $dm->deletePartner($partner, $this->account->getAccountId());
     }
 
     public function testLogExportedCommit()
@@ -228,25 +219,23 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a partner
-        $partner = new EntitySync\Partner($dm);
+        $partner = new Partner($dm);
         $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection and save
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
-        $collection = new EntityCollection($dm, $commitManager, $index, $this->account->getAccountId());
+        $collection = $this->getEntityCollection($this->account->getAccountId());
         //$collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
-        $dm->savePartner($partner);
+        $dm->savePartner($partner, $this->account->getAccountId());
 
         // Add new exported entry
-        $ret = $dm->logExported($collection->getType(), $collection->getCollectionId(), $uniqueId, $commitId1);
-        $this->assertTrue($ret);
+        $ret = $dm->logExported($collection->getAccountId(), $collection->getType(), $collection->getCollectionId(), $uniqueId, $commitId1);
+        $this->assertEquals($ret, 1);
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner);
+        $dm->deletePartner($partner, $this->account->getAccountId());
     }
 
     public function testSetAndGetExportedCommitStale()
@@ -259,28 +248,26 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm = $this->getDataMapper();
 
         // Create a partner
-        $partner = new EntitySync\Partner($dm);
+        $partner = new Partner($dm);
         $partner->setRemotePartnerId($partnerId);
         $partner->setOwnerId($this->user->getEntityId());
 
         // Add a collection and save
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
-        $collection = new EntityCollection($dm, $commitManager, $index, $this->account->getAccountId());
+        $collection = $this->getEntityCollection($this->account->getAccountId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
-        $dm->savePartner($partner);
+        $dm->savePartner($partner, $this->account->getAccountId());
 
         // Add new exported entry then mark it as stale
-        $dm->logExported($collection->getType(), $collection->getCollectionId(), $uniqueId, $commitId1);
-        $dm->setExportedStale($collection->getType(), $commitId1, $commitId2);
+        $dm->logExported($collection->getAccountId(), $collection->getType(), $collection->getCollectionId(), $uniqueId, $commitId1);
+        $dm->setExportedStale($collection->getAccountId(), $collection->getType(), $commitId1, $commitId2);
 
         // Make sure the stale stat is returned when called
-        $staleStats = $dm->getExportedStale($collection->getCollectionId());
+        $staleStats = $collection->getExportedStale();
         $this->assertEquals(1, count($staleStats));
-        $this->assertEquals($uniqueId, $staleStats[0]);
+        $this->assertEquals($uniqueId, $staleStats[0]['id']);
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner);
+        $dm->deletePartner($partner, $this->account->getAccountId());
     }
 }

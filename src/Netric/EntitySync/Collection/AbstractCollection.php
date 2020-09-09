@@ -8,6 +8,9 @@ use Netric\EntitySync\Commit;
 use Netric\Entity\EntityInterface;
 use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\Commit\CommitManager;
+use Netric\WorkerMan\WorkerService;
+use Netric\WorkerMan\Worker\EntitySyncLogImportedWorker;
+use Netric\WorkerMan\Worker\EntitySyncLogExportedWorker;
 use DateTime;
 
 /**
@@ -15,13 +18,6 @@ use DateTime;
  */
 abstract class AbstractCollection
 {
-    /**
-     * DataMapper for sync operations
-     *
-     * @var DataMapperInterface
-     */
-    protected $dataMapper = null;
-
     /**
      * Service for managing commits
      *
@@ -94,16 +90,39 @@ abstract class AbstractCollection
     protected $lastRevisionCheck = null;
 
     /**
+     * ID of the account this collection belongs to
+     */
+    private string $accountId;
+
+    /**
+     * Relational database collectionDataMapper for Entity Sync Collection
+     *
+     * @var CollectionDataMapperInterface
+     */
+    private $collectionDataMapper = null;
+
+    /**
+     * Used to schedule background jobs
+     * 
+     * @var WorkerService
+     */
+    private WorkerService $workerService;
+
+    /**
      * Constructor
      *
-     * @param DataMapperInterface $dm The sync datamapper
+     * @param CommitManager $commitManager A manager used to keep track of commits     
+     * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account     
+     * @param CollectionDataMapperInterface $collectionDataMapper Relational database dataMapper for Entity Sync Collection
      */
     public function __construct(
-        DataMapperInterface $dataMapper,
-        Commit\CommitManager $commitManager
+        CommitManager $commitManager,
+        WorkerService $workerService,
+        CollectionDataMapperInterface $collectionDataMapper
     ) {
-        $this->dataMapper = $dataMapper;
-        $this->commitManager = $commitManager;
+        $this->commitManager = $commitManager;        
+        $this->workerService = $workerService;
+        $this->collectionDataMapper = $collectionDataMapper;
     }
 
     /**
@@ -112,6 +131,26 @@ abstract class AbstractCollection
      * @return string The last commit id for the type of data we are watching
      */
     abstract protected function getCollectionTypeHeadCommit();
+
+    /**
+     * Set the account that owns this collection
+     * 
+     * @param string $accountId The account that owns this collection
+     */
+    public function setAccountId(string $accountId)
+    {
+        $this->accountId = $accountId;
+    }
+
+    /**
+     * Get the account that owns this collection
+     * 
+     * @return string Returns the account that owns this collection
+     */
+    public function getAccountId()
+    {
+        return $this->accountId;
+    }
 
     /**
      * Set the last commit id synchronized
@@ -296,29 +335,6 @@ abstract class AbstractCollection
     }
 
     /**
-     * Log that a commit was exported from this collection
-     *
-     * @param string $uniqueId The unique id of the object we sent
-     * @param int $commitId The unique id of the commit we sent
-     * @return bool
-     */
-    public function logExported(string $uniqueId, int $commitId = null)
-    {
-        if (!$this->getCollectionId()) {
-            return false;
-        }
-
-        $ret = $this->dataMapper->logExported($this->getType(), $this->getCollectionId(), $uniqueId, $commitId);
-
-        // Check if there was a problem because that should never happen
-        if (!$ret) {
-            throw new \Exception("Could not log exported sync entry: " . $this->dataMapper->getLastError());
-        }
-
-        return $ret;
-    }
-
-    /**
      * Get a list of previously exported commits that have been updated
      *
      * This is used to get a list of objects that were previously synchornized
@@ -340,7 +356,7 @@ abstract class AbstractCollection
 
         $staleStats = [];
 
-        $stale = $this->dataMapper->getExportedStale($this->getCollectionId());
+        $stale = $this->collectionDataMapper->getExportedStale($this->getCollectionId(), $this->accountId);
         foreach ($stale as $oid) {
             $staleStats[] = [
                 "id" => $oid,
@@ -371,7 +387,7 @@ abstract class AbstractCollection
 
         // Get previously imported list and set the default action to delete
         // --------------------------------------------------------------------
-        $changes = $this->dataMapper->getImported($this->getCollectionId());
+        $changes = $this->collectionDataMapper->getImported($this->getCollectionId(), $this->accountId);
         $numChanges = count($changes);
         for ($i = 0; $i < $numChanges; $i++) {
             $changes[$i]['action'] = 'delete';
@@ -417,7 +433,7 @@ abstract class AbstractCollection
 
     /**
      * Log an imported object
-     *
+     *     
      * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
      * @param string $localId If imported to a local object then record the id, if null the delete
@@ -439,21 +455,50 @@ abstract class AbstractCollection
             throw new \InvalidArgumentException("remoteId was not set and is required.");
         }
 
+        if (!$this->accountId) {
+            throw new \InvalidArgumentException("AccountId was not set and is required.");
+        }
+
         /*
          * When we import, we should also log that it was exported since
          * we know that the remote client has the object already.
          */
-        if ($localId && $localRevision) {
+        if ($localId && $localRevision) {            
             $this->logExported($localId, $localRevision);
         }
 
-        // Log the import and return the results
-        return $this->dataMapper->logImported(
-            $this->getCollectionId(),
-            $remoteId,
-            $remoteRevision,
-            $localId,
-            $localRevision
-        );
+        return $this->workerService->doWorkBackground(EntitySyncLogImportedWorker::class, [            
+            'account_id' => $this->accountId,
+            'collection_id' => $this->getCollectionId(),
+            'unique_id' => $remoteId,
+            'object_id' => $localId,
+            'revision' => $localRevision,
+            'remote_revision' => $remoteRevision
+        ]);
+    }
+
+    /**
+     * Log that a commit was exported from this collection
+     *     
+     * @param string $uniqueId The unique id of the object we sent
+     * @param int $commitId The unique id of the commit we sent
+     */
+    public function logExported(string $uniqueId, int $commitId = null)
+    {
+        if (!$this->getCollectionId()) {
+            return false;
+        }
+
+        if (!$this->accountId) {
+            throw new \InvalidArgumentException("AccountId was not set and is required.");
+        }
+
+        return $this->workerService->doWorkBackground(EntitySyncLogExportedWorker::class, [            
+            'account_id' => $this->accountId,
+            'collection_id' => $this->getCollectionId(),
+            'collection_type' => $this->getType(),
+            'unique_id' => $uniqueId,
+            'commit_id' => $commitId
+        ]);
     }
 }

@@ -13,6 +13,8 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
+use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
 use DateTime;
 
@@ -36,11 +38,11 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     private $commitManager = null;
 
     /**
-     * Sync service used to keep track of changes for synchronized devices
-     *
-     * @var EntitySync
+     * Used to schedule background jobs
+     * 
+     * @var WorkerService
      */
-    private $entitySync = null;
+    private WorkerService $workerService;
 
     /**
      * Loader for getting entity definitions
@@ -67,19 +69,19 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * @param RelationalDbContainer $dbContainer Handles the database actions     
      * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
      * @param EntityDefinitionLoader $entityDefinitionLoader Manage handles creating, getting, and working with commits
-     * @param EntitySync $entitySync Entity sync manager
+     * @param WorkerService $workerService Used to schedule background jobs
      */
     public function __construct(
         RelationalDbContainer $dbContainer,
         EntityDefinitionLoader $entityDefinitionLoader,
         CommitManager $commitManager,
-        EntitySync $entitySync
+        WorkerService $workerService
         )
     {
         $this->databaseContainer = $dbContainer;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
         $this->commitManager = $commitManager;
-        $this->entitySync = $entitySync;
+        $this->workerService = $workerService;
         
         // Clear the moved entities cache
         $this->cacheMovedEntities = [];        
@@ -163,12 +165,13 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
          * anything changed since a previous commit ID.
          */
         foreach ($ret['deleted'] as $gid => $lastCommitId) {
-            if ($gid && $lastCommitId && $nextCommit) {
-                $this->entitySync->setExportedStale(
-                    EntitySync::COLL_TYPE_GROUPING,
-                    $lastCommitId,
-                    $nextCommit
-                );
+            if ($gid && $lastCommitId && $nextCommit) {                
+                $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [            
+                    'account_id' => $accountId,
+                    'collection_type' => EntitySync::COLL_TYPE_GROUPING,
+                    'last_commit_id' => $lastCommitId,
+                    'new_commit_id' => $nextCommit
+                ]);
             }
         }
 

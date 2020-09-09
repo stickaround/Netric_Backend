@@ -8,6 +8,7 @@ namespace NetricTest\EntitySync\Collection;
 
 use Netric\EntitySync;
 use Netric\EntitySync\Collection;
+use Netric\EntitySync\Collection\GroupingCollectionFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use PHPUnit\Framework\TestCase;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
@@ -74,8 +75,8 @@ class GroupingCollectionTest extends AbstractCollectionTests
      */
     protected function getCollection()
     {
-
-        $collection = new Collection\GroupingCollection($this->esDataMapper, $this->commitManager, $this->groupingDataMapper);
+        $collection = $this->account->getServiceManager()->get(GroupingCollectionFactory::class);
+        $collection->setAccountId($this->account->getAccountId());
         $collection->setObjType(ObjectTypes::CONTACT);
         $collection->setFieldName("groups");
         return $collection;

@@ -11,6 +11,7 @@ use Netric\EntitySync\Commit;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\EntitySync\Commit\CommitManager;
+use Netric\WorkerMan\WorkerService;
 use DateTime;
 
 /**
@@ -26,27 +27,37 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
     private $groupingDataMapper = null;
 
     /**
+     * Relational database collectionDataMapper for Entity Sync Collection
+     *
+     * @var CollectionDataMapperInterface
+     */
+    private $collectionDataMapper = null;
+
+    /**
      * Constructor
      *
-     * @param DataMapperInterface $dm The sync datamapper
-     * @param CommitManager $commitManager Manage system commits
-     * @param EntityGroupingDataMapperInterface $groupingDataMapper Entity DataMapper
+     * @param CommitManager $commitManager A manager used to keep track of commits
+     * @param WorkerService $workerService Used to schedule background jobs
+     * @param CollectionDataMapperInterface $collectionDataMapper Relational database dataMapper for Entity Sync Collection
+     * @param EntityGroupingDataMapperInterface $groupingDataMapper Entity DataMapper for grouping
      */
     public function __construct(
-        DataMapperInterface $dataMapper,
         CommitManager $commitManager,
+        WorkerService $workerService,
+        CollectionDataMapperInterface $collectionDataMapper,
         EntityGroupingDataMapperInterface $groupingDataMapper
+        
     ) {
         $this->groupingDataMapper = $groupingDataMapper;
+        $this->collectionDataMapper = $collectionDataMapper;
 
         // Pass datamapper to parent
-        parent::__construct($dataMapper, $commitManager);
+        parent::__construct($commitManager, $workerService, $collectionDataMapper);
     }
 
     /**
      * Get a stats list of what has changed locally since the last sync
-     *
-     * @param string $accountId The account that owns the the stats that we are getting
+     *     
      * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
      * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
      * @return array of associative array [
@@ -58,7 +69,6 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      *  ]
      */
     public function getExportChanged(
-        string $accountId,
         $autoFastForward = true,
         DateTime $limitUpdatesAfter = null        
     ) {
@@ -80,12 +90,12 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
             // Get previously imported so we do not try to export a recent import
             if ($this->getCollectionId()) {
-                $imports = $this->dataMapper->getImported($this->getCollectionId());
+                $imports = $this->collectionDataMapper->getImported($this->getCollectionId(), $this->getAccountId());
             }
 
             // Get groupings
             $filters = $this->getFiltersFromConditions();
-            $groupings = $this->groupingDataMapper->getGroupings($this->getObjType() . "/" . $this->getFieldName(), $accountId);
+            $groupings = $this->groupingDataMapper->getGroupings($this->getObjType() . "/" . $this->getFieldName(), $this->getAccountId());
 
             // Loop through each change
             $grps = $groupings->getAll();
@@ -162,6 +172,46 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
         if ($headCommitId) {
             $this->setLastCommitId($headCommitId);
+        }
+    }
+
+    /**
+     * Load collection data from an associative array
+     *
+     * @param array $data
+     */
+    public function fromArray($data)
+    {
+        if ($data['entity_sync_collection_id']) {
+            $this->setCollectionId($data['entity_sync_collection_id']);
+        }
+        
+        if ($data['object_type']) {
+            $this->setObjType($data['object_type']);
+        }
+
+        if ($data['field_id']) {
+            $this->setFieldId($data['field_id']);
+        }
+
+        if ($data['field_name']) {
+            $this->setFieldName($data['field_name']);
+        }
+
+        if ($data['ts_last_sync']) {
+            $this->setLastSync(new DateTime($data['ts_last_sync']));
+        }
+
+        if ($data['conditions']) {
+            $this->setConditions($data['conditions']);
+        }
+
+        if ($data['revision']) {
+            $this->setRevision($data['revision']);
+        }
+
+        if ($data['last_commit_id']) {
+            $this->setLastCommitId($data['last_commit_id']);
         }
     }
 

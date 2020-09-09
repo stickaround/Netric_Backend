@@ -65,7 +65,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
         CommitManager $commitManager,
-        EntitySync $entitySync,
+        EntitySync $entitySync = null,
         EntityValidator $entityValidator,
         EntityFactory $entityFactory,
         Notifier $notifier = null,

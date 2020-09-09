@@ -4,28 +4,26 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync;
 
-use Netric\Account\Account;
-use Netric\Db\Relational\RelationalDbInterface;
+use Netric\Db\Relational\RelationalDbContainer;
+use Netric\EntitySync\Collection\CollectionFactory;
+use Netric\WorkerMan\WorkerService;
 use Netric\DataMapperAbstract;
 
 abstract class AbstractDataMapper extends DataMapperAbstract
 {
     /**
-     * Handle to database
-     *
-     * @var RelationalDbInterface
-     */
-    protected $database = null;
-
-    /**
      * Class constructor
      *
-     * @param Account $account Account for tennant that we are mapping data for
-     * @param RelationalDbInterface $dbh Handle to database
+    * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
+     * @param EntityCollection $entityCollection Collection that will be used to Sync Entities
+     * @param WorkerService $workerService Used to schedule background jobs
      */
-    public function __construct(Account $account, RelationalDbInterface $database)
+    public function __construct(
+        RelationalDbContainer $dbContainer,        
+        WorkerService $workerService,
+        CollectionFactory $collectionFactory
+    )
     {
-        $this->setAccount($account);
-        $this->database = $database;
+        $this->setUp($dbContainer, $workerService, $collectionFactory);
     }
 }

@@ -38,7 +38,7 @@ class EntitySync
     /**
      * Constructor
      *
-     * @param \Netric\EntitySync\DataMapperInterface $dm
+     * @param DataMapperInterface $dm
      */
     public function __construct(DataMapperInterface $dm)
     {
@@ -49,10 +49,12 @@ class EntitySync
      * Get device
      *
      * @param string $devid The device id to query stats for
+     * @param string $accountId The account that we will use to get active database handle
+     * 
      * @throws \Exception if no partner id is defined
-     * @return \Netric\EntitySync\Partner
+     * @return Partner
      */
-    public function getPartner($pid)
+    public function getPartner(string $pid, string $accountId)
     {
         if (!$pid) {
             throw new \Exception("Partner id is required");
@@ -66,7 +68,7 @@ class EntitySync
         }
 
         // Load the partner from the database
-        $this->partner = $this->dataMapper->getPartnerByPartnerId($pid);
+        $this->partner = $this->dataMapper->getPartnerByRemoteId($pid, $accountId);
 
         return $this->partner;
     }
@@ -76,47 +78,53 @@ class EntitySync
      *
      * @param string $pid The unique partner id
      * @param string $ownerId The unique id of the owning user
-     * @return \Netric\EntitySync\Partner
+     * @param string $accountId The account that owns the Partner that we are about to save
+     * 
+     * @return Partner
      */
-    public function createPartner($pid, $ownerId)
+    public function createPartner(string $pid, string $ownerId, string $accountId)
     {
         $partner = new Partner($this->dataMapper);
         $partner->setRemotePartnerId($pid);
         $partner->setOwnerId($ownerId);
-        $this->dataMapper->savePartner($partner);
+        $this->dataMapper->savePartner($partner, $accountId);
         return $partner;
     }
 
     /**
      * Save a partner
      *
-     * @params \Netric\EntitySync\Partner $partner
+     * @param Partner $partner Will set the id if new partner
+     * @param string $accountId The account that owns the Partner that we are about to save
      */
-    public function savePartner(Partner $partner)
+    public function savePartner(Partner $partner, string $accountId)
     {
-        $this->dataMapper->savePartner($partner);
+        $this->dataMapper->savePartner($partner, $accountId);
     }
 
     /**
      * Delete a partner
      *
-     * @param Partner $partner
+     * @param Partner $partner The partner to delete
+     * @param string $accountId The account that we will use to get active database handle
+     * 
      */
-    public function deletePartner(Partner $partner)
+    public function deletePartner(Partner $partner, string $accountId)
     {
-        $this->dataMapper->deletePartner($partner);
+        $this->dataMapper->deletePartner($partner, $accountId);
     }
 
     /**
      * Mark a commit as stale for all sync collections
      *
+     * @param string $accountId The account that owns the collection
      * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
      * @param string $lastCommitId
      * @param string $newCommitId
      */
-    public function setExportedStale($collType, $lastCommitId, $newCommitId)
+    public function setExportedStale(string $accountId, string $collType, string $lastCommitId, string $newCommitId)
     {
-        return $this->dataMapper->setExportedStale($collType, $lastCommitId, $newCommitId);
+        return $this->dataMapper->setExportedStale($accountId, $collType, $lastCommitId, $newCommitId);
     }
 
     /**

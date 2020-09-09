@@ -114,6 +114,7 @@ class EntityGroupingStateManager
             // Log the change in entity sync
             if ($gid && $lastCommitId && $nextCommit) {
                 $this->entitySync->setExportedStale(
+                    $groupings->getAccountId(),
                     EntitySync::COLL_TYPE_GROUPING,
                     $lastCommitId,
                     $nextCommit
