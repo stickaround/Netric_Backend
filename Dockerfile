@@ -22,8 +22,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install -j$(nproc) iconv pgsql \
     && docker-php-ext-install pdo pdo_pgsql pdo_mysql \
-    && docker-php-ext-configure gd \
-    && docker-php-ext-install -j$(nproc) gd \
     && pecl install channel://pecl.php.net/mcrypt \
     && docker-php-ext-enable mcrypt \
     && pecl install memcached \
@@ -36,6 +34,13 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable sodium \
     && pecl install mailparse \
     && docker-php-ext-enable mailparse
+
+# Install GD
+RUN docker-php-ext-configure gd \
+    --with-jpeg=/usr/include/ \
+    --with-freetype=/usr/include/
+
+RUN docker-php-ext-install gd
 
 # Install gearman since the pecl version will not work with PHP7
 RUN cd /tmp \
