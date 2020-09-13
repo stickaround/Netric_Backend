@@ -105,7 +105,7 @@ return [
         'server' => 'gearman',
     ],
     'billing' => [
-        'anet_url' => ANetEnvironment::SANDBOX,
+        'anet_url' => ANetEnvironment::PRODUCTION,
         'anet_login' => '6yEB38QFsp3E',
         // The key is in the vault
     ]
