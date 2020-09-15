@@ -981,7 +981,10 @@ class Entity implements EntityInterface
                         $this->getValue($field->name);
 
                     if (is_array($files)) {
-                        foreach ($files as $fid) {
+                        // Make sure we remove empty values in the entity files.
+                        $entityFiles = array_values(array_filter($files));
+
+                        foreach ($entityFiles as $fid) {
                             $file = $fileSystem->openFileById($fid);
 
                             // Check to see if the file is a temp file

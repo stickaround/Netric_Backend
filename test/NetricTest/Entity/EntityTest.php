@@ -219,6 +219,10 @@ class EntityTest extends TestCase
         $cust = $entityLoader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "Aereus Corp");
         $cust->addMultiValue("attachments", $file->getEntityId(), $file->getValue("name"));
+
+        // Added null and empty file id in attachments to test if this will throw an error
+        $cust->addMultiValue("attachments", null, 'null file id');
+        $cust->addMultiValue("attachments", '', 'empty file id');
         $dataMapper->save($cust, $this->account->getAuthenticatedUser());
 
         // Test to see if file was moved
