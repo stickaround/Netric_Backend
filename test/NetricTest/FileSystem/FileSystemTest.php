@@ -265,6 +265,10 @@ class FileSystemTest extends TestCase
         $this->assertFalse(empty($openedFile->getEntityId()));
         $this->assertEquals($importedFile->getEntityId(), $openedFile->getEntityId());
 
+        // Should return null if fileId provided is empty string or null        
+        $this->assertNull($this->fileSystem->openFileById(''));
+        $this->assertNull($this->fileSystem->openFileById(null));
+
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
         $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenFileById"));
