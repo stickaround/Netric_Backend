@@ -97,7 +97,7 @@ class PermissionControllerTest extends TestCase
     {
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('id', "");
+        $req->setParam('entity_id', "");
         $req->setParam('obj_type', ObjectTypes::NOTE);
 
         $ret = $this->controller->getGetDaclForEntityAction();
@@ -125,7 +125,7 @@ class PermissionControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setParam('obj_type', "task");
-        $req->setParam('id', $taskEntity->getEntityId());
+        $req->setParam('entity_id', $taskEntity->getEntityId());
 
         $ret = $this->controller->getGetDaclForEntityAction();
 
