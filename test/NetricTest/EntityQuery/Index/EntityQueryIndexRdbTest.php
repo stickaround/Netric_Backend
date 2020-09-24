@@ -18,6 +18,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
+use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
 
 /**
@@ -269,15 +270,19 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $def = $this->defLoader->get(ObjectTypes::TASK, $this->account->getAccountId());
 
         // Test Equals
-        $condition = new Where("f_seen");
-        $condition->equals(true);
-        $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', ''))::boolean = true");
+        $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
+        $query->where('done')->equals(true);
+        $ret = $this->entityValueSanitizer->sanitizeQuery($query);
 
-        // Test Not Equal
-        $condition = new Where("f_seen");
-        $condition->doesNotEqual(true);
-        $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
+        $conditionString = $this->index->buildConditionStringAndSetParams($def, $ret[0]);
+        $this->assertEquals($conditionString, "(nullif(field_data->>'done', ''))::boolean = true");
+
+        // Test Not Equal        
+        $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId());
+        $query->where('f_seen')->doesNotEqual(true);
+        $ret = $this->entityValueSanitizer->sanitizeQuery($query);
+
+        $conditionString = $this->index->buildConditionStringAndSetParams($def, $ret[0]);
         $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', ''))::boolean != true");
     }
 

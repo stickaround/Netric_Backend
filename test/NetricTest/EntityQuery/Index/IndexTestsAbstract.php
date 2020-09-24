@@ -25,6 +25,7 @@ use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\Entity;
+use Netric\Entity\EntityValueSanitizerFactory;
 use Netric\EntityQuery\Index\IndexAbstract;
 use Netric\EntityQuery\Aggregation\Min;
 use Ramsey\Uuid\Uuid;
@@ -65,6 +66,8 @@ abstract class IndexTestsAbstract extends TestCase
 
         $this->defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $this->index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $this->entityValueSanitizer = $this->account->getServiceManager()->get(EntityValueSanitizerFactory::class);
+        $this->entityValueSanitizer->setAccount($this->account);
     }
 
     /**
@@ -183,9 +186,6 @@ abstract class IndexTestsAbstract extends TestCase
 
         $projectDef = $entityDefinitionLoader->get(ObjectTypes::PROJECT, $this->account->getAccountId());
         $ownerIdField = $projectDef->getField("owner_id");
-
-        $sanitizedValue = $index->sanitizeWhereCondition($ownerIdField, UserEntity::USER_CURRENT, $currentAccountUser->getEntityId());
-        $this->assertEquals($sanitizedValue, $currentAccountUser->getEntityId());
 
         // Now let's create a project entity and set the value of owner_id to current user's id
         $projectEntity = $entityLoader->create(ObjectTypes::PROJECT, $this->account->getAccountId());
