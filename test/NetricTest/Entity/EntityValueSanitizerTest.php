@@ -50,24 +50,7 @@ class EntityValueSanitizerTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $this->entityValueSanitizer = $this->account->getServiceManager()->get(EntityValueSanitizerFactory::class);
-        $this->entityValueSanitizer->setAccount($this->account);
-    }
-
-    /**
-     * Entity Sanitizer should throw a runtime exception when no account is set
-     */
-    public function testThrowExceptionWhenNoAccount()
-    {
-        $this->expectException('RuntimeException', 'Invalid account set for this sanitizer!');
-
-        // We need to manually create an instance of EntityValueSanitizer since self::setUp() has already cached the EntityValueSanitizerFactory
-        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);        
-        $sanitizerWithoutAccount = new EntityValueSanitizer($defLoader, $groupingLoader);
-
-        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());        
-        $sanitizerWithoutAccount->sanitizeEntity($task);        
+        $this->entityValueSanitizer = $this->account->getServiceManager()->get(EntityValueSanitizerFactory::class);        
     }
 
     /**

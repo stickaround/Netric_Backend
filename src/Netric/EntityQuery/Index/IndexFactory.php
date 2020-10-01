@@ -32,8 +32,7 @@ class IndexFactory implements AccountServiceFactoryInterface
         $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        $entityValueSanitizer = $serviceLocator->get(EntityValueSanitizerFactory::class);
-        $entityValueSanitizer->setAccount($serviceLocator->getAccount());
+        $entityValueSanitizer = $serviceLocator->get(EntityValueSanitizerFactory::class);        
 
         return new EntityQueryIndexRdb(
             $relationalDbCon,

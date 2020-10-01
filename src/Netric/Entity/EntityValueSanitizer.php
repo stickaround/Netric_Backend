@@ -11,6 +11,7 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityGroupings\GroupingLoader;
+use Netric\Account\AccountContainer;
 use RuntimeException;
 use DateInterval;
 use DateTime;
@@ -31,13 +32,6 @@ class EntityValueSanitizer
     private $object = null;
 
     /**
-     * The account tat will be used to get the current user. This can be set in setAccount()
-     *
-     * @var Account
-     */
-    private $account = null;
-
-    /**
      * Entity definition loader for getting definitions
      *
      * @var EntityDefinitionLoader
@@ -52,26 +46,31 @@ class EntityValueSanitizer
     private $groupingLoader = null;
 
     /**
+     * This will be used to load the account using accountId
+     * 
+     * @var AccountContainer $accountContainer
+     */
+    private $accountContainer = null;
+
+    /**
+     * The account tat will be used to get the current user. This can be set in setAccount()
+     *
+     * @var Account
+     */
+    private $account = null;
+
+    /**
      * EntityValueSanitizer constructor
      *
      * @param EntityDefinitionLoader $definitionLoader Entity definition loader for getting definitions
      * @param GroupingLoader $groupingLoader Grouping loader used to get user groups
+     * @param AccountContainer $accountContainer This will be used to load the account using accountId
      */
-    public function __construct(EntityDefinitionLoader $definitionLoader, GroupingLoader $groupingLoader)
+    public function __construct(EntityDefinitionLoader $definitionLoader, GroupingLoader $groupingLoader, AccountContainer $accountContainer)
     {
         $this->definitionLoader = $definitionLoader;
         $this->groupingLoader = $groupingLoader;
-    }
-
-    /**
-     * Set the account for this sanitizer to use
-     *
-     * @param Account $account The account that will be used to sanitize the entity
-     * @return void
-     */
-    public function setAccount(Account $account)
-    {
-        $this->account = $account;
+        $this->accountContainer = $accountContainer;
     }
 
     /**
@@ -86,6 +85,9 @@ class EntityValueSanitizer
         if (!$query instanceof EntityQuery) {
             throw new RuntimeException("The object being sanitized is not an EntityQuery!");
         }
+
+        // Load the account using the accountId set in the query
+        $this->account = $this->accountContainer->loadById($query->getAccountId());
 
         // Make sure that an account is setup for this sanitizer
         if (!$this->account instanceof Account) {
@@ -164,6 +166,14 @@ class EntityValueSanitizer
             throw new RuntimeException("The object being sanitized is not an Entity!");
         }
 
+        // Load the account using the accountId set in the entity
+        $this->account = $this->accountContainer->loadById($entity->getAccountId());
+
+        // Make sure that an account is setup for this sanitizer
+        if (!$this->account instanceof Account) {
+            throw new RuntimeException("Invalid account set for this sanitizer!");
+        }
+
         $fieldData = [];
 
         // Get the fields from the entity definition
@@ -226,11 +236,6 @@ class EntityValueSanitizer
      */
     private function sanitizeFieldMultiValues(Field $field, &$multiValue, &$multiValueNames = [])
     {
-        // Make sure that an account is setup for this sanitizer
-        if (!$this->account instanceof Account) {
-            throw new RuntimeException("Invalid account set for this sanitizer!");
-        }
-
         // Get the current user
         $currentUser = $this->account->getAuthenticatedUser();
 
@@ -278,11 +283,6 @@ class EntityValueSanitizer
      */
     private function sanitizeFieldValue(Field $field, &$value, &$valueName = "")
     {
-        // Make sure that an account is setup for this sanitizer
-        if (!$this->account instanceof Account) {
-            throw new RuntimeException("Invalid account set for this sanitizer!");
-        }
-
         // Get the current user
         $currentUser = $this->account->getAuthenticatedUser();
         

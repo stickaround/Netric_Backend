@@ -35,14 +35,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     private $databaseContainer = null;
 
     /**
-     * Optional. The unique id of the user that is set in the Entity Query.
-     * If provided, this will be used to sanitize current user in condition value 
-     * 
-     * @var string
-     */
-    private $userIdFromEntityQuery = "";
-
-    /**
      * Handles the sanitizing of condition values in the query
      * 
      * @var EntityValueSanitizer
@@ -142,9 +134,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         // Get the account id from the Entity Query
         $accountId = $query->getAccountId();
-
-        // Get the unique id of the user that is set in Entity Query
-        $this->userIdFromEntityQuery = $query->getUserId();
 
         // Make sure that we have an entity definition before executing a query
         $entityDefinition = $this->getDefinition($query->getObjType(), $accountId);
