@@ -108,8 +108,15 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             return $response;
         }
 
-        // Get the email entity to send
+        // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(['error' => "No authenticated account found."]);
+            return $response;
+        }
+
+        // Get the email entity to send
         $emailMessage = $this->entityLoader->getEntityById(
             $objData['entity_id'],
             $currentAccount->getAccountId()
@@ -148,7 +155,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
 
         if (!$recipient) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(['error' => "'recipient' is a required param"]);
+            $response->write(['error' => "'recipient is a required param"]);
             return $response;
         }
 
@@ -165,12 +172,20 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             return $response;
         }
 
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(['error' => "No authenticated account found."]);
+            return $response;
+        }
+
         // Try to import message
         try {
             $messageGuid = $this->deliveryService->deliverMessageFromFile(
                 $recipient,
                 $files['message']['tmp_name'],
-                $this->getAuthenticatedAccount()
+                $currentAccount
             );
             $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
             $response->write(['result' => true, 'entity_id' => $messageGuid]);
