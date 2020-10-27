@@ -19,6 +19,7 @@ use Netric\Entity\EntityFactory;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityValueSanitizer;
 use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Ramsey\Uuid\Uuid;
@@ -67,6 +68,7 @@ abstract class IndexAbstract
      * @param EntityFactory $entityFactory Handles the creating of new entities
      * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
      * @param EntityLoader $entityLoader Handles the loading of existing entities     
+     * @param EntityValueSanitizer $entityValueSanitizer Handles the sanitizing of condition values in the query
      * @param AccountServiceManagerInterface $serviceManagerForPlugin A service manager that will be used when executing the entity query plugin
      */
     public function __construct(
@@ -74,6 +76,7 @@ abstract class IndexAbstract
         EntityFactory $entityFactory,
         EntityDefinitionLoader $entityDefinitionLoader,
         EntityLoader $entityLoader,
+        EntityValueSanitizer $entityValueSanitizer,
         AccountServiceManagerInterface $serviceManagerForPlugin
     ) {
         $this->entityFactory = $entityFactory;
@@ -82,7 +85,7 @@ abstract class IndexAbstract
         $this->serviceManagerForPlugin = $serviceManagerForPlugin;
 
         // Setup the entity query index
-        $this->setUp($dbContainer);
+        $this->setUp($dbContainer, $entityValueSanitizer);
     }
 
     /**
@@ -257,93 +260,6 @@ abstract class IndexAbstract
         }
 
         return $ret;
-    }
-
-    /**
-     * Sanitize condition values for querying
-     *
-     * This function also takes care of translating environment varials such as
-     * current user and current user's team into IDs for the query.
-     *
-     * @param Field $field The field that are currently working on
-     * @param mixed $value The value that will be sanitized
-     * @param string $userId Unique id of the user that will be used to sanitize current user in condition value 
-     */
-    public function sanitizeWhereCondition(Field $field, $value, string $userId)
-    {
-        // Cleanup bool
-        if ($field->type == Field::TYPE_BOOL && is_string($value)) {
-            switch ($value) {
-                case 'yes':
-                case 'true':
-                case 't':
-                case '1':
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        // Cleanup dates and times
-        if (($field->type == Field::TYPE_DATE || $field->type == Field::TYPE_TIMESTAMP)) {
-            // Convert \DateTime to a timestamp
-            if ($value instanceof \DateTime) {
-                $value = $value->format("Y-m-d h:i:s A e");
-            }
-            /*
-             * The below is causing things fail due to complex queries like
-             * monthIsEqual and dayIsEqual. Probably needs some more thought.
-            else if (is_numeric($value) && !is_string($value)) {
-                $value = date("Y-m-d h:i:s A e", $value);
-            }
-             */
-        }
-
-        // Replace user vars
-        if ($userId) {
-            // Replace current user
-            if ($value == UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
-                return $userId;
-            }
-
-            /*
-             * TODO: Handle the below conditions
-             *
-            // Replace dereferenced current user team
-            if ($field->type == "object" && $field->subtype == "user" && $ref_field == "team_id"
-                && ($value==USER_CURRENT || $value==TEAM_CURRENTUSER)  && $user->teamId)
-                $value = $user->teamId;
-
-            // Replace current user team
-            if ($field->type == "fkey" && $field->subtype == "user_teams"
-                && ($value==USER_CURRENT || $value==TEAM_CURRENTUSER) && $user->teamId)
-                $value = $user->teamId;
-            */
-
-            // Replace object reference with user variables
-            if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
-                && $value == "user:" . UserEntity::USER_CURRENT
-            ) {
-                return $userId;
-            }
-        }
-
-        /*
-        // TODO: Replace grouping labels with id
-        if ($field->type == Field::TYPE_GROUPING || $field->type == Field::TYPE_GROUPING_MULTI) {
-
-        }
-        if (($field->type == "fkey" || $field->type == "fkey_multi") && $value && !is_numeric($value))
-        {
-            $grp = $this->obj->getGroupingEntryByName($fieldParts[0], $value);
-            if ($grp)
-                $value = $grp['id'];
-            else
-                return;
-        }
-         */
-
-        return $value;
     }
 
     /**

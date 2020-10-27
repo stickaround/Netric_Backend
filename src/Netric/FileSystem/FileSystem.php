@@ -208,6 +208,10 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function openFileById($fid)
     {
+        if (!$fid) {
+            throw new \InvalidArgumentException("File id is a required param.");
+        }
+
         $file = $this->entityLoader->getEntityById($fid, $this->user->getAccountId());
         return ($file && $file->getEntityId()) ? $file : null;
     }

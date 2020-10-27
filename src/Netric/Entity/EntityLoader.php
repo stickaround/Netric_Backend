@@ -249,4 +249,19 @@ class EntityLoader
     {
         return $this->dataMapper->getRevisions($entityId, $accountId);
     }
+
+    /**
+     * Set this object as having been moved to another object
+     *
+     * @param string $fromId The id to move
+     * @param string $toId The unique id of the object this was moved to
+     * @param string $accountId The account we are updating
+     * @return bool true on succes, false on failure
+     */
+    public function setEntityMovedTo(string $fromId, string $toId, string $accountId): bool
+    {
+        return $this->dataMapper->setEntityMovedTo($fromId, $toId, $accountId);
+        $this->clearCacheByGuid($fromId);
+        $this->clearCacheByGuid($toId);
+    }
 }

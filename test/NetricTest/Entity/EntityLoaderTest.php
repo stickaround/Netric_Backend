@@ -106,4 +106,37 @@ class EntityLoaderTest extends TestCase
 
         $this->assertEquals($task, $entity);
     }
+
+    /**
+     * Test entity has moved functionalty
+     */
+    public function testSetEntityMovedTo()
+    {
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // Create first entity
+        $customer = $loader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $customer->setValue("name", "testSetEntityMovedTo");
+        $oid1 = $loader->save($customer, $this->account->getAuthenticatedUser());
+
+        // Queue for cleanup
+        $this->testEntities[] = $customer;
+
+        // Create second entity
+        $customer2 = $loader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $customer2->setValue("name", "testSetEntityMovedTo");
+        $oid2 = $loader->save($customer2, $this->account->getAuthenticatedUser());
+
+        // Queue for cleanup
+        $this->testEntities[] = $customer2;
+
+        // Set moved to
+        $def = $customer->getDefinition();
+        $ret = $loader->setEntityMovedTo(
+            $customer->getEntityId(),
+            $customer2->getEntityId(),
+            $this->account->getAccountId()
+        );
+        $this->assertTrue($ret);
+    }
 }

@@ -15,6 +15,7 @@ use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityValueSanitizer;
 
 /**
  * Relational Database implementation of indexer for querying objects
@@ -34,21 +35,22 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     private $databaseContainer = null;
 
     /**
-     * Optional. The unique id of the user that is set in the Entity Query.
-     * If provided, this will be used to sanitize current user in condition value 
+     * Handles the sanitizing of condition values in the query
      * 
-     * @var string
+     * @var EntityValueSanitizer
      */
-    private $userIdFromEntityQuery = "";
+    private $entityValueSanitizer = null;
 
     /**
      * Setup this index
      *
      * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
+     * @param EntityValueSanitizer $entityValueSanitizer Handles the sanitizing of condition values in the query
      */
-    protected function setUp(RelationalDbContainer $dbContainer)
+    protected function setUp(RelationalDbContainer $dbContainer, EntityValueSanitizer $entityValueSanitizer)
     {
         $this->databaseContainer = $dbContainer;
+        $this->entityValueSanitizer = $entityValueSanitizer;
     }
 
     /**
@@ -133,9 +135,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // Get the account id from the Entity Query
         $accountId = $query->getAccountId();
 
-        // Get the unique id of the user that is set in Entity Query
-        $this->userIdFromEntityQuery = $query->getUserId();
-
         // Make sure that we have an entity definition before executing a query
         $entityDefinition = $this->getDefinition($query->getObjType(), $accountId);
 
@@ -151,7 +150,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         // Start building the condition string
         $conditionString = "";
-        $queryConditions = $query->getWheres();
+        $queryConditions = $this->entityValueSanitizer->sanitizeQuery($query);
 
         // Flag to indicate if we need to close an opening ( in a query
         $parenShouldBeClosed = false;
@@ -369,9 +368,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         // Get the Field Definition using the field name provided in the $condition
         $field = $this->getFieldUsingFieldName($entityDefinition, $fieldName);
-
-        // Sanitize and replace environment variables like 'current_user' to concrete vals
-        $condition->value = $this->sanitizeWhereCondition($field, $condition->value, $this->userIdFromEntityQuery);
 
         // After sanitizing the condition value, then we are now ready to build the condition string
         $value = pg_escape_string($condition->value);
@@ -897,25 +893,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
             $results->setAggregation($agg->getName(), $data);
         }
-    }
-
-    /**
-     * Sanitize condition values for querying
-     *
-     * @param Field $field The field that are currently working on
-     * @param mixed $value The value that will be sanitized
-     * @param string $userId Unique id of the user that will be used to sanitize current user in condition value 
-     */
-    public function sanitizeWhereCondition(Field $field, $value, string $userId = "")
-    {
-        $value = parent::sanitizeWhereCondition($field, $value, $userId);
-
-        // Convert bool to string
-        if ($field->type == Field::TYPE_BOOL) {
-            return ($value === true) ? 'true' : 'false';
-        }
-
-        return $value;
     }
 
     /**

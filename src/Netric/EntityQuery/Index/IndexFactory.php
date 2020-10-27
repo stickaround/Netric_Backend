@@ -13,6 +13,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\EntityValueSanitizerFactory;
 
 /**
  * Create a EntityQuery Index service
@@ -30,13 +31,15 @@ class IndexFactory implements AccountServiceFactoryInterface
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
-        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);        
-        
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $entityValueSanitizer = $serviceLocator->get(EntityValueSanitizerFactory::class);        
+
         return new EntityQueryIndexRdb(
             $relationalDbCon,
             $entityFactory,
             $entityDefinitionLoader,
             $entityLoader,
+            $entityValueSanitizer,
             $serviceLocator
         );
     }
