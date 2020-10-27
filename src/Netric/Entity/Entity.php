@@ -1016,9 +1016,14 @@ class Entity implements EntityInterface
     public function cloneTo(Entity $toEntity)
     {
         $thisData = $this->toArray();
+        // Set fields we should avoid cloning
         $thisData['id'] = null;
         $thisData['entity_id'] = null;
         $thisData['revision'] = 0;
+        $thisData['ts_created'] = null;
+        // ts_executed is used in recurring entities sometimes for reminders,
+        // notifications, or jobs and should always default to null
+        $thisData['ts_executed'] = null;
         $toEntity->fromArray($thisData);
     }
 
