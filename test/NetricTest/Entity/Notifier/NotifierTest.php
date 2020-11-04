@@ -116,6 +116,9 @@ class NotifierTest extends TestCase
         // Saving created notices automatically, mark them all as read for the test
         $this->notifier->markNotificationsSeen($task, $this->testUser);
 
+        // Update task value so we can re-create notifications
+        $task->setValue("name", "updated task name");
+
         // Now re-create notifications
         $notificationIds = $this->notifier->send(
             $task,
@@ -203,6 +206,9 @@ class NotifierTest extends TestCase
         $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->testEntities[] = $task;
 
+        // Update task value so we can re-create notifications
+        $task->setValue("name", "updated task name");
+
         // Saving created notices automatically, mark them all as read for the test
         $this->notifier->markNotificationsSeen($task, $this->testUser);
 
@@ -261,6 +267,9 @@ class NotifierTest extends TestCase
         $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->testEntities[] = $task;
 
+        // Update task value so we can re-create notifications
+        $task->setValue("name", "updated task name");
+
         // Now re-create notifications
         $this->notifier->send($task, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
 
@@ -284,5 +293,38 @@ class NotifierTest extends TestCase
 
         // Make sure none were found
         $this->assertEquals(0, $result->getNum());
+    }
+
+    /**
+     * Test creating new notifications and sending them to followers of an entity
+     */
+    public function testNotificationNotCreatedWhenUpdatingSortOrder()
+    {
+        // Create a test task entity and assign it to $this->testUser
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $task->setValue("owner_id", $this->testUser->getEntityId());
+        $task->setValue("name", "test task");
+        $this->entityLoader->save($task, $this->account->getSystemUser());
+        $this->testEntities[] = $task;
+
+        // Saving created notices automatically, mark them all as read for the test
+        $this->notifier->markNotificationsSeen($task, $this->testUser);
+
+        $currentSortOrder = $task->getValue("sort_order");
+
+        // Now update the sort_order value
+        $task->setValue("sort_order", $currentSortOrder+1);
+        $this->entityLoader->save($task, $this->account->getSystemUser());
+        $this->assertNotEquals($task->getValue("sort_order"), $currentSortOrder);
+
+        // Now try to re-create notifications
+        $notificationIds = $this->notifier->send(
+            $task,
+            ActivityEntity::VERB_UPDATED,
+            $this->account->getAuthenticatedUser()
+        );
+
+        // There should be no notifications created when updating the sort_order
+        $this->assertEquals(0, count($notificationIds));
     }
 }

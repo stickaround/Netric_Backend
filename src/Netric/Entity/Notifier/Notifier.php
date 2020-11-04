@@ -137,6 +137,11 @@ class Notifier
                 }
             }
 
+            // If there were no changes made in this entity, then we do not need to send a notification email.
+            if ($description === "No changes were made") {
+                continue;
+            }
+
             /*
              * Create a new notification if it is not the current user - we don't want
              * to notify a user if they are the one performing the action.

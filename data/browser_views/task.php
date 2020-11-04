@@ -37,6 +37,10 @@ return [
                 'field_name' => 'status_id',
                 'direction' => 'desc',
             ],
+            'sort_order' => [
+                'field_name' => 'sort_order',
+                'direction' => 'desc',
+            ],
             'date' => [
                 'field_name' => 'ts_entered',
                 'direction' => 'desc',
@@ -168,6 +172,10 @@ return [
         'order_by' => [
             'status_id' => [
                 'field_name' => 'status_id',
+                'direction' => 'desc',
+            ],
+            'sort_order' => [
+                'field_name' => 'sort_order',
                 'direction' => 'desc',
             ],
             'date' => [

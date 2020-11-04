@@ -15,8 +15,8 @@ return array(
         'description' => '',
         'default' => true,
         'order_by' => array(
-            'date' => array(
-                'field_name' => 'ts_entered',
+            'sort_order' => array(
+                'field_name' => 'sort_order',
                 'direction' => 'desc',
             ),
         ),
@@ -37,8 +37,8 @@ return array(
             ),
         ),
         'order_by' => array(
-            'date' => array(
-                'field_name' => 'ts_entered',
+            'sort_order' => array(
+                'field_name' => 'sort_order',
                 'direction' => 'desc',
             ),
         ),

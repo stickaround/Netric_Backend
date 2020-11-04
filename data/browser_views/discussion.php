@@ -13,8 +13,8 @@ return array(
 		'description' => 'Discussions',
 		'default' => true,
 		'order_by' => array(
-			'date' => array(
-    			'field_name' => 'ts_updated',
+			'sort_order' => array(
+    			'field_name' => 'sort_order',
     			'direction' => 'desc',
     		),
 		),

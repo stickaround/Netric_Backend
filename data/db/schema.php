@@ -214,6 +214,7 @@ return [
             'field_data' => ['type' => SchemaProperty::TYPE_JSON],
             'schema_version' => ['type' => SchemaProperty::TYPE_INT],
             'tsv_fulltext' => ['type' => SchemaProperty::TYPE_TEXT_TOKENS],
+            'sort_order' => ['type' => SchemaProperty::TYPE_INT]
         ],
         'PRIMARY_KEY' => 'entity_id',
         "INDEXES" => [

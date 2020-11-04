@@ -157,4 +157,15 @@ return [
             "on" => "update"
         ],
     ],
+    'sort_order' => [
+        'title' => 'Sort Order',
+        'type' => Field::TYPE_NUMBER,
+        'subtype' => '',
+        'readonly' => true,
+        'system' => true,
+        'default' => [
+            "value" => "now",
+            "on" => "null"
+        ],
+    ]
 ];

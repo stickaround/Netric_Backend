@@ -150,6 +150,7 @@ class Field implements \ArrayAccess
     const TYPE_TEXT = 'text';
     const TYPE_BOOL = 'bool';
     const TYPE_DATE = 'date';
+    const TYPE_TIME = 'time';
     const TYPE_TIMESTAMP = 'timestamp';
     const TYPE_NUMBER = 'number';
     const TYPE_INTEGER = 'integer';
@@ -329,7 +330,7 @@ class Field implements \ArrayAccess
                 }
             }
 
-            // Determin appropriate event and action
+            // Determine appropriate event and action
             switch ($on) {
                 case 'create':
                     if ($event == "create" && !$value) {
@@ -371,13 +372,14 @@ class Field implements \ArrayAccess
 
         // Convert values
         switch ($this->type) {
-            case 'date':
+            case self::TYPE_NUMBER:
+            case self::TYPE_DATE:
                 if ("now" == $ret) {
                     $ret = mktime(0, 0, 0, date("n"), date("j"), date("Y"));
                 }
                 break;
-            case 'time':
-            case 'timestamp':
+            case self::TYPE_TIME:
+            case self::TYPE_TIMESTAMP:
                 if ("now" == $ret) {
                     $ret = time();
                 }
@@ -403,8 +405,8 @@ class Field implements \ArrayAccess
             }
         }
 
-        if ((($this->type == Field::TYPE_OBJECT && $this->subtype == "user")
-            || ($this->type == "object" && $this->subtype == "user")) && $ret == UserEntity::USER_CURRENT) {
+        if ((($this->type == self::TYPE_OBJECT && $this->subtype == "user")
+            || ($this->type == self::TYPE_OBJECT && $this->subtype == "user")) && $ret == UserEntity::USER_CURRENT) {
             if ($user) {
                 $ret = $user->getEntityId();
             } else {
@@ -467,7 +469,7 @@ class Field implements \ArrayAccess
      */
     public function isObjectReference()
     {
-        return ($this->type == 'object' || $this->type == 'object_multi');
+        return ($this->type == self::TYPE_OBJECT || $this->type == self::TYPE_OBJECT_MULTI);
     }
 
     /**
@@ -477,7 +479,7 @@ class Field implements \ArrayAccess
      */
     public function isGroupingReference()
     {
-        return ($this->type == 'fkey' || $this->type == 'fkey_multi');
+        return ($this->type == self::TYPE_GROUPING || $this->type == self::TYPE_GROUPING_MULTI);
     }
 
     /**
@@ -487,7 +489,7 @@ class Field implements \ArrayAccess
      */
     public function isMultiValue()
     {
-        return ($this->type == 'fkey_multi' || $this->type == 'object_multi');
+        return ($this->type == self::TYPE_GROUPING_MULTI || $this->type == self::TYPE_OBJECT_MULTI);
     }
 
 

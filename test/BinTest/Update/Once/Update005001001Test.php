@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Make sure the bin/scripts/update/once/004/001/002.php script works
+ * Make sure the bin/scripts/update/once/004/001/001.php script works
  */
 
 namespace BinTest\Update\Once;

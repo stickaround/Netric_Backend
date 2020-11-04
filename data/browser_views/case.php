@@ -30,8 +30,8 @@ return array(
 
         ),
         'order_by' => array(
-            'date' => array(
-                'field_name' => 'ts_entered',
+            'sort_order' => array(
+                'field_name' => 'sort_order',
                 'direction' => 'desc',
             ),
             'severity' => array(
@@ -56,8 +56,8 @@ return array(
             ),
         ),
         'order_by' => array(
-            'date' => array(
-                'field_name' => 'ts_entered',
+            'sort_order' => array(
+                'field_name' => 'sort_order',
                 'direction' => 'desc',
             ),
             'severity' => array(
@@ -74,8 +74,8 @@ return array(
         'description' => 'All cases in any status',
         'default' => false,
         'order_by' => array(
-            'date' => array(
-                'field_name' => 'ts_entered',
+            'sort_order' => array(
+                'field_name' => 'sort_order',
                 'direction' => 'desc',
             ),
             'severity' => array(

@@ -113,4 +113,21 @@ class FieldTest extends TestCase
         $field->type = Field::TYPE_GROUPING;
         $this->assertFalse($field->isMultiValue());
     }
+
+    /**
+     * Assure the grouping files that are not multi-value are not mistaken
+     *
+     * @return void
+     */
+    public function testNumberFieldWithDefaultValueNow()
+    {
+        $field = new Field();
+        $field->type = Field::TYPE_NUMBER;
+        $field->default = [
+            "value" => "now",
+            "on" => "null"
+        ];
+        
+        $this->assertEquals($field->getDefault(null, "null"), mktime(0, 0, 0, date("n"), date("j"), date("Y")));
+    }
 }
