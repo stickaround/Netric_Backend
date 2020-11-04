@@ -128,6 +128,6 @@ class FieldTest extends TestCase
             "on" => "null"
         ];
         
-        $this->assertEquals($field->getDefault(null, "null"), mktime(0, 0, 0, date("n"), date("j"), date("Y")));
+        $this->assertEquals($field->getDefault(null, "null"), mktime(date("h"), date("i"), date("s"), date("n"), date("j"), date("Y")));
     }
 }

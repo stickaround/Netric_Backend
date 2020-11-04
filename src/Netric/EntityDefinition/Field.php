@@ -370,12 +370,19 @@ class Field implements \ArrayAccess
             }
         }
 
+        $hour = 0;
+        $minute = 0;
+        $second = 0;
+
         // Convert values
         switch ($this->type) {
             case self::TYPE_NUMBER:
+                $hour = date("h");
+                $minute = date("i");
+                $second = date("s");
             case self::TYPE_DATE:
                 if ("now" == $ret) {
-                    $ret = mktime(0, 0, 0, date("n"), date("j"), date("Y"));
+                    $ret = mktime($hour, $minute, $second, date("n"), date("j"), date("Y"));
                 }
                 break;
             case self::TYPE_TIME:
