@@ -776,4 +776,67 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($taskEntity->getEntityId(), $ret['entity_id'], var_export($ret, true));
         $this->assertEquals($ret["error"], "You do not have permission to edit this.");
     }
+
+    public function testPostUpdateSortOrderEntities()
+    {        
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+     
+        // Create the tasks that will be sorted
+        $taskEntity1 = $loader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $taskEntity1->setValue("name", "Test Task 1");
+        $loader->save($taskEntity1, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $taskEntity1;
+
+        // Set a 1 second sleep so the setting of sort_order for other tasks will be different
+        sleep(1);
+
+        $taskEntity2 = $loader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $taskEntity2->setValue("name", "Test Task 2");
+        $loader->save($taskEntity2, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $taskEntity2;
+
+        sleep(1);
+
+        $taskEntity3 = $loader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $taskEntity3->setValue("name", "Test Task 3");
+        $loader->save($taskEntity3, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $taskEntity3;
+
+        sleep(1);
+        
+        $taskEntity4 = $loader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $taskEntity4->setValue("name", "Test Task 4");
+        $loader->save($taskEntity4, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $taskEntity4;
+
+        // Check here first the sort orders of the tasks
+        $this->assertGreaterThan($taskEntity1->getValue("sort_order"), $taskEntity2->getValue("sort_order"));
+        $this->assertGreaterThan($taskEntity3->getValue("sort_order"), $taskEntity4->getValue("sort_order"));
+
+        // Let's try to update sort order of the tasks
+        $data['entity_ids'] = [ $taskEntity2->getEntityId(), $taskEntity4->getEntityId(), $taskEntity1->getEntityId(), $taskEntity3->getEntityId() ];
+        
+        // Create the controller
+        $controller = new EntityController($this->account->getApplication(), $this->account);
+        $controller->testMode = true;
+
+        // Set params in the request
+        $req = $controller->getRequest();
+        $req->setBody(json_encode($data));
+
+        $ret = $controller->postUpdateSortOrderEntitiesAction();
+        
+        // Check the sort order of the tasks
+        $this->assertEquals($ret[0]["entity_id"], $taskEntity2->getEntityId());
+        $this->assertEquals($ret[1]["entity_id"], $taskEntity4->getEntityId());
+        $this->assertEquals($ret[2]["entity_id"], $taskEntity1->getEntityId());
+        $this->assertEquals($ret[3]["entity_id"], $taskEntity3->getEntityId());
+
+        // Make sure that sort orders were updated
+        $this->assertGreaterThan($ret[3]["sort_order"], $ret[2]["sort_order"]);
+        $this->assertGreaterThan($ret[1]["sort_order"], $ret[0]["sort_order"]);
+
+        // Make sure that the sort order was changed
+        $this->assertNotEquals($ret[0]["sort_order"], $taskEntity2->getValue('sort_order'));
+    }
 }

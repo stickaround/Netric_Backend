@@ -1004,4 +1004,56 @@ class EntityController extends Mvc\AbstractAccountController
 
         return $this->sendOutput($group->toArray());
     }
+
+    /**
+     * Update the sort order of the entities based on the entity's position in the array
+     */
+    public function postUpdateSortOrderEntitiesAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+        if (!$rawBody) {
+            return $this->sendOutput(["error" => "Request input is not valid"]);
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['entity_ids'])) {
+            return $this->sendOutput(["error" => "entity_ids is a required param"]);
+        }
+
+        if (!is_array($objData['entity_ids'])) {
+            return $this->sendOutput(["error" => "entity_ids should be an array"]);
+        }
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // We should reverse the order of entity_ids array so the top entity will have highest sort order
+        $entityIds = array_reverse($objData['entity_ids']);
+        $updatedEntities = [];
+        $currentTime = mktime(date("h"), date("i"), date("s"), date("n"), date("j"), date("Y"));
+
+        forEach($entityIds as $entityId)
+        {
+            // Load the entity using the entityId
+            $entity = $entityLoader->getEntityById($entityId, $this->account->getAccountId());
+
+            // Make sure that the entity exists before we update its sort order
+            if ($entity) {                
+                $entity->setValue('sort_order', $currentTime++);
+
+                try {
+                    if (!$entityLoader->save($entity, $this->account->getAuthenticatedUser())) {
+                        return $this->sendOutput(["error" => "Error saving entity.", "data" => $entityLoader->toArray()]);
+                    }
+
+                    $updatedEntities[] = $entity->toArray();
+                } catch (\RuntimeException $ex) {
+                    return $this->sendOutput(["error" => "Error saving: " . $ex->getMessage()]);
+                }
+            }
+        }
+
+        // Return the updated entities
+        return $this->sendOutput(array_reverse($updatedEntities));
+    }
 }
