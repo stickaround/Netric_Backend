@@ -87,9 +87,6 @@ class Update005001002Test extends TestCase
         $entityWithSortOrder = $this->entityLoader->getEntityById($entityId, $this->account->getAccountId());
         $this->assertNotNull($entityWithSortOrder->getValue("sort_order"));
 
-        // Sort order and ts_entered should not be the same because these 2 fields generated their values in different timestamps
-        $this->assertNotEquals($entityWithSortOrder->getValue("sort_order"), $entityWithSortOrder->getValue("ts_entered"));
-
         // We need to manually set the sort_order field to null so we can test the sort_order value properly
         $this->db->query('UPDATE entity SET sort_order = NULL WHERE entity_id=:entityId', ["entityId" => $entityId]);
 

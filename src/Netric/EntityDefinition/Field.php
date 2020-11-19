@@ -377,14 +377,7 @@ class Field implements \ArrayAccess
         // Convert values
         switch ($this->type) {
             case self::TYPE_NUMBER:
-                $hour = date("h");
-                $minute = date("i");
-                $second = date("s");
-            case self::TYPE_DATE:
-                if ("now" == $ret) {
-                    $ret = mktime($hour, $minute, $second, date("n"), date("j"), date("Y"));
-                }
-                break;
+            case self::TYPE_DATE:                
             case self::TYPE_TIME:
             case self::TYPE_TIMESTAMP:
                 if ("now" == $ret) {
