@@ -16,7 +16,7 @@ return array(
         'default' => true,
         'order_by' => array(
             'sort_order' => array(
-                'field_name' => 'sort_order',
+                'field_name' => 'ts_entered',
                 'direction' => 'desc',
             ),
         ),
@@ -38,7 +38,7 @@ return array(
         ),
         'order_by' => array(
             'sort_order' => array(
-                'field_name' => 'sort_order',
+                'field_name' => 'ts_entered',
                 'direction' => 'desc',
             ),
         ),
