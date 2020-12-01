@@ -2,6 +2,7 @@
 namespace Netric\EntityGroupings\DataMapper;
 
 use Netric\EntityGroupings\EntityGroupings;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * A DataMapper is responsible for writing and reading grouping data to a database
@@ -16,7 +17,7 @@ interface EntityGroupingDataMapperInterface
      * 
      * @return EntityGroupings
      */
-    public function getGroupings(string $path, string $account) : EntityGroupings;
+    public function getGroupingsByPath(string $path, string $account) : EntityGroupings;
 
     /**
      * Save groupings
@@ -25,4 +26,14 @@ interface EntityGroupingDataMapperInterface
      * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
      */
     public function saveGroupings(EntityGroupings $groupings) : array;
+
+    /**
+     * Function that will get the groupings using the entity definition
+     *
+     * @param EntityDefinition $definition The definition that we will use to filter the object groupings
+     * @param string $fieldName The name of the field of this grouping
+     * 
+     * @return EntityGroupings
+     */
+    public function getGroupings($definition, $fieldName) : EntityGroupings;
 }

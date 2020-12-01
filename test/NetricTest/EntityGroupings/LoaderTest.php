@@ -38,7 +38,7 @@ class LoaderTest extends TestCase
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
 
         // Create test group
-        $groupings = $dm->getGroupings(ObjectTypes::CONTACT . "/groups", $this->account->getAccountId());
+        $groupings = $dm->getGroupingsByPath(ObjectTypes::CONTACT . "/groups", $this->account->getAccountId());
         $newGroup = $groupings->create();
         $newGroup->name = "uttest-eg-loader-get";
         $groupings->add($newGroup);

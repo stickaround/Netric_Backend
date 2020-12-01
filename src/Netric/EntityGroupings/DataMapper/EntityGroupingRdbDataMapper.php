@@ -186,7 +186,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * 
      * @return EntityGroupings
      */
-    public function getGroupings(string $path, string $accountId): EntityGroupings
+    public function getGroupingsByPath(string $path, string $accountId): EntityGroupings
     {
         $sql = 'SELECT * FROM ' . self::TABLE_GROUPINGS . ' WHERE path = :path ORDER BY sort_order, name LIMIT 10000';
         $result = $this->getDatabase($accountId)->query($sql, ["path" => $path]);
@@ -205,12 +205,14 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     }
 
     /**
-     * Function that will get the groupings by objType
+     * Function that will get the groupings using the entity definition
      *
-     * @param Definition $definition The definition that we will use to filter the object groupings
+     * @param EntityDefinition $definition The definition that we will use to filter the object groupings
      * @param string $fieldName The name of the field of this grouping
+     * 
+     * @return EntityGroupings
      */
-    public function getGroupingsByObjType($definition, $fieldName)
+    public function getGroupings($definition, $fieldName): EntityGroupings
     {
         // Get the account id from the definition
         $accountId = $definition->getAccountId();

@@ -8,6 +8,7 @@ namespace Netric\EntityGroupings;
 
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Cache\CacheInterface;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Class to handle to loading of entity groupings
@@ -67,7 +68,7 @@ class GroupingLoader
             return $this->loadedGroupings[$path];
         }
 
-        return $this->loadGroupings($path, $accountId);
+        return $this->loadGroupingsByPath($path, $accountId);
     }
 
     /**
@@ -97,9 +98,9 @@ class GroupingLoader
      * @param string $path The path of the grouping that we are going to load
      * @param string $accountId The account that owns the groupings that we are about to save
      */
-    private function loadGroupings(string $path, string $accountId)
+    private function loadGroupingsByPath(string $path, string $accountId)
     {
-        $groupings = $this->dataMapper->getGroupings($path, $accountId);
+        $groupings = $this->dataMapper->getGroupingsByPath($path, $accountId);
         $groupings->setDataMapper($this->dataMapper);
 
         // Cache the loaded definition for future requests
@@ -128,5 +129,18 @@ class GroupingLoader
     {
         $this->loadedGroupings[$path] = null;
         return;
+    }
+
+    /**
+     * Function that will get the groupings using the entity definition
+     *
+     * @param EntityDefinition $definition The definition that we will use to filter the object groupings
+     * @param string $fieldName The name of the field of this grouping
+     * 
+     * @return EntityGroupings;
+     */
+    public function getGroupings($definition, $fieldName)
+    {
+        return $this->dataMapper->getGroupings($definition, $fieldName);
     }
 }

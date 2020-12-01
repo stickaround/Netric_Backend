@@ -95,7 +95,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
             // Get groupings
             $filters = $this->getFiltersFromConditions();
-            $groupings = $this->groupingDataMapper->getGroupings($this->getObjType() . "/" . $this->getFieldName(), $this->getAccountId());
+            $groupings = $this->groupingDataMapper->getGroupingsByPath($this->getObjType() . "/" . $this->getFieldName(), $this->getAccountId());
 
             // Loop through each change
             $grps = $groupings->getAll();

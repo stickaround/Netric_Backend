@@ -410,4 +410,32 @@ class EntityDefinitionLoader
 
         return $ret;
     }
+
+    /**
+     * Save a definition using the datamapper
+     *
+     * @param EntityDefinition $def The definition to save
+     * @return string|bool entity id on success, false on failure
+     */
+    public function save($def)
+    {
+        $ret = $this->dataMapper->save($def);
+        $this->clearCache($objType);
+
+        return $ret;
+    }
+
+    /**
+     * Delete a definition using the detamapper
+     *
+     * @param EntityDefinition $def The definition to delete
+     * @return bool true on success, false on failure
+     */
+    public function delete($def)
+    {
+        $ret = $this->dataMapper->delete($def);
+        $this->clearCache($objType);
+
+        return $ret;
+    }
 }

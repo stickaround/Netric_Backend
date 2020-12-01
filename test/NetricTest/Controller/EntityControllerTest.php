@@ -2,11 +2,18 @@
 
 namespace NetricTest\Controller;
 
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Request\HttpRequest;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Controller\EntityController;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +21,17 @@ use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityGroupings\Group;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\Entity\BrowserView\BrowserViewService;
+use Netric\Entity\Forms;
+use Netric\Permissions\DaclLoader;
+use Netric\Permissions\Dacl;
+use Netric\Db\Relational\RelationalDbContainer;
+use Netric\Entity\ObjType\TaskEntity;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityQuery\Where;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
@@ -55,48 +73,288 @@ class EntityControllerTest extends TestCase
      */
     private $testDefinitions = [];
 
+    /**
+     * Initialized controller with mock dependencies
+     */
+    private EntityController $entityController;
+
+    /**
+     * Dependency mocks
+     */
+    private EntityLoader $mockEntityLoader;
+    private AuthenticationService $mockAuthService;
+    private EntityDefinitionLoader $mockEntityDefinitionLoader;
+    private GroupingLoader $mockGroupingLoader;
+    private BrowserViewService $mockBrowserViewService;
+    private Forms $mockForms;
+    private RelationalDbContainer $mockDbContainer;
+    private DaclLoader $mockDaclLoader;
+
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
 
-        // Create the controller
-        $this->controller = new EntityController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Create mocks
+        $this->mockEntityLoader = $this->createMock(EntityLoader::class);
+        $this->mockEntityDefinitionLoader = $this->createMock(EntityDefinitionLoader::class);
+        $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);
+        $this->mockBrowserViewService = $this->createMock(BrowserViewService::class);
+        $this->mockForms = $this->createMock(Forms::class);
+        $this->mockDatabaseContainer = $this->createMock(RelationalDbContainer::class);
+        $this->mockDaclLoader = $this->createMock(DaclLoader::class);
+
+
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
+
+        // Return mock authenticated account
+        $mockAccount = $this->createStub(Account::class);
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $accountContainer->method('loadById')->willReturn($mockAccount);
+
+        // Create the controller with mocks
+        $this->entityController = new EntityController(
+            $accountContainer,
+            $this->mockAuthService,
+            $this->mockEntityLoader,
+            $this->mockEntityDefinitionLoader,
+            $this->mockGroupingLoader,
+            $this->mockBrowserViewService,
+            $this->mockForms,            
+            $this->mockDaclLoader,
+            $this->mockDatabaseContainer
+        );
+        $this->entityController->testMode = true;
     }
 
-    /**
-     * Cleanup after a test runs
-     */
-    protected function tearDown(): void
+    public function testGetEntityAction()
     {
-        // Delete the added groups
-        foreach ($this->testGroups as $groupId) {
-            $dataRemove = [
-                'action' => "delete",
-                'obj_type' => ObjectTypes::NOTE,
-                'field_name' => 'groups',
-                'group_id' => $groupId
-            ];
+        $taskEntityId = Uuid::uuid4()->toString();
+        $daclPermissions = [
+            'view' => true,
+            'edit' => true,
+            'delete' => true
+        ];
 
-            // Set params in the request
-            $req = $this->controller->getRequest();
-            $req->setBody(json_encode($dataRemove));
-            $this->controller->postSaveGroupAction();
-        }
+        // Create test task email
+        $mockTaskEntity = $this->createMock(TaskEntity::class);
+        $mockTaskEntity->method('getName')->willReturn('Test Task');
+        $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
+        $mockTaskEntity->method('toArray')->willReturn([
+            'obj_type' => 'task',
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing'
+        ]);
+        
+        // Mock the entity loader service which is used to load the task by guid
+        $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
 
-        // Cleanup any test entities
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        foreach ($this->testEntities as $entity) {
-            $loader->delete($entity, $this->account->getAuthenticatedUser());
-        }
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('isAllowed')->willReturn(true);
+        $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
+        $mockDacl->method('toArray')->willReturn([
+            'entries' => [],
+            'name' => 'task_dacl'
+        ]);
+        
+        // Mock the dacl loader service which is used to load the dacl permission
+        $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
-        // Cleanup any test entity definitions
-        $dataMapper = $this->account->getServiceManager()->get(EntityDefinitionDataMapperFactory::class);
-        foreach ($this->testDefinitions as $def) {
-            $dataMapper->delete($def);
-        }
+        // Make sure getAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['entity_id' => $taskEntityId]));
+        $response = $this->entityController->getGetAction($request);
+        $this->assertEquals([
+            'obj_type' => 'task',
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing',
+            'applied_dacl' => [
+                'entries' => [],
+                'name' => 'task_dacl'
+            ],
+            'currentuser_permissions' => $daclPermissions
+        ], $response->getOutputBuffer());
     }
 
+    public function testGetEntityActionNoPermission()
+    {
+        $taskEntityId = Uuid::uuid4()->toString();
+
+        // Set the view to false, since we can to test if the view permission is not allowed
+        $daclPermissions = [
+            'view' => false
+        ];
+
+        // Create test task email
+        $mockTaskEntity = $this->createMock(TaskEntity::class);
+        $mockTaskEntity->method('getName')->willReturn('Test Task');
+        $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
+        $mockTaskEntity->method('toArray')->willReturn([
+            'obj_type' => 'task',
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing'
+        ]);
+        
+        // Mock the entity loader service which is used to load the task by guid
+        $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
+
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('isAllowed')->willReturn(true);
+        $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
+        
+        // Mock the dacl loader service which is used to load the dacl permission
+        $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
+
+        // Make sure getAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['entity_id' => $taskEntityId]));
+        $response = $this->entityController->getGetAction($request);
+
+        // It should only return the entity_id, name, and current permission
+        $this->assertEquals([
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',            
+            'currentuser_permissions' => $daclPermissions
+        ], $response->getOutputBuffer());
+    }
+
+    public function testGetEntityActionCatchingErrors()
+    {
+        // It should return an error when request input is not valid
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->entityController->getGetAction($request);
+        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
+
+        // Make sure getAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->entityController->getGetAction($request);
+
+        // It should return an error if no entity_id is provided in the params
+        $this->assertEquals(['error' => 'entity_id or uname are required params.'], $response->getOutputBuffer());
+    }
+
+    public function testDefinitionAction()
+    {
+        $definitionId = Uuid::uuid4()->toString();
+        $taskObjDetails = [
+            'obj_type' => 'task',
+            'entity_definition_id' => $definitionId,
+            'name' => 'Task',
+            'description' => 'Task Entity Object Definition'
+        ];
+
+        $daclDetails = [
+            'entries' => [],
+            'name' => 'task_dacl'
+        ];
+
+        $formDetails = [
+            'small' => 'Small Forms',
+            'medium' => 'Medium Forms',
+            'large' => 'Larg Forms'
+        ];
+
+        $browserViewDetails = [
+            'my_tasks' => [
+                'obj_type' => 'task',
+                'name' => 'My Incomplete Tasks',
+                'description' => 'Incomplete tasks assigned to me',
+                'default' => true,
+                'conditions' => [
+                    'user' => [
+                        'blogic' => Where::COMBINED_BY_AND,
+                        'field_name' => 'owner_id',
+                        'operator' => Where::OPERATOR_EQUAL_TO,
+                        'value' => UserEntity::USER_CURRENT,
+                    ]
+                ]
+            ]
+        ];
+
+        // Create entity definition for testing
+        $mockDefinition = $this->createMock(EntityDefinition::class);
+        $mockDefinition->method('getObjType')->willReturn('task');
+        $mockDefinition->method('toArray')->willReturn($taskObjDetails);
+
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('toArray')->willReturn($daclDetails);
+                
+        // Mock the entity loader service which is used to load the task by guid
+        $this->mockEntityDefinitionLoader->method('get')->willReturn($mockDefinition);
+
+        // Mock the forms service which is used to get the entity definition forms
+        $this->mockForms->method('getDeviceForms')->willReturn($formDetails);
+        
+        // Mock the browser view service which is used to get the browser views for the user
+        $this->mockBrowserViewService->method('getViewsForUser')->willReturn([]);
+        $this->mockBrowserViewService->method('getDefaultViewForUser')->willReturn($browserViewDetails);
+
+        // Mock the dacl loader service which is used to load the dacl permission
+        $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
+        
+        // Make sure getAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['obj_type' => 'task']));
+        $response = $this->entityController->getGetDefinitionAction($request);
+
+        // It should only return the entity_id, name, and current permission
+        $this->assertEquals([
+            'obj_type' => 'task',
+            'entity_definition_id' => $definitionId,
+            'name' => 'Task',
+            'description' => 'Task Entity Object Definition',
+            'browser_mode' => 'table',
+            'forms' => $formDetails,
+            'views' => [],
+            'default_view' => $browserViewDetails,
+            'applied_dacl' => $daclDetails
+        ], $response->getOutputBuffer());
+    }
+
+    public function testDefinitionActionCatchingErrors()
+    {
+        // It should return an error when request input is not valid
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->entityController->getGetDefinitionAction($request);
+        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
+
+        // Make sure getAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->entityController->getGetDefinitionAction($request);
+
+        // It should return an error if no entity_id is provided in the params
+        $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
+
+        // Mock the entity loader service that it will return a null value for entity definition        
+        $this->mockEntityDefinitionLoader->method('get')->willReturn(null);
+
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['obj_type' => 'task']));
+        $response = $this->entityController->getGetDefinitionAction($request);
+
+        // It should return an error if no entity definition is found
+        $this->assertEquals(['error' => 'task could not be loaded.'], $response->getOutputBuffer());
+    }
+
+    /*
     public function testGetGetEntityAction()
     {
         // Create a test entity for querying
@@ -107,13 +365,13 @@ class EntityControllerTest extends TestCase
         $this->testEntities[] = $dashboardEntity;
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode([
             'obj_type' => ObjectTypes::DASHBOARD,
             'entity_id' => $dashboardEntity->getEntityId()
         ]));
 
-        $ret = $this->controller->getGetAction();
+        $ret = $this->entityController->getGetAction();
         $this->assertEquals($dashboardEntity->getEntityId(), $ret['entity_id'], var_export($ret, true));
         $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
@@ -138,11 +396,11 @@ class EntityControllerTest extends TestCase
                 'owner_id' => $this->account->getUser()->getEntityId(),
             ],
         ];
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
         $req->setParam('content-type', 'application/json');
 
-        $ret = $this->controller->postGetAction();
+        $ret = $this->entityController->postGetAction();
         $dashboardEntity = $loader->getEntityById($ret['entity_id'], $this->account->getAccountId());
         $this->assertEquals($dashboardEntity->getValue("name"), $dashboardName);
     }
@@ -162,11 +420,11 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
         $req->setParam('content-type', 'application/json');
 
-        $ret = $this->controller->postGetAction();
+        $ret = $this->entityController->postGetAction();
         $this->assertEquals($customer->getEntityId(), $ret['entity_id'], var_export($ret, true));
         $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
@@ -195,18 +453,15 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
         $req->setParam('content-type', 'application/json');
 
-        $ret = $this->controller->postGetAction();
+        $ret = $this->entityController->postGetAction();
         $this->assertEquals($page->getEntityId(), $ret['entity_id'], var_export($ret, true));
         $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
-
-    /**
-     * Test getting an entity by guid
-     */
+    
     public function testPostGetEntityActionGuid()
     {
         // Create a test entity for querying
@@ -217,11 +472,11 @@ class EntityControllerTest extends TestCase
         $this->testEntities[] = $site;
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode(['entity_id' => $site->getEntityId()]));
         $req->setParam('content-type', 'application/json');
 
-        $ret = $this->controller->postGetAction();
+        $ret = $this->entityController->postGetAction();
         $this->assertEquals($site->getEntityId(), $ret['entity_id'], var_export($ret, true));
         $this->assertEquals($ret["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
     }
@@ -229,10 +484,10 @@ class EntityControllerTest extends TestCase
     public function testGetDefinitionForms()
     {
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setParam('obj_type', ObjectTypes::CONTACT);
 
-        $ret = $this->controller->getGetDefinitionAction();
+        $ret = $this->entityController->getGetDefinitionAction();
 
         // Make sure the small form was loaded
         $this->assertFalse(empty($ret['forms']['small']));
@@ -250,10 +505,10 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
 
-        $ret = $this->controller->postSaveAction();
+        $ret = $this->entityController->postSaveAction();
 
         $this->assertEquals($data['obj_type'], $ret['obj_type']);
         $this->assertEquals($data['first_name'], $ret['first_name']);
@@ -272,22 +527,22 @@ class EntityControllerTest extends TestCase
         $entityId = $entity->getEntityId();
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setParam("obj_type", ObjectTypes::NOTE);
         $req->setParam("entity_id", $entityId);
 
         // Try to delete
-        $ret = $this->controller->postRemoveAction();
+        $ret = $this->entityController->postRemoveAction();
         $this->assertEquals($entityId, $ret[0], var_export($ret, true));
     }
 
     public function testGetGroupings()
     {
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setParam("obj_type", ObjectTypes::CONTACT);
         $req->setParam("field_name", "groups");
 
-        $ret = $this->controller->getGetGroupingsAction();
+        $ret = $this->entityController->getGetGroupingsAction();
         $this->assertFalse(isset($ret['error']));
         $this->assertTrue(count($ret) > 0);
     }
@@ -295,8 +550,8 @@ class EntityControllerTest extends TestCase
     public function testGetAllDefinitionsAction()
     {
         // Set params in the request
-        $req = $this->controller->getRequest();
-        $ret = $this->controller->getAllDefinitionsAction();
+        $req = $this->entityController->getRequest();
+        $ret = $this->entityController->getAllDefinitionsAction();
 
         // Try to get the task entity definition and we use it in our unit test
         $entityDefData = null;
@@ -337,9 +592,9 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
-        $ret = $this->controller->postUpdateEntityDefAction();
+        $ret = $this->entityController->postUpdateEntityDefAction();
 
         // Get the newly created entity definition
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
@@ -361,9 +616,9 @@ class EntityControllerTest extends TestCase
             'deleted_fields' => ["test_field"]
         ];
 
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
-        $ret = $this->controller->postUpdateEntityDefAction();
+        $ret = $this->entityController->postUpdateEntityDefAction();
 
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $deletedFieldDef = $defLoader->get($objType, $this->account->getAccountId());
@@ -378,9 +633,9 @@ class EntityControllerTest extends TestCase
             'title' => "Updated Definition Title",
         ];
 
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
-        $ret = $this->controller->postUpdateEntityDefAction();
+        $ret = $this->entityController->postUpdateEntityDefAction();
 
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $updatedDef = $defLoader->get($objType, $this->account->getAccountId());
@@ -409,9 +664,9 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
-        $ret = $this->controller->postUpdateEntityDefAction();
+        $ret = $this->entityController->postUpdateEntityDefAction();
 
         // Get the newly created entity definition
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
@@ -429,10 +684,10 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
 
-        $ret = $this->controller->postDeleteEntityDefAction();
+        $ret = $this->entityController->postDeleteEntityDefAction();
         $this->assertTrue($ret);
     }
 
@@ -485,10 +740,10 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
 
-        $ret = $this->controller->postMassEditAction();
+        $ret = $this->entityController->postMassEditAction();
 
         // Test the results
         $this->assertEquals(sizeof($ret), 3);
@@ -546,10 +801,10 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($data));
 
-        $ret = $this->controller->postMergeEntitiesAction();
+        $ret = $this->entityController->postMergeEntitiesAction();
 
         // Test the results
         $this->assertFalse(empty($ret['entity_id']));
@@ -594,9 +849,9 @@ class EntityControllerTest extends TestCase
         ];
 
         // Set params in the request
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode($dataGroup));
-        $retGroup = $this->controller->postSaveGroupAction();
+        $retGroup = $this->entityController->postSaveGroupAction();
 
         $this->assertNotEmpty($retGroup['group_id']);
         $this->assertEquals($retGroup['name'], $dataGroup['name']);
@@ -624,9 +879,9 @@ class EntityControllerTest extends TestCase
     public function testGetDefinitionActionToReturnError()
     {
         // Set obj_type that is currently not existing
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setParam('obj_type', 'NonExistingDefinition');
-        $ret = $this->controller->getGetDefinitionAction();
+        $ret = $this->entityController->getGetDefinitionAction();
 
         // Test that error was being returned
         $this->assertNotEmpty($ret['error']);
@@ -634,95 +889,95 @@ class EntityControllerTest extends TestCase
 
     public function testGetActionToReturnError()
     {
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
 
         // Setting an empty guid should return an error
         $req->setBody(json_encode(['entity_id' => '']));
-        $ret = $this->controller->getGetAction();
+        $ret = $this->entityController->getGetAction();
         $this->assertNotEmpty($ret['error']);
 
         // Setting a object type only should return an error
         $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK]));
-        $ret = $this->controller->getGetAction();
+        $ret = $this->entityController->getGetAction();
         $this->assertNotEmpty($ret['error']);
 
         // Setting empty uname should return an error
         $req->setBody(json_encode(['uname' => '']));
-        $ret = $this->controller->getGetAction();
+        $ret = $this->entityController->getGetAction();
         $this->assertNotEmpty($ret['error']);
     }
 
     public function testPostDeleteEntityDefActionToReturnError()
     {
         // Deleting an entity definition without providing an object type should return an error
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
         $req->setBody(json_encode(['name' => 'DefWithNoType']));
-        $ret = $this->controller->postDeleteEntityDefAction();
+        $ret = $this->entityController->postDeleteEntityDefAction();
         $this->assertEquals($ret['error'], 'obj_type is a required param');
     }
 
     public function testPostUpdateEntityDefActionToReturnError()
     {
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
 
         // Saving an entity definition without providing an object type should return an error
         $req->setBody(json_encode(['name' => 'DefWithNoType']));
-        $ret = $this->controller->postUpdateEntityDefAction();
+        $ret = $this->entityController->postUpdateEntityDefAction();
         $this->assertEquals($ret['error'], 'obj_type is a required param');
 
         // Saving an entity definition with an empty obj_type should return an error
         $req->setBody(json_encode(['obj_type' => '', 'name' => 'DefWithNoType']));
-        $ret = $this->controller->postUpdateEntityDefAction();
+        $ret = $this->entityController->postUpdateEntityDefAction();
         $this->assertEquals($ret['error'], 'obj_type is empty.');
 
         // Saving an existing entity definition but with non existing object type
         $req->setBody(json_encode(['obj_type' => 'NonExistingDefinition', 'id' => 1]));
-        $ret = $this->controller->postUpdateEntityDefAction();
+        $ret = $this->entityController->postUpdateEntityDefAction();
         $this->assertNotEmpty($ret['error']);
     }
 
     public function testPostSaveActionToReturnError()
     {
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
 
         // Saving an entity without providing any data should return an error
         $req->setBody('');
-        $ret = $this->controller->putSaveAction();
+        $ret = $this->entityController->putSaveAction();
         $this->assertNotEmpty($ret['error']);
 
         // Saving an entity with invalid id should return an error
         $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK, 'entity_id' => 'invalidId123']));
-        $ret = $this->controller->postSaveAction();
+        $ret = $this->entityController->postSaveAction();
         $this->assertNotEmpty($ret['error']);
     }
 
     public function testGetRemoveActionToReturnError()
     {
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
 
         // Removing an entity with an empty object type should return an error
         $req->setParam('obj_type', '');
-        $ret = $this->controller->getRemoveAction();
+        $ret = $this->entityController->getRemoveAction();
         $this->assertEquals($ret['error'], 'obj_type is a required param', var_export($ret, true));
     }
 
     public function testPostSaveGroupActionToReturnError()
     {
-        $req = $this->controller->getRequest();
+        $req = $this->entityController->getRequest();
 
         // Saving a group without object type should return an error
         $req->setBody(json_encode(['field_name' => 'group']));
-        $ret = $this->controller->postSaveGroupAction();
+        $ret = $this->entityController->postSaveGroupAction();
         $this->assertEquals($ret['error'], 'obj_type is a required param');
 
         // Saving a group without field name should return an error
         $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK]));
-        $ret = $this->controller->postSaveGroupAction();
+        $ret = $this->entityController->postSaveGroupAction();
         $this->assertEquals($ret['error'], 'field_name is a required param');
 
         // Saving a group without an action should return an error
         $req->setBody(json_encode(['obj_type' => ObjectTypes::TASK, 'field_name' => 'group']));
-        $ret = $this->controller->postSaveGroupAction();
+        $ret = $this->entityController->postSaveGroupAction();
         $this->assertEquals($ret['error'], 'action is a required param');
     }
 
@@ -839,4 +1094,6 @@ class EntityControllerTest extends TestCase
         // Make sure that the sort order was changed
         $this->assertNotEquals($ret[0]["sort_order"], $taskEntity2->getValue('sort_order'));
     }
+
+    */
 }

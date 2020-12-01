@@ -2,33 +2,143 @@
 
 namespace Netric\Controller;
 
-use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
+use Netric\Mvc\AbstractFactoriedController;
+use Netric\Account\AccountContainerFactory;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Request\HttpRequest;
+use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
-use Netric\EntityDefinition\Field;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\EntityInterface;
+use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\FormParser;
-use Netric\EntityQuery\Index\IndexFactory;
-use Netric\Mvc;
-use Netric\Permissions\Dacl;
-use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Entity\FormsFactory;
-use Netric\Entity\BrowserView\BrowserViewServiceFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\Permissions\DaclLoaderFactory;
-use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
-use Netric\EntityGroupings\GroupingLoaderFactory;
-use Netric\EntityGroupings\GroupingLoader;
-use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityGroupings\Group;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\Entity\BrowserView\BrowserViewService;
+use Netric\Entity\Forms;
+use Netric\Permissions\Dacl;
+use Netric\Permissions\DaclLoader;
+use Netric\Db\Relational\RelationalDbContainerInterface;
+use Netric\Db\Relational\RelationalDbContainer;
+use Netric\Db\Relational\RelationalDbInterface;
 use Ramsey\Uuid\Uuid;
 
 /**
  * Controller for interacting with entities
  */
-class EntityController extends Mvc\AbstractAccountController
+class EntityController extends AbstractFactoriedController implements ControllerInterface
 {
+    /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
+    /**
+     * Handles the loading and saving of entities
+     */
+    private EntityLoader $entityLoader;
+
+    /**
+     * Handles the loading and saving of entity definition
+     */
+    private EntityDefinitionLoader $entityDefinitionLoader;
+
+    /**
+     * Handles the loading and saving of groupings
+     */
+    private GroupingLoader $groupingLoader;
+
+    /**
+     * Manages the entity browser views
+     */
+    private BrowserViewService $browserViewService;
+
+    /**
+     * Manages the entity forms
+     */
+    private Forms $forms;
+
+    /**
+     * Database container
+     */
+    private RelationalDbContainerInterface $databaseContainer;
+
+    /**
+     * Handles the loading and saving of dacl permissions
+     */
+    private DaclLoader $daclLoader;
+
+    /**
+     * Initialize controller and all dependencies
+     *
+     * @param AuthenticationService $authService Service used to get the current user/account
+     * @param EntityLoader $this->entityLoader Handles the loading and saving of entities
+     * @param EntityDefinitionLoader $entityDefinitionLoader Handles the loading and saving of entity definition
+     * @param GroupingLoader $this->groupingLoader Handles the loading and saving of groupings
+     * @param BrowserViewService $browserViewService Manages the entity browser views
+     * @param Forms $forms Manages the entity forms
+     * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions
+     * @param RelationalDbContainer $dbContainer Handles the database actions     
+     */
+    public function __construct(
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,
+        EntityLoader $entityLoader,
+        EntityDefinitionLoader $entityDefinitionLoader,
+        GroupingLoader $groupingLoader,
+        BrowserViewService $browserViewService,
+        Forms $forms,
+        DaclLoader $daclLoader,
+        RelationalDbContainer $dbContainer     
+    ) {
+        $this->accountContainer = $accountContainer;
+        $this->authService = $authService;
+        $this->entityLoader = $entityLoader;
+        $this->entityDefinitionLoader = $entityDefinitionLoader;
+        $this->groupingLoader = $groupingLoader;
+        $this->browserViewService = $browserViewService;
+        $this->forms = $forms;        
+        $this->daclLoader = $daclLoader;
+        $this->databaseContainer = $dbContainer;
+    }
+
+    /**
+     * Get active database handle
+     *
+     * @param string $accountId The account being acted on
+     * @return RelationalDbInterface
+     */
+    private function getDatabase(string $accountId): RelationalDbInterface
+    {
+        return $this->databaseContainer->getDbHandleForAccountId($accountId);
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
+    {
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
+    }
+
     /**
      * Test action used for automated tests
      *
@@ -42,31 +152,47 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Get the definition (metadata) of an entity
      */
-    public function getGetDefinitionAction()
+    public function getGetDefinitionAction(HttpRequest $request): HttpResponse
     {
-        $params = $this->getRequest()->getParams();
-        if (!$params['obj_type']) {
-            return $this->sendOutput(["error" => "obj_type is a required param"]);
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
+
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
-        // Get the service manager and current user
-        $serviceManager = $this->account->getServiceManager();
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
 
-        // Load the entity definition
-        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+        if (!$objData['obj_type']) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
+        }
 
         try {
-            // Get the definition data for this object type
-            $def = $defLoader->get($params['obj_type'], $this->account->getAccountId());
+            $def = null;            
+            $currentAccount = $this->getAuthenticatedAccount();
 
+            // Make sure that we have an authenticated account
+            if ($currentAccount) {
+                // Get the definition data for this object type
+                $def = $this->entityDefinitionLoader->get($objData['obj_type'], $currentAccount->getAccountId());
+            }
+            
             if (!$def) {
-                return $this->sendOutput(["error" => $params['obj_type'] . " could not be loaded"]);
+                $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                $response->write(["error" => "{$objData['obj_type']} could not be loaded."]);
+                return $response;                
             }
 
-            $ret = $this->fillDefinitionArray($def);
-            return $this->sendOutput($ret);
+            $response->write($this->fillDefinitionArray($def));
+            return $response;            
         } catch (\Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => $ex->getMessage()]);
         }
     }
 
@@ -82,12 +208,14 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type must be set"]);
         }
 
-        $account = $this->account;
-        $accountId = $this->account->getAccountId();
-        $user = $account->getAuthenticatedUser();
-        $index = $account->getServiceManager()->get(IndexFactory::class);
-        $daclLoader = $account->getServiceManager()->get(DaclLoaderFactory::class);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
 
+        $accountId = $currentAccount->getAccountId();
+        $user = $currentAccount->getAuthenticatedUser();
         $query = new EntityQuery($params["obj_type"], $accountId, $user->getEntityId());
 
         if (isset($params['offset'])) {
@@ -103,7 +231,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             // Execute the query
-            $res = $index->executeQuery($query);
+            $res = $this->getDatabase($accountId)->query($query);
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
@@ -120,7 +248,7 @@ class EntityController extends Mvc\AbstractAccountController
             $ent = $res->getEntity($i);
 
             // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-            $dacl = $daclLoader->getForEntity($ent, $user);
+            $dacl = $this->daclLoader->getForEntity($ent, $user);
             $currentUserPermissions = $dacl->getUserPermissions($user, $ent);
 
             // Always reset $entityData when loading the next entity
@@ -134,7 +262,6 @@ class EntityController extends Mvc\AbstractAccountController
                 $entityData['entity_id'] = $ent->getEntityId();
                 $entityData['name'] = $ent->getName();
             }
-
 
             $entityData['currentuser_permissions'] = $currentUserPermissions;
 
@@ -157,29 +284,34 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * POST pass-through for get action
      */
-    public function postGetAction()
+    public function postGetAction(HttpRequest $request)
     {
-        return $this->getGetAction();
+        return $this->getGetAction($request);
     }
 
     /**
      * Retrieve a single entity
      */
-    public function getGetAction()
+    public function getGetAction(HttpRequest $request): HttpResponse
     {
-        $params = $this->getRequest()->getParams();
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
+        }
 
-        // Check if the parameters are posted via Post.
-        $rawBody = $this->getRequest()->getBody();
-        if ($rawBody) {
-            $body = json_decode($rawBody, true);
-            $params['obj_type'] = (isset($body['obj_type'])) ? $body['obj_type'] : null;
-            $params['entity_id'] = (isset($body['entity_id'])) ? $body['entity_id'] : null;
-            $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
-            $params['uname_conditions'] = (isset($body['uname_conditions'])) ? $body['uname_conditions'] : [];
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        
+        if ($rawBody) {            
+            $params['obj_type'] = (isset($objData['obj_type'])) ? $objData['obj_type'] : null;
+            $params['entity_id'] = (isset($objData['entity_id'])) ? $objData['entity_id'] : null;
+            $params['uname'] = (isset($objData['uname'])) ? $objData['uname'] : null;
+            $params['uname_conditions'] = (isset($objData['uname_conditions'])) ? $objData['uname_conditions'] : [];
         }
 
         // Use id for backwards compatibility
@@ -187,52 +319,53 @@ class EntityController extends Mvc\AbstractAccountController
             $params['entity_id'] = $params['id'];
         }
 
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
+        }
+
         // Get the entity utilizing whatever params were passed in
         $entity = null;
-
-        //try {
         if (!empty($params['entity_id']) && Uuid::isValid($params['entity_id'])) {
             // Retrieve the entity by id
-            $entity = $entityLoader->getEntityById($params['entity_id'], $this->account->getAccountId());
+            $entity = $this->entityLoader->getEntityById($params['entity_id'], $currentAccount->getAccountId());
         } elseif (!empty($params['uname']) && !empty($params['obj_type'])) {
             // Retrieve the entity by a unique name and optional condition
-            $entity = $entityLoader->getByUniqueName(
+            $entity = $this->entityLoader->getByUniqueName(
                 $params['obj_type'],
                 $params['uname'],
-                $this->account->getAccountId(),
+                $currentAccount->getAccountId(),
                 $params['uname_conditions']
             );
         } else {
-            return $this->sendOutput(
-                [
-                    "error" => "entity_id or uname are required params.",
-                    "params" => $params
-                ]
-            );
-        }
-        // } catch (\Exception $ex) {
-        //     return $this->sendOutput(array("error" => $ex->getMessage()));
-        // }
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "entity_id or uname are required params."]);
+            return $response;
+        }        
 
         // Entity Could not be found - we might want to change this to a 404 status code
         if (!$entity) {
-            return $this->sendOutput([]);
+            $response->write([]);
+            return $response;
         }
 
         // If user is not allowed, then return an error
         if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
-            return $this->sendOutput(
-                [
-                    "error" => "You do not have permission to view this.",
-                    "entity_id" => $entity->getEntityId(),
-                    "params" => $params
-                ]
-            );
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write([
+                "error" => "You do not have permission to view this.",
+                "entity_id" => $entity->getEntityId(),
+                "params" => $params
+            ]);
+            return $response;
         }
 
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-        $user = $this->account->getUser();
-        $dacl = $daclLoader->getForEntity($entity, $user);
+        $user = $currentAccount->getAuthenticatedUser();
+        $dacl = $this->daclLoader->getForEntity($entity, $user);
         $currentUserPermissions = $dacl->getUserPermissions($user, $entity);
 
         // Export the entity to array if the current user has access to view this entity
@@ -245,8 +378,9 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         $entityData['currentuser_permissions'] = $currentUserPermissions;
-
-        return $this->sendOutput($entityData);
+        
+        $response->write($entityData);
+        return $response;
     }
 
     /**
@@ -266,14 +400,19 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
+
         try {
             // Create a new entity to save
-            $entity = $entityLoader->create($objData['obj_type'], $this->account->getAccountId());
+            $entity = $this->entityLoader->create($objData['obj_type'], $currentAccount->getAccountId());
 
             // If editing an existing etity, then load it rather than using the new entity
             if (isset($objData['entity_id']) && !empty($objData['entity_id'])) {
-                $entity = $entityLoader->getEntityById($objData['entity_id'], $this->account->getAccountId());
+                $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
             }
 
             // If no entity is found, then return an error.
@@ -305,11 +444,11 @@ class EntityController extends Mvc\AbstractAccountController
         $entity->fromArray($objData);
 
         // Save the entity        
-        $currentUser = $this->account->getAuthenticatedUser();
+        $currentUser = $currentAccount->getAuthenticatedUser();
 
         try {            
-            if (!$entityLoader->save($entity, $currentUser)) {
-                return $this->sendOutput(["error" => "Error saving entity.", "data" => $entityLoader->toArray()]);
+            if (!$this->entityLoader->save($entity, $currentUser)) {
+                return $this->sendOutput(["error" => "Error saving entity.", "data" => $this->entityLoader->toArray()]);
             }
         } catch (\RuntimeException $ex) {
             return $this->sendOutput(["error" => "Error saving: " . $ex->getMessage()]);
@@ -320,16 +459,16 @@ class EntityController extends Mvc\AbstractAccountController
 
         $entityData = $entity->toArray();
 
-        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
-        $currentUserPermissions = $dacl->getUserPermissions($this->account->getAuthenticatedUser(), $entity);
+        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved        
+        $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());
+        $currentUserPermissions = $dacl->getUserPermissions($currentAccount->getAuthenticatedUser(), $entity);
 
         // Export the entity to array if the current user has access to view this entity
         if ($currentUserPermissions['view']) {
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
         } else {
+            $entityData = [];
             $entityData['entity_id'] = $entity->getEntityId();
             $entityData['name'] = $entity->getName();
         }
@@ -378,17 +517,20 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
-        // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
 
         try {
             foreach ($ids as $did) {
-                $entity = $entityLoader->getEntityById($did, $this->account->getAccountId());
+                $entity = $this->entityLoader->getEntityById($did, $currentAccount->getAccountId());
 
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
                     // Proceed with the deleting this entity
-                    if ($entityLoader->delete($entity, $this->account->getAuthenticatedUser())) {
+                    if ($this->entityLoader->delete($entity, $currentAccount->getAuthenticatedUser())) {
                         $ret[] = $did;
                     }
                 } else {
@@ -433,12 +575,9 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type & field_name are required params"]);
         }
 
-        // Get the groupingLoader that will be used to get the groupings model
-        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-
         // Get the groupings for this $objType and $fieldName
         try {
-            $groupings = $this->getGroupings($groupingLoader, $objType, $fieldName);
+            $groupings = $this->getGroupings($this->groupingLoader, $objType, $fieldName);
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
@@ -460,12 +599,14 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function getAllDefinitionsAction()
     {
-        // Get the service manager and current user
-        $serviceManager = $this->account->getServiceManager();
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
 
-        // Load the entity definition
-        $definitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $definitions = $definitionLoader->getAll($this->account->getAccountId());
+        // Load the entity definition        
+        $definitions = $this->definitionLoader->getAll($currentAccount->getAccountId());
 
         $ret = [];
         foreach ($definitions as $def) {
@@ -487,33 +628,29 @@ class EntityController extends Mvc\AbstractAccountController
      * @return array Object Type defintion with all the additional info of the object type
      */
     private function fillDefinitionArray(EntityDefinition $def)
-    {
-        $serviceManager = $this->account->getServiceManager();
-        $user = $this->account->getUser();
-        $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
-
+    {        
+        $currentAccount = $this->getAuthenticatedAccount();        
+        $user = $currentAccount->getAuthenticatedUser();
         $ret = $def->toArray();
         $ret["browser_mode"] = "table";
 
         // TODO: Get browser blank content
 
-        // Get forms
-        $entityForms = $serviceManager->get(FormsFactory::class);
-        $ret['forms'] = $entityForms->getDeviceForms($def, $user);
+        // Get forms        
+        $ret['forms'] = $this->forms->getDeviceForms($def, $user);
 
-        // Get views from browser view service
-        $viewsService = $serviceManager->get(BrowserViewServiceFactory::class);
-        $browserViews = $viewsService->getViewsForUser($def->getObjType(), $user);
+        // Get views from browser view service        
+        $browserViews = $this->browserViewService->getViewsForUser($def->getObjType(), $user);
         $ret['views'] = [];
         foreach ($browserViews as $view) {
             $ret['views'][] = $view->toArray();
         }
 
         // Return the default view
-        $ret['default_view'] = $viewsService->getDefaultViewForUser($def->getObjType(), $user);
+        $ret['default_view'] = $this->browserViewService->getDefaultViewForUser($def->getObjType(), $user);
 
         // Add the currently applied DACL for this entity definition
-        $defDacl = $daclLoader->getForEntityDefinition($def);
+        $defDacl = $this->daclLoader->getForEntityDefinition($def);
         $ret['applied_dacl'] = $defDacl->toArray();
 
         return $ret;
@@ -525,9 +662,9 @@ class EntityController extends Mvc\AbstractAccountController
      */
     private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
     {
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);        
-        $fields = $entity->getDefinition()->getFields();
-        $currentUser = $this->account->getAuthenticatedUser();
+        $currentAccount = $this->getAuthenticatedAccount();
+        $currentUser = $currentAccount->getAuthenticatedUser();
+        $fields = $entity->getDefinition()->getFields();        
 
         // Flag that will determine if we should save the $entity
         $entityShouldUpdate = false;
@@ -549,7 +686,7 @@ class EntityController extends Mvc\AbstractAccountController
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {
-                            $waitingObjectEntity = $entityLoader->create($field->subtype, $this->account->getAccountId());
+                            $waitingObjectEntity = $this->entityLoader->create($field->subtype, $currentAccount->getAccountId());
 
                             // Specify the object reference for the awaiting entity to be saved
                             $data['obj_reference'] = $entity->getEntityId();
@@ -558,7 +695,7 @@ class EntityController extends Mvc\AbstractAccountController
                             $waitingObjectEntity->fromArray($data);
 
                             // Save the awaiting entity object
-                            if (!$entityLoader->save($waitingObjectEntity, $currentUser)) {
+                            if (!$this->entityLoader->save($waitingObjectEntity, $currentUser)) {
                                 return $this->sendOutput(["error" => "Error saving object reference " . $field->name]);
                             }
 
@@ -574,7 +711,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         if ($entityShouldUpdate) {
-            $entityLoader->save($entity, $currentUser);
+            $this->entityLoader->save($entity, $currentUser);
         }
     }
 
@@ -607,15 +744,14 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type is empty."]);
         }
 
-        // Get the service manager and current user
-        $serviceManager = $this->account->getServiceManager();
-
-        // Load the entity definition
-        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
 
         // Load existing if it is there
-        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
+        $def = $this->entityDefinitionLoader->get($objData['obj_type'], $currentAccount->getAccountId());
 
         if (!$def) {
             // If we are trying to edit an existing entity that could not be found, error out
@@ -624,14 +760,14 @@ class EntityController extends Mvc\AbstractAccountController
             }
 
             // Otherwise create a new definition object to update
-            $def = new EntityDefinition($objData['obj_type'], $this->account->getAccountId());
+            $def = new EntityDefinition($objData['obj_type'], $currentAccount->getAccountId());
         }
 
         // Import the $objData into the entity definition
         $def->fromArray($objData);
 
         // Save the entity definition
-        $dataMapper->save($def);
+        $this->entityDefinitionLoader->save($def);
 
         // Build the new entity definition and return the result
         $ret = $this->fillDefinitionArray($def);
@@ -665,21 +801,20 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "obj_type is a required param"]);
         }
 
-        // Get the service manager and current user
-        $serviceManager = $this->account->getServiceManager();
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
 
-        // Load the entity definition
-        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
-
-        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
+        $def = $this->entityDefinitionLoader->get($objData['obj_type'], $currentAccount->getAccountId());
 
         if (!$def) {
             return $this->sendOutput(["error" => $objData['obj_type'] . ' could not be loaded']);
         }
 
         // Delete the entity definition
-        $dataMapper->delete($def);
+        $this->entityDefinitionLoader->delete($def);
         return $this->sendOutput(true);
     }
 
@@ -719,6 +854,12 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "entity_data is a required param"]);
         }
 
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
+
         $entityData = $objData['entity_data'];
 
         // IDs can either be a single entry or an array
@@ -729,20 +870,17 @@ class EntityController extends Mvc\AbstractAccountController
             $guids = [$guids];
         }
 
-        // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-
         try {
             foreach ($guids as $guid) {
                 if (Uuid::isValid($guid)) {
                     // Load the entity that we are going to update
-                    $entity = $entityLoader->getEntityById($guid, $this->account->getAccountId());
+                    $entity = $this->entityLoader->getEntityById($guid, $currentAccount->getAccountId());
 
                     // Update the fields with the data. Make sure we only update the provided fields.
                     $entity->fromArray($entityData, true);
 
                     // Save the entity
-                    $entityLoader->save($entity, $this->account->getAuthenticatedUser());
+                    $this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser());
 
                     // Return the entities that were updated
                     $ret[] = $entity->toArray();
@@ -773,9 +911,13 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function getMergeEntitiesAction()
     {
-        $rawBody = $this->getRequest()->getBody();
-        $authService = $this->account->getServiceManager()->get(AuthenticationServiceFactory::class);
-        $identity = $authService->getIdentityRequired();
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
+        
+        $rawBody = $this->getRequest()->getBody();        
 
         if (!$rawBody) {
             return $this->sendOutput(["error" => "Request input is not valid"]);
@@ -794,20 +936,29 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "merge_data is a required param"]);
         }
 
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
+
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
+
         $mergeData = $requestData['merge_data'];
 
-        // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-
         // Create the new entity where we merge all field values
-        $mergedEntity = $entityLoader->create($requestData['obj_type'], $this->account->getAccountId());
+        $mergedEntity = $this->entityLoader->create($requestData['obj_type'], $currentAccount->getAccountId());
 
         try {
             /*
             * Let's save the merged entity initially so we can get its entity id.
             * We will use the merged entity id as our moved object id when we loop thru the mergedData
             */
-            $mergedEntityId = $entityLoader->save($mergedEntity, $this->account->getAuthenticatedUser());
+            $mergedEntityId = $this->entityLoader->save($mergedEntity, $currentAccount->getAuthenticatedUser());
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
@@ -825,7 +976,7 @@ class EntityController extends Mvc\AbstractAccountController
             * )
             */
             foreach ($mergeData as $entityId => $fields) {
-                $entity = $entityLoader->getEntityById($entityId, $this->account->getAccountId());
+                $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
 
                 // Build the entity data and get the field values from the entity we want to merge
                 foreach ($fields as $field) {
@@ -841,17 +992,17 @@ class EntityController extends Mvc\AbstractAccountController
                 $entityDef = $entity->getDefinition();
 
                 // Now set the original entity id to point to the new merged entity so future requests to the old id will load the new entity
-                $entityLoader->setEntityMovedTo($entityId, $mergedEntityId, $identity->getAccountId());
+                $this->entityLoader->setEntityMovedTo($entityId, $mergedEntityId, $identity->getAccountId());
 
                 // Let's flag the original entity as deleted
-                $entityLoader->archive($entity, $this->account->getAuthenticatedUser());
+                $this->entityLoader->archive($entity, $currentAccount->getAuthenticatedUser());
             }
 
             // Set the fields with the merged data.
             $mergedEntity->fromArray($entityData, true);
 
             // Now save the the entity where all merged data are set
-            $entityLoader->save($mergedEntity, $this->account->getAuthenticatedUser());
+            $this->entityLoader->save($mergedEntity, $currentAccount->getAuthenticatedUser());
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
@@ -889,11 +1040,14 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(["error" => "action is a required param"]);
         }
 
-        // Get the entity loader that will be used to get the groupings model
-        $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
 
         // Get the groupings for this obj_type and field_name
-        $groupings = $this->getGroupings($groupingLoader, $objData['obj_type'], $objData['field_name']);
+        $groupings = $this->getGroupings($this->groupingLoader, $objData['obj_type'], $objData['field_name']);
 
         // $objData['action'] will determine what type of action we will execute
         switch ($objData['action']) {
@@ -934,7 +1088,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         try {
             // Save the changes made to the groupings
-            $groupingLoader->save($groupings);
+            $this->groupingLoader->save($groupings);
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
@@ -945,26 +1099,27 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Get the groupings model
      *
-     * @param {GroupingLoader} $groupingLoader The entity loader that we will be using to get the entity definition
+     * @param {GroupingLoader} $this->groupingLoader The entity loader that we will be using to get the entity definition
      * @param {string} $objType The object type where we will be getting the groups
      * @param {string} $fieldName The name of the field we are working with
      * @return EntityGroupings Returns the instance of EntityGroupings Model
      */
     private function getGroupings(GroupingLoader $groupingLoader, $objType, $fieldName)
-    {
+    {        
+        $currentAccount = $this->getAuthenticatedAccount();
+        
         try {
-            // Get the entity defintion of the $objType
-            $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-            $def = $defLoader->get($objType, $this->account->getAccountId());
+            // Get the entity defintion of the $objType            
+            $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
             $path = "$objType/$fieldName";
 
             // If this is a private object then add the user entity_id in the unique path
             if ($def->isPrivate) {
-                $path .= "/" . $this->account->getUser()->getEntityId();
+                $path .= "/" . $currentAccount->getAuthenticatedUser()->getEntityId();
             }
 
             // Get all groupings using a unique path
-            $groupings = $groupingLoader->get($path, $this->account->getAccountId());
+            $groupings = $this->groupingLoader->get($path, $currentAccount->getAccountId());
 
             // Return the groupings object
             return $groupings;
@@ -980,12 +1135,13 @@ class EntityController extends Mvc\AbstractAccountController
      * @param $permission The permission to check
      */
     private function checkIfUserIsAllowed(Entity $entity, $permission)
-    {
-        // Check entity permission
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
+    {        
+        $currentAccount = $this->getAuthenticatedAccount();
 
-        return $dacl->isAllowed($this->account->getUser(), $permission, $entity);
+        // Check entity permission        
+        $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());
+
+        return $dacl->isAllowed($currentAccount->getAuthenticatedUser(), $permission, $entity);
     }
 
     /**
@@ -993,14 +1149,17 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function getGetGroupByObjTypeAction()
     {
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
+
         $objType = $this->request->getParam("obj_type");
         $fieldName = $this->request->getParam("field_name");
 
-        $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $groupingDM = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
-
-        $def = $definitionLoader->get($objType, $this->account->getAccountId());
-        $group = $groupingDM->getGroupingsByObjType($def, $fieldName);
+        $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
+        $group = $this->groupingLoader->getGroupings($def, $fieldName);
 
         return $this->sendOutput($group->toArray());
     }
@@ -1025,8 +1184,13 @@ class EntityController extends Mvc\AbstractAccountController
         if (!is_array($objData['entity_ids'])) {
             return $this->sendOutput(["error" => "entity_ids should be an array"]);
         }
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            return $this->sendOutput(["error" => "Account authentication error."]);
+        }
+        
         // We should reverse the order of entity_ids array so the top entity will have highest sort order
         $entityIds = array_reverse($objData['entity_ids']);
         $updatedEntities = [];
@@ -1035,15 +1199,15 @@ class EntityController extends Mvc\AbstractAccountController
         forEach($entityIds as $entityId)
         {
             // Load the entity using the entityId
-            $entity = $entityLoader->getEntityById($entityId, $this->account->getAccountId());
+            $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
 
             // Make sure that the entity exists before we update its sort order
             if ($entity) {                
                 $entity->setValue('sort_order', $currentTime++);
 
                 try {
-                    if (!$entityLoader->save($entity, $this->account->getAuthenticatedUser())) {
-                        return $this->sendOutput(["error" => "Error saving entity.", "data" => $entityLoader->toArray()]);
+                    if (!$this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser())) {
+                        return $this->sendOutput(["error" => "Error saving entity.", "data" => $this->entityLoader->toArray()]);
                     }
 
                     $updatedEntities[] = $entity->toArray();

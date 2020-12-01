@@ -13,7 +13,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\Log\LogFactory;
 
 /**
- * Construct the EmailController for itneracting with email messages
+ * Construct the EmailController for interacting with email messages
  */
 class EmailControllerFactory implements ControllerFactoryInterface
 {

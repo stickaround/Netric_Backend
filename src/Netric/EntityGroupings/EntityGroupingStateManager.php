@@ -135,7 +135,7 @@ class EntityGroupingStateManager
      */
     private function loadGroupings(string $path, string $accountId)
     {
-        $groupings = $this->dataMapper->getGroupings($path, $accountId);
+        $groupings = $this->dataMapper->getGroupingsByPath($path, $accountId);
 
         // Cache the loaded definition for future requests
         $this->loadedGroupings[$path] = $groupings;

@@ -160,7 +160,7 @@ abstract class IndexTestsAbstract extends TestCase
     protected function deleteGrouping($objType, $field, $id)
     {
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
-        $groupings = $dm->getGroupings("$objType/$field", $this->account->getAccountId());
+        $groupings = $dm->getGroupingsByPath("$objType/$field", $this->account->getAccountId());
         $groupings->delete($id);
         $dm->saveGroupings($groupings);
     }
