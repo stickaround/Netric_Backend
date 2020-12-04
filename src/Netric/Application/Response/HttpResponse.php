@@ -43,6 +43,7 @@ class HttpResponse implements ResponseInterface
     const STATUS_CODE_BAD_REQUEST = 400;
     const STATUS_CODE_FORBIDDEN = 403;
     const STATUS_CODE_NOT_FOUND = 404;
+    const STATUS_INTERNAL_SERVER_ERROR = 500;
 
     /**
      * Message that goes with the status code

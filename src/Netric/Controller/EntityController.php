@@ -183,51 +183,63 @@ class EntityController extends AbstractFactoriedController implements Controller
             }
             
             if (!$def) {
-                $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                 $response->write(["error" => "{$objData['obj_type']} could not be loaded."]);
                 return $response;                
             }
 
             $response->write($this->fillDefinitionArray($def));
-            return $response;            
+            return $response;
         } catch (\Exception $ex) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => $ex->getMessage()]);
         }
     }
 
-    /**
+    /*
+     * Deprecated - We are now using EntityQueryController::execute()
      * Query entities
-     */
-    public function postQueryAction()
+     *
+    public function postQueryAction(httpRequest $request): HttpResponse
     {
-        $ret = [];
-        $params = $this->getRequest()->getParams();
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
-        if (!isset($params["obj_type"])) {
-            return $this->sendOutput(["error" => "obj_type must be set"]);
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
+        }
+        
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData["obj_type"])) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type must be set"]);            
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
         }
 
         $accountId = $currentAccount->getAccountId();
         $user = $currentAccount->getAuthenticatedUser();
-        $query = new EntityQuery($params["obj_type"], $accountId, $user->getEntityId());
+        $query = new EntityQuery($objData["obj_type"], $accountId, $user->getEntityId());
 
-        if (isset($params['offset'])) {
-            $query->setOffset($params['offset']);
+        if (isset($objData['offset'])) {
+            $query->setOffset($objData['offset']);
         }
 
-        if (isset($params['limit'])) {
-            $query->setLimit($params["limit"]);
+        if (isset($objData['limit'])) {
+            $query->setLimit($objData["limit"]);
         }
 
         // Parse values passed from POST or GET params
-        FormParser::buildQuery($query, $params);
+        FormParser::buildQuery($query, $objData);
 
         try {
             // Execute the query
@@ -237,7 +249,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         }
 
         // Pagination
-        // ---------------------------------------------
+        $ret = [];
         $ret["total_num"] = $res->getTotalNum();
         $ret["offset"] = $res->getOffset();
         $ret["limit"] = $query->getLimit();
@@ -268,18 +280,15 @@ class EntityController extends AbstractFactoriedController implements Controller
             // Print full details
             $entities[] = $entityData;
         }
+
         $ret["entities"] = $entities;
-
-        return $this->sendOutput($ret);
+        $response->write($ret);
+        return $response;
     }
-
-    /**
-     * GET pass-through for query
-     */
     public function getQueryAction()
     {
         return $this->postQueryAction();
-    }
+    }*/
 
     /**
      * POST pass-through for get action
@@ -305,7 +314,6 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-
         
         if ($rawBody) {            
             $params['obj_type'] = (isset($objData['obj_type'])) ? $objData['obj_type'] : null;
@@ -341,7 +349,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                 $params['uname_conditions']
             );
         } else {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "entity_id or uname are required params."]);
             return $response;
         }        
@@ -354,7 +362,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // If user is not allowed, then return an error
         if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write([
                 "error" => "You do not have permission to view this.",
                 "entity_id" => $entity->getEntityId(),
@@ -386,24 +394,32 @@ class EntityController extends AbstractFactoriedController implements Controller
     /**
      * Save an entity
      */
-    public function postSaveAction()
+    public function postSaveAction(HttpRequest $request): HttpResponse
     {
-        $rawBody = $this->getRequest()->getBody();
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
+
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(["error" => "obj_type is a required param"]);
+        if (!isset($objData['obj_type'])) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+        if (!$currentAccount) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
 
         try {
@@ -416,28 +432,29 @@ class EntityController extends AbstractFactoriedController implements Controller
             }
 
             // If no entity is found, then return an error.
-            if (!$entity) {
-                return $this->sendOutput(
-                    [
-                        "error" => "No entity found.",
-                        "entity_id" => $objData['entity_id'],
-                        "params" => $params
-                    ]
-                );
+            if (!$entity) {                
+                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                $response->write([
+                    "error" => "No entity found.",
+                    "entity_id" => $objData['entity_id']
+                ]);
+                return $response;
             }
 
             // Make sure that the user has a permission to save this entity
-            if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
-                return $this->sendOutput(
-                    [
-                        "error" => "You do not have permission to edit this.",
-                        "entity_id" => $entity->getEntityId(),
-                        "params" => $params
-                    ]
-                );
+            if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {                
+                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                $response->write([
+                    "error" => "You do not have permission to edit this.",
+                    "entity_id" => $entity->getEntityId()
+                ]);
+                return $response;
             }
         } catch (\Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => "Error saving entity."]);
+            return $response;
         }
 
         // Parse the params
@@ -447,11 +464,15 @@ class EntityController extends AbstractFactoriedController implements Controller
         $currentUser = $currentAccount->getAuthenticatedUser();
 
         try {            
-            if (!$this->entityLoader->save($entity, $currentUser)) {
-                return $this->sendOutput(["error" => "Error saving entity.", "data" => $this->entityLoader->toArray()]);
+            if (!$this->entityLoader->save($entity, $currentUser)) {                
+                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                $response->write(["error" => "Error saving entity."]);
+                return $response;
             }
-        } catch (\RuntimeException $ex) {
-            return $this->sendOutput(["error" => "Error saving: " . $ex->getMessage()]);
+        } catch (\RuntimeException $ex) {            
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => "Error saving: " . $ex->getMessage()]);
+            return $response;
         }
 
         // Check to see if any new object_multi objects were sent awaiting save
@@ -476,75 +497,82 @@ class EntityController extends AbstractFactoriedController implements Controller
         $entityData['currentuser_permissions'] = $currentUserPermissions;
 
         // Return the saved entity
-        return $this->sendOutput($entityData);
+        $response->write($entityData);
+        return $response;
     }
 
     /**
      * PUT pass-through for save
      */
-    public function putSaveAction()
+    public function putSaveAction(HttpRequest $request): HttpResponse
     {
-        return $this->postSaveAction();
+        return $this->postSaveAction($request);
     }
 
     /**
      * Remove an entity (or a list of entities)
      */
-    public function getRemoveAction()
+    public function getRemoveAction(HttpRequest $request): HttpResponse
     {
-        $ret = [];
-        // objType is a required to determine what exactly we are deleting
-        $objType = $this->request->getParam("obj_type");
-        // IDs can either be a single entry or an array
-        $ids = $this->request->getParam("entity_id");
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
-        // Check if raw body was sent
-        if (!$objType && !$ids) {
-            $rawBody = $this->getRequest()->getBody();
-            $reqData = json_decode($rawBody, true);
-            if ($reqData && is_array($reqData)) {
-                $objType = $reqData['obj_type'];
-                $ids = $reqData['ids'];
-            }
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+        if (!isset($objData['entity_id'])) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "entity_id is a required param."]);
+            return $response;
+        }
+
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
+        }
+
+        // IDs can either be a single entry or an array
+        $ids = $objData['entity_id'];
 
         // Convert a single id to an array so we can handle them all the same way
         if (!is_array($ids) && $ids) {
             $ids = [$ids];
         }
 
-        if (!$objType) {
-            return $this->sendOutput(["error" => "obj_type is a required param"]);
-        }
-
-        // Make sure that we have an authenticated account
-        $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
-        }
-
+        $ret = [];
         try {
-            foreach ($ids as $did) {
-                $entity = $this->entityLoader->getEntityById($did, $currentAccount->getAccountId());
+            foreach ($ids as $entityId) {
+                $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
 
                 // Check first if we have permission to delete this entity
                 if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
                     // Proceed with the deleting this entity
                     if ($this->entityLoader->delete($entity, $currentAccount->getAuthenticatedUser())) {
-                        $ret[] = $did;
+                        $ret[] = $entityId;
                     }
                 } else {
-                    return $this->sendOutput(
-                        ["error" => 'You do not have permissions to delete this entity: ' . $entity->getEntityId()]
-                    );
+                    $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                    $response->write(["error" => "You do not have permissions to delete this entity: " . $entity->getName()]);
+                    return $response;
                 }
             }
         } catch (\RuntimeException $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;
         }
 
         // Return what was deleted
-        return $this->sendOutput($ret);
+        $response->write($ret);
+        return $response;
     }
 
     /**
@@ -558,39 +586,58 @@ class EntityController extends AbstractFactoriedController implements Controller
     /**
      * POST pass-through for get groupings action
      */
-    public function postGetGroupingsAction()
+    public function postGetGroupingsAction(HttpRequest $request): HttpResponse
     {
-        return $this->getGetGroupingsAction();
+        return $this->getGetGroupingsAction($request);
     }
 
     /**
      * Get groupings for an object
      */
-    public function getGetGroupingsAction()
+    public function getGetGroupingsAction(HttpRequest $request): HttpResponse
     {
-        $objType = $this->request->getParam("obj_type");
-        $fieldName = $this->request->getParam("field_name");
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
+
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        $objType = $objData["obj_type"];
+        $fieldName = $objData["field_name"];
 
         if (!$objType || !$fieldName) {
-            return $this->sendOutput(["error" => "obj_type & field_name are required params"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type & field_name are required params."]);
+            return $response;
         }
 
         // Get the groupings for this $objType and $fieldName
         try {
             $groupings = $this->getGroupings($this->groupingLoader, $objType, $fieldName);
         } catch (\Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;            
         }
 
-        if (!$groupings) {
-            return $this->sendOutput(["error" => "No groupings found for specified obj_type and field"]);
+        if (!$groupings) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "No groupings found for specified obj_type and field."]);
+            return $response;
         }
 
-        return $this->sendOutput([
+        $response->write([
             "obj_type" => $objType,
             "field_name" => $fieldName,
             "groups" => $groupings->toArray()
         ]);
+        return $response;
     }
 
     /**
@@ -1114,7 +1161,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $path = "$objType/$fieldName";
 
             // If this is a private object then add the user entity_id in the unique path
-            if ($def->isPrivate) {
+            if ($def->isPrivate()) {
                 $path .= "/" . $currentAccount->getAuthenticatedUser()->getEntityId();
             }
 
