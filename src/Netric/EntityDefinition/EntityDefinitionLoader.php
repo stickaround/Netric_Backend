@@ -7,6 +7,7 @@ use Netric\Account\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
+use RuntimeException;
 
 /**
  * Class to handle to loading of object definitions
@@ -419,7 +420,7 @@ class EntityDefinitionLoader
      */
     public function save($def)
     {
-        $ret = $this->dataMapper->save($def);
+        $ret = $this->dataMapper->saveDef($def);
         $this->clearCache($objType);
 
         return $ret;
@@ -433,7 +434,7 @@ class EntityDefinitionLoader
      */
     public function delete($def)
     {
-        $ret = $this->dataMapper->delete($def);
+        $ret = $this->dataMapper->deleteDef($def);
         $this->clearCache($objType);
 
         return $ret;

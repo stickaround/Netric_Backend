@@ -28,6 +28,7 @@ use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Ramsey\Uuid\Uuid;
+use Exception;
 
 /**
  * Controller for interacting with entities
@@ -151,6 +152,9 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Get the definition (metadata) of an entity
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
     public function getGetDefinitionAction(HttpRequest $request): HttpResponse
     {
@@ -190,7 +194,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
             $response->write($this->fillDefinitionArray($def));
             return $response;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => $ex->getMessage()]);
         }
@@ -244,7 +248,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         try {
             // Execute the query
             $res = $this->getDatabase($accountId)->query($query);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
 
@@ -300,6 +304,9 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Retrieve a single entity
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
     public function getGetAction(HttpRequest $request): HttpResponse
     {
@@ -393,6 +400,9 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Save an entity
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
     public function postSaveAction(HttpRequest $request): HttpResponse
     {
@@ -450,7 +460,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                 ]);
                 return $response;
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "Error saving entity."]);
@@ -503,6 +513,9 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * PUT pass-through for save
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
     public function putSaveAction(HttpRequest $request): HttpResponse
     {
@@ -511,8 +524,11 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Remove an entity (or a list of entities)
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getRemoveAction(HttpRequest $request): HttpResponse
+    public function postRemoveAction(HttpRequest $request): HttpResponse
     {
         $rawBody = $request->getBody();
         $response = new HttpResponse($request);
@@ -576,23 +592,10 @@ class EntityController extends AbstractFactoriedController implements Controller
     }
 
     /**
-     * POST pass-through for remove
-     */
-    public function postRemoveAction()
-    {
-        return $this->getRemoveAction();
-    }
-
-    /**
-     * POST pass-through for get groupings action
-     */
-    public function postGetGroupingsAction(HttpRequest $request): HttpResponse
-    {
-        return $this->getGetGroupingsAction($request);
-    }
-
-    /**
      * Get groupings for an object
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
     public function getGetGroupingsAction(HttpRequest $request): HttpResponse
     {
@@ -620,7 +623,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Get the groupings for this $objType and $fieldName
         try {
             $groupings = $this->getGroupings($this->groupingLoader, $objType, $fieldName);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => $ex->getMessage()]);
             return $response;            
@@ -643,17 +646,23 @@ class EntityController extends AbstractFactoriedController implements Controller
     /**
      * Get all the entity defintions
      *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getAllDefinitionsAction()
+    public function getAllDefinitionsAction(HttpRequest $request): HttpResponse
     {
+        $response = new HttpResponse($request);
+
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
 
-        // Load the entity definition        
-        $definitions = $this->definitionLoader->getAll($currentAccount->getAccountId());
+        // Load all the entity definitions
+        $definitions = $this->entityDefinitionLoader->getAll($currentAccount->getAccountId());
 
         $ret = [];
         foreach ($definitions as $def) {
@@ -661,10 +670,13 @@ class EntityController extends AbstractFactoriedController implements Controller
         }
 
         if (sizeOf($ret) == 0) {
-            return $this->sendOutput(["Definitions could not be loaded"]);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => "Definitions could not be loaded."]);
+            return $response;
         }
 
-        return $this->sendOutput($ret);
+        $response->write($ret);
+        return $response;
     }
 
     /**
@@ -763,51 +775,58 @@ class EntityController extends AbstractFactoriedController implements Controller
     }
 
     /**
-     * PUT pass-through for update entity definition
-     */
-    public function putUpdateEntityDefAction()
-    {
-        return $this->postUpdateEntityDefAction();
-    }
-
-    /**
      * Updates the entity definition
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function postUpdateEntityDefAction()
+    public function postUpdateEntityDefAction(HttpRequest $request): HttpResponse
     {
-        $rawBody = $this->getRequest()->getBody();
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
-        $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(["error" => "obj_type is a required param"]);
-        } elseif ($objData['obj_type'] === "") {
-            return $this->sendOutput(["error" => "obj_type is empty."]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+        if (!$currentAccount) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);            
+            return $response;
+        }
+
+        $objType = $objData['obj_type'];
+        if (!$objType) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type should not be empty."]);
+            return $response;
         }
 
         // Load existing if it is there
-        $def = $this->entityDefinitionLoader->get($objData['obj_type'], $currentAccount->getAccountId());
+        $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
 
         if (!$def) {
             // If we are trying to edit an existing entity that could not be found, error out
             if ($objData['id'] || $objData['entity_definition_id']) {
-                return $this->sendOutput(["error" => 'Definition not found']);
+                $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                $response->write(["error" => "Definition not found."]);
+                return $response;
             }
 
             // Otherwise create a new definition object to update
-            $def = new EntityDefinition($objData['obj_type'], $currentAccount->getAccountId());
+            $def = new EntityDefinition($objType, $currentAccount->getAccountId());
         }
 
         // Import the $objData into the entity definition
@@ -817,106 +836,118 @@ class EntityController extends AbstractFactoriedController implements Controller
         $this->entityDefinitionLoader->save($def);
 
         // Build the new entity definition and return the result
-        $ret = $this->fillDefinitionArray($def);
-        return $this->sendOutput($ret);
-    }
-
-    /**
-     * PUT pass-through for delete entity definition
-     */
-    public function putDeleteEntityDefAction()
-    {
-        return $this->postDeleteEntityDefAction();
+        $response->write($this->fillDefinitionArray($def));
+        return $response;
     }
 
     /**
      * Deletes the entity definition
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function postDeleteEntityDefAction()
+    public function postDeleteEntityDefAction(HttpRequest $request): HttpResponse
     {
-        $rawBody = $this->getRequest()->getBody();
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
-        $ret = [];
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(["error" => "obj_type is a required param"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);            
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
 
-        $def = $this->entityDefinitionLoader->get($objData['obj_type'], $currentAccount->getAccountId());
+        $objType = $objData['obj_type'];
+        $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
 
-        if (!$def) {
-            return $this->sendOutput(["error" => $objData['obj_type'] . ' could not be loaded']);
+        if (!$def) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "$objType could not be loaded."]);
+            return $response;
         }
 
-        // Delete the entity definition
-        $this->entityDefinitionLoader->delete($def);
-        return $this->sendOutput(true);
-    }
-
-    /**
-     * POST pass-through for mass edit
-     */
-    public function postMassEditAction()
-    {
-        return $this->getMassEditAction();
+        // Try to delete the entity definition
+        $result = false;
+        try {
+            $result = $this->entityDefinitionLoader->delete($def);
+        } catch (\RuntimeException $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;            
+        }
+        
+        $response->write($result);
+        return $response;
     }
 
     /**
      * Function that will handle the mass editing of entities
      *
-     * @return {array} Returns the array of updated entities
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getMassEditAction()
+    public function postMassEditAction(HttpRequest $request): HttpResponse
     {
-        $ret = [];
-
-        $rawBody = $this->getRequest()->getBody();
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         // Check if we have id. If it is not defined, then return an error
-        if (!isset($objData['entity_id'])) {
-            return $this->sendOutput(["error" => "entity_id is a required param"]);
+        if (!isset($objData['entity_id'])) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "entity_id is a required param."]);
+            return $response;
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
         if (!isset($objData['entity_data'])) {
-            return $this->sendOutput(["error" => "entity_data is a required param"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "entity_data is a required param."]);
+            return $response;
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
-
-        $entityData = $objData['entity_data'];
 
         // IDs can either be a single entry or an array
         $guids = $objData['entity_id'];
+        $entityData = $objData['entity_data'];
 
         // Convert a single id to an array so we can handle them all the same way
         if (!is_array($guids) && $guids) {
             $guids = [$guids];
         }
 
+        $ret = [];
         try {
             foreach ($guids as $guid) {
                 if (Uuid::isValid($guid)) {
@@ -932,96 +963,92 @@ class EntityController extends AbstractFactoriedController implements Controller
                     // Return the entities that were updated
                     $ret[] = $entity->toArray();
                 } else {
-                    $ret["error"][] = "Invalid entity_id was provided during mass edit action: $guid.";
+                    $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                    $response->write(["error" => "Invalid entity_id was provided during mass edit action: $guid."]);
+                    return $response;
                 }
             }
-        } catch (\Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;
         }
 
         // Return what was edited
-        return $this->sendOutput($ret);
-    }
-
-    /**
-     * POST pass-through for merge entities
-     */
-    public function postMergeEntitiesAction()
-    {
-        return $this->getMergeEntitiesAction();
+        $response->write($ret);
+        return $response;
     }
 
     /**
      * Function that will handle the merging of entities
      *
-     * @return {array} Returns the array of updated entities
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getMergeEntitiesAction()
+    public function postMergeEntitiesAction(HttpRequest $request): HttpResponse
     {
-        // Make sure that we have an authenticated account
-        $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
-        }
-        
-        $rawBody = $this->getRequest()->getBody();        
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
-        $requestData = json_decode($rawBody, true);
+        $objData = json_decode($rawBody, true);
 
         // Check if we have obj_type. If it is not defined, then return an error
-        if (!isset($requestData['obj_type'])) {
-            return $this->sendOutput(["error" => "obj_type is a required param"]);
+        if (!isset($objData['obj_type'])) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
-        if (!isset($requestData['merge_data'])) {
-            return $this->sendOutput(["error" => "merge_data is a required param"]);
+        if (!isset($objData['merge_data'])) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "merge_data is a required param."]);
+            return $response;
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+        if (!$currentAccount) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
 
-        // Make sure that we have an authenticated account
-        $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
-        }
-
-        $mergeData = $requestData['merge_data'];
+        $mergeData = $objData['merge_data'];
 
         // Create the new entity where we merge all field values
-        $mergedEntity = $this->entityLoader->create($requestData['obj_type'], $currentAccount->getAccountId());
+        $mergedEntity = $this->entityLoader->create($objData['obj_type'], $currentAccount->getAccountId());
 
         try {
             /*
-            * Let's save the merged entity initially so we can get its entity id.
-            * We will use the merged entity id as our moved object id when we loop thru the mergedData
-            */
+             * Let's save the merged entity initially so we can get its entity id.
+             * We will use the merged entity id as our moved object id when we loop thru the mergedData
+             */
             $mergedEntityId = $this->entityLoader->save($mergedEntity, $currentAccount->getAuthenticatedUser());
-        } catch (\Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;
         }
 
         $entityData = [];
-
         try {
             /*
-            * The merge data contains entity ids and the array of field names that will be used to merge the entities
-            * After we load the entity using the entityId, then we will loop thru the field names
-            *  and get its field values so we can assign it to the newly created merged entity ($mergedEntity)
-            *
-            * $mergeData = array (
-            *  entityId => array(fieldName1, fieldName2, fieldName3)
-            * )
-            */
+             * The merge data contains entity ids and the array of field names that will be used to merge the entities
+             * After we load the entity using the entityId, then we will loop thru the field names
+             *  and get its field values so we can assign it to the newly created merged entity ($mergedEntity)
+             *
+             * $mergeData = array (
+             *  entityId => array(fieldName1, fieldName2, fieldName3)
+             * )
+             */
             foreach ($mergeData as $entityId => $fields) {
                 $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
 
@@ -1050,47 +1077,61 @@ class EntityController extends AbstractFactoriedController implements Controller
 
             // Now save the the entity where all merged data are set
             $this->entityLoader->save($mergedEntity, $currentAccount->getAuthenticatedUser());
-        } catch (\Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;
         }
 
         // Return the merged entity
-        return $this->sendOutput($mergedEntity->toArray());
+        $response->write($mergedEntity->toArray());
+        return $response;
     }
 
     /**
      * Function that will handle the saving of groups
      *
-     * @return {object} Returnt the group that was added/updated
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function postSaveGroupAction()
+    public function postSaveGroupAction(HttpRequest $request): HttpResponse
     {
-        $rawBody = $this->getRequest()->getBody();
-        $ret = [];
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(["error" => "obj_type is a required param"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
         }
 
         if (!isset($objData['field_name'])) {
-            return $this->sendOutput(["error" => "field_name is a required param"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "field_name is a required param."]);
+            return $response;
         }
 
-        if (!isset($objData['action'])) {
-            return $this->sendOutput(["error" => "action is a required param"]);
+        if (!isset($objData['action'])) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "action is a required param."]);
+            return $response;
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
 
         // Get the groupings for this obj_type and field_name
@@ -1105,42 +1146,51 @@ class EntityController extends AbstractFactoriedController implements Controller
 
                 // Set the group data
                 $group->fromArray($objData);
-
                 break;
+
             case 'edit':
                 if (isset($objData['group_id']) && !empty($objData['group_id'])) {
                     $group = $groupings->getByGuidOrGroupId($objData['group_id']);
                 } else {
-                    return $this->sendOutput(["error" => "Edit action needs group id to update the group."]);
+                    $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                    $response->write(["error" => "Edit action needs group id to update the group."]);
+                    return $response;
                 }
 
                 // Set the group data
                 $group->fromArray($objData);
-
                 break;
+                
             case 'delete':
                 // $objData['group_id'] is the Group Id where we need to check it first before deleting the group
                 if (isset($objData['group_id']) && !empty($objData['group_id'])) {
                     $group = $groupings->getByGuidOrGroupId($objData['group_id']);
                 } else {
-                    return $this->sendOutput(["error" => "Delete action needs group id to update the group."]);
+                    $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                    $response->write(["error" => "Delete action needs group id to update the group."]);
+                    return $response;
                 }
 
                 // Now flag the group as deleted
                 $groupings->delete($objData['group_id']);
                 break;
-            default:
-                return $this->sendOutput(["error" => "No action made for entity group."]);
+            default:                
+                $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                $response->write(["error" => "No action made for entity group."]);
+                return $response;
         }
 
         try {
             // Save the changes made to the groupings
             $this->groupingLoader->save($groupings);
-        } catch (\Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;
         }
 
-        return $this->sendOutput($group->toArray());
+        $response->write($group->toArray());
+        return $response;
     }
 
     /**
@@ -1170,7 +1220,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
             // Return the groupings object
             return $groupings;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $this->sendOutput(["error" => $ex->getMessage()]);
         }
     }
@@ -1193,49 +1243,100 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Function that will get the groupings by path
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getGetGroupByObjTypeAction()
+    public function getGetGroupByObjTypeAction(HttpRequest $request): HttpResponse
     {
-        // Make sure that we have an authenticated account
-        $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
-        }
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
-        $objType = $this->request->getParam("obj_type");
-        $fieldName = $this->request->getParam("field_name");
-
-        $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
-        $group = $this->groupingLoader->getGroupings($def, $fieldName);
-
-        return $this->sendOutput($group->toArray());
-    }
-
-    /**
-     * Update the sort order of the entities based on the entity's position in the array
-     */
-    public function postUpdateSortOrderEntitiesAction()
-    {
-        $rawBody = $this->getRequest()->getBody();
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['entity_ids'])) {
-            return $this->sendOutput(["error" => "entity_ids is a required param"]);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
+        }
+
+        if (!isset($objData['obj_type'])) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
+        }
+
+        if (!isset($objData['field_name'])) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "field_name is a required param."]);
+            return $response;
+        }
+
+        try {
+            $def = $this->entityDefinitionLoader->get($objData["obj_type"], $currentAccount->getAccountId());
+            $grouping = $this->groupingLoader->getGroupings($def, $objData["field_name"]);
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
+            return $response;
+        }
+
+        if (!$grouping) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "No grouping found for specified obj_type and field."]);
+            return $response;
+        }
+        
+        $response->write($grouping->toArray());
+        return $response;
+    }
+
+    /**
+     * Update the sort order of the entities based on the entity's position in the array
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
+     */
+    public function postUpdateSortOrderEntitiesAction(HttpRequest $request): HttpResponse
+    {
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
+
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+        if (!isset($objData['entity_ids'])) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "entity_ids is a required param."]);
+            return $response;
         }
 
         if (!is_array($objData['entity_ids'])) {
-            return $this->sendOutput(["error" => "entity_ids should be an array"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "entity_ids should be an array."]);
+            return $response;
         }
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            return $this->sendOutput(["error" => "Account authentication error."]);
+        if (!$currentAccount) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
         
         // We should reverse the order of entity_ids array so the top entity will have highest sort order
@@ -1253,18 +1354,23 @@ class EntityController extends AbstractFactoriedController implements Controller
                 $entity->setValue('sort_order', $currentTime++);
 
                 try {
-                    if (!$this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser())) {
-                        return $this->sendOutput(["error" => "Error saving entity.", "data" => $this->entityLoader->toArray()]);
+                    if (!$this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser())) {                        
+                        $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                        $response->write(["error" => "Error saving entity.", "data" => $entity->toArray()]);
+                        return $response;
                     }
 
                     $updatedEntities[] = $entity->toArray();
-                } catch (\RuntimeException $ex) {
-                    return $this->sendOutput(["error" => "Error saving: " . $ex->getMessage()]);
+                } catch (\RuntimeException $ex) {                    
+                    $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                    $response->write(["error" => "Error saving: " . $ex->getMessage()]);
+                    return $response;
                 }
             }
         }
 
-        // Return the updated entities
-        return $this->sendOutput(array_reverse($updatedEntities));
+        // Return the updated entities        
+        $response->write(array_reverse($updatedEntities));
+        return $response;
     }
 }
