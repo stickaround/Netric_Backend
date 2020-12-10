@@ -161,16 +161,9 @@ class EntityController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         $response = new HttpResponse($request);
 
-        if (!$rawBody) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write("Request input is not valid");
-            return $response;
-        }
+        $objType = $request->getParam('obj_type');
 
-        // Decode the json structure
-        $objData = json_decode($rawBody, true);
-
-        if (!$objData['obj_type']) {
+        if (!$objType) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "obj_type is a required param."]);
             return $response;
@@ -183,12 +176,12 @@ class EntityController extends AbstractFactoriedController implements Controller
             // Make sure that we have an authenticated account
             if ($currentAccount) {
                 // Get the definition data for this object type
-                $def = $this->entityDefinitionLoader->get($objData['obj_type'], $currentAccount->getAccountId());
+                $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
             }
             
             if (!$def) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
-                $response->write(["error" => "{$objData['obj_type']} could not be loaded."]);
+                $response->write(["error" => "$objType could not be loaded."]);
                 return $response;                
             }
 
@@ -295,14 +288,6 @@ class EntityController extends AbstractFactoriedController implements Controller
     }*/
 
     /**
-     * POST pass-through for get action
-     */
-    public function postGetAction(HttpRequest $request)
-    {
-        return $this->getGetAction($request);
-    }
-
-    /**
      * Retrieve a single entity
      * 
      * @param HttpRequest $request Request object for this run
@@ -313,25 +298,15 @@ class EntityController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         $response = new HttpResponse($request);
 
-        if (!$rawBody) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write("Request input is not valid");
-            return $response;
-        }
-
-        // Decode the json structure
-        $objData = json_decode($rawBody, true);
-        
-        if ($rawBody) {            
-            $params['obj_type'] = (isset($objData['obj_type'])) ? $objData['obj_type'] : null;
-            $params['entity_id'] = (isset($objData['entity_id'])) ? $objData['entity_id'] : null;
-            $params['uname'] = (isset($objData['uname'])) ? $objData['uname'] : null;
-            $params['uname_conditions'] = (isset($objData['uname_conditions'])) ? $objData['uname_conditions'] : [];
-        }
+        $id = $request->getParam('id'); // id for backwards compatibility
+        $entityId = $request->getParam('entity_id');
+        $objType = $request->getParam('obj_type');        
+        $uname = $request->getParam('uname');
+        $unameConditions = $request->getParam('uname_conditions');
 
         // Use id for backwards compatibility
-        if (empty($params['entity_id']) && !empty($params['id'])) {
-            $params['entity_id'] = $params['id'];
+        if (!$entityId && $id) {
+            $entityId = $id;
         }
 
         // Make sure that we have an authenticated account
@@ -344,16 +319,16 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Get the entity utilizing whatever params were passed in
         $entity = null;
-        if (!empty($params['entity_id']) && Uuid::isValid($params['entity_id'])) {
+        if ($entityId && Uuid::isValid($entityId)) {
             // Retrieve the entity by id
-            $entity = $this->entityLoader->getEntityById($params['entity_id'], $currentAccount->getAccountId());
-        } elseif (!empty($params['uname']) && !empty($params['obj_type'])) {
+            $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
+        } elseif ($uname && $objType) {
             // Retrieve the entity by a unique name and optional condition
             $entity = $this->entityLoader->getByUniqueName(
-                $params['obj_type'],
-                $params['uname'],
+                $objType,
+                $uname,
                 $currentAccount->getAccountId(),
-                $params['uname_conditions']
+                $unameConditions
             );
         } else {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
@@ -602,17 +577,8 @@ class EntityController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         $response = new HttpResponse($request);
 
-        if (!$rawBody) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write("Request input is not valid");
-            return $response;
-        }
-
-        // Decode the json structure
-        $objData = json_decode($rawBody, true);
-
-        $objType = $objData["obj_type"];
-        $fieldName = $objData["field_name"];
+        $objType = $request->getParam("obj_type");
+        $fieldName = $request->getParam("field_name");
 
         if (!$objType || !$fieldName) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
@@ -1252,15 +1218,6 @@ class EntityController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         $response = new HttpResponse($request);
 
-        if (!$rawBody) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write("Request input is not valid");
-            return $response;
-        }
-
-        // Decode the json structure
-        $objData = json_decode($rawBody, true);
-
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
@@ -1269,21 +1226,24 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
-        if (!isset($objData['obj_type'])) {
+        $objType = $request->getParam('obj_type');
+        $fieldName = $request->getParam('field_name');
+
+        if (!$objType) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "obj_type is a required param."]);
             return $response;
         }
 
-        if (!isset($objData['field_name'])) {
+        if (!$fieldName) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "field_name is a required param."]);
             return $response;
         }
 
         try {
-            $def = $this->entityDefinitionLoader->get($objData["obj_type"], $currentAccount->getAccountId());
-            $grouping = $this->groupingLoader->getGroupings($def, $objData["field_name"]);
+            $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
+            $grouping = $this->groupingLoader->getGroupings($def, $fieldName);
         } catch (Exception $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => $ex->getMessage()]);

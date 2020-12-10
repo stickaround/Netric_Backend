@@ -176,7 +176,24 @@ class EntityControllerTest extends TestCase
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['entity_id' => $taskEntityId]));
+        $request->setParam('entity_id', $taskEntityId);        
+        $response = $this->entityController->getGetAction($request);
+        $this->assertEquals([
+            'obj_type' => 'task',
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing',
+            'applied_dacl' => [
+                'entries' => [],
+                'name' => 'task_dacl'
+            ],
+            'currentuser_permissions' => $daclPermissions
+        ], $response->getOutputBuffer());
+
+        // Now let's use id as parameter to test the backwards compatibility
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setParam('id', $taskEntityId);        
         $response = $this->entityController->getGetAction($request);
         $this->assertEquals([
             'obj_type' => 'task',
@@ -228,7 +245,7 @@ class EntityControllerTest extends TestCase
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['entity_id' => $taskEntityId]));
+        $request->setParam('entity_id', $taskEntityId);
         $response = $this->entityController->getGetAction($request);
 
         // It should only return the entity_id, name, and current permission
@@ -244,16 +261,10 @@ class EntityControllerTest extends TestCase
      */
     public function testGetEntityActionCatchingErrors()
     {
-        // It should return an error when request input is not valid
-        $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $response = $this->entityController->getGetAction($request);
-        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
-
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['bogus' => 'data']));
+        $request->setParam('buffer_output', 1);        
+        $request->setParam('bogus', 'data');
         $response = $this->entityController->getGetAction($request);
 
         // It should return an error if no entity_id is provided in the params
@@ -326,7 +337,7 @@ class EntityControllerTest extends TestCase
         // Make sure getGetDefinitionAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['obj_type' => 'task']));
+        $request->setParam('obj_type', 'task');
         $response = $this->entityController->getGetDefinitionAction($request);
 
         // It should only return the entity_id, name, and current permission
@@ -348,16 +359,10 @@ class EntityControllerTest extends TestCase
      */
     public function testDefinitionActionCatchingErrors()
     {
-        // It should return an error when request input is not valid
-        $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $response = $this->entityController->getGetDefinitionAction($request);
-        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
-
         // Make sure getGetDefinitionAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['bogus' => 'data']));
+        $request->setParam('bogus', 'data');
         $response = $this->entityController->getGetDefinitionAction($request);
 
         // It should return an error if no obj_type is provided in the params
@@ -368,7 +373,7 @@ class EntityControllerTest extends TestCase
 
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['obj_type' => 'task']));
+        $request->setParam('obj_type', 'task');
         $response = $this->entityController->getGetDefinitionAction($request);
 
         // It should return an error if no entity definition is found
@@ -577,7 +582,7 @@ class EntityControllerTest extends TestCase
         // It should return an error when request input is not valid
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $response = $this->entityController->getGetAction($request);
+        $response = $this->entityController->postUpdateEntityDefAction($request);
         $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
 
         // Make sure postUpdateEntityDefAction is called and we get a response
@@ -652,7 +657,7 @@ class EntityControllerTest extends TestCase
         // It should return an error when request input is not valid
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $response = $this->entityController->getGetAction($request);
+        $response = $this->entityController->postDeleteEntityDefAction($request);
         $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
 
         // Make sure postDeleteEntityDefAction is called and we get a response
@@ -1031,7 +1036,7 @@ class EntityControllerTest extends TestCase
 
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $response = $this->entityController->postRemoveAction($request);
+        $response = $this->entityController->postSaveGroupAction($request);
         $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
 
         // Make sure postSaveGroupAction is called and we get a response
@@ -1102,7 +1107,8 @@ class EntityControllerTest extends TestCase
         // Make sure getGetGroupingsAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['obj_type' => 'task', 'field_name' => 'group']));
+        $request->setParam('obj_type', 'task');
+        $request->setParam('field_name', 'group');
         $response = $this->entityController->getGetGroupingsAction($request);
         $this->assertEquals([
             'obj_type' => 'task',
@@ -1115,16 +1121,11 @@ class EntityControllerTest extends TestCase
      * Catch the possible errors when getting the entity grouping
      */
     public function testGetGroupingsActionCatchingErrors()
-    {   
-        $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $response = $this->entityController->postRemoveAction($request);
-        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
-
+    {
         // Make sure getGetGroupingsAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['bogus' => 'data']));
+        $request->setParam('buffer_output', 1);        
+        $request->setParam('bogus', 'data');
         $response = $this->entityController->getGetGroupingsAction($request);
 
         // It should return an error if no entity_id is provided in the params
@@ -1143,7 +1144,8 @@ class EntityControllerTest extends TestCase
         // Make sure getGetGroupingsAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['obj_type' => 'task', 'field_name' => 'group']));
+        $request->setParam('obj_type', 'task');
+        $request->setParam('field_name', 'group');
         $response = $this->entityController->getGetGroupingsAction($request);
         $this->assertEquals(['error' => 'No groupings found for specified obj_type and field.'], $response->getOutputBuffer());
     }
@@ -1179,7 +1181,8 @@ class EntityControllerTest extends TestCase
         // Make sure getGetGroupingsAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['obj_type' => 'task', 'field_name' => 'group']));
+        $request->setParam('obj_type', 'task');
+        $request->setParam('field_name', 'group');
         $response = $this->entityController->getGetGroupByObjTypeAction($request);
         $this->assertEquals([$groupDetails], $response->getOutputBuffer());
     }
@@ -1188,20 +1191,24 @@ class EntityControllerTest extends TestCase
      * Catch the possible errors when getting the entity grouping by object type
      */
     public function testGetGroupByObjTypeActionCatchingErrors()
-    {   
+    {
+        // Make sure getGetGroupByObjTypeAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $response = $this->entityController->postRemoveAction($request);
-        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
+        $request->setParam('bogus', 'data');
+        $response = $this->entityController->getGetGroupByObjTypeAction($request);
 
-        // Make sure getGetGroupingsAction is called and we get a response
+        // It should return an error if no obj_type is provided in the params
+        $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
+
+        // Make sure getGetGroupByObjTypeAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['bogus' => 'data']));
-        $response = $this->entityController->getGetGroupingsAction($request);
+        $request->setParam('obj_type', 'task');
+        $response = $this->entityController->getGetGroupByObjTypeAction($request);
 
-        // It should return an error if no entity_id is provided in the params
-        $this->assertEquals(['error' => 'obj_type & field_name are required params.'], $response->getOutputBuffer());
+        // It should return an error if no field_name is provided in the params
+        $this->assertEquals(['error' => 'field_name is a required param.'], $response->getOutputBuffer());
 
         // Mock the grouping loader service that it will return value when getting groups
         $this->mockGroupingLoader->method('get')->willReturn(null);
@@ -1213,12 +1220,13 @@ class EntityControllerTest extends TestCase
         // Mock the entity definition loader service which is used to entity definition
         $this->mockEntityDefinitionLoader->method('get')->willReturn($mockDefinition);
 
-        // Make sure getGetGroupingsAction is called and we get a response
+        // Make sure getGetGroupByObjTypeAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['obj_type' => 'task', 'field_name' => 'group']));
-        $response = $this->entityController->getGetGroupingsAction($request);
-        $this->assertEquals(['error' => 'No groupings found for specified obj_type and field.'], $response->getOutputBuffer());
+        $request->setParam('obj_type', 'task');
+        $request->setParam('field_name', 'group');
+        $response = $this->entityController->getGetGroupByObjTypeAction($request);
+        $this->assertEquals(['error' => 'No grouping found for specified obj_type and field.'], $response->getOutputBuffer());
     }
 
     /**
@@ -1276,7 +1284,7 @@ class EntityControllerTest extends TestCase
     {
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $response = $this->entityController->postRemoveAction($request);
+        $response = $this->entityController->postMassEditAction($request);
         $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
 
         // Make sure postMassEditAction is called and we get a response
