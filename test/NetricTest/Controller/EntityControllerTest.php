@@ -2,7 +2,6 @@
 
 namespace NetricTest\Controller;
 
-use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Account\Account;
@@ -41,41 +40,6 @@ use Ramsey\Uuid\Uuid;
 class EntityControllerTest extends TestCase
 {
     /**
-     * Account used for testing
-     *
-     * @var \Netric\Account\Account
-     */
-    protected $account = null;
-
-    /**
-     * Controller instance used for testing
-     *
-     * @var EntityController
-     */
-    protected $controller = null;
-
-    /**
-     * Group ids to cleanup
-     *
-     * @var array
-     */
-    private $testGroups = [];
-
-    /**
-     * Test entities that should be cleaned up on tearDown
-     *
-     * @var EntityInterface[]
-     */
-    private $testEntities = [];
-
-    /**
-     * Test entity definitions that should be cleaned up on tearDown
-     *
-     * @var DefinitionInterface[]
-     */
-    private $testDefinitions = [];
-
-    /**
      * Initialized controller with mock dependencies
      */
     private EntityController $entityController;
@@ -95,8 +59,6 @@ class EntityControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->account = Bootstrap::getAccount();
-
         // Create mocks
         $this->mockEntityLoader = $this->createMock(EntityLoader::class);
         $this->mockEntityDefinitionLoader = $this->createMock(EntityDefinitionLoader::class);
@@ -105,7 +67,6 @@ class EntityControllerTest extends TestCase
         $this->mockForms = $this->createMock(Forms::class);
         $this->mockDatabaseContainer = $this->createMock(RelationalDbContainer::class);
         $this->mockDaclLoader = $this->createMock(DaclLoader::class);
-
 
         // Provide identity for mock auth service
         $this->mockAuthService = $this->createMock(AuthenticationService::class);
@@ -355,7 +316,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the errors being thrown when getting an entity definition
+     * Catch the possible errors being thrown when there is a problem in getting an entity definition
      */
     public function testDefinitionActionCatchingErrors()
     {
@@ -476,7 +437,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the errors being thrown when getting all the entity definitions
+     * Catch the possible errors being thrown when there is a problem in getting all the entity definitions
      */
     public function testAllDefinitionsActionCatchingErrors()
     {
@@ -575,7 +536,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the errors being thrown when updating an entity definition
+     * Catch the possible errors being thrown when there is a problem in updating an entity definition
      */
     public function testUpdateEntityDefActionCatchingErrors()
     {
@@ -650,7 +611,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the errors being thrown when deleting an entity definition
+     * Catch the possible errors being thrown when there is a problem in deleting an entity definition
      */
     public function testDeleteEntityDefActionCatchingErrors()
     {
@@ -825,7 +786,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the possible errors when saving an entity
+     * Catch the possible errors being thrown when there is a problem in saving an entity
      */
     public function testPostSaveActionCatchingErrors()
     {
@@ -926,7 +887,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the possible errors when deleting an entity
+     * Catch the possible errors being thrown when there is a problem in deleting an entity
      */
     public function testPostRemoveActionCatchingErrors()
     {
@@ -1023,7 +984,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the possible errors when saving a group
+     * Catch the possible errors being thrown when there is a problem in saving a group
      */
     public function testPostSaveGroupActionCatchingErrors()
     {
@@ -1118,7 +1079,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the possible errors when getting the entity grouping
+     * Catch the possible errors being thrown when there is a problem in getting the entity grouping
      */
     public function testGetGroupingsActionCatchingErrors()
     {
@@ -1188,7 +1149,7 @@ class EntityControllerTest extends TestCase
     }
 
     /**
-     * Catch the possible errors when getting the entity grouping by object type
+     * Catch the possible errors being thrown when there is a problem in getting the entity grouping by object type
      */
     public function testGetGroupByObjTypeActionCatchingErrors()
     {
@@ -1278,7 +1239,7 @@ class EntityControllerTest extends TestCase
     }
     
     /**
-     * Catch the possible errors when editing multiple entities
+     * Catch the possible errors being thrown when there is a problem in editing multiple entities
      */
     public function testPostMassEditActionCatchingErrors()
     {

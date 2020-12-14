@@ -6,11 +6,20 @@
 
 namespace NetricTest\Controller;
 
+use PHPUnit\Framework\TestCase;
+use Netric\Request\HttpRequest;
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\BrowserViewController;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
-use PHPUnit\Framework\TestCase;
-use NetricTest\Bootstrap;
+use Netric\Entity\BrowserView\BrowserViewService;
+use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
+use \RuntimeException;
 
 /**
  * @group integration
@@ -18,74 +27,215 @@ use Netric\EntityDefinition\ObjectTypes;
 class BrowserViewControllerTest extends TestCase
 {
     /**
-     * Account used for testing
-     *
-     * @var \Netric\Account\Account
+     * Initialized controller with mock dependencies
      */
-    protected $account = null;
+    private BrowserViewController $browserViewController;
 
     /**
-     * Controller instance used for testing
-     *
-     * @var EntityController
-     */
-    protected $controller = null;
-
-    /**
-     * Test browser views that should be cleaned up on tearDown
-     *
-     * @var BrowserViewInterface[]
-     */
-    private $testBrowserViews = [];
+     * Dependency mocks
+     */    
+    private Account $mockAccount;
+    private AuthenticationService $mockAuthService;
+    private BrowserViewService $mockBrowserViewService;
 
     protected function setUp(): void
     {
-        $this->account = Bootstrap::getAccount();
-        $this->user = $this->account->getUser();
+        // Create mocks        
+        $this->mockBrowserViewService = $this->createMock(BrowserViewService::class);
 
-        // Get the service manager of the current user
-        $this->serviceManager = $this->account->getServiceManager();
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
 
-        // Create the controller
-        $this->controller = new BrowserViewController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Return mock authenticated account
+        $this->mockAccount = $this->createStub(Account::class);
+        $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
+
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $accountContainer->method('loadById')->willReturn($this->mockAccount);
+
+        // Create the controller with mocks
+        $this->browserViewController = new BrowserViewController(
+            $accountContainer,
+            $this->mockAuthService,            
+            $this->mockBrowserViewService
+        );
+        $this->browserViewController->testMode = true;
     }
 
     /**
-     * Cleanup after a test runs
+     * Test the saving of browser view
      */
-    protected function tearDown(): void
-    {
-        // Cleanup test browser views
-        $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        foreach ($this->testBrowserViews as $browserView) {
-            $browserViewService->deleteView($browserView);
-        }
-    }
-
     public function testSaveAction()
     {
+        $viewId = Uuid::uuid4()->toString();
         $data = [
             'obj_type' => ObjectTypes::CONTACT,
+            'id' => $viewId,
             'name' => "unit_test_view",
             'description' => "Unit Test Browser View",
         ];
 
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($data));
-        $browserViewId = $this->controller->postSaveAction();
+        // Create browser view for testing
+        $mockBrowserView = $this->createMock(BrowserView::class);
+        $mockBrowserView->method('isSystem')->willReturn(false);
+        $mockBrowserView->method('isDefault')->willReturn(true);
 
-        $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId, $this->account->getAccountId());
-        $browserViewData = $browserView->toArray();
-        $this->testBrowserViews[] = $browserView;
+        // Mock the browser view server which is used to save a browser view
+        $this->mockBrowserViewService->method('saveView')->willReturn($viewId);
+        $this->mockBrowserViewService->method('setDefaultViewForUser')->willReturn(true);
+        
+        // Make sure postSaveAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode($data));
+        $response = $this->browserViewController->postSaveAction($request);
 
-        $this->assertGreaterThan(0, $browserViewId);
-        $this->assertEquals($data['name'], $browserView->getName(), var_export($browserViewData, true));
-        $this->assertEquals($data['description'], $browserViewData['description'], var_export($browserViewData, true));
+        // It should only return the view id saved
+        $this->assertEquals($viewId, $response->getOutputBuffer());
     }
 
+    /**
+     * Catch the possible errors being thrown when there is a problem in saving a browser view
+     */
+    public function testSaveActionCatchingErrors()
+    {
+        // It should return an error when request input is not valid
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->browserViewController->postSaveAction($request);
+        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
+
+        // Make sure postSaveAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->browserViewController->postSaveAction($request);
+
+        // It should return an error if no object_type is provided in the params
+        $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
+    }
+
+    /**
+     * Test the setting of default browser view
+     */
+    public function testSetDefaultViewAction()
+    {
+        $viewId = Uuid::uuid4()->toString();
+        $data = [
+            'obj_type' => ObjectTypes::CONTACT,
+            'id' => $viewId,
+            'name' => "unit_test_view",
+            'description' => "Unit Test Browser View",
+        ];
+
+        // Create browser view for testing
+        $mockBrowserView = $this->createMock(BrowserView::class);
+
+        // Mock the browser view server which is used to set a default browser view        
+        $this->mockBrowserViewService->method('setDefaultViewForUser')->willReturn(true);
+        
+        // Make sure postSaveAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode($data));
+        $response = $this->browserViewController->postSetDefaultViewAction($request);
+
+        // It should only return the id of the default view
+        $this->assertEquals($viewId, $response->getOutputBuffer());
+    }
+
+    /**
+     * Catch the possible errors being thrown when there is a problem in setting default view
+     */
+    public function testSetDefaultViewActionCatchingErrors()
+    {
+        // It should return an error when request input is not valid
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->browserViewController->postSetDefaultViewAction($request);
+        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
+
+        // Make sure postSetDefaultViewAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->browserViewController->postSetDefaultViewAction($request);
+
+        // It should return an error if no object_type is provided in the params
+        $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
+
+        // Make sure postSetDefaultViewAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['obj_type' => ObjectTypes::CONTACT, 'id' => null]));
+        $response = $this->browserViewController->postSetDefaultViewAction($request);
+
+        // It should return an error if no wer are trying to set a view that is not yet saved
+        $this->assertEquals(['error' => 'Browser View should be saved first before setting as the default view.'], $response->getOutputBuffer());
+    }
+
+    /**
+     * Test the deleting of browser view
+     */
+    public function testDeleteViewAction()
+    {
+        $viewId = Uuid::uuid4()->toString();        
+
+        // Create browser view for testing
+        $mockBrowserView = $this->createMock(BrowserView::class);
+
+        // Mock the browser view server which is used to delete a browser view        
+        $this->mockBrowserViewService->method('deleteView')->willReturn(true);
+        
+        // Make sure postDeleteViewAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['id' => $viewId]));
+        $response = $this->browserViewController->postDeleteViewAction($request);
+
+        // It should only return true when the view is deleted successfully
+        $this->assertEquals(true, $response->getOutputBuffer());
+    }
+
+    /**
+     * Catch the possible errors being thrown when there is a problem in deleting a browser view
+     */
+    public function testDeleteViewActionCatchingErrors()
+    {
+        // It should return an error when request input is not valid
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->browserViewController->postDeleteViewAction($request);
+        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
+        
+        // Make sure postDeleteViewAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->browserViewController->postDeleteViewAction($request);
+
+        // It should only return an error when there is no view id provided in the params
+        $this->assertEquals(['error' => 'id is a required param.'], $response->getOutputBuffer());
+
+        // Create browser view for testing
+        $mockBrowserView = $this->createMock(BrowserView::class);
+
+        // Return false when deleting a view so we can try to catch the error
+        $this->mockBrowserViewService->method('deleteView')->willReturn(false);
+
+        // Make sure postDeleteViewAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['id' => Uuid::uuid4()->toString()]));
+        $response = $this->browserViewController->postDeleteViewAction($request);
+
+        // It should only return an error when the deleteView method retruns false
+        $this->assertEquals(['error' => 'Error while trying to delete the browser view.'], $response->getOutputBuffer());
+    }
+
+    /*
     public function testDeleteAction()
     {
         $data = [
@@ -163,4 +313,5 @@ class BrowserViewControllerTest extends TestCase
         // It should return an error
         $this->assertEquals(0, strpos($ret['error'], 'Error saving browser view: SQLSTATE[22P02]'));
     }
+    */
 }

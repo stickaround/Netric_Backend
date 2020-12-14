@@ -83,6 +83,7 @@ class EntityController extends AbstractFactoriedController implements Controller
     /**
      * Initialize controller and all dependencies
      *
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
      * @param AuthenticationService $authService Service used to get the current user/account
      * @param EntityLoader $this->entityLoader Handles the loading and saving of entities
      * @param EntityDefinitionLoader $entityDefinitionLoader Handles the loading and saving of entity definition
