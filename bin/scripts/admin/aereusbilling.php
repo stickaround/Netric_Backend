@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * This script is used just to update the billing details for the Aereus
+ * account until we have a good management page for this in settings.
+ */
 use Netric\Entity\EntityLoaderFactory;
 use Netric\PaymentGateway\SystemPaymentGatewayFactory;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
@@ -28,33 +31,34 @@ $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
 $contact = $entityLoader->getEntityById($AEREUS_CONTACT_ID, $account->getAccountId());
 $contact->setValue('billing_first_name', 'Sky');
 $contact->setValue('billing_last_name', 'Stebnicki');
-$contact->setValue('billing_street', '1415 2nd Ave');
-$contact->setValue('billing_street2', 'Unit 1410');
-$contact->setValue('billing_city', 'Seattle');
-$contact->setValue('billing_state', 'Washington');
-$contact->setValue('billing_zip', '98101');
+$contact->setValue('billing_street', '3860 Blossom Street');
+$contact->setValue('billing_street2', '');
+$contact->setValue('billing_city', 'Kissimmee');
+$contact->setValue('billing_state', 'Florida');
+$contact->setValue('billing_zip', '34746');
 $entityLoader->save($contact, $account->getSystemUser());
+echo "Saved billing details for aereus account";
 
 // Create the billing credit card
-$card = new CreditCard();
-$card->setCardNumber('4111111111111111');
-$card->setExpiration(2025, 07);
-$card->setCardCode('762');
-$profileToken = $paymentGateway->createPaymentProfileCard($contact, $card);
+// $card = new CreditCard();
+// $card->setCardNumber('4111111111111111');
+// $card->setExpiration(2025, 07);
+// $card->setCardCode('762');
+// $profileToken = $paymentGateway->createPaymentProfileCard($contact, $card);
 
-// Add a payment profile to the aereus account to use for billing later
-$paymentProfile = $entityLoader->create(
-    ObjectTypes::SALES_PAYMENT_PROFILE,
-    $account->getAccountId()
-);
-$paymentProfile->setValue('token', $profileToken);
-$paymentProfile->setValue('f_default', true);
-$paymentProfile->setvalue('customer', $contact->getEntityId());
-$entityLoader->save($paymentProfile, $account->getSystemUser());
+// // Add a payment profile to the aereus account to use for billing later
+// $paymentProfile = $entityLoader->create(
+//     ObjectTypes::SALES_PAYMENT_PROFILE,
+//     $account->getAccountId()
+// );
+// $paymentProfile->setValue('token', $profileToken);
+// $paymentProfile->setValue('f_default', true);
+// $paymentProfile->setvalue('customer', $contact->getEntityId());
+// $entityLoader->save($paymentProfile, $account->getSystemUser());
 
-// Below was the saved profile with Sky's card
-// {"customer_profile_id":"2024121765","payment_profile_id":"2043916084"}
+// // Below was the saved profile with Sky's card
+// // {"customer_profile_id":"2024121765","payment_profile_id":"2043916084"}
 
-// Run a test transaction just to see if things are working
-$result = $paymentGateway->chargeProfile($paymentProfile, 20);
-echo var_export($result, true);
+// // Run a test transaction just to see if things are working
+// $result = $paymentGateway->chargeProfile($paymentProfile, 20);
+// echo var_export($result, true);
