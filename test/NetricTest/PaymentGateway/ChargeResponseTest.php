@@ -36,6 +36,16 @@ class ChargeResponseTest extends TestCase
         $this->assertEquals('message', $messages[0]->getDescription());
     }
 
+    public function testGetMessagesText()
+    {
+        $response = new ChargeResponse();
+        $message = new ResponseMessage('code', 'message');
+        $response->addMessage($message);
+        $messagesText = $response->getMessagesText();
+        $this->assertStringContainsString('code:', $messagesText);
+        $this->assertStringContainsString('message', $messagesText);
+    }
+
     public function testSetAndGetStatus()
     {
         $response = new ChargeResponse();

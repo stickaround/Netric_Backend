@@ -109,7 +109,7 @@ class AccountBillingService implements AccountBillingServiceInterface
                     ', status=' .
                     $chargeResponse->getStatus() .
                     ', messages=' .
-                    implode(', ', $chargeResponse->getMessages())
+                    $chargeResponse->getMessagesText()
             );
 
             /*

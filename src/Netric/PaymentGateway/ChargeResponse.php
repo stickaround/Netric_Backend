@@ -116,6 +116,25 @@ class ChargeResponse
     }
 
     /**
+     * Get a textual representation of all the messages in this response
+     * 
+     * @return string
+     */
+    public function getMessagesText(): string
+    {
+        $plainText = "";
+        $messages = $this->getMessages();
+        foreach ($messages as $message) {
+            $plainText .= $message->getCode() 
+                        . ':' 
+                        . $message->getDescription()
+                        . "\n";
+        }
+
+        return $plainText;
+    }
+
+    /**
      * Set the status of the charge
      *
      * @param int $status
