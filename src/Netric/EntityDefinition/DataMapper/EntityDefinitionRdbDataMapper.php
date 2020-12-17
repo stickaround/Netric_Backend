@@ -139,7 +139,6 @@ class EntityDefinitionRdbDataMapper extends EntityDefinitionDataMapperAbstract i
      */
     public function deleteDef(EntityDefinition $def)
     {
-        echo "marl" . $def->getSystem();
         // System objects cannot be deleted
         if ($def->getSystem()) {
             throw new RuntimeException('Unable to delete a system definition');
