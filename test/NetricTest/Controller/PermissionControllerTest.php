@@ -6,21 +6,28 @@
 
 namespace NetricTest\Controller;
 
-use Netric\Controller\PermissionController;
-use Netric\EntityDefinition\EntityDefinition;
-use Netric\Entity\ObjType\UserEntity;
-use Netric\Permissions\Dacl;
-use Netric\Permissions\Dacl\Entry;
-use Netric\Permissions\DaclLoaderFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Entity\DataMapper\EntityDataMapperFactory;
-use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 use PHPUnit\Framework\TestCase;
-use NetricTest\Bootstrap;
+use Netric\Request\HttpRequest;
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
+use Netric\Controller\PermissionController;
+use Netric\Entity\EntityLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityGroupings\GroupingLoaderFactory;
+use Netric\EntityGroupings\Group;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityGroupings\EntityGroupings;
+use Netric\Permissions\Dacl\Entry;
+use Netric\Permissions\Dacl;
+use Netric\Permissions\DaclLoader;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
@@ -28,204 +35,276 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
 class PermissionControllerTest extends TestCase
 {
     /**
-     * Account used for testing
-     *
-     * @var \Netric\Account\Account
+     * Initialized controller with mock dependencies
      */
-    protected $account = null;
+    private PermissionController $permissionController;
 
     /**
-     * Controller instance used for testing
-     *
-     * @var EntityController
+     * Dependency mocks
      */
-    protected $controller = null;
-
-    /**
-     * Test entites that should be cleaned up on tearDown
-     *
-     * @var EntityInterface[]
-     */
-    private $testEntities = [];
-
-    /**
-     * Test definitions that should be cleaned up on tearDown
-     *
-     * @var EntityDefinitionInterface[]
-     */
-    private $testDefinitions = [];
-
-    /**
-     * Entity loader to get groupings
-     *
-     * @var GroupingLoader
-     */
-    private $groupingLoader = null;
+    private EntityLoader $mockEntityLoader;
+    private AuthenticationService $mockAuthService;
+    private EntityDefinitionLoader $mockEntityDefinitionLoader;
+    private GroupingLoader $mockGroupingLoader;
+    private DaclLoader $mockDaclLoader;
+    private Account $mockAccount;
 
     protected function setUp(): void
     {
-        $this->account = Bootstrap::getAccount();
+        // Create mocks
+        $this->mockEntityLoader = $this->createMock(EntityLoader::class);
+        $this->mockEntityDefinitionLoader = $this->createMock(EntityDefinitionLoader::class);
+        $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);        
+        $this->mockDaclLoader = $this->createMock(DaclLoader::class);
 
-        // Get the service manager of the current user
-        $this->serviceManager = $this->account->getServiceManager();
-        $this->groupingLoader = $this->serviceManager->get(GroupingLoaderFactory::class);
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
 
-        // Create the controller
-        $this->controller = new PermissionController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Return mock authenticated account
+        $this->mockAccount = $this->createStub(Account::class);
+        $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
+
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $accountContainer->method('loadById')->willReturn($this->mockAccount);
+
+        // Create the controller with mocks
+        $this->permissionController = new PermissionController(
+            $accountContainer,
+            $this->mockAuthService,
+            $this->mockEntityLoader,
+            $this->mockEntityDefinitionLoader,
+            $this->mockGroupingLoader,
+            $this->mockDaclLoader
+        );
+        $this->permissionController->testMode = true;
     }
 
     /**
-     * Cleanup after a test runs
+     * Test the gettinf of dacl entries
      */
-    protected function tearDown(): void
-    {
-        // Cleanup any test entities
-        $loader = $this->serviceManager->get(EntityLoaderFactory::class);
-        foreach ($this->testEntities as $entity) {
-            $loader->delete($entity, $this->account->getAuthenticatedUser());
-        }
-
-        // Cleanup any test definitions
-        $definitionLoader = $this->serviceManager->get(EntityDefinitionDataMapperFactory::class);
-        foreach ($this->testDefinitions as $definition) {
-            $definitionLoader->delete($definition);
-        }
-    }
-
-    public function testGetGetDaclForEntityActionForObjTypeOnly()
-    {
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('entity_id', "");
-        $req->setParam('obj_type', ObjectTypes::NOTE);
-
-        $ret = $this->controller->getGetDaclForEntityAction();
-
-        // Get creator owner group to test
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
-        $creatorGroup = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
-
-        // We should get the default dacl data for this object type
-        $this->assertNotNull($ret);
-        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['entries']);
-        $this->assertEquals(Dacl::PERM_VIEW, $ret['entries'][Dacl::PERM_VIEW]['name']);
-        $this->assertTrue(in_array($creatorGroup->getGroupId(), $ret['entries'][Dacl::PERM_VIEW]['groups']));
-    }
-
     public function testGetGetDaclForEntityAction()
     {
-        // Create a task entity so we can get the default dacl for an entity
-        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
-        $taskEntity = $entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
-        $taskEntity->setValue("name", "UnitTestTask");
-        $entityLoader->save($taskEntity, $this->account->getAuthenticatedUser());
-        $this->testEntities[] = $taskEntity;
+        $userEntityId = Uuid::uuid4()->toString();
+        $userEntityDetails = [
+            'obj_type' => ObjectTypes::USER,
+            'entity_id' => $userEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing'
+        ];
 
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('obj_type', "task");
-        $req->setParam('entity_id', $taskEntity->getEntityId());
+        $taskDefId = Uuid::uuid4()->toString();
+        $taskDefDetails = [
+            'obj_type' => ObjectTypes::TASK,
+            'entity_definition_id' => $taskDefId,
+            'name' => 'Task Def',
+            'description' => 'Task Entity Object Definition'
+        ];
 
-        $ret = $this->controller->getGetDaclForEntityAction();
+        $groupId = Uuid::uuid4()->toString();
+        $groupDetails = [
+            "group_id" => $groupId,
+            "name" => 'Test Group',
+            "f_system" => true,
+            "sort_order" => 1,
+            "commit_id" => 1
+        ]; 
 
-        // Get creator owner group to test
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
-        $creatorGroup = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
-        $adminGroup = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
+        $daclPermissions = [
+            'view' => true,
+            'edit' => true,
+            'delete' => true
+        ];
 
-        // Should get default dacl for this entity since we did not set any dacl yet
-        $this->assertNotNull($ret);
-        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['entries']);
-        $this->assertEquals(Dacl::PERM_VIEW, $ret['entries'][Dacl::PERM_VIEW]['name']);
-        $this->assertTrue(in_array($creatorGroup->getGroupId(), $ret['entries'][Dacl::PERM_VIEW]['groups']));
+        $daclDetails = [
+            'entries' => [],
+            'name' => 'task_dacl'
+        ];        
 
-        // Make sure that creator owner and administrators names are set in group_names
-        $this->assertEquals($ret['group_names'][$creatorGroup->getGroupId()], $creatorGroup->getName());
-        $this->assertEquals($ret['group_names'][$adminGroup->getGroupId()], $adminGroup->getName());
+        // Create test user entity
+        $mockUserEntity = $this->createMock(UserEntity::class);
+        $mockUserEntity->method('getName')->willReturn('Test Task');
+        $mockUserEntity->method('getEntityId')->willReturn($userEntityId);
+        $mockUserEntity->method('toArray')->willReturn($userEntityDetails);
+        
+        // Mock the entity loader service which is used to load the user by guid
+        $this->mockEntityLoader->method('getEntityById')->willReturn($mockUserEntity);
+
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('getUsers')->willReturn([$userEntityId]);
+        $mockDacl->method('toArray')->willReturn($daclDetails);        
+        
+        // Mock the dacl loader service which is used to load the dacl permission
+        $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
+
+        // Create task definition for testing
+        $mockTaskDef = $this->createMock(EntityDefinition::class);
+        $mockTaskDef->method('getObjType')->willReturn(ObjectTypes::TASK);
+        $mockTaskDef->method('toArray')->willReturn($taskDefDetails);
+
+        // Mock the entity definition loader service which is used to load entity definition
+        $this->mockEntityDefinitionLoader->method('get')->willReturn($mockTaskDef);
+
+        // Create the group for testing
+        $mockEntityGroup = $this->createMock(Group::class);
+        $mockEntityGroup->method('toArray')->willReturn($groupDetails);
+
+        // Create the entity groupings for testing
+        $mockEntityGroupings = $this->createMock(EntityGroupings::class);        
+        $mockEntityGroupings->method('toArray')->willReturn([$groupDetails]);
+
+        // Mock the grouping loader service which is used to get the entity groupings
+        $this->mockGroupingLoader->method('get')->willReturn($mockEntityGroupings);
+
+        // Make sure getGetAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setParam('obj_type', ObjectTypes::TASK);        
+        $response = $this->permissionController->getGetDaclForEntityAction($request);
+        $this->assertEquals(array_merge($daclDetails, [
+            'user_names' => [
+                $userEntityId => 'Test Task'
+            ],
+            'group_names' => [
+                $groupId => 'Test Group'
+            ]
+        ]), $response->getOutputBuffer());
     }
 
-    public function testGetGetDaclForEntityActionForObjType()
+    /**
+     * Catch the possible errors being thrown when there is a problem in getting dacl entries
+     */
+    public function testGetGetDaclForEntityActionCatchingErrors()
     {
-        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
+        // Make sure getGetDaclForEntityAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setParam('bogus', 'data');        
+        $response = $this->permissionController->getGetDaclForEntityAction($request);
 
-        // Make a new user and add them to the entity dacl
-        $user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
-        $user->setValue("name", "utest-dacl-entity-user");
-        $entityLoader->save($user, $this->account->getAuthenticatedUser());
-        $this->testEntities[] = $user;
-
-        // Set up the dacl and allow the user
-        $dacl = new Dacl();
-        $dacl->allowUser($user->getEntityId());
-
-        // Set the dacl of the entity definition
-        $defLoader = $this->serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $def = $defLoader->get(ObjectTypes::PRODUCT, $this->account->getAccountId());
-        $def->setDacl($dacl);
-
-        // Save the entity definition
-        $definitionDatamapper = $this->serviceManager->get(EntityDefinitionDataMapperFactory::class);
-        $definitionDatamapper->save($def);
-
-        // Create a utest entity so we can get the dacl for the obj type
-        $utestEntity = $entityLoader->create(ObjectTypes::PRODUCT, $this->account->getAccountId());
-        $entityLoader->save($utestEntity, $this->account->getAuthenticatedUser());
-        $this->testEntities[] = $utestEntity;
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('obj_type', ObjectTypes::PRODUCT);
-        $req->setParam('entity_id', $utestEntity->getEntityId());
-
-        $ret = $this->controller->getGetDaclForEntityAction();
-
-        // Should get objtype dacl for this entity
-        $this->assertNotNull($ret);
-        $this->assertTrue(in_array($user->getEntityId(), $ret['entries'][Dacl::PERM_VIEW]['users']), var_export($ret, true));
-        $this->assertEquals($ret['user_names'][$user->getEntityId()], $user->getName());
+        // It should return an error if no obj_type is provided in the params
+        $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
     }
 
+    /**
+     * Test the saving of DACL Entries
+     */
     public function testPostSaveDaclEntriesAction()
     {
-        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
+        $taskEntityId = Uuid::uuid4()->toString();
+        $taskEntityDetails = [
+            'obj_type' => ObjectTypes::TASK,
+            'entity_id' => $userEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing'
+        ];
 
-        // Make a new user and add them to the entity dacl
-        $user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
-        $user->setValue("name", "utest-dacl-entity-user");
-        $entityLoader->save($user, $this->account->getAuthenticatedUser());
-        $this->testEntities[] = $user;
+        $taskDefId = Uuid::uuid4()->toString();
+        $taskDefDetails = [
+            'obj_type' => ObjectTypes::TASK,
+            'entity_definition_id' => $taskDefId,
+            'name' => 'Task Def',
+            'description' => 'Task Entity Object Definition'
+        ];
 
-        // Create a task entity to set the dacl
-        $taskEntity = $entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
-        $taskEntity->setValue("name", "UnitTestTaskDacl");
-        $entityLoader->save($taskEntity, $this->account->getAuthenticatedUser());
-        $this->testEntities[] = $taskEntity;
+        $groupId = Uuid::uuid4()->toString();
+        $groupDetails = [
+            "group_id" => $groupId,
+            "name" => 'Test Group',
+            "f_system" => true,
+            "sort_order" => 1,
+            "commit_id" => 1
+        ]; 
 
-        // Set up the dacl and allow the user
-        $dacl = new Dacl();
-        $dacl->allowUser($user->getEntityId());
+        $daclPermissions = [
+            'view' => true,
+            'edit' => true,
+            'delete' => true
+        ];
 
-        // Set params in the request
-        $data = $dacl->toArray();
-        $data['obj_type'] = ObjectTypes::TASK;
-        $data['entity_id'] = $taskEntity->getEntityId();
+        $daclDetails = [
+            'entries' => [],
+            'name' => 'task_dacl'
+        ];        
 
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($data));
-        $req->setParam('content-type', 'application/json');
+        // Create test task entity
+        $mockTaskEntity = $this->createMock(UserEntity::class);
+        $mockTaskEntity->method('getName')->willReturn('Test Task');
+        $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
+        $mockTaskEntity->method('toArray')->willReturn($taskEntityDetails);
+        
+        // Mock the entity loader service which is used to load the task by guid
+        $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
+        $this->mockEntityLoader->method('save')->willReturn($taskEntityId);
 
-        $ret = $this->controller->postSaveDaclEntriesAction();
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('getUsers')->willReturn([$userEntityId]);
+        $mockDacl->method('toArray')->willReturn($daclDetails);        
+        
+        // Mock the dacl loader service which is used to load the dacl permission
+        $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
 
-        // Should get default dacl for this entity since we did not set any dacl yet
-        $this->assertNotNull($ret);
-        $this->assertTrue(in_array($user->getEntityId(), $ret['entries'][Dacl::PERM_VIEW]['users']));
+        // Create task definition for testing
+        $mockTaskDef = $this->createMock(EntityDefinition::class);
+        $mockTaskDef->method('getObjType')->willReturn(ObjectTypes::TASK);
+        $mockTaskDef->method('toArray')->willReturn($taskDefDetails);
 
-        // Get the task entity and check if the dacl was saved
-        $daclLoader = $this->serviceManager->get(DaclLoaderFactory::class);
-        $entity = $entityLoader->getEntityById($taskEntity->getEntityId(), $this->account->getAccountId());
-        $daclEntity = $daclLoader->getForEntity($entity, $user);
-        $this->assertTrue($daclEntity->isAllowed($user, Dacl::PERM_VIEW));
+        // Mock the entity definition loader service which is used to load entity definition
+        $this->mockEntityDefinitionLoader->method('get')->willReturn($mockTaskDef);
+
+        // Create the group for testing
+        $mockEntityGroup = $this->createMock(Group::class);
+        $mockEntityGroup->method('toArray')->willReturn($groupDetails);
+
+        // Create the entity groupings for testing
+        $mockEntityGroupings = $this->createMock(EntityGroupings::class);        
+        $mockEntityGroupings->method('toArray')->willReturn([$groupDetails]);
+
+        // Mock the grouping loader service which is used to get the entity groupings
+        $this->mockGroupingLoader->method('get')->willReturn($mockEntityGroupings);
+
+        // Make sure postSaveDaclEntriesAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['obj_type' => ObjectTypes::TASK]));
+        $response = $this->permissionController->postSaveDaclEntriesAction($request);
+        $this->assertEquals([
+            'entries' => [],
+            'name' => 'task_dacl'
+        ], $response->getOutputBuffer());
+
+        // Now let's test with entity_id provided in the params
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['obj_type' => ObjectTypes::TASK, 'entity_id' => $mockTaskEntity]));
+        $response = $this->permissionController->postSaveDaclEntriesAction($request);
+        $this->assertEquals([
+            'entries' => [],
+            'name' => 'task_dacl'
+        ], $response->getOutputBuffer());
+    }
+
+    /**
+     * Catch the possible errors being thrown when there is a problem in saving DACL entries
+     */
+    public function testPostSaveDaclEntriesActionCatchingErrors()
+    {
+        // It should return an error when request input is not valid
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->permissionController->postSaveDaclEntriesAction($request);
+        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
+
+        // Make sure postSaveDaclEntriesAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->permissionController->postSaveDaclEntriesAction($request);
+
+        // It should return an error if no obj_type is provided in the params
+        $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
     }
 }

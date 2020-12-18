@@ -3,75 +3,151 @@
 namespace Netric\Controller;
 
 use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
+use Netric\Mvc\AbstractFactoriedController;
+use Netric\Account\AccountContainerFactory;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Request\HttpRequest;
+use Netric\Authentication\AuthenticationService;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
 use Netric\Permissions\Dacl;
 use Netric\Permissions\Dacl\Entry;
-use Netric\Permissions\DaclLoaderFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\EntityGroupings\GroupingLoaderFactory;
-use Netric\Entity\DataMapper\EntityDataMapperFactory;
-use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
-use Netric\EntityDefinition\ObjectTypes;
+use Netric\Permissions\DaclLoader;
+use \RuntimeException;
 
 /**
  * Controller for interaction with permission/security
  */
-class PermissionController extends Mvc\AbstractAccountController
+class PermissionController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
-     * POST pass-through for get action
+     * Container used to load accounts
      */
-    public function postGetDaclForEntityAction()
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
+    /**
+     * Handles the loading and saving of entities
+     */
+    private EntityLoader $entityLoader;
+
+    /**
+     * Handles the loading and saving of entity definition
+     */
+    private EntityDefinitionLoader $entityDefinitionLoader;
+
+    /**
+     * Handles the loading and saving of groupings
+     */
+    private GroupingLoader $groupingLoader;
+
+    /**
+     * Handles the loading and saving of dacl permissions
+     */
+    private DaclLoader $daclLoader;
+
+    /**
+     * Initialize controller and all dependencies
+     *
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
+     * @param AuthenticationService $authService Service used to get the current user/account
+     * @param EntityLoader $this->entityLoader Handles the loading and saving of entities
+     * @param EntityDefinitionLoader $entityDefinitionLoader Handles the loading and saving of entity definition
+     * @param GroupingLoader $this->groupingLoader Handles the loading and saving of groupings     
+     * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions
+     */
+    public function __construct(
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,
+        EntityLoader $entityLoader,
+        EntityDefinitionLoader $entityDefinitionLoader,
+        GroupingLoader $groupingLoader,        
+        DaclLoader $daclLoader
+    ) {
+        $this->accountContainer = $accountContainer;
+        $this->authService = $authService;
+        $this->entityLoader = $entityLoader;
+        $this->entityDefinitionLoader = $entityDefinitionLoader;
+        $this->groupingLoader = $groupingLoader;        
+        $this->daclLoader = $daclLoader;
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
     {
-        return $this->getGetDaclForEntityAction();
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 
     /**
      * Get the DACL data for entity
+     *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getGetDaclForEntityAction()
+    public function getGetDaclForEntityAction(HttpRequest $request): HttpResponse
     {
-        $serviceManager = $this->account->getServiceManager();
-        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
-        $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
-        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $groupingLoader = $serviceManager->get(GroupingLoaderFactory::class);
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
-        $objData = $this->getRequest()->getParams();
+        $objType = $request->getParam('obj_type');
+        $entityId = $request->getParam('entity_id');
 
-        // Make sure we have the minimum required params
-        if (empty($objData['obj_type'])) {
-            return $this->sendOutput([
-                "error" => "obj_type is a required param.",
-                "params" => $objData
-            ]);
+        if (!$objType) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
+        }
+
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
         }
 
         // Set the Dacl based on the obj_type provided in the params
-        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
-        $dacl = $daclLoader->getForEntityDefinition($def);
+        $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
+        $dacl = $this->daclLoader->getForEntityDefinition($def);
 
         // If id is set, then we will update the dacl and retrieve the entity by id
-        if (!empty($objData['entity_id'])) {
-            $entity = $entityLoader->getEntityById($objData['entity_id'], $this->account->getAccountId());
-            $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
+        if ($entityId) {
+            $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
+            $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());
         }
 
         $retData = $dacl->toArray();
         $retData["user_names"] = [];
         $retData["group_names"] = [];
 
-        $users = $dacl->getUsers();
         // Get the user details
+        $users = $dacl->getUsers();
         foreach ($users as $userId) {
-            $userEntity = $entityLoader->getEntityById($userId, $this->account->getAccountId());
+            $userEntity = $this->entityLoader->getEntityById($userId, $currentAccount->getAccountId());
 
             if ($userEntity) {
                 $retData["user_names"][$userId] = $userEntity->getName();
             }
         }
 
-        $userGroups = $groupingLoader->get(ObjectTypes::USER . "/groups", $this->account->getAccountId());
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . "/groups", $currentAccount->getAccountId());
         $groups = $userGroups->toArray();
 
         // Get the group details
@@ -79,26 +155,25 @@ class PermissionController extends Mvc\AbstractAccountController
             $retData["group_names"][$groupDetails["group_id"]] = $groupDetails["name"];
         }
 
-        return $this->sendOutput($retData);
-    }
-
-    /**
-     * PUT pass-through for save
-     */
-    public function putSaveDaclEntriesAction()
-    {
-        return $this->postSaveDaclEntriesAction();
+        $response->write($retData);
+        return $response;
     }
 
     /**
      * Save the Dacl Entries
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function postSaveDaclEntriesAction()
+    public function postSaveDaclEntriesAction(HttpRequest $request): HttpResponse
     {
-        $rawBody = $this->getRequest()->getBody();
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
         if (!$rawBody) {
-            return $this->sendOutput(["error" => "Request input is not valid"]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
         // Decode the json structure
@@ -106,38 +181,43 @@ class PermissionController extends Mvc\AbstractAccountController
 
         // Make sure we have the minimum required params
         if (empty($objData['obj_type'])) {
-            return $this->sendOutput([
-                "error" => "obj_type is a required param",
-                "params" => $objData
-            ]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
         }
 
-        $serviceManager = $this->account->getServiceManager();
-        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
-        $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
-        $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
-        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $definitionDatamapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
+        }
 
         // Retrieve the entity by id amd return the result
         if (!empty($objData['entity_id'])) {
-            $entity = $entityLoader->getEntityById($objData['entity_id'], $this->account->getAccountId());
-            $dacl = $daclLoader->getForEntity($entity, $this->account->getAuthenticatedUser());
+            $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
+            $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());
             $dacl->fromArray($objData);
             $entity->setValue("dacl", json_encode($dacl->toArray()));
 
-            if ($entityDataMapper->save($entity, $this->account->getAuthenticatedUser())) {
-                return $this->sendOutput($dacl->toArray());
-            } else {
-                return $this->sendOutput(["error" => "Error saving Dacl: " . $entityDataMapper->getLastError()]);
+            try {
+                $this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser());
+                $response->write($dacl->toArray());
+                return $response;
+            } catch (RuntimeException $ex) {            
+                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                $response->write(["error" => "Error saving: " . $ex->getMessage()]);
+                return $response;
             }
         }
 
-        $def = $defLoader->get($objData['obj_type'], $this->account->getAccountId());
-        $dacl = $daclLoader->getForEntityDefinition($def);
+        $def = $this->entityDefinitionLoader->get($objData['obj_type'], $currentAccount->getAccountId());
+        $dacl = $this->daclLoader->getForEntityDefinition($def);
         $dacl->fromArray($objData);
         $def->setDacl($dacl);
-        $definitionDatamapper->save($def);
-        return $this->sendOutput($dacl->toArray());
+        
+        $response->write($dacl->toArray());
+        return $response;
     }
 }
