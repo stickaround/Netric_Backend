@@ -40,25 +40,26 @@ $entityLoader->save($contact, $account->getSystemUser());
 echo "Saved billing details for aereus account";
 
 // Create the billing credit card
-// $card = new CreditCard();
-// $card->setCardNumber('4111111111111111');
-// $card->setExpiration(2025, 07);
-// $card->setCardCode('762');
-// $profileToken = $paymentGateway->createPaymentProfileCard($contact, $card);
+$card = new CreditCard();
+$card->setCardNumber('4111111111111111');
+$card->setExpiration(2025, 07);
+$card->setCardCode('762');
+$profileToken = $paymentGateway->createPaymentProfileCard($contact, $card);
 
-// // Add a payment profile to the aereus account to use for billing later
-// $paymentProfile = $entityLoader->create(
-//     ObjectTypes::SALES_PAYMENT_PROFILE,
-//     $account->getAccountId()
-// );
-// $paymentProfile->setValue('token', $profileToken);
-// $paymentProfile->setValue('f_default', true);
-// $paymentProfile->setvalue('customer', $contact->getEntityId());
-// $entityLoader->save($paymentProfile, $account->getSystemUser());
+// Add a payment profile to the aereus account to use for billing later
+$paymentProfile = $entityLoader->create(
+    ObjectTypes::SALES_PAYMENT_PROFILE,
+    $account->getAccountId()
+);
+$pyamentProfile->setValue('name', 'Visa ending in ...1111');
+$paymentProfile->setValue('token', $profileToken);
+$paymentProfile->setValue('f_default', true);
+$paymentProfile->setvalue('customer', $contact->getEntityId());
+$entityLoader->save($paymentProfile, $account->getSystemUser());
 
-// // Below was the saved profile with Sky's card
-// // {"customer_profile_id":"2024121765","payment_profile_id":"2043916084"}
+// Below was the saved profile with Sky's card
+// {"customer_profile_id":"2024121765","payment_profile_id":"2043916084"}
 
-// // Run a test transaction just to see if things are working
-// $result = $paymentGateway->chargeProfile($paymentProfile, 20);
-// echo var_export($result, true);
+// Run a test transaction just to see if things are working
+$result = $paymentGateway->chargeProfile($paymentProfile, 20);
+echo var_export($result, true);

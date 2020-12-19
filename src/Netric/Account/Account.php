@@ -75,9 +75,14 @@ class Account
      * @var int
      */
     private $status = null;
+    // Account is active and in good billing standing
     const STATUS_ACTIVE = 1;
+    // Used historically when a free trial expires
     const STATUS_EXPIRED = 2;
+    // Will be used for archiving
     const STATUS_DELETED = 3;
+    // Billing issues
+    const STATUS_PASTDUE = 4;
 
     /**
      * The last time this account was successfully billed
