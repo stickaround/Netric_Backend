@@ -6,11 +6,21 @@
 
 namespace NetricTest\Controller;
 
-use Netric\Controller\EntityQueryController;
-use Netric\Entity\EntityLoaderFactory;
 use PHPUnit\Framework\TestCase;
-use NetricTest\Bootstrap;
+use Netric\Request\HttpRequest;
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
+use Netric\EntityQuery\Index\IndexInterface;
+use Netric\Permissions\DaclLoader;
+use Netric\Permissions\Dacl;
+use Netric\Controller\EntityQueryController;
+use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery\Results;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
@@ -18,18 +28,18 @@ use Netric\EntityDefinition\ObjectTypes;
 class EntityQueryControllerTest extends TestCase
 {
     /**
-     * Account used for testing
-     *
-     * @var \Netric\Account\Account
+     * Initialized controller with mock dependencies
      */
-    protected $account = null;
+    private EntityQueryController $entityQueryController;
 
     /**
-     * Controller instance used for testing
-     *
-     * @var EntityController
-     */
-    protected $controller = null;
+     * Dependency mocks
+     */    
+    private AuthenticationService $mockAuthService;
+    private EntityDefinitionLoader $mockEntityDefinitionLoader;    
+    private RelationalDbContainer $mockDbContainer;
+    private DaclLoader $mockDaclLoader;
+    private Account $mockAccount;
 
     /**
      * Test entities that should be cleaned up on tearDown
@@ -40,77 +50,129 @@ class EntityQueryControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->account = Bootstrap::getAccount();
+        // Create mocks                
+        $this->index = $this->createMock(IndexInterface::class);
+        $this->mockDaclLoader = $this->createMock(DaclLoader::class);
 
-        // Get the service manager of the current user
-        $this->serviceManager = $this->account->getServiceManager();
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
 
-        // Create the controller
-        $this->controller = new EntityQueryController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Return mock authenticated account
+        $this->mockAccount = $this->createStub(Account::class);
+        $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
+        $this->mockAccount->method('getName')->willReturn('netrictest');
+        
+        $accountContainer = $this->createMock(AccountContainerInterface::class);
+        $accountContainer->method('loadById')->willReturn($this->mockAccount);        
+
+        // Create the controller with mocks
+        $this->entityQueryController = new EntityQueryController(
+            $accountContainer,
+            $this->mockAuthService,            
+            $this->mockDaclLoader,
+            $this->index
+        );
+
+        $this->entityQueryController->testMode = true;
     }
 
     /**
-     * Cleanup after a test runs
+     * Test the executing of entity query
      */
-    protected function tearDown(): void
-    {
-        // Cleanup any test entities
-        $loader = $this->serviceManager->get(EntityLoaderFactory::class);
-        foreach ($this->testEntities as $entity) {
-            $loader->delete($entity, $this->account->getAuthenticatedUser());
-        }
-    }
-
     public function testPostExecuteAction()
     {
-        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
-        $taskEntity = $entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
-        $taskEntity->setValue("name", "UnitTestTask");
-        $entityLoader->save($taskEntity, $this->account->getAuthenticatedUser());
-        $this->testEntities[] = $taskEntity;
+        $taskEntityId = Uuid::uuid4()->toString();
+        $daclPermissions = [
+            'view' => true,
+            'edit' => true,
+            'delete' => true
+        ];
+        $daclDetails = [
+            'entries' => [],
+            'name' => 'task_dacl'
+        ];
+        $taskEntityData = [
+            'obj_type' => 'task',
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing'
+        ];
 
-        // Set params in the request
-        $data = ['obj_type' => ObjectTypes::TASK];
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($data));
-        $req->setParam('content-type', 'application/json');
+        // Create test task entity
+        $mockTaskEntity = $this->createMock(TaskEntity::class);
+        $mockTaskEntity->method('getName')->willReturn('Test Task');
+        $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
+        $mockTaskEntity->method('toArray')->willReturn($taskEntityData);
+        
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('isAllowed')->willReturn(true);
+        $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
+        $mockDacl->method('toArray')->willReturn($daclDetails);
 
-        $ret = $this->controller->postExecuteAction();
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('isAllowed')->willReturn(true);
+        $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
+        $mockDacl->method('toArray')->willReturn($daclDetails);
+        
+        // Mock the dacl loader service which is used to load the dacl permission
+        $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
-        $this->assertGreaterThan(0, $ret['total_num']);
-        $this->assertGreaterThan(0, $ret['num']);
-        $this->assertEquals("task", $ret["entities"][0]["obj_type"]);
-        $this->assertEquals($ret["entities"][0]["currentuser_permissions"], ['view' => true, 'edit' => true, 'delete' => true]);
+        $result = $this->createMock(Results::class);
+        $result->method('getTotalNum')->willReturn(1);
+        $result->method('getNum')->willReturn(1);
+        $result->method('getEntity')->willReturn($mockTaskEntity);
 
-        // Now let's try to query the entities using a user that has no permissions to access the entities
-        $userEntity = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
-        $userEntity->setValue("name", "Test User");
-        $entityLoader->save($userEntity, $this->account->getAuthenticatedUser());
-        $this->testEntities[] = $userEntity;
+        $this->index->method('executeQuery')->willReturn($result);
 
-        $account = Bootstrap::getAccount();
-        $account->setCurrentUser($userEntity);
+        // Make sure postExecuteAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['obj_type' => 'task']));
+        $response = $this->entityQueryController->postExecuteAction($request);
+        $this->assertEquals([
+            'total_num' => 1,
+            'offset' => 0,
+            'limit' => 100,
+            'num' => 1,
+            'query_ran' => [
+                'obj_type' => 'task',
+                'limit' => 100,
+                'offset' => 0,
+                'conditions' => [],
+                'order_by' => []
+            ],
+            'account' => 'netrictest',
+            'entities' => [
+                array_merge($taskEntityData, [
+                    'applied_dacl' => $daclDetails,
+                    'currentuser_permissions' => $daclPermissions
+                ])
+            ]
+        ], $response->getOutputBuffer());
+    }
 
-        // Create the controller
-        $controller = new EntityQueryController($this->account->getApplication(), $account);
-        $controller->testMode = true;
+    /**
+     * Catch the possible errors being thrown when there is a problem in executing an entity query
+     */
+    public function testPostExecuteActionCatchingErrors()
+    {
+        // It should return an error when request input is not valid
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->entityQueryController->postExecuteAction($request);
+        $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
 
-        // Set params in the request
-        $data = ['obj_type' => ObjectTypes::TASK];
-        $req = $controller->getRequest();
-        $req->setBody(json_encode($data));
-        $req->setParam('content-type', 'application/json');
+        // Make sure postExecuteAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->entityQueryController->postExecuteAction($request);
 
-        $ret = $controller->postExecuteAction();
-
-        // This should only retrieve 3 fields from the task since the user does not have
-        // permissions to see the full entity: entity_id, name, currentuser_permissions.
-        $this->assertGreaterThanOrEqual(count($ret["entities"][0]), 3);
-        $this->assertNotEmpty($ret["entities"][0]["entity_id"]);
-        $this->assertNotEmpty($ret["entities"][0]["name"]);
-        $this->assertEquals($ret["entities"][0]["currentuser_permissions"], [
-            'view' => false, 'edit' => false, 'delete' => false
-        ]);
+        // It should return an error if no obj_type is provided in the params
+        $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
     }
 }

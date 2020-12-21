@@ -10,7 +10,6 @@ use Netric\Application\Response\HttpResponse;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\EntityController;
-use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\EntityLoaderFactory;
@@ -52,8 +51,7 @@ class EntityControllerTest extends TestCase
     private EntityDefinitionLoader $mockEntityDefinitionLoader;
     private GroupingLoader $mockGroupingLoader;
     private BrowserViewService $mockBrowserViewService;
-    private Forms $mockForms;
-    private RelationalDbContainer $mockDbContainer;
+    private Forms $mockForms;    
     private DaclLoader $mockDaclLoader;
     private Account $mockAccount;
 
@@ -64,8 +62,7 @@ class EntityControllerTest extends TestCase
         $this->mockEntityDefinitionLoader = $this->createMock(EntityDefinitionLoader::class);
         $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);
         $this->mockBrowserViewService = $this->createMock(BrowserViewService::class);
-        $this->mockForms = $this->createMock(Forms::class);
-        $this->mockDatabaseContainer = $this->createMock(RelationalDbContainer::class);
+        $this->mockForms = $this->createMock(Forms::class);        
         $this->mockDaclLoader = $this->createMock(DaclLoader::class);
 
         // Provide identity for mock auth service
@@ -89,8 +86,7 @@ class EntityControllerTest extends TestCase
             $this->mockGroupingLoader,
             $this->mockBrowserViewService,
             $this->mockForms,            
-            $this->mockDaclLoader,
-            $this->mockDatabaseContainer
+            $this->mockDaclLoader
         );
         $this->entityController->testMode = true;
     }

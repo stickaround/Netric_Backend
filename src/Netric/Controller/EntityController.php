@@ -24,9 +24,6 @@ use Netric\Entity\BrowserView\BrowserViewService;
 use Netric\Entity\Forms;
 use Netric\Permissions\Dacl;
 use Netric\Permissions\DaclLoader;
-use Netric\Db\Relational\RelationalDbContainerInterface;
-use Netric\Db\Relational\RelationalDbContainer;
-use Netric\Db\Relational\RelationalDbInterface;
 use Ramsey\Uuid\Uuid;
 use Exception;
 
@@ -71,11 +68,6 @@ class EntityController extends AbstractFactoriedController implements Controller
     private Forms $forms;
 
     /**
-     * Database container
-     */
-    private RelationalDbContainerInterface $databaseContainer;
-
-    /**
      * Handles the loading and saving of dacl permissions
      */
     private DaclLoader $daclLoader;
@@ -90,8 +82,7 @@ class EntityController extends AbstractFactoriedController implements Controller
      * @param GroupingLoader $this->groupingLoader Handles the loading and saving of groupings
      * @param BrowserViewService $browserViewService Manages the entity browser views
      * @param Forms $forms Manages the entity forms
-     * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions
-     * @param RelationalDbContainer $dbContainer Handles the database actions     
+     * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions     
      */
     public function __construct(
         AccountContainerInterface $accountContainer,
@@ -101,8 +92,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         GroupingLoader $groupingLoader,
         BrowserViewService $browserViewService,
         Forms $forms,
-        DaclLoader $daclLoader,
-        RelationalDbContainer $dbContainer     
+        DaclLoader $daclLoader
     ) {
         $this->accountContainer = $accountContainer;
         $this->authService = $authService;
@@ -112,18 +102,6 @@ class EntityController extends AbstractFactoriedController implements Controller
         $this->browserViewService = $browserViewService;
         $this->forms = $forms;        
         $this->daclLoader = $daclLoader;
-        $this->databaseContainer = $dbContainer;
-    }
-
-    /**
-     * Get active database handle
-     *
-     * @param string $accountId The account being acted on
-     * @return RelationalDbInterface
-     */
-    private function getDatabase(string $accountId): RelationalDbInterface
-    {
-        return $this->databaseContainer->getDbHandleForAccountId($accountId);
     }
 
     /**
@@ -193,100 +171,6 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write(["error" => $ex->getMessage()]);
         }
     }
-
-    /*
-     * Deprecated - We are now using EntityQueryController::execute()
-     * Query entities
-     *
-    public function postQueryAction(httpRequest $request): HttpResponse
-    {
-        $rawBody = $request->getBody();
-        $response = new HttpResponse($request);
-
-        if (!$rawBody) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write("Request input is not valid");
-            return $response;
-        }
-        
-        // Decode the json structure
-        $objData = json_decode($rawBody, true);
-
-        if (!isset($objData["obj_type"])) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(["error" => "obj_type must be set"]);            
-        }
-
-        // Make sure that we have an authenticated account
-        $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(["error" => "Account authentication error."]);
-        }
-
-        $accountId = $currentAccount->getAccountId();
-        $user = $currentAccount->getAuthenticatedUser();
-        $query = new EntityQuery($objData["obj_type"], $accountId, $user->getEntityId());
-
-        if (isset($objData['offset'])) {
-            $query->setOffset($objData['offset']);
-        }
-
-        if (isset($objData['limit'])) {
-            $query->setLimit($objData["limit"]);
-        }
-
-        // Parse values passed from POST or GET params
-        FormParser::buildQuery($query, $objData);
-
-        try {
-            // Execute the query
-            $res = $this->getDatabase($accountId)->query($query);
-        } catch (Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
-        }
-
-        // Pagination
-        $ret = [];
-        $ret["total_num"] = $res->getTotalNum();
-        $ret["offset"] = $res->getOffset();
-        $ret["limit"] = $query->getLimit();
-
-        // Set results
-        $entities = [];
-        for ($i = 0; $i < $res->getNum(); $i++) {
-            $ent = $res->getEntity($i);
-
-            // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-            $dacl = $this->daclLoader->getForEntity($ent, $user);
-            $currentUserPermissions = $dacl->getUserPermissions($user, $ent);
-
-            // Always reset $entityData when loading the next entity
-            $entityData = [];
-
-            // Export the entity to array if the current user has access to view this entity
-            if ($currentUserPermissions['view']) {
-                $entityData = $ent->toArray();
-                $entityData["applied_dacl"] = $dacl->toArray();
-            } else {
-                $entityData['entity_id'] = $ent->getEntityId();
-                $entityData['name'] = $ent->getName();
-            }
-
-            $entityData['currentuser_permissions'] = $currentUserPermissions;
-
-            // Print full details
-            $entities[] = $entityData;
-        }
-
-        $ret["entities"] = $entities;
-        $response->write($ret);
-        return $response;
-    }
-    public function getQueryAction()
-    {
-        return $this->postQueryAction();
-    }*/
 
     /**
      * Retrieve a single entity

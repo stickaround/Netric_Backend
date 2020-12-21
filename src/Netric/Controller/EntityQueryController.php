@@ -3,95 +3,166 @@
 namespace Netric\Controller;
 
 use Netric\Mvc;
-use Netric\EntityQuery\Index\IndexFactory;
-use Netric\Permissions\DaclLoaderFactory;
+use Netric\Mvc\ControllerInterface;
+use Netric\Mvc\AbstractFactoriedController;
+use Netric\Account\AccountContainerFactory;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Request\HttpRequest;
+use Netric\Authentication\AuthenticationService;
 use Netric\EntityQuery\EntityQuery;
+use Netric\Permissions\DaclLoader;
+use Netric\EntityQuery\Index\IndexInterface;
 
 /**
  * This is just a simple test controller
  */
-class EntityQueryController extends Mvc\AbstractAccountController
+class EntityQueryController extends AbstractFactoriedController implements ControllerInterface
 {
+    /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
+    /**
+     * Index to query entities
+     */
+    private IndexInterface $entityIndex;
+
+    /**
+     * Handles the loading and saving of dacl permissions
+     */
+    private DaclLoader $daclLoader;
+
+    /**
+     * Initialize controller and all dependencies
+     *
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
+     * @param AuthenticationService $authService Service used to get the current user/account     
+     * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions
+     * @param IndexInterface $entityIndex Index to query entities
+     */
+    public function __construct(
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,        
+        DaclLoader $daclLoader,
+        IndexInterface $entityIndex     
+    ) {
+        $this->accountContainer = $accountContainer;
+        $this->authService = $authService;        
+        $this->daclLoader = $daclLoader;
+        $this->entityIndex = $entityIndex;
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
+    {
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
+    }
+
     /**
      * Execute a query
      *
-     * @return Response
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function postExecuteAction()
+    public function postExecuteAction(HttpRequest $request): HttpResponse
     {
-        $rawBody = $this->getRequest()->getBody();
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
 
         if (!$rawBody) {
-            return $this->sendOutput([
-                "error" => "Request input is not valid. Must post a raw body with JSON defining the query."
-            ]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
         }
 
-        $params = json_decode($rawBody, true);
-        $ret = [];
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
 
-        if (!isset($params["obj_type"])) {
-            return $this->sendOutput(["error" => "obj_type must be set"]);
+        if (!isset($objData['obj_type'])) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "obj_type is a required param."]);
+            return $response;
         }
 
-        $user = $this->account->getUser();
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
+        }
 
-        
-        $query = new EntityQuery($params["obj_type"], $this->account->getAccountId(), $user->getEntityId());
-        $query->fromArray($params);
+        $currentUser = $currentAccount->getAuthenticatedUser();
+        $accountId = $currentAccount->getAccountId();        
+        $query = new EntityQuery($objData["obj_type"], $accountId, $currentUser->getEntityId());
+        $query->fromArray($objData);
+
 
         // Execute the query
         try {
-            $res = $index->executeQuery($query);
+            $res = $this->entityIndex->executeQuery($query);
         } catch (\Exception $ex) {
             // Log the error so we can setup some alerts
             $this->getApplication()->getLog()->error(
                 "EntityQueryController: Failed API Query - " . $ex->getMessage()
             );
 
-            return $this->sendOutput([
-                'error' => $ex->getMessage(),
-                'query_ran' => $query->toArray()
-            ]);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => $ex->getMessage(), "query_ran" => $query->toArray()]);
+            return $response;            
         }
 
         // Pagination
-        // ---------------------------------------------
         $ret["total_num"] = $res->getTotalNum();
         $ret["offset"] = $res->getOffset();
         $ret["limit"] = $query->getLimit();
-        $ret['num'] = $res->getNum();
-        $ret['query_ran'] = $query->toArray();
-        $ret['account'] = $this->account->getName();
+        $ret["num"] = $res->getNum();
+        $ret["query_ran"] = $query->toArray();
+        $ret["account"] = $currentAccount->getName();
 
         // Set results
         $entities = [];
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
-            $dacl = $daclLoader->getForEntity($ent, $user);
-            $currentUserPermissions = $dacl->getUserPermissions($user, $ent);
+            $dacl = $this->daclLoader->getForEntity($ent, $currentUser);
+            $currentUserPermissions = $dacl->getUserPermissions($currentUser, $ent);
 
             // Always reset $entityData when loading the next entity
             $entityData = [];
 
             // Export the entity to array if the current user has access to view this entity            
-            if ($currentUserPermissions['view']) {
+            if ($currentUserPermissions["view"]) {
                 $entityData = $ent->toArray();
                 $entityData["applied_dacl"] = $dacl->toArray();
             } else {
-                $entityData['entity_id'] = $ent->getEntityId();
-                $entityData['name'] = $ent->getName();
+                $entityData["entity_id"] = $ent->getEntityId();
+                $entityData["name"] = $ent->getName();
             }
 
-            $entityData['currentuser_permissions'] = $currentUserPermissions;
+            $entityData["currentuser_permissions"] = $currentUserPermissions;
 
             // Print full details
             $entities[] = $entityData;
         }
-        $ret["entities"] = $entities;
 
-        return $this->sendOutput($ret);
+        $ret["entities"] = $entities;
+        $response->write($ret);
+        return $response;
     }
 }
