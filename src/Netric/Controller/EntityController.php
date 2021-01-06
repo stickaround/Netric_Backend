@@ -13,6 +13,7 @@ use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\EntityInterface;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoader;
@@ -77,12 +78,12 @@ class EntityController extends AbstractFactoriedController implements Controller
      *
      * @param AccountContainerInterface $accountContainer Container used to load accounts
      * @param AuthenticationService $authService Service used to get the current user/account
-     * @param EntityLoader $this->entityLoader Handles the loading and saving of entities
+     * @param EntityLoader $entityLoader Handles the loading and saving of entities
      * @param EntityDefinitionLoader $entityDefinitionLoader Handles the loading and saving of entity definition
-     * @param GroupingLoader $this->groupingLoader Handles the loading and saving of groupings
+     * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
      * @param BrowserViewService $browserViewService Manages the entity browser views
      * @param Forms $forms Manages the entity forms
-     * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions     
+     * @param DaclLoader $daclLoader Handles the loading and saving of dacl permissions     
      */
     public function __construct(
         AccountContainerInterface $accountContainer,
@@ -556,6 +557,10 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Get forms        
         $ret['forms'] = $this->forms->getDeviceForms($def, $user);
+
+        if ($def->getObjType() == ObjectTypes::CONTACT) {
+            $ret['forms']['billing_large'] = $this->forms->getSysForm($def, 'billing_large');
+        }
 
         // Get views from browser view service        
         $browserViews = $this->browserViewService->getViewsForUser($def->getObjType(), $user);

@@ -254,19 +254,31 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function createAccount($name)
     {
-        $newAccoutnId = Uuid::uuid4()->toString();
+        $newAccountId = Uuid::uuid4()->toString();
 
         // Create account in antsystem
         $insertData = [
-            "account_id" => $newAccoutnId,
+            "account_id" => $newAccountId,
             "name" => $name,
             //"database" => $this->defaultAccountDatabase,
         ];
 
-        // If it fails for sme reason, it will throw an exception
+        // If it fails for some reason, it will throw an exception
         $this->database->insert(self::TABLE_ACCOUNT, $insertData);
 
-        return $newAccoutnId;
+        return $newAccountId;
+    }
+
+    /**
+     * Update an existing account
+     * 
+     * @param string $accountId Unique id of the account that we are updating
+     * @param array $accountData The data that will be used for updating an account
+     * @return bool true on success, false on failure
+     */
+    public function updateAccount($accountId, $accountData)
+    {
+        return $this->database->update(self::TABLE_ACCOUNT, $accountData, ["account_id" => $accountId]);
     }
 
     /**

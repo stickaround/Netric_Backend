@@ -103,4 +103,13 @@ interface DataMapperInterface
      * @return bool true on success, false on failure
      */
     public function extendLock($uniqueLockName);
+
+    /**
+     * Update an existing account
+     * 
+     * @param string $accountId Unique id of the account that we are updating
+     * @param array $accountData The data that will be used for updating an account
+     * @return bool true on success, false on failure
+     */
+    public function updateAccount($accountId, $accountData);
 }

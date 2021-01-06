@@ -51,7 +51,7 @@ $paymentProfile = $entityLoader->create(
     ObjectTypes::SALES_PAYMENT_PROFILE,
     $account->getAccountId()
 );
-$pyamentProfile->setValue('name', 'Visa ending in ...1111');
+$paymentProfile->setValue('name', 'Visa ending in ...1111');
 $paymentProfile->setValue('token', $profileToken);
 $paymentProfile->setValue('f_default', true);
 $paymentProfile->setvalue('customer', $contact->getEntityId());

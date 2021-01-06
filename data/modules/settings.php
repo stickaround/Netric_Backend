@@ -20,6 +20,13 @@ return array(
             "icon" => "AccountProfileIcon",
         ),
         array(
+            "title" => "Account & Billing",
+            "type" => "plugin",
+            "route" => "account_billing",
+            "plugin" => "AccountBilling",
+            "icon" => "AccountBoxIcon",
+        ),
+        array(
             "title" => "Modules",
             "type" => "plugin",
             "route" => "modules",

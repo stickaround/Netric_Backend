@@ -14,6 +14,7 @@ use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Log\LogInterface;
 use Netric\PaymentGateway\ChargeResponse;
 use Netric\PaymentGateway\PaymentGatewayInterface;
+use Netric\PaymentGateway\PaymentMethod\CreditCard;
 use RuntimeException;
 
 /**
@@ -150,7 +151,7 @@ class AccountBillingService implements AccountBillingServiceInterface
      * @param Account $account
      * @return EntityInterface
      */
-    private function getContactForAccount(Account $account): EntityInterface
+    public function getContactForAccount(Account $account): EntityInterface
     {
         $contactId = $account->getMainAccountContactId();
         if (!$contactId) {
@@ -179,7 +180,7 @@ class AccountBillingService implements AccountBillingServiceInterface
      * @param string $contactId
      * @return EntityInterface
      */
-    private function getDefaultPaymentProfile(string $accountId, string $contactId): EntityInterface
+    public function getDefaultPaymentProfile(string $accountId, string $contactId): EntityInterface
     {
         $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $accountId);
         $query->where('f_default')->equals(true);
@@ -202,7 +203,7 @@ class AccountBillingService implements AccountBillingServiceInterface
      * @param string $accountId
      * @return int Number of non-system active users
      */
-    private function getNumActiveUsers(string $accountId): int
+    public function getNumActiveUsers(string $accountId): int
     {
         $query = new EntityQuery(ObjectTypes::USER, $accountId);
         $query->andWhere('active')->equals(true);
@@ -240,5 +241,85 @@ class AccountBillingService implements AccountBillingServiceInterface
         $this->entityLoader->save($invoice, $mainAccSystemUser);
 
         return $invoice;
+    }
+
+    /**
+     * Get the name of the default payment profile for a contact
+     *
+     * @param Account $account The account of the current tennant
+     * @param string $contactId The contact that owns the payment profile
+     * @return string
+     */
+    public function getDefaultPaymentProfileName(Account $account, string $contactId): string
+    {        
+        $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
+        $query->where('f_default')->equals(true);
+        $query->andWhere('customer')->equals($contactId);
+        $result = $this->entityIndex->executeQuery($query);
+        
+        if ($result->getTotalNum() < 1) {
+            return "No payment profile set for this account: " . $account->getName();
+        }
+
+        return $result->getEntity(0)->getName();
+    }
+
+    /**
+     * Updates the old payment profiles f_default value to false
+     *
+     * @param Account $account The account of the current tennant
+     * @param string $contactId The contact that owns the payment profile
+     */
+    public function updateOtherPaymentProfile(Account $account, string $contactId, string $latestPaymentProfileId)
+    {        
+        $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
+        $query->where('f_default')->equals(true);
+        $query->andWhere('customer')->equals($contactId);
+        $query->andWhere('entity_id')->doesNotEqual($latestPaymentProfileId);
+        $result = $this->entityIndex->executeQuery($query);
+        
+        $num = $result->getNum();
+        for ($idx = 0; $idx < $num; $idx++) {
+            $paymentProfile = $result->getEntity($idx);
+            $paymentProfile->setValue("f_default", false);
+            $this->entityLoader->save($paymentProfile, $account->getSystemUser());
+        }
+    }
+
+    /**
+     * Gets the main account id that is set for this account billing.
+     * @param Account $account The account of the current tennant
+     * @param string $contactId The contact that owns the payment profile
+     * @param CreditCard $card The credit card that will be using to bill the customer
+     * @return string
+     */
+    public function savePaymentProfile(Account $account, string $contactId, CreditCard $card): string
+    {
+        $paymentProfile = null;
+        try {
+            $contact = $this->entityLoader->getEntityById($contactId, $account->getAccountId());            
+            $paymentProfile = $this->getDefaultPaymentProfile($this->mainAccountId, $contactId);
+            $profileToken = $this->paymentGateway->createPaymentProfileCard($contact, $card);
+        } catch (RuntimeException $ex) {
+            $paymentProfile = $this->entityLoader->create(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
+        }
+
+        // Setup the payment profile details
+        $paymentProfile->setValue('name', 'Card ending in ...' . substr($card->getCardNumber(), -4));
+        $paymentProfile->setValue('token', $profileToken);
+        $paymentProfile->setValue('f_default', true);
+        $paymentProfile->setvalue('customer', $contactId);
+        
+        try {
+            $paymentProfileId = $this->entityLoader->save($paymentProfile, $account->getSystemUser());
+            $this->updateOtherPaymentProfile($account, $contactId, $paymentProfileId);
+
+            return $paymentProfile->getName();
+        } catch (RuntimeException $ex) {
+            $errorMessage = "AccountBillingService::savePaymentProfile failed saving payment profile={$account->getAccountId()}. " . $ex->getMessage();
+            $this->log->error($errorMessage);
+
+            throw new RuntimeException($errorMessage);
+        }
     }
 }

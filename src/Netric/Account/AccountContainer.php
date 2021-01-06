@@ -193,6 +193,23 @@ class AccountContainer implements AccountContainerInterface, ErrorAwareInterface
     }
 
     /**
+     * Update an existing account
+     * 
+     * @param string $accountId Unique id of the account that we are updating
+     * @param array $accountData The data that will be used for updating an account
+     * @return bool true on success, false on failure
+     */
+    public function updateAccount(string $accountId, array $accountData)
+    {
+        $result = $this->appDm->updateAccount($accountId, $accountData);
+        
+        // Clear cache
+        $this->cache->delete("netric/account/" . $accountId);
+
+        return $result;
+    }
+
+    /**
      * Get the last error
      *
      * @return Error|null

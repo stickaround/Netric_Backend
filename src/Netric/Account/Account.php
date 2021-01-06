@@ -75,6 +75,7 @@ class Account
      * @var int
      */
     private $status = null;
+
     // Account is active and in good billing standing
     const STATUS_ACTIVE = 1;
     // Used historically when a free trial expires
@@ -420,5 +421,39 @@ class Account
         $url .= $config->localhost_root;
 
         return $url;
+    }
+
+    /**
+     * Get the status of this account
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Get the status name
+     */
+    public function getStatusName()
+    {
+        switch($this->status)
+        {
+            case self::STATUS_ACTIVE: {
+                return "Active";
+                break;
+            }
+            case self::STATUS_EXPIRED: {
+                return "Expired";
+                break;
+            }
+            case self::STATUS_DELETED: {
+                return "Deleted";
+                break;
+            }
+            case self::STATUS_PASTDUE: {
+                return "Past Due";
+                break;
+            }
+        }
     }
 }

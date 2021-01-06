@@ -19,6 +19,8 @@ use Netric\Log\LogInterface;
 use Netric\PaymentGateway\PaymentGatewayInterface;
 use RuntimeException;
 use PHPUnit\Framework\TestCase;
+use Netric\PaymentGateway\PaymentMethod\CreditCard;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Undocumented class
@@ -78,7 +80,7 @@ class AccountBillingServiceTest extends TestCase
          * In netric each account has a customer/contact account in the main account
          * (aereus account) to make billing and support possible through netric itself
          */
-        $mockContact = $this->createMock(CustomerEntity::class);
+        $mockContact = $this->createMock(CustomerEntity::class);        
         $mockContact->method('getEntityId')->willReturn(self::TEST_ACCOUNT_CONTACT_ID);
         $this->mockEntityLoader->method('getEntityById')
             ->with(self::TEST_ACCOUNT_CONTACT_ID, self::TEST_MAIN_ACCOUNT_ID)
@@ -90,6 +92,7 @@ class AccountBillingServiceTest extends TestCase
          *  - Second gets the number of active users
          */
         $paymentProfile = $this->createMock(PaymentProfileEntity::class);
+        $paymentProfile->method('getName')->willReturn('Card ending in ....1111');
         $result1 = $this->createMock(Results::class);
         $result1->method('getTotalNum')->willReturn(1);
         $result1->method('getEntity')->willReturn($paymentProfile);
@@ -106,8 +109,6 @@ class AccountBillingServiceTest extends TestCase
             ->with(ObjectTypes::USER, UserEntity::USER_SYSTEM, self::TEST_MAIN_ACCOUNT_ID)
             ->will($this->returnValue($mockSystemUser));
 
-        // Mock Creation of the invoice
-        $this->mockEntityLoader->method('create')->willReturn($this->mockInvoice);
         $this->mockInvoice->method('getValue')->will(
             $this->returnValueMap([
                 ['amount', self::NUM_USERS * AccountBillingService::PRICE_PER_USER] // Simulate $200 charge
@@ -130,6 +131,11 @@ class AccountBillingServiceTest extends TestCase
         $mockAccount->method('getName')->willReturn('test');
         $mockAccount->method('getAccountId')->willReturn(self::TEST_TENNANT_ACCOUNT_ID);
         $mockAccount->method('getMainAccountContactId')->willReturn(self::TEST_ACCOUNT_CONTACT_ID);
+
+        // Mock Creation of the invoice
+        $this->mockEntityLoader->method('create')
+            ->with(ObjectTypes::INVOICE, self::TEST_TENNANT_ACCOUNT_ID)
+            ->will($this->returnValue($this->mockInvoice));
 
         // Make sure chargeProfile gets called
         $this->mockPaymentGateway->expects($this->once())
@@ -157,5 +163,78 @@ class AccountBillingServiceTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         $this->accountBilling->billAmountDue($mockAccount);
+    }
+
+    /**
+     * Make sure that we can get the default payment profile name
+     *
+     * @return void
+     */
+    public function testGetDefaultPaymentProfileName(): void
+    {
+        // Create a mock account
+        $mockAccount = $this->createMock(Account::class);
+        $mockAccount->method('getName')->willReturn('testaccount');
+
+        $profileName = $this->accountBilling->getDefaultPaymentProfileName($mockAccount, self::TEST_ACCOUNT_CONTACT_ID);
+        $this->assertEquals("Card ending in ....1111", $profileName);
+    }
+
+    /**
+     * Make sure that we save a payment profile
+     *
+     * @return void
+     */
+    public function testSavePaymentProfile(): void
+    {
+        // Create the billing credit card
+        $card = new CreditCard();
+        $card->setCardNumber('4111111111111111');
+        $card->setExpiration(2025, 07);
+        $card->setCardCode('762');
+
+        $paymentProfileId = Uuid::uuid4()->toString();
+        $this->mockEntityLoader->method('save')->willReturn($paymentProfileId);
+
+        // Create a mock account
+        $mockAccount = $this->createMock(Account::class);
+        $mockAccount->method('getName')->willReturn('testaccount');
+        $mockAccount->method('getAccountId')->willReturn(self::TEST_MAIN_ACCOUNT_ID);
+
+        $profileName = $this->accountBilling->savePaymentProfile($mockAccount, self::TEST_ACCOUNT_CONTACT_ID, $card);
+        $this->assertEquals("Card ending in ....1111", $profileName);
+    }
+
+    /**
+     * Make sure that we can get the default payment profile name
+     *
+     * @return void
+     */
+    public function testSavePaymentProfileShouldCreateNewPaymentProfile(): void
+    {
+        // Create the billing credit card
+        $card = new CreditCard();
+        $card->setCardNumber('4111111111111111');
+        $card->setExpiration(2025, 07);
+        $card->setCardCode('762');
+
+        $paymentProfileId = Uuid::uuid4()->toString();
+        $this->mockEntityLoader->method('save')->willReturn($paymentProfileId);
+
+        // Create a mock account
+        $mockAccount = $this->createMock(Account::class);
+        $mockAccount->method('getName')->willReturn('testaccount');
+        $mockAccount->method('getAccountId')->willReturn(self::TEST_MAIN_ACCOUNT_ID);
+
+        // Mock the creating of payment profile entity
+        $paymentProfile = $this->createMock(PaymentProfileEntity::class);
+        $paymentProfile->method('getName')->willReturn('Card ending in ....1234');
+        $this->mockEntityLoader->method('create')
+            ->with(ObjectTypes::SALES_PAYMENT_PROFILE, self::TEST_MAIN_ACCOUNT_ID)
+            ->will($this->returnValue($paymentProfile));
+
+        $newContactId = Uuid::uuid4()->toString();
+        $profileName = $this->accountBilling->savePaymentProfile($mockAccount, $newContactId, $card);
+        $this->assertEquals("Card ending in ....1234", $profileName);
     }
 }
