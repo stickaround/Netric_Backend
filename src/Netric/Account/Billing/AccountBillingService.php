@@ -288,6 +288,7 @@ class AccountBillingService implements AccountBillingServiceInterface
 
     /**
      * Gets the main account id that is set for this account billing.
+     * 
      * @param Account $account The account of the current tennant
      * @param string $contactId The contact that owns the payment profile
      * @param CreditCard $card The credit card that will be using to bill the customer

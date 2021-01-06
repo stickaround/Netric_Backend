@@ -558,8 +558,10 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Get forms        
         $ret['forms'] = $this->forms->getDeviceForms($def, $user);
 
+        // If we are dealing with contact object type, then we need to get the billing forms
         if ($def->getObjType() == ObjectTypes::CONTACT) {
             $ret['forms']['billing_large'] = $this->forms->getSysForm($def, 'billing_large');
+            $ret['forms']['billing_small'] = $this->forms->getSysForm($def, 'billing_small');
         }
 
         // Get views from browser view service        
