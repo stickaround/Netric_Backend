@@ -1,7 +1,8 @@
-<?php    
+<?php
+	// DEPRECATED. Marl - 01/14/2021
 	//require_once("src/AntLegacy/AntConfig.php");
 	//require_once("src/AntLegacy/settings/settings_functions.php");
-	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
+	/*require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
     require_once("ant.php");
 	require_once("src/AntLegacy/CDatabase.awp");
 	require_once("src/AntLegacy/user_functions.php");
@@ -64,10 +65,9 @@
 		header("Location: https://".$_SERVER['SERVER_NAME']."/login.php".(($FWD)?"?$FWD":''));
 
 	// TEMP: make sure everyone is using non-https
-	/*
-	if ($_SERVER['SERVER_PORT'] == "443")
-		header("Location: http://".$_SERVER['SERVER_NAME']."/login.php".(($FWD)?"?$FWD":''));
-	 */
+	
+	// if ($_SERVER['SERVER_PORT'] == "443")
+		// header("Location: http://".$_SERVER['SERVER_NAME']."/login.php".(($FWD)?"?$FWD":''));
 
 	// Get account information
 	// -------------------------------------------------------------------------------
@@ -95,6 +95,7 @@
 			exit();
 		}
 	}
+	*/
 ?>
 <!DOCTYPE HTML>
 <html>

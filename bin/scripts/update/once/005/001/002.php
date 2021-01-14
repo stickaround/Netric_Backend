@@ -20,9 +20,9 @@ $db->beginTransaction();
 // Do not timeout for this long query
 $db->query('set statement_timeout to 0');
 
-/*$result = $db->query("UPDATE entity 
+$result = $db->query("UPDATE entity 
     SET sort_order=cast(extract(EPOCH FROM(ts_entered - '1/1/2000'::timestamp)) as integer) 
-    WHERE sort_order IS NULL and ts_entered is not null");*/
+    WHERE sort_order IS NULL and ts_entered is not null");
 
 // Commit the transaction
 $db->commitTransaction();
