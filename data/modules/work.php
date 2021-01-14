@@ -1,6 +1,7 @@
 <?php
 
 namespace modules\navigation;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Return navigation for entity of work module
@@ -20,11 +21,18 @@ return [
     "f_system" => true,
     "navigation" => [
         [
+            "title" => "New Task",
+            "type" => "link",
+            "route" => "browse/" . ObjectTypes::TASK . "/new",
+            "objType" => ObjectTypes::TASK,
+            "icon" => "AddBoxIcon",
+        ],
+        [
             "title" => "My Tasks",
             "type" => "browse",
             "browser_view" => "my_task",
             "route" => "my-task",
-            "objType" => "task",
+            "objType" => ObjectTypes::TASK,
             "icon" => "CheckIcon",
         ],
         [
@@ -32,7 +40,7 @@ return [
             "type" => "browse",
             "browser_view" => "tasks_i_have_assigned",
             "route" => "delegated-task",
-            "objType" => "task",
+            "objType" => ObjectTypes::TASK,
             "icon" => "AssignmentIndIcon",
         ],
         [
@@ -40,7 +48,7 @@ return [
             "type" => "browse",
             "browser_view" => "all_tasks",
             "route" => "all-task",
-            "objType" => "task",
+            "objType" => ObjectTypes::TASK,
             "icon" => "DoneAllIcon",
         ],
         [
@@ -48,7 +56,7 @@ return [
             "type" => "board-view",
             "browser_view" => "my_task",
             "route" => "board-view",
-            "objType" => "task",
+            "objType" => ObjectTypes::TASK,
             "icon" => "ViewColumnIcon",
         ],
         [
@@ -60,14 +68,14 @@ return [
             "type" => "browse-leftnav",
             "route" => "projects",
             "browser_view" => "my_open_projects",
-            "objType" => "project",
+            "objType" => ObjectTypes::PROJECT,
             "icon" => "DoneAllIcon",
         ],
         [
             "title" => "All Projects",
             "type" => "browse",
             "route" => "projects",
-            "objType" => "project",
+            "objType" => ObjectTypes::PROJECT,
             "icon" => "SearchIcon",
         ]
     ]
