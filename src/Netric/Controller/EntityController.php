@@ -173,6 +173,14 @@ class EntityController extends AbstractFactoriedController implements Controller
     }
 
     /**
+     * Just in case they use POST
+     */
+    public function postGetAction(HttpRequest $request): HttpResponse
+    {
+        return $this->getGetAction($request);
+    }
+
+    /**
      * Retrieve a single entity
      * 
      * @param HttpRequest $request Request object for this run
