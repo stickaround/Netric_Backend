@@ -194,6 +194,7 @@ pipeline {
             cleanWs()
         }
         failure {
+            sh 'docker system prune --volumes'
             emailext (
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
