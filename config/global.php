@@ -7,6 +7,8 @@ return [
     'use_https' => true,
     // This is where netric is hosted
     'localhost_root' => 'netric.com',
+    // Unique application name
+    'application_name' => 'netri.svc',
     // This is the url of the netric app. This is usually used when creating the
     // link of an entity in the email notification contents.
     'application_url' => 'https://app.netric.com',
