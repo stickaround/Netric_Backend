@@ -212,7 +212,7 @@ class EntityTest extends TestCase
         $dataMapper = $sm->get(EntityDataMapperFactory::class);
 
         // Temp file
-        $file = $fileSystem->createFile("%tmp%", "testfile.txt", true);
+        $file = $fileSystem->createFile("%tmp%", "testfile.txt", $this->account->getAuthenticatedUser(), true);
         $tempFolderId = $file->getValue("folder_id");
 
         // Create a customer
@@ -226,11 +226,11 @@ class EntityTest extends TestCase
         $dataMapper->save($cust, $this->account->getAuthenticatedUser());
 
         // Test to see if file was moved
-        $testFile = $fileSystem->openFileById($file->getEntityId());
+        $testFile = $fileSystem->openFileById($file->getEntityId(), $this->account->getAuthenticatedUser());
         $this->assertNotEquals($tempFolderId, $testFile->getValue("folder_id"));
 
         // Cleanup
-        $fileSystem->deleteFile($file, true);
+        $fileSystem->deleteFile($file, $this->account->getAuthenticatedUser(), true);
     }
 
     /**

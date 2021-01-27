@@ -6,7 +6,8 @@
 
 namespace Netric\Entity;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\Entity\ObjType\UserEntity;
 
 interface EntityInterface
 {
@@ -101,19 +102,38 @@ interface EntityInterface
      * @return array Associative array of all fields in array(field_name=>value) format
      */
     public function toArray();
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeSave(AccountServiceManagerInterface $sm);
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(AccountServiceManagerInterface $sm);
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user);
+
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user);
+
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user);
+
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user);
 
     /**
      * Check if a field value changed since created or opened

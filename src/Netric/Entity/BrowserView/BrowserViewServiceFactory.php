@@ -1,8 +1,8 @@
 <?php
 namespace Netric\Entity\BrowserView;
 
-use Netric\ServiceManager;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Settings\SettingsFactory;
@@ -14,21 +14,21 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
  *
  * @package Netric\FileSystem
  */
-class BrowserViewServiceFactory implements ServiceManager\AccountServiceFactoryInterface
+class BrowserViewServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $sl->get(ConfigFactory::class);
-        $defLoader = $sl->get(EntityDefinitionLoaderFactory::class);
-        $settings = $sl->get(SettingsFactory::class);
-        $rdb = $sl->get(RelationalDbFactory::class);
-        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
+        $defLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
+        $settings = $serviceLocator->get(SettingsFactory::class);
+        $rdb = $serviceLocator->get(RelationalDbFactory::class);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         return new BrowserViewService($rdb, $config, $defLoader, $settings, $groupingLoader);
     }
 }

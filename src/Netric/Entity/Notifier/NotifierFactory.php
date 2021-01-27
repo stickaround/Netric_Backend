@@ -3,23 +3,23 @@
 namespace Netric\Entity\Notifier;
 
 use Netric\Authentication\AuthenticationServiceFactory;
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new Notifier service
  */
-class NotifierFactory implements AccountServiceFactoryInterface
+class NotifierFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
      * @return Notifier
      */
-    public function createService(AccountServiceManagerInterface $serviceManager)
+    public function createService(ServiceLocatorInterface $serviceManager)
     {
         // TODO: The below is causing a circular reference so we need to figure that out
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);

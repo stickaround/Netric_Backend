@@ -9,13 +9,14 @@
 
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Project represents a single project entity
@@ -43,39 +44,12 @@ class ProjectEntity extends Entity implements EntityInterface
      * @param EntityLoader $entityLoader The loader for a specific entity
      * @param IndexInterface $index IndexInterface for running queries against
      */
-    public function __construct($def, EntityLoader $entityLoader, IndexInterface $indexInterface)
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader, IndexInterface $indexInterface)
     {
-        parent::__construct($def, $entityLoader);
-
         $this->entityLoader = $entityLoader;
         $this->indexInterface = $indexInterface;
-    }
 
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Called right before the entity is purged (hard delete)
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
-    {
+        parent::__construct($def, $entityLoader);
     }
 
     /**

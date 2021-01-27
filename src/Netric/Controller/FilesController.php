@@ -80,6 +80,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // Get the FileSystem service
         $this->fileSystem = $sl->get(FileSystemFactory::class);
+        $this->fileSystem->setRootFolder($this->account->getUser());
 
         // Set the local dataPath from the system config service
         $config = $sl->get(ConfigFactory::class);
@@ -128,9 +129,9 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
         // If folderid has been passed the override the text path
         if ($request->getParam('folderid')) {
-            $folder = $this->fileSystem->openFolderById($request->getParam('folderid'));
+            $folder = $this->fileSystem->openFolderById($request->getParam('folderid'), $this->account->getUser());
         } elseif ($request->getParam('path')) {
-            $folder = $this->fileSystem->openFolder($request->getParam('path'), true);
+            $folder = $this->fileSystem->openFolder($request->getParam('path'), $this->account->getUser(), true);
         }
 
         // Could not create or get a parent folder. Return an error.
@@ -208,7 +209,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              * If the folder does not exist, then fileSystem->importFile will also verify
              * that the user has permission to the parent folder before creating a child folder
              */
-            $folderEntity = $this->fileSystem->openFolder($folderPath);
+            $folderEntity = $this->fileSystem->openFolder($folderPath, $user);
 
             if ($folderEntity) {
                 $dacl = $daclLoader->getForEntity($folderEntity, $user);
@@ -233,6 +234,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
             // Import into netric file system
             $file = $this->fileSystem->importFile(
+                $this->account->getUser(),
                 $uploadedFile['tmp_name'],
                 $folderPath,
                 $uploadedFile["name"],
@@ -285,7 +287,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         }
 
         // Load the file
-        $fileEntity = $this->fileSystem->openFileById($fileId);
+        $fileEntity = $this->fileSystem->openFileById($fileId, $user);
 
         // Let the caller know if the file does not exist
         if (!$fileEntity) {
@@ -326,6 +328,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
             // Resize the image and return the new (temp) fileEntity
             $resizedFileEntity = $this->imageResizer->resizeFile(
+                $this->account->getUser(),
                 $fileEntity,
                 $maxWidth,
                 $maxHeight

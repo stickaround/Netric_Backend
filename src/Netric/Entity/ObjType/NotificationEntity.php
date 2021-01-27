@@ -10,14 +10,16 @@ namespace Netric\Entity\ObjType;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
 use Netric\Mail\Address;
 use Netric\Mail\Transport\TransportFactory;
-use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogFactory;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Notification entity
@@ -32,11 +34,31 @@ class NotificationEntity extends Entity implements EntityInterface
     private $mailTransport = null;
 
     /**
+     * The loader for a specific entity
+     *
+     * @var EntityLoader
+     */
+    private $entityLoader = null;
+
+    /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     */
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    {
+        $this->entityLoader = $entityLoader;
+        parent::__construct($def, $entityLoader);
+    }
+
+    /**
      * Callback function used for derived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         /*
          * If this is a new notification, then send messages - email, sms.
@@ -48,7 +70,7 @@ class NotificationEntity extends Entity implements EntityInterface
         if ($this->getValue('obj_reference')) {
             // If the email flag is set, then send an email
             if ($this->getValue("f_email")) {
-                $this->sendEmailNotification($sm);
+                $this->sendEmailNotification($serviceLocator, $user);
             }
 
             // If the SMS flag is set, then send sms
@@ -74,9 +96,10 @@ class NotificationEntity extends Entity implements EntityInterface
     /**
      * Send this notice via email to the owner
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    private function sendEmailNotification(AccountServiceManagerInterface $sm)
+    private function sendEmailNotification(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Make sure the notification has an owner or a creator
         if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id"))) {
@@ -85,19 +108,19 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // If mail transport is not set, then set it here
         if (!$this->mailTransport) {
-            $this->mailTransport = $sm->get(TransportFactory::class);
+            $this->mailTransport = $serviceLocator->get(TransportFactory::class);
         }
 
         // Get the user that owns this notice
-        $user = $sm->get(EntityLoaderFactory::class)->getEntityById(
+        $user = $this->entityLoader->getEntityById(
             $this->getValue("owner_id"),
-            $sm->getAccount()->getAccountId()
+            $user->getAccountId()
         );
 
         // Get the user that triggered this notice
-        $creator = $sm->get(EntityLoaderFactory::class)->getEntityById(
+        $creator = $this->entityLoader->getEntityById(
             $this->getValue("creator_id"),
-            $sm->getAccount()->getAccountId()
+            $user->getAccountId()
         );
 
         // Make sure the user has an email
@@ -107,14 +130,14 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // Get the referenced entity
         $objReference = $this->getValue("obj_reference");
-        $referencedEntity = $sm->get(EntityLoaderFactory::class)->getEntityById(
+        $referencedEntity = $this->entityLoader->getEntityById(
             $objReference,
-            $sm->getAccount()->getAccountId()
+            $user->getAccountId()
         );
         $def = $referencedEntity->getDefinition();
 
-        $config = $sm->get(ConfigFactory::class);
-        $log = $sm->get(LogFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
+        $log = $serviceLocator->get(LogFactory::class);
 
         // Set the body
         $body = $creator->getName() . " - " . $this->getName('name') . " on ";
@@ -146,7 +169,7 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // Add special dropbox that enables users to comment by just replying to an email
         if ($config->email['dropbox_catchall']) {
-            $fromEmail = $sm->getAccount()->getName() . "-com-";
+            $fromEmail = $serviceLocator->getAccount()->getName() . "-com-";
             $fromEmail .= $objReference;
             $fromEmail .= $config->email['dropbox_catchall'];
         }

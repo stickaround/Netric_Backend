@@ -276,12 +276,12 @@ class EntityMaintainerServiceTest extends TestCase
         $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
 
         // Create test folder
-        $testTempFolder = $fileSystem->openFolder("/testCleanTempFolder", true);
+        $testTempFolder = $fileSystem->openFolder("/testCleanTempFolder", $this->account->getAuthenticatedUser(), true);
         $this->testEntities[] = $testTempFolder;
 
         // Import a file imto a temp folder
         $testData = "test data";
-        $file1 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile.txt", true);
+        $file1 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile.txt", $this->account->getAuthenticatedUser(), true);
         $fileSystem->writeFile($file1, $testData, $this->account->getSystemUser());
         $this->testEntities[] = $file1;
         $fileId1 = $file1->getEntityId();
@@ -290,7 +290,7 @@ class EntityMaintainerServiceTest extends TestCase
         $cutoff = new \DateTime();
 
         // Create a second file with a later time than cutoff so we can make sure it is not purged
-        $file2 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile2.txt", true);
+        $file2 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile2.txt", $this->account->getAuthenticatedUser(), true);
         $fileSystem->writeFile($file2, $testData, $this->account->getSystemUser());
         $this->testEntities[] = $file2;
         $fileId2 = $file2->getEntityId();

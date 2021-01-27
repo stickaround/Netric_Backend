@@ -27,7 +27,7 @@ class ModuleController extends Mvc\AbstractAccountController
         // Load the Module Service
         $moduleService = $serviceManager->get(ModuleServiceFactory::class);
 
-        $module = $moduleService->getByName($params['moduleName']);
+        $module = $moduleService->getByName($params['moduleName'], $this->account->getAccountId());
         return $this->sendOutput($module->toArray());
     }
 
@@ -71,7 +71,7 @@ class ModuleController extends Mvc\AbstractAccountController
         $module->fromArray($objData);
         $module->setDirty(true);
 
-        if ($moduleService->save($module)) {
+        if ($moduleService->save($module, $this->account->getAccountId())) {
             // Return the saved module
             return $this->sendOutput($module->toArray());
         } else {
@@ -101,7 +101,7 @@ class ModuleController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
         $moduleService = $serviceManager->get(ModuleServiceFactory::class);
 
-        $module = $moduleService->getById($id);
+        $module = $moduleService->getById($id, $this->account->getAccountId());
 
         if ($moduleService->delete($module)) {
             // Return true since we have successfully deleted the module

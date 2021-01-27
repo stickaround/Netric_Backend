@@ -25,9 +25,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract implements 
      * @param string $accountName The name of the ANT account that owns this data
      * @param RelationalDbInterface $database Handles to database actions
      */
-    public function __construct(Account $account, RelationalDbInterface $database)
+    public function __construct(RelationalDbInterface $database)
     {
-        $this->setAccount($account);
         $this->database = $database;
     }
 }

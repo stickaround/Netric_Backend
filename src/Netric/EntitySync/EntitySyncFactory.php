@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Create a Entity Sync service
  */
-class EntitySyncFactory implements ServiceManager\AccountServiceFactoryInterface
+class EntitySyncFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntitySync
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $dm = $sl->get(DataMapperFactory::class);
+        $dm = $serviceLocator->get(DataMapperFactory::class);
         return new EntitySync($dm);
     }
 }

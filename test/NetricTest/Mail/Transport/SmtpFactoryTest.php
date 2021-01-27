@@ -32,10 +32,10 @@ class SmtpFactoryTest extends TestCase
         $account = Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $this->oldSettings = [
-            'smtp_host' => $settings->get("email/smtp_host"),
-            'smtp_user' => $settings->get("email/smtp_user"),
-            'smtp_password' => $settings->get("email/smtp_password"),
-            'smtp_port' => $settings->get("email/smtp_port"),
+            'smtp_host' => $settings->get("email/smtp_host", $account->getAccountId()),
+            'smtp_user' => $settings->get("email/smtp_user", $account->getAccountId()),
+            'smtp_password' => $settings->get("email/smtp_password", $account->getAccountId()),
+            'smtp_port' => $settings->get("email/smtp_port", $account->getAccountId()),
         ];
     }
 
@@ -44,10 +44,10 @@ class SmtpFactoryTest extends TestCase
         // Restore cached old settings
         $account = Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
-        $settings->set("email/smtp_host", $this->oldSettings['smtp_host']);
-        $settings->set("email/smtp_user", $this->oldSettings['smtp_user']);
-        $settings->set("email/smtp_password", $this->oldSettings['smtp_password']);
-        $settings->set("email/smtp_port", $this->oldSettings['smtp_port']);
+        $settings->set("email/smtp_host", $this->oldSettings['smtp_host'], $account->getAccountId());
+        $settings->set("email/smtp_user", $this->oldSettings['smtp_user'], $account->getAccountId());
+        $settings->set("email/smtp_password", $this->oldSettings['smtp_password'], $account->getAccountId());
+        $settings->set("email/smtp_port", $this->oldSettings['smtp_port'], $account->getAccountId());
     }
 
     public function testCreateService()
@@ -70,10 +70,10 @@ class SmtpFactoryTest extends TestCase
         $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $settings = $sm->get(SettingsFactory::class);
-        $settings->set('email/smtp_host', $testHost);
-        $settings->set('email/smtp_port', $testPort);
-        $settings->set('email/smtp_user', $testUser);
-        $settings->set('email/smtp_password', $testPassword);
+        $settings->set('email/smtp_host', $testHost, $account->getAccountId());
+        $settings->set('email/smtp_port', $testPort, $account->getAccountId());
+        $settings->set('email/smtp_user', $testUser, $account->getAccountId());
+        $settings->set('email/smtp_password', $testPassword, $account->getAccountId());
 
         $smtpFactory = new SmtpFactory();
         $transport = $smtpFactory->createService($sm);

@@ -65,7 +65,7 @@ class ModulesTest extends TestCase
         // Get the module service
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
 
-        $module = $moduleService->getByName('settings');
+        $module = $moduleService->getByName('settings', $this->account->getAccountId());
 
         // Check if sort_order of settings is equal to 11
         $this->assertEquals($module->getSortOrder(), 11);

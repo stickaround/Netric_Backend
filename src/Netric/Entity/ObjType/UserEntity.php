@@ -13,13 +13,13 @@ use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\Permissions\DaclLoaderFactory;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoader;
+use Netric\Account\AccountContainerInterface;
 
 /**
  * Description of User
@@ -71,29 +71,42 @@ class UserEntity extends Entity implements EntityInterface
     private $groupingLoader = null;
 
     /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer; 
+
+    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader The loader for a specific entity
+     * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader, GroupingLoader $groupingLoader)
-    {
-        parent::__construct($def, $entityLoader);
-
+    public function __construct(
+        EntityDefinition $def, 
+        EntityLoader $entityLoader, 
+        GroupingLoader $groupingLoader,
+        AccountContainerInterface $accountContainer
+    ) {
         $this->entityLoader = $entityLoader;
         $this->groupingLoader = $groupingLoader;
+        $this->accountContainer = $accountContainer;
+
+        parent::__construct($def, $entityLoader);
     }
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // If the password was updated for this user then encrypt it
         if ($this->fieldValueChanged("password")) {
-            $authService = $sm->get(AuthenticationServiceFactory::class);
+            $authService = $serviceLocator->get(AuthenticationServiceFactory::class);
             $this->encryptPassword($authService);
         }
 
@@ -107,20 +120,24 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
+    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
+        // Get the account
+        $account = $this->accountContainer->loadById($this->getAccountId());
+
         // Update the account email address for the application if changed
         if ($this->fieldValueChanged("email") || $this->fieldValueChanged("name")) {
             // Delete old username if changed
             $previousName = $this->getPreviousValue("name");
             if ($previousName && $previousName != $this->getValue("name")) {
-                $sm->getAccount()->setAccountUserEmail($previousName, null);
+                $account->setAccountUserEmail($previousName, null);
             }
 
             // Set the new username to this email address
-            $sm->getAccount()->setAccountUserEmail(
+            $account->setAccountUserEmail(
                 $this->getValue("name"),
                 $this->getValue("email")
             );
@@ -130,15 +147,19 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses and called just before a hard delete occurs
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
+        // Get the account
+        $account = $this->accountContainer->loadById($this->getAccountId());
+
         /*
          * Delete any dangling of this user to any email addresses since that is used
          * for universal login when someone users their email address to log in to multiple accounts
          */
-        $sm->getAccount()->setAccountUserEmail($this->getValue("name"), null);
+        $account->setAccountUserEmail($this->getValue("name"), null);
     }
 
     /**
@@ -149,7 +170,7 @@ class UserEntity extends Entity implements EntityInterface
     public function onBeforeToArray(): void
     {
         // Make sure default groups are set correctly
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
 
         // Add to authenticated users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
@@ -209,7 +230,7 @@ class UserEntity extends Entity implements EntityInterface
             $groups = [];
         }
 
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
 
         // Add to authenticated users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
@@ -249,7 +270,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function setIsAdmin($isAdmin = true)
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
         $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         if ($isAdmin) {
             $this->addMultiValue("groups", $adminGroup->getGroupId(), "Administrators");
@@ -265,7 +286,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isAdmin()
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->def->getAccountId());
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
         $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         $groups = $this->getGroups();
         foreach ($groups as $group) {

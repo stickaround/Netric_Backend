@@ -2,22 +2,22 @@
 
 namespace Netric\Entity;
 
-use Netric\ServiceManager;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Create a new EntityFactory service
  */
-class EntityFactoryFactory implements ServiceManager\AccountServiceFactoryInterface
+class EntityFactoryFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntityFactory
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new EntityFactory($sl);
+        return new EntityFactory($serviceLocator);
     }
 }

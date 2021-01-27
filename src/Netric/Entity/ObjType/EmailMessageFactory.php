@@ -5,12 +5,12 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\FileSystem\FileSystemFactory;
-use Netric\ServiceManager;
-use Netric\Entity\EntityInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
+use Netric\FileSystem\FileSystemFactory;
+use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -22,15 +22,15 @@ class EmailMessageFactory implements EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return EntityInterface
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param EntityDefinition $def The definition of this type of object
+     * @return EntityInterface EmailMessageEntity
      */
-    public static function create(ServiceManager\AccountServiceManagerInterface $sl)
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $sl->getAccount()->getAccountId());
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $entityQueryIndex = $sl->get(IndexFactory::class);
-        $fileSystem = $sl->get(FileSystemFactory::class);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $entityQueryIndex = $serviceLocator->get(IndexFactory::class);
+        $fileSystem = $serviceLocator->get(FileSystemFactory::class);
         return new EmailMessageEntity($def, $entityLoader, $entityQueryIndex, $fileSystem);
     }
 }

@@ -1,7 +1,8 @@
 <?php
 namespace Netric\Entity;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
@@ -10,18 +11,18 @@ use Netric\EntityQuery\Index\IndexFactory;
  *
  * @package Netric\FileSystem
  */
-class EntityAggregatorFactory implements ServiceManager\AccountServiceFactoryInterface
+class EntityAggregatorFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $entityIndex = $sl->get(IndexFactory::class);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $entityIndex = $serviceLocator->get(IndexFactory::class);
 
         return new EntityAggregator($entityLoader, $entityIndex);
     }

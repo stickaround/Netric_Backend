@@ -2,7 +2,7 @@
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
@@ -15,10 +15,10 @@ class AssignActionFactory
     /**
      * Construct new action
      *
-     * @param AccountServiceManagerInterface $serviceLocator For loading dependencies
+     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
      * @return ActionInterface
      */
-    public static function create(AccountServiceManagerInterface $serviceLocator)
+    public static function create(ServiceLocatorInterface $serviceLocator)
     {
         // Return a new TestAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

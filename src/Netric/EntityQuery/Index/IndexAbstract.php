@@ -6,7 +6,7 @@
 
 namespace Netric\EntityQuery\Index;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
@@ -50,7 +50,7 @@ abstract class IndexAbstract
     /**
      * A service manager that will be used when executing the entity query plugin
      *
-     * @var AccountServiceManagerInterface
+     * @var ServiceLocatorInterface
      */
     protected $serviceManagerForPlugin = null;
 
@@ -69,7 +69,7 @@ abstract class IndexAbstract
      * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
      * @param EntityLoader $entityLoader Handles the loading of existing entities     
      * @param EntityValueSanitizer $entityValueSanitizer Handles the sanitizing of condition values in the query
-     * @param AccountServiceManagerInterface $serviceManagerForPlugin A service manager that will be used when executing the entity query plugin
+     * @param ServiceLocatorInterface $serviceManagerForPlugin A service manager that will be used when executing the entity query plugin
      */
     public function __construct(
         RelationalDbContainer $dbContainer,
@@ -77,7 +77,7 @@ abstract class IndexAbstract
         EntityDefinitionLoader $entityDefinitionLoader,
         EntityLoader $entityLoader,
         EntityValueSanitizer $entityValueSanitizer,
-        AccountServiceManagerInterface $serviceManagerForPlugin
+        ServiceLocatorInterface $serviceManagerForPlugin
     ) {
         $this->entityFactory = $entityFactory;
         $this->entityDefinitionLoader = $entityDefinitionLoader;

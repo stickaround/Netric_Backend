@@ -12,16 +12,16 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 class WorkerFactory
 {
     /**
-     * Service manager used to load dependencies
+     * ServiceLocator for injecting dependencies
      *
-     * @var AccountServiceManagerInterface
+     * @var ServiceLocatorInterface
      */
     private $serviceManager = null;
 
     /**
      * Class constructor
      *
-     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      */
     public function __construct(ServiceLocatorInterface $serviceLocator)
     {

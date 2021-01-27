@@ -1,8 +1,8 @@
 <?php
 namespace Netric\Mail\Transport;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Settings\SettingsFactory;
 
@@ -18,19 +18,19 @@ use Netric\Settings\SettingsFactory;
  * This factory is basically just gathering configuration options from either the system
  * settings or user-defined account settings.
  */
-class BulkSmtpFactory implements AccountServiceFactoryInterface
+class BulkSmtpFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return TransportInterface
      * @throws Exception\InvalidArgumentException if a transport could not be created
      */
-    public function createService(AccountServiceManagerInterface $serviceManager)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         // Get the required method
-        $config = $serviceManager->get(ConfigFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
 
         // Initialize new Smtp transport
         $transport = new Smtp();
@@ -59,7 +59,7 @@ class BulkSmtpFactory implements AccountServiceFactoryInterface
          * Check for account overrides in settings. This allows specific
          * accounts to utilize another email server to send messages from.
          */
-        $settings = $serviceManager->get(SettingsFactory::class);
+        $settings = $serviceLocator->get(SettingsFactory::class);
         $host = $settings->get("email/smtp_bulk_host");
         $username = $settings->get("email/smtp_bulk_user");
         $password = $settings->get("email/smtp_bulk_password");

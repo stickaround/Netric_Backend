@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Commit\DataMapper;
 
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\ServiceManager;
-use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a Entity Sync Commit DataMapper service
  */
-class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
+class DataMapperFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return DataMapperInterface
      */
-    public function createService(AccountServiceManagerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $database = $serviceLocator->get(RelationalDbFactory::class);
-        return new DataMapperRdb($serviceLocator->getAccount(), $database);
+        $database = $serviceLocator->get(RelationalDbFactory::class);        
+        return new DataMapperRdb($database);
     }
 }

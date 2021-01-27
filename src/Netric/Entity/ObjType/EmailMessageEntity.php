@@ -9,15 +9,16 @@ namespace Netric\Entity\ObjType;
 
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Mail;
 use Netric\Mime;
 use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Email entity extension
@@ -66,29 +67,31 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Class constructor
      *
-     * @param EntityDefinition $def The definition of the email message
+     * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader Loader to get/save entities
      * @param IndexInterface $entityIndex Index to query entities
      * @param FileSystem $fileSystem Used for working with netric files
      */
     public function __construct(
-        EntityDefinition $def,
-        EntityLoader $entityLoader,
-        IndexInterface $entityIndex,
+        EntityDefinition $def, 
+        EntityLoader $entityLoader, 
+        IndexInterface $entityIndex, 
         FileSystem $fileSystem
     ) {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
+
         parent::__construct($def, $entityLoader);
     }
 
     /**
      * Callback function used for derived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Make sure a unique message_id is set
         if (!$this->getValue('message_id')) {
@@ -110,16 +113,15 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
+    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         if ($this->isArchived()) {
-            $currentUser = $sm->getAccount()->getAuthenticatedUser();
-
             $thread = $this->entityLoader->getEntityById(
                 $this->getValue("thread"),
-                $sm->getAccount()->getAccountId()
+                $user->getAccountId()
             );
 
             // Decrement the number of messages in the thread if it exists
@@ -127,12 +129,12 @@ class EmailMessageEntity extends Entity implements EntityInterface
                 // If this is the last message, then delete the thread
                 if (intval($thread->getValue("num_messages")) === 1) {
                     $thread->setValue("num_messages", 0);
-                    $this->entityLoader->delete($thread, $currentUser);
+                    $this->entityLoader->delete($thread, $user);
                 } else {
                     // Otherwise reduce the number of messages
                     $numMessages = $thread->getValue("num_messages");
                     $thread->setValue("num_messages", --$numMessages);
-                    $this->entityLoader->save($thread, $currentUser);
+                    $this->entityLoader->save($thread, $user);
                 }
             }
         }
@@ -141,15 +143,16 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // If purging, then clear the raw file holding our message data
         if ($this->getValue('file_id')) {
-            $file = $this->fileSystem->openFileById($this->getValue('file_id'));
+            $file = $this->fileSystem->openFileById($this->getValue('file_id'), $user);
             if ($file) {
-                $this->fileSystem->deleteFile($file, true);
+                $this->fileSystem->deleteFile($file, $user, true);
             }
         }
     }
@@ -157,13 +160,14 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
+    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         $thread = $this->entityLoader->getEntityById(
             $this->getValue("thread"),
-            $sm->getAccount()->getAccountId()
+            $user->getAccountId()
         );
 
         /*
@@ -171,7 +175,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
          * We need to perform the deleting of thread right after we deleted the message, to avoid infinite loop
          */
         if ($thread && intval($thread->getValue("num_messages")) === 1) {
-            $this->entityLoader->delete($thread, $sm->getAccount()->getAuthenticatedUser());
+            $this->entityLoader->delete($thread, $user);
         }
     }
 
@@ -408,7 +412,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
             if ($mimePart->getFileName()) {
                 // This is an attachment - could either be inline or an attachment
                 $user = $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
-                $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), true);
+                $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), $user, true);
                 $this->fileSystem->writeFile($file, $mimePart->getRawContent(), $user);
                 $this->addMultiValue("attachments", $file->getEntityId(), $file->getName());
             } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
@@ -474,14 +478,16 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     private function addMimeAttachments(Mime\Message $mimeMessage)
     {
+        $user = $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
+        
         // Add attachments to the mime message
         $attachments = $this->getValue("attachments");
         if (is_array($attachments) && count($attachments)) {
             foreach ($attachments as $fileId) {
-                $file = $this->fileSystem->openFileById($fileId);
+                $file = $this->fileSystem->openFileById($fileId, $user);
 
                 // Get a stream to reduce memory footprint
-                $fileStream = $this->fileSystem->openFileStreamById($fileId);
+                $fileStream = $this->fileSystem->openFileStreamById($fileId, $user);
                 $attachment = new Mime\Part($fileStream);
 
                 // Set meta-data

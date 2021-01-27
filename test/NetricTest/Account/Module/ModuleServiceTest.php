@@ -13,6 +13,7 @@ use Netric\Account\Module\ModuleServiceFactory;
 use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Account\Account;
 
 /**
  * @group integration
@@ -33,10 +34,15 @@ class ModuleServiceTest extends TestCase
      */
     protected $testModules = [];
 
+    /**
+     * Account that is currently used for running the unit tests
+     */
+    protected Account $account;
+
     protected function setUp(): void
     {
-        $account = Bootstrap::getAccount();
-        $sm = $account->getServiceManager();
+        $this->account = Bootstrap::getAccount();
+        $sm = $this->account->getServiceManager();
         $this->moduleService = $sm->get(ModuleServiceFactory::class);
     }
 
@@ -60,7 +66,7 @@ class ModuleServiceTest extends TestCase
         $module->setScope(Module::SCOPE_EVERYONE);
 
         // Save it
-        $this->assertTrue($this->moduleService->save($module));
+        $this->assertTrue($this->moduleService->save($module, $this->account->getAccountId()));
         $this->testModules[] = $module;
     }
 
@@ -75,7 +81,7 @@ class ModuleServiceTest extends TestCase
         $module->setScope(Module::SCOPE_EVERYONE);
 
         // Save it initially
-        $this->moduleService->save($module);
+        $this->moduleService->save($module, $this->account->getAccountId());
 
         // Delete it
         $this->assertTrue($this->moduleService->delete($module));
@@ -84,7 +90,7 @@ class ModuleServiceTest extends TestCase
     public function testGetByName()
     {
         // Get a system module that will always exist
-        $module = $this->moduleService->getByName("knowledge");
+        $module = $this->moduleService->getByName("knowledge", $this->account->getAccountId());
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getModuleId());
     }
@@ -92,25 +98,24 @@ class ModuleServiceTest extends TestCase
     public function testGetById()
     {
         // First get by name
-        $module = $this->moduleService->getByName("knowledge");
+        $module = $this->moduleService->getByName("knowledge", $this->account->getAccountId());
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getModuleId());
 
         // Now try to get by id
-        $module2 = $this->moduleService->getById($module->getModuleId());
+        $module2 = $this->moduleService->getById($module->getModuleId(), $this->account->getAccountId());
         $this->assertEquals($module->getModuleId(), $module2->getModuleId());
     }
 
     public function testGetForUser()
     {
-        // Create a temp user
-        $account = \NetricTest\Bootstrap::getAccount();
-        $sm = $account->getServiceManager();
+        // Create a temp user        
+        $sm = $this->account->getServiceManager();
         $entityLoader = $sm->get(EntityLoaderFactory::class);
-        $user = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
+        $user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
 
         // Make sure we can get modules for this entity
-        $modules = $this->moduleService->getForUser($user);
+        $modules = $this->moduleService->getForUser($user, $this->account->getAccountId());
         $this->assertGreaterThan(0, count($modules));
     }
 

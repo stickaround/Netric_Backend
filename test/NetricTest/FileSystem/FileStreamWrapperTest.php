@@ -14,6 +14,7 @@ use Netric\Entity\ObjType;
 use Netric\EntityDefinition\ObjectTypes;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileSystemFactory;
+use NetricTest\Bootstrap;
 
 /**
  * @group integration
@@ -51,7 +52,7 @@ class FileStreamWrapperTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
         $this->fileSystem = $sl->get(FileSystemFactory::class);
@@ -64,7 +65,7 @@ class FileStreamWrapperTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->testFiles as $file) {
-            $this->fileSystem->deleteFile($file, true);
+            $this->fileSystem->deleteFile($file, $this->account->getAuthenticatedUser(), true);
         }
     }
 

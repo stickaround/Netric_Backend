@@ -7,11 +7,11 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
 
@@ -23,14 +23,14 @@ class FolderFactory implements EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return EntityInterface
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param EntityDefinition $def The definition of this type of object
+     * @return EntityInterface FolderEntity
      */
-    public static function create(AccountServiceManagerInterface $sl)
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::FOLDER, $sl->getAccount()->getAccountId());
-        $entityloader = $sl->get(EntityLoaderFactory::class);
-        $entityIndex = $sl->get(IndexFactory::class);
+        $entityloader = $serviceLocator->get(EntityLoaderFactory::class);
+        $entityIndex = $serviceLocator->get(IndexFactory::class);
 
         return new FolderEntity($def, $entityloader, $entityIndex);
     }

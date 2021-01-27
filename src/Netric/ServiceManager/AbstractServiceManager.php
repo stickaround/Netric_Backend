@@ -149,7 +149,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
                 $service = $factory->createService($this);
             } else {
                 throw new Exception\ServiceNotFoundException(sprintf(
-                    '%s: The factory interface must implement Netric/ServiceManager/AccountServiceFactoryInterface.',
+                    '%s: The factory interface must implement Netric/ServiceManager/ServiceFactoryInterface.',
                     get_class($this) . '::' . __FUNCTION__,
                     $factoryClassPath
                 ));

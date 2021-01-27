@@ -23,7 +23,7 @@ foreach ($modules as $moduleName) {
     $moduleData = require(__DIR__ . "/../../../../data/modules/" . $moduleName . ".php");
 
     // If module is already saved then selectively update fields
-    $module = $moduleService->getByName($moduleName);
+    $module = $moduleService->getByName($moduleName, $account->getAccountId());
     if ($module) {
         // We do this in case the user has modified publish status or sort_order
         $module->setTitle($moduleData['title']);
@@ -39,5 +39,5 @@ foreach ($modules as $moduleName) {
     }
 
     // Either save new or save changes
-    $moduleService->save($module);
+    $moduleService->save($module, $account->getAccountId());
 }

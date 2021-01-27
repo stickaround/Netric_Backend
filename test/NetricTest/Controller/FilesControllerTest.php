@@ -113,13 +113,13 @@ class FilesControllerTest extends TestCase
     {
         // Clean-up test files
         foreach ($this->testFiles as $file) {
-            $this->fileSystem->deleteFile($file);
+            $this->fileSystem->deleteFile($file, $this->account->getAuthenticatedUser());
         }
 
         // Delete all test folders in reverse order - in case they are children of each other
         $folders = array_reverse($this->testFolders);
         foreach ($folders as $folder) {
-            $this->fileSystem->deleteFolder($folder);
+            $this->fileSystem->deleteFolder($folder, $this->account->getAuthenticatedUser());
         }
 
         // Remote the temp user
@@ -146,7 +146,7 @@ class FilesControllerTest extends TestCase
         copy($sourceFile, $tempFile);
 
         // Create folder with permissions that allow the user to upload
-        $folderEntity = $this->fileSystem->openFolder("/testUpload", true);
+        $folderEntity = $this->fileSystem->openFolder("/testUpload", $this->account->getAuthenticatedUser(), true);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($folderEntity, $this->user);
         $dacl->allowUser($this->user);
@@ -177,7 +177,7 @@ class FilesControllerTest extends TestCase
         $this->assertFalse(file_exists($tempFile));
 
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id'], $this->account->getAuthenticatedUser());
         $this->testFiles[] = $file; // For tearDown Cleanup
 
         // Test file
@@ -238,13 +238,13 @@ class FilesControllerTest extends TestCase
         $this->assertFalse(file_exists($tempFile));
 
         // Set created folder so we make sure we purge it
-        $folderEntity = $this->fileSystem->openFolder("/testUpload");
+        $folderEntity = $this->fileSystem->openFolder("/testUpload", $this->account->getAuthenticatedUser());
 
         // Set allowed enties for dacl field
         $this->testFolders[] = $folderEntity;
 
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id'], $this->account->getAuthenticatedUser());
         $this->testFiles[] = $file; // For tearDown Cleanup
 
         // Test file
@@ -303,11 +303,11 @@ class FilesControllerTest extends TestCase
         $this->assertFalse(file_exists($tempFile));
 
         // Set created folder so we make sure we purge it
-        $folderEntity = $this->fileSystem->openFolder("/testUpload");
+        $folderEntity = $this->fileSystem->openFolder("/testUpload", $this->account->getAuthenticatedUser());
         $this->testFolders[] = $folderEntity;
 
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id'], $this->account->getAuthenticatedUser());
         $this->testFiles[] = $file; // For tearDown Cleanup
 
         // Test file
@@ -376,15 +376,15 @@ class FilesControllerTest extends TestCase
         $this->assertFalse(file_exists($tempFile2));
 
         // Set created folder so we make sure we purge it
-        $folderEntity = $this->fileSystem->openFolder("/testUpload");
+        $folderEntity = $this->fileSystem->openFolder("/testUpload", $this->account->getAuthenticatedUser());
         $this->testFolders[] = $folderEntity;
 
         // Open the file and make sure it was uploaded correctly
-        $file = $this->fileSystem->openFileById($ret[0]['entity_id']);
+        $file = $this->fileSystem->openFileById($ret[0]['entity_id'], $this->account->getAuthenticatedUser());
         $this->testFiles[] = $file; // For tearDown
 
         // Clean up for the second file
-        $file2 = $this->fileSystem->openFileById($ret[1]['entity_id']);
+        $file2 = $this->fileSystem->openFileById($ret[1]['entity_id'], $this->account->getAuthenticatedUser());
         $this->testFiles[] = $file2; // For tearDown Cleanup Cleanup
 
         // Test file
@@ -403,10 +403,10 @@ class FilesControllerTest extends TestCase
     {
         // Import a test file
         $fileToImport = __DIR__ . "/fixtures/files-upload-test.txt";
-        $importedFile = $this->fileSystem->importFile($fileToImport, "/testdownload");
+        $importedFile = $this->fileSystem->importFile($this->account->getAuthenticatedUser(), $fileToImport, "/testdownload");
         $this->testFiles[] = $importedFile;
         // Set created folder so we make sure we purge it
-        $folderEntity = $this->fileSystem->openFolder("/testdownload");
+        $folderEntity = $this->fileSystem->openFolder("/testdownload", $this->account->getAuthenticatedUser());
         $this->testFolders[] = $folderEntity;
 
         // Set which file to download in the request
@@ -437,10 +437,10 @@ class FilesControllerTest extends TestCase
     {
         // Import a test file
         $fileToImport = __DIR__ . "/../../data/image.png";
-        $importedFile = $this->fileSystem->importFile($fileToImport, "/testdownload");
+        $importedFile = $this->fileSystem->importFile($this->account->getAuthenticatedUser(), $fileToImport, "/testdownload");
         $this->testFiles[] = $importedFile;
         // Set created folder so we make sure we purge it
-        $folderEntity = $this->fileSystem->openFolder("/testdownload");
+        $folderEntity = $this->fileSystem->openFolder("/testdownload", $this->account->getAuthenticatedUser());
 
         // Set allowed enties for dacl field
         $this->testFolders[] = $folderEntity;
@@ -469,7 +469,7 @@ class FilesControllerTest extends TestCase
         //unlink($tempFilePath);
 
         // Get the newly created resized file entity (will copy $importedFile)
-        $resizedFile = $this->fileSystem->openFileById($headers['X-Entity']);
+        $resizedFile = $this->fileSystem->openFileById($headers['X-Entity'], $this->account->getAuthenticatedUser());
         $this->testFiles[] = $resizedFile;
 
         // Make sure the returned entity is different than the uploaded one
@@ -487,11 +487,11 @@ class FilesControllerTest extends TestCase
     {
         // Import a test profile image
         $fileToImport = __DIR__ . "/../../data/image.png";
-        $importedFile = $this->fileSystem->importFile($fileToImport, "/testdownload");
+        $importedFile = $this->fileSystem->importFile($this->account->getAuthenticatedUser(), $fileToImport, "/testdownload");
         $this->testFiles[] = $importedFile;
 
         // Set created folder so we make sure we purge it
-        $folderEntity = $this->fileSystem->openFolder("/testdownload");
+        $folderEntity = $this->fileSystem->openFolder("/testdownload", $this->account->getAuthenticatedUser());
 
         // Set allowed enties for dacl field
         $this->testFolders[] = $folderEntity;
@@ -523,7 +523,7 @@ class FilesControllerTest extends TestCase
         $headers = $response->getHeaders();
 
         // Get the newly created resized file entity (will copy $importedFile)
-        $resizedFile = $this->fileSystem->openFileById($headers['X-Entity']);
+        $resizedFile = $this->fileSystem->openFileById($headers['X-Entity'], $this->account->getAuthenticatedUser());
         $this->testFiles[] = $resizedFile;
 
         // Make sure we didn't stream an empty file

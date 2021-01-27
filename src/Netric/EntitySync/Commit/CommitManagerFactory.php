@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Commit;
 
-use Netric\ServiceManager;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntitySync\Commit\DataMapper\DataMapperFactory;
 
 /**
@@ -13,17 +13,17 @@ use Netric\EntitySync\Commit\DataMapper\DataMapperFactory;
  *
  * @package Netric\EntitySync\Commit\CommitManager
  */
-class CommitManagerFactory implements ServiceManager\AccountServiceFactoryInterface
+class CommitManagerFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return CommitManager
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $dm = $sl->get(DataMapperFactory::class);
+        $dm = $serviceLocator->get(DataMapperFactory::class);
         return new CommitManager($dm);
     }
 }

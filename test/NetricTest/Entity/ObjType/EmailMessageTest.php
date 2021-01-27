@@ -130,7 +130,7 @@ class EmailMessageTest extends TestCase
 
         // Add an attachment
         $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
-        $file = $fileSystem->createFile("%tmp%", "testfile.txt", true);
+        $file = $fileSystem->createFile("%tmp%", "testfile.txt", $this->account->getAuthenticatedUser(), true);
         $fileSystem->writeFile($file, "Textual Data", $this->user);
         $this->testEntities[] = $file;
         $emailMessage->addMultiValue("attachments", $file->getEntityId(), $file->getName());

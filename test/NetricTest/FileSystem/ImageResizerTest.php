@@ -9,6 +9,7 @@ namespace NetricTest\FileSystem;
 use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\ImageResizer;
 use Netric\Entity\ObjType;
+use NetricTest\Bootstrap;
 
 use PHPUnit\Framework\TestCase;
 
@@ -58,7 +59,7 @@ class ImageResizerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->fileSystem = $sl->get(FileSystem::class);
         $this->imageResizer = $sl->get(ImageResizer::class);
@@ -71,7 +72,7 @@ class ImageResizerTest extends TestCase
     {
         // Clean-up test files
         foreach ($this->testFiles as $file) {
-            $this->fileSystem->deleteFile($file, true);
+            $this->fileSystem->deleteFile($file, $this->getAccount()->getSystemUser(), true);
         }
     }
 
@@ -81,7 +82,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFile()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", true);
+        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->getAccount()->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -110,7 +111,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFileByMaxHeight()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", true);
+        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->getAccount()->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -139,7 +140,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFileByMaxWidth()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", true);
+        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->getAccount()->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -162,3 +163,4 @@ class ImageResizerTest extends TestCase
         $this->assertEquals(32, $sizes[1]);
     }
 }
+

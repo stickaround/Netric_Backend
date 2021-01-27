@@ -8,9 +8,12 @@
 namespace Netric\Entity\ObjType;
 
 use Netric\FileSystem\FileStore\FileStoreFactory;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Folder for entity
@@ -25,6 +28,17 @@ class FileEntity extends Entity implements EntityInterface
     private $fileHandle = null;
 
     /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     */
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    {
+        parent::__construct($def, $entityLoader);
+    }
+
+    /**
      * Clean-up file handle if not closed
      */
     public function __destruct()
@@ -36,31 +50,14 @@ class FileEntity extends Entity implements EntityInterface
     }
 
     /**
-     * Callback function used for derrived subclasses
-     *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
      * Called right before the endity is purged (hard delete)
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
-        $fileStore = $sm->get(FileStoreFactory::class);
+        $fileStore = $serviceLocator->get(FileStoreFactory::class);
 
         // When this file gets purged we should delete the raw data from the fileStore
         $fileStore->deleteFile($this);

@@ -9,7 +9,7 @@
 
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\Entity;
@@ -17,6 +17,7 @@ use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Folder for entity
@@ -38,23 +39,25 @@ class FolderEntity extends Entity implements EntityInterface
     private $entityIndex = null;
 
     /**
-     * @param EntityDefinition $def
-     * @param EntityLoader $entityLoader
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
      * @param IndexInterface $entityQueryIndex Index to find entities
      */
     public function __construct(EntityDefinition $def, EntityLoader $entityLoader, IndexInterface $entityQueryIndex)
     {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityQueryIndex;
+
         parent::__construct($def, $entityLoader);
     }
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceManager\AccountServiceManagerInterface $sm)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         $path = $this->getValue("name");
 
@@ -80,20 +83,12 @@ class FolderEntity extends Entity implements EntityInterface
     }
 
     /**
-     * Callback function used for derrived subclasses
-     *
-     * @param ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(ServiceManager\AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
      * Checks before a hard delete
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sm
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(ServiceManager\AccountServiceManagerInterface $sm)
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         if ($this->getValue("f_system") === true) {
             throw new \RuntimeException("A system folder cannot be deleted: " . $this->getFullPath());

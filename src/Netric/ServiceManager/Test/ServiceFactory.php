@@ -7,20 +7,21 @@
  */
 namespace Netric\ServiceManager\Test;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Class used to demonstrate loading a service through the ServiceManager
  */
-class ServiceFactory implements ServiceManager\AccountServiceFactoryInterface
+class ServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return mixed Initailized service object
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         return new Service();
     }

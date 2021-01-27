@@ -1,27 +1,27 @@
 <?php
 namespace Netric\Mail\Transport;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Mail\Transport\SmtpFactory;
 
 /**
  * Create the default SMTP transport
  */
-class TransportFactory implements AccountServiceFactoryInterface
+class TransportFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return TransportInterface
      * @throws Exception\InvalidArgumentException if a transport could not be created
      */
-    public function createService(AccountServiceManagerInterface $serviceManager)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         // Get the required method
-        $config = $serviceManager->get(ConfigFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
         $transportMode = $config->email['mode'];
 
         // Create transport variable to set
@@ -38,7 +38,7 @@ class TransportFactory implements AccountServiceFactoryInterface
         // Call the factory to return simple transports
         switch ($transportMode) {
             case 'smtp':
-                return $serviceManager->get(SmtpFactory::class);
+                return $serviceLocator->get(SmtpFactory::class);
             case 'in-memory':
                 return new InMemory();
             case 'sendmail':

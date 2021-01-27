@@ -7,7 +7,7 @@
 
 namespace Netric\EntityQuery\Plugin;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityQuery\EntityQuery;
 
 /**
@@ -18,18 +18,18 @@ interface PluginInterface
     /**
      * Perform an operation before a query is executed
      *
-     * @param AccountServiceManagerInterface $sl A service locator for getting dependencies
+     * @param ServiceLocatorInterface $serviceLocator A service locator for getting dependencies
      * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onBeforeExecuteQuery(AccountServiceManagerInterface $sl, EntityQuery $query);
+    public function onBeforeExecuteQuery(ServiceLocatorInterface $serviceLocator, EntityQuery $query);
 
     /**
      * Perform an operation after a query is executed
      *
-     * @param AccountServiceManagerInterface $sl A service locator for getting dependencies
+     * @param ServiceLocatorInterface $serviceLocator A service locator for getting dependencies
      * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onAfterExecuteQuery(AccountServiceManagerInterface $sl, EntityQuery $query);
+    public function onAfterExecuteQuery(ServiceLocatorInterface $serviceLocator, EntityQuery $query);
 }

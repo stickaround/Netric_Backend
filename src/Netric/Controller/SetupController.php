@@ -112,7 +112,7 @@ class SetupController extends Mvc\AbstractController
         foreach ($accounts as $account) {
             $response->write("Updating account {$account->getName()}. ");
             $updater = new AccountUpdater($account);
-            if (!$updater->runUpdates()) {
+            if (!$updater->runUpdates($accounts)) {
                 $log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
                 throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
             }

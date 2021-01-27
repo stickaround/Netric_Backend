@@ -27,7 +27,7 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Authentication\AuthenticationService;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Entity\EntityLoader;
-use Netric\ServiceManager\AccountServiceManager;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
 use DateTime;
@@ -73,7 +73,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         EntityDefinitionLoader $entityDefLoader,
         ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
-        AccountServiceManager $serviceManager,
+        ServiceLocatorInterface $serviceManager,
         RelationalDbContainer $dbContainer,
         WorkerService $workerService
     ) {

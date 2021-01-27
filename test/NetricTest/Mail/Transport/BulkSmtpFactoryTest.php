@@ -32,10 +32,10 @@ class BulkSmtpFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $this->oldSettings = [
-            'smtp_bulk_host' => $settings->get("email/smtp_bulk_host"),
-            'smtp_bulk_user' => $settings->get("email/smtp_bulk_user"),
-            'smtp_bulk_password' => $settings->get("email/smtp_bulk_password"),
-            'smtp_bulk_port' => $settings->get("email/smtp_bulk_port"),
+            'smtp_bulk_host' => $settings->get("email/smtp_bulk_host", $account->getAccountId()),
+            'smtp_bulk_user' => $settings->get("email/smtp_bulk_user", $account->getAccountId()),
+            'smtp_bulk_password' => $settings->get("email/smtp_bulk_password", $account->getAccountId()),
+            'smtp_bulk_port' => $settings->get("email/smtp_bulk_port", $account->getAccountId()),
         ];
     }
 
@@ -44,10 +44,10 @@ class BulkSmtpFactoryTest extends TestCase
         // Restore cached old settings
         $account = \NetricTest\Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
-        $settings->set("email/smtp_bulk_host", $this->oldSettings['smtp_bulk_host']);
-        $settings->set("email/smtp_bulk_user", $this->oldSettings['smtp_bulk_user']);
-        $settings->set("email/smtp_bulk_password", $this->oldSettings['smtp_bulk_password']);
-        $settings->set("email/smtp_bulk_port", $this->oldSettings['smtp_bulk_port']);
+        $settings->set("email/smtp_bulk_host", $this->oldSettings['smtp_bulk_host'], $account->getAccountId());
+        $settings->set("email/smtp_bulk_user", $this->oldSettings['smtp_bulk_user'], $account->getAccountId());
+        $settings->set("email/smtp_bulk_password", $this->oldSettings['smtp_bulk_password'], $account->getAccountId());
+        $settings->set("email/smtp_bulk_port", $this->oldSettings['smtp_bulk_port'], $account->getAccountId());
     }
 
     public function testCreateService()
@@ -70,10 +70,10 @@ class BulkSmtpFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $settings = $sm->get(SettingsFactory::class);
-        $settings->set('email/smtp_bulk_host', $testHost);
-        $settings->set('email/smtp_bulk_port', $testPort);
-        $settings->set('email/smtp_bulk_user', $testUser);
-        $settings->set('email/smtp_bulk_password', $testPassword);
+        $settings->set('email/smtp_bulk_host', $testHost, $account->getAccountId());
+        $settings->set('email/smtp_bulk_port', $testPort, $account->getAccountId());
+        $settings->set('email/smtp_bulk_user', $testUser, $account->getAccountId());
+        $settings->set('email/smtp_bulk_password', $testPassword, $account->getAccountId());
 
         $smtpFactory = new BulkSmtpFactory();
         $transport = $smtpFactory->createService($sm);

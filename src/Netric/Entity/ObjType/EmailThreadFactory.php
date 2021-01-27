@@ -5,10 +5,10 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\Entity\EntityInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\EntityInterface;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -21,14 +21,14 @@ class EmailThreadFactory implements EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return EntityInterface
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param EntityDefinition $def The definition of this type of object
+     * @return EntityInterface EmailThreadEntity
      */
-    public static function create(AccountServiceManagerInterface $sl)
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::EMAIL_THREAD, $sl->getAccount()->getAccountId());
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $entityQueryIndex = $sl->get(IndexFactory::class);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $entityQueryIndex = $serviceLocator->get(IndexFactory::class);
         return new EmailThreadEntity($def, $entityLoader, $entityQueryIndex);
     }
 }

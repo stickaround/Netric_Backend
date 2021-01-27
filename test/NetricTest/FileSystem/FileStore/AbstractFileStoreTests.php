@@ -41,7 +41,7 @@ abstract class AbstractFileStoreTests extends TestCase
      */
     private function getEntityDataMapper()
     {
-        return $this->getAccount()->getServiceManager()->get(EntityDataMapperFactory::class);
+        return $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
     }
 
     private function getAccount(): Account
@@ -51,12 +51,12 @@ abstract class AbstractFileStoreTests extends TestCase
 
     private function createTestFile()
     {
-        $loader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->getEntityDataMapper();
 
-        $file = $loader->create(ObjectTypes::FILE, $this->getAccount()->getAccountId());
+        $file = $loader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "test.txt");
-        $dataMapper->save($file, $this->getAccount()->getSystemUser());
+        $dataMapper->save($file, $this->account->getSystemUser());
 
         $this->testFiles[] = $file;
 
@@ -76,7 +76,7 @@ abstract class AbstractFileStoreTests extends TestCase
                 $fileStore->deleteFile($file);
             }
 
-            $dataMapper->delete($file, \NetricTest\Bootstrap::getAccount()->getAuthenticatedUser());
+            $dataMapper->delete($file, \NetricTest\Bootstrap::account->getAuthenticatedUser());
         }
     }
 
@@ -91,7 +91,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $bytesWritten = $fileStore->writeFile(
             $testFile,
             "test contents",
-            $this->getAccount()->getSystemUser()
+            $this->account->getSystemUser()
         );
         $this->assertNotEquals(-1, $bytesWritten);
         $this->assertEquals($testFile->getValue("file_size"), $bytesWritten);
@@ -113,7 +113,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $bytesWritten = $fileStore->writeFile(
             $testFile,
             $fileStream,
-            $this->getAccount()->getSystemUser()
+            $this->account->getSystemUser()
         );
         $this->assertNotEquals(-1, $bytesWritten);
         $this->assertEquals($testFile->getValue("file_size"), $bytesWritten);
@@ -133,7 +133,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $fileStore->writeFile(
             $testFile,
             $content,
-            $this->getAccount()->getSystemUser()
+            $this->account->getSystemUser()
         );
 
         $buf = $fileStore->readFile($testFile);
@@ -150,7 +150,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $uploadFilePath = __DIR__ . "/fixtures/file-to-upload.txt";
 
         // Test importing a file into the FileSystem
-        $ret = $fileStore->uploadFile($testFile, $uploadFilePath, $this->getAccount()->getAuthenticatedUser());
+        $ret = $fileStore->uploadFile($testFile, $uploadFilePath, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         // Try reading the file ato make sure data was imported
@@ -171,7 +171,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $uploadFile2Path = __DIR__ . "/fixtures/file-to-upload-2.txt";
 
         // Test importing a file into the FileSystem
-        $ret = $fileStore->uploadFile($testFile, $uploadFilePath, $this->getAccount()->getAuthenticatedUser());
+        $ret = $fileStore->uploadFile($testFile, $uploadFilePath, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         /*
@@ -182,7 +182,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $this->assertEquals("FileHasContent", $buf);
 
         // Re-import again with a new file
-        $ret = $fileStore->uploadFile($testFile, $uploadFile2Path, $this->getAccount()->getAuthenticatedUser());
+        $ret = $fileStore->uploadFile($testFile, $uploadFile2Path, $this->account->getAuthenticatedUser());
         $this->assertTrue($ret);
 
         /*
@@ -201,7 +201,7 @@ abstract class AbstractFileStoreTests extends TestCase
          * immediately after creating the file.
          */
         $dataMapper = $this->getEntityDataMapper();
-        $files = $dataMapper->getRevisions($testFile->getEntityId(), $this->getAccount()->getAccountId());
+        $files = $dataMapper->getRevisions($testFile->getEntityId(), $this->account->getAccountId());
         $keys = array_keys($files); // $fiels is an assoicative with key being revid
         $this->assertEquals(3, count($files));
         // The second revision (index 1) should be the first import
@@ -218,15 +218,15 @@ abstract class AbstractFileStoreTests extends TestCase
         $uploadFile2Path = __DIR__ . "/fixtures/file-to-upload-2.txt";
 
         // Upload two files, then make sure they are both deleted
-        $fileStore->uploadFile($testFile, $uploadFilePath, $this->getAccount()->getAuthenticatedUser());
-        $fileStore->uploadFile($testFile, $uploadFile2Path, $this->getAccount()->getAuthenticatedUser());
+        $fileStore->uploadFile($testFile, $uploadFilePath, $this->account->getAuthenticatedUser());
+        $fileStore->uploadFile($testFile, $uploadFile2Path, $this->account->getAuthenticatedUser());
 
         // Delete the file - which will purge all revisions
         $this->assertTrue($fileStore->deleteFile($testFile));
 
         // Now loop through all revisions and make sure we purged them
         $dataMapper = $this->getEntityDataMapper();
-        $files = $dataMapper->getRevisions($testFile->getEntityId(), $this->getAccount()->getAccountId());
+        $files = $dataMapper->getRevisions($testFile->getEntityId(), $this->account->getAccountId());
         foreach ($files as $rev => $file) {
             $this->assertFalse($fileStore->fileExists($file));
         }
@@ -244,7 +244,7 @@ abstract class AbstractFileStoreTests extends TestCase
         $fileStore->writeFile(
             $testFile,
             "test contents",
-            $this->getAccount()->getSystemUser()
+            $this->account->getSystemUser()
         );
         $this->assertTrue($fileStore->fileExists($testFile));
 

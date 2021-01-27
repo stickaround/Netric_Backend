@@ -9,7 +9,8 @@
 
 namespace Netric\WorkFlowLegacy;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Log\LogFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkFlowLegacy\DataMapper\WorkflowDataMapperFactory;
@@ -19,20 +20,19 @@ use Netric\WorkFlowLegacy\DataMapper\WorkflowDataMapperFactory;
  *
  * @package Netric\FileSystem
  */
-class WorkFlowLegacyManagerFactory implements ServiceManager\AccountServiceFactoryInterface
+class WorkFlowLegacyManagerFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $user = $sl->getAccount()->getUser();
-        $dataMapper = $sl->get(WorkflowDataMapperFactory::class);
-        $entityIndex = $sl->get(IndexFactory::class);
-        $log = $sl->get(LogFactory::class);
+        $dataMapper = $serviceLocator->get(WorkflowDataMapperFactory::class);
+        $entityIndex = $serviceLocator->get(IndexFactory::class);
+        $log = $serviceLocator->get(LogFactory::class);
 
         return new WorkFlowLegacyManager($dataMapper, $entityIndex, $log);
     }

@@ -2,78 +2,122 @@
 
 namespace Netric\Controller;
 
+use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
+use Netric\Mvc\AbstractFactoriedController;
+use Netric\Account\AccountContainerFactory;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Request\HttpRequest;
+use Netric\Authentication\AuthenticationService;
+use Netric\Application\Application;
 use Netric\Console\Console;
-use Netric\Authentication\AuthenticationServiceFactory;
-use Netric\Entity\EntityLoaderFactory;
 use Netric\Permissions\Dacl;
-use Netric\Mvc\AbstractController;
 
 /**
  * Controller for handling user authentication
  */
-class AuthenticationController extends AbstractController
+class AuthenticationController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
-     * Override to allow anonymous users to access this controller for authentication
-     *
-     * @return \Netric\Permissions\Dacl
+     * Container used to load accounts
      */
-    public function getAccessControlList()
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
+    /**
+     * The current application instance
+     */
+    private Application $application; 
+
+    /**
+     * Initialize controller and all dependencies
+     *
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
+     * @param AuthenticationService $authService Service used to get the current user/account
+     * @param Application $application The current application instance
+     */
+    public function __construct(
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,
+        Application $application
+    ) {
+        $this->accountContainer = $accountContainer;
+        $this->authService = $authService;
+        $this->application = $application;
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
     {
-        $dacl = new Dacl();
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
 
-        // By default allow everyone and let the controller handle authentication
-        $dacl->allowEveryone();
-
-        return $dacl;
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 
     /**
      * Authenticate a new user
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getAuthenticateAction()
-    {
-        $username = $this->request->getParam("username");
-        $password = $this->request->getParam("password");
-        $account = $this->request->getParam("account");
+    public function getAuthenticateAction(HttpRequest $request): HttpResponse
+    {        
+        $response = new HttpResponse($request);
+        
+        $username = $request->getParam("username");
+        $password = $request->getParam("password");
+        $account = $request->getParam("account");
 
         // Check if the request was sent as a json object
-        if ($this->request->getParam('Content-Type') === 'application/json') {
-            $body = json_decode($this->request->getBody(), true);
+        if ($request->getParam('Content-Type') === 'application/json') {
+            $rawBody = $request->getBody();
+            $body = json_decode($rawBody, true);
             $username = $body['username'];
             $password = $body['password'];
             $account = $body['account'];
         }
 
-        if (!$username || !$password || !$account) {
-            return $this->sendOutput(
+        if (!$username || !$password || !$account) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(
                 [
                     "result" => "FAIL",
                     "reason" => "username, password and account are required fields"
                 ]
             );
+            return $response;
         }
 
-        // Get the authentication service and authenticate the credentials
-        $sm = $this->getApplication()->getServiceManager();
-        $authService = $sm->get(AuthenticationServiceFactory::class);
-        $sessionStr = $authService->authenticate($username, $password, $account);
+        // Authenticate the credentials        
+        $sessionStr = $this->authService->authenticate($username, $password, $account);
 
         // Assume failure
         $ret = [
             "result" => "FAIL",
-            "reason" => $authService->getFailureReason(),
+            "reason" => $this->authService->getFailureReason(),
         ];
 
         // Return the status
         if ($sessionStr) {
             // Set cookie for non-app access such as server renders
             if (!Console::isConsole()) {
-                setcookie('Authentication', $sessionStr, $authService->getExpiresTs(), '/');
+                setcookie('Authentication', $sessionStr, $this->authService->getExpiresTs(), '/');
             }
 
             // Return session token
-            $identity = $authService->getIdentity();
+            $identity = $this->authService->getIdentity();
             $ret = [
                 "result" => "SUCCESS",
                 "session_token" => $sessionStr,
@@ -81,64 +125,68 @@ class AuthenticationController extends AbstractController
                 "account_id" => $identity->getAccountId(),
             ];
         }
-
-
-        return $this->sendOutput($ret);
+        
+        $response->write($ret);
+        return $response;
     }
 
     /**
      * Authenticate a new user - POST version
      */
-    public function postAuthenticateAction()
+    public function postAuthenticateAction(HttpRequest $request): HttpResponse
     {
-        return $this->getAuthenticateAction();
+        return $this->getAuthenticateAction($request);
     }
 
     /**
      * Clear an identity and log out
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getLogoutAction()
+    public function getLogoutAction(HttpRequest $request): HttpResponse
     {
+        $response = new HttpResponse($request);
+
         // Destroy any cookies
-        $this->request->setParam("Authentication", null);
+        $request->setParam("Authentication", null);
         if (!Console::isConsole()) {
             unset($_COOKIE['Authentication']);
             setcookie('Authentication', null, -1, '/');
         }
 
-        return $this->sendOutput(["result" => "SUCCESS"]);
+        $response->write(["result" => "SUCCESS"]);
+        return $response;
     }
 
     /**
      * POST pass-through for logout
      *
-     *  @return array|string
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function postLogoutAction()
+    public function postLogoutAction(HttpRequest $request): HttpResponse
     {
-        return $this->getLogoutAction();
+        return $this->getLogoutAction($request);
     }
 
     /**
      * Check if a session is still valid
      *
-     *  @return array|string
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getCheckinAction()
+    public function getCheckinAction(HttpRequest $request): HttpResponse
     {
-        $sm = $this->getApplication()->getServiceManager();
-        $authService = $sm->get(AuthenticationServiceFactory::class);
-
-        $ret = [
-            "result" => ($authService->getIdentity()) ? "OK" : "FAIL"
-        ];
+        $response = new HttpResponse($request);
+        $ret = ["result" => ($this->authService->getIdentity()) ? "OK" : "FAIL"];
 
         if (!Console::isConsole() && $ret['OK'] && !isset($_COOKIE['Authentication'])) {
             // Set the cookie for future requests to the server
             setcookie(
                 'Authentication',
-                $this->request->getParam('Authentication'),
-                $authService->getExpiresTs(),
+                $request->getParam('Authentication'),
+                $this->authService->getExpiresTs(),
                 '/'
             );
         } elseif (isset($_COOKIE['Authentication'])) {
@@ -147,7 +195,8 @@ class AuthenticationController extends AbstractController
             setcookie('Authentication', null, -1, '/');
         }
 
-        return $this->sendOutput($ret);
+        $response->write($ret);
+        return $response;
     }
 
     /**
@@ -155,21 +204,22 @@ class AuthenticationController extends AbstractController
      *
      * @return array|string
      */
-    public function postCheckinAction()
+    public function postCheckinAction(HttpRequest $request): HttpResponse
     {
-        return $this->getCheckinAction();
+        return $this->getCheckinAction($request);
     }
 
     /**
      * Get all accounts associated with a domain and return the name and instance URL
      */
-    public function postGetAccountsAction()
+    public function postGetAccountsAction(HttpRequest $request): HttpResponse
     {
-        $email = $this->request->getParam("email");
+        $response = new HttpResponse($request);
+        $email = $request->getParam("email");
 
         // Check if the request was sent as a json object
-        if ($this->request->getParam('Content-Type') === 'application/json') {
-            $body = json_decode($this->request->getBody(), true);
+        if ($request->getParam('Content-Type') === 'application/json') {
+            $body = json_decode($request->getBody(), true);
             $email = $body['email'];
         }
 
@@ -179,17 +229,18 @@ class AuthenticationController extends AbstractController
         $ret = [];
 
         if ($email) {
-            $ret = $this->getApplication()->getAccountsByEmail($email);
+            $ret = $this->application->getAccountsByEmail($email);
         }
 
-        return $this->sendOutput($ret);
+        $response->write($ret);
+        return $response;
     }
 
     /**
      * Get all accounts associated with a domain and return the name and instance URL
      */
-    public function getGetAccountsAction()
+    public function getGetAccountsAction(HttpRequest $request): HttpResponse
     {
-        return $this->postGetAccountsAction();
+        return $this->postGetAccountsAction($request);
     }
 }

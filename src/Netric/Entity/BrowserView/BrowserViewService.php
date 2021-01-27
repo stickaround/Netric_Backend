@@ -104,13 +104,13 @@ class BrowserViewService
         $settingKey = "entity/browser-view/default/$objType";
 
         // First check to see if they set their own default
-        $defaultViewId = $this->settings->getForUser($user, $settingKey);
+        $defaultViewId = $this->settings->getForUser($user, $settingKey, $user->getAccountId());
 
         // TODO: Check the user's team
 
         // Check to see if there is an account default
         if (!$defaultViewId) {
-            $defaultViewId = $this->settings->get($settingKey);
+            $defaultViewId = $this->settings->get($settingKey, $user->getAccountId());
         }
 
         // Now load the system default

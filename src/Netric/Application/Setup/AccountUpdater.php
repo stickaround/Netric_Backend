@@ -6,20 +6,13 @@ use Netric\Account\Account;
 use Netric\Error\AbstractHasErrors;
 use Netric\Console\BinScript;
 use Netric\Log\LogInterface;
-use Netric\Settings\SettingsFactory;
+use Netric\Settings\Settings;
 
 /**
  * Run updates on an account
  */
 class AccountUpdater extends AbstractHasErrors
 {
-    /**
-     * Account we are updating
-     *
-     * @var Account
-     */
-    private $account = null;
-
     /**
      * The current major, minor, and points versions for an account
      *
@@ -58,21 +51,25 @@ class AccountUpdater extends AbstractHasErrors
     private $rootPath = "";
 
     /**
-     * Application log
-     *
-     * @var LogInterface
+     * The settings service that will be used to get the schema version
      */
-    private $log = null;
+    private Settings $settings;
+
+    /**
+     * Application log
+     */
+    private LogInterface $log;
 
     /**
      * Constructor
      *
-     * @param Account $account
+     * @param Account $account The account of the current tennant
+     * @param Settings $settings The settings service that will be used to get the schema version
      */
-    public function __construct(Account $account)
+    public function __construct(Settings $settings, LogInterface $log)
     {
-        $this->account = $account;
-        $this->log = $account->getApplication()->getLog();
+        $this->settings = $settings;
+        $this->log = $log;
         $this->version = new \stdClass();
         $this->updatedToVersion = new \stdClass();
 
@@ -86,9 +83,10 @@ class AccountUpdater extends AbstractHasErrors
     /**
      * Save the last updated schema version to the settings for this account
      *
+     * $account The account of the current tennant
      * @returns The version that was saved
      */
-    public function saveUpdatedVersion(): string
+    public function saveUpdatedVersion(Account $account): string
     {
         $updated = false;
 
@@ -104,9 +102,8 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         if ($updated) {
-            $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;
-            $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
-            $settings->set("system/schema_version", $newversion);
+            $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;            
+            $this->settings->set("system/schema_version", $newversion, $account->getAccountId());
             return $newversion;
         }
 
@@ -118,12 +115,13 @@ class AccountUpdater extends AbstractHasErrors
      * Set the current account to whatever the latest version is
      * so that new accounts do not need to re-run all the updates.
      * That should not hurt anything, but it is a waste of time.
+     * 
+     * @param Account $account Account we are updating
      */
-    public function setCurrentAccountToLatestVersion()
+    public function setCurrentAccountToLatestVersion(Account $account)
     {
-        $latestversion = $this->getLatestVersion();
-        $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
-        $settings->set("system/schema_version", $latestversion);
+        $latestversion = $this->getLatestVersion($account);        
+        $this->settings->set("system/schema_version", $latestversion, $account->getAccountId());
 
         // Refresh the current version state
         $this->getCurrentVersion();
@@ -132,9 +130,10 @@ class AccountUpdater extends AbstractHasErrors
     /**
      * Gets the latest version of database schema from the file structure
      *
+     * @param Account $account Account we are updating
      * @return bool false on failure, true on success
      */
-    public function getLatestVersion()
+    public function getLatestVersion(Account $account)
     {
         // Flag to make this a dry run with no actual updates performed
         $this->executeUpdates = false;
@@ -147,7 +146,7 @@ class AccountUpdater extends AbstractHasErrors
         $this->version->point = 0;
 
         // This will get the major, minor and point versions
-        $this->runOnceUpdates();
+        $this->runOnceUpdates($account);
 
         $versionParts[] = $this->updatedToVersion->major;
         $versionParts[] = $this->updatedToVersion->minor;
@@ -175,11 +174,8 @@ class AccountUpdater extends AbstractHasErrors
      */
     public function getCurrentVersion(): string
     {
-        // Get the current version from settings
-        $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
-
         // We get bypassing any cache in case the version was reset in the db directly
-        $version = $settings->getNoCache("system/schema_version");
+        $version = $this->settings->getNoCache("system/schema_version");
 
         // Set current version counter
         $parts = explode(".", $version);
@@ -203,15 +199,16 @@ class AccountUpdater extends AbstractHasErrors
     /**
      * Run all updates for an account
      *
+     * @param Account $account Account we are updating
      * @return string Version in xxx.xxx.xxx format
      */
-    public function runUpdates()
+    public function runUpdates(Account $account)
     {
         // Run the one time scripts first
-        $version = $this->runOnceUpdates();
+        $version = $this->runOnceUpdates($account);
 
         // Now run scripts that are set to run on every update
-        $this->runAlwaysUpdates();
+        $this->runAlwaysUpdates($account);
 
         return $version;
     }
@@ -221,9 +218,10 @@ class AccountUpdater extends AbstractHasErrors
      *
      * These run every time an update is executed
      *
+     * @param Account @account Account we are updating
      * @return bool true on sucess, false on failure
      */
-    public function runAlwaysUpdates()
+    public function runAlwaysUpdates(Account $account)
     {
         $updatePath = $this->rootPath . "/always";
 
@@ -247,10 +245,10 @@ class AccountUpdater extends AbstractHasErrors
             if (substr($update, -3) == "php" && $this->executeUpdates) {
                 $this->log->info(
                     "AccountUpdater->runAlwaysUpdates: Running $updatePath.\"/\".$update" .
-                        " for " . $this->account->getName()
+                        " for " . $account->getName()
                 );
                 // Execute a script only on the current account
-                $script = new BinScript($this->account->getApplication(), $this->account);
+                $script = new BinScript($account->getApplication(), $account);
                 $script->run($updatePath . "/" . $update);
             }
         }
@@ -259,9 +257,10 @@ class AccountUpdater extends AbstractHasErrors
     /**
      * Run versioned update scripts that only run once then increment version
      *
+     * @param Account @account Account we are updating
      * @return string Last processed version in xxx.xxx.xxx format
      */
-    public function runOnceUpdates()
+    public function runOnceUpdates(Account $account)
     {
         $updatePath = $this->rootPath . "/once";
 
@@ -282,11 +281,11 @@ class AccountUpdater extends AbstractHasErrors
 
         // Get minor version directories
         foreach ($majors as $dir) {
-            $this->processMinorDirs($dir, $updatePath);
+            $this->processMinorDirs($dir, $updatePath, $account);
         }
 
         // Save the last updated version
-        $savedVersion = $this->saveUpdatedVersion();
+        $savedVersion = $this->saveUpdatedVersion($account);
 
         return $savedVersion;
     }
@@ -297,8 +296,9 @@ class AccountUpdater extends AbstractHasErrors
      * @param string $major The name of a major directory
      * @param string $base  The base or root of the path where the major dir is located
      * @return bool true on sucess, false on failure
+     * @param Account @account Account we are updating
      */
-    private function processMinorDirs($major, $base)
+    private function processMinorDirs(string $major, string $base, Account $account)
     {
         $path = $base . "/" . $major;
 
@@ -322,7 +322,7 @@ class AccountUpdater extends AbstractHasErrors
 
         // Pull updates/points from minor dirs
         foreach ($minors as $minor) {
-            $ret = $this->processPoints($minor, $major, $base);
+            $ret = $this->processPoints($minor, $major, $base, $account);
             if (!$ret) { // there was an error so stop processing
                 return false;
             }
@@ -337,8 +337,9 @@ class AccountUpdater extends AbstractHasErrors
      * @param string $minor The minor id we are working in now
      * @param string $major The major id we are working in now
      * @param string $base The base or root of the path where the major dir is located
+     * @param Account @account Account we are updating
      */
-    private function processPoints($minor, $major, $base)
+    private function processPoints(string $minor, string $major, string $base, Account $account)
     {
         $path = $base . "/" . $major . "/" . $minor;
 
@@ -397,15 +398,15 @@ class AccountUpdater extends AbstractHasErrors
                     $this->log->info(
                         "AccountUpdater->runOnceUpdates->processMinorDirs->processPoints: " .
                             "Running $path.\"/\".$update " .
-                            "for " . $this->account->getName()
+                            "for " . $account->getName()
                     );
 
                     // Execute a script only on the current account
-                    $script = new BinScript($this->account->getApplication(), $this->account);
+                    $script = new BinScript($account->getApplication(), $account);
                     $script->run($path . "/" . $update);
 
                     // Save the last updated version
-                    $this->saveUpdatedVersion();
+                    $this->saveUpdatedVersion($account);
                 }
 
                 // Update the point

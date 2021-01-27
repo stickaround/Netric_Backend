@@ -21,13 +21,6 @@ use Netric\Entity\ObjType\UserEntity;
 class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterface
 {
     /**
-     * Account/tenant ID
-     *
-     * @var int
-     */
-    private $accountId = null;
-
-    /**
      * Entity Loader for pulling revision data
      *
      * @var EntityLoader
@@ -77,7 +70,6 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
     /**
      * Class constructor
      *
-     * @param string $accountId The unique id of the tennant's account
      * @param EntityLoader $entityLoader An entity loader to save entitites. We need to use entity loader so it can cache the entity data.
      * @param string $tmpPath The temp folder path
      * @param string $mogileServer The server endpoint to connect to
@@ -85,14 +77,12 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      * @param int $mogilePort Optional port to connect to the mogile tracker to find files
      */
     public function __construct(
-        $accountId,
         EntityLoader $entityLoader,
         $tmpPath,
         string $mogileServer,
         string $mogileAccount,
         int $mogilePort = 7001
     ) {
-        $this->accountId = $accountId;
         $this->entityLoader = $entityLoader;
         $this->tmpPath = $tmpPath;
         $this->mogileServer = $mogileServer;
@@ -251,7 +241,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         }
 
         // Generate a unique id for the file
-        $key = $this->accountId . "/" . $file->getEntityId() . "/";
+        $key = $user->getAccountId() . "/" . $file->getEntityId() . "/";
         $key .= $file->getValue("revision") . "/" . $file->getName();
 
         // Put the file on the server
@@ -350,7 +340,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      */
     private function getTempName(FileEntity $file)
     {
-        return "file-" . $this->accountId . "-" . $file->getEntityId() . "-" . $file->getValue('revision');
+        return "file-" . $file->getAccountId() . "-" . $file->getEntityId() . "-" . $file->getValue('revision');
     }
 
     /**
