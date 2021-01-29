@@ -74,15 +74,14 @@ class AuthenticationController extends AbstractFactoriedController implements Co
      */
     public function getAuthenticateAction(HttpRequest $request): HttpResponse
     {        
-        $response = new HttpResponse($request);
-        
+        $response = new HttpResponse($request);        
         $username = $request->getParam("username");
         $password = $request->getParam("password");
         $account = $request->getParam("account");
 
         // Check if the request was sent as a json object
-        if ($request->getParam('Content-Type') === 'application/json') {
-            $rawBody = $request->getBody();
+        $rawBody = $request->getBody();
+        if ($rawBody) {
             $body = json_decode($rawBody, true);
             $username = $body['username'];
             $password = $body['password'];
@@ -94,7 +93,7 @@ class AuthenticationController extends AbstractFactoriedController implements Co
             $response->write(
                 [
                     "result" => "FAIL",
-                    "reason" => "username, password and account are required fields"
+                    "reason" => "username, password and account are required fields."
                 ]
             );
             return $response;

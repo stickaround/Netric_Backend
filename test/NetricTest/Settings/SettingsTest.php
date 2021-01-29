@@ -76,7 +76,7 @@ class SettingsTest extends TestCase
         $refSettings = new \ReflectionObject($this->settings);
         $getCached = $refSettings->getMethod("getCached");
         $getCached->setAccessible(true);
-        $this->assertEquals($testVal, $getCached->invoke($this->settings, $key));
+        $this->assertEquals($testVal, $getCached->invoke($this->settings, $this->account->getAccountId(), $key));
     }
 
     /**

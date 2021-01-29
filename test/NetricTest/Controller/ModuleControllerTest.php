@@ -6,10 +6,18 @@
 
 namespace NetricTest\Controller;
 
-use Netric\Controller\ModuleController;
-use Netric\Account\Module\ModuleServiceFactory;
+use Netric;
 use PHPUnit\Framework\TestCase;
-use NetricTest\Bootstrap;
+use Netric\Request\HttpRequest;
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
+use Netric\Controller\ModuleController;
+use Netric\Account\Module\ModuleService;
+use Netric\Account\Module\Module;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
@@ -17,119 +25,228 @@ use NetricTest\Bootstrap;
 class ModuleControllerTest extends TestCase
 {
     /**
-     * Account used for testing
-     *
-     * @var \Netric\Account\Account
+     * Initialized controller with mock dependencies
      */
-    protected $account = null;
+    private ModuleController $moduleController;
 
     /**
-     * Controller instance used for testing
-     *
-     * @var EntityController
+     * Dependency mocks
      */
-    protected $controller = null;
-
-    /**
-     * Test modules that should be cleaned up on tearDown
-     *
-     * @var ModuleInterface[]
-     */
-    private $testModules = [];
+    private AuthenticationService $mockAuthService;    
+    private Account $mockAccount;
+    private ModuleService $moduleService;
 
     protected function setUp(): void
     {
-        $this->account = Bootstrap::getAccount();
+        // Create mocks
+        $this->moduleService = $this->createMock(ModuleService::class);
 
-        // Get the service manager of the current user
-        $this->serviceManager = $this->account->getServiceManager();
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
 
-        // Create the controller
-        $this->controller = new ModuleController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Return mock authenticated account
+        $this->mockAccount = $this->createStub(Account::class);
+        $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
+
+        $this->accountContainer = $this->createMock(AccountContainerInterface::class);
+        $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
+        
+        // Create the controller with mocks
+        $this->moduleController = new ModuleController(
+            $this->accountContainer,
+            $this->mockAuthService,
+            $this->moduleService
+        );
+
+        $this->moduleController->testMode = true;
     }
 
     /**
-     * Cleanup after a test runs
+     * Test getting a module using module name
      */
-    protected function tearDown(): void
-    {
-        // Cleanup test modules
-        $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        foreach ($this->testModules as $module) {
-            $moduleService->delete($module);
-        }
-    }
-
     public function testGetGetAction()
     {
-        $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNewModule();
-        $module->setName("unit_test_module_get");
-        $module->setTitle("Unit Test Module");
-        $moduleService->save($module);
-        $this->testModules[] = $module;
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('moduleName', 'unit_test_module_get');
-
-        $ret = $this->controller->getGetAction();
-        $this->assertEquals($module->getModuleId(), $ret['id'], var_export($ret, true));
-    }
-
-    public function testSaveAction()
-    {
-        $data = [
-            'name' => "unit_test_module",
-            'title' => "Unit Test Module",
+        $moduleId = Uuid::uuid4()->toString();
+        $moduleData = [
+            'id' => $moduleId,
+            'name' => 'test_module',
+            'title' => 'Test Module'
         ];
 
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($data));
-        $ret = $this->controller->postSaveAction();
-
-        $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNewModule();
-        $module->fromArray($ret);
-        $this->testModules[] = $module;
-
-        $this->assertGreaterThan(0, $module->getModuleId());
-        $this->assertEquals($data['name'], $module->getName(), var_export($ret, true));
-        $this->assertEquals($data['title'], $module->getTitle(), var_export($ret, true));
+        $testModule = new Module();
+        $testModule->fromArray($moduleData);
+        
+        $this->moduleService->method('getByName')->willReturn($testModule);
+        
+        // Make sure getGetAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setParam('moduleName', 'test_module');
+        $response = $this->moduleController->getGetAction($request);
+        $this->assertEquals($testModule->toArray(), $response->getOutputBuffer());
     }
 
+    /**
+     * Catch the possible errors being thrown when there is a problem in getting a module
+     */
+    public function testGetGetActionCatchingErrors()
+    {   
+        // Make sure getGetAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setParam('bogus', 'data');
+        $response = $this->moduleController->getGetAction($request);
+        $this->assertEquals(['error' => 'moduleName is a required query param.'], $response->getOutputBuffer());
+    }
+
+    /**
+     * Test saving a module
+     */
+    public function testSaveAction()
+    {
+        $moduleId = Uuid::uuid4()->toString();
+        $moduleData = [
+            'id' => $moduleId,
+            'name' => 'test_module',
+            'title' => 'Test Module'
+        ];
+
+        $testModule = new Module();
+        $testModule->fromArray($moduleData);
+        
+        $this->moduleService->method('createNewModule')->willReturn(new Module());
+        $this->moduleService->method('save')->willReturn(true);
+        
+        // Make sure postSaveAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode($moduleData));
+        $response = $this->moduleController->postSaveAction($request);
+        $this->assertEquals($testModule->toArray(), $response->getOutputBuffer());
+    }
+
+    /**
+     * Catch the possible errors being thrown when there is a problem in saving a module
+     */
+    public function testSaveActionCatchingErrors()
+    {   
+        // Make sure postSaveAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->moduleController->postSaveAction($request);
+        $this->assertEquals(['error' => 'name is a required param.'], $response->getOutputBuffer());
+
+        $moduleId = Uuid::uuid4()->toString();
+        $moduleData = [
+            'id' => $moduleId,
+            'name' => 'test_module',
+            'title' => 'Test Module'
+        ];
+
+        $testModule = new Module();
+        $testModule->fromArray($moduleData);
+        
+        $this->moduleService->method('createNewModule')->willReturn(new Module());
+        $this->moduleService->method('save')->willReturn(false);
+
+        // Test if there is problem when saving a module, it should return the error
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode($moduleData));
+        $response = $this->moduleController->postSaveAction($request);
+        $this->assertEquals(['error' => 'Error saving the module.'], $response->getOutputBuffer());
+    }
+
+    /**
+     * Test deleting a module
+     */
     public function testDeleteAction()
     {
-        $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNewModule();
-        $module->setName("unit_test_module_delete");
-        $module->setTitle("Unit Test Module");
-        $moduleService->save($module);
+        $moduleId = Uuid::uuid4()->toString();
+        $moduleData = [
+            'id' => $moduleId,
+            'name' => 'test_module',
+            'title' => 'Test Module'
+        ];
 
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('id', $module->getModuleId());
-        $ret = $this->controller->postDeleteAction();
+        $testModule = new Module();
+        $testModule->fromArray($moduleData);
+        
+        $this->moduleService->method('getById')->willReturn($testModule);
+        $this->moduleService->method('delete')->willReturn(true);
+        
+        // Make sure postDeleteAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(["id" => $moduleId]));
+        $response = $this->moduleController->postDeleteAction($request);
+        $this->assertEquals(true, $response->getOutputBuffer());
+    }
 
-        $this->assertTrue($ret, var_export($module->toArray(), true));
+    /**
+     * Catch the possible errors being thrown when there is a problem in deleting a module
+     */
+    public function testDeleteActionCatchingErrors()
+    {   
+        // Make sure postSaveAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->moduleController->postDeleteAction($request);
+        $this->assertEquals(['error' => 'id is a required param.'], $response->getOutputBuffer());
+
+        $moduleId = Uuid::uuid4()->toString();
+        $moduleData = [
+            'id' => $moduleId,
+            'name' => 'test_module',
+            'title' => 'Test Module'
+        ];
+
+        $testModule = new Module();
+        $testModule->fromArray($moduleData);
+        
+        $this->moduleService->method('getById')->willReturn($testModule);
+        $this->moduleService->method('delete')->willReturn(false);
+
+        // Test if there is problem when deleting a module, it should return the error
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(["id" => $moduleId]));
+        $response = $this->moduleController->postDeleteAction($request);
+        $this->assertEquals(['error' => 'Error while trying to delete the module.'], $response->getOutputBuffer());
     }
 
     public function testGetGetAvailableModulesAction()
     {
-        $userId = $this->account->getUser()->getEntityId();
+        $moduleId1 = Uuid::uuid4()->toString();
+        $moduleData1 = [
+            'id' => $moduleId1,
+            'name' => 'test_module',
+            'title' => 'Test Module'
+        ];
 
-        $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNewModule();
-        $module->setName("unit_test_module_available");
-        $module->setTitle("Unit Test Module");
-        $module->setUserId($userId);
-        $moduleService->save($module);
-        $this->testModules[] = $module;
+        $moduleId2 = Uuid::uuid4()->toString();
+        $moduleData2 = [
+            'id' => $moduleId2,
+            'name' => 'test_module',
+            'title' => 'Test Module'
+        ];
 
-        $ret = $this->controller->getGetAvailableModulesAction();
-        $this->assertGreaterThan(0, sizeof($ret), var_export($ret, true));
-        $this->assertGreaterThan(0, $ret[0]["id"], var_export($ret, true));
+        $testModule1 = new Module();
+        $testModule1->fromArray($moduleData1);
+
+        $testModule2 = new Module();
+        $testModule2->fromArray($moduleData1);
+        
+        $this->moduleService->method('getForUser')->willReturn([$testModule1, $testModule2]);
+        
+        // Make sure getGetAvailableModulesAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);        
+        $response = $this->moduleController->getGetAvailableModulesAction($request);
+        $this->assertEquals([$testModule1->toArray(), $testModule2->toArray()], $response->getOutputBuffer());
     }
 }

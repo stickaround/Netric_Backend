@@ -127,7 +127,7 @@ class NotificationTest extends TestCase
         $notification->setMailTransport($transport);
 
         // Call onBeforeSave manually
-        $notification->onBeforeSave($this->account->getServiceManager());
+        $notification->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         $message = $transport->getLastMessage();
 

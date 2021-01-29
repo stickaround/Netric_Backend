@@ -188,8 +188,7 @@ class EntityController extends AbstractFactoriedController implements Controller
      * @return HttpResponse
      */
     public function getGetAction(HttpRequest $request): HttpResponse
-    {
-        $rawBody = $request->getBody();
+    {        
         $response = new HttpResponse($request);
 
         $id = $request->getParam('id'); // id for backwards compatibility

@@ -115,7 +115,7 @@ class ModuleServiceTest extends TestCase
         $user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
 
         // Make sure we can get modules for this entity
-        $modules = $this->moduleService->getForUser($user, $this->account->getAccountId());
+        $modules = $this->moduleService->getForUser($user);
         $this->assertGreaterThan(0, count($modules));
     }
 

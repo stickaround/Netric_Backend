@@ -2,39 +2,52 @@
 
 namespace Netric\Controller;
 
-use Netric\Mvc\AbstractController;
+use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
+use Netric\Mvc\AbstractFactoriedController;
 use Netric\Application\Response\HttpResponse;
+use Netric\Request\HttpRequest;
 use Netric\Application\Response\ConsoleResponse;
-use Netric\Application\Health\HealthCheckFactory;
-use Netric\Application\Health\HealthCheck;
-use Netric\Permissions\Dacl;
-use Netric\Entity\ObjType\UserEntity;
+use Netric\Application\Health\HealthCheckInterface;
+use Netric\Log\LogInterface;
 
 /**
  * Perform various healthchecks
  */
-class HealthController extends AbstractController
+class HealthController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
-     * Override to allow anonymous users to access this controller for authentication
-     *
-     * @return \Netric\Permissions\Dacl
+     * Service that will check the health of the system
      */
-    public function getAccessControlList()
-    {
-        // By default allow anonymous access to this controller
-        // Since only health/ping is accessible via http
-        $dacl = new Dacl();
-        $dacl->allowEveryone();
-        return $dacl;
+    private HealthCheckInterface $healthCheck;
+
+    /**
+     * Logger for recording what is going on
+     */
+    private LogInterface $log;
+
+    /**
+     * Initialize controller and all dependencies
+     *
+     * @param HealthCheckInterface $healthCheck Service that will check the health of the system
+     * @param LogInterface $log Logger for recording what is going on
+     */
+    public function __construct(
+        HealthCheckInterface $healthCheck,
+        LogInterface $log
+    ) {
+        $this->healthCheck = $healthCheck;
+        $this->log = $log;
     }
 
     /**
      * For public ping of the server
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getPingAction()
+    public function getPingAction(HttpRequest $request): HttpResponse
     {
-        $request = $this->getRequest();
         $response = new HttpResponse($request);
         $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
         return $response;
@@ -42,26 +55,21 @@ class HealthController extends AbstractController
 
     /**
      * For console requests
+     * 
+     * @return HttpResponse
      */
-    public function consoleTestAction()
+    public function consoleTestAction(): ConsoleResponse
     {
-        $response = new ConsoleResponse($this->application->getLog());
+        $response = new ConsoleResponse($this->log);
 
         if ($this->testMode) {
             $response->suppressOutput(true);
         }
 
-
-        // Get ServiceManager for the application
-        $serviceLocator = $this->account->getServiceManager();
-
-        // Get the HealthCheck service
-        $healthCheck = $serviceLocator->get(HealthCheckFactory::class);
-
-        if (!$healthCheck->isSystemHealthy()) {
+        if (!$this->healthCheck->isSystemHealthy()) {
             $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
             $response->writeLine('FAIL: The system is unhealthy');
-            $response->writeLine(var_export($healthCheck->getReportedErrors(), true));
+            $response->writeLine(var_export($this->healthCheck->getReportedErrors(), true));
             return $response;
         }
 
@@ -72,25 +80,22 @@ class HealthController extends AbstractController
 
     /**
      * Check to see if dependencies are online
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function consoleTestDependenciesAction()
+    public function consoleTestDependenciesAction(): ConsoleResponse
     {
-        $response = new ConsoleResponse($this->application->getLog());
+        $response = new ConsoleResponse($this->log);
 
         if ($this->testMode) {
             $response->suppressOutput(true);
         }
 
-        // Get ServiceManager for the application
-        $serviceLocator = $this->application->getServiceManager();
-
-        // Get the HealthCheck service
-        $healthcheck = $serviceLocator->get(HealthCheckFactory::class);
-
-        if (!$healthcheck->areDependenciesLive()) {
+        if (!$this->healthCheck->areDependenciesLive()) {
             $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
             $response->writeLine('FAIL: Not all dependencies are available');
-            $response->writeLine(var_export($healthcheck->getReportedErrors(), true));
+            $response->writeLine(var_export($this->healthCheck->getReportedErrors(), true));
             return $response;
         }
 

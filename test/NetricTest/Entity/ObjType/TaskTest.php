@@ -64,7 +64,7 @@ class TaskTest extends TestCase
         $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue('status_id', 1, TaskEntity::STATUS_COMPLETED);
         $mockServiceManager = $this->getMockBuilder(ServiceLocatorInterface::class)->getMock();
-        $task->onBeforeSave($mockServiceManager);
+        $task->onBeforeSave($mockServiceManager, $this->account->getSystemUser());
         $this->assertTrue($task->getValue('done'));
     }
 

@@ -11,6 +11,7 @@ use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Account\AccountContainerFactory;
 
 /**
  * Create a new notification entity
@@ -27,6 +28,7 @@ class NotificationFactory implements EntityFactoryInterface
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new NotificationEntity($def, $entityLoader);
+        $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
+        return new NotificationEntity($def, $entityLoader, $accountContainer);
     }
 }

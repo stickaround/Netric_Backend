@@ -308,7 +308,7 @@ class EmailMessageTest extends TestCase
     }
 
     public function testOnBeforeSave()
-    {
+    {        
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create first message - this makes a new thread
@@ -318,7 +318,7 @@ class EmailMessageTest extends TestCase
         $email->setValue('owner_id', $this->account->getAuthenticatedUser()->getEntityId());
 
         // Run through onBeforeSave and make sure it worked
-        $email->onBeforeSave($this->account->getServiceManager());
+        $email->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Should have generated a message Id
         $this->assertNotEmpty($email->getValue("message_id"));

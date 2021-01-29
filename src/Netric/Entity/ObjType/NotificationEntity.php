@@ -20,6 +20,7 @@ use Netric\Log\LogFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\Account\AccountContainerInterface;
 
 /**
  * Notification entity
@@ -41,14 +42,21 @@ class NotificationEntity extends Entity implements EntityInterface
     private $entityLoader = null;
 
     /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer; 
+
+    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader The loader for a specific entity
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader, AccountContainerInterface $accountContainer)
     {
         $this->entityLoader = $entityLoader;
+        $this->accountContainer = $accountContainer;
         parent::__construct($def, $entityLoader);
     }
 
@@ -101,6 +109,9 @@ class NotificationEntity extends Entity implements EntityInterface
      */
     private function sendEmailNotification(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
+        // Get the account
+        $account = $this->accountContainer->loadById($this->getAccountId());
+
         // Make sure the notification has an owner or a creator
         if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id"))) {
             return;
@@ -169,7 +180,7 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // Add special dropbox that enables users to comment by just replying to an email
         if ($config->email['dropbox_catchall']) {
-            $fromEmail = $serviceLocator->getAccount()->getName() . "-com-";
+            $fromEmail = $account->getName() . "-com-";
             $fromEmail .= $objReference;
             $fromEmail .= $config->email['dropbox_catchall'];
         }

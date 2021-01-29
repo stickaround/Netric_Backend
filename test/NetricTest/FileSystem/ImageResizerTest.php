@@ -72,7 +72,7 @@ class ImageResizerTest extends TestCase
     {
         // Clean-up test files
         foreach ($this->testFiles as $file) {
-            $this->fileSystem->deleteFile($file, $this->getAccount()->getSystemUser(), true);
+            $this->fileSystem->deleteFile($file, $this->account->getSystemUser(), true);
         }
     }
 
@@ -82,7 +82,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFile()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->getAccount()->getSystemUser(), true);
+        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->account->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -91,7 +91,7 @@ class ImageResizerTest extends TestCase
         $this->testFiles[] = $file; // For cleanup
 
         // Resize the image
-        $resizedFile = $this->imageResizer->resizeFile($file, 64, -1, $this->tempPath);
+        $resizedFile = $this->imageResizer->resizeFile($this->account->getSystemUser(), $file, 64, -1, $this->tempPath);
         $this->testFiles[] = $resizedFile;
 
         $this->assertGreaterThan(0, $resizedFile->getValue("file_size"));
@@ -111,7 +111,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFileByMaxHeight()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->getAccount()->getSystemUser(), true);
+        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->account->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -120,7 +120,7 @@ class ImageResizerTest extends TestCase
         $this->testFiles[] = $file; // For cleanup
 
         // Resize the image
-        $resizedFile = $this->imageResizer->resizeFile($file, -1, 32, $this->tempPath);
+        $resizedFile = $this->imageResizer->resizeFile($this->account->getSystemUser(), $file, -1, 32, $this->tempPath);
         $this->testFiles[] = $resizedFile;
 
         $this->assertGreaterThan(0, $resizedFile->getValue("file_size"));
@@ -140,7 +140,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFileByMaxWidth()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->getAccount()->getSystemUser(), true);
+        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->account->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -149,7 +149,7 @@ class ImageResizerTest extends TestCase
         $this->testFiles[] = $file; // For cleanup
 
         // Resize the image
-        $resizedFile = $this->imageResizer->resizeFile($file, 32, -1, $this->tempPath);
+        $resizedFile = $this->imageResizer->resizeFile($this->account->getSystemUser(), $file, 32, -1, $this->tempPath);
         $this->testFiles[] = $resizedFile;
 
         $this->assertGreaterThan(0, $resizedFile->getValue("file_size"));

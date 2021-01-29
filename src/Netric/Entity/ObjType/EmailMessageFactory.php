@@ -13,6 +13,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Account\AccountContainerFactory;
 
 /**
  * Create a new email entity
@@ -31,6 +32,7 @@ class EmailMessageFactory implements EntityFactoryInterface
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $entityQueryIndex = $serviceLocator->get(IndexFactory::class);
         $fileSystem = $serviceLocator->get(FileSystemFactory::class);
-        return new EmailMessageEntity($def, $entityLoader, $entityQueryIndex, $fileSystem);
+        $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
+        return new EmailMessageEntity($def, $entityLoader, $entityQueryIndex, $fileSystem, $accountContainer);
     }
 }

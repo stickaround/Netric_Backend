@@ -17,14 +17,9 @@ use Netric\Entity\Forms;
 use Netric\Entity\ObjType\TaskEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\BrowserView\BrowserViewService;
-use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
-use Netric\Entity\DataMapper\EntityDataMapperFactory;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityDefinition\EntityDefinitionLoader;
-use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityGroupings\EntityGroupings;
@@ -945,7 +940,7 @@ class EntityControllerTest extends TestCase
             "f_system" => true,
             "sort_order" => 1,
             "commit_id" => 1
-        ];        
+        ];
         
         // Create entity definition for testing
         $mockDefinition = $this->createMock(EntityDefinition::class);
@@ -961,7 +956,6 @@ class EntityControllerTest extends TestCase
         $mockEntityGroupings = $this->createMock(EntityGroupings::class);
         $mockEntityGroupings->method('getByGuidOrGroupId')->willReturn($mockEntityGroup);
         $mockEntityGroupings->method('toArray')->willReturn([$groupDetails]);
-        
 
         // Mock the grouping loader service which is used to get the entity groupings
         $this->mockGroupingLoader->method('get')->willReturn($mockEntityGroupings);

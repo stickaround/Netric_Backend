@@ -112,7 +112,7 @@ class FileSystemTest extends TestCase
      */
     public function testGetRootFolder()
     {
-        $this->assertNotNull($this->fileSystem->getRootFolder());
+        $this->assertNotNull($this->fileSystem->getRootFolder($this->account->getSystemUser()));
     }
 
     /**
@@ -121,7 +121,7 @@ class FileSystemTest extends TestCase
     public function testOpenFolder()
     {
         // Create some test folders
-        $rootFolder = $this->fileSystem->getRootFolder();
+        $rootFolder = $this->fileSystem->getRootFolder($this->account->getSystemUser());
 
         // Cleanup first
         if ($this->fileSystem->openFolder("/testOpenSub", $this->account->getAuthenticatedUser())) {
@@ -199,7 +199,7 @@ class FileSystemTest extends TestCase
         $folderId = $testFolder->getEntityId();
 
         // Try to re-open the above folder by id
-        $sameFolder = $this->fileSystem->openFolderById($folderId);
+        $sameFolder = $this->fileSystem->openFolderById($folderId, $this->account->getAuthenticatedUser());
         $this->assertNotNull($sameFolder);
         $this->assertEquals($folderId, $sameFolder->getEntityId());
     }
@@ -338,7 +338,7 @@ class FileSystemTest extends TestCase
     public function testDeleteFolder()
     {
         // Create some test folders
-        $rootFolder = $this->fileSystem->getRootFolder();
+        $rootFolder = $this->fileSystem->getRootFolder($this->account->getSystemUser());
 
         // Cleanup first
         if ($this->fileSystem->openFolder("/testDeleteFolder", $this->account->getAuthenticatedUser())) {

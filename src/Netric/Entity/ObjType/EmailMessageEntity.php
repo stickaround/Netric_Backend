@@ -19,6 +19,7 @@ use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\Account\AccountContainerInterface;
 
 /**
  * Email entity extension
@@ -59,6 +60,11 @@ class EmailMessageEntity extends Entity implements EntityInterface
     private $fileSystem = null;
 
     /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer; 
+
+    /**
      * Body types
      */
     const BODY_TYPE_PLAIN = 'plain';
@@ -71,16 +77,19 @@ class EmailMessageEntity extends Entity implements EntityInterface
      * @param EntityLoader $entityLoader Loader to get/save entities
      * @param IndexInterface $entityIndex Index to query entities
      * @param FileSystem $fileSystem Used for working with netric files
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
      */
     public function __construct(
         EntityDefinition $def, 
         EntityLoader $entityLoader, 
         IndexInterface $entityIndex, 
-        FileSystem $fileSystem
+        FileSystem $fileSystem,
+        AccountContainerInterface $accountContainer
     ) {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
+        $this->accountContainer = $accountContainer;
 
         parent::__construct($def, $entityLoader);
     }
@@ -478,7 +487,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     private function addMimeAttachments(Mime\Message $mimeMessage)
     {
-        $user = $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
+        // Get the account
+        $account = $this->accountContainer->loadById($this->getAccountId());
+        $user = $account->getAuthenticatedUser();
         
         // Add attachments to the mime message
         $attachments = $this->getValue("attachments");

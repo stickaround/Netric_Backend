@@ -72,7 +72,7 @@ class FolderTest extends TestCase
         $account = Bootstrap::getAccount();
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = $loader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
-        $rootFolderEntity = $entity->getRootFolder();
+        $rootFolderEntity = $entity->getRootFolder($this->account->getSystemUser());
 
         $this->assertNotNull($rootFolderEntity);
 

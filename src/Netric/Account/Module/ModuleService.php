@@ -64,12 +64,11 @@ class ModuleService
      * Load modules for a specific user
      *
      * @param UserEntity $user The user to get modules for
-     * @param string $accountId The account id that owns the modules
      * @return Module[]
      */
-    public function getForUser(UserEntity $user, string $accountId)
+    public function getForUser(UserEntity $user)
     {
-        $all = $this->moduleDataMapper->getAll($accountId);
+        $all = $this->moduleDataMapper->getAll($user->getAccountId());
         $userModules = [];
 
         // Loop through each module to see if it applies to the user
