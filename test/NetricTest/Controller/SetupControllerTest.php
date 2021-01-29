@@ -4,8 +4,18 @@ namespace NetricTest\Controller;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\Request\HttpRequest;
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Application\Application;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\SetupController;
-use NetricTest\Bootstrap;
+use Netric\Log\LogInterface;
+use Netric\Account\AccountSetup;
+use Netric\Application\DatabaseSetup;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Test querying ElasticSearch server
@@ -20,40 +30,48 @@ use NetricTest\Bootstrap;
 class SetupControllerTest extends TestCase
 {
     /**
-     * Constructed controller
-     *
-     * @var SetupController
+     * Initialized controller with mock dependencies
      */
-    private $controller = null;
+    private SetupController $setupController;
 
     /**
-     * Array of account names to delete on shutDown
-     *
-     * @var string[]
+     * Dependency mocks
      */
-    private $accountsToCleanup = [];
+    private AuthenticationService $mockAuthService;    
+    private Account $mockAccount;
+    private ModuleService $moduleService;
 
-    /**
-     * Construct the controller
-     *
-     * @return void
-     */
     protected function setUp(): void
     {
-        $account = Bootstrap::getAccount();
-        $this->controller = new SetupController($account->getApplication(), $account);
-        $this->controller->testMode = true;
-    }
+        // Create mocks        
+        $this->accountSetup = $this->createMock(AccountSetup::class);
+        $this->dbSetup = $this->createMock(DatabaseSetup::class);
+        $this->mockLog = $this->createMock(LogInterface::class);
+        $this->mockApplication = $this->createMock(Application::class);
 
-    /**
-     * Cleanup after each test
-     */
-    protected function tearDown(): void
-    {
-        $account = Bootstrap::getAccount();
-        foreach ($this->accountsToCleanup as $tempAccountName) {
-            $account->getApplication()->deleteAccount($tempAccountName);
-        }
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
+
+        // Return mock authenticated account
+        $this->mockAccount = $this->createStub(Account::class);
+        $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
+
+        $this->accountContainer = $this->createMock(AccountContainerInterface::class);
+        $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
+        
+        // Create the controller with mocks
+        $this->setupController = new SetupController(
+            $this->accountContainer,
+            $this->mockAuthService,
+            $this->accountSetup,
+            $this->dbSetup,
+            $this->mockLog,
+            $this->mockApplication,
+        );
+
+        $this->setupController->testMode = true;
     }
 
     /**
@@ -61,23 +79,22 @@ class SetupControllerTest extends TestCase
      */
     public function testTest()
     {
-        $con = $this->controller;
-        $request = $con->getRequest();
+        $request = new HttpRequest();
+
         // Queue to run the first script which does not really do anything
         $request->setParam("script", "update/once/005/001/001.php");
-        $ret = $con->consoleRunAction();
+        $ret = $this->setupController->consoleRunAction($request);
+        
         // If the return code is 0, then it executed successfully
         $this->assertEquals(0, $ret->getReturnCode());
     }
 
     /**
      * Make sure the latest version gets returned when queried
-     *
-     * @return int
      */
     public function testGetVersionAction()
     {
-        $ret = $this->controller->getVersionAction();
+        $ret = $this->setupController->getVersionAction();
         $this->assertGreaterThan(0, $ret);
     }
 
@@ -89,53 +106,37 @@ class SetupControllerTest extends TestCase
     public function testPostCreateAccountAction()
     {
         $tempAccountName = 'testpostcreateaccount';
+        $accountId = Uuid::uuid4()->toString();
+        $accountDetails = [
+            "account_id" => $accountId,
+            "name" => $tempAccountName,
+            "database" => "test_db",
+            "description" => "Test Description"
+        ];
 
         // Queue for cleanup
         $this->accountsToCleanup[] = $tempAccountName;
 
         // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode([
+        $request = new HttpRequest();
+        $request->setBody(json_encode([
             'account_name' => $tempAccountName,
             'username' => 'test2',
             'email' => 'test2@netric.com',
             'password' => 'PassRandNeverLogin!',
         ]));
 
-        $response = $this->controller->postCreateAccountAction();
+        $this->accountSetup->method('getUniqueAccountName')->willReturn($tempAccountName);
+        $this->mockApplication->method('createAccount')->willReturn($this->mockAccount);
+        $this->mockAccount->method('toArray')->willReturn($accountDetails);
+
+        $request->setParam('buffer_output', 1);
+        $response = $this->setupController->postCreateAccountAction($request);
         $output = $response->getOutputBuffer();
 
         // Make sure the accounts
         $this->assertNotEmpty($output['account_id']);
+        $this->assertEquals($output['account_id'], $accountId);
         $this->assertEquals($tempAccountName, $output['name']);
-    }
-
-    /**
-     * Test creating a new account
-     *
-     * @return void
-     */
-    public function testPostCreateAccountActionDuplicateName()
-    {
-        // This is the same as the account created on bootstrap
-        $tempAccountName = 'autotest';
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode([
-            'account_name' => $tempAccountName,
-            'username' => 'test2@netric.com',
-            'password' => 'PassRandNeverLogin!',
-        ]));
-
-        $response = $this->controller->postCreateAccountAction();
-        $output = $response->getOutputBuffer();
-
-        // Queue for cleanup
-        $this->accountsToCleanup[] = $output['name'];
-
-        // Make sure the accounts
-        $this->assertNotEmpty($output['account_id']);
-        $this->assertNotEquals('local', $output['name']);
     }
 }

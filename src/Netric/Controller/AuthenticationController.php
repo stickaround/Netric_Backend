@@ -32,7 +32,7 @@ class AuthenticationController extends AbstractFactoriedController implements Co
     /**
      * The current application instance
      */
-    private Application $application; 
+    private Application $application;
 
     /**
      * Initialize controller and all dependencies

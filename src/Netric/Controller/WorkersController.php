@@ -23,18 +23,6 @@ class WorkersController extends Mvc\AbstractController
     private $workerService = null;
 
     /**
-     * Since the only methods in this class are console then we allow for anonymous
-     *
-     * @return Dacl
-     */
-    public function getAccessControlList()
-    {
-        $dacl = new Dacl();
-        $dacl->allowEveryone();
-        return $dacl;
-    }
-
-    /**
      * Optionally override the default worker service
      *
      * This will most likely be used in testing and automation

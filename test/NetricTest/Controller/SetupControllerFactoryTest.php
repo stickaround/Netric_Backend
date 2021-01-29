@@ -6,15 +6,15 @@ use Netric\Account\Account;
 use Netric\FileSystem\FileSystem;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
-use Netric\Controller\HealthControllerFactory;
-use Netric\Controller\HealthController;
+use Netric\Controller\SetupControllerFactory;
+use Netric\Controller\SetupController;
 
 /**
- * Test calling the health controller factory
+ * Test calling the setup controller factory
  *
  * @group integration
  */
-class HealthControllerFactoryTest extends TestCase
+class SetupControllerFactoryTest extends TestCase
 {
     /**
      * Make sure the factory works
@@ -23,8 +23,8 @@ class HealthControllerFactoryTest extends TestCase
     {
         $account = Bootstrap::getAccount();
         $serviceManager = $account->getServiceManager();
-        $controllerFactory = new HealthControllerFactory();
-        $healthController = $controllerFactory->get($serviceManager);
-        $this->assertInstanceOf(HealthController::class, $healthController);
+        $controllerFactory = new SetupControllerFactory();
+        $setupController = $controllerFactory->get($serviceManager);
+        $this->assertInstanceOf(SetupController::class, $setupController);
     }
 }

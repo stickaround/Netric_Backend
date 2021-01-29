@@ -56,7 +56,7 @@ class HealthController extends AbstractFactoriedController implements Controller
     /**
      * For console requests
      * 
-     * @return HttpResponse
+     * @return ConsoleResponse
      */
     public function consoleTestAction(): ConsoleResponse
     {
@@ -81,8 +81,7 @@ class HealthController extends AbstractFactoriedController implements Controller
     /**
      * Check to see if dependencies are online
      * 
-     * @param HttpRequest $request Request object for this run
-     * @return HttpResponse
+     * @return ConsoleResponse
      */
     public function consoleTestDependenciesAction(): ConsoleResponse
     {

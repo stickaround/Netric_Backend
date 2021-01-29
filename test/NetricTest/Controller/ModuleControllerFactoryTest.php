@@ -10,7 +10,7 @@ use Netric\Controller\ModuleControllerFactory;
 use Netric\Controller\ModuleController;
 
 /**
- * Test calling the entity query controller factory
+ * Test calling the module controller factory
  *
  * @group integration
  */
