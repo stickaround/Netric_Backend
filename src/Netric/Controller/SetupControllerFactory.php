@@ -12,9 +12,9 @@ use Netric\Application\DatabaseSetupFactory;
 use Netric\Log\LogFactory;
 
 /**
- * Construct the ModuleControllerFactory for interacting with email messages
+ * Construct the SetupControllerFactory for interacting with email messages
  */
-class ModuleControllerFactory implements ControllerFactoryInterface
+class SetupControllerFactory implements ControllerFactoryInterface
 {
     /**
      * Construct a controller and return it
@@ -31,7 +31,7 @@ class ModuleControllerFactory implements ControllerFactoryInterface
         $log = $serviceLocator->get(LogFactory::class);
         $application = $serviceLocator->getApplication();
 
-        return new ModuleController(
+        return new SetupController(
             $accountContainer,
             $authService,
             $accountSetup,
