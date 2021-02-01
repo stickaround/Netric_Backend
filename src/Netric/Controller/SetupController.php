@@ -203,10 +203,10 @@ class SetupController extends AbstractFactoriedController implements ControllerI
     /**
      * Run a specific script
      * 
-     * @param HttpRequest | ConsoleRequest $request Request object for this run
+     * @param ConsoleRequest $request Request object for this run
      * @return ConsoleResponse
      */
-    public function consoleRunAction($request): ConsoleResponse
+    public function consoleRunAction(ConsoleRequest $request): ConsoleResponse
     {
         $rootPath = dirname(__FILE__) . "/../../../bin/scripts";
         $scriptName = $request->getParam("script");

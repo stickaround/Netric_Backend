@@ -5,6 +5,7 @@ namespace NetricTest\Controller;
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
+use Netric\Request\ConsoleRequest;
 use Netric\Account\Account;
 use Netric\Account\AccountContainerInterface;
 use Netric\Application\Response\HttpResponse;
@@ -79,7 +80,7 @@ class SetupControllerTest extends TestCase
      */
     public function testTest()
     {
-        $request = new HttpRequest();
+        $request = new ConsoleRequest();
 
         // Queue to run the first script which does not really do anything
         $request->setParam("script", "update/once/005/001/001.php");

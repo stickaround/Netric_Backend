@@ -86,10 +86,10 @@ class WorkersController extends AbstractFactoriedController implements Controlle
      *  --deamon = 1 If set then we will not print any output
      *  --runtime = [seconds] The number of seconds to run before returning
      * 
-     * @param ConsoleRequest | HttpRequest $request Request object for this run
+     * @param ConsoleRequest $request Request object for this run
      * @return ConsoleResponse
      */
-    public function consoleProcessAction($request): ConsoleResponse
+    public function consoleProcessAction(ConsoleRequest $request): ConsoleResponse
     {
         $response = new ConsoleResponse($this->log);
 

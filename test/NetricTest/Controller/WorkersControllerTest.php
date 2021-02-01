@@ -18,6 +18,7 @@ use Netric\Authentication\AuthenticationIdentity;
 use Netric\WorkerMan\WorkerService;
 use Netric\Controller\WorkersController;
 use Netric\Log\LogInterface;
+use Netric\Request\ConsoleRequest;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -77,7 +78,7 @@ class WorkersControllerTest extends TestCase
     public function testConsoleProcessAction()
     {
         // Set params in the request
-        $request = new HttpRequest();
+        $request = new ConsoleRequest();
         $request->setParam("runtime", 1); // Only run for 1 second
         $request->setParam("suppressoutput", 1); // Do not allow echo
 
