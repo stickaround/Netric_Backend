@@ -7,10 +7,18 @@
 namespace NetricTest\Controller;
 
 use Netric;
+use PHPUnit\Framework\TestCase;
+use Netric\Request\HttpRequest;
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Application\Application;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
 use Netric\WorkerMan\WorkerService;
 use Netric\Controller\WorkersController;
-use PHPUnit\Framework\TestCase;
-use NetricTest\Bootstrap;
+use Netric\Log\LogInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
@@ -18,42 +26,49 @@ use NetricTest\Bootstrap;
 class WorkersControllerTest extends TestCase
 {
     /**
-     * Account used for testing
-     *
-     * @var \Netric\Account\Account
+     * Initialized controller with mock dependencies
      */
-    protected $account = null;
+    private WorkersController $workersController;
 
     /**
-     * Controller instance used for testing
-     *
-     * @var WorkersController
+     * Dependency mocks
      */
-    protected $controller = null;
-
-    /**
-     * Mock worker service to interact with
-     *
-     * @var WorkerService
-     */
-    private $workerService = null;
+    private AuthenticationService $mockAuthService;    
+    private Account $mockAccount;
+    private ModuleService $moduleService;
 
     /**
      * Setup the controller for tests
      */
     protected function setUp(): void
     {
-        $this->account = Bootstrap::getAccount();
+        // Create mocks        
+        $this->workerService = $this->createMock(WorkerService::class);        
+        $this->mockLog = $this->createMock(LogInterface::class);
+        $this->mockApplication = $this->createMock(Application::class);
 
-        // Create the controller
-        $this->controller = new WorkersController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
 
-        // Create a mock workerservice
-        $this->workerService = $this->getMockBuilder(WorkerService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->controller->setWorkerService($this->workerService);
+        // Return mock authenticated account
+        $this->mockAccount = $this->createStub(Account::class);
+        $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
+
+        $this->accountContainer = $this->createMock(AccountContainerInterface::class);
+        $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
+        
+        // Create the controller with mocks
+        $this->workersController = new WorkersController(
+            $this->accountContainer,
+            $this->mockAuthService,
+            $this->workerService,
+            $this->mockLog,
+            $this->mockApplication
+        );
+
+        $this->workersController->testMode = true;
     }
 
     /**
@@ -62,17 +77,16 @@ class WorkersControllerTest extends TestCase
     public function testConsoleProcessAction()
     {
         // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam("runtime", 1); // Only run for 1 second
-        $req->setParam("suppressoutput", 1); // Do not allow echo
+        $request = new HttpRequest();
+        $request->setParam("runtime", 1); // Only run for 1 second
+        $request->setParam("suppressoutput", 1); // Do not allow echo
 
         // Simulate indicating that we processed a job
         $this->workerService->method('processJobQueue')->willReturn(true);
 
         // Run the process action
-        $ret = $this->controller->consoleProcessAction();
-        $outputBuffer = $ret->getOutputBuffer();
-        $this->assertStringContainsString("Processed 1 jobs", trim(array_pop($outputBuffer)));
+        $response = $this->workersController->consoleProcessAction($request);
+        $this->assertStringContainsString("Processed 1 jobs", trim(array_pop($response->getOutputBuffer())));
     }
 
     /**
@@ -80,10 +94,9 @@ class WorkersControllerTest extends TestCase
      */
     public function testConsoleScheduleAction()
     {
-        // Set params in the request
-        $req = $this->controller->getRequest();
         // Do not allow echo
-        $req->setParam("suppressoutput", 1);
+        $request = new HttpRequest();
+        $request->setParam("suppressoutput", 1);
 
 
         // Make sure that doWorkBackground is ONLY CALLED ONCE
@@ -91,7 +104,7 @@ class WorkersControllerTest extends TestCase
             ->method('doWorkBackground')
             ->with(
                 $this->equalTo('ScheduleRunner'),
-                $this->equalTo(['account_id' => $this->account->getAccountId()])
+                $this->equalTo(['account_id' => $this->mockAccount->getAccountId()])
             );
 
         // // Artificially lock the test for 1 second

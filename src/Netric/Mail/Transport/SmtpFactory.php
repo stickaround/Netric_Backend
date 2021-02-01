@@ -6,12 +6,26 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Settings\SettingsFactory;
 use Netric\Config\ConfigFactory;
 use Netric\Log\LogFactory;
+use Netric\Account\AccountContainerFactory;
+use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Account\AccountContainerInterface;
+use Netric\Authentication\AuthenticationService;
 
 /**
  * Create a new SMTP Transport service based on account settings
  */
 class SmtpFactory implements ApplicationServiceFactoryInterface
 {
+    /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
     /**
      * Service creation factory
      *
@@ -48,15 +62,20 @@ class SmtpFactory implements ApplicationServiceFactoryInterface
             $options['port'] = $config->email['port'];
         }
 
+        $this->accountContainer = $serviceLocator->get(AccountContainerFactory::class);
+        $this->authService = $serviceLocator->get(AuthenticationServiceFactory::class);
+
+        $currentAccount = $this->getAuthenticatedAccount();
+
         /*
          * Check for account overrides in settings. This allows specific
          * accounts to utilize another email server to send messages from.
          */
         $settings = $serviceLocator->get(SettingsFactory::class);
-        $host = $settings->get("email/smtp_host");
-        $username = $settings->get("email/smtp_user");
-        $password = $settings->get("email/smtp_password");
-        $port = $settings->get("email/smtp_port");
+        $host = $settings->get("email/smtp_host", $currentAccount->getAccountId());
+        $username = $settings->get("email/smtp_user", $currentAccount->getAccountId());
+        $password = $settings->get("email/smtp_password", $currentAccount->getAccountId());
+        $port = $settings->get("email/smtp_port", $currentAccount->getAccountId());
         if ($host) {
             $options['host'] = $host;
 
@@ -85,5 +104,20 @@ class SmtpFactory implements ApplicationServiceFactoryInterface
         $log->info("SmtpFactory:: Email Options - " . json_encode($options));
 
         return $transport;
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
+    {
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 }

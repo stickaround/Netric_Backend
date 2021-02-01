@@ -94,8 +94,6 @@ class EntityValueSanitizer
             throw new RuntimeException("Invalid account set for this sanitizer!");
         }
         
-        // Get the current user
-        $currentUser = $this->account->getAuthenticatedUser();
         $entityDef = $this->definitionLoader->get($query->getObjType(), $this->account->getAccountId());
 
         // Get the query conditions
@@ -137,6 +135,9 @@ class EntityValueSanitizer
                 case Field::TYPE_GROUPING_MULTI:
                     // Sanitize the UserEntity::USER_CURRENT value
                     if ($field->subtype == ObjectTypes::USER && $value == "user:" . UserEntity::USER_CURRENT) {
+                        // Get the current user
+                        $currentUser = $this->account->getAuthenticatedUser();
+
                         $condition->value = $currentUser->getEntityId();
                     } else {
                         $this->sanitizeFieldValue($field, $value);
@@ -282,13 +283,13 @@ class EntityValueSanitizer
      * @return void
      */
     private function sanitizeFieldValue(Field $field, &$value, &$valueName = "")
-    {
-        // Get the current user
-        $currentUser = $this->account->getAuthenticatedUser();
-        
+    {   
         switch ($value) {
             case UserEntity::USER_CURRENT:
                 if ($field->subtype == ObjectTypes::USER) {
+                    // Get the current user
+                    $currentUser = $this->account->getAuthenticatedUser();
+                    
                     $value = $currentUser->getEntityId();
                     $valueName = $currentUser->getName();
                 }

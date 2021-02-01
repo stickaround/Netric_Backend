@@ -10,6 +10,7 @@ use Netric\Account\AccountContainerInterface;
 use Netric\Account\AccountSetup;
 use Netric\Application\Response\HttpResponse;
 use Netric\Application\Response\ConsoleResponse;
+use Netric\Request\ConsoleRequest;
 use Netric\Application\Setup\AccountUpdater;
 use Netric\Application\Setup\Setup;
 use Netric\Application\DatabaseSetup;
@@ -105,7 +106,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
      * @param HttpRequest $request Request object for this run
      * @return ConsoleResponse
      */
-    public function consoleInstallAction(HttpRequest $request): ConsoleResponse
+    public function consoleInstallAction(ConsoleRequest $request): ConsoleResponse
     {
         $response = new ConsoleResponse();
 
@@ -202,10 +203,10 @@ class SetupController extends AbstractFactoriedController implements ControllerI
     /**
      * Run a specific script
      * 
-     * @param HttpRequest $request Request object for this run
+     * @param HttpRequest | ConsoleRequest $request Request object for this run
      * @return ConsoleResponse
      */
-    public function consoleRunAction(HttpRequest $request): ConsoleResponse
+    public function consoleRunAction($request): ConsoleResponse
     {
         $rootPath = dirname(__FILE__) . "/../../../bin/scripts";
         $scriptName = $request->getParam("script");

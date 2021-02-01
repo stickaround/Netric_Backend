@@ -5,6 +5,10 @@ use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Settings\SettingsFactory;
+use Netric\Account\AccountContainerFactory;
+use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Account\AccountContainerInterface;
+use Netric\Authentication\AuthenticationService;
 
 /**
  * Create a new Bulk SMTP Transport service based on account settings
@@ -20,6 +24,16 @@ use Netric\Settings\SettingsFactory;
  */
 class BulkSmtpFactory implements ApplicationServiceFactoryInterface
 {
+    /**
+     * Container used to load accounts
+     */
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
     /**
      * Service creation factory
      *
@@ -55,15 +69,20 @@ class BulkSmtpFactory implements ApplicationServiceFactoryInterface
             ];
         }
 
+        $this->accountContainer = $serviceLocator->get(AccountContainerFactory::class);
+        $this->authService = $serviceLocator->get(AuthenticationServiceFactory::class);
+
+        $currentAccount = $this->getAuthenticatedAccount();
+
         /*
          * Check for account overrides in settings. This allows specific
          * accounts to utilize another email server to send messages from.
          */
         $settings = $serviceLocator->get(SettingsFactory::class);
-        $host = $settings->get("email/smtp_bulk_host");
-        $username = $settings->get("email/smtp_bulk_user");
-        $password = $settings->get("email/smtp_bulk_password");
-        $port = $settings->get("email/smtp_bulk_port");
+        $host = $settings->get("email/smtp_bulk_host", $currentAccount->getAccountId());
+        $username = $settings->get("email/smtp_bulk_user", $currentAccount->getAccountId());
+        $password = $settings->get("email/smtp_bulk_password", $currentAccount->getAccountId());
+        $port = $settings->get("email/smtp_bulk_port", $currentAccount->getAccountId());
         if ($host) {
             $options['host'] = $host;
 
@@ -89,5 +108,20 @@ class BulkSmtpFactory implements ApplicationServiceFactoryInterface
         $transport->setOptions(new SmtpOptions($options));
 
         return $transport;
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
+    {
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 }

@@ -81,6 +81,7 @@ class AccountUpdaterTest extends TestCase
             "test@test.com",
             "password"
         );
+        
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
 
         // Run test updates in TestAssets/UpdateScripts which should result in 1.1.1
@@ -90,7 +91,7 @@ class AccountUpdaterTest extends TestCase
         $accountUpdater->runOnceUpdates($account);
 
         // Make sure it all ran
-        $this->assertEquals("1.1.1", $settings->get("system/schema_version", $account->getAccountId()));
+        $this->assertEquals("999.999.999", $settings->get("system/schema_version", $account->getAccountId()));
         // The update script - TestAssets/once/001/001/001.php changes the description
         $this->assertEquals("edited", $account->getDescription());
     }
