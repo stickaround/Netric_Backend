@@ -1,4 +1,4 @@
-FROM php:8.0-apache as base
+FROM php:7.4-apache as base
 
 ###############################################################################
 # Setup PHP and apache
