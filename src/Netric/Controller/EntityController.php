@@ -242,7 +242,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             );
         } else {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
-            $response->write(["error" => "entity_id or uname are required params111."]);
+            $response->write(["error" => "entity_id or uname are required params."]);
             return $response;
         }        
 
