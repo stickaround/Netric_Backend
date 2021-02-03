@@ -81,8 +81,8 @@ return [
     // Files settings
     'files' => [
         'store' => 'mogile',
-        //'server' => '10.4.26.26',
-        'server' => 'mogilefs',
+        'server' => '10.4.26.26',
+        //'server' => 'mogilefs',
         'account' => 'netric',
         'password' => 'n/a',
         'port' => 7001,
