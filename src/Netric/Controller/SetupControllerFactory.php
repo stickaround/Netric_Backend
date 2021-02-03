@@ -36,9 +36,9 @@ class SetupControllerFactory implements ControllerFactoryInterface
         return new SetupController(
             $accountContainer,
             $authService,
-            $accountSetup,
-            $accountUpdater,
+            $accountSetup,            
             $dbSetup,
+            $accountUpdater,
             $log,
             $application
         );
