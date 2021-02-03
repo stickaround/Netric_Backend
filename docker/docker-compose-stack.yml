@@ -54,6 +54,8 @@ networks:
     external: false
   service_netric:
     external: true
+  service_core:
+    external: true
 
 secrets:
   entityenc:

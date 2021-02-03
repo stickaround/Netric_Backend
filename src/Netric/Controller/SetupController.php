@@ -23,6 +23,7 @@ use Netric\Log\LogInterface;
 use Netric\Console\BinScript;
 use RuntimeException;
 use InvalidArgumentException;
+use Netric\Settings\SettingsFactory;
 
 /**
  * Controller used for setting up netric - mostly from the command line
@@ -187,11 +188,12 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $accounts = $this->application->getAccounts();
         foreach ($accounts as $account) {
             $response->write("Updating account {$account->getName()}. ");
-            // $updater = new AccountUpdater($account);
-            // if (!$updater->runUpdates($accounts)) {
-            //     $log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
-            //     throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
-            // }
+            $settings = $account->getServiceManager()->get(SettingsFactory::class);
+            $updater = new AccountUpdater($settings, $this->log);
+            if (!$updater->runUpdates($account)) {
+                $this->log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
+                throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
+            }
 
             $response->write("\t[done]\n");
         }
