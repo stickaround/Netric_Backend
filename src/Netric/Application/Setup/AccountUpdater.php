@@ -75,9 +75,6 @@ class AccountUpdater extends AbstractHasErrors
 
         // Set default path
         $this->rootPath = dirname(__FILE__) . "/../../../../bin/scripts/update";
-
-        // Get the current version from settings
-        $this->getCurrentVersion();
     }
 
     /**
@@ -102,7 +99,7 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         if ($updated) {
-            $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;            
+            $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;
             $this->settings->set("system/schema_version", $newversion, $account->getAccountId());
             return $newversion;
         }
@@ -120,7 +117,7 @@ class AccountUpdater extends AbstractHasErrors
      */
     public function setCurrentAccountToLatestVersion(Account $account)
     {
-        $latestversion = $this->getLatestVersion($account);        
+        $latestversion = $this->getLatestVersion($account);
         $this->settings->set("system/schema_version", $latestversion, $account->getAccountId());
 
         // Refresh the current version state
@@ -204,6 +201,9 @@ class AccountUpdater extends AbstractHasErrors
      */
     public function runUpdates(Account $account)
     {
+        // Get the current version from settings
+        $this->getCurrentVersion();
+
         // Run the one time scripts first
         $version = $this->runOnceUpdates($account);
 
