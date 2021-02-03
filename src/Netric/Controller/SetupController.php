@@ -51,6 +51,11 @@ class SetupController extends AbstractFactoriedController implements ControllerI
     private DatabaseSetup $dbSetup;
 
     /**
+     * Service that can update an account
+     */
+    private AccountUpdater $accountUpdater;
+
+    /**
      * Logger for recording what is going on
      */
     private LogInterface $log;
@@ -67,6 +72,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
      * @param AuthenticationService $authService Service used to get the current user/account
      * @param AccountSetup $accountSetup Service that has the netric account setup functions
      * @param DatabaseSetup $dbSetup Service that has the database setup functions
+     * @param AccountUpdater $accountUpdater Service that can update an account
      * @param LogInterface $log Logger for recording what is going on
      * @param Application $application The current application instance
      */
@@ -75,6 +81,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         AuthenticationService $authService,
         AccountSetup $accountSetup,
         DatabaseSetup $dbSetup,
+        AccountUpdater $accountUpdater,
         LogInterface $log,
         Application $application
     ) {
@@ -82,6 +89,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $this->authService = $authService;
         $this->accountSetup = $accountSetup;
         $this->dbSetup = $dbSetup;
+        $this->accountUpdater = $accountUpdater;
         $this->log = $log;
         $this->application = $application;
     }
@@ -188,11 +196,9 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $accounts = $this->application->getAccounts();
         foreach ($accounts as $account) {
             $response->write("Updating account {$account->getName()}. ");
-            $settings = $account->getServiceManager()->get(SettingsFactory::class);
-            $updater = new AccountUpdater($settings, $this->log);
-            if (!$updater->runUpdates($account)) {
-                $this->log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
-                throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
+            if (!$this->accountUpdater->runUpdates($account)) {
+                $this->log->error("SetupController: Failed to update account: " . $this->accountUpdater->getLastError()->getMessage());
+                throw new \Exception("Failed to update account: " . $this->accountUpdater->getLastError()->getMessage());
             }
 
             $response->write("\t[done]\n");
