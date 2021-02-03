@@ -13,6 +13,7 @@ use Netric\Application\Application;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\SetupController;
+use Netric\Application\Setup\AccountUpdater;
 use Netric\Log\LogInterface;
 use Netric\Account\AccountSetup;
 use Netric\Application\DatabaseSetup;
@@ -49,6 +50,7 @@ class SetupControllerTest extends TestCase
         $this->dbSetup = $this->createMock(DatabaseSetup::class);
         $this->mockLog = $this->createMock(LogInterface::class);
         $this->mockApplication = $this->createMock(Application::class);
+        $this->mockAccountUpdater = $this->createMock(AccountUpdater::class);
 
         // Provide identity for mock auth service
         $this->mockAuthService = $this->createMock(AuthenticationService::class);
@@ -68,6 +70,7 @@ class SetupControllerTest extends TestCase
             $this->mockAuthService,
             $this->accountSetup,
             $this->dbSetup,
+            $this->mockAccountUpdater,
             $this->mockLog,
             $this->mockApplication,
         );
