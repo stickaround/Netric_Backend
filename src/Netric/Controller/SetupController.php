@@ -165,7 +165,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         // Update the application database
         $this->log->info("SetupController:: Updating application.");
         $response->write("Updating application");
-        
+
         $this->dbSetup->updateDatabaseSchema();
 
         //        $applicationSetup = new Setup();
@@ -187,11 +187,11 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $accounts = $this->application->getAccounts();
         foreach ($accounts as $account) {
             $response->write("Updating account {$account->getName()}. ");
-            $updater = new AccountUpdater($account);
-            if (!$updater->runUpdates($accounts)) {
-                $log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
-                throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
-            }
+            // $updater = new AccountUpdater($account);
+            // if (!$updater->runUpdates($accounts)) {
+            //     $log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
+            //     throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
+            // }
 
             $response->write("\t[done]\n");
         }
@@ -272,7 +272,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $params = json_decode($rawBody, true);
 
         // Make sure that the account name is unique
-        $accountName = isset($params['account_name']) ? $params['account_name'] : '';        
+        $accountName = isset($params['account_name']) ? $params['account_name'] : '';
         $accountName = $this->accountSetup->getUniqueAccountName($accountName);
 
         // Create the account        
