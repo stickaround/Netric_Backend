@@ -83,6 +83,13 @@ class AccountBillingService implements AccountBillingServiceInterface
         // If netric is running in an instance with no main account
         // then we don't charge montly fees.
         if (!$this->mainAccountId) {
+            $this->log->info(
+                "AccountBillingService::billAmountDue skipping for " .
+                    $account->getName() .
+                    ":" .
+                    $account->getAccountId() .
+                    " - because there is no mainAccountIt"
+            );
             return true;
         }
 
@@ -251,12 +258,12 @@ class AccountBillingService implements AccountBillingServiceInterface
      * @return string
      */
     public function getDefaultPaymentProfileName(Account $account, string $contactId): string
-    {        
+    {
         $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
         $query->where('f_default')->equals(true);
         $query->andWhere('customer')->equals($contactId);
         $result = $this->entityIndex->executeQuery($query);
-        
+
         if ($result->getTotalNum() < 1) {
             return "No payment profile set for this account: " . $account->getName();
         }
@@ -271,13 +278,13 @@ class AccountBillingService implements AccountBillingServiceInterface
      * @param string $contactId The contact that owns the payment profile
      */
     public function updateOtherPaymentProfile(Account $account, string $contactId, string $latestPaymentProfileId)
-    {        
+    {
         $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
         $query->where('f_default')->equals(true);
         $query->andWhere('customer')->equals($contactId);
         $query->andWhere('entity_id')->doesNotEqual($latestPaymentProfileId);
         $result = $this->entityIndex->executeQuery($query);
-        
+
         $num = $result->getNum();
         for ($idx = 0; $idx < $num; $idx++) {
             $paymentProfile = $result->getEntity($idx);
@@ -298,7 +305,7 @@ class AccountBillingService implements AccountBillingServiceInterface
     {
         $paymentProfile = null;
         try {
-            $contact = $this->entityLoader->getEntityById($contactId, $account->getAccountId());            
+            $contact = $this->entityLoader->getEntityById($contactId, $account->getAccountId());
             $paymentProfile = $this->getDefaultPaymentProfile($this->mainAccountId, $contactId);
             $profileToken = $this->paymentGateway->createPaymentProfileCard($contact, $card);
         } catch (RuntimeException $ex) {
@@ -310,7 +317,7 @@ class AccountBillingService implements AccountBillingServiceInterface
         $paymentProfile->setValue('token', $profileToken);
         $paymentProfile->setValue('f_default', true);
         $paymentProfile->setvalue('customer', $contactId);
-        
+
         try {
             $paymentProfileId = $this->entityLoader->save($paymentProfile, $account->getSystemUser());
             $this->updateOtherPaymentProfile($account, $contactId, $paymentProfileId);

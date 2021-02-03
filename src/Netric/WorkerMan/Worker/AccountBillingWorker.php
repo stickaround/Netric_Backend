@@ -9,7 +9,7 @@ use Netric\Account\Billing\AccountBillingServiceFactory;
 use Netric\Log\LogFactory;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
-use RuntimeException;
+use Exception;
 
 /**
  * The account billing worker will be responsible for billing each
@@ -43,17 +43,16 @@ class AccountBillingWorker extends AbstractWorker
         $accBillingSvc = $serviceManager->get(AccountBillingServiceFactory::class);
 
         $log->info(
-            __CLASS__ .
-                ': entering ' .
+            'AccountBillingWorker::work: entering job with ' .
                 var_export($workload, true)
         );
 
         // Bill the account
         try {
             $accBillingSvc->billAmountDue($account);
-        } catch (RuntimeException $exception) {
+        } catch (Exception $exception) {
             $log->error(
-                "Failed while trying to bill account(" .
+                "AccountBillingWorker::work failed while trying to bill account(" .
                     $account->getAccountId() .
                     '):' .
                     $exception->getMessage()
