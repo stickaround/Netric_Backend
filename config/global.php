@@ -82,7 +82,7 @@ return [
     'files' => [
         'store' => 'mogile',
         //'server' => '10.4.26.26',
-        'server' => 'mogilefs',
+        'server' => 'mogilefs_legacy',
         'account' => 'netric',
         'password' => 'n/a',
         'port' => 7001,
