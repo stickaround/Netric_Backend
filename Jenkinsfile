@@ -48,51 +48,29 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                // Run unit tests
-                script {
-                    docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                        sh 'docker-compose -f docker/docker-compose-test.yml build'
-                        sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
-                    }
+//         stage('Test') {
+//             steps {
+//                 // Run unit tests
+//                 script {
+//                     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
+//                         sh 'docker-compose -f docker/docker-compose-test.yml build'
+//                         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+//                     }
 
-                    // Report on junit
-                    junit '.reports/junit.xml'
+//                     // Report on junit
+//                     junit '.reports/junit.xml'
 
-                    // Send reports to server for code quality metrics
-//                     codeQualityReport(
-//                        repositoryName: 'netric.svc',
-//                        teamName: 'Netric',
-//                        cloverFile: '.reports/clover.xml',
-//                        pmdFile: '.reports/pmd.xml',
-//                        checkStyleFile: '.reports/checkstyle.xml'
-//                     )
-                }
-                // script {
-                //     // Check container for security vulnerabilities
-                //     dir('.clair') {
-                //         def nodeIp = sh(
-                //             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
-                //             returnStdout: true
-                //         ).trim();
-
-                //         // Pull the clairscanner binary
-                //         git branch: 'master',
-                //             credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
-                //             url: 'ssh://git@src.aereus.com:222/source/clair.aereus.com.git'
-
-                //         sh 'chmod +x ./bin/clair-scanner_linux_amd64'
-
-                //         // Fail if any critical security vulnerabilities are found
-                //         sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://dev1.aereus.com:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}"
-                //    }
-                // }
-                // if (params.DIFF_ID) {
-                //     step([$class: 'PhabricatorNotifier', commentOnSuccess: true, commentWithConsoleLinkOnFailure: true])
-                // }
-            }
-        }
+//                     // Send reports to server for code quality metrics
+// //                     codeQualityReport(
+// //                        repositoryName: 'netric.svc',
+// //                        teamName: 'Netric',
+// //                        cloverFile: '.reports/clover.xml',
+// //                        pmdFile: '.reports/pmd.xml',
+// //                        checkStyleFile: '.reports/checkstyle.xml'
+// //                     )
+//                 }
+//             }
+//         }
 
         stage('Publish') {
             when {
