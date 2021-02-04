@@ -36,7 +36,7 @@ class AccountControllerTest extends TestCase
     /**
      * Dependency mocks
      */
-    private AuthenticationService $mockAuthService;    
+    private AuthenticationService $mockAuthService;
     private Account $mockAccount;
     private ModuleService $mockModuleService;
     private AccountBillingService $accountBillingService;
@@ -62,7 +62,7 @@ class AccountControllerTest extends TestCase
         $this->accountContainer = $this->createMock(AccountContainerInterface::class);
         $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
         $this->accountContainer->method('updateAccount')->willReturn(true);
-        
+
         // Create the controller with mocks
         $this->accountController = new AccountController(
             $this->accountContainer,
@@ -144,7 +144,7 @@ class AccountControllerTest extends TestCase
         $request->setParam('buffer_output', 1);
         $response = $this->accountController->getGetAccountBillingAction($request);
         $this->assertEquals([
-            "id" => $this->mockAccount->getAccountId(),            
+            "id" => $this->mockAccount->getAccountId(),
             "name" => $this->mockAccount->getName(),
             "status" => $this->mockAccount->getStatus(),
             "status_name" => $this->mockAccount->getStatusName(),
@@ -200,7 +200,7 @@ class AccountControllerTest extends TestCase
 
         // Mock the account billing service which is used to save the payment profile
         $profileName = "Card ending in ....1111";
-        $this->accountBillingService->method('savePaymentProfile')->willReturn($profileName);
+        $this->accountBillingService->method('saveDefaultPaymentProfile')->willReturn($profileName);
 
         // Make sure postUpdateAccountContactAction is called and we get a response
         $request = new HttpRequest();

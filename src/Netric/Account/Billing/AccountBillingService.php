@@ -99,13 +99,13 @@ class AccountBillingService implements AccountBillingServiceInterface
         $contactForAccount = $this->getContactForAccount($account);
 
         // Get the payment method for the contact
-        $paymentProfile = $this->getDefaultPaymentProfile($this->mainAccountId, $contactForAccount->getEntityId());
+        $paymentProfile = $this->getDefaultPaymentProfile($contactForAccount->getEntityId());
 
         // Get the number of users for the account
         $numUsers = $this->getNumActiveUsers($account->getAccountId());
 
         // Create an invoice for the number of users
-        $invoice = $this->createInvoice($account->getAccountId(), $contactForAccount->getEntityId(), $numUsers);
+        $invoice = $this->createInvoice($contactForAccount->getEntityId(), $numUsers);
 
         // Charge the gateway for the invoice amount
         $chargeResponse = $this->paymentGateway->chargeProfile($paymentProfile, (int) $invoice->getValue('amount'));
@@ -181,31 +181,41 @@ class AccountBillingService implements AccountBillingServiceInterface
     }
 
     /**
-     * Get the default payment profile for a user
+     * Get the default payment profile for a contact in the mainAccount
      *
      * @param string $accountId
-     * @param string $contactId
-     * @return EntityInterface
+     * @return EntityInterface|null PaymentProfile interface if default is saved, otherwise null
      */
-    public function getDefaultPaymentProfile(string $accountId, string $contactId): EntityInterface
+    private function getDefaultPaymentProfile(string $contactId): ?EntityInterface
     {
-        $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $accountId);
+        $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
         $query->where('f_default')->equals(true);
         $query->andWhere('customer')->equals($contactId);
         $result = $this->entityIndex->executeQuery($query);
         if ($result->getTotalNum() < 1) {
-            throw new RuntimeException(
-                'Could not find a default payment profile for account=' .
-                    $accountId .
-                    ', contact_id=' .
-                    $contactId
-            );
+            return null;
         };
         return $result->getEntity(0);
     }
 
     /**
-     * Determine how many active users we have with a simple query
+     * Get the system user for the main account
+     * 
+     * This is needed for any entity update operations in the main account.
+     *
+     * @return UserEntity
+     */
+    private function getMainAccountSystemUser(): UserEntity
+    {
+        return $this->entityLoader->getByUniqueName(
+            ObjectTypes::USER,
+            UserEntity::USER_SYSTEM,
+            $this->mainAccountId
+        );
+    }
+
+    /**
+     * Determine how many active users we have in a given account
      *
      * @param string $accountId
      * @return int Number of non-system active users
@@ -225,21 +235,16 @@ class AccountBillingService implements AccountBillingServiceInterface
     /**
      * Create a new invoice
      *
-     * @param string $accountId
      * @param string $contactId
      * @param int $numUsers
      * @return EntityInterface
      */
-    private function createInvoice(string $accountId, string $contactId, int $numUsers): EntityInterface
+    private function createInvoice(string $contactId, int $numUsers): EntityInterface
     {
         // Get the system user
-        $mainAccSystemUser = $this->entityLoader->getByUniqueName(
-            ObjectTypes::USER,
-            UserEntity::USER_SYSTEM,
-            $this->mainAccountId
-        );
+        $mainAccSystemUser = $this->getMainAccountSystemUser();
 
-        $invoice = $this->entityLoader->create(ObjectTypes::INVOICE, $accountId);
+        $invoice = $this->entityLoader->create(ObjectTypes::INVOICE, $this->mainAccountId);
         $invoice->setValue('customer_id', $contactId);
         $invoice->setValue('name', 'Netric Account Usage');
         $invoice->setValue('amount', $numUsers * self::PRICE_PER_USER);
@@ -274,10 +279,9 @@ class AccountBillingService implements AccountBillingServiceInterface
     /**
      * Updates the old payment profiles f_default value to false
      *
-     * @param Account $account The account of the current tennant
      * @param string $contactId The contact that owns the payment profile
      */
-    public function updateOtherPaymentProfile(Account $account, string $contactId, string $latestPaymentProfileId)
+    private function setAllOtherPaymentProfilesNotDefault(string $contactId, string $latestPaymentProfileId)
     {
         $query = new EntityQuery(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
         $query->where('f_default')->equals(true);
@@ -289,28 +293,42 @@ class AccountBillingService implements AccountBillingServiceInterface
         for ($idx = 0; $idx < $num; $idx++) {
             $paymentProfile = $result->getEntity($idx);
             $paymentProfile->setValue("f_default", false);
-            $this->entityLoader->save($paymentProfile, $account->getSystemUser());
+            $this->entityLoader->save($paymentProfile, $this->getMainAccountSystemUser());
         }
     }
 
     /**
-     * Gets the main account id that is set for this account billing.
+     * Save a default payment profile for a contact
      * 
-     * @param Account $account The account of the current tennant
-     * @param string $contactId The contact that owns the payment profile
+     * @param string $contactId The contact that owns the payment profile in the mainAccount (not an entity in the current tennant)
      * @param CreditCard $card The credit card that will be using to bill the customer
-     * @return string
+     * @return string The name of the payment profile
      */
-    public function savePaymentProfile(Account $account, string $contactId, CreditCard $card): string
+    public function saveDefaultPaymentProfile(string $contactId, CreditCard $card): string
     {
         $paymentProfile = null;
-        try {
-            $contact = $this->entityLoader->getEntityById($contactId, $account->getAccountId());
-            $paymentProfile = $this->getDefaultPaymentProfile($this->mainAccountId, $contactId);
-            $profileToken = $this->paymentGateway->createPaymentProfileCard($contact, $card);
-        } catch (RuntimeException $ex) {
+        $contact = $this->entityLoader->getEntityById($contactId, $this->mainAccountId);
+
+        // Get the default payment profile, or create a new one if none exist
+        $paymentProfile = $this->getDefaultPaymentProfile($contactId);
+        if (!$paymentProfile) {
             $paymentProfile = $this->entityLoader->create(ObjectTypes::SALES_PAYMENT_PROFILE, $this->mainAccountId);
         }
+
+        // Create a payment profile with the paymentGateway
+        $profileToken = $this->paymentGateway->createPaymentProfileCard($contact, $card);
+        if (!$profileToken) {
+            $errorMessage = "AccountBillingService::saveDefaultPaymentProfile failed on createPaymentProfileCard" .
+                " for account={$this->mainAccountId}, contact=$contactId: " .
+                $this->paymentGateway->getLastError();
+            $this->log->error($errorMessage);
+
+            // Exit ungracefully because this should never happen
+            throw new RuntimeException($errorMessage);
+        }
+
+        // Get the system user for saving
+        $mainAccSystemUser = $this->getMainAccountSystemUser();
 
         // Setup the payment profile details
         $paymentProfile->setValue('name', 'Card ending in ...' . substr($card->getCardNumber(), -4));
@@ -318,16 +336,26 @@ class AccountBillingService implements AccountBillingServiceInterface
         $paymentProfile->setValue('f_default', true);
         $paymentProfile->setvalue('customer', $contactId);
 
+        /*
+         * Save the profile. This will throw an exception if it fails, but that should
+         * not happen but if it does we'll log it and then pass along the exception
+         */
         try {
-            $paymentProfileId = $this->entityLoader->save($paymentProfile, $account->getSystemUser());
-            $this->updateOtherPaymentProfile($account, $contactId, $paymentProfileId);
-
-            return $paymentProfile->getName();
+            $paymentProfileId = $this->entityLoader->save($paymentProfile, $mainAccSystemUser);
         } catch (RuntimeException $ex) {
-            $errorMessage = "AccountBillingService::savePaymentProfile failed saving payment profile={$account->getAccountId()}. " . $ex->getMessage();
+            $errorMessage = "AccountBillingService::saveDefaultPaymentProfile failed to save the profile" .
+                " for account={$this->mainAccountId}, contact=$contactId: " .
+                $ex->getMessage();
             $this->log->error($errorMessage);
 
+            // Exit ungracefully because this should never happen
             throw new RuntimeException($errorMessage);
         }
+
+        // Make sure any other payment profiles setup are not set as default
+        $this->setAllOtherPaymentProfilesNotDefault($contactId, $paymentProfileId);
+
+        // Return a friendly name
+        return $paymentProfile->getName();
     }
 }

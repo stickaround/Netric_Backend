@@ -95,7 +95,7 @@ class AccountController extends AbstractFactoriedController implements Controlle
     public function getGetAction(HttpRequest $request): HttpResponse
     {
         $response = new HttpResponse($request);
-        
+
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
@@ -140,7 +140,7 @@ class AccountController extends AbstractFactoriedController implements Controlle
     public function getGetAccountBillingAction(HttpRequest $request): HttpResponse
     {
         $response = new HttpResponse($request);
-        
+
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
@@ -163,7 +163,7 @@ class AccountController extends AbstractFactoriedController implements Controlle
 
         // Setup the return details
         $ret = [
-            "id" => $currentAccount->getAccountId(),            
+            "id" => $currentAccount->getAccountId(),
             "name" => $currentAccount->getName(),
             "status" => $currentAccount->getStatus(),
             "status_name" => $currentAccount->getStatusName(),
@@ -196,7 +196,7 @@ class AccountController extends AbstractFactoriedController implements Controlle
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-        if (!isset($objData['contact_id'])) {            
+        if (!isset($objData['contact_id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "contact_id is a required param."]);
             return $response;
@@ -241,19 +241,19 @@ class AccountController extends AbstractFactoriedController implements Controlle
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-        if (!isset($objData['contact_id'])) {            
+        if (!isset($objData['contact_id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "contact_id is a required param."]);
             return $response;
         }
 
-        if (!isset($objData['number'])) {            
+        if (!isset($objData['number'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "card number is a required param."]);
             return $response;
         }
 
-        if (!isset($objData['ccv'])) {            
+        if (!isset($objData['ccv'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "ccv is a required param."]);
             return $response;
@@ -278,9 +278,9 @@ class AccountController extends AbstractFactoriedController implements Controlle
         $card->setCardNumber($objData['number']);
         $card->setExpiration($objData['yearExpires'], $objData['monthExpires']);
         $card->setCardCode($objData['ccv']);
-        
-        try {            
-            $paymentProfileName = $this->accountBillingService->savePaymentProfile($currentAccount, $objData['contact_id'], $card);
+
+        try {
+            $paymentProfileName = $this->accountBillingService->saveDefaultPaymentProfile($objData['contact_id'], $card);
             $response->write($paymentProfileName);
             return $response;
         } catch (RuntimeException $ex) {

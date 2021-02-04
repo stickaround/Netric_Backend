@@ -62,19 +62,19 @@ RUN cd /tmp \
     && make install \
     && docker-php-ext-enable mogilefs
 
-# Install xhprof for php
-RUN cd /tmp \
-    && git clone https://github.com/longxinH/xhprof.git \
-    && cd xhprof/  \
-    && cd extension/ \
-    && phpize \
-    && ./configure \
-    && make \
-    && make install \
-    && docker-php-ext-enable xhprof
-# This was causing a segfault
-#    \
-#    && docker-php-ext-enable xhprof
+# # Install xhprof for php
+# RUN cd /tmp \
+#     && git clone https://github.com/longxinH/xhprof.git \
+#     && cd xhprof/  \
+#     && cd extension/ \
+#     && phpize \
+#     && ./configure \
+#     && make \
+#     && make install \
+#     && docker-php-ext-enable xhprof
+# # This was causing a segfault
+# #    \
+# #    && docker-php-ext-enable xhprof
 
 # install PHP PEAR extensions
 RUN pear install mail \
