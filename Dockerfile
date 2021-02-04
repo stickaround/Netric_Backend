@@ -1,4 +1,4 @@
-FROM php:7.4-apache as base
+FROM php:8.0-apache as base
 
 ###############################################################################
 # Setup PHP and apache
@@ -65,7 +65,7 @@ RUN cd /tmp \
 # Install xhprof for php7
 RUN cd /tmp \
     && git clone https://github.com/longxinH/xhprof.git \
-    && cd xhprof/ && git checkout v1.2 \
+    && cd xhprof/ \
     && cd extension/ \
     && phpize \
     && ./configure \

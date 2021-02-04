@@ -59,9 +59,9 @@ Each of the respective client repos will contain build and deployment instructio
 
 ## Directory Structure
 
-- /src - all classes and functions
-- /public - all served assets and where apache will look for index files
-- /vendor - third party libraries
-- /data - non-executable stored data
-- /bin - binary scripts to run on the server
-- /docker - docker files used for building and working with containers
+- `/src` - all classes and functions
+- `/public` - all served assets and where apache will look for index files
+- `/vendor` - third party libraries
+- `/data` - non-executable stored data
+- `/bin` - binary scripts to run on the server
+- `/docker` - docker files used for building and working with containers
