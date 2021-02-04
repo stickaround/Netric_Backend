@@ -10,7 +10,6 @@ use Netric\Entity;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\ActivityEntity;
@@ -46,20 +45,19 @@ class ActivityTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ACTIVITY, $this->account->getAccountId());
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY, $this->account->getAccountId());
         $this->assertInstanceOf(ActivityEntity::class, $entity);
     }
 
     public function testOnBeforeSave()
-    {
+    {        
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY, $this->account->getAccountId());
 
         // onBeforeSave copies obj_reference to the 'associations' field
         $entity->setValue("subject", "user:123", "Fake User");
         $entity->setValue("verb", 'create');
         $entity->setValue("obj_reference", "customer:123", "Fake Customer Name");
-        $entity->onBeforeSave($this->account->getServiceManager());
+        $entity->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         $this->assertEquals("Fake Customer Name", $entity->getValueName("associations", "customer:123"));
     }

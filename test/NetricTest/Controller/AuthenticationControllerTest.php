@@ -8,166 +8,225 @@ namespace NetricTest\Controller;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
-use NetricTest\Bootstrap;
+use Netric\Request\HttpRequest;
+use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\AuthenticationController;
-use Netric\Entity\DataMapper\EntityDataMapperFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityQuery\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\Authentication\AuthenticationServiceFactory;
+use NetricTest\Bootstrap;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
  */
 class AuthenticationControllerTest extends TestCase
 {
+    /**
+     * Initialized controller with mock dependencies
+     */
+    private AuthenticationController $authenticationController;
 
     /**
-     * Account used for testing
-     *
-     * @var \Netric\Account\Account
+     * Dependency mocks
      */
-    protected $account = null;
-
-    /**
-     * Controller instance used for testing
-     *
-     * @var \AuthenticationController
-     */
-    protected $controller = null;
-
-    /**
-     * Test user
-     *
-     * @var \Netric\Entity\ObjType\UserEntity
-     */
-    private $user = null;
-
+    private AuthenticationService $mockAuthService;    
+    private Account $mockAccount;    
+    
     /**
      * Common constants used
      *
      * @cons string
      */
-    const TEST_USER = "test_auth";
-    const TEST_USER_PASS = "testpass";
-    const TEST_ACCOUNT_ID = "32b05ad3-895e-47f0-bab6-609b22f323fc";
+    const TEST_USER = 'test_auth';
+    const TEST_USER_PASS = 'testpass';
+    const TEST_ACCOUNT_ID = '32b05ad3-895e-47f0-bab6-609b22f323fc';
 
     protected function setUp(): void
     {
-        $this->account = Bootstrap::getAccount();
+        // Provide identity for mock auth service
+        $this->mockAuthService = $this->createMock(AuthenticationService::class);
+        $ident = new AuthenticationIdentity('blahaccount', 'blahuser');
+        $this->mockAuthService->method('getIdentity')->willReturn($ident);
 
-        // Create the controller
-        $this->controller = new AuthenticationController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Return mock authenticated account
+        $this->mockAccount = $this->createStub(Account::class);
+        $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
 
-        // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+        $this->accountContainer = $this->createMock(AccountContainerInterface::class);
+        $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
+                
+        $account = Bootstrap::getAccount();
+        $serviceManager = $account->getServiceManager();
 
-        // Make sure old test user does not exist
-        $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
-        $query->where('name')->equals(self::TEST_USER);
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
-        $res = $index->executeQuery($query);
-        for ($i = 0; $i < $res->getTotalNum(); $i++) {
-            $user = $res->getEntity($i);
-            $dm->delete($user, $this->account->getAuthenticatedUser());
-        }
+        // Create the controller with mocks
+        $this->authenticationController = new AuthenticationController(
+            $this->accountContainer,
+            $this->mockAuthService,
+            $serviceManager->getApplication()
+        );
 
-        // Create a test user
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $user = $loader->create(ObjectTypes::USER, $this->account->getAccountId());
-        $user->setValue("name", self::TEST_USER);
-        $user->setValue("uname", self::TEST_USER);
-        $user->setValue("password", self::TEST_USER_PASS);
-        $user->setValue("active", true);
-        $dm->save($user, $this->account->getSystemUser());
-        $this->user = $user;
+        $this->authenticationController->testMode = true;
     }
 
-    protected function tearDown(): void
+    /**
+     * Test the authenticating of user using Post
+     */
+    public function testPostAuthenticateAction()
     {
-        if ($this->user) {
-            $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
-            $dm->delete($this->user, $this->account->getAuthenticatedUser());
-        }
+        $data = [
+            'username' => TEST_USER,
+            'password' => TEST_USER_PASS,
+            'account' => TEST_ACCOUNT_ID
+        ];
+
+        // Mock the authentication service which is used to authenticate user
+        $this->mockAuthService->method('authenticate')->willReturn(true);
+
+        // Make sure postAuthenticateAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode($data));
+        $response = $this->authenticationController->postAuthenticateAction($request);
+
+        // It should only return the id of the default view
+        $this->assertEquals([
+            'result' => 'SUCCESS',
+            'session_token' => true,
+            'user_id' => 'blahuser',
+            'account_id' => 'blahaccount'
+        ], $response->getOutputBuffer());
     }
 
-    public function testAuthenticate()
+    /**
+     * Test the authenticating of user using Get
+     */
+    public function testGetAuthenticateAction()
     {
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam("username", self::TEST_USER);
-        $req->setParam("password", self::TEST_USER_PASS);
-        $req->setParam("account", $this->account->getName());
+        // Mock the authentication service which is used to authenticate user
+        $this->mockAuthService->method('authenticate')->willReturn(true);
 
+        // Make sure getAuthenticateAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setParam('username', TEST_USER);
+        $request->setParam('password', TEST_USER_PASS);
+        $request->setParam('account', TEST_ACCOUNT_ID);
+        $response = $this->authenticationController->getAuthenticateAction($request);
 
-        // Try to authenticate
-        $ret = $this->controller->postAuthenticateAction();
-        $this->assertEquals("SUCCESS", $ret['result']);
+        // It should only return the id of the default view
+        $this->assertEquals([
+            'result' => 'SUCCESS',
+            'session_token' => true,
+            'user_id' => 'blahuser',
+            'account_id' => 'blahaccount'
+        ], $response->getOutputBuffer());
     }
 
+    /**
+     * Catch the possible errors being thrown when there is a problem in authenticating a user
+     */
     public function testAuthenticateFail()
     {
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam("username", "notreal");
-        $req->setParam("password", "notreal");
-        $req->setParam("account", $this->account->getName());
+        // Mock the authentication service which is used to authenticate user
+        $this->mockAuthService->method('authenticate')->willReturn(false);
+        $this->mockAuthService->method('getFailureReason')->willReturn(AuthenticationService::CREDENTIAL_INVALID);
 
+        // Test if invalid data sent
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus' => 'data']));
+        $response = $this->authenticationController->postAuthenticateAction($request);
 
-        // Try to authenticate
-        $ret = $this->controller->postAuthenticateAction();
-        $this->assertEquals("FAIL", $ret['result']);
+        // It should only return the id of the default view
+        $this->assertEquals([
+            'result' => 'FAIL',
+            'reason' => 'username, password and account are required fields.'
+        ], $response->getOutputBuffer());
+        
+        $data = [
+            'username' => 'invalid',
+            'password' => 'invalid',
+            'account' => TEST_ACCOUNT_ID
+        ];
+
+        // Test if invalid login and authenticate will return false
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode($data));
+        $response = $this->authenticationController->postAuthenticateAction($request);
+
+        // It should only return the id of the default view
+        $this->assertEquals([
+            'result' => 'FAIL',
+            'reason' => AuthenticationService::CREDENTIAL_INVALID
+        ], $response->getOutputBuffer());
     }
 
+    /**
+     * Test the logging out of the user
+     */
     public function testLogout()
     {
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam("username", self::TEST_USER);
-        $req->setParam("password", self::TEST_USER_PASS);
-        $req->setParam("account", $this->account->getName());
+        // Make sure getLogoutAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setParam('username', TEST_USER);
+        $request->setParam('password', TEST_USER_PASS);
+        $request->setParam('account', TEST_ACCOUNT_ID);
+        $response = $this->authenticationController->getLogoutAction($request);
 
-
-        // Try to authenticate
-        $ret = $this->controller->postAuthenticateAction();
-        $this->assertEquals("SUCCESS", $ret['result']);
-        $this->assertNull($this->controller->getRequest()->getParam("Authentication"));
+        // It should only return the id of the default view
+        $this->assertEquals([
+            'result' => 'SUCCESS'
+        ], $response->getOutputBuffer());
     }
 
+    /**
+     * Test the checking in of the user
+     */
     public function testCheckin()
     {
-        // First successfully authenticate and get a session token
-        $req = $this->controller->getRequest();
-        $req->setParam("username", self::TEST_USER);
-        $req->setParam("password", self::TEST_USER_PASS);
-        $req->setParam("account", $this->account->getName());
-        $ret = $this->controller->postAuthenticateAction();
-        $sessionToken = $ret['session_token'];
+        // Make sure getCheckinAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $this->authenticationController->getCheckinAction($request);
 
-        // Checkin with the valid token
-        $this->controller->getRequest()->setParam("Authentication", $sessionToken);
-        $ret = $this->controller->getCheckinAction();
-        $this->assertEquals("OK", $ret['result']);
+        // It should only return the id of the default view
+        $this->assertEquals([
+            'result' => 'OK'
+        ], $response->getOutputBuffer());
     }
 
+    /**
+     * Catch the possible errors being thrown when there is a problem in checking in the user
+     */
     public function testCheckinFail()
     {
-        // First successfully authenticate and get a session token
-        $req = $this->controller->getRequest();
-        $req->setParam("username", self::TEST_USER);
-        $req->setParam("password", self::TEST_USER_PASS);
-        $req->setParam("account", $this->account->getName());
-        $ret = $this->controller->postAuthenticateAction();
+        $account = Bootstrap::getAccount();
+        $serviceManager = $account->getServiceManager();
 
-        // Clear the identity to force rechecking
-        $sm = $this->account->getServiceManager();
-        $sm->get(AuthenticationServiceFactory::class)->clearAuthorizedCache();
+        $mockAuthService = $this->createMock(AuthenticationService::class);
+        $mockAuthService->method('getIdentity')->willReturn(null);
 
-        // Checkin with the valid token
-        $this->controller->getRequest()->setParam("Authentication", "BADTOKEN");
-        $ret = $this->controller->getCheckinAction();
-        $this->assertNotEquals("OK", $ret['result']);
+        // Create the controller with mocks
+        $authenticationController = new AuthenticationController(
+            $this->accountContainer,
+            $mockAuthService,
+            $serviceManager->getApplication()
+        );
+
+        // Make sure getCheckinAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        
+        $response = $authenticationController->getCheckinAction($request);
+
+        // It should only return the id of the default view
+        $this->assertEquals([
+            'result' => 'FAIL'
+        ], $response->getOutputBuffer());
     }
 }

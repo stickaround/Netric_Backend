@@ -1,8 +1,8 @@
 <?php
 namespace Netric\Entity;
 
-use Netric\ServiceManager\AccountServiceFactoryInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Account\AccountContainerFactory;
@@ -10,19 +10,19 @@ use Netric\Account\AccountContainerFactory;
 /**
  * Create a service for sanitizing entity / group values
  */
-class EntityValueSanitizerFactory implements AccountServiceFactoryInterface
+class EntityValueSanitizerFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntityMaintainerService
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $definitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
-        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
-        $accountContainer = $sl->get(AccountContainerFactory::class);
+        $definitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         return new EntityValueSanitizer($definitionLoader, $groupingLoader, $accountContainer);
     }
 }

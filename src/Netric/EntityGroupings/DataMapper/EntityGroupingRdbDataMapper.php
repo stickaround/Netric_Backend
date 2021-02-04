@@ -113,7 +113,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $def = $this->entityDefinitionLoader->get($groupings->getObjType(), $accountId);
         if (!$def) {
             throw new \RuntimeException(
-                'Could not get defition for entity type: ' . $groupings->getObjType()
+                'Could not get definition for entity type: ' . $groupings->getObjType()
             );
         }
 

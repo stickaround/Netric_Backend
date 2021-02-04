@@ -9,7 +9,7 @@
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Workflow\DataMapper\WorkflowDataMapperFactory;
 
@@ -21,10 +21,10 @@ class WaitConditionActionFactory
     /**
      * Create a new action based on a name
      *
-     * @param AccountServiceManagerInterface $serviceLocator For loading dependencies
+     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
      * @return ActionInterface
      */
-    public static function create(AccountServiceManagerInterface $serviceLocator)
+    public static function create(ServiceLocatorInterface $serviceLocator)
     {
         // Return a new WaitConditionAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

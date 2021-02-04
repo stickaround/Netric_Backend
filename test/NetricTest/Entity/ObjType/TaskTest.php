@@ -12,7 +12,7 @@ use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 
@@ -63,8 +63,8 @@ class TaskTest extends TestCase
     {
         $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue('status_id', 1, TaskEntity::STATUS_COMPLETED);
-        $mockServiceManager = $this->getMockBuilder(AccountServiceManagerInterface::class)->getMock();
-        $task->onBeforeSave($mockServiceManager);
+        $mockServiceManager = $this->getMockBuilder(ServiceLocatorInterface::class)->getMock();
+        $task->onBeforeSave($mockServiceManager, $this->account->getSystemUser());
         $this->assertTrue($task->getValue('done'));
     }
 

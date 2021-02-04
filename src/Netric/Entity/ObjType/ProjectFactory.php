@@ -7,11 +7,11 @@
  */
 namespace Netric\Entity\ObjType;
 
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -23,14 +23,14 @@ class ProjectFactory implements EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return EntityInterface
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param EntityDefinition $def The definition of this type of object
+     * @return EntityInterface ProjectEntity
      */
-    public static function create(AccountServiceManagerInterface $sl)
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::PROJECT, $sl->getAccount()->getAccountId());
-        $entityIndex = $sl->get(IndexFactory::class);
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityIndex = $serviceLocator->get(IndexFactory::class);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         return new ProjectEntity($def, $entityLoader, $entityIndex);
     }
 }

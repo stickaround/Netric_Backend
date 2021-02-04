@@ -45,7 +45,6 @@ class MogileFileStoreTest extends AbstractFileStoreTests
         $config = $sm->get(ConfigFactory::class);
 
         $this->mogileFileStore = new MogileFileStore(
-            $accId,
             $entityLoader,
             $this->tmpPath,
             $config->files->server,

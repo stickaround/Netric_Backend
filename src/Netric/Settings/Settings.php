@@ -9,7 +9,6 @@
 
 namespace Netric\Settings;
 
-use Netric\Account\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Db\DbInterface;
 use Netric\ServiceManager;
@@ -29,13 +28,6 @@ class Settings
     protected $database = null;
 
     /**
-     * The current tennant's account
-     *
-     * @var Account
-     */
-    private $account = null;
-
-    /**
      * Application cache - usually Memecache
      *
      * @var CacheInterface|null
@@ -46,26 +38,25 @@ class Settings
      * Create new settings service
      *
      * @param RelationalDbInterface $database Handles to database actions
-     * @param Account $account The account of the current tennant
      * @param CacheInterface $cache Cache settings to speed things up
      */
-    public function __construct(RelationalDbInterface $database, Account $account, CacheInterface $cache)
+    public function __construct(RelationalDbInterface $database, CacheInterface $cache)
     {
         $this->database = $database;
-        $this->account = $account;
         $this->cache = $cache;
     }
 
     /**
      * Get a setting by name
      *
-     * @param string $name
+     * @param string $name Unique name of the setting value to save     
+     * @param string $accountId The account id of the current tennant
      * @return string
      */
-    public function get(string $name): ?string
+    public function get(string $name, string $accountId): ?string
     {
         // First try to get from cache (it's much faster that way)
-        $ret = $this->getCached($name);
+        $ret = $this->getCached($accountId, $name);
 
         if (!$ret) {
             $ret = $this->getDb($name);
@@ -88,11 +79,12 @@ class Settings
     /**
      * Set a setting by name
      *
-     * @param string $name
-     * @param mixed $value
+     * @param string $name Unique name of the setting value to save
+     * @param string $value Value to store
+     * @param string $accountId The account id of the current tennant
      * @return bool true on success, false on failure
      */
-    public function set($name, $value)
+    public function set(string $name, string $value, string $accountId)
     {
         if ($value === null) {
             $value = '';
@@ -103,7 +95,7 @@ class Settings
 
         // Now save to cache for later retieval
         if ($ret) {
-            $this->setCache($name, $value);
+            $this->setCache($accountId, $name, $value);
         }
 
         return $ret;
@@ -129,7 +121,7 @@ class Settings
     public function getForUser(UserEntity $user, $name)
     {
         // First try to get from cache (it's much faster that way)
-        $ret = $this->getCached($name, $user->getEntityId());
+        $ret = $this->getCached($user->getAccountId(), $name, $user->getEntityId());
 
         if ($ret === null) {
             $ret = $this->getDb($name, $user->getEntityId());
@@ -146,14 +138,14 @@ class Settings
      * @param mixed $value
      * @return bool true on success, false on failure
      */
-    public function setForUser(UserEntity $user, $name, $value)
+    public function setForUser(UserEntity $user, string $name, $value)
     {
         // First save to the database and make sure it was a success
         $ret = $this->saveDb($name, $value, $user->getEntityId());
 
         // Now save to cache for later retieval
         if ($ret) {
-            $this->setCache($name, $value, $user->getEntityId());
+            $this->setCache($user->getAccountId(), $name, $value, $user->getEntityId());
         }
 
         return $ret;
@@ -162,43 +154,46 @@ class Settings
     /**
      * Get a setting from cache if it is set
      *
-     * @param $name
-     * @param null $userId
+     * @param string $accountId The account id of the current tennant
+     * @param string $name Unique name of the setting value that we are getting
+     * @param int $userId Optional user id if this is a user setting
      * @return mixed
      */
-    private function getCached($name, $userId = null)
+    private function getCached(string $accountId, string $name, $userId = null)
     {
-        $key = $this->getCachedKey($name, $userId);
+        $key = $this->getCachedKey($accountId, $name, $userId);
         return $this->cache->get($key);
     }
 
     /**
      * Save a setting to cache
      *
-     * @param seting $name Unique name of the setting value to save
+     * @param string $accountId The account id of the current tennant
+     * @param string $name Unique name of the setting value to save
      * @param string $value Value to store
      * @param int $userId Optional user id if this is a user setting
      */
-    private function setCache($name, $value, $userId = null)
+    private function setCache(string $accountId, string $name, $value, $userId = null)
     {
-        $key = $this->getCachedKey($name, $userId);
+        $key = $this->getCachedKey($accountId, $name, $userId);
         $this->cache->set($key, $value);
     }
 
     /**
      * Construct a unique key to store the cache in
      *
+     * @param string $accountId The account id of the current tennant
      * @param $name The unique name of the settings key
      * @param int $userId Optional user id
      * @param int $teamId Optional team id
      * @return string
      */
-    private function getCachedKey($name, $userId = null)
+    private function getCachedKey(string $accountId, string $name, $userId = null)
     {
         // Namespace by account id
-        $cachedKey = $this->account->getAccountId();
+        $cachedKey = $accountId;
 
-        // if user-specfici then prefix with the user id
+        // if user-specific then prefix with the user id
         if ($userId) {
             $cachedKey .= "/users/" . $userId;
         }

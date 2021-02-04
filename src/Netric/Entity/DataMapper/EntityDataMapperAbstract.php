@@ -18,7 +18,7 @@ use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityFactory;
 use Netric\DataMapperAbstract;
-use Netric\ServiceManager\AccountServiceManager;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Ramsey\Uuid\Uuid;
 use Netric\Entity\EntityAggregatorFactory;
 use Netric\Entity\ObjType\UserEntity;
@@ -125,7 +125,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      * for an iterative refactor to pass to entity callbacks and will eventually
      * need to be removed. DO NOT USE IT FOR ANYTHING NEW.
      */
-    private AccountServiceManager $serviceManager;
+    private ServiceLocatorInterface $serviceManager;
 
     /**
      * Used to schedule background jobs
@@ -145,7 +145,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      * @param EntityDefinitionLoader $entityDefLoader
      * @param ActivityLog $activityLog
      * @param GroupingLoader $groupingLoader
-     * @param AccountServiceManager $serviceManager
+     * @param ServiceLocatorInterface $serviceManager
      */
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
@@ -158,7 +158,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         EntityDefinitionLoader $entityDefLoader,
         ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
-        AccountServiceManager $serviceManager,
+        ServiceLocatorInterface $serviceManager,
         WorkerService $workerService
     ) {
         $this->recurIdentityMapper = $recurIdentityMapper;
@@ -321,7 +321,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         // Call beforeSave
-        $entity->beforeSave($this->serviceManager);
+        $entity->beforeSave($this->serviceManager, $user);
 
         // Save data to DataMapper implementation
         $ret = $this->saveData($entity);
@@ -330,10 +330,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         if ($def->storeRevisions) {
             $this->saveRevision($entity);
         }
-
-        // Save data to EntityQuery Index
-        // $this->entityIndex = $this->serviceManager->get(IndexFactory::class);
-        // $this->entityIndex->save($entity);
 
         // Log the change in entity sync
         if ($ret && $lastCommitId && $commitId) {                        
@@ -345,12 +341,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             ]);
         }
 
-        // Send notifications
-        // $this->notifierService = $this->serviceManager->get(NotifierFactory::class);
-        // $this->notifierService->send($entity, $event);
-
         // Call onAfterSave
-        $entity->afterSave($this->serviceManager);
+        $entity->afterSave($this->serviceManager, $user);
 
         // Update any aggregates that could be impacted by saving $entity
         $this->entityAggregator = $this->serviceManager->get(EntityAggregatorFactory::class);
@@ -366,10 +358,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         if (!$entity->isRecurrenceException() && $entity->getRecurrencePattern()) {
             $this->recurIdentityMapper->saveFromEntity($entity, $useRecurId);
         }
-
-        // Log the activity
-        // $this->activityLog = $this->serviceManager->get(ActivityLogFactory::class);
-        // $this->activityLog->log($user, $event, $entity);
 
         // Send background job to do less expedient (but no less important) tasks
         // We check for user id because system or anonymous users do not have an ID
@@ -539,7 +527,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
 
         // Call beforeDeleteHard so the entity can do any pre-purge operations
-        $entity->beforeDeleteHard($this->serviceManager);
+        $entity->beforeDeleteHard($this->serviceManager, $user);
 
         // Purge the recurrence pattern if set
         if ($entity->getRecurrencePattern()) {
@@ -553,7 +541,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $ret = $this->deleteHard($entity, $user->getAccountId());
 
         // Call onBeforeDeleteHard so the entity can do any post-purge operations
-        $entity->afterDeleteHard($this->serviceManager);
+        $entity->afterDeleteHard($this->serviceManager, $user);
 
         // Delete from EntityCollection_Index
         $this->entityIndex = $this->serviceManager->get(IndexFactory::class);

@@ -6,20 +6,26 @@
 
 namespace Netric\Controller;
 
-use Netric\Entity\ObjType\UserEntity;
 use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\FileSystem\FileSystemFactory;
-use Netric\FileSystem\ImageResizerFactory;
-use Netric\FileSystem\FileStreamWrapper;
+use Netric\Mvc\AbstractFactoriedController;
+use Netric\Account\AccountContainerFactory;
+use Netric\Account\AccountContainerInterface;
 use Netric\Application\Response\HttpResponse;
-use Netric\Permissions\DaclLoaderFactory;
+use Netric\Request\HttpRequest;
+use Netric\Authentication\AuthenticationService;
+use Netric\Account\AccountContainer;
+use Netric\Entity\EntityLoader;
+use Netric\FileSystem\FileSystem;
+use Netric\FileSystem\ImageResizer;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\Permissions\DaclLoader;
 use Netric\Permissions\Dacl;
-use DateTime;
-use Netric\Config\ConfigFactory;
+use Netric\Log\LogInterface;
+use Netric\FileSystem\FileStreamWrapper;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\GroupingLoaderFactory;
+use DateTime;
 
 /**
  * Class FilesController
@@ -28,123 +34,156 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
  *
  * @package Netric\Controller
  */
-class FilesController extends Mvc\AbstractAccountController implements ControllerInterface
+class FilesController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
-     * FileSystem instance
-     *
-     * @var FileSystem
+     * Container used to load accounts
      */
-    private $fileSystem = null;
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
+    /**
+     * Handles the loading and saving of entities
+     */
+    private EntityLoader $entityLoader;
+
+    /**
+     * Handles the loading and saving of groupings
+     */
+    private GroupingLoader $groupingLoader;
+
+    /**
+     * Handles the loading and saving of dacl permissions
+     */
+    private DaclLoader $daclLoader;
+
+    /**
+     * Service used to import, export, create, update files
+     */
+    private FileSystem $fileSystem;
 
     /**
      * Resizer for images that we need to downscale or upscale
-     *
-     * @var ImageResizer
      */
-    private $imageResizer = null;
+    private ImageResizer $imageResizer;
 
     /**
-     * Path to local data directory for storing files
-     *
-     * @var string
+     * Logger for recording what is going on
      */
-    private $dataPath = null;
+    private LogInterface $log;
 
     /**
-     * User groups
+     * Initialize controller and all dependencies
      *
-     * @var EntityGroupings
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
+     * @param AuthenticationService $authService Service used to get the current user/account
+     * @param EntityLoader $entityLoader Handles the loading and saving of entities
+     * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
+     * @param DaclLoader $daclLoader Handles the loading and saving of dacl permissions
+     * @param FileSystem $fileSystem Service used to import, export, create, update files
+     * @param ImageResizer $imageResizer Resizer for images that we need to downscale or upscale     
+     * @param LogInterface $log Logger for recording what is going on
      */
-    private $userGroups = null;
-
-    // /**
-    //  * Get Allowed Groups
-    //  *
-    //  * @var string[]
-    //  */
-    // private $allowedGroups = [
-    //     UserEntity::GROUP_ADMINISTRATORS,
-    //     UserEntity::GROUP_CREATOROWNER,
-    //     UserEntity::GROUP_USERS,
-    //     UserEntity::GROUP_EVERYONE
-    // ];
-
-    /**
-     * Override initialization
-     */
-    protected function init()
-    {
-        // Get ServiceManager for the account
-        $sl = $this->account->getServiceManager();
-
-        // Get the FileSystem service
-        $this->fileSystem = $sl->get(FileSystemFactory::class);
-
-        // Set the local dataPath from the system config service
-        $config = $sl->get(ConfigFactory::class);
-        $this->dataPath = $config->data_path;
-
-        // Set resizer if we are working with images
-        $this->imageResizer = $sl->get(ImageResizerFactory::class);
-
-        // Get user groupings
-        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
-        $this->userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
+    public function __construct(
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,
+        EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader,
+        DaclLoader $daclLoader,
+        FileSystem $fileSystem,
+        ImageResizer $imageResizer,
+        LogInterface $log
+    ) {
+        $this->accountContainer = $accountContainer;
+        $this->authService = $authService;
+        $this->entityLoader = $entityLoader;
+        $this->groupingLoader = $groupingLoader;
+        $this->daclLoader = $daclLoader;
+        $this->fileSystem = $fileSystem;
+        $this->imageResizer = $imageResizer;
+        $this->log = $log;
     }
 
     /**
-     * Override to allow anonymous users to access this controller for authentication
+     * Get the currently authenticated account
      *
-     * @return \Netric\Permissions\Dacl
+     * @return Account
      */
-    public function getAccessControlList(): Dacl
+    private function getAuthenticatedAccount()
     {
-        $dacl = new Dacl();
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
 
-        // By default allow everyone and let each controller action handle permissions
-        $dacl->allowEveryone();
-
-        return $dacl;
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 
     /**
      * Upload a new file to the filesystem via POST
      *
-     * @return array|HttpResponse
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function postUploadAction()
+    public function postUploadAction(HttpRequest $request): HttpResponse
     {
-        $request = $this->getRequest();
-        $log = $this->account->getApplication()->getLog();
+        $response = new HttpResponse($request);
 
-        // Make sure we have the resources to upload this file
-        ini_set("max_execution_time", "7200");
-        ini_set("max_input_time", "7200");
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(['error' => "No authenticated account found."]);
+            return $response;
+        }
 
+        $folderid = $request->getParam("folderid");
+        $path = $request->getParam("path");
+        $files = $request->getParam('files');
+        $fileId = $request->getParam('file_id');
+        $fileName = $request->getParam('file_name');
 
-        $folder = null;
-        $ret = [];
+        // Check if the request was sent as a json object
+        $rawBody = $request->getBody();
+        if ($rawBody) {
+            $body = json_decode($rawBody, true);
+            $folderid = $body['folderid'];
+            $path = $body['path'];
+            $files = $body['files'];
+            $fileId = $body['file_id'];
+            $fileName = $body['file_name'];
+        }
+
+        $currentUser = $currentAccount->getAuthenticatedUser();
 
         // If folderid has been passed the override the text path
-        if ($request->getParam('folderid')) {
-            $folder = $this->fileSystem->openFolderById($request->getParam('folderid'));
-        } elseif ($request->getParam('path')) {
-            $folder = $this->fileSystem->openFolder($request->getParam('path'), true);
+        $folder;
+        if ($folderid) {
+            $folder = $this->fileSystem->openFolderById($folderid, $currentUser);
+        } elseif ($path) {
+            $folder = $this->fileSystem->openFolder($path, $currentUser, true);
         }
 
         // Could not create or get a parent folder. Return an error.
-        if (!$folder) {
-            return $this->sendOutput(["error" => "Could not open the folder specified"]);
+        if (!$folder) {            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(['error' => "Could not open the folder specified."]);
+            return $response;
         }
 
         $folderPath = $folder->getFullPath();
 
-        // Process each file
-        $files = $request->getParam('files');
-
         // List of files that just got uploaded
         $uploadedFiles = [];
+        $ret = [];
+
+        // Make sure we have the resources to upload this file
+        ini_set("max_execution_time", "7200");
+        ini_set("max_input_time", "7200");
 
         /**
          * When a file is uploaded it can be sent as 'input_name' or as 'input_name[]'
@@ -182,9 +221,6 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             }
         }
 
-        $user = $this->account->getUser();
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-
         foreach ($uploadedFiles as $uploadedFile) {
             /*
              * Make sure that the file was uploaded via HTTP_POST. This is useful to help
@@ -208,31 +244,28 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
              * If the folder does not exist, then fileSystem->importFile will also verify
              * that the user has permission to the parent folder before creating a child folder
              */
-            $folderEntity = $this->fileSystem->openFolder($folderPath);
+            $folderEntity = $this->fileSystem->openFolder($folderPath, $currentUser);
 
             if ($folderEntity) {
-                $dacl = $daclLoader->getForEntity($folderEntity, $user);
-                if (!$dacl->isAllowed($user)) {
+                $dacl = $this->daclLoader->getForEntity($folderEntity, $currentUser);
+                if (!$dacl->isAllowed($currentUser)) {
                     // Log a warning to flag repeat offenders
-                    $log->warning(
-                        "User " . $user->getName() . " tried to upload to $folderPath but does not have access"
+                    $this->log->warning(
+                        "User " . $currentUser->getName() . " tried to upload to $folderPath but does not have access"
                     );
 
                     // Return a 403
-                    $response = new HttpResponse($request);
                     $response->setReturnCode(
                         HttpResponse::STATUS_CODE_FORBIDDEN,
-                        "Access to folder $folderPath denied for user " . $user->getName()
+                        "Access to folder $folderPath denied for user " . $currentUser->getName()
                     );
                     return $response;
                 }
             }
 
-            $fileId = $request->getParam('file_id');
-            $fileName = $request->getParam('file_name');
-
             // Import into netric file system
             $file = $this->fileSystem->importFile(
+                $currentUser,
                 $uploadedFile['tmp_name'],
                 $folderPath,
                 $uploadedFile["name"],
@@ -253,61 +286,70 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
             unlink($uploadedFile['tmp_name']);
         }
 
-        return $this->sendOutput($ret);
+        $response->write($ret);
+        return $response;
     }
 
     /**
      * PUT pass-through for uploading
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function putUploadAction()
+    public function putUploadAction(HttpRequest $request): HttpResponse
     {
-        return $this->postUploadAction();
+        return $this->postUploadAction($request);
     }
 
     /**
      * Download a file
      *
+     * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
-    public function getDownloadAction()
+    public function getDownloadAction(HttpRequest $request): HttpResponse
     {
-        $request = $this->getRequest();
-        $fileId = $request->getParam("file_id");
-        $user = $this->account->getUser();
-        $log = $this->account->getApplication()->getLog();
-
         $response = new HttpResponse($request);
 
         // File id is a required param
+        $fileId = $request->getParam("file_id");
         if (!$fileId) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND, "No file id supplied");
+            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND, "No file id supplied.");
             return $response;
         }
 
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST, "No authenticated account found.");
+            return $response;
+        }
+
+        $currentUser = $currentAccount->getAuthenticatedUser();
+
         // Load the file
-        $fileEntity = $this->fileSystem->openFileById($fileId);
+        $fileEntity = $this->fileSystem->openFileById($fileId, $currentUser);
 
         // Let the caller know if the file does not exist
         if (!$fileEntity) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
+            $response->write(['error' => "No file entity found."]);
             return $response;
         }
 
-        // Make sure the current user has access
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($fileEntity, $user);
-        if (!$dacl->isAllowed($user, Dacl::PERM_VIEW)) {
-            $log->warning(
-                "FilesController->getDownloadAction: User " . $user->getName() .
+        // Make sure the current user has access        
+        $dacl = $this->daclLoader->getForEntity($fileEntity, $currentUser);
+        if (!$dacl->isAllowed($currentUser, Dacl::PERM_VIEW)) {
+            $this->log->warning(
+                "FilesController->getDownloadAction: User " . $currentUser->getName() .
                     " does not have permissions to " .
                     $fileEntity->getEntityId() . ":" . $fileEntity->getName()
             );
 
             // Return a 403
-            $response = new HttpResponse($request);
             $response->setReturnCode(
                 HttpResponse::STATUS_CODE_FORBIDDEN,
-                "Access to file $fileId denied for user " . $user->getName()
+                "Access to file $fileId denied for user " . $currentUser->getName()
             );
             return $response;
         }
@@ -326,6 +368,7 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
 
             // Resize the image and return the new (temp) fileEntity
             $resizedFileEntity = $this->imageResizer->resizeFile(
+                $currentUser,
                 $fileEntity,
                 $maxWidth,
                 $maxHeight
@@ -345,10 +388,12 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         $dateLastModified->setTimestamp($fileEntity->getValue("ts_updated"));
         $response->setLastModified($dateLastModified);
 
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $currentAccount->getAccountId());
+
         // Allow caching if everyone has access
-        if ($dacl->groupIsAllowed($this->userGroups->getByName(UserEntity::GROUP_EVERYONE), Dacl::PERM_VIEW)) {
+        if ($dacl->groupIsAllowed($userGroups->getByName(UserEntity::GROUP_EVERYONE), Dacl::PERM_VIEW)) {
             $response->setCacheable(
-                md5($this->account->getName() .
+                md5($currentAccount->getName() .
                     ".file." . $fileEntity->getEntityId() .
                     '.r' . $fileEntity->getValue("revision"))
             );
@@ -362,28 +407,34 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
         return $response;
     }
 
+
     /**
      * Redirect to a user's profile image
      *
+     * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
-    public function getUserImageAction()
+    public function getUserImageAction(HttpRequest $request): HttpResponse
     {
-        $request = $this->getRequest();
         $response = new HttpResponse($request);
-        $userGuid = $request->getParam("owner_id");
-
-        // If the user id was not passed then we will use current user's id
-        if (!$userGuid) {
-            $userGuid = $this->account->getUser()->getEntityId();
+        
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST, "No authenticated account found.");
+            return $response;
         }
 
-        // We will need the entityLoader to load up a user
-        $serviceManager = $this->account->getServiceManager();
-        $entiyLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $currentUser = $currentAccount->getAuthenticatedUser();
+
+        // If the user id was not passed then we will use current user's id
+        $userGuid = $request->getParam("owner_id");
+        if (!$userGuid) {
+            $userGuid = $currentUser->getEntityId();
+        }
 
         // Get the user entity for the user id
-        $userToGetImageFor = $entiyLoader->getEntityById($userGuid, $this->account->getAccountId());
+        $userToGetImageFor = $this->entityLoader->getEntityById($userGuid, $currentAccount->getAccountId());        
         $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
 
         // 404 if the user was not found or there was no image_id uploaded
@@ -400,6 +451,6 @@ class FilesController extends Mvc\AbstractAccountController implements Controlle
          * but the newly modified request will be sent to $this->getDownloadAction()
          * becaues we want to preserve caching with the user profile links
          */
-        return $this->getDownloadAction();
+        return $this->getDownloadAction($request);
     }
 }

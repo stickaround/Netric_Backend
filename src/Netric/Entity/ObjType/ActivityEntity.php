@@ -11,7 +11,10 @@ namespace Netric\Entity\ObjType;
 
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Activty entity used for logging activity logs
@@ -33,11 +36,23 @@ class ActivityEntity extends Entity implements EntityInterface
     const VERB_APPROVED = 'approved';
 
     /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     */
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    {
+        parent::__construct($def, $entityLoader);
+    }
+
+    /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Set association for the object which is used for queries
         if ($this->getValue('obj_reference')) {

@@ -9,7 +9,6 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
-use Netric\Account\AccountContainerFactory;
 use Netric\Account\AccountContainerInterface;
 use Netric\Application\Response\HttpResponse;
 use Netric\Request\HttpRequest;

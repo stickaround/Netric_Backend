@@ -1121,7 +1121,7 @@ class EntityProvider
                 }
 
                 foreach ($attachments as $attId) {
-                    $file = $fileSystem->openFileById($attId);
+                    $file = $fileSystem->openFileById($attId, $this->account->getAuthenticatedUser());
 
                     $attachment = new SyncAttachment();
                     $attachment->attsize = $file->getValue('file_size');

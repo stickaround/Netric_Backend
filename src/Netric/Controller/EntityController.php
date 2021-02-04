@@ -188,8 +188,7 @@ class EntityController extends AbstractFactoriedController implements Controller
      * @return HttpResponse
      */
     public function getGetAction(HttpRequest $request): HttpResponse
-    {
-        $rawBody = $request->getBody();
+    {        
         $response = new HttpResponse($request);
 
         $id = $request->getParam('id'); // id for backwards compatibility
@@ -197,6 +196,16 @@ class EntityController extends AbstractFactoriedController implements Controller
         $objType = $request->getParam('obj_type');        
         $uname = $request->getParam('uname');
         $unameConditions = $request->getParam('uname_conditions');
+
+        // Check if the request was sent as a json object
+        $rawBody = $request->getBody();
+        if ($rawBody) {
+            $body = json_decode($rawBody, true);
+            $entityId = $body['entity_id'];
+            $objType = $body['obj_type'];
+            $uname = $body['uname'];
+            $unameConditions = $body['uname_conditions'];
+        }
 
         // Use id for backwards compatibility
         if (!$entityId && $id) {
@@ -211,6 +220,13 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
+        $conditions = [];
+        if ($unameConditions) {
+            foreach($unameConditions as $idx => $value) {
+                $conditions[$idx] = $value;
+            }
+        }
+
         // Get the entity utilizing whatever params were passed in
         $entity = null;
         if ($entityId && Uuid::isValid($entityId)) {
@@ -222,7 +238,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                 $objType,
                 $uname,
                 $currentAccount->getAccountId(),
-                $unameConditions
+                $conditions
             );
         } else {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);

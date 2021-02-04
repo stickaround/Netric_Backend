@@ -5,23 +5,24 @@
  */
 namespace Netric\Account\Module;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Account\Module\DataMapper\DataMapperFactory;
 
 /**
  * Create a module service
  */
-class ModuleServiceFactory implements ServiceManager\AccountServiceFactoryInterface
+class ModuleServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
      * @return ModuleService
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $dataMapper = $sl->get(DataMapperFactory::class);
+        $dataMapper = $serviceLocator->get(DataMapperFactory::class);
 
         return new ModuleService($dataMapper);
     }

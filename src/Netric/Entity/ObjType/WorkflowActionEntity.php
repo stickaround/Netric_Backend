@@ -5,9 +5,11 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * A Workflow Action/Step is a specific action that will be executed under a workflow
@@ -15,30 +17,14 @@ use Netric\Entity\EntityInterface;
 class WorkflowActionEntity extends Entity implements EntityInterface
 {
     /**
-     * Callback function used for derrived subclasses
+     * Class constructor
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
     {
-    }
-
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Called right before the entity is purged (hard delete)
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
-    {
+        parent::__construct($def, $entityLoader);
     }
 
     /**

@@ -343,8 +343,9 @@ class EntityMaintainerService extends AbstractHasErrors
      */
     public function cleanTempFolder(string $accountId, DateTime $cutoff = null, $tmpPath = FileSystem::PATH_TEMP)
     {
-        $deletedFiles = [];
-        $tmpFolder = $this->fileSystem->openFolder($tmpPath);
+        $deletedFiles = [];        
+        $account = $this->accountContainer->loadById($accountId);
+        $tmpFolder = $this->fileSystem->openFolder($tmpPath, $account->getAuthenticatedUser());
 
         if (!$tmpFolder) {
             return $deletedFiles;
@@ -378,8 +379,7 @@ class EntityMaintainerService extends AbstractHasErrors
          */
         foreach ($toDeleteIds as $entityId) {
             $entity = $this->entityLoader->getEntityById($entityId, $accountId);
-            if ($entity) {
-                $account = $this->accountContainer->loadById($accountId);
+            if ($entity) {                
                 $this->entityLoader->archive($entity, $account->getSystemUser());
                 $deletedFiles[] = $entity->getEntityId();
                 $this->log->info(

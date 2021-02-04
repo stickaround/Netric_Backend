@@ -17,6 +17,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 /**
  * @group integration
@@ -74,7 +75,7 @@ class FileSystemTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
         $this->fileSystem = $sl->get(FileSystemFactory::class);
@@ -87,13 +88,13 @@ class FileSystemTest extends TestCase
     {
         // Clean-up test files
         foreach ($this->testFiles as $file) {
-            $this->fileSystem->deleteFile($file, true);
+            $this->fileSystem->deleteFile($file, $this->account->getAuthenticatedUser(), true);
         }
 
         // Delete all test folders in reverse order - in case they are children of each other
         $folders = array_reverse($this->testFolders);
         foreach ($folders as $folder) {
-            $this->fileSystem->deleteFolder($folder, true);
+            $this->fileSystem->deleteFolder($folder, $this->account->getAuthenticatedUser(), true);
         }
     }
 
@@ -111,7 +112,7 @@ class FileSystemTest extends TestCase
      */
     public function testGetRootFolder()
     {
-        $this->assertNotNull($this->fileSystem->getRootFolder());
+        $this->assertNotNull($this->fileSystem->getRootFolder($this->account->getSystemUser()));
     }
 
     /**
@@ -120,10 +121,10 @@ class FileSystemTest extends TestCase
     public function testOpenFolder()
     {
         // Create some test folders
-        $rootFolder = $this->fileSystem->getRootFolder();
+        $rootFolder = $this->fileSystem->getRootFolder($this->account->getSystemUser());
 
         // Cleanup first
-        if ($this->fileSystem->openFolder("/testOpenSub")) {
+        if ($this->fileSystem->openFolder("/testOpenSub", $this->account->getAuthenticatedUser())) {
             $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testOpenSub"), $this->account->getAuthenticatedUser());
         }
 
@@ -142,7 +143,7 @@ class FileSystemTest extends TestCase
         $this->queueFolderForCleanup($childFolder);
 
         // Try opening /testOpenSub
-        $openedFolder = $this->fileSystem->openFolder("/testOpenSub");
+        $openedFolder = $this->fileSystem->openFolder("/testOpenSub", $this->account->getAuthenticatedUser());
         $this->assertNotNull($openedFolder);
         $this->assertEquals($openedFolder->getEntityId(), $subFolder->getEntityId());
         $this->assertEquals(
@@ -151,7 +152,7 @@ class FileSystemTest extends TestCase
         );
 
         // Try opening /testOpenSub/Child
-        $openedFolder = $this->fileSystem->openFolder("/testOpenSub/Child");
+        $openedFolder = $this->fileSystem->openFolder("/testOpenSub/Child", $this->account->getAuthenticatedUser());
         $this->assertNotNull($openedFolder);
         $this->assertEquals($openedFolder->getEntityId(), $childFolder->getEntityId());
         $this->assertEquals(
@@ -168,24 +169,24 @@ class FileSystemTest extends TestCase
         $origChildId = null;
 
         // First delete test path if it exists
-        $folder = $this->fileSystem->openFolder("/testOpenSubCreate/Child");
+        $folder = $this->fileSystem->openFolder("/testOpenSubCreate/Child", $this->account->getAuthenticatedUser());
         if ($folder) {
             $this->dataMapper->delete($folder, $this->account->getAuthenticatedUser());
         }
-        $folder = $this->fileSystem->openFolder("/testOpenSubCreate");
+        $folder = $this->fileSystem->openFolder("/testOpenSubCreate", $this->account->getAuthenticatedUser());
         if ($folder) {
             $origChildId = $folder->getEntityId();
             $this->dataMapper->delete($folder, $this->account->getAuthenticatedUser());
         }
 
         // Now open the folder with create flag (second)
-        $openedFolder = $this->fileSystem->openFolder("/testOpenSubCreate/Child", true);
+        $openedFolder = $this->fileSystem->openFolder("/testOpenSubCreate/Child", $this->account->getAuthenticatedUser(), true);
         $this->assertNotNull($openedFolder);
         $this->assertNotEquals($origChildId, $openedFolder->getEntityId());
 
         // Stash for cleanup
-        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenSubCreate"));
-        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenSubCreate/Child"));
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenSubCreate", $this->account->getAuthenticatedUser()));
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenSubCreate/Child", $this->account->getAuthenticatedUser()));
     }
 
     /**
@@ -193,12 +194,12 @@ class FileSystemTest extends TestCase
      */
     public function testOpenFolderById()
     {
-        $testFolder = $this->fileSystem->openFolder("/testOpenFolderById", true);
+        $testFolder = $this->fileSystem->openFolder("/testOpenFolderById", $this->account->getAuthenticatedUser(), true);
         $this->queueFolderForCleanup($testFolder);
         $folderId = $testFolder->getEntityId();
 
         // Try to re-open the above folder by id
-        $sameFolder = $this->fileSystem->openFolderById($folderId);
+        $sameFolder = $this->fileSystem->openFolderById($folderId, $this->account->getAuthenticatedUser());
         $this->assertNotNull($sameFolder);
         $this->assertEquals($folderId, $sameFolder->getEntityId());
     }
@@ -211,14 +212,14 @@ class FileSystemTest extends TestCase
         $fileToImport = __DIR__ . "/FileStore/fixtures/file-to-upload.txt";
 
         // Test importing a local file
-        $importedFile = $this->fileSystem->importFile($fileToImport, "/testImportFile");
+        $importedFile = $this->fileSystem->importFile($this->account->getAuthenticatedUser(), $fileToImport, "/testImportFile");
         $this->assertNotNull($importedFile);
         $this->assertEquals("file-to-upload.txt", $importedFile->getValue("name"));
         $this->assertEquals(filesize($fileToImport), $importedFile->getValue("file_size"));
 
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
-        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testImportFile"));
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testImportFile", $this->account->getAuthenticatedUser()));
     }
 
     /**
@@ -236,6 +237,7 @@ class FileSystemTest extends TestCase
 
         // Test importing a local file
         $importedFile = $this->fileSystem->importFile(
+            $this->account->getAuthenticatedUser(),
             $fileToImport,
             "/testImportFile",
             "",
@@ -248,7 +250,7 @@ class FileSystemTest extends TestCase
 
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
-        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testImportFile"));
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testImportFile", $this->account->getAuthenticatedUser()));
     }
 
     /**
@@ -257,17 +259,17 @@ class FileSystemTest extends TestCase
     public function testOpenFileById()
     {
         $fileToImport = __DIR__ . "/FileStore/fixtures/file-to-upload.txt";
-        $importedFile = $this->fileSystem->importFile($fileToImport, "/testOpenFileById");
+        $importedFile = $this->fileSystem->importFile($this->account->getAuthenticatedUser(), $fileToImport, "/testOpenFileById");
 
         // Test opening the file straight from the fileSystem by id
-        $openedFile = $this->fileSystem->openFileById($importedFile->getEntityId());
+        $openedFile = $this->fileSystem->openFileById($importedFile->getEntityId(), $this->account->getAuthenticatedUser());
         $this->assertNotNull($openedFile);
         $this->assertFalse(empty($openedFile->getEntityId()));
         $this->assertEquals($importedFile->getEntityId(), $openedFile->getEntityId());
 
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
-        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenFileById"));
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenFileById", $this->account->getAuthenticatedUser()));
     }
 
     /**
@@ -291,29 +293,29 @@ class FileSystemTest extends TestCase
     public function testFolderExists()
     {
         $testPath = "/testFolderExists";
-        $folder = $this->fileSystem->openFolder($testPath);
+        $folder = $this->fileSystem->openFolder($testPath, $this->account->getAuthenticatedUser());
         if ($folder) {
             $this->dataMapper->delete($folder, $this->account->getAuthenticatedUser());
         }
 
         // Test a non-existent folder
-        $this->assertFalse($this->fileSystem->folderExists($testPath));
+        $this->assertFalse($this->fileSystem->folderExists($testPath, $this->account->getAuthenticatedUser()));
 
         // Create the file now
-        $folder = $this->fileSystem->openFolder($testPath, true);
+        $folder = $this->fileSystem->openFolder($testPath, $this->account->getAuthenticatedUser(), true);
         $this->queueFolderForCleanup($folder);
 
         // Test a existent folder
-        $this->assertTrue($this->fileSystem->folderExists($testPath));
+        $this->assertTrue($this->fileSystem->folderExists($testPath, $this->account->getAuthenticatedUser()));
     }
 
     public function testFileExists()
     {
-        $file = $this->fileSystem->fileExists("/", "missingfile.txt");
+        $file = $this->fileSystem->fileExists("/", "missingfile.txt", $this->account->getAuthenticatedUser());
         $this->assertFalse($file);
 
         // Create the missing file
-        $file = $this->fileSystem->createFile("/", "presentfile.txt", true);
+        $file = $this->fileSystem->createFile("/", "presentfile.txt", $this->account->getAuthenticatedUser(), true);
         $this->testFiles[] = $file; // Cleanup
         $this->assertNotNull($file);
         $this->assertFalse(empty($file->getEntityId()));
@@ -326,21 +328,21 @@ class FileSystemTest extends TestCase
         $this->dataMapper->save($testFile, $this->account->getSystemUser());
         $fileId = $testFile->getEntityId();
 
-        $ret = $this->fileSystem->deleteFile($testFile, true);
+        $ret = $this->fileSystem->deleteFile($testFile, $this->account->getAuthenticatedUser(), true);
         $this->assertTrue($ret);
 
         // Make sure this does not exist any more
-        $this->assertNull($this->fileSystem->openFileById($fileId));
+        $this->assertNull($this->fileSystem->openFileById($fileId, $this->account->getAuthenticatedUser()));
     }
 
     public function testDeleteFolder()
     {
         // Create some test folders
-        $rootFolder = $this->fileSystem->getRootFolder();
+        $rootFolder = $this->fileSystem->getRootFolder($this->account->getSystemUser());
 
         // Cleanup first
-        if ($this->fileSystem->openFolder("/testDeleteFolder")) {
-            $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testDeleteFolder"), true);
+        if ($this->fileSystem->openFolder("/testDeleteFolder", $this->account->getAuthenticatedUser())) {
+            $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testDeleteFolder"), $this->account->getAuthenticatedUser(), true);
         }
 
         // Create /testDeleteFolder
@@ -349,46 +351,46 @@ class FileSystemTest extends TestCase
         $subFolder->setValue("parent_id", $rootFolder->getEntityId());
         $this->dataMapper->save($subFolder, $this->account->getSystemUser());
 
-        $ret = $this->fileSystem->deleteFolder($subFolder, true);
+        $ret = $this->fileSystem->deleteFolder($subFolder, $this->account->getAuthenticatedUser(), true);
         $this->assertTrue($ret);
 
         // Make sure this does not exist any more
-        $this->assertFalse($this->fileSystem->folderExists("/testDeleteFolder"));
+        $this->assertFalse($this->fileSystem->folderExists("/testDeleteFolder", $this->account->getAuthenticatedUser()));
     }
 
     public function testFileIsTemp()
     {
-        $fldr = $this->fileSystem->openFolder("%tmp%", true);
+        $fldr = $this->fileSystem->openFolder("%tmp%", $this->account->getAuthenticatedUser(), true);
         $this->assertNotNull($fldr->getEntityId());
 
         // Third param is overwrite = true
-        $file = $this->fileSystem->createFile("%tmp%", "test", true);
+        $file = $this->fileSystem->createFile("%tmp%", "test", $this->account->getAuthenticatedUser(), true);
         $this->testFiles[] = $file;
 
         // Test
-        $this->assertTrue($this->fileSystem->fileIsTemp($file));
+        $this->assertTrue($this->fileSystem->fileIsTemp($file, $this->account->getAuthenticatedUser()));
 
         // Move then test again
-        $fldr = $this->fileSystem->openFolder("/testFileIsTemp", true);
+        $fldr = $this->fileSystem->openFolder("/testFileIsTemp", $this->account->getAuthenticatedUser(), true);
         $this->queueFolderForCleanup($fldr);
-        $this->fileSystem->moveFile($file, $fldr);
-        $this->assertFalse($this->fileSystem->fileIsTemp($file));
+        $this->fileSystem->moveFile($file, $fldr, $this->account->getAuthenticatedUser());
+        $this->assertFalse($this->fileSystem->fileIsTemp($file, $this->account->getAuthenticatedUser()));
     }
 
     public function testCreateFile()
     {
         // Try making a new file
-        $file = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", true);
+        $file = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", $this->account->getAuthenticatedUser(), true);
         $this->testFiles[] = $file; // For cleanup
         $this->assertNotNull($file->getEntityId());
 
         // Now try creating same file without overwrite - causes an error
-        $file2 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", false);
+        $file2 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", $this->account->getAuthenticatedUser(), false);
         $this->assertNull($file2);
         $this->assertNotNull($this->fileSystem->getLastError());
 
         // Overwrite the old file with a new one
-        $file3 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", true);
+        $file3 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", $this->account->getAuthenticatedUser(), true);
         $this->testFiles[] = $file3;
         $this->assertNotNull($file3->getEntityId());
         $this->assertNotEquals($file->getEntityId(), $file3->getEntityId());
@@ -397,13 +399,13 @@ class FileSystemTest extends TestCase
     public function testMoveFile()
     {
         // Try making a new file
-        $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
+        $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", $this->account->getAuthenticatedUser(), true);
         $this->testFiles[] = $file; // For cleanup
         $this->assertNotNull($file->getEntityId());
 
-        $fldr = $this->fileSystem->openFolder("/testFileMove", true);
+        $fldr = $this->fileSystem->openFolder("/testFileMove", $this->account->getAuthenticatedUser(), true);
         $this->queueFolderForCleanup($fldr);
-        $this->fileSystem->moveFile($file, $fldr);
+        $this->fileSystem->moveFile($file, $fldr, $this->account->getAuthenticatedUser());
 
         // Test to make sure it has moved
         $this->assertEquals($fldr->getEntityId(), $file->getValue("folder_id"));
@@ -413,7 +415,7 @@ class FileSystemTest extends TestCase
     {
         $testData = "test data";
 
-        $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
+        $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", $this->account->getAuthenticatedUser(), true);
         $retSizeUploaded = $this->fileSystem->writeFile($file, $testData, $this->account->getSystemUser());
         $this->assertGreaterThan(0, $retSizeUploaded);
         $this->assertEquals($testData, $this->fileSystem->readFile($file));

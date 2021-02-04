@@ -3,10 +3,12 @@
 namespace Netric\Entity\ObjType;
 
 use Netric\EntityDefinition\Field;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
@@ -16,18 +18,36 @@ use Ramsey\Uuid\Uuid;
 class CommentEntity extends Entity implements EntityInterface
 {
     /**
+     * The loader for a specific entity
+     *
+     * @var EntityLoader
+     */
+    private $entityLoader = null;
+
+    /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     */
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    {
+        $this->entityLoader = $entityLoader;
+        parent::__construct($def, $entityLoader);
+    }
+    
+    /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
-    {
-        $entityLoader = $sm->get(EntityLoaderFactory::class);
-        $currentUser = $sm->getAccount()->getAuthenticatedUser();
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    {        
         $objReference = $this->getValue('obj_reference');
-        $entityCommentedOn = $entityLoader->getEntityById(
+        $entityCommentedOn = $this->entityLoader->getEntityById(
             $objReference,
-            $sm->getAccount()->getAccountId()
+            $user->getAccountId()
         );
 
         // Set comments associations to all directly associated objects if new
@@ -65,31 +85,13 @@ class CommentEntity extends Entity implements EntityInterface
 
             // Save the entity we are commenting on if there were changes
             if ($entityCommentedOn->isDirty()) {
-                $entityLoader->save($entityCommentedOn, $currentUser);
+                $this->entityLoader->save($entityCommentedOn, $user);
             }
 
             // Set who this was sent by if not already set
-            if (!$this->getValue('sent_by') && $currentUser->getEntityId()) {
-                $this->setValue("sent_by", $currentUser->getEntityId());
+            if (!$this->getValue('sent_by') && $user->getEntityId()) {
+                $this->setValue("sent_by", $user->getEntityId());
             }
         }
-    }
-
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Called right before the entity is purged (hard delete)
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
-    {
     }
 }

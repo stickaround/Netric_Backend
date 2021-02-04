@@ -2,32 +2,121 @@
 
 namespace Netric\Controller;
 
-use Netric\Application\Response\ConsoleResponse;
 use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
+use Netric\Mvc\AbstractFactoriedController;
+use Netric\Account\AccountContainerFactory;
+use Netric\Account\AccountContainerInterface;
+use Netric\Account\AccountSetup;
+use Netric\Application\Response\HttpResponse;
+use Netric\Application\Response\ConsoleResponse;
+use Netric\Request\ConsoleRequest;
+use Netric\Application\Setup\AccountUpdater;
+use Netric\Application\Setup\Setup;
+use Netric\Application\DatabaseSetup;
+use Netric\Application\Application;
+use Netric\Request\HttpRequest;
+use Netric\Authentication\AuthenticationService;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
-use Netric\Application\Setup\Setup;
+use Netric\Log\LogInterface;
 use Netric\Console\BinScript;
-use Netric\Application\Response\HttpResponse;
-use Netric\Application\Setup\AccountUpdater;
-use Netric\Account\AccountSetupFactory;
-use Netric\Application\DatabaseSetupFactory;
-use Netric\Log\LogFactory;
 use RuntimeException;
 use InvalidArgumentException;
+use Netric\Settings\SettingsFactory;
 
 /**
  * Controller used for setting up netric - mostly from the command line
  */
-class SetupController extends Mvc\AbstractController
+class SetupController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
-     * Install netric by initializing the application db and default account
+     * Container used to load accounts
      */
-    public function consoleInstallAction()
+    private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
+    /**
+     * Service that has the netric account setup functions
+     */
+    private AccountSetup $accountSetup;
+
+    /**
+     * Service that has the database setup functions
+     */
+    private DatabaseSetup $dbSetup;
+
+    /**
+     * Service that can update an account
+     */
+    private AccountUpdater $accountUpdater;
+
+    /**
+     * Logger for recording what is going on
+     */
+    private LogInterface $log;
+
+    /**
+     * The current application instance
+     */
+    private Application $application;
+
+    /**
+     * Initialize controller and all dependencies
+     *
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
+     * @param AuthenticationService $authService Service used to get the current user/account
+     * @param AccountSetup $accountSetup Service that has the netric account setup functions
+     * @param DatabaseSetup $dbSetup Service that has the database setup functions
+     * @param AccountUpdater $accountUpdater Service that can update an account
+     * @param LogInterface $log Logger for recording what is going on
+     * @param Application $application The current application instance
+     */
+    public function __construct(
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,
+        AccountSetup $accountSetup,
+        DatabaseSetup $dbSetup,
+        AccountUpdater $accountUpdater,
+        LogInterface $log,
+        Application $application
+    ) {
+        $this->accountContainer = $accountContainer;
+        $this->authService = $authService;
+        $this->accountSetup = $accountSetup;
+        $this->dbSetup = $dbSetup;
+        $this->accountUpdater = $accountUpdater;
+        $this->log = $log;
+        $this->application = $application;
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
     {
-        $request = $this->getRequest();
-        $application = $this->getApplication();
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
+    }
+
+    /**
+     * Install netric by initializing the application db and default account
+     * 
+     * @param HttpRequest $request Request object for this run
+     * @return ConsoleResponse
+     */
+    public function consoleInstallAction(ConsoleRequest $request): ConsoleResponse
+    {
         $response = new ConsoleResponse();
 
         // First make sure they passed the username and password params to the command
@@ -49,13 +138,11 @@ class SetupController extends Mvc\AbstractController
 
         // TODO: Find out a way to determine if netric is already installed
 
-        // Create the database and update the schema
-        $serviceManager = $this->getApplication()->getServiceManager();
-        $dbSetup = $serviceManager->get(DatabaseSetupFactory::class);
-        $dbSetup->updateDatabaseSchema();
+        // Create the database and update the schema        
+        $this->dbSetup->updateDatabaseSchema();
 
         // Create account
-        if (!$application->createAccount(
+        if (!$this->application->createAccount(
             $request->getParam("account"),
             $request->getParam("username"),
             $request->getParam("email"),
@@ -77,20 +164,18 @@ class SetupController extends Mvc\AbstractController
 
     /**
      * Update account(s) and application to latest version
+     * 
+     * @return ConsoleResponse
      */
-    public function consoleUpdateAction()
+    public function consoleUpdateAction(): ConsoleResponse
     {
-        $serviceManager = $this->getApplication()->getServiceManager();
-        $log = $serviceManager->get(LogFactory::class);
-
         $response = new ConsoleResponse();
 
         // Update the application database
-        $log->info("SetupController:: Updating application.");
+        $this->log->info("SetupController:: Updating application.");
         $response->write("Updating application");
-        $serviceManager = $this->getApplication()->getServiceManager();
-        $dbSetup = $serviceManager->get(DatabaseSetupFactory::class);
-        $dbSetup->updateDatabaseSchema();
+
+        $this->dbSetup->updateDatabaseSchema();
 
         //        $applicationSetup = new Setup();
         //        if (!$applicationSetup->updateApplication($this->getApplication())) {
@@ -108,13 +193,12 @@ class SetupController extends Mvc\AbstractController
         $response->write("\t\t[done]\n");
 
         // Loop through each account and update it
-        $accounts = $this->getApplication()->getAccounts();
+        $accounts = $this->application->getAccounts();
         foreach ($accounts as $account) {
             $response->write("Updating account {$account->getName()}. ");
-            $updater = new AccountUpdater($account);
-            if (!$updater->runUpdates()) {
-                $log->error("SetupController: Failed to update account: " . $updater->getLastError()->getMessage());
-                throw new \Exception("Failed to update account: " . $updater->getLastError()->getMessage());
+            if (!$this->accountUpdater->runUpdates($account)) {
+                $this->log->error("SetupController: Failed to update account: " . $this->accountUpdater->getLastError()->getMessage());
+                throw new \Exception("Failed to update account: " . $this->accountUpdater->getLastError()->getMessage());
             }
 
             $response->write("\t[done]\n");
@@ -126,12 +210,15 @@ class SetupController extends Mvc\AbstractController
 
     /**
      * Run a specific script
+     * 
+     * @param ConsoleRequest $request Request object for this run
+     * @return ConsoleResponse
      */
-    public function consoleRunAction()
+    public function consoleRunAction(ConsoleRequest $request): ConsoleResponse
     {
         $rootPath = dirname(__FILE__) . "/../../../bin/scripts";
-        $scriptName = $this->getRequest()->getParam("script");
-        $script = new BinScript($this->account->getApplication(), $this->account);
+        $scriptName = $request->getParam("script");
+        $script = new BinScript($this->application, $this->account);
         $script->run($rootPath . "/" . $scriptName);
         $response = new ConsoleResponse();
         $response->setReturnCode(0);
@@ -143,27 +230,28 @@ class SetupController extends Mvc\AbstractController
      */
     public function getVersionAction()
     {
-        return $this->sendOutput(2);
+        $response = new ConsoleResponse();
+        $response->write(2);
+        return $response;
     }
 
     /**
      * Create a unique name for an account
      *
+     * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
-    public function getGenerateUniqueAccountNameAction()
+    public function getGenerateUniqueAccountNameAction(HttpRequest $request): HttpResponse
     {
-        $response = new HttpResponse($this->getRequest());
+        $response = new HttpResponse($request);
         $response->setContentType(HttpResponse::TYPE_JSON);
 
         if ($this->testMode) {
             $response->suppressOutput(true);
         }
 
-        $originalName = $this->getRequest()->getParam("name");
-        $serviceManager = $this->getApplication()->getServiceManager();
-        $accountSetup = $serviceManager->get(AccountSetupFactory::class);
-        $uniqueName = $accountSetup->getUniqueAccountName($originalName);
+        $originalName = $request->getParam("name");
+        $uniqueName = $this->accountSetup->getUniqueAccountName($originalName);
         $response->write(['name' => $uniqueName]);
         return $response;
     }
@@ -171,19 +259,19 @@ class SetupController extends Mvc\AbstractController
     /**
      * Create a new account
      *
+     * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
-    public function postCreateAccountAction()
+    public function postCreateAccountAction(HttpRequest $request): HttpResponse
     {
-        $response = new HttpResponse($this->getRequest());
+        $response = new HttpResponse($request);
         $response->setContentType(HttpResponse::TYPE_JSON);
 
         if ($this->testMode) {
             $response->suppressOutput(true);
         }
 
-        $rawBody = $this->getRequest()->getBody();
-
+        $rawBody = $request->getBody();
         if (!$rawBody) {
             $response->write(['error' => 'Invalid params in body']);
             return $response;
@@ -193,13 +281,10 @@ class SetupController extends Mvc\AbstractController
 
         // Make sure that the account name is unique
         $accountName = isset($params['account_name']) ? $params['account_name'] : '';
-        $serviceManager = $this->getApplication()->getServiceManager();
-        $accountSetup = $serviceManager->get(AccountSetupFactory::class);
-        $accountName = $accountSetup->getUniqueAccountName($accountName);
+        $accountName = $this->accountSetup->getUniqueAccountName($accountName);
 
-        // Create the account
-        $application = $this->getApplication();
-        $createdAccount = $application->createAccount(
+        // Create the account        
+        $createdAccount = $this->application->createAccount(
             $accountName,
             $params['username'],
             $params['email'],
@@ -214,17 +299,5 @@ class SetupController extends Mvc\AbstractController
         // Encode new account data and return it to the client for further processing
         $response->write($createdAccount->toArray());
         return $response;
-    }
-
-    /**
-     * Since the only methods in this class are console then we allow for anonymous
-     *
-     * @return Dacl
-     */
-    public function getAccessControlList()
-    {
-        $dacl = new Dacl();
-        $dacl->allowEveryone();
-        return $dacl;
     }
 }

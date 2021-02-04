@@ -8,18 +8,22 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Worker job represents a background job for a worker
  */
 class WorkerJobEntity extends Entity implements EntityInterface
 {
-    /*
-     * Right now this entity does nothing special, if we wanted to extend the
-     * base entity we could easily do so with:
+    /**
+     * Class constructor
      *
-     * onBeforeSave
-     * onAfterSave
-     * onBeforeDeleteHard
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
      */
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    {
+        parent::__construct($def, $entityLoader);
+    }
 }

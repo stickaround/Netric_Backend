@@ -7,9 +7,12 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Task represents a single task entity
@@ -39,11 +42,23 @@ class TaskEntity extends Entity implements EntityInterface
     const TYPE_DEFECT = 'Defect';
 
     /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     */
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    {
+        parent::__construct($def, $entityLoader);
+    }
+
+    /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         if ($this->getValue('status_id')) {
             $this->setValue(
@@ -51,24 +66,6 @@ class TaskEntity extends Entity implements EntityInterface
                 ($this->getValueName('status_id') === self::STATUS_COMPLETED)
             );
         }
-    }
-
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Called right before the entity is purged (hard delete)
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
-    {
     }
 
     /**

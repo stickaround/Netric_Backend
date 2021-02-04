@@ -3,35 +3,67 @@
 namespace Netric\Controller;
 
 use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
+use Netric\Mvc\AbstractFactoriedController;
+use Netric\Request\HttpRequest;
 use Netric\Application\Response\ConsoleResponse;
+use Netric\Account\AccountContainerInterface;
+use Netric\Application\Application;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationIdentity;
 use Netric\Permissions\Dacl;
 use Netric\WorkerMan\WorkerService;
 use Netric\Request\RequestInterface;
-use Netric\Application\Application;
+use Netric\Log\LogInterface;
 use Netric\WorkerMan\Worker\ScheduleRunnerWorker;
+use Netric\Request\ConsoleRequest;
 
 /**
  * Controller used for interacting with workers from the command line (or API)
  */
-class WorkersController extends Mvc\AbstractController
+class WorkersController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
-     * Worker for interacting with workers
-     *
-     * @var WorkerService
+     * Container used to load accounts
      */
-    private $workerService = null;
+    private AccountContainerInterface $accountContainer;
 
     /**
-     * Since the only methods in this class are console then we allow for anonymous
-     *
-     * @return Dacl
+     * Service used to get the current user/account
      */
-    public function getAccessControlList()
-    {
-        $dacl = new Dacl();
-        $dacl->allowEveryone();
-        return $dacl;
+    private AuthenticationService $authService;
+
+    /**
+     * Worker for interacting with workers
+     */
+    private WorkerService $workerService;
+
+    /**
+     * Logger for recording what is going on
+     */
+    private LogInterface $log;
+
+    /**
+     * Initialize controller and all dependencies
+     *
+     * @param AccountContainerInterface $accountContainer Container used to load accounts
+     * @param AuthenticationService $authService Service used to get the current user/account
+     * @param WorkerService $workerService Worker for interacting with workers
+     * @param LogInterface $log Logger for recording what is going on
+     * @param Application $application The current application instance
+     */
+    public function __construct(
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,
+        WorkerService $workerService,
+        LogInterface $log,
+        Application $application
+    ) {
+        $this->accountContainer = $accountContainer;
+        $this->authService = $authService;
+        $this->workerService = $workerService;
+        $this->log = $log;
+        $this->application = $application;
     }
 
     /**
@@ -53,12 +85,13 @@ class WorkersController extends Mvc\AbstractController
      * Options:
      *  --deamon = 1 If set then we will not print any output
      *  --runtime = [seconds] The number of seconds to run before returning
+     * 
+     * @param ConsoleRequest $request Request object for this run
+     * @return ConsoleResponse
      */
-    public function consoleProcessAction()
+    public function consoleProcessAction(ConsoleRequest $request): ConsoleResponse
     {
-        $request = $this->getRequest();
-        $application = $this->getApplication();
-        $response = new ConsoleResponse($application->getLog());
+        $response = new ConsoleResponse($this->log);
 
         /*
          * Check if we are suppressing output of the response.
@@ -66,14 +99,6 @@ class WorkersController extends Mvc\AbstractController
          */
         if ($request->getParam("suppressoutput")) {
             $response->suppressOutput(true);
-        }
-
-        // Get application level service locator
-        $serviceManager = $application->getServiceManager();
-
-        // Get the worker service if not already set
-        if (!$this->workerService) {
-            $this->workerService = $serviceManager->get(WorkerService::class);
         }
 
         // Process the jobs for an hour
@@ -110,7 +135,7 @@ class WorkersController extends Mvc\AbstractController
             $response->writeLine($textToWrite);
         } else {
             if ($numProcessed > 0) {
-                $application->getLog()->info($textToWrite);
+                $this->log->info($textToWrite);
             }
         }
 
@@ -119,14 +144,15 @@ class WorkersController extends Mvc\AbstractController
 
     /**
      * Action for scheduling workers
+     * 
+     * @param ConsoleRequest $request Request object for this run
+     * @return ConsoleResponse
      */
-    public function consoleScheduleAction()
+    public function consoleScheduleAction(ConsoleRequest $request): ConsoleResponse
     {
-        $application = $this->getApplication();
-        $config = $application->getConfig();
-        $response = new ConsoleResponse($application->getLog());
-        $request = $this->getRequest();
-
+        $config = $this->application->getConfig();
+        $response = new ConsoleResponse($this->log);
+        
         /*
          * Check if we are suppressing output of the response.
          * This is most often used in unit tests
@@ -141,34 +167,26 @@ class WorkersController extends Mvc\AbstractController
          */
         $lockTimeout = ($request->getParam("locktimeout")) ? $request->getParam("locktimeout") : 120;
 
-        // Get application level service locator
-        $serviceManager = $application->getServiceManager();
-
-        // Get the worker service if not already set
-        if (!$this->workerService) {
-            $this->workerService = $serviceManager->get(WorkerService::class);
-        }
-
         // Set a lock name to assure we only have one instance of the scheduler running (per version)
         $uniqueLockName = 'WorkerScheduleAction-' . $config->version;
 
         // We only ever want one scheduler running so create a lock that expires in 2 minutes
-        // if (!$application->acquireLock($uniqueLockName, $lockTimeout)) {
+        // if (!$this->application->acquireLock($uniqueLockName, $lockTimeout)) {
         //     $response->writeLine("WorkersController->consoleScheduleAction: Exiting because another instance is running");
         //     return $response;
         // }
 
         // Emit a background job for every account to run scheduled jobs every minute
-        $this->queueScheduledJobs($application, $request, $uniqueLockName, $lockTimeout);
+        $this->queueScheduledJobs($request, $uniqueLockName, $lockTimeout);
 
         // // Make sure we release the lock so that the scheduler can always be run
-        // $application->releaseLock($uniqueLockName);
+        // $this->application->releaseLock($uniqueLockName);
 
         $exitMessage = "WorkersController->consoleScheduleAction: Exiting job scheduler";
         if (!$request->getParam("daemon")) {
             $response->writeLine($exitMessage);
         } else {
-            $application->getLog()->info($exitMessage);
+            $this->log->info($exitMessage);
         }
 
         return $response;
@@ -180,23 +198,19 @@ class WorkersController extends Mvc\AbstractController
      * This is essentially a heartbeat that emits a background job for every
      * account to run any scheduled jobs the account may have.
      *
-     * @param Application $application
      * @param RequestInterface $request
      * @param string $uniqueLockName
      * @return void
      */
-    private function queueScheduledJobs(
-        Application $application,
-        RequestInterface $request,
-        $uniqueLockName
-    ) {
+    private function queueScheduledJobs(RequestInterface $request, $uniqueLockName)
+    {
         $running = true;
         while ($running) {
             /*
              * Get all accounts - this function queries the DB each time so we
              * do not need to refresh since this is a long-lived process
              */
-            $accounts = $application->getAccounts();
+            $accounts = $this->application->getAccounts();
             foreach ($accounts as $account) {
                 /*
                  * The ScheduleRunner worker will check for any scheduled jobs

@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntitySync\DataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\WorkerServiceFactory;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a Entity Collection service
  */
-class EntityCollectionFactory implements AccountServiceFactoryInterface
+class EntityCollectionFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Construct an instance of this factory so we can inject it as a dependency
      *
-     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      */
-    public function createService(AccountServiceManagerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {        
         $commitManager = $serviceLocator->get(CommitManagerFactory::class);
         $index = $serviceLocator->get(IndexFactory::class);

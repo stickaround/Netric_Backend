@@ -6,6 +6,7 @@ services:
     networks:
       - service_netric
       - default
+      - service_core
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}
       APPLICATION_VER: ${APPLICATION_VER}
@@ -39,6 +40,7 @@ services:
     networks:
       - service_netric
       - default
+      - service_core
     deploy:
       replicas: 1
       placement:
@@ -53,6 +55,8 @@ networks:
   default:
     external: false
   service_netric:
+    external: true
+  service_core:
     external: true
 
 secrets:

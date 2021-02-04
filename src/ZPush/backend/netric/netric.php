@@ -520,7 +520,7 @@ class BackendNetric implements IBackend
         }
 
         $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
-        $file = $fileSystem->openFileById($fileId);
+        $file = $fileSystem->openFileById($fileId, $this->account->getAuthenticatedUser());
 
         // Make sure file is valid and was not deleted
         if (!$file) {
@@ -533,7 +533,7 @@ class BackendNetric implements IBackend
         }
 
         $attachment = new SyncItemOperationsAttachment();
-        $attachment->data = $fileSystem->openFileStreamById($fileId);;
+        $attachment->data = $fileSystem->openFileStreamById($fileId, $this->account->getAuthenticatedUser());
         $attachment->contenttype = $file->getMimeType();
         return $attachment;
     }

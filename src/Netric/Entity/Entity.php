@@ -2,7 +2,7 @@
 
 namespace Netric\Entity;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\FileSystem\FileSystem;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\EntityDefinition\EntityDefinition;
@@ -13,6 +13,7 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\Permissions\DaclLoaderFactory;
 use Ramsey\Uuid\Uuid;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -601,96 +602,107 @@ class Entity implements EntityInterface
     /**
      * The datamapper will call this just before the entity is saved
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function beforeSave(AccountServiceManagerInterface $sm)
+    public function beforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Update or add followers based on changes to fields
         $this->updateFollowers();
 
         // Call derived extensions
-        $this->onBeforeSave($sm);
+        $this->onBeforeSave($serviceLocator, $user);
     }
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
     }
 
     /**
      * The datamapper will call this just after the entity is saved
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function afterSave(AccountServiceManagerInterface $sm)
+    public function afterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
+        $daclLoader = $serviceLocator->get(DaclLoaderFactory::class);
+        $fileSystem = $serviceLocator->get(FileSystemFactory::class);
+
         // Process any temp files or attachments associated with this entity if it is not the root folder
-        $this->processTempFiles($sm->get(FileSystemFactory::class));
+        $this->processTempFiles($fileSystem, $user);
 
         // Set permissions for entity folder (if we have attachments)
         $folderPath = '/System/Entity/' . $this->getValue('entity_id');
-        $entityFolder = $sm->get(FileSystemFactory::class)->openFolder($folderPath);
+        $entityFolder = $fileSystem->openFolder($folderPath, $user);
         if ($entityFolder && $entityFolder->getValue('entity_id')) {
-            $dacl = $sm->get(DaclLoaderFactory::class)->getForEntity($this, $sm->getAccount()->getAuthenticatedUser());
+            $dacl = $daclLoader->getForEntity($this, $user);
             if ($dacl) {
-                $sm->get(FileSystemFactory::class)->setFolderDacl($entityFolder, $dacl);
+                $fileSystem->setFolderDacl($entityFolder, $dacl, $user);
             }
         }
 
         // Call derived extensions
-        $this->onAfterSave($sm);
+        $this->onAfterSave($serviceLocator, $user);
     }
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
+    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
     }
 
     /**
      * The datamapper will call this just before an entity is purged -- hard delete
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function beforeDeleteHard(AccountServiceManagerInterface $sm)
+    public function beforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Call derived extensions
-        $this->onBeforeDeleteHard($sm);
+        $this->onBeforeDeleteHard($serviceLocator, $user);
     }
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
     }
 
     /**
      * The datamapper will call this just after an entity is purged -- hard delete
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function afterDeleteHard(AccountServiceManagerInterface $sm)
+    public function afterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Call derived extensions
-        $this->onAfterDeleteHard($sm);
+        $this->onAfterDeleteHard($serviceLocator, $user);
     }
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
+    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
     }
 
@@ -966,8 +978,9 @@ class Entity implements EntityInterface
      * because everything in temp get's purged after a period of time.
      *
      * @param FileSystem $fileSystem Handle to the netric filesystem service
+     * @param UserEntity $user The user that owns the temp files
      */
-    public function processTempFiles(FileSystem $fileSystem)
+    public function processTempFiles(FileSystem $fileSystem, UserEntity $user)
     {
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
@@ -986,16 +999,16 @@ class Entity implements EntityInterface
                         $entityFiles = array_values(array_filter($files));
 
                         foreach ($entityFiles as $fid) {
-                            $file = $fileSystem->openFileById($fid);
+                            $file = $fileSystem->openFileById($fid, $user);
 
                             // Check to see if the file is a temp file
                             if ($file) {
-                                if ($fileSystem->fileIsTemp($file)) {
+                                if ($fileSystem->fileIsTemp($file, $user)) {
                                     // Move file to a permanent directory
                                     $objDir = "/System/Entity/" . $this->getValue('entity_id');
-                                    $fldr = $fileSystem->openFolder($objDir, true);
+                                    $fldr = $fileSystem->openFolder($objDir, $user, true);
                                     if ($fldr && $fldr->getEntityId()) {
-                                        $fileSystem->moveFile($file, $fldr);
+                                        $fileSystem->moveFile($file, $fldr, $user);
                                     }
                                 }
                             }

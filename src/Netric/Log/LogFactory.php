@@ -7,7 +7,6 @@
  */
 namespace Netric\Log;
 
-use Netric\ServiceManager;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 

@@ -14,32 +14,28 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntitySync\EntitySyncFactory;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerServiceFactory;
 
 /**
  * Create a Entity DataMapper service
  */
-class EntityDataMapperFactory implements AccountServiceFactoryInterface
+class EntityDataMapperFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntityPgsqlDataMapper
      */
-    public function createService(AccountServiceManagerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $recurIdentityMapper = $serviceLocator->get(RecurrenceIdentityMapperFactory::class);
-        $commitManager = $serviceLocator->get(CommitManagerFactory::class);
-        // $entitySync = $serviceLocator->get(EntitySyncFactory::class);
+        $commitManager = $serviceLocator->get(CommitManagerFactory::class);        
         $entityValidator = $serviceLocator->get(EntityValidatorFactory::class);
-        $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
-        //$notifier = $serviceLocator->get(NotifierFactory::class);
-        //$entityAggregator = $serviceLocator->get(EntityAggregatorFactory::class);
-        $entityDefLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
-        //$activityLog = $serviceLocator->get(ActivityLogFactory::class);
+        $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);        
+        $entityDefLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);        
         $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);

@@ -33,22 +33,24 @@ class ModuleService
      * Retrieve a module by name
      *
      * @param string $name Unique name of module to load
+     * @param string $accountId The account id that owns the module
      * @return Module|null if not found
      */
-    public function getByName($name)
+    public function getByName(string $name, string $accountId)
     {
-        return $this->moduleDataMapper->get($name);
+        return $this->moduleDataMapper->get($name, $accountId);
     }
 
     /**
      * Get a module by id
      *
      * @param int $id Unique id of module to get
+     * @param string $accountId The account id that owns the modules
      * @return Module|null if not found
      */
-    public function getById($id)
+    public function getById($id, string $accountId)
     {
-        $all = $this->moduleDataMapper->getAll();
+        $all = $this->moduleDataMapper->getAll($accountId);
         foreach ($all as $module) {
             if ($module->getModuleId() == $id) {
                 return $module;
@@ -66,7 +68,7 @@ class ModuleService
      */
     public function getForUser(UserEntity $user)
     {
-        $all = $this->moduleDataMapper->getAll();
+        $all = $this->moduleDataMapper->getAll($user->getAccountId());
         $userModules = [];
 
         // Loop through each module to see if it applies to the user
@@ -101,12 +103,13 @@ class ModuleService
     /**
      * Save changes to a module
      *
-     * @param Module $module
+     * @param Module $module The module to save
+     * @param string $accountId The account id that owns this module
      * @return bool
      */
-    public function save(Module $module)
+    public function save(Module $module, string $accountId)
     {
-        return $this->moduleDataMapper->save($module);
+        return $this->moduleDataMapper->save($module, $accountId);
     }
 
     /**

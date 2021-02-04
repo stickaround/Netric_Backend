@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery\EntityQuery;
@@ -98,7 +97,6 @@ class UserTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER, $this->account->getAccountId());
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $this->assertInstanceOf(UserEntity::class, $entity);
     }
@@ -110,7 +108,7 @@ class UserTest extends TestCase
 
         // onBeforeSave copies obj_reference to the 'associations' field
         $this->user->setValue("password", "newvalue");
-        $this->user->onBeforeSave($this->account->getServiceManager());
+        $this->user->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Make sure we have hashed and encoded the password
         $this->assertNotEquals($this->user->getValue("password"), $newPass);
@@ -124,7 +122,7 @@ class UserTest extends TestCase
         $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
-        $user->onBeforeSave($this->account->getServiceManager());
+        $user->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Make sure we have hashed and encoded the password
         $this->assertNotEquals($user->getValue("password"), self::TEST_USER_PASS);
@@ -138,7 +136,7 @@ class UserTest extends TestCase
         $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
-        $user->onBeforeSave($this->account->getServiceManager());
+        $user->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Make sure we have hashed and encoded the password
         $this->assertNotEquals($user->getValue("password"), self::TEST_USER_PASS);
@@ -150,7 +148,7 @@ class UserTest extends TestCase
         $user->setValue("name", self::TEST_USER);
         $user->setValue("email", self::TEST_EMAIL);
         $user->setValue("password", self::TEST_USER_PASS);
-        $user->onAfterSave($this->account->getServiceManager());
+        $user->onAfterSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Make sure the application can get the username from the email now
         $app = $this->account->getApplication();
@@ -167,11 +165,11 @@ class UserTest extends TestCase
         $user->setValue("name", self::TEST_USER);
         $user->setValue("email", self::TEST_EMAIL);
         $user->setValue("password", self::TEST_USER_PASS);
-        $user->onAfterSave($this->account->getServiceManager());
+        $user->onAfterSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Change the username and make sure the old username was deleted
         $user->setValue("name", self::TEST_USER . "-changed");
-        $user->onAfterSave($this->account->getServiceManager());
+        $user->onAfterSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Make sure the application can get the username from the email now
         $accounts = $app->getAccountsByEmail(self::TEST_EMAIL);
@@ -180,11 +178,11 @@ class UserTest extends TestCase
 
         // Reset
         $user->setValue("name", self::TEST_USER);
-        $user->onAfterSave($this->account->getServiceManager());
+        $user->onAfterSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Change the email and make sure the old username was deleted
         $user->setValue("email", self::TEST_EMAIL . "-changed");
-        $user->onAfterSave($this->account->getServiceManager());
+        $user->onAfterSave($this->account->getServiceManager(), $this->account->getSystemUser());
 
         // Make sure the application can get the username from the email now
         $accounts = $app->getAccountsByEmail(self::TEST_EMAIL);

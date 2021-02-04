@@ -10,6 +10,7 @@ use Netric\Mail\Transport\SmtpFactory;
 use PHPUnit\Framework\TestCase;
 use Netric\Settings\SettingsFactory;
 use Netric\Mail\Transport\Smtp;
+use Netric\Account\Account;
 use NetricTest\Bootstrap;
 
 /**
@@ -18,42 +19,19 @@ use NetricTest\Bootstrap;
 class SmtpFactoryTest extends TestCase
 {
     /**
-     * Save old settings so we can revert after the test
-     *
-     * We are doing this because the factory can return different
-     * transport options if the account has manual smtp settings
-     *
-     * @var array
+     * Reference to account running for unit tests
      */
-    private $oldSettings = [];
+    private $account;
 
     protected function setUp(): void
     {
-        $account = Bootstrap::getAccount();
-        $settings = $account->getServiceManager()->get(SettingsFactory::class);
-        $this->oldSettings = [
-            'smtp_host' => $settings->get("email/smtp_host"),
-            'smtp_user' => $settings->get("email/smtp_user"),
-            'smtp_password' => $settings->get("email/smtp_password"),
-            'smtp_port' => $settings->get("email/smtp_port"),
-        ];
+        // Create a new test account to test the settings
+        $this->account = Bootstrap::getAccount();
     }
-
-    protected function tearDown(): void
-    {
-        // Restore cached old settings
-        $account = Bootstrap::getAccount();
-        $settings = $account->getServiceManager()->get(SettingsFactory::class);
-        $settings->set("email/smtp_host", $this->oldSettings['smtp_host']);
-        $settings->set("email/smtp_user", $this->oldSettings['smtp_user']);
-        $settings->set("email/smtp_password", $this->oldSettings['smtp_password']);
-        $settings->set("email/smtp_port", $this->oldSettings['smtp_port']);
-    }
-
+    
     public function testCreateService()
     {
-        $account = Bootstrap::getAccount();
-        $sm = $account->getServiceManager();
+        $sm = $this->account->getServiceManager();
         $this->assertInstanceOf(
             Smtp::class,
             $sm->get(SmtpFactory::class)
@@ -67,13 +45,13 @@ class SmtpFactoryTest extends TestCase
         $testUser = 'testuser';
         $testPassword = 'password';
 
-        $account = Bootstrap::getAccount();
-        $sm = $account->getServiceManager();
+        $this->account = Bootstrap::getAccount();
+        $sm = $this->account->getServiceManager();
         $settings = $sm->get(SettingsFactory::class);
-        $settings->set('email/smtp_host', $testHost);
-        $settings->set('email/smtp_port', $testPort);
-        $settings->set('email/smtp_user', $testUser);
-        $settings->set('email/smtp_password', $testPassword);
+        $settings->set('email/smtp_host', $testHost, $this->account->getAccountId());
+        $settings->set('email/smtp_port', $testPort, $this->account->getAccountId());
+        $settings->set('email/smtp_user', $testUser, $this->account->getAccountId());
+        $settings->set('email/smtp_password', $testPassword, $this->account->getAccountId());
 
         $smtpFactory = new SmtpFactory();
         $transport = $smtpFactory->createService($sm);

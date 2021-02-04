@@ -39,7 +39,7 @@ class DataMapperRdbTest extends DmTestsAbstract
         $sm = $account->getServiceManager();
         $this->database = $sm->get(RelationalDbFactory::class);
 
-        return new DataMapperRdb($account, $this->database);
+        return new DataMapperRdb($this->database);
     }
 
     public function testCreateNewSequenceIfMissing()

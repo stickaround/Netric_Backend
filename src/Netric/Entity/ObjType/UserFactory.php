@@ -9,29 +9,31 @@
 
 namespace Netric\Entity\ObjType;
 
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\Entity\EntityFactoryInterface;
+use Netric\Entity\EntityInterface;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\ServiceManager;
-use Netric\Entity;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoaderFactory;
+use Netric\Account\AccountContainerFactory;
 
 /**
  * Create a new default object type entity
  */
-class UserFactory implements Entity\EntityFactoryInterface
+class UserFactory implements EntityFactoryInterface
 {
     /**
      * Entity creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return new Entity\EntityInterface object
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param EntityDefinition $def The definition of this type of object
+     * @return EntityInterface UserEntity
      */
-    public static function create(ServiceManager\AccountServiceManagerInterface $sl)
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER, $sl->getAccount()->getAccountId());
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $groupingLoader = $sl->get(GroupingLoaderFactory::class);
-        return new UserEntity($def, $entityLoader, $groupingLoader);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
+        return new UserEntity($def, $entityLoader, $groupingLoader, $accountContainer);
     }
 }

@@ -12,6 +12,7 @@ namespace Netric\FileSystem;
 use Netric\Error\Error;
 use Netric\Error\ErrorAwareInterface;
 use Netric\Entity\ObjType\FileEntity;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Create an image resizer service
@@ -95,13 +96,14 @@ class ImageResizer implements ErrorAwareInterface
     /**
      * Copy an image resized to a specified path
      *
+     * @param UserEntity $user The user that owns the file
      * @param FileEntity $source The file to copy
      * @param int $maxWidth
      * @param int $maxHeight
      * @param string $toPath Where to put the image
      * @return FileEntity
      */
-    public function resizeFile(FileEntity $source, $maxWidth = -1, $maxHeight = -1, $toPath = FileSystem::PATH_TEMP)
+    public function resizeFile(UserEntity $user, FileEntity $source, $maxWidth = -1, $maxHeight = -1, $toPath = FileSystem::PATH_TEMP)
     {
         // First make sure it is an image
         $fileType = $source->getType();
@@ -125,7 +127,7 @@ class ImageResizer implements ErrorAwareInterface
             . $source->getType();
 
         // First check to see if the file exists and return it
-        $exists = $this->fileSystem->openFile($toPath, $nameResized);
+        $exists = $this->fileSystem->openFile($toPath, $nameResized, $user);
         if ($exists) {
             return $exists;
         }
@@ -146,6 +148,7 @@ class ImageResizer implements ErrorAwareInterface
 
         // Upload to temp files for serving and future requests
         $resizedFileEntity = $this->fileSystem->importFile(
+            $user,
             $resizedLocalFilePath,
             FileSystem::PATH_TEMP,
             basename($resizedLocalFilePath)

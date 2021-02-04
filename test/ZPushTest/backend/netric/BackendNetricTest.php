@@ -247,7 +247,7 @@ class BackendNetricTest extends TestCase
         // Create a test file
         $testData = "test data";
         $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
-        $file = $fileSystem->createFile("%tmp%", "testZPushAttachment.txt", true);
+        $file = $fileSystem->createFile("%tmp%", "testZPushAttachment.txt", $this->user, true);
         $fileSystem->writeFile($file, $testData, $this->user);
         $this->testEntities[] = $file;
 

@@ -5,6 +5,7 @@ namespace NetricTest\Account\Module\DataMapper;
 use Netric\Account\Module\DataMapper\ModuleRdbDataMapper;
 use Netric\Account\Module\DataMapper\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Entity\EntityLoaderFactory;
 use NetricTest\Bootstrap;
 use Netric\Config\ConfigFactory;
 
@@ -27,7 +28,8 @@ class ModuleRdbDataMapperTest extends AbstractDataMapperTests
         $sl = $account->getServiceManager();
         $db = $sl->get(RelationalDbFactory::class);
         $config = $sl->get(ConfigFactory::class);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
 
-        return new ModuleRdbDataMapper($db, $config, $account);
+        return new ModuleRdbDataMapper($db, $config, $entityLoader);
     }
 }

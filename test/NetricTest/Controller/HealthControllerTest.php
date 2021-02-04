@@ -2,8 +2,11 @@
 namespace NetricTest\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Request\HttpRequest;
 use Netric\Controller\HealthController;
-use NetricTest\Bootstrap;
+use Netric\Application\Health\HealthCheckInterface;
+use Netric\Log\LogInterface;
+
 
 /**
  * Test self-checking validation actions
@@ -13,11 +16,15 @@ use NetricTest\Bootstrap;
 class HealthControllerTest extends TestCase
 {
     /**
-     * Constructed controller
-     *
-     * @var HealthController
+     * Initialized controller with mock dependencies
      */
-    private $controller = null;
+    private HealthController $healthController;
+
+    /**
+     * Dependency mocks
+     */
+    private HealthCheckInterface $healthCheck;
+    private LogInterface $mockLog;
 
     /**
      * Construct the controller
@@ -26,11 +33,16 @@ class HealthControllerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $account = Bootstrap::getAccount();
-        // Rest stats for logs since erros may have occurred before this test
-        $account->getApplication()->getLog()->resetLevelStats();
-        $this->controller = new HealthController($account->getApplication(), $account);
-        $this->controller->testMode = true;
+        // Create mocks
+        $this->healthCheck = $this->createMock(HealthCheckInterface::class);        
+        $this->mockLog = $this->createMock(LogInterface::class);
+
+        // Create the controller with mocks
+        $this->healthController = new HealthController(
+            $this->healthCheck,
+            $this->mockLog
+        );
+        $this->healthController->testMode = true;
     }
 
     /**
@@ -38,7 +50,8 @@ class HealthControllerTest extends TestCase
      */
     public function testGetPingAction()
     {
-        $response = $this->controller->getPingAction();
+        $request = new HttpRequest();
+        $response = $this->healthController->getPingAction($request);
         $this->assertEquals(200, $response->getReturnCode());
     }
 
@@ -47,9 +60,10 @@ class HealthControllerTest extends TestCase
      */
     public function testConsoleTestAction()
     {
-        $response = $this->controller->consoleTestAction();
-        // Code 0 = success from the console
-        $this->assertEquals(0, $response->getReturnCode());
+        $this->healthCheck->method('isSystemHealthy')->willReturn(true);
+
+        $response = $this->healthController->consoleTestAction();
+        $this->assertEquals(['SUCCESS: The system is ok'], $response->getOutputBuffer());
     }
 
     /**
@@ -57,8 +71,9 @@ class HealthControllerTest extends TestCase
      */
     public function testConsoleTestDependenciesAction()
     {
-        $response = $this->controller->consoleTestDependenciesAction();
-        // Code 0 = success from the console
-        $this->assertEquals(0, $response->getReturnCode());
+        $this->healthCheck->method('areDependenciesLive')->willReturn(true);
+
+        $response = $this->healthController->consoleTestDependenciesAction();        
+        $this->assertEquals(['SUCCESS: Critical dependencies are live'], $response->getOutputBuffer());
     }
 }

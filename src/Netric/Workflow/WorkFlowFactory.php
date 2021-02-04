@@ -6,25 +6,26 @@
 
 namespace Netric\WorkFlowLegacy;
 
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkFlowLegacy\Action\ActionFactory;
-use Netric\ServiceManager;
 
 /**
  * Create a WorkFlowLegacy instance
  *
  * @package Netric\FileSystem
  */
-class WorkFlowLegacyFactory implements ServiceManager\AccountServiceFactoryInterface
+class WorkFlowLegacyFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $actionFactory = new ActionFactory($sl);
+        $actionFactory = new ActionFactory($serviceLocator);
         return new WorkFlowLegacy($actionFactory);
     }
 }

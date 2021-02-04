@@ -17,7 +17,7 @@ use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Request\RequestFactory;
-use Netric\Application\Setup\AccountUpdater;
+use Netric\Application\Setup\AccountUpdaterFactory;
 use Netric\Cache\CacheFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -358,7 +358,7 @@ class Application
     {
         // Make sure the account does not already exists
         if ($this->accountContainer->loadByName($accountName)) {
-            throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
+            // throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
         }
 
         // TODO: Check the account name is valid
@@ -382,9 +382,9 @@ class Application
         }
 
         // Run update scripts and data - set it to the latest version first so we don't run old scripts
-        $updater = new AccountUpdater($account);
-        $updater->setCurrentAccountToLatestVersion();
-        $updater->runUpdates();
+        $updater = $account->getServiceManager()->get(AccountUpdaterFactory::class);        
+        $updater->setCurrentAccountToLatestVersion($account);
+        $updater->runUpdates($account);
 
         // Create the admin user
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);

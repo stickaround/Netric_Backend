@@ -4,8 +4,7 @@ namespace Netric\Account;
 
 use Netric\Application\Application;
 use Netric\Authentication\AuthenticationIdentity;
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceManager;
+use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\EntityLoaderFactory;
@@ -51,7 +50,7 @@ class Account
     /**
      * Service manager for this account
      *
-     * @var AccountServiceManagerInterface
+     * @var ApplicationServiceManager
      */
     private $serviceManager = null;
 
@@ -112,7 +111,7 @@ class Account
     {
         $this->application = $app;
 
-        $this->serviceManager = new AccountServiceManager($this);
+        $this->serviceManager = $app->getServiceManager();
 
         // Set default status
         $this->status = self::STATUS_ACTIVE;
@@ -207,7 +206,7 @@ class Account
     /**
      * Get ServiceManager for this account
      *
-     * @return AccountServiceManagerInterface
+     * @return ApplicationServiceManager
      */
     public function getServiceManager()
     {

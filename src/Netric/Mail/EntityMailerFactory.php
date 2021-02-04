@@ -6,22 +6,22 @@
 
 namespace Netric\Mail;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Create an EntityEmailer service for sending email message entities
  */
-class EntityMailerFactory implements AccountServiceFactoryInterface
+class EntityMailerFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return TransportInterface
      * @throws Exception\InvalidArgumentException if a transport could not be created
      */
-    public function createService(AccountServiceManagerInterface $serviceManager)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         return new EntityMailer();
     }

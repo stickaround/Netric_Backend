@@ -2,32 +2,30 @@
 
 namespace Netric\FileSystem;
 
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\FileSystem\FileStore\FileStoreFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
 
 /**
  * Create a file system service
  */
-class FileSystemFactory implements AccountServiceFactoryInterface
+class FileSystemFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $fileStore = $sl->get(FileStoreFactory::class);
-        $user = $sl->getAccount()->getUser();
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $dataMapper = $sl->get(EntityDataMapperFactory::class);
-        $entityIndex = $sl->get(IndexFactory::class);
+        $fileStore = $serviceLocator->get(FileStoreFactory::class);        
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $entityIndex = $serviceLocator->get(IndexFactory::class);
 
-        return new FileSystem($fileStore, $user, $entityLoader, $dataMapper, $entityIndex);
+        return new FileSystem($fileStore, $entityLoader, $entityIndex);
     }
 }

@@ -1,26 +1,26 @@
 <?php
 namespace Netric\Mail\Transport;
 
-use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Mail\Transport\BulkSmtpFactory;
 
 /**
  * Create a new Transport service based on account settings for bulk email
  */
-class BulkTransportFactory implements AccountServiceFactoryInterface
+class BulkTransportFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return TransportInterface
      */
-    public function createService(AccountServiceManagerInterface $serviceManager)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         // Get the required method
-        $config = $serviceManager->get(ConfigFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
         $transportMode = $config->email['mode'];
 
         // Create transport variable to set
@@ -37,7 +37,7 @@ class BulkTransportFactory implements AccountServiceFactoryInterface
         // Call the factory to return simple transports
         switch ($transportMode) {
             case 'smtp':
-                return $serviceManager->get(BulkSmtpFactory::class);
+                return $serviceLocator->get(BulkSmtpFactory::class);
             case 'in-memory':
                 return new InMemory();
             case 'sendmail':

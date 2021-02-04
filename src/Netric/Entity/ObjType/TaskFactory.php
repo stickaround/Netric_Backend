@@ -7,27 +7,27 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\ServiceManager;
-use Netric\Entity;
-use Netric\EntityDefinition\ObjectTypes;
+use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\Entity\EntityFactoryInterface;
+use Netric\Entity\EntityInterface;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new task entity
  */
-class TaskFactory implements Entity\EntityFactoryInterface
+class TaskFactory implements EntityFactoryInterface
 {
     /**
      * Entity creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return new Entity\EntityInterface object
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param EntityDefinition $def The definition of this type of object
+     * @return EntityInterface TaskEntity
      */
-    public static function create(ServiceManager\AccountServiceManagerInterface $sl)
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::TASK, $sl->getAccount()->getAccountId());
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         return new TaskEntity($def, $entityLoader);
     }
 }

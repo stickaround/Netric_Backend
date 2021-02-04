@@ -7,7 +7,8 @@
  */
 namespace Netric\FileSystem;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\FileSystem\FileSystemFactory;
 
@@ -16,18 +17,18 @@ use Netric\FileSystem\FileSystemFactory;
  *
  * @package Netric\FileSystem
  */
-class ImageResizerFactory implements ServiceManager\AccountServiceFactoryInterface
+class ImageResizerFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return ImageResizer
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $fileSystem = $sl->get(FileSystemFactory::class);
-        $config = $sl->get(ConfigFactory::class);
+        $fileSystem = $serviceLocator->get(FileSystemFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
         $localTempPath = $config->data_path . '/tmp';
 
         // Make sure that the temp directory exists

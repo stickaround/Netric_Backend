@@ -8,9 +8,8 @@ use Netric\Account\Module\DataMapper\DataMapperInterface as ModuleDataMapperInte
 use Netric\Db\Relational\RelationalDbInterface;
 use Aereus\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Account\Account;
-use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\EntityLoader;
 
 class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperInterface
 {
@@ -29,18 +28,9 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     private $config = null;
 
     /**
-     * Current user
-     *
-     * @var UserEntity
+     * Entity loader will be used to load the module
      */
-    private $user = null;
-
-    /**
-     * Current account
-     *
-     * @var Account
-     */
-    private $account = null;
+    private EntityLoader $entityLoader;
 
     /**
      * Table where we store module data
@@ -53,21 +43,21 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
      * @param RelationalDbInterface $db
      * @param Config $config The configuration object
      */
-    public function __construct(RelationalDbInterface $db, Config $config, Account $account)
+    public function __construct(RelationalDbInterface $db, Config $config, EntityLoader $entityLoader)
     {
         $this->db = $db;
         $this->config = $config;
-        $this->account = $account;
-        $this->user = $account->getUser();
+        $this->entityLoader = $entityLoader;
     }
 
     /**
      * Save changes or create a new module
      *
      * @param Module $module The module to save
+     * @param string $accountId The account id that owns this module
      * @return bool true on success, false on failure with details in $this->getLastError
      */
-    public function save(Module $module)
+    public function save(Module $module, string $accountId)
     {
         // Setup data for the database columns
         $data = [
@@ -83,7 +73,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             "default_route" => $module->getDefaultRoute(),
             "navigation_data" => json_encode($module->getNavigation()),
             "xml_navigation" => $module->getXmlNavigation(),
-            'account_id' => $this->account->getAccountId(),
+            'account_id' => $accountId,
         ];
 
         // Compose either an update or insert statement
@@ -101,16 +91,17 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
      * Get a module by name
      *
      * @param string $name The name of the module to retrieve
+     * @param string $accountId The account id that owns the module
      * @return Module|null
      */
-    public function get($name)
+    public function get(string $name, string $accountId)
     {
         $sql = 'SELECT * FROM ' . self::TABLE_MODULES . ' WHERE name=:name AND account_id=:account_id';
-        $result = $this->db->query($sql, ['name' => $name, 'account_id' => $this->account->getAccountId()]);
+        $result = $this->db->query($sql, ['name' => $name, 'account_id' => $accountId]);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
-            return $this->createModuleFromRow($row);
+            return $this->createModuleFromRow($row, $accountId);
         }
 
         // Not found
@@ -120,17 +111,18 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     /**
      * Get all modules installed in this account
      *
+     * @param string $accountId The account id that owns the modules
      * @param string $scope One of the defined scopes in Module::SCOPE_*
      * @return Module[]|null on error
      */
-    public function getAll($scope = null)
+    public function getAll(string $accountId, string $scope = "")
     {
         $modules = [];
 
         $sql = 'SELECT * FROM ' . self::TABLE_MODULES;
         $sql .= ' WHERE account_id=:account_id';
         $whereCond = [
-            'account_id' => $this->account->getAccountId()
+            'account_id' => $accountId
         ];
         if ($scope) {
             $sql .= ' AND scope=:scope';
@@ -141,7 +133,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
         $result = $this->db->query($sql, $whereCond);
 
         foreach ($result->fetchAll() as $row) {
-            $modules[] = $this->createModuleFromRow($row);
+            $modules[] = $this->createModuleFromRow($row, $accountId);
         }
 
         return $modules;
@@ -172,9 +164,10 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
      * Translate row data to module properties and return instance
      *
      * @param array $row The associative array of column data from a row
+     * @param string $accountId The account id that owns the module
      * @return Module
      */
-    private function createModuleFromRow(array $row)
+    private function createModuleFromRow(array $row, string $accountId)
     {
         $module = new Module();
 
@@ -194,7 +187,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
         $module->setSystem(($row['f_system'] == 't') ? true : false);
 
         // Update the foreign values of the module (user_id and team_id)
-        $this->setUserAndTeamNamesFromIds($module);
+        $this->setUserAndTeamNamesFromIds($module, $accountId);
 
         // Flag this module as clean since we just loaded it
         $module->setDirty(false);
@@ -206,8 +199,9 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
      * Update the forieng values of the module
      *
      * @param Module $module The module that we will be updating the foreign values
+     * @param string $accountId The account id that owns the module
      */
-    public function setUserAndTeamNamesFromIds(Module &$module)
+    public function setUserAndTeamNamesFromIds(Module $module, string $accountId)
     {
         // Make sure we reset the all foreign values first before setting new values
         $module->setUserName(null);
@@ -215,13 +209,13 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
 
         // Set the user name in the module if the user_id is set
         if ($module->getUserId()) {
-            $userEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($module->getUserId(), $this->user->getAccountId());
+            $userEntity = $this->entityLoader->getEntityById($module->getUserId(), $accountId);
             $module->setUserName($userEntity->getName());
         }
 
         // Set the team name in the module if the team_id is set
         if ($module->getTeamId()) {
-            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($module->getTeamId(), $this->user->getAccountId());
+            $teamEntity = $this->entityLoader->getEntityById($module->getTeamId(), $accountId);
             $module->setTeamName($teamEntity->getName());
         }
     }

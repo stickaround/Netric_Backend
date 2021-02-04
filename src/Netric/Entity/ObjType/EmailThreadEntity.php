@@ -9,12 +9,13 @@ namespace Netric\Entity\ObjType;
 
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Email thread extension
@@ -38,7 +39,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
     /**
      * Class constructor
      *
-     * @param EntityDefinition $def The definition of the email message
+     * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader Loader to get/save entities
      * @param IndexInterface $entityIndex Index to query entities
      */
@@ -49,28 +50,21 @@ class EmailThreadEntity extends Entity implements EntityInterface
     ) {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
+
         parent::__construct($def, $entityLoader);
     }
 
     /**
      * Callback function used for derived subclasses
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Callback function used for derived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
+    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Check it see if the user deleted the whole thread
         if ($this->isArchived()) {
-            $this->removeMessages(false, $sm->getAccount()->getAuthenticatedUser());
+            $this->removeMessages(false, $user);
         } elseif ($this->fieldValueChanged("f_deleted")) {
             // Check if we un-deleted the thread
             $this->restoreMessages();
@@ -80,12 +74,13 @@ class EmailThreadEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
+    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         // Purge all messages that were in this thread
-        $this->removeMessages(true, $sm->getAccount()->getAuthenticatedUser()); // Now purge
+        $this->removeMessages(true, $user); // Now purge
     }
 
     /**

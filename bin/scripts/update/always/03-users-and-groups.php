@@ -4,6 +4,7 @@ use Netric\EntityGroupings\Group;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\FileSystem\FileSystemFactory;
 
 $account = $this->getAccount();
 if (!$account) {
@@ -25,6 +26,10 @@ foreach ($groupsData as $groupData) {
     }
 }
 $groupingsLoader->save($groupings);
+
+// Create the root folder for this account
+$fileSystem = $account->getServiceManager()->get(FileSystemFactory::class);
+$fileSystem->setRootFolder($account->getSystemUser());
 
 /*
  * Now make sure default users exists - with no password so no login

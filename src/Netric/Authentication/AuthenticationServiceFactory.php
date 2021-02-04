@@ -2,10 +2,9 @@
 
 namespace Netric\Authentication;
 
-use Netric\Account\AccountContainerFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\Account\AccountContainerFactory;
 use Netric\Request\RequestFactory;
 use Netric\Crypt\VaultServiceFactory;
 
@@ -17,7 +16,7 @@ class AuthenticationServiceFactory implements ApplicationServiceFactoryInterface
     /**
      * Service creation factory
      *
-     * @param AccountServiceManagerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return AuthenticationService
      */
     public function createService(ServiceLocatorInterface $serviceLocator)

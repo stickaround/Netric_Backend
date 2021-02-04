@@ -1,7 +1,8 @@
 <?php
 namespace Netric\FileSystem\FileStore;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use MogileFs;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\EntityLoaderFactory;
@@ -9,24 +10,22 @@ use Netric\Entity\EntityLoaderFactory;
 /**
  * Create a file system storage service that uses aereus network storage
  */
-class MogileFileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
+class MogileFileStoreFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return MogileFileStore
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $accountId = $sl->getAccount()->getAccountId();
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
 
-        $config = $sl->get(ConfigFactory::class);
+        $config = $serviceLocator->get(ConfigFactory::class);
         $tmpPath = $config->data_path . "/" . "tmp";
 
         return new MogileFileStore(
-            $accountId,
             $entityLoader,
             $tmpPath,
             $config->files->server,

@@ -2,10 +2,9 @@
 
 namespace Netric\Entity;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\Entity;
-use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
 
@@ -17,20 +16,20 @@ use Netric\Entity\EntityLoaderFactory;
 class EntityFactory
 {
     /**
-     * Service manager used to load dependencies
+     * ServiceLocator for injecting dependencies
      *
-     * @var AccountServiceManagerInterface
+     * @var ServiceLocatorInterface
      */
     private $serviceManager = null;
 
     /**
      * Class constructor
      *
-     * @param AccountServiceManagerInterface $sl ServiceLocator implementation for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator implementation for injecting dependencies
      */
-    public function __construct(AccountServiceManagerInterface $sl)
+    public function __construct(ServiceLocatorInterface $serviceLocator)
     {
-        $this->serviceManager = $sl;
+        $this->serviceManager = $serviceLocator;
     }
 
     /**
@@ -51,16 +50,17 @@ class EntityFactory
                 $className .= ucfirst($word);
             }
         }
+
+        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType, $accountId);
         $className = "\\Netric\\Entity\\ObjType\\" . $className . "Factory";
 
         // Use factory if it exists
         if (class_exists($className)) {
-            $entity = $className::create($this->serviceManager);
+            $entity = $className::create($this->serviceManager, $def);
             $entity->setValue('account_id', $accountId);
             return $entity;
         }
-
-        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType, $accountId);
+        
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
         // TODO: if !$def then throw an exception

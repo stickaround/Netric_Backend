@@ -60,7 +60,7 @@ class EmailAccountEntityTest extends TestCase
 
         // Simulate onBeforeSave
         $serviceManager = $this->account->getServiceManager();
-        $entity->onBeforeSave($serviceManager);
+        $entity->onBeforeSave($serviceManager, $this->user);
 
         $vaultService = $serviceManager->get(VaultServiceFactory::class);
 
@@ -74,7 +74,7 @@ class EmailAccountEntityTest extends TestCase
 
         // Make sure we don't encrypt it again
         $entity->resetIsDirty();
-        $entity->onBeforeSave($serviceManager);
+        $entity->onBeforeSave($serviceManager, $this->user);
         $encrypted = $blockCypher->encrypt("test");
         $this->assertEquals($encrypted, $entity->getValue("password"));
     }
