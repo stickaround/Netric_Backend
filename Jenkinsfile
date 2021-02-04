@@ -48,29 +48,29 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                // Run unit tests
-                script {
-                    docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                        sh 'docker-compose -f docker/docker-compose-test.yml build'
-                        sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
-                    }
+//         stage('Test') {
+//             steps {
+//                 // Run unit tests
+//                 script {
+//                     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
+//                         sh 'docker-compose -f docker/docker-compose-test.yml build'
+//                         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+//                     }
 
-                    // Report on junit
-                    junit '.reports/junit.xml'
+//                     // Report on junit
+//                     junit '.reports/junit.xml'
 
-                    // Send reports to server for code quality metrics
-//                     codeQualityReport(
-//                        repositoryName: 'netric.svc',
-//                        teamName: 'Netric',
-//                        cloverFile: '.reports/clover.xml',
-//                        pmdFile: '.reports/pmd.xml',
-//                        checkStyleFile: '.reports/checkstyle.xml'
-//                     )
-                }
-            }
-        }
+//                     // Send reports to server for code quality metrics
+// //                     codeQualityReport(
+// //                        repositoryName: 'netric.svc',
+// //                        teamName: 'Netric',
+// //                        cloverFile: '.reports/clover.xml',
+// //                        pmdFile: '.reports/pmd.xml',
+// //                        checkStyleFile: '.reports/checkstyle.xml'
+// //                     )
+//                 }
+//             }
+//         }
 
         stage('Publish') {
             when {
