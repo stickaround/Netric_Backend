@@ -126,9 +126,36 @@ class AuthDotNetGatewayTest extends TestCase
         $card->setCardCode('123');
 
         $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->profilesToDelete[] = $profileToken;
         $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
     }
 
+    /**
+     * Make sure if we try to save the same card to the profile it succeeds
+     *
+     * @return void
+     */
+    public function testCreatePaymentProfileCreditCardDuplicate()
+    {
+        $customer = $this->getTestCustomer();
+        $card = new CreditCard();
+        $card->setCardNumber('4111111111111111');
+        $card->setExpiration(2038, 12);
+        $card->setCardCode('123');
+
+        $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
+
+        // Try again and make sure the tokens match
+        $profileTokenAgain = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->assertEquals($profileToken, $profileTokenAgain);
+    }
+
+    /**
+     * Save a bank account
+     *
+     * @return void
+     */
     public function testCreateProfileBankAccount()
     {
         // Create a customer and change the zipcode
@@ -146,6 +173,37 @@ class AuthDotNetGatewayTest extends TestCase
         $this->profilesToDelete[] = $profileToken;
         $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
     }
+
+    /**
+     * Make sure we can create a credit card and a bank profile for the same customer
+     *
+     * @return void
+     */
+    public function testCreatePaymentProfileTwoTypes()
+    {
+        $customer = $this->getTestCustomer();
+        $card = new CreditCard();
+        $card->setCardNumber('4111111111111111');
+        $card->setExpiration(2038, 12);
+        $card->setCardCode('123');
+
+        $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->profilesToDelete[] = $profileToken;
+        $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
+
+        $bankAccount = new BankAccount();
+        $bankAccount->setAccountType('checking');
+        $bankAccount->setRoutingNumber('125000105');
+        $bankAccount->setAccountNumber('1234567890');
+        $bankAccount->setNameOnAccount('John Doe');
+        $bankAccount->setBankName('Wells Fargo Bank NA');
+
+        $profileToken = $this->gateway->createPaymentProfileBankAccount($customer, $bankAccount);
+        $this->profilesToDelete[] = $profileToken;
+        $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
+    }
+
+
 
     /**
      * Test charging a saved payment profile

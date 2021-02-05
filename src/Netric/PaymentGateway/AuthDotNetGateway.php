@@ -99,6 +99,9 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * We always store credit card information with the gateway since we
      * do not want to accept liability for securing credit cards on our system.
+     * 
+     * If you try to create a profile that already exists, this will return the
+     * profile token.
      *
      * @param CustomerEntity $customer Provide the gateway with needed customer data
      * @param CreditCard $card Credit card
@@ -136,7 +139,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $customerProfile->setMerchantCustomerId(
             $this->getUniqueIdFromCustomer($customer)
         );
-        $customerProfile->setEmail($customer->getValue('email'));
+        //$customerProfile->setEmail($customer->getValue('email'));
         $customerProfile->setpaymentProfiles($paymentProfiles);
 
         // Assemble the complete transaction request
@@ -162,6 +165,15 @@ class AuthDotNetGateway implements PaymentGatewayInterface
 
         // The response was not a success or it would have returned above
         $errorMessages = $response->getMessages()->getMessage();
+        echo "Failed for " . $this->getUniqueIdFromCustomer($customer) . ": " . var_export($response, true) . "\n";
+        echo "Existing customer profile: " . $this->getExistingRemoteProfile($customer) . "\n";
+
+        // E00039 means the profile already exists, just return it
+        if ($errorMessages[0]->getCode() == "E00039" && $response->getCustomerProfileId()) {
+
+            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer);
+        }
+
         $this->lastErrorMessage = $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
 
         // E00039 means the profile already exists, just return
@@ -254,7 +266,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param $profileToken
      * @return bool false on failure, true on success
      */
-    public function deleteProfile($profileToken)
+    public function deleteProfile(string $profileToken): bool
     {
         $profiles = $this->decodeProfilesFromToken($profileToken);
 
@@ -484,9 +496,6 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
 
-        // Set the transaction's refId
-        $refId = 'ref' . time();
-
         $request = new AnetAPI\GetCustomerProfileRequest();
         $request->setMerchantAuthentication($merchantAuth);
         $request->setMerchantCustomerId(
@@ -494,6 +503,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         );
         $controller = new AnetController\GetCustomerProfileController($request);
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
+        echo "Reponse for " . $this->getUniqueIdFromCustomer($customer) . " : " . var_export($response, true);
         if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
             //echo "GetCustomerProfile SUCCESS : " .  "\n";
             $profileSelected = $response->getProfile();
@@ -502,8 +512,9 @@ class AuthDotNetGateway implements PaymentGatewayInterface
             return $profileSelected->getCustomerProfileId();
         }
 
-        return 0;
-        // // Get all existing customer profile ID's
+        return '';
+
+        // Get all existing customer profile ID's
         // $request = new AnetAPI\GetCustomerProfileIdsRequest();
         // $request->setMerchantAuthentication($merchantAuth);
         // $controller = new AnetController\GetCustomerProfileIdsController($request);
@@ -517,8 +528,32 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         //     $errorMessages = $response->getMessages()->getMessage();
         //     echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
         // }
-        // return $response;
     }
+
+    /**
+     * Get existing payment profiles for a user
+     *
+     * @return array
+     */
+    // private function getExistingRemotePaymentProfiles(CustomerEntity $customer): array
+    // {
+    //     // Get auth for connecting to the merchant gateway
+    //     $merchantAuth = $this->getMerchantAuth();
+
+    //     $request = new AnetAPI\GetCustomerProfileRequest();
+    //     $request->setMerchantAuthentication($merchantAuth);
+    //     $request->setMerchantCustomerId(
+    //         $this->getUniqueIdFromCustomer($customer)
+    //     );
+    //     $controller = new AnetController\GetCustomerProfileController($request);
+    //     $response = $controller->executeWithApiResponse($this->gatewayUrl);
+    //     if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
+    //         $profileSelected = $response->getProfile();
+    //         return $profileSelected->getPaymentProfiles();
+    //     }
+
+    //     return [];
+    // }
 
     /**
      * Get merchant auth with the correct login and key

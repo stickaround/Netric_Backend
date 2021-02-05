@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\PaymentGateway;
 
 use Netric\Entity\ObjType\CustomerEntity;
@@ -18,7 +19,7 @@ interface PaymentGatewayInterface
      * @param CreditCard $card Credit card
      * @return string Token that can be used for future charges
      */
-    public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card) : string;
+    public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card): string;
 
     /**
      * Create a customer payment profile using a bank account
@@ -30,7 +31,15 @@ interface PaymentGatewayInterface
      * @param BankAccount $bankAccount Bank account details such as routing number and account number
      * @return string Token that can be used for future charges
      */
-    public function createPaymentProfileBankAccount(CustomerEntity $customer, BankAccount $bankAccount) : string;
+    public function createPaymentProfileBankAccount(CustomerEntity $customer, BankAccount $bankAccount): string;
+
+    /**
+     * Delete a payment profile
+     *
+     * @param string $profileToken
+     * @return bool false on failure, true on success
+     */
+    public function deleteProfile(string $profileToken): bool;
 
     /**
      * Charge a payment to a remotely-stored profile
@@ -39,7 +48,7 @@ interface PaymentGatewayInterface
      * @param float $amount Amount to charge the customer
      * @return ChargeResponse
      */
-    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : ChargeResponse;
+    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount): ChargeResponse;
 
     /**
      * Charge a credit or debit card directly
@@ -49,12 +58,12 @@ interface PaymentGatewayInterface
      * @param float $amount
      * @return ChargeResponse
      */
-    public function chargeCard(CustomerEntity $customer, CreditCard $card, float $amount) : ChargeResponse;
+    public function chargeCard(CustomerEntity $customer, CreditCard $card, float $amount): ChargeResponse;
 
     /**
      * If a gateway operation fails, it will store the error
      *
      * @return string
      */
-    public function getLastError() : string;
+    public function getLastError(): string;
 }
