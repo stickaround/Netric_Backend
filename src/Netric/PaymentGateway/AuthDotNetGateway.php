@@ -2,12 +2,14 @@
 
 namespace Netric\PaymentGateway;
 
+use \net\authorize\api\constants\ANetEnvironment;
 use Netric\Entity\ObjType\CustomerEntity;
 use Netric\Entity\ObjType\PaymentProfileEntity;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
 use Netric\PaymentGateway\PaymentMethod\BankAccount;
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
+use RuntimeException;
 
 /**
  * Process payments through the Authorize.net payment gateway
@@ -112,8 +114,13 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
 
+        // Create or get the customer profile id from authorize.net
+        // They store each customer with individual profiles attached
+        $customerProfileId = $this->createOrGetCustomerProfileId($customer);
+
         // Set the transaction's refId
         $refId = 'ref' . time();
+
         // Set credit card information for payment profile
         $creditCard = new AnetAPI\CreditCardType();
         $creditCard->setCardNumber($card->getCardNumber());
@@ -131,57 +138,36 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $paymentProfile->setBillTo($billTo);
         $paymentProfile->setPayment($paymentCreditCard);
         $paymentProfile->setDefaultpaymentProfile(true);
-        $paymentProfiles[] = $paymentProfile;
-
-        // Create a new CustomerProfileType and add the payment profile object
-        $customerProfile = new AnetAPI\CustomerProfileType();
-        $customerProfile->setDescription($customer->getName());
-        $customerProfile->setMerchantCustomerId(
-            $this->getUniqueIdFromCustomer($customer)
-        );
-        //$customerProfile->setEmail($customer->getValue('email'));
-        $customerProfile->setpaymentProfiles($paymentProfiles);
 
         // Assemble the complete transaction request
-        $request = new AnetAPI\CreateCustomerProfileRequest();
-
-        // If customer profile already exists then the request will be an update
+        $request = new AnetAPI\CreateCustomerPaymentProfileRequest();
         $request->setMerchantAuthentication($merchantAuth);
-        $request->setRefId($refId);
-        $request->setProfile($customerProfile);
+
+        // Add an existing profile id to the request
+        $request->setCustomerProfileId($customerProfileId);
+        $request->setPaymentProfile($paymentProfile);
+        $request->setValidationMode(($this->gatewayUrl === ANetEnvironment::SANDBOX) ? "testMode" : "liveMode");
 
         // Create the controller and get the response
-        $controller = new AnetController\CreateCustomerProfileController($request);
+        $controller = new AnetController\CreateCustomerPaymentProfileController($request);
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
 
-        if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
-            // Get the most recently added payment profile
-            $paymentProfiles = $response->getCustomerPaymentProfileIdList();
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok")) {
             return $this->encodeProfilesIntoToken(
-                $response->getCustomerProfileId(),
-                $paymentProfiles[0]
+                $customerProfileId,
+                $response->getCustomerPaymentProfileId()
             );
         }
 
-        // The response was not a success or it would have returned above
         $errorMessages = $response->getMessages()->getMessage();
-        echo "Failed for " . $this->getUniqueIdFromCustomer($customer) . ": " . var_export($response, true) . "\n";
-        echo "Existing customer profile: " . $this->getExistingRemoteProfile($customer) . "\n";
-
-        // E00039 means the profile already exists, just return it
-        if ($errorMessages[0]->getCode() == "E00039" && $response->getCustomerProfileId()) {
-
-            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer);
+        // Check for duplicate
+        if ($errorMessages[0]->getCode() === "E00039") {
+            // TODO: just get the existing profile id and return it
         }
 
-        $this->lastErrorMessage = $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
-
-        // E00039 means the profile already exists, just return
-        if ($errorMessages[0]->getCode() == "E00039") {
-            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer);
-        }
-
-        return ''; // empty on failure
+        // There's another problem, return empty and set the local error
+        $this->lastErrorMessage = "Could not create the profile: " . $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
+        return '';
     }
 
     /**
@@ -198,6 +184,10 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
+
+        // Create or get the customer profile id from authorize.net
+        // They store each customer with individual profiles attached
+        $customerProfileId = $this->createOrGetCustomerProfileId($customer);
 
         // Set the transaction's refId
         $refId = 'ref' . time();
@@ -224,16 +214,57 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $paymentProfile->setDefaultpaymentProfile(true);
         $paymentProfiles[] = $paymentProfile;
 
+        // Assemble the complete transaction request
+        $request = new AnetAPI\CreateCustomerPaymentProfileRequest();
+        $request->setMerchantAuthentication($merchantAuth);
+
+        // Add an existing profile id to the request
+        $request->setCustomerProfileId($customerProfileId);
+        $request->setPaymentProfile($paymentProfile);
+        //$request->setValidationMode(($this->gatewayUrl === ANetEnvironment::SANDBOX) ? "testMode" : "liveMode");
+
+        // Create the controller and get the response
+        $controller = new AnetController\CreateCustomerPaymentProfileController($request);
+        $response = $controller->executeWithApiResponse($this->gatewayUrl);
+
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok")) {
+            return $this->encodeProfilesIntoToken(
+                $customerProfileId,
+                $response->getCustomerPaymentProfileId()
+            );
+        }
+
+        $errorMessages = $response->getMessages()->getMessage();
+        // Check for duplicate
+        if ($errorMessages[0]->getCode() === "E00039") {
+            // TODO: just get the existing profile id and return it
+        }
+
+        // There's another problem, return empty and set the local error
+        $this->lastErrorMessage = "Could not create the profile: " . $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
+        return '';
+    }
+
+    /**
+     * Either create a new customer profile on the gateway, or get an existing
+     *
+     * @return string
+     */
+    private function createOrGetCustomerProfileId(CustomerEntity $customer): string
+    {
+        // Get auth for connecting to the merchant gateway
+        $merchantAuth = $this->getMerchantAuth();
+
+        // Set the transaction's refId
+        $refId = 'ref' . time();
+
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new AnetAPI\CustomerProfileType();
         $customerProfile->setDescription($customer->getName());
-        if ($customer->getEntityId()) {
-            $customerProfile->setMerchantCustomerId(
-                $this->getUniqueIdFromCustomer($customer)
-            );
-        }
+        $customerProfile->setMerchantCustomerId(
+            $this->getUniqueIdFromCustomer($customer)
+        );
         $customerProfile->setEmail($customer->getValue('email'));
-        $customerProfile->setpaymentProfiles($paymentProfiles);
 
         // Assemble the complete transaction request
         $request = new AnetAPI\CreateCustomerProfileRequest();
@@ -246,18 +277,21 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
 
         if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
-            // We could try to get all payment profiles here
-            $paymentProfiles = $response->getCustomerPaymentProfileIdList();
-            return $this->encodeProfilesIntoToken(
-                $response->getCustomerProfileId(),
-                $paymentProfiles[0]
-            );
+            // Get the profile id
+            return $response->getCustomerProfileId();
         }
 
         // The response was not a success or it would have returned above
         $errorMessages = $response->getMessages()->getMessage();
-        $this->lastErrorMessage = $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
-        return ''; // empty on failure
+
+        // E00039 means the profile already exists, just return it
+        if ($errorMessages[0]->getCode() == "E00039") {
+            // extract the profile id out of the message (a bit of a hack but the only way I could find)
+            return filter_var($errorMessages[0]->getText(), FILTER_SANITIZE_NUMBER_INT);
+        }
+
+        // Soemthing went terribly wrong, throw an exception
+        throw new RuntimeException($errorMessages[0]->getText(), $errorMessages[0]->getCode());
     }
 
     /**
@@ -501,6 +535,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $request->setMerchantCustomerId(
             $this->getUniqueIdFromCustomer($customer)
         );
+        $request->setEmail($customer->getValue('email'));
         $controller = new AnetController\GetCustomerProfileController($request);
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
         echo "Reponse for " . $this->getUniqueIdFromCustomer($customer) . " : " . var_export($response, true);

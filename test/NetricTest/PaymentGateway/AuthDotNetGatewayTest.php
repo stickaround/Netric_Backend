@@ -146,9 +146,12 @@ class AuthDotNetGatewayTest extends TestCase
         $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
         $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
 
-        // Try again and make sure the tokens match
+        // Try again and make sure we get an error because we need to make sure there is
+        // only one profile per card and customer
         $profileTokenAgain = $this->gateway->createPaymentProfileCard($customer, $card);
-        $this->assertEquals($profileToken, $profileTokenAgain);
+        $this->assertEmpty($$profileTokenAgain);
+        // Make sure there is an error
+        $this->assertNotEmpty($this->gateway->getLastError());
     }
 
     /**
@@ -166,7 +169,7 @@ class AuthDotNetGatewayTest extends TestCase
         $bankAccount->setAccountType('checking');
         $bankAccount->setRoutingNumber('125000105');
         $bankAccount->setAccountNumber('1234567890');
-        $bankAccount->setNameOnAccount('John Doe');
+        $bankAccount->setNameOnAccount('Ellen Johnson');
         $bankAccount->setBankName('Wells Fargo Bank NA');
 
         $profileToken = $this->gateway->createPaymentProfileBankAccount($customer, $bankAccount);
@@ -195,7 +198,7 @@ class AuthDotNetGatewayTest extends TestCase
         $bankAccount->setAccountType('checking');
         $bankAccount->setRoutingNumber('125000105');
         $bankAccount->setAccountNumber('1234567890');
-        $bankAccount->setNameOnAccount('John Doe');
+        $bankAccount->setNameOnAccount('Ellen Johnson');
         $bankAccount->setBankName('Wells Fargo Bank NA');
 
         $profileToken = $this->gateway->createPaymentProfileBankAccount($customer, $bankAccount);
