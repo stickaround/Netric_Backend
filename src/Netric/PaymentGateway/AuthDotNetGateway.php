@@ -102,7 +102,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * @param CustomerEntity $customer Provide the gateway with needed customer data
      * @param CreditCard $card Credit card
-     * @return string
+     * @return string Encoded profile string with the customer and payment profile
      */
     public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card): string
     {
@@ -164,7 +164,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $errorMessages = $response->getMessages()->getMessage();
         $this->lastErrorMessage = $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
 
-        // E00039 means the customer already exists
+        // E00039 means the profile already exists, just return
         if ($errorMessages[0]->getCode() == "E00039") {
             $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer);
         }
