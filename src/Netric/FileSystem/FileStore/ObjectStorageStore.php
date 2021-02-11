@@ -57,6 +57,11 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
     private $client = null;
 
     /**
+     * We store everything in the netric bucket for now
+     */
+    const BUCKET = 'netric';
+
+    /**
      * Class constructor
      *
      * @param EntityLoader $entityLoader An entity loader to save entitites.
@@ -95,7 +100,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
             );
         }
 
-        $handle = $this->getClient()->getStream($this->account, $file->getValue("dat_ans_key"));
+        $handle = $this->getClient()->getStream(self::BUCKET, $file->getValue("dat_ans_key"));
         $file->setFileHandle($handle);
 
         // If offset was not defined then get the whole file
@@ -205,7 +210,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
         $key .= $file->getValue("revision") . "/" . $file->getName();
 
         // Put the file on the server
-        if (!$this->getClient()->uploadFromFile($this->account, $key, $localPath)) {
+        if (!$this->getClient()->uploadFromFile(self::BUCKET, $key, $localPath)) {
             $this->addErrorFromMessage("Could not upload file: $localPath");
             return false;
         }
@@ -237,7 +242,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
 
         // Assume failure until we succeed
         $key = $file->getValue("dat_ans_key");
-        if (!$this->client->remove($this->account, $file->getValue("dat_ans_key"))) {
+        if (!$this->client->remove(self::BUCKET, $file->getValue("dat_ans_key"))) {
             $this->addErrorFromMessage("Could not delete file");
             return false;
         }
@@ -246,7 +251,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
         $revisions = $this->entityLoader->getRevisions($file->getEntityId(), $file->getValue('account_id'));
         foreach ($revisions as $fileRev) {
             if ($fileRev->getValue("dat_ans_key")) {
-                if (!$this->client->remove($this->account, $fileRev->getValue("dat_ans_key"))) {
+                if (!$this->client->remove(self::BUCKET, $fileRev->getValue("dat_ans_key"))) {
                     $this->addErrorFromMessage("Could not delete file");
                 }
             }
@@ -269,7 +274,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
             return false;
         }
 
-        return $this->client->exists($this->account, $file->getValue('dat_ans_key'));
+        return $this->client->exists(self::BUCKET, $file->getValue('dat_ans_key'));
     }
 
     /**
