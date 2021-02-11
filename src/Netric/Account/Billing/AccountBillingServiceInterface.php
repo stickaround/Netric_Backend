@@ -29,7 +29,7 @@ interface AccountBillingServiceInterface
 
     /**
      * Save a default payment profile for a contact
-     * 
+     *
      * @param string $contactId The contact that owns the payment profile in the mainAccount (not an entity in the current tennant)
      * @param CreditCard $card The credit card that will be using to bill the customer
      * @return string The name of the payment profile

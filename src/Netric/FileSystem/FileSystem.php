@@ -63,12 +63,12 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Class constructor
      *
-     * @param FileStoreInterface $fileStore Default fileStore for file data     
+     * @param FileStoreInterface $fileStore Default fileStore for file data
      * @param EntityLoader $entityLoader Used to load foldes and files
      * @param IndexInterface $entityQueryIndex Index to find entities
      */
     public function __construct(
-        FileStoreInterface $fileStore,        
+        FileStoreInterface $fileStore,
         EntityLoader $entityLoader,
         IndexInterface $entityQueryIndex
     ) {
@@ -463,7 +463,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * @return Entity[]
      */
     private function splitPathToFolderArray(string $path, UserEntity $user, bool $createIfMissing = false)
-    {   
+    {
         /*
          * Translate any variables in path like %tmp% and %userdir% to actual path
          */
@@ -485,25 +485,25 @@ class FileSystem implements Error\ErrorAwareInterface
         if ($lastFolder) {
             foreach ($folderNames as $nextFolderName) {
                 $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);
-    
+
                 // If the folder exists add it and continue
                 if ($nextFolder && $nextFolder->getEntityId()) {
                     $folders[] = $nextFolder;
                 } elseif ($createIfMissing) {
                     // TODO: Check permissions to see if we have access to create
-    
+
                     $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
                     $nextFolder->setValue("name", $nextFolderName);
                     $nextFolder->setValue("parent_id", $lastFolder->getEntityId());
                     $nextFolder->setValue("owner_id", $user->getEntityId());
                     $this->entityLoader->save($nextFolder, $user);
-    
+
                     $folders[] = $nextFolder;
                 } else {
                     // Full path does not exist
                     return false;
                 }
-    
+
                 // Move to the next hop
                 $lastFolder = $nextFolder;
             }
@@ -595,7 +595,7 @@ class FileSystem implements Error\ErrorAwareInterface
 
     /**
      * Get the root folder entity for this account
-     * 
+     *
      * @param UserEntity $user The user that should own the root folder
      */
     public function getRootFolder(UserEntity $user)
@@ -614,7 +614,7 @@ class FileSystem implements Error\ErrorAwareInterface
 
     /**
      * Set the root folder entity for this account
-     * 
+     *
      * @param UserEntity $user The user that should own the root folder
      */
     public function setRootFolder(UserEntity $user)

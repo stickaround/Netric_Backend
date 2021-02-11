@@ -211,11 +211,11 @@ abstract class AbstractCollectionTests extends TestCase
             ['remote_id' => 'test2', 'remote_revision' => 1],
         ];
         $stats = $collection->getImportChanged($customers);
-        
+
         $this->assertEquals(count($stats), count($customers));
         foreach ($stats as $ostat) {
             $this->assertEquals('change', $ostat['action']);
-            $collection->logImported(                
+            $collection->logImported(
                 $ostat['remote_id'],
                 $ostat['remote_revision'],
                 '48d54ed0-9fc4-40f6-b22b-cdef1d07bc51', // test UUID
@@ -224,7 +224,7 @@ abstract class AbstractCollectionTests extends TestCase
         }
 
         // Try again with no changes
-        $stats = $collection->getImportChanged($customers);        
+        $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 0);
 
         // Change the revision of one of the objects

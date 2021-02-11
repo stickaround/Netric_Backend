@@ -215,8 +215,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     public function isLoaded($serviceName)
     {
-        if (
-            isset($this->loadedServices[$serviceName])
+        if (isset($this->loadedServices[$serviceName])
             && $this->loadedServices[$serviceName] != null
         ) {
             return true;

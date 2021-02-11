@@ -20,7 +20,7 @@ class AccountUpdaterFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $settings = $serviceLocator->get(SettingsFactory::class);        
+        $settings = $serviceLocator->get(SettingsFactory::class);
         $log = $serviceLocator->get(LogFactory::class);
         return new AccountUpdater($settings, $log);
     }

@@ -85,7 +85,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
      * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
      * @param DaclLoader $daclLoader Handles the loading and saving of dacl permissions
      * @param FileSystem $fileSystem Service used to import, export, create, update files
-     * @param ImageResizer $imageResizer Resizer for images that we need to downscale or upscale     
+     * @param ImageResizer $imageResizer Resizer for images that we need to downscale or upscale
      * @param LogInterface $log Logger for recording what is going on
      */
     public function __construct(
@@ -169,7 +169,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         }
 
         // Could not create or get a parent folder. Return an error.
-        if (!$folder) {            
+        if (!$folder) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(['error' => "Could not open the folder specified."]);
             return $response;
@@ -292,7 +292,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
 
     /**
      * PUT pass-through for uploading
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -337,7 +337,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
             return $response;
         }
 
-        // Make sure the current user has access        
+        // Make sure the current user has access
         $dacl = $this->daclLoader->getForEntity($fileEntity, $currentUser);
         if (!$dacl->isAllowed($currentUser, Dacl::PERM_VIEW)) {
             $this->log->warning(
@@ -417,7 +417,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
     public function getUserImageAction(HttpRequest $request): HttpResponse
     {
         $response = new HttpResponse($request);
-        
+
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
@@ -434,7 +434,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         }
 
         // Get the user entity for the user id
-        $userToGetImageFor = $this->entityLoader->getEntityById($userGuid, $currentAccount->getAccountId());        
+        $userToGetImageFor = $this->entityLoader->getEntityById($userGuid, $currentAccount->getAccountId());
         $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
 
         // 404 if the user was not found or there was no image_id uploaded

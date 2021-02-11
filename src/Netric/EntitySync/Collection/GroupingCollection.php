@@ -46,7 +46,6 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
         WorkerService $workerService,
         CollectionDataMapperInterface $collectionDataMapper,
         EntityGroupingDataMapperInterface $groupingDataMapper
-        
     ) {
         $this->groupingDataMapper = $groupingDataMapper;
         $this->collectionDataMapper = $collectionDataMapper;
@@ -57,7 +56,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
     /**
      * Get a stats list of what has changed locally since the last sync
-     *     
+     *
      * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
      * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
      * @return array of associative array [
@@ -70,7 +69,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      */
     public function getExportChanged(
         $autoFastForward = true,
-        DateTime $limitUpdatesAfter = null        
+        DateTime $limitUpdatesAfter = null
     ) {
         if (!$this->getObjType()) {
             throw new \InvalidArgumentException("Object type not set! Cannot export changes.");
@@ -185,7 +184,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
         if ($data['entity_sync_collection_id']) {
             $this->setCollectionId($data['entity_sync_collection_id']);
         }
-        
+
         if ($data['object_type']) {
             $this->setObjType($data['object_type']);
         }

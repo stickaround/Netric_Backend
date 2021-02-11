@@ -2,7 +2,6 @@
 
 namespace NetricTest\Controller;
 
-
 use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Account\Account;
@@ -58,8 +57,8 @@ class FilesControllerTest extends TestCase
         // Create mocks
         $this->mockEntityLoader = $this->createMock(EntityLoader::class);
         $this->mockEntityDefinitionLoader = $this->createMock(EntityDefinitionLoader::class);
-        $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);        
-        $this->mockDaclLoader = $this->createMock(DaclLoader::class);        
+        $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);
+        $this->mockDaclLoader = $this->createMock(DaclLoader::class);
         $this->fileSystem = $this->createMock(FileSystem::class);
         $this->imageResizer = $this->createMock(ImageResizer::class);
         $this->mockLog = $this->createMock(LogInterface::class);
@@ -80,8 +79,8 @@ class FilesControllerTest extends TestCase
         $this->filesController = new FilesController(
             $accountContainer,
             $this->mockAuthService,
-            $this->mockEntityLoader,            
-            $this->mockGroupingLoader,            
+            $this->mockEntityLoader,
+            $this->mockGroupingLoader,
             $this->mockDaclLoader,
             $this->fileSystem,
             $this->imageResizer,
@@ -115,7 +114,7 @@ class FilesControllerTest extends TestCase
         // Create test file entity
         $mockFileEntity = $this->createMock(FileEntity::class);
 
-        // Mock the fileSystem service which is used to get file/folder entity        
+        // Mock the fileSystem service which is used to get file/folder entity
         $this->fileSystem->method('openFolder')->willReturn($mockFolderEntity);
         $this->fileSystem->method('importFile')->willReturn($mockFileEntity);
         $this->fileSystem->method('openFolderById')->willReturn($mockFolderEntity);
@@ -125,7 +124,7 @@ class FilesControllerTest extends TestCase
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -189,10 +188,10 @@ class FilesControllerTest extends TestCase
         $fileId = Uuid::uuid4()->toString();
         $mockFileEntity = $this->createMock(FileEntity::class);
         $mockFileEntity->method('getEntityId')->willReturn($fileId);
-        
+
         // Mock the fileSystem service which is used to get file/folder entity
         $this->fileSystem->method('openFileById')->willReturn($mockFileEntity);
-        
+
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
@@ -202,15 +201,15 @@ class FilesControllerTest extends TestCase
         // Create the group for testing
         $mockEntityGroup = $this->createMock(Group::class);
         $mockEntityGroup->method('toArray')->willReturn($groupDetails);
-        
+
         // Create the entity groupings for testing
         $mockEntityGroupings = $this->createMock(EntityGroupings::class);
         $mockEntityGroupings->method('getByGuidOrGroupId')->willReturn($mockEntityGroup);
         $mockEntityGroupings->method('toArray')->willReturn([$groupDetails]);
-        
+
         // Mock the grouping loader service which is used to get the entity groupings
         $this->mockGroupingLoader->method('get')->willReturn($mockEntityGroupings);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 

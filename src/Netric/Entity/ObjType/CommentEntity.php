@@ -35,7 +35,7 @@ class CommentEntity extends Entity implements EntityInterface
         $this->entityLoader = $entityLoader;
         parent::__construct($def, $entityLoader);
     }
-    
+
     /**
      * Callback function used for derrived subclasses
      *
@@ -43,7 +43,7 @@ class CommentEntity extends Entity implements EntityInterface
      * @param UserEntity $user The user that is acting on this entity
      */
     public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
-    {        
+    {
         $objReference = $this->getValue('obj_reference');
         $entityCommentedOn = $this->entityLoader->getEntityById(
             $objReference,

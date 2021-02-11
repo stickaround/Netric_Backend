@@ -88,7 +88,7 @@ class AccountController extends AbstractFactoriedController implements Controlle
 
     /**
      * Get the definition of an account
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */

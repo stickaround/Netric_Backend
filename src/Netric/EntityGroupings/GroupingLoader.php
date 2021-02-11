@@ -55,7 +55,7 @@ class GroupingLoader
      *
      * @param string $path The path of the grouping that we are going to load
      * @param string $accountId The account that owns the groupings that we are about to save
-     * 
+     *
      * @return EntityGroupings
      */
     public function get(string $path, string $accountId): ?EntityGroupings
@@ -136,7 +136,7 @@ class GroupingLoader
      *
      * @param EntityDefinition $definition The definition that we will use to filter the object groupings
      * @param string $fieldName The name of the field of this grouping
-     * 
+     *
      * @return EntityGroupings;
      */
     public function getGroupings($definition, $fieldName)

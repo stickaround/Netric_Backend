@@ -7,7 +7,6 @@ use Netric\Controller\HealthController;
 use Netric\Application\Health\HealthCheckInterface;
 use Netric\Log\LogInterface;
 
-
 /**
  * Test self-checking validation actions
  *
@@ -34,7 +33,7 @@ class HealthControllerTest extends TestCase
     protected function setUp(): void
     {
         // Create mocks
-        $this->healthCheck = $this->createMock(HealthCheckInterface::class);        
+        $this->healthCheck = $this->createMock(HealthCheckInterface::class);
         $this->mockLog = $this->createMock(LogInterface::class);
 
         // Create the controller with mocks
@@ -73,7 +72,7 @@ class HealthControllerTest extends TestCase
     {
         $this->healthCheck->method('areDependenciesLive')->willReturn(true);
 
-        $response = $this->healthController->consoleTestDependenciesAction();        
+        $response = $this->healthController->consoleTestDependenciesAction();
         $this->assertEquals(['SUCCESS: Critical dependencies are live'], $response->getOutputBuffer());
     }
 }

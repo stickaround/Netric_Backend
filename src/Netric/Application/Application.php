@@ -382,7 +382,7 @@ class Application
         }
 
         // Run update scripts and data - set it to the latest version first so we don't run old scripts
-        $updater = $account->getServiceManager()->get(AccountUpdaterFactory::class);        
+        $updater = $account->getServiceManager()->get(AccountUpdaterFactory::class);
         $updater->setCurrentAccountToLatestVersion($account);
         $updater->runUpdates($account);
 

@@ -860,7 +860,7 @@ class BackendNetric implements IBackend
         if (!$coll) {
             // Get service locator for account
             $serviceManager = $this->account->getServiceManager();
-            $coll = $serviceManager->get(EntityCollectionFactory::class);            
+            $coll = $serviceManager->get(EntityCollectionFactory::class);
             $coll->setObjType($objType);
             $coll->setConditions($cond);
             $this->partnership->addCollection($coll);

@@ -810,8 +810,7 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if ($field->type == FIELD::TYPE_TEXT) {
-                if (
-                    $field->name == "description"
+                if ($field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
                     || $field->name == "comment"

@@ -44,7 +44,7 @@ class NotificationEntity extends Entity implements EntityInterface
     /**
      * Container used to load accounts
      */
-    private AccountContainerInterface $accountContainer; 
+    private AccountContainerInterface $accountContainer;
 
     /**
      * Class constructor

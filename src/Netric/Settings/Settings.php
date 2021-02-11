@@ -49,7 +49,7 @@ class Settings
     /**
      * Get a setting by name
      *
-     * @param string $name Unique name of the setting value to save     
+     * @param string $name Unique name of the setting value to save
      * @param string $accountId The account id of the current tennant
      * @return string
      */

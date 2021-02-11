@@ -28,7 +28,7 @@ class EntityQueryControllerFactory implements ControllerFactoryInterface
         $authService = $serviceLocator->get(AuthenticationServiceFactory::class);
         $daclLoader = $serviceLocator->get(DaclLoaderFactory::class);
         $index = $serviceLocator->get(IndexFactory::class);
-        
+
         return new EntityQueryController(
             $accountContainer,
             $authService,

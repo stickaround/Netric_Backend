@@ -39,13 +39,13 @@ class SetupControllerTest extends TestCase
     /**
      * Dependency mocks
      */
-    private AuthenticationService $mockAuthService;    
+    private AuthenticationService $mockAuthService;
     private Account $mockAccount;
     private ModuleService $moduleService;
 
     protected function setUp(): void
     {
-        // Create mocks        
+        // Create mocks
         $this->accountSetup = $this->createMock(AccountSetup::class);
         $this->dbSetup = $this->createMock(DatabaseSetup::class);
         $this->mockLog = $this->createMock(LogInterface::class);
@@ -63,7 +63,7 @@ class SetupControllerTest extends TestCase
 
         $this->accountContainer = $this->createMock(AccountContainerInterface::class);
         $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
-        
+
         // Create the controller with mocks
         $this->setupController = new SetupController(
             $this->accountContainer,
@@ -88,7 +88,7 @@ class SetupControllerTest extends TestCase
         // Queue to run the first script which does not really do anything
         $request->setParam("script", "update/once/005/001/001.php");
         $ret = $this->setupController->consoleRunAction($request);
-        
+
         // If the return code is 0, then it executed successfully
         $this->assertEquals(0, $ret->getReturnCode());
     }

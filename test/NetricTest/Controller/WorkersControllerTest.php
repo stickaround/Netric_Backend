@@ -34,7 +34,7 @@ class WorkersControllerTest extends TestCase
     /**
      * Dependency mocks
      */
-    private AuthenticationService $mockAuthService;    
+    private AuthenticationService $mockAuthService;
     private Account $mockAccount;
     private ModuleService $moduleService;
 
@@ -43,8 +43,8 @@ class WorkersControllerTest extends TestCase
      */
     protected function setUp(): void
     {
-        // Create mocks        
-        $this->workerService = $this->createMock(WorkerService::class);        
+        // Create mocks
+        $this->workerService = $this->createMock(WorkerService::class);
         $this->mockLog = $this->createMock(LogInterface::class);
         $this->mockApplication = $this->createMock(Application::class);
 
@@ -59,7 +59,7 @@ class WorkersControllerTest extends TestCase
 
         $this->accountContainer = $this->createMock(AccountContainerInterface::class);
         $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
-        
+
         // Create the controller with mocks
         $this->workersController = new WorkersController(
             $this->accountContainer,

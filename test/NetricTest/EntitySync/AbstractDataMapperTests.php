@@ -70,7 +70,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertNotNull($partner->getId());
 
         // Load the partner in another object and test
-        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());        
+        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());
         $this->assertEquals($partner->getId(), $partner2->getId());
         $this->assertEquals($partner->getRemotePartnerId(), $partner2->getRemotePartnerId());
 
@@ -130,7 +130,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertEquals(ObjectTypes::CONTACT, $collections[0]->getObjType());
 
         // Cleanup by partner id (second param)
-        $dm->deletePartner($partner, true , $this->account->getAccountId());
+        $dm->deletePartner($partner, true, $this->account->getAccountId());
     }
 
     /*
@@ -158,8 +158,8 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm->savePartner($partner, $this->account->getAccountId());
 
         // Reload the parter fresh and update it
-        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());        
-        $collections = $partner2->getCollections();        
+        $partner2 = $dm->getPartnerById($partner->getId(), $this->account->getAccountId());
+        $collections = $partner2->getCollections();
         $collections[0]->setFieldName("categories");
         $collections[0]->setConditions($testConditions);
         $dm->savePartner($partner2, $this->account->getAccountId());

@@ -9,7 +9,7 @@ use NetricTest\Bootstrap;
 
 /**
  * Make sure we can test a connection to our file store
- * 
+ *
  * @group integration
  */
 class MogileFsDependencyCheckTest extends TestCase

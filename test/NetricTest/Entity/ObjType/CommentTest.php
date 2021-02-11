@@ -68,7 +68,7 @@ class CommentTest extends TestCase
         $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment, $this->account->getSystemUser());
 
-        // Now re-open the referenced customer just to make sure it was saved right        
+        // Now re-open the referenced customer just to make sure it was saved right
         $openedCustomer = $entityLoader->getEntityById($cid, $this->account->getAccountId());
         $numComment = $openedCustomer->getValue("num_comments");
         $this->assertEquals(1, $numComment);

@@ -83,7 +83,7 @@ class EntityController extends AbstractFactoriedController implements Controller
      * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
      * @param BrowserViewService $browserViewService Manages the entity browser views
      * @param Forms $forms Manages the entity forms
-     * @param DaclLoader $daclLoader Handles the loading and saving of dacl permissions     
+     * @param DaclLoader $daclLoader Handles the loading and saving of dacl permissions
      */
     public function __construct(
         AccountContainerInterface $accountContainer,
@@ -101,7 +101,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $this->entityDefinitionLoader = $entityDefinitionLoader;
         $this->groupingLoader = $groupingLoader;
         $this->browserViewService = $browserViewService;
-        $this->forms = $forms;        
+        $this->forms = $forms;
         $this->daclLoader = $daclLoader;
     }
 
@@ -132,7 +132,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Get the definition (metadata) of an entity
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -150,7 +150,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         }
 
         try {
-            $def = null;            
+            $def = null;
             $currentAccount = $this->getAuthenticatedAccount();
 
             // Make sure that we have an authenticated account
@@ -158,11 +158,11 @@ class EntityController extends AbstractFactoriedController implements Controller
                 // Get the definition data for this object type
                 $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
             }
-            
+
             if (!$def) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                 $response->write(["error" => "$objType could not be loaded."]);
-                return $response;                
+                return $response;
             }
 
             $response->write($this->fillDefinitionArray($def));
@@ -183,17 +183,17 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Retrieve a single entity
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
     public function getGetAction(HttpRequest $request): HttpResponse
-    {        
+    {
         $response = new HttpResponse($request);
 
         $id = $request->getParam('id'); // id for backwards compatibility
         $entityId = $request->getParam('entity_id');
-        $objType = $request->getParam('obj_type');        
+        $objType = $request->getParam('obj_type');
         $uname = $request->getParam('uname');
         $unameConditions = $request->getParam('uname_conditions');
 
@@ -222,7 +222,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         $conditions = [];
         if ($unameConditions) {
-            foreach($unameConditions as $idx => $value) {
+            foreach ($unameConditions as $idx => $value) {
                 $conditions[$idx] = $value;
             }
         }
@@ -244,7 +244,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "entity_id or uname are required params."]);
             return $response;
-        }        
+        }
 
         // Entity Could not be found - we might want to change this to a 404 status code
         if (!$entity) {
@@ -278,14 +278,14 @@ class EntityController extends AbstractFactoriedController implements Controller
         }
 
         $entityData['currentuser_permissions'] = $currentUserPermissions;
-        
+
         $response->write($entityData);
         return $response;
     }
 
     /**
      * Save an entity
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -303,7 +303,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['obj_type'])) {            
+        if (!isset($objData['obj_type'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "obj_type is a required param."]);
             return $response;
@@ -311,7 +311,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Account authentication error."]);
             return $response;
@@ -327,7 +327,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             }
 
             // If no entity is found, then return an error.
-            if (!$entity) {                
+            if (!$entity) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                 $response->write([
                     "error" => "No entity found.",
@@ -337,7 +337,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             }
 
             // Make sure that the user has a permission to save this entity
-            if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {                
+            if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                 $response->write([
                     "error" => "You do not have permission to edit this.",
@@ -355,16 +355,16 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Parse the params
         $entity->fromArray($objData);
 
-        // Save the entity        
+        // Save the entity
         $currentUser = $currentAccount->getAuthenticatedUser();
 
-        try {            
-            if (!$this->entityLoader->save($entity, $currentUser)) {                
+        try {
+            if (!$this->entityLoader->save($entity, $currentUser)) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                 $response->write(["error" => "Error saving entity."]);
                 return $response;
             }
-        } catch (\RuntimeException $ex) {            
+        } catch (\RuntimeException $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "Error saving: " . $ex->getMessage()]);
             return $response;
@@ -375,7 +375,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         $entityData = $entity->toArray();
 
-        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved        
+        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());
         $currentUserPermissions = $dacl->getUserPermissions($currentAccount->getAuthenticatedUser(), $entity);
 
@@ -398,7 +398,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * PUT pass-through for save
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -409,7 +409,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Remove an entity (or a list of entities)
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -426,7 +426,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-        if (!isset($objData['entity_id'])) {            
+        if (!isset($objData['entity_id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "entity_id is a required param."]);
             return $response;
@@ -478,7 +478,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Get groupings for an object
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -502,10 +502,10 @@ class EntityController extends AbstractFactoriedController implements Controller
         } catch (Exception $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => $ex->getMessage()]);
-            return $response;            
+            return $response;
         }
 
-        if (!$groupings) {            
+        if (!$groupings) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "No groupings found for specified obj_type and field."]);
             return $response;
@@ -563,15 +563,15 @@ class EntityController extends AbstractFactoriedController implements Controller
      * @return array Object Type defintion with all the additional info of the object type
      */
     private function fillDefinitionArray(EntityDefinition $def)
-    {        
-        $currentAccount = $this->getAuthenticatedAccount();        
+    {
+        $currentAccount = $this->getAuthenticatedAccount();
         $user = $currentAccount->getAuthenticatedUser();
         $ret = $def->toArray();
         $ret["browser_mode"] = "table";
 
         // TODO: Get browser blank content
 
-        // Get forms        
+        // Get forms
         $ret['forms'] = $this->forms->getDeviceForms($def, $user);
 
         // If we are dealing with contact object type, then we need to get the billing forms
@@ -580,7 +580,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $ret['forms']['billing_small'] = $this->forms->getSysForm($def, 'billing_small');
         }
 
-        // Get views from browser view service        
+        // Get views from browser view service
         $browserViews = $this->browserViewService->getViewsForUser($def->getObjType(), $user);
         $ret['views'] = [];
         foreach ($browserViews as $view) {
@@ -605,7 +605,7 @@ class EntityController extends AbstractFactoriedController implements Controller
     {
         $currentAccount = $this->getAuthenticatedAccount();
         $currentUser = $currentAccount->getAuthenticatedUser();
-        $fields = $entity->getDefinition()->getFields();        
+        $fields = $entity->getDefinition()->getFields();
 
         // Flag that will determine if we should save the $entity
         $entityShouldUpdate = false;
@@ -621,8 +621,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if (
-                        $field->subtype // Make sure that this field has a subtype
+                    if ($field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
@@ -658,7 +657,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Updates the entity definition
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -683,9 +682,9 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(["error" => "Account authentication error."]);            
+            $response->write(["error" => "Account authentication error."]);
             return $response;
         }
 
@@ -724,7 +723,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Deletes the entity definition
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -742,7 +741,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Decode the json structure
         $objData = json_decode($rawBody, true);
         if (!isset($objData['obj_type'])) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);            
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "obj_type is a required param."]);
             return $response;
         }
@@ -758,7 +757,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $objType = $objData['obj_type'];
         $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
 
-        if (!$def) {            
+        if (!$def) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "$objType could not be loaded."]);
             return $response;
@@ -771,9 +770,9 @@ class EntityController extends AbstractFactoriedController implements Controller
         } catch (\RuntimeException $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => $ex->getMessage()]);
-            return $response;            
+            return $response;
         }
-        
+
         $response->write($result);
         return $response;
     }
@@ -799,7 +798,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $objData = json_decode($rawBody, true);
 
         // Check if we have id. If it is not defined, then return an error
-        if (!isset($objData['entity_id'])) {            
+        if (!isset($objData['entity_id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "entity_id is a required param."]);
             return $response;
@@ -882,7 +881,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $objData = json_decode($rawBody, true);
 
         // Check if we have obj_type. If it is not defined, then return an error
-        if (!isset($objData['obj_type'])) {            
+        if (!isset($objData['obj_type'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "obj_type is a required param."]);
             return $response;
@@ -897,7 +896,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Account authentication error."]);
             return $response;
@@ -1002,7 +1001,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
-        if (!isset($objData['action'])) {            
+        if (!isset($objData['action'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "action is a required param."]);
             return $response;
@@ -1042,7 +1041,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                 // Set the group data
                 $group->fromArray($objData);
                 break;
-                
+
             case 'delete':
                 // $objData['group_id'] is the Group Id where we need to check it first before deleting the group
                 if (isset($objData['group_id']) && !empty($objData['group_id'])) {
@@ -1056,7 +1055,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                 // Now flag the group as deleted
                 $groupings->delete($objData['group_id']);
                 break;
-            default:                
+            default:
                 $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
                 $response->write(["error" => "No action made for entity group."]);
                 return $response;
@@ -1084,11 +1083,11 @@ class EntityController extends AbstractFactoriedController implements Controller
      * @return EntityGroupings Returns the instance of EntityGroupings Model
      */
     private function getGroupings(GroupingLoader $groupingLoader, $objType, $fieldName)
-    {        
+    {
         $currentAccount = $this->getAuthenticatedAccount();
-        
+
         try {
-            // Get the entity defintion of the $objType            
+            // Get the entity defintion of the $objType
             $def = $this->entityDefinitionLoader->get($objType, $currentAccount->getAccountId());
             $path = "$objType/$fieldName";
 
@@ -1114,10 +1113,10 @@ class EntityController extends AbstractFactoriedController implements Controller
      * @param $permission The permission to check
      */
     private function checkIfUserIsAllowed(Entity $entity, $permission)
-    {        
+    {
         $currentAccount = $this->getAuthenticatedAccount();
 
-        // Check entity permission        
+        // Check entity permission
         $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());
 
         return $dacl->isAllowed($currentAccount->getAuthenticatedUser(), $permission, $entity);
@@ -1125,7 +1124,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
     /**
      * Function that will get the groupings by path
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -1166,19 +1165,19 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
-        if (!$grouping) {            
+        if (!$grouping) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "No grouping found for specified obj_type and field."]);
             return $response;
         }
-        
+
         $response->write($grouping->toArray());
         return $response;
     }
 
     /**
      * Update the sort order of the entities based on the entity's position in the array
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -1195,7 +1194,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-        if (!isset($objData['entity_ids'])) {            
+        if (!isset($objData['entity_ids'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "entity_ids is a required param."]);
             return $response;
@@ -1209,35 +1208,34 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Account authentication error."]);
             return $response;
         }
-        
+
         // We should reverse the order of entity_ids array so the top entity will have highest sort order
         $entityIds = array_reverse($objData['entity_ids']);
         $updatedEntities = [];
         $currentTime = mktime(date("h"), date("i"), date("s"), date("n"), date("j"), date("Y"));
 
-        forEach($entityIds as $entityId)
-        {
+        foreach ($entityIds as $entityId) {
             // Load the entity using the entityId
             $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
 
             // Make sure that the entity exists before we update its sort order
-            if ($entity) {                
+            if ($entity) {
                 $entity->setValue('sort_order', $currentTime++);
 
                 try {
-                    if (!$this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser())) {                        
+                    if (!$this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser())) {
                         $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                         $response->write(["error" => "Error saving entity.", "data" => $entity->toArray()]);
                         return $response;
                     }
 
                     $updatedEntities[] = $entity->toArray();
-                } catch (\RuntimeException $ex) {                    
+                } catch (\RuntimeException $ex) {
                     $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                     $response->write(["error" => "Error saving: " . $ex->getMessage()]);
                     return $response;
@@ -1245,7 +1243,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             }
         }
 
-        // Return the updated entities        
+        // Return the updated entities
         $response->write(array_reverse($updatedEntities));
         return $response;
     }

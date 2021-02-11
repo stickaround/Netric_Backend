@@ -200,7 +200,7 @@ class AccountBillingService implements AccountBillingServiceInterface
 
     /**
      * Get the system user for the main account
-     * 
+     *
      * This is needed for any entity update operations in the main account.
      *
      * @return UserEntity
@@ -299,7 +299,7 @@ class AccountBillingService implements AccountBillingServiceInterface
 
     /**
      * Save a default payment profile for a contact
-     * 
+     *
      * @param string $contactId The contact that owns the payment profile in the mainAccount (not an entity in the current tennant)
      * @param CreditCard $card The credit card that will be using to bill the customer
      * @return string The name of the payment profile

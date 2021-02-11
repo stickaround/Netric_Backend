@@ -36,7 +36,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
     /**
      * Handles the sanitizing of condition values in the query
-     * 
+     *
      * @var EntityValueSanitizer
      */
     private $entityValueSanitizer = null;
@@ -300,7 +300,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     {
         // Get fields for this object type (used in decoding multi-valued fields)
         $ofields = $entityDefinition->getFields();
-        
+
         foreach ($entitiesRawDataArray as $rawData) {
             $entityData = json_decode($rawData['field_data'], true);
 
@@ -320,8 +320,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                if (
-                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
+                if ($fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
                     || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
@@ -453,8 +452,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     case FIELD::TYPE_TEXT:
                         break;
                     case FIELD::TYPE_OBJECT:
-                        if (
-                            !empty($field->subtype)
+                        if (!empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
                             && is_numeric($value)
                         ) {

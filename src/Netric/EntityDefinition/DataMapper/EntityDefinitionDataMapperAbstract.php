@@ -15,7 +15,7 @@ abstract class EntityDefinitionDataMapperAbstract extends DataMapperAbstract
 {
     /**
      * Used to schedule background jobs
-     * 
+     *
      * @var WorkerService
      */
     private WorkerService $workerService;
@@ -32,12 +32,12 @@ abstract class EntityDefinitionDataMapperAbstract extends DataMapperAbstract
      *
      * @param AccountServiceManager $serviceManager
      */
-    public function __construct(        
+    public function __construct(
         WorkerService $workerService,
         Config $config
     ) {
         $this->workerService = $workerService;
-        $this->config = $config;        
+        $this->config = $config;
     }
 
     /**
@@ -75,7 +75,7 @@ abstract class EntityDefinitionDataMapperAbstract extends DataMapperAbstract
     }
 
     /**
-     * 
+     *
      * Save a definition
      *
      * @param EntityDefinition $def The definition to save
@@ -99,10 +99,11 @@ abstract class EntityDefinitionDataMapperAbstract extends DataMapperAbstract
 
     /**
      * Send background job to do less expedient (but no less important) tasks
-     * 
+     *
      * @param EntityDefinition $def The definition we are currently working on
      */
-    private function postSaveWorker(EntityDefinition $def) {
+    private function postSaveWorker(EntityDefinition $def)
+    {
         $this->workerService->doWorkBackground(EntityDefinitionPostSaveWorker::class, [
             'entity_definition_id' => $def->getEntityDefinitionId(),
             'account_id' => $def->getAccountId(),
@@ -115,7 +116,7 @@ abstract class EntityDefinitionDataMapperAbstract extends DataMapperAbstract
      *
      * @param string $objType The name of the object type
      * @param string $accountId The account that owns the entity definition
-     * 
+     *
      * @return bool true on success, false on failure
      */
     public function deleteByName(string $objType, string $accountId)
@@ -180,7 +181,7 @@ abstract class EntityDefinitionDataMapperAbstract extends DataMapperAbstract
     {
         $ret = null;
 
-        // Check for system object        
+        // Check for system object
         $basePath = $this->config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $ret = include($basePath . "/" . $objType . ".php");

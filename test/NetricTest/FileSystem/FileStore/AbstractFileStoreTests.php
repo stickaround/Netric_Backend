@@ -46,7 +46,8 @@ abstract class AbstractFileStoreTests extends TestCase
 
     private function getAccount(): Account
     {
-        return \NetricTest\Bootstrap::getAccount();;
+        return \NetricTest\Bootstrap::getAccount();
+        ;
     }
 
     private function createTestFile()

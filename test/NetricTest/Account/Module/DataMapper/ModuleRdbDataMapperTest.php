@@ -11,7 +11,7 @@ use Netric\Config\ConfigFactory;
 
 /**
  * Db implementation of module DataMapper test
- * 
+ *
  * @group integration
  */
 class ModuleRdbDataMapperTest extends AbstractDataMapperTests

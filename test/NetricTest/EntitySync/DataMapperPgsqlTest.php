@@ -73,7 +73,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
         $partner->setOwnerId($this->user->getEntityId());
         $ret = $dm->savePartner($partner, $this->account->getAccountId());
 
-        // Create a new collection and save it                
+        // Create a new collection and save it
         $collection = $this->getEntityCollection($this->account->getAccountId());
         $collection->setPartnerId($partner->getId());
         $collection->setObjType(ObjectTypes::CONTACT);

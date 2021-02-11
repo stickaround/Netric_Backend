@@ -34,9 +34,9 @@ class EntityQueryControllerTest extends TestCase
 
     /**
      * Dependency mocks
-     */    
+     */
     private AuthenticationService $mockAuthService;
-    private EntityDefinitionLoader $mockEntityDefinitionLoader;    
+    private EntityDefinitionLoader $mockEntityDefinitionLoader;
     private RelationalDbContainer $mockDbContainer;
     private DaclLoader $mockDaclLoader;
     private Account $mockAccount;
@@ -50,7 +50,7 @@ class EntityQueryControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        // Create mocks                
+        // Create mocks
         $this->index = $this->createMock(IndexInterface::class);
         $this->mockDaclLoader = $this->createMock(DaclLoader::class);
 
@@ -63,14 +63,14 @@ class EntityQueryControllerTest extends TestCase
         $this->mockAccount = $this->createStub(Account::class);
         $this->mockAccount->method('getAccountId')->willReturn(Uuid::uuid4()->toString());
         $this->mockAccount->method('getName')->willReturn('netrictest');
-        
+
         $accountContainer = $this->createMock(AccountContainerInterface::class);
-        $accountContainer->method('loadById')->willReturn($this->mockAccount);        
+        $accountContainer->method('loadById')->willReturn($this->mockAccount);
 
         // Create the controller with mocks
         $this->entityQueryController = new EntityQueryController(
             $accountContainer,
-            $this->mockAuthService,            
+            $this->mockAuthService,
             $this->mockDaclLoader,
             $this->index
         );
@@ -105,7 +105,7 @@ class EntityQueryControllerTest extends TestCase
         $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
         $mockTaskEntity->method('toArray')->willReturn($taskEntityData);
-        
+
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
@@ -117,7 +117,7 @@ class EntityQueryControllerTest extends TestCase
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 

@@ -19,11 +19,10 @@ abstract class AbstractDataMapper extends DataMapperAbstract
      * @param WorkerService $workerService Used to schedule background jobs
      */
     public function __construct(
-        RelationalDbContainer $dbContainer,        
+        RelationalDbContainer $dbContainer,
         WorkerService $workerService,
         CollectionFactory $collectionFactory
-    )
-    {
+    ) {
         $this->setUp($dbContainer, $workerService, $collectionFactory);
     }
 }

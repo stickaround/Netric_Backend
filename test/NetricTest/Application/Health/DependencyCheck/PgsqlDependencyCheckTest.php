@@ -9,7 +9,7 @@ use NetricTest\Bootstrap;
 
 /**
  * Make sure we can test a connection to a database
- * 
+ *
  * @group integration
  */
 class PgsqlDependencyCheckTest extends TestCase

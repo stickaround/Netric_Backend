@@ -27,7 +27,7 @@ class CollectionRdbDataMapper extends AbstractDataMapper implements CollectionDa
      * @param RelationalDbContainer $dbContainer Handles the database actions
      */
     public function __construct(RelationalDbContainer $dbContainer)
-    {        
+    {
         $this->databaseContainer = $dbContainer;
     }
 

@@ -73,7 +73,7 @@ class EntityGroupingStateManager
      *
      * @param string $path The path of the grouping that we are going to load
      * @param string $accountId The account that owns the groupings that we are about to save
-     * 
+     *
      * @return EntityGroupings
      */
     public function get(string $path, string $accountId)
@@ -130,7 +130,7 @@ class EntityGroupingStateManager
      *
      * @param string $path The path of the grouping that we are going to load
      * @param string $accountId The account that owns the groupings that we are about to save
-     * 
+     *
      * @return EntityGroupings
      */
     private function loadGroupings(string $path, string $accountId)

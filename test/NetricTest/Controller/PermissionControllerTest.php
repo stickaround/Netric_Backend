@@ -54,7 +54,7 @@ class PermissionControllerTest extends TestCase
         // Create mocks
         $this->mockEntityLoader = $this->createMock(EntityLoader::class);
         $this->mockEntityDefinitionLoader = $this->createMock(EntityDefinitionLoader::class);
-        $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);        
+        $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);
         $this->mockDaclLoader = $this->createMock(DaclLoader::class);
 
         // Provide identity for mock auth service
@@ -109,7 +109,7 @@ class PermissionControllerTest extends TestCase
             "f_system" => true,
             "sort_order" => 1,
             "commit_id" => 1
-        ]; 
+        ];
 
         $daclPermissions = [
             'view' => true,
@@ -120,22 +120,22 @@ class PermissionControllerTest extends TestCase
         $daclDetails = [
             'entries' => [],
             'name' => 'task_dacl'
-        ];        
+        ];
 
         // Create test user entity
         $mockUserEntity = $this->createMock(UserEntity::class);
         $mockUserEntity->method('getName')->willReturn('Test Task');
         $mockUserEntity->method('getEntityId')->willReturn($userEntityId);
         $mockUserEntity->method('toArray')->willReturn($userEntityDetails);
-        
+
         // Mock the entity loader service which is used to load the user by guid
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockUserEntity);
 
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('getUsers')->willReturn([$userEntityId]);
-        $mockDacl->method('toArray')->willReturn($daclDetails);        
-        
+        $mockDacl->method('toArray')->willReturn($daclDetails);
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
 
@@ -152,7 +152,7 @@ class PermissionControllerTest extends TestCase
         $mockEntityGroup->method('toArray')->willReturn($groupDetails);
 
         // Create the entity groupings for testing
-        $mockEntityGroupings = $this->createMock(EntityGroupings::class);        
+        $mockEntityGroupings = $this->createMock(EntityGroupings::class);
         $mockEntityGroupings->method('toArray')->willReturn([$groupDetails]);
 
         // Mock the grouping loader service which is used to get the entity groupings
@@ -161,7 +161,7 @@ class PermissionControllerTest extends TestCase
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setParam('obj_type', ObjectTypes::TASK);        
+        $request->setParam('obj_type', ObjectTypes::TASK);
         $response = $this->permissionController->getGetDaclForEntityAction($request);
         $this->assertEquals(array_merge($daclDetails, [
             'user_names' => [
@@ -181,7 +181,7 @@ class PermissionControllerTest extends TestCase
         // Make sure getGetDaclForEntityAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setParam('bogus', 'data');        
+        $request->setParam('bogus', 'data');
         $response = $this->permissionController->getGetDaclForEntityAction($request);
 
         // It should return an error if no obj_type is provided in the params
@@ -216,7 +216,7 @@ class PermissionControllerTest extends TestCase
             "f_system" => true,
             "sort_order" => 1,
             "commit_id" => 1
-        ]; 
+        ];
 
         $daclPermissions = [
             'view' => true,
@@ -227,14 +227,14 @@ class PermissionControllerTest extends TestCase
         $daclDetails = [
             'entries' => [],
             'name' => 'task_dacl'
-        ];        
+        ];
 
         // Create test task entity
         $mockTaskEntity = $this->createMock(UserEntity::class);
         $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
         $mockTaskEntity->method('toArray')->willReturn($taskEntityDetails);
-        
+
         // Mock the entity loader service which is used to load the task by guid
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
         $this->mockEntityLoader->method('save')->willReturn($taskEntityId);
@@ -242,8 +242,8 @@ class PermissionControllerTest extends TestCase
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('getUsers')->willReturn([$userEntityId]);
-        $mockDacl->method('toArray')->willReturn($daclDetails);        
-        
+        $mockDacl->method('toArray')->willReturn($daclDetails);
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
 
@@ -260,7 +260,7 @@ class PermissionControllerTest extends TestCase
         $mockEntityGroup->method('toArray')->willReturn($groupDetails);
 
         // Create the entity groupings for testing
-        $mockEntityGroupings = $this->createMock(EntityGroupings::class);        
+        $mockEntityGroupings = $this->createMock(EntityGroupings::class);
         $mockEntityGroupings->method('toArray')->willReturn([$groupDetails]);
 
         // Mock the grouping loader service which is used to get the entity groupings

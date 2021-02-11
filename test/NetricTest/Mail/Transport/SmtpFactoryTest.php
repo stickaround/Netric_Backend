@@ -28,7 +28,7 @@ class SmtpFactoryTest extends TestCase
         // Create a new test account to test the settings
         $this->account = Bootstrap::getAccount();
     }
-    
+
     public function testCreateService()
     {
         $sm = $this->account->getServiceManager();

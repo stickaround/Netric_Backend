@@ -32,9 +32,9 @@ class AuthenticationControllerTest extends TestCase
     /**
      * Dependency mocks
      */
-    private AuthenticationService $mockAuthService;    
-    private Account $mockAccount;    
-    
+    private AuthenticationService $mockAuthService;
+    private Account $mockAccount;
+
     /**
      * Common constants used
      *
@@ -57,7 +57,7 @@ class AuthenticationControllerTest extends TestCase
 
         $this->accountContainer = $this->createMock(AccountContainerInterface::class);
         $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
-                
+
         $account = Bootstrap::getAccount();
         $serviceManager = $account->getServiceManager();
 
@@ -145,7 +145,7 @@ class AuthenticationControllerTest extends TestCase
             'result' => 'FAIL',
             'reason' => 'username, password and account are required fields.'
         ], $response->getOutputBuffer());
-        
+
         $data = [
             'username' => 'invalid',
             'password' => 'invalid',
@@ -221,7 +221,7 @@ class AuthenticationControllerTest extends TestCase
         // Make sure getCheckinAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        
+
         $response = $authenticationController->getCheckinAction($request);
 
         // It should only return the id of the default view

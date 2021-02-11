@@ -62,7 +62,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Container used to load accounts
      */
-    private AccountContainerInterface $accountContainer; 
+    private AccountContainerInterface $accountContainer;
 
     /**
      * Body types
@@ -80,9 +80,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
      * @param AccountContainerInterface $accountContainer Container used to load accounts
      */
     public function __construct(
-        EntityDefinition $def, 
-        EntityLoader $entityLoader, 
-        IndexInterface $entityIndex, 
+        EntityDefinition $def,
+        EntityLoader $entityLoader,
+        IndexInterface $entityIndex,
         FileSystem $fileSystem,
         AccountContainerInterface $accountContainer
     ) {
@@ -490,7 +490,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         // Get the account
         $account = $this->accountContainer->loadById($this->getAccountId());
         $user = $account->getAuthenticatedUser();
-        
+
         // Add attachments to the mime message
         $attachments = $this->getValue("attachments");
         if (is_array($attachments) && count($attachments)) {
@@ -641,8 +641,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         // Update the delivered date
         if ($this->getValue("message_date")) {
             // Only update if this is newer than the last message added
-            if (
-                !$thread->getValue("ts_delivered")
+            if (!$thread->getValue("ts_delivered")
                 || $thread->getValue("ts_delivered") < $this->getValue("message_date")
             ) {
                 // Set  the last delivered date of the thread to this message date

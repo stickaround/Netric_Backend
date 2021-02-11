@@ -277,7 +277,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $ret[0]);
         $this->assertEquals($conditionString, "(nullif(field_data->>'done', ''))::boolean = true");
 
-        // Test Not Equal        
+        // Test Not Equal
         $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId());
         $query->where('f_seen')->doesNotEqual(true);
         $ret = $this->entityValueSanitizer->sanitizeQuery($query);

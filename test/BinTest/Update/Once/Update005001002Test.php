@@ -5,6 +5,7 @@
  */
 
 namespace BinTest\Update\Once;
+
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -83,7 +84,7 @@ class Update005001002Test extends TestCase
         $entityId = $this->entityLoader->save($entity, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity;
 
-        // This entity should have sort_order value saved since it was set in the default 
+        // This entity should have sort_order value saved since it was set in the default
         $entityWithSortOrder = $this->entityLoader->getEntityById($entityId, $this->account->getAccountId());
         $this->assertNotNull($entityWithSortOrder->getValue("sort_order"));
 

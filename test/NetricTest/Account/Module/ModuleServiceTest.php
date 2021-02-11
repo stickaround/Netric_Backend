@@ -109,7 +109,7 @@ class ModuleServiceTest extends TestCase
 
     public function testGetForUser()
     {
-        // Create a temp user        
+        // Create a temp user
         $sm = $this->account->getServiceManager();
         $entityLoader = $sm->get(EntityLoaderFactory::class);
         $user = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());

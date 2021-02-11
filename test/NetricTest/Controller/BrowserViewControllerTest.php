@@ -33,14 +33,14 @@ class BrowserViewControllerTest extends TestCase
 
     /**
      * Dependency mocks
-     */    
+     */
     private Account $mockAccount;
     private AuthenticationService $mockAuthService;
     private BrowserViewService $mockBrowserViewService;
 
     protected function setUp(): void
     {
-        // Create mocks        
+        // Create mocks
         $this->mockBrowserViewService = $this->createMock(BrowserViewService::class);
 
         // Provide identity for mock auth service
@@ -58,7 +58,7 @@ class BrowserViewControllerTest extends TestCase
         // Create the controller with mocks
         $this->browserViewController = new BrowserViewController(
             $accountContainer,
-            $this->mockAuthService,            
+            $this->mockAuthService,
             $this->mockBrowserViewService
         );
         $this->browserViewController->testMode = true;
@@ -85,7 +85,7 @@ class BrowserViewControllerTest extends TestCase
         // Mock the browser view server which is used to save a browser view
         $this->mockBrowserViewService->method('saveView')->willReturn($viewId);
         $this->mockBrowserViewService->method('setDefaultViewForUser')->willReturn(true);
-        
+
         // Make sure postSaveAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -133,9 +133,9 @@ class BrowserViewControllerTest extends TestCase
         // Create browser view for testing
         $mockBrowserView = $this->createMock(BrowserView::class);
 
-        // Mock the browser view server which is used to set a default browser view        
+        // Mock the browser view server which is used to set a default browser view
         $this->mockBrowserViewService->method('setDefaultViewForUser')->willReturn(true);
-        
+
         // Make sure postSaveAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -181,14 +181,14 @@ class BrowserViewControllerTest extends TestCase
      */
     public function testDeleteViewAction()
     {
-        $viewId = Uuid::uuid4()->toString();        
+        $viewId = Uuid::uuid4()->toString();
 
         // Create browser view for testing
         $mockBrowserView = $this->createMock(BrowserView::class);
 
-        // Mock the browser view server which is used to delete a browser view        
+        // Mock the browser view server which is used to delete a browser view
         $this->mockBrowserViewService->method('deleteView')->willReturn(true);
-        
+
         // Make sure postDeleteViewAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -209,7 +209,7 @@ class BrowserViewControllerTest extends TestCase
         $request->setParam('buffer_output', 1);
         $response = $this->browserViewController->postDeleteViewAction($request);
         $this->assertEquals('Request input is not valid', $response->getOutputBuffer());
-        
+
         // Make sure postDeleteViewAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);

@@ -22,7 +22,7 @@ class SettingsFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $database = $serviceLocator->get(RelationalDbFactory::class);
-        $cache = $serviceLocator->get(CacheFactory::class);        
+        $cache = $serviceLocator->get(CacheFactory::class);
         return new Settings($database, $cache);
     }
 }

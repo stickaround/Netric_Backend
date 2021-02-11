@@ -101,7 +101,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * We always store credit card information with the gateway since we
      * do not want to accept liability for securing credit cards on our system.
-     * 
+     *
      * If you try to create a profile that already exists, this will return the
      * profile token.
      *

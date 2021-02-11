@@ -21,7 +21,7 @@ class DataMapperFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $database = $serviceLocator->get(RelationalDbFactory::class);        
+        $database = $serviceLocator->get(RelationalDbFactory::class);
         return new DataMapperRdb($database);
     }
 }

@@ -104,7 +104,6 @@ class DaclLoader
         if ($objDef->parentField) {
             $fieldDef = $objDef->getField($objDef->parentField);
             if ($entity->getValue($objDef->parentField) && $fieldDef->subtype) {
-
                 // See if we can retrieve the parent entity
                 $parentEntity = $this->entityLoader->getEntityById($entity->getValue(
                     $objDef->parentField
@@ -140,7 +139,7 @@ class DaclLoader
 
     /**
      * Private function that creates a default entries of Dacl
-     * 
+     *
      * @param string $accountId The account that will be used to get the user groups
      * @return Dacl
      */

@@ -39,8 +39,7 @@ class EntityDefinitionRdbDataMapper extends EntityDefinitionDataMapperAbstract i
         RelationalDbContainer $dbContainer,
         WorkerService $workerService,
         Config $config
-        )
-    {        
+    ) {
         $this->databaseContainer = $dbContainer;
 
         parent::__construct($workerService, $config);
@@ -62,7 +61,7 @@ class EntityDefinitionRdbDataMapper extends EntityDefinitionDataMapperAbstract i
      *
      * @param string $objType The name of the object type
      * @param string $accountId The account that owns the entity definition
-     * 
+     *
      * @return EntityDefinition
      */
     public function fetchByName(string $objType, string $accountId)
@@ -102,13 +101,13 @@ class EntityDefinitionRdbDataMapper extends EntityDefinitionDataMapperAbstract i
 
         return null;
     }
-    
+
     /**
      * Get an entity definition by id
      *
      * @param string $definitionTypeId Object type of the defintion
      * @param string $accountId The account that owns the entity definition
-     * 
+     *
      * @return EntityDefinition|null
      */
     public function fetchById(string $definitionTypeId, string $accountId): ?EntityDefinition
@@ -792,12 +791,12 @@ class EntityDefinitionRdbDataMapper extends EntityDefinitionDataMapperAbstract i
     /**
      * Get all the entity object types
      * @param string $accountId The account that owns the entity definition
-     * 
+     *
      * @return array Collection of objects
      */
     public function getAllObjectTypes(string $accountId)
     {
-        $sql = "select name from " . self::ENTITY_TYPE_TABLE . " where account_id=:account_id";        
+        $sql = "select name from " . self::ENTITY_TYPE_TABLE . " where account_id=:account_id";
         $result = $this->getDatabase($accountId)->query($sql, ['account_id' => $accountId]);
 
         foreach ($result->fetchAll() as $row) {

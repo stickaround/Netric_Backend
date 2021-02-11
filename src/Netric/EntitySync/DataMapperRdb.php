@@ -32,14 +32,14 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
 
     /**
      * Collection factory that will create an instance of entity/grouping collection
-     * 
+     *
      * @var CollectionFactory
      */
     private $collectionFactory = null;
 
     /**
      * Used to schedule background jobs
-     * 
+     *
      * @var WorkerService
      */
     private WorkerService $workerService;
@@ -52,7 +52,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param WorkerService $workerService Used to schedule background jobs
      */
     protected function setUp(
-        RelationalDbContainer $dbContainer,        
+        RelationalDbContainer $dbContainer,
         WorkerService $workerService,
         CollectionFactory $collectionFactory
     ) {
@@ -77,7 +77,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      *
      * @param Partner $partner The partner that we will be saving
      * @param string $accountId The account that owns the Partner that we are about to save
-     * 
+     *
      * @return bool true on success, false on failure
      */
     public function savePartner(Partner $partner, string $accountId): bool
@@ -148,7 +148,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      *
      * @param string $partnerId Netric unique partner id
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      * @return Partner or null if id does not exist
      */
     public function getPartnerById(string $partnerId, string $accountId): ?Partner
@@ -161,7 +161,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      *
      * @param string $remoteId Remotely provided unique ident
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      * @return Partner or null if id does not exist
      */
     public function getPartnerByRemoteId(string $remoteId, string $accountId): ?Partner
@@ -175,7 +175,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * @param string $accountId The account that we will use to get active database handle
      * @param string $systemId System id
      * @param string $remoteId Device id
-     * 
+     *
      * @return Partner or null if id does not exist
      */
     private function getPartner(string $accountId, string $systemId = null, string $remoteId = null): ?Partner
@@ -200,7 +200,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         }
 
         $result = $this->getDatabase($accountId)->query($sql, $params);
-        
+
         if ($result->rowCount()) {
             $row = $result->fetch();
 
@@ -228,7 +228,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      *
      * @param Partner $partner The partner to delete
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      * @return bool true on success, false on failure
      */
     public function deletePartner(Partner $partner, string $accountId): bool
@@ -362,8 +362,8 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         int $collType,
         string $lastCommitId,
         string $newCommitId
-    ) {        
-        return $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [            
+    ) {
+        return $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [
             'account_id' => $accountId,
             'collection_type' => $collType,
             'last_commit_id' => $lastCommitId,
@@ -388,7 +388,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         string $uniqueId,
         int $commitId = null
     ) {
-        return $this->workerService->doWorkBackground(EntitySyncLogExportedWorker::class, [            
+        return $this->workerService->doWorkBackground(EntitySyncLogExportedWorker::class, [
             'account_id' => $accountId,
             'collection_id' => $collectionId,
             'collection_type' => $collType,
@@ -415,7 +415,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
         string $localId = null,
         int $localRevision = null
     ) {
-        return $this->workerService->doWorkBackground(EntitySyncLogImportedWorker::class, [            
+        return $this->workerService->doWorkBackground(EntitySyncLogImportedWorker::class, [
             'account_id' => $accountId,
             'collection_id' => $collectionId,
             'unique_id' => $remoteId,

@@ -50,7 +50,7 @@ class ActivityTest extends TestCase
     }
 
     public function testOnBeforeSave()
-    {        
+    {
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY, $this->account->getAccountId());
 
         // onBeforeSave copies obj_reference to the 'associations' field

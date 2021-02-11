@@ -66,7 +66,7 @@ class ModuleController extends AbstractFactoriedController implements Controller
 
     /**
      * Get the definition of an account
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -96,7 +96,7 @@ class ModuleController extends AbstractFactoriedController implements Controller
 
     /**
      * PUT pass-through for save
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -107,7 +107,7 @@ class ModuleController extends AbstractFactoriedController implements Controller
 
     /**
      * Save the module
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -149,7 +149,7 @@ class ModuleController extends AbstractFactoriedController implements Controller
         $module->setDirty(true);
 
         if ($this->moduleService->save($module, $currentAccount->getAccountId())) {
-            // Return the saved module            
+            // Return the saved module
             $response->write($module->toArray());
             return $response;
         }
@@ -161,7 +161,7 @@ class ModuleController extends AbstractFactoriedController implements Controller
 
     /**
      * PUT pass-through for delete
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -172,14 +172,14 @@ class ModuleController extends AbstractFactoriedController implements Controller
 
     /**
      * Delete the module
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
     public function postDeleteAction(HttpRequest $request): HttpResponse
     {
         $response = new HttpResponse($request);
-        $moduleId = $request->getParam("id");        
+        $moduleId = $request->getParam("id");
 
         // Check if the request was sent as a json object
         $rawBody = $request->getBody();
@@ -217,7 +217,7 @@ class ModuleController extends AbstractFactoriedController implements Controller
 
     /**
      * Get the available module of an account
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -232,7 +232,7 @@ class ModuleController extends AbstractFactoriedController implements Controller
             $response->write(["error" => "Account authentication error."]);
             return $response;
         }
-        
+
         // Get the available modules for the current user
         $userModules = $this->moduleService->getForUser($currentAccount->getAuthenticatedUser());
 

@@ -18,7 +18,7 @@ use Netric\Mvc\Exception\NotAuthorizedForRouteException;
  * Only define index specific tests here and try to avoid name collision with the tests
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
- * 
+ *
  * @group integration
  */
 class RouterTest extends TestCase

@@ -53,8 +53,7 @@ class EntityDefinitionPostSaveWorker extends AbstractWorker
      */
     private function validWorkload(array $workload): bool
     {
-        if (
-            empty($workload['entity_definition_id']) ||
+        if (empty($workload['entity_definition_id']) ||
             empty($workload['account_id']) ||
             empty($workload['obj_type'])
         ) {

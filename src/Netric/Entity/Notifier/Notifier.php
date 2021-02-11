@@ -149,8 +149,7 @@ class Notifier
              * We also do not want to send notifications to users if the system does
              * something like adding a new email.
              */
-            if (
-                $followerEntity->getEntityId() != $user->getEntityId() &&
+            if ($followerEntity->getEntityId() != $user->getEntityId() &&
                 !$user->isSystem() &&
                 !$user->isAnonymous() &&
                 !$followerEntity->isSystem()

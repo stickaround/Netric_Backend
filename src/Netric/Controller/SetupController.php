@@ -111,7 +111,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
 
     /**
      * Install netric by initializing the application db and default account
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return ConsoleResponse
      */
@@ -120,8 +120,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $response = new ConsoleResponse();
 
         // First make sure they passed the username and password params to the command
-        if (
-            !$request->getParam("account") ||
+        if (!$request->getParam("account") ||
             !$request->getParam("email") ||
             !$request->getParam("username") ||
             !$request->getParam("password")
@@ -138,7 +137,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
 
         // TODO: Find out a way to determine if netric is already installed
 
-        // Create the database and update the schema        
+        // Create the database and update the schema
         $this->dbSetup->updateDatabaseSchema();
 
         // Create account
@@ -164,7 +163,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
 
     /**
      * Update account(s) and application to latest version
-     * 
+     *
      * @return ConsoleResponse
      */
     public function consoleUpdateAction(): ConsoleResponse
@@ -210,7 +209,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
 
     /**
      * Run a specific script
-     * 
+     *
      * @param ConsoleRequest $request Request object for this run
      * @return ConsoleResponse
      */
@@ -283,7 +282,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $accountName = isset($params['account_name']) ? $params['account_name'] : '';
         $accountName = $this->accountSetup->getUniqueAccountName($accountName);
 
-        // Create the account        
+        // Create the account
         $createdAccount = $this->application->createAccount(
             $accountName,
             $params['username'],

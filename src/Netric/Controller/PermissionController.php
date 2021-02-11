@@ -61,7 +61,7 @@ class PermissionController extends AbstractFactoriedController implements Contro
      * @param AuthenticationService $authService Service used to get the current user/account
      * @param EntityLoader $this->entityLoader Handles the loading and saving of entities
      * @param EntityDefinitionLoader $entityDefinitionLoader Handles the loading and saving of entity definition
-     * @param GroupingLoader $this->groupingLoader Handles the loading and saving of groupings     
+     * @param GroupingLoader $this->groupingLoader Handles the loading and saving of groupings
      * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions
      */
     public function __construct(
@@ -69,14 +69,14 @@ class PermissionController extends AbstractFactoriedController implements Contro
         AuthenticationService $authService,
         EntityLoader $entityLoader,
         EntityDefinitionLoader $entityDefinitionLoader,
-        GroupingLoader $groupingLoader,        
+        GroupingLoader $groupingLoader,
         DaclLoader $daclLoader
     ) {
         $this->accountContainer = $accountContainer;
         $this->authService = $authService;
         $this->entityLoader = $entityLoader;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
-        $this->groupingLoader = $groupingLoader;        
+        $this->groupingLoader = $groupingLoader;
         $this->daclLoader = $daclLoader;
     }
 
@@ -161,7 +161,7 @@ class PermissionController extends AbstractFactoriedController implements Contro
 
     /**
      * Save the Dacl Entries
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -205,7 +205,7 @@ class PermissionController extends AbstractFactoriedController implements Contro
                 $this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser());
                 $response->write($dacl->toArray());
                 return $response;
-            } catch (RuntimeException $ex) {            
+            } catch (RuntimeException $ex) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                 $response->write(["error" => "Error saving: " . $ex->getMessage()]);
                 return $response;
@@ -216,7 +216,7 @@ class PermissionController extends AbstractFactoriedController implements Contro
         $dacl = $this->daclLoader->getForEntityDefinition($def);
         $dacl->fromArray($objData);
         $def->setDacl($dacl);
-        
+
         $response->write($dacl->toArray());
         return $response;
     }

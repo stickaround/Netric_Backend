@@ -42,7 +42,7 @@ class HealthController extends AbstractFactoriedController implements Controller
 
     /**
      * For public ping of the server
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
@@ -55,7 +55,7 @@ class HealthController extends AbstractFactoriedController implements Controller
 
     /**
      * For console requests
-     * 
+     *
      * @return ConsoleResponse
      */
     public function consoleTestAction(): ConsoleResponse
@@ -80,7 +80,7 @@ class HealthController extends AbstractFactoriedController implements Controller
 
     /**
      * Check to see if dependencies are online
-     * 
+     *
      * @return ConsoleResponse
      */
     public function consoleTestDependenciesAction(): ConsoleResponse

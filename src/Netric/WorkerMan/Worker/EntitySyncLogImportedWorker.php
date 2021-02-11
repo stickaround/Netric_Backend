@@ -48,22 +48,22 @@ class EntitySyncLogImportedWorker extends AbstractWorker
         ];
 
         if (isset($workload["object_id"])) {
-          $syncData = [
+            $syncData = [
               "object_id" => $workload["object_id"],
-              "revision" => isset($workload["revision"]) ? $workload["revision"] :  null,
-              "remote_revision" => isset($workload["remote_revision"]) ? $workload["remote_revision"] :  null
-          ];
+              "revision" => isset($workload["revision"]) ? $workload["revision"] : null,
+              "remote_revision" => isset($workload["remote_revision"]) ? $workload["remote_revision"] : null
+            ];
 
-          $sql = "SELECT unique_id FROM entity_sync_import
+            $sql = "SELECT unique_id FROM entity_sync_import
                   WHERE collection_id=:collection_id AND unique_id=:unique_id";
 
-          $result = $database->query($sql, $whereData);
+            $result = $database->query($sql, $whereData);
 
-          if ($result->rowCount()) {
-              $database->update("entity_sync_import", $syncData, $whereData);
-          } else {
-              $database->insert("entity_sync_import", array_merge($syncData, $whereData));
-          }
+            if ($result->rowCount()) {
+                $database->update("entity_sync_import", $syncData, $whereData);
+            } else {
+                $database->insert("entity_sync_import", array_merge($syncData, $whereData));
+            }
         } else {
             /*
             * If we have no localId then that means the import is no longer part of the local store
@@ -83,8 +83,7 @@ class EntitySyncLogImportedWorker extends AbstractWorker
      */
     private function validWorkload(array $workload): bool
     {
-        if (
-            empty($workload['collection_id']) ||
+        if (empty($workload['collection_id']) ||
             empty($workload['unique_id']) ||
             empty($workload['account_id'])
         ) {

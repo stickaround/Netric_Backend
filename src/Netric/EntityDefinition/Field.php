@@ -377,7 +377,7 @@ class Field implements \ArrayAccess
         // Convert values
         switch ($this->type) {
             case self::TYPE_NUMBER:
-            case self::TYPE_DATE:                
+            case self::TYPE_DATE:
             case self::TYPE_TIME:
             case self::TYPE_TIMESTAMP:
                 if ("now" == $ret) {

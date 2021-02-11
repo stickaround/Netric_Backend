@@ -15,7 +15,7 @@ interface EntityDefinitionDataMapperInterface
      *
      * @param string $objType The name of the object type
      * @param string $accountId The account that owns the entity definition
-     * 
+     *
      * @return EntityDefinition
      */
     public function fetchByName(string $objType, string $accountId);
@@ -25,7 +25,7 @@ interface EntityDefinitionDataMapperInterface
      *
      * @param string $definitionTypeId Object type of the defintion
      * @param string $accountId The account that owns the entity definition
-     * 
+     *
      * @return EntityDefinition
      */
     public function fetchById(string $definitionTypeId, string $accountId): ?EntityDefinition;
@@ -72,7 +72,7 @@ interface EntityDefinitionDataMapperInterface
      *
      * @param string $objType The name of the object type
      * @param string $accountId The account that owns the entity definition
-     * 
+     *
      * @return bool true on success, false on failure
      */
     public function deleteByName(string $objType, string $accountId);
@@ -86,7 +86,7 @@ interface EntityDefinitionDataMapperInterface
 
     /**
      * Get all the entity object types
-     * 
+     *
      * @param string $accountId The account that owns the entity definition
      * @return array Collection of objects
      */

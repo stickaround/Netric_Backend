@@ -81,13 +81,13 @@ class AccountUpdaterTest extends TestCase
             "test@test.com",
             "password"
         );
-        
+
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
 
         // Run test updates in TestAssets/UpdateScripts which should result in 1.1.1
         $settings->set("system/schema_version", "0.0.0", $account->getAccountId());
         $accountUpdater = $account->getServiceManager()->get(AccountUpdaterFactory::class);
-        $accountUpdater->setScriptsRootPath(__DIR__ . "/TestAssets/UpdateScripts");        
+        $accountUpdater->setScriptsRootPath(__DIR__ . "/TestAssets/UpdateScripts");
         $accountUpdater->runOnceUpdates($account);
 
         // Make sure it all ran

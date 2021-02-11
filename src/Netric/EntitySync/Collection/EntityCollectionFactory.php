@@ -22,7 +22,7 @@ class EntityCollectionFactory implements ApplicationServiceFactoryInterface
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
-    {        
+    {
         $commitManager = $serviceLocator->get(CommitManagerFactory::class);
         $index = $serviceLocator->get(IndexFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);

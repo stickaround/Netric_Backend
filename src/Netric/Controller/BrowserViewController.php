@@ -91,7 +91,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Account authentication error."]);
             return $response;
@@ -140,7 +140,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Account authentication error."]);
             return $response;
@@ -149,13 +149,13 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
         $view = new BrowserView();
         $view->fromArray($objData);
 
-        if (!$view->getId()) {            
+        if (!$view->getId()) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Browser View should be saved first before setting as the default view."]);
             return $response;
         }
 
-        $this->browserViewService->setDefaultViewForUser($view->getObjType(), $currentAccount->getAuthenticatedUser(), $view->getId());        
+        $this->browserViewService->setDefaultViewForUser($view->getObjType(), $currentAccount->getAuthenticatedUser(), $view->getId());
         $response->write($view->getId());
         return $response;
     }
@@ -176,7 +176,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
-        if (!isset($objData['id'])) {            
+        if (!isset($objData['id'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "id is a required param."]);
             return $response;
@@ -184,7 +184,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Account authentication error."]);
             return $response;
@@ -194,7 +194,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
         $view->fromArray($objData);
 
         if ($this->browserViewService->deleteView($view)) {
-            // Return true since we have successfully deleted the browser view            
+            // Return true since we have successfully deleted the browser view
             $response->write(true);
             return $response;
         } else {

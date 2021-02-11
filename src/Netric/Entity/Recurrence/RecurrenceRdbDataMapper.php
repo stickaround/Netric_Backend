@@ -46,8 +46,8 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
     /**
      * Class constructor to set up dependencies
      *
-     * @param RelationalDbContainer $database Handles the database actions     
-     * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition     
+     * @param RelationalDbContainer $database Handles the database actions
+     * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
      */
     public function __construct(
         RelationalDbContainer $dbContainer,
@@ -78,7 +78,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      *
      * @param RecurrencePattern $recurPattern The recurrence pattern we are going to save
      * @param string $useId We can reserve an ID to use when creating a new instace via getNextId()
-     * 
+     *
      * @return string Unique id of the pattern on success or null on failure this $this->lastError set
      * @throws \InvalidArgumentException in the instance that the pattern is not valid
      * @throws \RuntimeException if saving failed for some reason
@@ -211,7 +211,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      *
      * @param string $recurId The unique id of the pattern to load
      * @param string $accountId Unique id of the account that this pattern belongs to
-     * 
+     *
      * @return RecurrencePattern
      * @throws \InvalidArgumentException if the id passed is not a valid number
      */
@@ -298,7 +298,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      * @param string $recurrenceId The id of the recurrence that we will be updating
      * @param string $entityId The id of the entity that we will set as parent object id
      * @param string $accountId Unique id of the account that this pattern belongs to
-     * 
+     *
      * @return bool
      */
     public function updateParentEntityId(string $recurrenceId, string $entityId, string $accountId)
@@ -339,7 +339,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      *
      * @param string $recurId The unique id of the recurring pattern to delete
      * @param string $accountId Unique id of the account that this pattern belongs to
-     * 
+     *
      * @return bool true on success, false on failure
      */
     public function deleteById(string $recurId, string $accountId)
@@ -372,7 +372,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      * @param string $objType The object type to select patterns for
      * @param \DateTime $dateTo The date to indicate if a pattern is stale
      * @param string $accountId Unique id of the account that this pattern belongs to
-     * 
+     *
      * @return array of IDs of stale patterns
      */
     public function getStalePatternIds(string $objType, \DateTime $dateTo, string $accountId)

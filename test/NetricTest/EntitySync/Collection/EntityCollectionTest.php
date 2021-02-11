@@ -155,7 +155,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         // Get all exported which will cause the customer to be logged
         while (count($stats = $collection->getExportChanged())) {
         }
-        
+
         // Fast-forward past the created customer
         $collection->fastForwardToHead();
         $stats = $collection->getExportChanged();

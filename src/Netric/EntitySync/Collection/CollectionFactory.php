@@ -43,7 +43,7 @@ class CollectionFactory implements CollectionFactoryInterface
 
     /**
      * Factory for creating collections and injecting all dependencies
-     * 
+     *
      * @param string $accountId The account that owns the collection
      * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
      * @param array $data Optional data to initialize into the collection
@@ -51,9 +51,9 @@ class CollectionFactory implements CollectionFactoryInterface
      * @throws \Exception if an unsupported collection type is added
      */
     public function create(string $accountId, int $type, array $data = null)
-    {        
+    {
         $collection = null;
-        
+
         switch ($type) {
             case EntitySync::COLL_TYPE_ENTITY:
                 $collection = $this->serviceLocator->get(EntityCollectionFactory::class);

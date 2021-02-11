@@ -67,8 +67,7 @@ class EntitySyncSetExportedStaleWorker extends AbstractWorker
      */
     private function validWorkload(array $workload): bool
     {
-        if (
-            empty($workload['account_id']) ||
+        if (empty($workload['account_id']) ||
             empty($workload['collection_type']) ||
             empty($workload['last_commit_id']) ||
             empty($workload['new_commit_id'])

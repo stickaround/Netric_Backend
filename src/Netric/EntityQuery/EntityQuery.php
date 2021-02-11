@@ -29,9 +29,9 @@ class EntityQuery
     private string $accountId = "";
 
     /**
-     * Optional. The unique id of the user that is executing this entity query. 
-     * If provided, this will be used to sanitize current user in condition value 
-     * 
+     * Optional. The unique id of the user that is executing this entity query.
+     * If provided, this will be used to sanitize current user in condition value
+     *
      * @var string
      */
     private string $userId = "";
@@ -158,7 +158,7 @@ class EntityQuery
 
     /**
      * Get the userId that is executing the entity query
-     * 
+     *
      * @return string Unique ID of the user executing this query
      */
     public function getUserId(): string

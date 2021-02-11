@@ -29,12 +29,12 @@ class EntityControllerFactory implements ControllerFactoryInterface
     {
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         $authService = $serviceLocator->get(AuthenticationServiceFactory::class);
-        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);        
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
-        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);        
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $browserViewService = $serviceLocator->get(BrowserViewServiceFactory::class);
-        $forms = $serviceLocator->get(FormsFactory::class);        
-        $daclLoader = $serviceLocator->get(DaclLoaderFactory::class);        
+        $forms = $serviceLocator->get(FormsFactory::class);
+        $daclLoader = $serviceLocator->get(DaclLoaderFactory::class);
 
         return new EntityController(
             $accountContainer,
@@ -43,7 +43,7 @@ class EntityControllerFactory implements ControllerFactoryInterface
             $entityDefinitionLoader,
             $groupingLoader,
             $browserViewService,
-            $forms,            
+            $forms,
             $daclLoader
         );
     }

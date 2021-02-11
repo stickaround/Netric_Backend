@@ -60,7 +60,7 @@ class EntityFactory
             $entity->setValue('account_id', $accountId);
             return $entity;
         }
-        
+
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
         // TODO: if !$def then throw an exception

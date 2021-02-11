@@ -47,7 +47,7 @@ class EntityValueSanitizer
 
     /**
      * This will be used to load the account using accountId
-     * 
+     *
      * @var AccountContainer $accountContainer
      */
     private $accountContainer = null;
@@ -93,7 +93,7 @@ class EntityValueSanitizer
         if (!$this->account instanceof Account) {
             throw new RuntimeException("Invalid account set for this sanitizer!");
         }
-        
+
         $entityDef = $this->definitionLoader->get($query->getObjType(), $this->account->getAccountId());
 
         // Get the query conditions
@@ -107,11 +107,11 @@ class EntityValueSanitizer
 
             // Get the Field Definition using the field name provided in the $condition
             $field = $entityDef->getField($fieldName);
-            
+
             switch ($field->type) {
                 case Field::TYPE_BOOL:
                     $condition->value = "false";
-                    
+
                     if (in_array($value, [true, 1, "yes", "t"])) {
                         $condition->value = "true";
                     }
@@ -128,7 +128,7 @@ class EntityValueSanitizer
 
                     $sanitizedConditions[] = $condition;
                     break;
-                
+
                 case Field::TYPE_OBJECT:
                 case Field::TYPE_OBJECT_MULTI:
                 case Field::TYPE_GROUPING:
@@ -143,7 +143,7 @@ class EntityValueSanitizer
                         $this->sanitizeFieldValue($field, $value);
                         $condition->value = $value;
                     }
-                    
+
                     $sanitizedConditions[] = $condition;
                     break;
                 default:
@@ -161,7 +161,8 @@ class EntityValueSanitizer
      * @param Entity $entity The entity to sanitize
      * @return array Sanitized entity values
      */
-    public function sanitizeEntity(Entity $entity) {
+    public function sanitizeEntity(Entity $entity)
+    {
         // Make sure that an Entity is set
         if (!$entity instanceof Entity) {
             throw new RuntimeException("The object being sanitized is not an Entity!");
@@ -186,9 +187,9 @@ class EntityValueSanitizer
 
             switch ($field->type) {
                 case Field::TYPE_BOOL:
-                    if ($value === "t") {                       
+                    if ($value === "t") {
                         $fieldData[$field->name] = true;
-                    } else if ($value === "f") {
+                    } elseif ($value === "f") {
                         $fieldData[$field->name] = false;
                     } else {
                         $fieldData[$field->name] = $value;
@@ -197,7 +198,7 @@ class EntityValueSanitizer
 
                 case Field::TYPE_DATE:
                 case Field::TYPE_TIMESTAMP:
-                    if ($value && $value instanceof DateTime) {                        
+                    if ($value && $value instanceof DateTime) {
                         $fieldData[$field->name] = strtotime($value);
                     } else {
                         $fieldData[$field->name] = $value;
@@ -242,7 +243,7 @@ class EntityValueSanitizer
 
         // If the value is not an array then we do not need to proceed
         if (!is_array($multiValue)) {
-             return;               
+             return;
         }
 
         foreach ($multiValue as $index => $value) {
@@ -255,17 +256,17 @@ class EntityValueSanitizer
                         // We need to unset the old value name since we just added a new index for the current user
                         unset($multiValueNames[$value]);
                     }
-                    break; 
-    
+                    break;
+
                 case UserEntity::GROUP_USERS:
                 case UserEntity::GROUP_EVERYONE:
                 case UserEntity::GROUP_CREATOROWNER:
                 case UserEntity::GROUP_ADMINISTRATORS:
                     // Make sure default groups are set correctly
                     $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
-    
+
                     // Get the group based on the field value
-                    $group = $userGroups->getByName($value);                    
+                    $group = $userGroups->getByName($value);
                     $multiValue[$index] = $group->getGroupId();
                     $multiValueNames[$group->getGroupId()] = $group->getName();
 
@@ -283,17 +284,17 @@ class EntityValueSanitizer
      * @return void
      */
     private function sanitizeFieldValue(Field $field, &$value, &$valueName = "")
-    {   
+    {
         switch ($value) {
             case UserEntity::USER_CURRENT:
                 if ($field->subtype == ObjectTypes::USER) {
                     // Get the current user
                     $currentUser = $this->account->getAuthenticatedUser();
-                    
+
                     $value = $currentUser->getEntityId();
                     $valueName = $currentUser->getName();
                 }
-                break; 
+                break;
 
             case UserEntity::GROUP_USERS:
             case UserEntity::GROUP_EVERYONE:
@@ -305,7 +306,7 @@ class EntityValueSanitizer
                 // Get the group based on the field value
                 $group = $userGroups->getByName($value);
                 $value = $group->getGroupId();
-                $valueName = $group->getName();                
+                $valueName = $group->getName();
                 break;
         }
     }

@@ -59,7 +59,7 @@ class JsonWebTokenTest extends TestCase
         $token = new JsonWebToken(self::TEST_PRIVATE_KEY, "");
         $encodedToken = $token->createToken($this->mockUserEntity);
 
-        $token = new JsonWebToken(self::TEST_PRIVATE_KEY,  $encodedToken);
+        $token = new JsonWebToken(self::TEST_PRIVATE_KEY, $encodedToken);
         $this->assertTrue($token->tokenIsValid());
     }
 

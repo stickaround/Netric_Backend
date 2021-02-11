@@ -91,8 +91,7 @@ class AccountUpdater extends AbstractHasErrors
             $updated = true;
         } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor > $this->version->minor) {
             $updated = true;
-        } elseif (
-            $this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
+        } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
             && $this->updatedToVersion->point > $this->version->point
         ) {
             $updated = true;
@@ -112,7 +111,7 @@ class AccountUpdater extends AbstractHasErrors
      * Set the current account to whatever the latest version is
      * so that new accounts do not need to re-run all the updates.
      * That should not hurt anything, but it is a waste of time.
-     * 
+     *
      * @param Account $account Account we are updating
      */
     public function setCurrentAccountToLatestVersion(Account $account)

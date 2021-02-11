@@ -59,7 +59,7 @@ class RecurrenceIdentityMapper
      *
      * @param id $id The unique id of the pattern to load
      * @param string $accountId The accountId of the pattern we are going to load
-     * 
+     *
      * @return RecurrencePattern
      */
     public function getById($id, string $accountId)
@@ -157,7 +157,7 @@ class RecurrenceIdentityMapper
      * @param string $objType The object type to select patterns for
      * @param \DateTime $dateTo The date to indicate if a pattern is stale
      * @param string $accountId Unique id of the account that this pattern belongs to
-     * 
+     *
      * @return array RecurrencePattern[]
      */
     public function getStalePatterns(string $objType, \DateTime $dateTo, string $accountId)

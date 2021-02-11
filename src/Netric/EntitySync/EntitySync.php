@@ -50,7 +50,7 @@ class EntitySync
      *
      * @param string $devid The device id to query stats for
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      * @throws \Exception if no partner id is defined
      * @return Partner
      */
@@ -79,7 +79,7 @@ class EntitySync
      * @param string $pid The unique partner id
      * @param string $ownerId The unique id of the owning user
      * @param string $accountId The account that owns the Partner that we are about to save
-     * 
+     *
      * @return Partner
      */
     public function createPartner(string $pid, string $ownerId, string $accountId)
@@ -107,7 +107,7 @@ class EntitySync
      *
      * @param Partner $partner The partner to delete
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      */
     public function deletePartner(Partner $partner, string $accountId)
     {

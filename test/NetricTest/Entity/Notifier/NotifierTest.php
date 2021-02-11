@@ -313,7 +313,7 @@ class NotifierTest extends TestCase
         $currentSortOrder = $task->getValue("sort_order");
 
         // Now update the sort_order value
-        $task->setValue("sort_order", $currentSortOrder+1);
+        $task->setValue("sort_order", $currentSortOrder + 1);
         $this->entityLoader->save($task, $this->account->getSystemUser());
         $this->assertNotEquals($task->getValue("sort_order"), $currentSortOrder);
 

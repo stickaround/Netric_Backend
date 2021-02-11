@@ -50,7 +50,7 @@ class EntityValueSanitizerTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $this->entityValueSanitizer = $this->account->getServiceManager()->get(EntityValueSanitizerFactory::class);        
+        $this->entityValueSanitizer = $this->account->getServiceManager()->get(EntityValueSanitizerFactory::class);
     }
 
     /**
@@ -60,14 +60,14 @@ class EntityValueSanitizerTest extends TestCase
     {
         $dateStr = strtotime("January 01, 2020");
         $currentUser = $this->account->getAuthenticatedUser();
-        
+
         $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId());
         $query->where('name')->equals("Test Query");
         $query->where('date_deadline')->equals(date("Y-m-d", $dateStr));
         $query->where('members')->equals(UserEntity::USER_CURRENT);
-                
+
         $ret = $this->entityValueSanitizer->sanitizeQuery($query);
-        
+
         // There should be no changes in value since this is just a regular text
         $this->assertEquals($ret[0]->value, "Test Query");
 
@@ -79,15 +79,15 @@ class EntityValueSanitizerTest extends TestCase
      * Entity Sanitizer should be able to sanitize entity query grouping conditions
      */
     public function testSanitizeEntityQueryGroupingField()
-    {   
+    {
         $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where('groups')->equals(UserEntity::GROUP_USERS);
         $ret = $this->entityValueSanitizer->sanitizeQuery($query);
-        
+
         $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
         $userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups', $this->account->getAccountId());
         $usersGroup = $userGroups->getByName(UserEntity::GROUP_USERS);
-        
+
         $this->assertEquals($ret[0]->value, $usersGroup->getGroupId());
     }
 
@@ -95,15 +95,15 @@ class EntityValueSanitizerTest extends TestCase
      * Entity Sanitizer should be able to sanitize entity query boolean conditions
      */
     public function testSanitizeEntityQueryBooleanConditions()
-    {        
+    {
         $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
         $query->where('done')->equals(true);
-        $ret = $this->entityValueSanitizer->sanitizeQuery($query);        
+        $ret = $this->entityValueSanitizer->sanitizeQuery($query);
         $this->assertEquals($ret[0]->value, "true");
 
         $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
         $query->where('done')->equals(false);
-        $ret = $this->entityValueSanitizer->sanitizeQuery($query);        
+        $ret = $this->entityValueSanitizer->sanitizeQuery($query);
         $this->assertEquals($ret[0]->value, "false");
     }
 
@@ -134,11 +134,11 @@ class EntityValueSanitizerTest extends TestCase
     {
         $dateStr = strtotime("January 01, 2020");
         $dateWithTimeStr = strtotime("10:30pm January 01, 2020");
-        
+
         // Create a test task
-        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());        
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("deadline", date("Y-m-d", $dateStr));
-        $task->setValue("date_entered", date("Y-m-d h:i:sa", $dateWithTimeStr));        
+        $task->setValue("date_entered", date("Y-m-d h:i:sa", $dateWithTimeStr));
 
         // Test the sanitizing of date fields
         $ret = $this->entityValueSanitizer->sanitizeEntity($task);
@@ -155,7 +155,7 @@ class EntityValueSanitizerTest extends TestCase
         $currentUser = $this->account->getAuthenticatedUser();
 
         // Create a test task
-        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());        
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->setValue("owner_id", UserEntity::USER_CURRENT, 'current.user');
 
         // Test the sanitizing of object values
@@ -178,7 +178,7 @@ class EntityValueSanitizerTest extends TestCase
         $project->addMultiValue("members", 21231313131, 'test member1');
         $project->addMultiValue("members", 555555, 'test member5');
 
-        // Test the sanitizing of object multi values        
+        // Test the sanitizing of object multi values
         $ret = $this->entityValueSanitizer->sanitizeEntity($project);
 
         $this->assertContains($currentUser->getEntityId(), $ret["members"], "testSanitizeFieldObjectMultiValues did not sanitize the current user") ;
@@ -191,7 +191,7 @@ class EntityValueSanitizerTest extends TestCase
     public function testSanitizeFieldGroupingMultiValues()
     {
         // Create a test user
-        $user = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());        
+        $user = $this->entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
         $user->addMultiValue("groups", UserEntity::GROUP_USERS, 'group.users');
         $user->addMultiValue("groups", UserEntity::GROUP_EVERYONE, 'group.everyone');
         $user->addMultiValue("groups", UserEntity::GROUP_CREATOROWNER, 'group.creatorowner');
@@ -214,7 +214,7 @@ class EntityValueSanitizerTest extends TestCase
         $this->assertContains($everyoneGroup->getGroupId(), $ret["groups"]);
         $this->assertContains($creatorOwnerGroup->getGroupId(), $ret["groups"]);
         $this->assertContains($administratorsGroup->getGroupId(), $ret["groups"]);
-        
+
         // Test the value names
         $this->assertEquals($ret["groups_fval"][$usersGroup->getGroupId()], $usersGroup->getName());
         $this->assertEquals($ret["groups_fval"][$everyoneGroup->getGroupId()], $everyoneGroup->getName());

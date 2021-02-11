@@ -117,7 +117,7 @@ class ChargeResponse
 
     /**
      * Get a textual representation of all the messages in this response
-     * 
+     *
      * @return string
      */
     public function getMessagesText(): string
@@ -125,8 +125,8 @@ class ChargeResponse
         $plainText = "";
         $messages = $this->getMessages();
         foreach ($messages as $message) {
-            $plainText .= $message->getCode() 
-                        . ':' 
+            $plainText .= $message->getCode()
+                        . ':'
                         . $message->getDescription()
                         . "\n";
         }

@@ -68,13 +68,13 @@ class AuthenticationController extends AbstractFactoriedController implements Co
 
     /**
      * Authenticate a new user
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */
     public function getAuthenticateAction(HttpRequest $request): HttpResponse
-    {        
-        $response = new HttpResponse($request);        
+    {
+        $response = new HttpResponse($request);
         $username = $request->getParam("username");
         $password = $request->getParam("password");
         $account = $request->getParam("account");
@@ -88,7 +88,7 @@ class AuthenticationController extends AbstractFactoriedController implements Co
             $account = $body['account'];
         }
 
-        if (!$username || !$password || !$account) {            
+        if (!$username || !$password || !$account) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(
                 [
@@ -99,7 +99,7 @@ class AuthenticationController extends AbstractFactoriedController implements Co
             return $response;
         }
 
-        // Authenticate the credentials        
+        // Authenticate the credentials
         $sessionStr = $this->authService->authenticate($username, $password, $account);
 
         // Assume failure
@@ -124,7 +124,7 @@ class AuthenticationController extends AbstractFactoriedController implements Co
                 "account_id" => $identity->getAccountId(),
             ];
         }
-        
+
         $response->write($ret);
         return $response;
     }
@@ -139,7 +139,7 @@ class AuthenticationController extends AbstractFactoriedController implements Co
 
     /**
      * Clear an identity and log out
-     * 
+     *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
      */

@@ -85,7 +85,7 @@ class WorkersController extends AbstractFactoriedController implements Controlle
      * Options:
      *  --deamon = 1 If set then we will not print any output
      *  --runtime = [seconds] The number of seconds to run before returning
-     * 
+     *
      * @param ConsoleRequest $request Request object for this run
      * @return ConsoleResponse
      */
@@ -144,7 +144,7 @@ class WorkersController extends AbstractFactoriedController implements Controlle
 
     /**
      * Action for scheduling workers
-     * 
+     *
      * @param ConsoleRequest $request Request object for this run
      * @return ConsoleResponse
      */
@@ -152,7 +152,7 @@ class WorkersController extends AbstractFactoriedController implements Controlle
     {
         $config = $this->application->getConfig();
         $response = new ConsoleResponse($this->log);
-        
+
         /*
          * Check if we are suppressing output of the response.
          * This is most often used in unit tests

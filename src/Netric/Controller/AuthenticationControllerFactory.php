@@ -22,7 +22,7 @@ class AuthenticationControllerFactory implements ControllerFactoryInterface
     public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
     {
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
-        $authService = $serviceLocator->get(AuthenticationServiceFactory::class);        
+        $authService = $serviceLocator->get(AuthenticationServiceFactory::class);
         $application = $serviceLocator->getApplication();
 
         return new AuthenticationController(

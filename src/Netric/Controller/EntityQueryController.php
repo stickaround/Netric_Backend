@@ -43,18 +43,18 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
      * Initialize controller and all dependencies
      *
      * @param AccountContainerInterface $accountContainer Container used to load accounts
-     * @param AuthenticationService $authService Service used to get the current user/account     
+     * @param AuthenticationService $authService Service used to get the current user/account
      * @param DaclLoader $this->daclLoader Handles the loading and saving of dacl permissions
      * @param IndexInterface $entityIndex Index to query entities
      */
     public function __construct(
         AccountContainerInterface $accountContainer,
-        AuthenticationService $authService,        
+        AuthenticationService $authService,
         DaclLoader $daclLoader,
-        IndexInterface $entityIndex     
+        IndexInterface $entityIndex
     ) {
         $this->accountContainer = $accountContainer;
-        $this->authService = $authService;        
+        $this->authService = $authService;
         $this->daclLoader = $daclLoader;
         $this->entityIndex = $entityIndex;
     }
@@ -94,7 +94,7 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['obj_type'])) {            
+        if (!isset($objData['obj_type'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "obj_type is a required param."]);
             return $response;
@@ -102,14 +102,14 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
 
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {            
+        if (!$currentAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => "Account authentication error."]);
             return $response;
         }
 
         $currentUser = $currentAccount->getAuthenticatedUser();
-        $accountId = $currentAccount->getAccountId();        
+        $accountId = $currentAccount->getAccountId();
         $query = new EntityQuery($objData["obj_type"], $accountId, $currentUser->getEntityId());
         $query->fromArray($objData);
 
@@ -125,7 +125,7 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
 
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => $ex->getMessage(), "query_ran" => $query->toArray()]);
-            return $response;            
+            return $response;
         }
 
         // Pagination
@@ -146,7 +146,7 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
             // Always reset $entityData when loading the next entity
             $entityData = [];
 
-            // Export the entity to array if the current user has access to view this entity            
+            // Export the entity to array if the current user has access to view this entity
             if ($currentUserPermissions["view"]) {
                 $entityData = $ent->toArray();
                 $entityData["applied_dacl"] = $dacl->toArray();

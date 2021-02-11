@@ -106,7 +106,7 @@ interface DataMapperInterface
 
     /**
      * Update an existing account
-     * 
+     *
      * @param string $accountId Unique id of the account that we are updating
      * @param array $accountData The data that will be used for updating an account
      * @return bool true on success, false on failure

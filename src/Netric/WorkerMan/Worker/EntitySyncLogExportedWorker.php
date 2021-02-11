@@ -79,8 +79,7 @@ class EntitySyncLogExportedWorker extends AbstractWorker
      */
     private function validWorkload(array $workload): bool
     {
-        if (
-            empty($workload['collection_id']) ||
+        if (empty($workload['collection_id']) ||
             empty($workload['collection_type']) ||
             empty($workload['unique_id']) ||
             empty($workload['account_id'])

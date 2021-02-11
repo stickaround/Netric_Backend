@@ -95,7 +95,8 @@ class FileTest extends TestCase
         $file = $loader->create(ObjectTypes::FILE, $this->account->getAccountId());
         $file->setValue("name", "test.txt");
         $this->entityDataMapper->save($file, $this->account->getAuthenticatedUser());
-        $this->testFiles[] = $file;;
+        $this->testFiles[] = $file;
+        ;
 
         // Write data to the file
         $fileStore->writeFile($file, "my test data", $this->user);

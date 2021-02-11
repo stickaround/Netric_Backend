@@ -27,9 +27,9 @@ class AccountControllerFactory implements ControllerFactoryInterface
     {
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         $authService = $serviceLocator->get(AuthenticationServiceFactory::class);
-        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);        
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $moduleService = $serviceLocator->get(ModuleServiceFactory::class);
-        $accountBillingService = $serviceLocator->get(AccountBillingServiceFactory::class);        
+        $accountBillingService = $serviceLocator->get(AccountBillingServiceFactory::class);
 
         return new AccountController(
             $accountContainer,

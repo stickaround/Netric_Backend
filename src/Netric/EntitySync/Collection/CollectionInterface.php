@@ -27,7 +27,7 @@ interface CollectionInterface
 
     /**
      * Get a stats list of what has changed locally since the last sync
-     *     
+     *
      * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
      * @param DateTime $limitUpdatesAfter If set, only pull updates after a specific date
      * @return array of associative array [
@@ -38,7 +38,7 @@ interface CollectionInterface
      *      ]
      *  ]
      */
-    public function getExportChanged(        
+    public function getExportChanged(
         $autoFastForward = true,
         DateTime $limitUpdatesAfter = null
     );
@@ -115,7 +115,7 @@ interface CollectionInterface
 
     /**
      * Log an imported object
-     *     
+     *
      * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
      * @param string $localId If imported to a local object then record the id, if null the delete
@@ -123,7 +123,7 @@ interface CollectionInterface
      * @return bool true if imported false if failure
      * @throws \InvalidArgumentException
      */
-    public function logImported(        
+    public function logImported(
         string $remoteId,
         int $remoteRevision = null,
         string $localId = null,
@@ -139,14 +139,14 @@ interface CollectionInterface
 
     /**
      * Set the account that owns this collection
-     * 
+     *
      * @param string $accountId The account that owns this collection
      */
     public function setAccountId(string $accountId);
 
     /**
      * Get the account that owns this collection
-     * 
+     *
      * @return string Returns the account that owns this collection
      */
     public function getAccountId();

@@ -308,7 +308,7 @@ class EmailMessageTest extends TestCase
     }
 
     public function testOnBeforeSave()
-    {        
+    {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create first message - this makes a new thread

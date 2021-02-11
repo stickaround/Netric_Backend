@@ -103,7 +103,7 @@ abstract class AbstractCollection
 
     /**
      * Used to schedule background jobs
-     * 
+     *
      * @var WorkerService
      */
     private WorkerService $workerService;
@@ -111,8 +111,8 @@ abstract class AbstractCollection
     /**
      * Constructor
      *
-     * @param CommitManager $commitManager A manager used to keep track of commits     
-     * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account     
+     * @param CommitManager $commitManager A manager used to keep track of commits
+     * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
      * @param CollectionDataMapperInterface $collectionDataMapper Relational database dataMapper for Entity Sync Collection
      */
     public function __construct(
@@ -120,7 +120,7 @@ abstract class AbstractCollection
         WorkerService $workerService,
         CollectionDataMapperInterface $collectionDataMapper
     ) {
-        $this->commitManager = $commitManager;        
+        $this->commitManager = $commitManager;
         $this->workerService = $workerService;
         $this->collectionDataMapper = $collectionDataMapper;
     }
@@ -134,7 +134,7 @@ abstract class AbstractCollection
 
     /**
      * Set the account that owns this collection
-     * 
+     *
      * @param string $accountId The account that owns this collection
      */
     public function setAccountId(string $accountId)
@@ -144,7 +144,7 @@ abstract class AbstractCollection
 
     /**
      * Get the account that owns this collection
-     * 
+     *
      * @return string Returns the account that owns this collection
      */
     public function getAccountId()
@@ -433,7 +433,7 @@ abstract class AbstractCollection
 
     /**
      * Log an imported object
-     *     
+     *
      * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
      * @param string $localId If imported to a local object then record the id, if null the delete
@@ -463,11 +463,11 @@ abstract class AbstractCollection
          * When we import, we should also log that it was exported since
          * we know that the remote client has the object already.
          */
-        if ($localId && $localRevision) {            
+        if ($localId && $localRevision) {
             $this->logExported($localId, $localRevision);
         }
 
-        return $this->workerService->doWorkBackground(EntitySyncLogImportedWorker::class, [            
+        return $this->workerService->doWorkBackground(EntitySyncLogImportedWorker::class, [
             'account_id' => $this->accountId,
             'collection_id' => $this->getCollectionId(),
             'unique_id' => $remoteId,
@@ -479,7 +479,7 @@ abstract class AbstractCollection
 
     /**
      * Log that a commit was exported from this collection
-     *     
+     *
      * @param string $uniqueId The unique id of the object we sent
      * @param int $commitId The unique id of the commit we sent
      */
@@ -493,7 +493,7 @@ abstract class AbstractCollection
             throw new \InvalidArgumentException("AccountId was not set and is required.");
         }
 
-        return $this->workerService->doWorkBackground(EntitySyncLogExportedWorker::class, [            
+        return $this->workerService->doWorkBackground(EntitySyncLogExportedWorker::class, [
             'account_id' => $this->accountId,
             'collection_id' => $this->getCollectionId(),
             'collection_type' => $this->getType(),

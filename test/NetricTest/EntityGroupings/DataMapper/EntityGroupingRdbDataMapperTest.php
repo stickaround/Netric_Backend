@@ -16,6 +16,6 @@ class EntityGroupingRdbDataMapperTest extends AbstractDataMapperTests
      */
     protected function getDataMapper()
     {
-        return $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);        
+        return $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
     }
 }

@@ -107,8 +107,7 @@ class ImageResizer implements ErrorAwareInterface
     {
         // First make sure it is an image
         $fileType = $source->getType();
-        if (
-            'jpg' !== $fileType &&
+        if ('jpg' !== $fileType &&
             'jpeg' !== $fileType &&
             'png' !== $fileType
         ) {

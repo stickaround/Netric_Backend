@@ -38,7 +38,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
      * Constructor
      *
      * @param CommitManager $commitManager A manager used to keep track of commits
-     * @param IndexInterface $index Index for querying entities     
+     * @param IndexInterface $index Index for querying entities
      * @param WorkerService $workerService Used to schedule background jobs
      * @param CollectionDataMapperInterface $collectionDataMapper Relational database dataMapper for Entity Sync Collection
      */
@@ -137,8 +137,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 // First make sure we didn't just import this
                 $skipStat = false;
                 foreach ($imports as $imported) {
-                    if (
-                        $imported['local_id'] == $ent->getEntityId() &&
+                    if ($imported['local_id'] == $ent->getEntityId() &&
                         $imported['local_revision'] == $ent->getValue("commit_id")
                     ) {
                         // Skip over this export because we just imported it
@@ -174,7 +173,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                     }
 
                     // Save to exported log
-                    $this->logExported(                        
+                    $this->logExported(
                         $ent->getEntityId(),
                         $ent->getValue("commit_id")
                     );
@@ -217,7 +216,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 // $this->dataMapper->saveCollection($this);
             }
         }
-        
+
         return $retStats;
     }
 
@@ -253,7 +252,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
         if ($data['entity_sync_collection_id']) {
             $this->setCollectionId($data['entity_sync_collection_id']);
         }
-        
+
         if ($data['object_type']) {
             $this->setObjType($data['object_type']);
         }

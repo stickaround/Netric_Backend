@@ -41,11 +41,6 @@ return [
         'mogileAccount' => 'netric',
         // 'password' => 'n/a',
         // 'port' => 7001,
-        // 'store' => 'mogile',
-        // 'server' => 'mogilefs',
-        // 'account' => 'netric',
-        // 'password' => 'n/a',
-        // 'port' => 7001,
     ],
     // Cache settings
     'cache' => [

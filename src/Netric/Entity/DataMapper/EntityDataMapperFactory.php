@@ -32,10 +32,10 @@ class EntityDataMapperFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $recurIdentityMapper = $serviceLocator->get(RecurrenceIdentityMapperFactory::class);
-        $commitManager = $serviceLocator->get(CommitManagerFactory::class);        
+        $commitManager = $serviceLocator->get(CommitManagerFactory::class);
         $entityValidator = $serviceLocator->get(EntityValidatorFactory::class);
-        $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);        
-        $entityDefLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);        
+        $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);
+        $entityDefLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
         $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);

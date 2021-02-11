@@ -39,7 +39,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
     /**
      * Used to schedule background jobs
-     * 
+     *
      * @var WorkerService
      */
     private WorkerService $workerService;
@@ -66,7 +66,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     /**
      * Class constructor
      *
-     * @param RelationalDbContainer $dbContainer Handles the database actions     
+     * @param RelationalDbContainer $dbContainer Handles the database actions
      * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
      * @param EntityDefinitionLoader $entityDefinitionLoader Manage handles creating, getting, and working with commits
      * @param WorkerService $workerService Used to schedule background jobs
@@ -76,15 +76,14 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         EntityDefinitionLoader $entityDefinitionLoader,
         CommitManager $commitManager,
         WorkerService $workerService
-        )
-    {
+    ) {
         $this->databaseContainer = $dbContainer;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
         $this->commitManager = $commitManager;
         $this->workerService = $workerService;
-        
+
         // Clear the moved entities cache
-        $this->cacheMovedEntities = [];        
+        $this->cacheMovedEntities = [];
     }
 
     /**
@@ -102,7 +101,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * Save groupings
      *
      * @param EntityGroupings $groupings Groupings object to save
-     * 
+     *
      * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
      */
     public function saveGroupings(EntityGroupings $groupings): array
@@ -165,8 +164,8 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
          * anything changed since a previous commit ID.
          */
         foreach ($ret['deleted'] as $gid => $lastCommitId) {
-            if ($gid && $lastCommitId && $nextCommit) {                
-                $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [            
+            if ($gid && $lastCommitId && $nextCommit) {
+                $this->workerService->doWorkBackground(EntitySyncSetExportedStaleWorker::class, [
                     'account_id' => $accountId,
                     'collection_type' => EntitySync::COLL_TYPE_GROUPING,
                     'last_commit_id' => $lastCommitId,
@@ -183,7 +182,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      *
      * @param string $path The path of the object groupings that we are going to query
      * @param string $accountId The account that owns the groupings that we are about to save
-     * 
+     *
      * @return EntityGroupings
      */
     public function getGroupingsByPath(string $path, string $accountId): EntityGroupings
@@ -209,7 +208,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      *
      * @param EntityDefinition $definition The definition that we will use to filter the object groupings
      * @param string $fieldName The name of the field of this grouping
-     * 
+     *
      * @return EntityGroupings
      */
     public function getGroupings($definition, $fieldName): EntityGroupings

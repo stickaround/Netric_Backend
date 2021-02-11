@@ -15,7 +15,7 @@ interface CollectionFactoryInterface
 {
     /**
      * Factory for creating collections and injecting all dependencies
-     * 
+     *
      * @param string $accountId The account that owns the collection
      * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
      * @param array $data Optional data to initialize into the collection

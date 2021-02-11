@@ -67,7 +67,7 @@ abstract class IndexAbstract
      * @param RelationalDbContainer $database Handles the database actions
      * @param EntityFactory $entityFactory Handles the creating of new entities
      * @param EntityDefinitionLoader $defLoader Handles the loading of entity definition
-     * @param EntityLoader $entityLoader Handles the loading of existing entities     
+     * @param EntityLoader $entityLoader Handles the loading of existing entities
      * @param EntityValueSanitizer $entityValueSanitizer Handles the sanitizing of condition values in the query
      * @param ServiceLocatorInterface $serviceManagerForPlugin A service manager that will be used when executing the entity query plugin
      */

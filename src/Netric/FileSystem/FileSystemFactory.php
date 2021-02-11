@@ -22,7 +22,7 @@ class FileSystemFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $fileStore = $serviceLocator->get(FileStoreFactory::class);        
+        $fileStore = $serviceLocator->get(FileStoreFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $entityIndex = $serviceLocator->get(IndexFactory::class);
 

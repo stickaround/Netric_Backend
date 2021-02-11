@@ -14,7 +14,7 @@ interface EntityGroupingDataMapperInterface
      *
      * @param string $path The path of the object groupings that we are going to query
      * @param string $accountId The account that owns the groupings that we are about to save
-     * 
+     *
      * @return EntityGroupings
      */
     public function getGroupingsByPath(string $path, string $account) : EntityGroupings;
@@ -32,7 +32,7 @@ interface EntityGroupingDataMapperInterface
      *
      * @param EntityDefinition $definition The definition that we will use to filter the object groupings
      * @param string $fieldName The name of the field of this grouping
-     * 
+     *
      * @return EntityGroupings
      */
     public function getGroupings($definition, $fieldName) : EntityGroupings;

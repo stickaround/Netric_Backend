@@ -359,7 +359,7 @@ class Dacl
     /**
      * Get the permissions for the user provided
      *
-     * @param UserEntity $user The user to check for access     
+     * @param UserEntity $user The user to check for access
      * @param EntityInterface $entity Optional. If entity is provided, then we can check if the $user is assigned as owner/creator/user of $entity
      * @return object Returns the permissions (view, edit, delete) for the user
      */

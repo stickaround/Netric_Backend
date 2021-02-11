@@ -13,7 +13,7 @@ interface DataMapperInterface
      *
      * @param string $partnerId Netric unique partner id
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      * @return Partner or null if id does not exist
      */
     public function getPartnerById(string $partnerId, string $accountId): ?Partner;
@@ -25,7 +25,7 @@ interface DataMapperInterface
      *
      * @param string $remoteId Remotely provided unique ident
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      * @return Partner or null if id does not exist
      */
     public function getPartnerByRemoteId(string $remoteId, string $accountId): ?Partner;
@@ -46,7 +46,7 @@ interface DataMapperInterface
      *
      * @param Partner $partner The partner to delete
      * @param string $accountId The account that we will use to get active database handle
-     * 
+     *
      * @return bool true on success, false on failure
      */
     public function deletePartner(Partner $partner, string $accountId): bool;

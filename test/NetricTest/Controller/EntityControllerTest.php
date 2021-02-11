@@ -46,7 +46,7 @@ class EntityControllerTest extends TestCase
     private EntityDefinitionLoader $mockEntityDefinitionLoader;
     private GroupingLoader $mockGroupingLoader;
     private BrowserViewService $mockBrowserViewService;
-    private Forms $mockForms;    
+    private Forms $mockForms;
     private DaclLoader $mockDaclLoader;
     private Account $mockAccount;
 
@@ -57,7 +57,7 @@ class EntityControllerTest extends TestCase
         $this->mockEntityDefinitionLoader = $this->createMock(EntityDefinitionLoader::class);
         $this->mockGroupingLoader = $this->createMock(GroupingLoader::class);
         $this->mockBrowserViewService = $this->createMock(BrowserViewService::class);
-        $this->mockForms = $this->createMock(Forms::class);        
+        $this->mockForms = $this->createMock(Forms::class);
         $this->mockDaclLoader = $this->createMock(DaclLoader::class);
 
         // Provide identity for mock auth service
@@ -80,7 +80,7 @@ class EntityControllerTest extends TestCase
             $this->mockEntityDefinitionLoader,
             $this->mockGroupingLoader,
             $this->mockBrowserViewService,
-            $this->mockForms,            
+            $this->mockForms,
             $this->mockDaclLoader
         );
         $this->entityController->testMode = true;
@@ -112,7 +112,7 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for testing'
         ]);
-        
+
         // Mock the entity loader service which is used to load the task by guid
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
 
@@ -121,14 +121,14 @@ class EntityControllerTest extends TestCase
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setParam('entity_id', $taskEntityId);        
+        $request->setParam('entity_id', $taskEntityId);
         $response = $this->entityController->getGetAction($request);
         $this->assertEquals([
             'obj_type' => 'task',
@@ -145,7 +145,7 @@ class EntityControllerTest extends TestCase
         // Now let's use id as parameter to test the backwards compatibility
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setParam('id', $taskEntityId);        
+        $request->setParam('id', $taskEntityId);
         $response = $this->entityController->getGetAction($request);
         $this->assertEquals([
             'obj_type' => 'task',
@@ -182,7 +182,7 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for testing'
         ]);
-        
+
         // Mock the entity loader service which is used to load the task by guid
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
 
@@ -190,7 +190,7 @@ class EntityControllerTest extends TestCase
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -203,7 +203,7 @@ class EntityControllerTest extends TestCase
         // It should only return the entity_id, name, and current permission
         $this->assertEquals([
             'entity_id' => $taskEntityId,
-            'name' => 'Test Task',            
+            'name' => 'Test Task',
             'currentuser_permissions' => $daclPermissions
         ], $response->getOutputBuffer());
     }
@@ -215,7 +215,7 @@ class EntityControllerTest extends TestCase
     {
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);        
+        $request->setParam('buffer_output', 1);
         $request->setParam('bogus', 'data');
         $response = $this->entityController->getGetAction($request);
 
@@ -272,20 +272,20 @@ class EntityControllerTest extends TestCase
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-                
+
         // Mock the entity definition loader service which is used to load entity definition
         $this->mockEntityDefinitionLoader->method('get')->willReturn($mockDefinition);
 
         // Mock the forms service which is used to get the entity definition forms
         $this->mockForms->method('getDeviceForms')->willReturn($formDetails);
-        
+
         // Mock the browser view service which is used to get the browser views for the user
         $this->mockBrowserViewService->method('getViewsForUser')->willReturn([]);
         $this->mockBrowserViewService->method('getDefaultViewForUser')->willReturn($browserViewDetails);
 
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
-        
+
         // Make sure getGetDefinitionAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -320,7 +320,7 @@ class EntityControllerTest extends TestCase
         // It should return an error if no obj_type is provided in the params
         $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
 
-        // Mock the entity definition loader service that it will return a null value for entity definition        
+        // Mock the entity definition loader service that it will return a null value for entity definition
         $this->mockEntityDefinitionLoader->method('get')->willReturn(null);
 
         $request = new HttpRequest();
@@ -337,7 +337,7 @@ class EntityControllerTest extends TestCase
      */
     public function testAllDefinitionsAction()
     {
-        $taskDefId = Uuid::uuid4()->toString();        
+        $taskDefId = Uuid::uuid4()->toString();
         $taskDefDetails = [
             'obj_type' => 'task',
             'entity_definition_id' => $taskDefId,
@@ -394,23 +394,23 @@ class EntityControllerTest extends TestCase
         // Create test dacl permission for the entity definitions
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-                
+
         // Mock the entity definition loader service which is used to load entity definition
         $this->mockEntityDefinitionLoader->method('getAll')->willReturn([$mockTaskDef, $mockNoteDef]);
 
         // Mock the forms service which is used to get the entity definition forms
         $this->mockForms->method('getDeviceForms')->willReturn($formDetails);
-        
+
         // Mock the browser view service which is used to get the browser views for the user
         $this->mockBrowserViewService->method('getViewsForUser')->willReturn([]);
         $this->mockBrowserViewService->method('getDefaultViewForUser')->willReturn($browserViewDetails);
 
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
-        
+
         // Make sure getAllDefinitionsAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);        
+        $request->setParam('buffer_output', 1);
         $response = $this->entityController->getAllDefinitionsAction($request);
 
         // It should only return the entity_id, name, and current permission
@@ -436,7 +436,7 @@ class EntityControllerTest extends TestCase
         $this->mockEntityDefinitionLoader->method('get')->willReturn([]);
 
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);        
+        $request->setParam('buffer_output', 1);
         $response = $this->entityController->getAllDefinitionsAction($request);
 
         // It should return an error
@@ -492,20 +492,20 @@ class EntityControllerTest extends TestCase
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-                
+
         // Mock the entity definition loader service which is used to load entity definition
         $this->mockEntityDefinitionLoader->method('get')->willReturn($mockDefinition);
 
         // Mock the forms service which is used to get the entity definition forms
         $this->mockForms->method('getDeviceForms')->willReturn($formDetails);
-        
+
         // Mock the browser view service which is used to get the browser views for the user
         $this->mockBrowserViewService->method('getViewsForUser')->willReturn([]);
         $this->mockBrowserViewService->method('getDefaultViewForUser')->willReturn($browserViewDetails);
 
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
-        
+
         // Make sure postUpdateEntityDefAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -586,11 +586,11 @@ class EntityControllerTest extends TestCase
         $mockDefinition->method('getSystem')->willReturn(false);
         $mockDefinition->method('getEntityDefinitionId')->willReturn(Uuid::uuid4()->toString());
         $mockDefinition->method('getAccountId')->willReturn($this->mockAccount->getAccountId());
-                        
+
         // Mock the entity definition loader service which is used to load entity definition
         $this->mockEntityDefinitionLoader->method('get')->willReturn($mockDefinition);
-        $this->mockEntityDefinitionLoader->method('delete')->willReturn(true);        
-                
+        $this->mockEntityDefinitionLoader->method('delete')->willReturn(true);
+
         // Make sure postDeleteEntityDefAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -657,7 +657,7 @@ class EntityControllerTest extends TestCase
         ];
 
         // Create test name field
-        $mockNameField = $this->createMock(Field::class);        
+        $mockNameField = $this->createMock(Field::class);
 
         // Create entity definition for testing
         $mockDefinition = $this->createMock(EntityDefinition::class);
@@ -667,7 +667,7 @@ class EntityControllerTest extends TestCase
 
         // Create test task entity
         $mockTaskEntity = $this->createMock(TaskEntity::class);
-        $mockTaskEntity->method('getName')->willReturn('Test Task');        
+        $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getDefinition')->willReturn($mockDefinition);
         $mockTaskEntity->method('toArray')->willReturn([
             'obj_type' => 'task',
@@ -675,7 +675,7 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for saving'
         ]);
-        
+
         // Mock the entity loader service which is used to create a new entity and can save it
         $this->mockEntityLoader->method('create')->willReturn($mockTaskEntity);
         $this->mockEntityLoader->method('save')->willReturn($savedTaskEntityId);
@@ -685,7 +685,7 @@ class EntityControllerTest extends TestCase
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -727,7 +727,7 @@ class EntityControllerTest extends TestCase
         ];
 
         // Create test name field
-        $mockNameField = $this->createMock(Field::class);        
+        $mockNameField = $this->createMock(Field::class);
 
         // Create entity definition for testing
         $mockDefinition = $this->createMock(EntityDefinition::class);
@@ -737,7 +737,7 @@ class EntityControllerTest extends TestCase
 
         // Create test task entity
         $mockTaskEntity = $this->createMock(TaskEntity::class);
-        $mockTaskEntity->method('getName')->willReturn('Test Task');        
+        $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getDefinition')->willReturn($mockDefinition);
         $mockTaskEntity->method('toArray')->willReturn([
             'obj_type' => 'task',
@@ -745,17 +745,17 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for saving'
         ]);
-        
+
         // Mock the entity loader service which is used to load the existing task by guid and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
-        $this->mockEntityLoader->method('save')->willReturn($existingEntityId);        
+        $this->mockEntityLoader->method('save')->willReturn($existingEntityId);
 
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -796,7 +796,7 @@ class EntityControllerTest extends TestCase
         // It should return an error if no obj_type is provided in the params
         $this->assertEquals(['error' => 'obj_type is a required param.'], $response->getOutputBuffer());
 
-        // Mock the entity loader service that it will return a null value for entity        
+        // Mock the entity loader service that it will return a null value for entity
         $this->mockEntityLoader->method('getEntityById')->willReturn(null);
 
         $existingEntityId = Uuid::uuid4()->toString();
@@ -815,9 +815,9 @@ class EntityControllerTest extends TestCase
     public function testPostRemoveAction()
     {
         $existingEntityId = Uuid::uuid4()->toString();
-        
+
         // Create test task entity
-        $mockTaskEntity = $this->createMock(TaskEntity::class);        
+        $mockTaskEntity = $this->createMock(TaskEntity::class);
 
         // Mock the entity loader service which is used to load the existing task by guid and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
@@ -826,7 +826,7 @@ class EntityControllerTest extends TestCase
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
-                
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -850,10 +850,10 @@ class EntityControllerTest extends TestCase
         $existingEntityId1 = Uuid::uuid4()->toString();
         $existingEntityId2 = Uuid::uuid4()->toString();
         $existingEntityId3 = Uuid::uuid4()->toString();
-        
+
         // Create test task entity
         $mockTaskEntity = $this->createMock(TaskEntity::class);
-        
+
         // Mock the entity loader service which is used to load the existing task by guid and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
         $this->mockEntityLoader->method('delete')->willReturn(true);
@@ -861,7 +861,7 @@ class EntityControllerTest extends TestCase
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -902,7 +902,7 @@ class EntityControllerTest extends TestCase
         // Create test task entity
         $mockTaskEntity = $this->createMock(TaskEntity::class);
         $mockTaskEntity->method('getName')->willReturn($taskName);
-        
+
         // Mock the entity loader service which is used to load the existing task by guid and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
         $this->mockEntityLoader->method('delete')->willReturn(true);
@@ -911,8 +911,8 @@ class EntityControllerTest extends TestCase
         $mockDacl = $this->createMock(Dacl::class);
 
         // Set that we will not allow the entity to be deleted so we can catch the error
-        $mockDacl->method('isAllowed')->willReturn(false);        
-        
+        $mockDacl->method('isAllowed')->willReturn(false);
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -941,7 +941,7 @@ class EntityControllerTest extends TestCase
             "sort_order" => 1,
             "commit_id" => 1
         ];
-        
+
         // Create entity definition for testing
         $mockDefinition = $this->createMock(EntityDefinition::class);
 
@@ -1040,7 +1040,7 @@ class EntityControllerTest extends TestCase
             "sort_order" => 1,
             "commit_id" => 1
         ];
-        
+
         // Create entity definition for testing
         $mockDefinition = $this->createMock(EntityDefinition::class);
         $mockDefinition->method('isPrivate')->willReturn(false);
@@ -1075,7 +1075,7 @@ class EntityControllerTest extends TestCase
     {
         // Make sure getGetGroupingsAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);        
+        $request->setParam('buffer_output', 1);
         $request->setParam('bogus', 'data');
         $response = $this->entityController->getGetGroupingsAction($request);
 
@@ -1114,7 +1114,7 @@ class EntityControllerTest extends TestCase
             "sort_order" => 1,
             "commit_id" => 1
         ];
-        
+
         // Create entity definition for testing
         $mockDefinition = $this->createMock(EntityDefinition::class);
         $mockDefinition->method('isPrivate')->willReturn(false);
@@ -1196,7 +1196,7 @@ class EntityControllerTest extends TestCase
             'view' => true,
             'edit' => true,
             'delete' => true
-        ];        
+        ];
         $daclDetails = [
             'entries' => [],
             'name' => 'task_dacl'
@@ -1204,9 +1204,9 @@ class EntityControllerTest extends TestCase
 
         // Create multiple test task entity
         $mockTaskEntity1 = $this->createMock(TaskEntity::class);
-        $mockTaskEntity1->method('getName')->willReturn('Test Task 2');        
+        $mockTaskEntity1->method('getName')->willReturn('Test Task 2');
         $mockTaskEntity1->method('toArray')->willReturn($taskDetails);
-        
+
         // Mock the entity loader service which is used to create a new entity and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity1);
         $this->mockEntityLoader->method('save')->willReturn($savedTaskEntityId1);
@@ -1216,7 +1216,7 @@ class EntityControllerTest extends TestCase
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 
@@ -1227,7 +1227,7 @@ class EntityControllerTest extends TestCase
         $response = $this->entityController->postMassEditAction($request);
         $this->assertEquals([$taskDetails], $response->getOutputBuffer());
     }
-    
+
     /**
      * Catch the possible errors being thrown when there is a problem in editing multiple entities
      */
@@ -1271,7 +1271,7 @@ class EntityControllerTest extends TestCase
      */
     public function testPostUpdateSortOrderEntitiesAction()
     {
-        $taskEntityId1 = Uuid::uuid4()->toString();        
+        $taskEntityId1 = Uuid::uuid4()->toString();
         $taskDetails = [
             'obj_type' => 'task',
             'entity_id' => $taskEntityId1,
@@ -1283,7 +1283,7 @@ class EntityControllerTest extends TestCase
             'view' => true,
             'edit' => true,
             'delete' => true
-        ];        
+        ];
         $daclDetails = [
             'entries' => [],
             'name' => 'task_dacl'
@@ -1291,9 +1291,9 @@ class EntityControllerTest extends TestCase
 
         // Create multiple test task entity
         $mockTaskEntity1 = $this->createMock(TaskEntity::class);
-        $mockTaskEntity1->method('getName')->willReturn('Test Task 2');        
+        $mockTaskEntity1->method('getName')->willReturn('Test Task 2');
         $mockTaskEntity1->method('toArray')->willReturn($taskDetails);
-        
+
         // Mock the entity loader service which is used to create a new entity and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity1);
         $this->mockEntityLoader->method('save')->willReturn($taskEntityId1);
@@ -1303,7 +1303,7 @@ class EntityControllerTest extends TestCase
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
         $mockDacl->method('toArray')->willReturn($daclDetails);
-        
+
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
 

@@ -435,8 +435,7 @@ class Account
      */
     public function getStatusName()
     {
-        switch($this->status)
-        {
+        switch ($this->status) {
             case self::STATUS_ACTIVE: {
                 return "Active";
                 break;

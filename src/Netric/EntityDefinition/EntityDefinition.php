@@ -183,7 +183,7 @@ class EntityDefinition
 
     /**
      * Class constructor
-     * 
+     *
      * @param string $objType The type of entity
      * @param string $accountId the account this definition belongs to
      */

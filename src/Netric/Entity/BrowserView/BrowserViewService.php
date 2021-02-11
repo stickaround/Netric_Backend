@@ -190,7 +190,7 @@ class BrowserViewService
      * @param string $objType The object type for this view
      * @param string $viewId The unique id of the view
      * @param string $accountId The account that owns the entity definition's view
-     * 
+     *
      * @return BrowserView
      */
     public function getViewById(string $objType, string $viewId, string $accountId)
@@ -285,7 +285,7 @@ class BrowserViewService
      *
      * @param string $objType The object type to get browser views for
      * @param string $accountId The account that owns the entity definition's view
-     * 
+     *
      * @return BrowserView[]
      */
     public function getSystemViews(string $objType, string $accountId)
@@ -330,7 +330,7 @@ class BrowserViewService
      *
      * @param BrowserView $view The view to save
      * @param string $accountId The account that owns the entity definition's view
-     * 
+     *
      * @throws \RuntimeException if it cannot load the entity definition
      * @return int Unique id of saved view
      */
@@ -472,7 +472,7 @@ class BrowserViewService
      *
      * @param string $objType The object type to load
      * @param string $accountId The account that owns the entity definition's view
-     * 
+     *
      * @throws \RuntimeException if it cannot load the entity definition
      */
     private function loadViewsFromDb(string $objType, string $accountId)
@@ -526,7 +526,7 @@ class BrowserViewService
      *
      * @param {BrowserView} $view The browser view that we will sanitize the value of its conditions
      * @param string $accountId The account that owns the entity definition's view
-     * 
+     *
      * @throws Netric\EntityGroupings\Exception
      */
     private function convertGroupingNameToID(BrowserView $view, string $accountId)

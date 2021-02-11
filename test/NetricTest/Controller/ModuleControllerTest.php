@@ -32,7 +32,7 @@ class ModuleControllerTest extends TestCase
     /**
      * Dependency mocks
      */
-    private AuthenticationService $mockAuthService;    
+    private AuthenticationService $mockAuthService;
     private Account $mockAccount;
     private ModuleService $moduleService;
 
@@ -52,7 +52,7 @@ class ModuleControllerTest extends TestCase
 
         $this->accountContainer = $this->createMock(AccountContainerInterface::class);
         $this->accountContainer->method('loadById')->willReturn($this->mockAccount);
-        
+
         // Create the controller with mocks
         $this->moduleController = new ModuleController(
             $this->accountContainer,
@@ -77,9 +77,9 @@ class ModuleControllerTest extends TestCase
 
         $testModule = new Module();
         $testModule->fromArray($moduleData);
-        
+
         $this->moduleService->method('getByName')->willReturn($testModule);
-        
+
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -92,7 +92,7 @@ class ModuleControllerTest extends TestCase
      * Catch the possible errors being thrown when there is a problem in getting a module
      */
     public function testGetGetActionCatchingErrors()
-    {   
+    {
         // Make sure getGetAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -115,10 +115,10 @@ class ModuleControllerTest extends TestCase
 
         $testModule = new Module();
         $testModule->fromArray($moduleData);
-        
+
         $this->moduleService->method('createNewModule')->willReturn(new Module());
         $this->moduleService->method('save')->willReturn(true);
-        
+
         // Make sure postSaveAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -131,7 +131,7 @@ class ModuleControllerTest extends TestCase
      * Catch the possible errors being thrown when there is a problem in saving a module
      */
     public function testSaveActionCatchingErrors()
-    {   
+    {
         // Make sure postSaveAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -148,7 +148,7 @@ class ModuleControllerTest extends TestCase
 
         $testModule = new Module();
         $testModule->fromArray($moduleData);
-        
+
         $this->moduleService->method('createNewModule')->willReturn(new Module());
         $this->moduleService->method('save')->willReturn(false);
 
@@ -174,10 +174,10 @@ class ModuleControllerTest extends TestCase
 
         $testModule = new Module();
         $testModule->fromArray($moduleData);
-        
+
         $this->moduleService->method('getById')->willReturn($testModule);
         $this->moduleService->method('delete')->willReturn(true);
-        
+
         // Make sure postDeleteAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -190,7 +190,7 @@ class ModuleControllerTest extends TestCase
      * Catch the possible errors being thrown when there is a problem in deleting a module
      */
     public function testDeleteActionCatchingErrors()
-    {   
+    {
         // Make sure postSaveAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
@@ -207,7 +207,7 @@ class ModuleControllerTest extends TestCase
 
         $testModule = new Module();
         $testModule->fromArray($moduleData);
-        
+
         $this->moduleService->method('getById')->willReturn($testModule);
         $this->moduleService->method('delete')->willReturn(false);
 
@@ -240,12 +240,12 @@ class ModuleControllerTest extends TestCase
 
         $testModule2 = new Module();
         $testModule2->fromArray($moduleData1);
-        
+
         $this->moduleService->method('getForUser')->willReturn([$testModule1, $testModule2]);
-        
+
         // Make sure getGetAvailableModulesAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);        
+        $request->setParam('buffer_output', 1);
         $response = $this->moduleController->getGetAvailableModulesAction($request);
         $this->assertEquals([$testModule1->toArray(), $testModule2->toArray()], $response->getOutputBuffer());
     }

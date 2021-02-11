@@ -24,8 +24,8 @@ class GroupingCollectionFactory implements ApplicationServiceFactoryInterface
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
-    {        
-        $commitManager = $serviceLocator->get(CommitManagerFactory::class);        
+    {
+        $commitManager = $serviceLocator->get(CommitManagerFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);
         $collectionDataMapper = $serviceLocator->get(CollectionDataMapperFactory::class);
         $groupingDataMapper = $serviceLocator->get(EntityGroupingDataMapperFactory::class);

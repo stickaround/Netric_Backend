@@ -127,7 +127,7 @@ class FieldTest extends TestCase
             "value" => "now",
             "on" => "null"
         ];
-        
+
         $this->assertNotNull($field->getDefault(null, "null"));
     }
 }

@@ -21,7 +21,7 @@ class BulkSmtpFactoryTest extends TestCase
 {
     /**
      * Reference to account running for unit tests
-     * 
+     *
      * @var Account
      */
     private $account;

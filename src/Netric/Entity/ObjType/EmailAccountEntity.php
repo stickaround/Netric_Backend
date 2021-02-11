@@ -32,7 +32,7 @@ class EmailAccountEntity extends Entity implements EntityInterface
     {
         parent::__construct($def, $entityLoader);
     }
-    
+
     /**
      * Callback function used for derrived subclasses
      *

@@ -124,7 +124,8 @@ class DeliveryService extends AbstractHasErrors
 
         // Get Inbox for user
         $mailboxGroups = $this->groupingLoader->get(
-            ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId(), $user->getAccountId()
+            ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId(),
+            $user->getAccountId()
         );
         $inboxGroup = $mailboxGroups->getByPath('Inbox');
         if (!$inboxGroup) {

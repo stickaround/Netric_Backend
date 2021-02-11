@@ -28,7 +28,7 @@ class BrowserViewControllerFactory implements ControllerFactoryInterface
 
         return new BrowserViewController(
             $accountContainer,
-            $authService,            
+            $authService,
             $browserViewService
         );
     }

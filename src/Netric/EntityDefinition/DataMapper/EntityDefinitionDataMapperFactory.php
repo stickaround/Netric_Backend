@@ -30,7 +30,7 @@ class EntityDefinitionDataMapperFactory implements ApplicationServiceFactoryInte
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);
         $config = $serviceLocator->get(ConfigFactory::class);
-        
+
         return new EntityDefinitionRdbDataMapper($relationalDbCon, $workerService, $config);
     }
 }
