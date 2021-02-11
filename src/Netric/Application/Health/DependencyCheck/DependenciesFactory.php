@@ -30,11 +30,11 @@ class DependenciesFactory implements ApplicationServiceFactoryInterface
         );
 
         // Mogile must be active
-        $dependencies[] = new MogileFsDependencyCheck(
-            $config->files->server,
-            $config->files->account,
-            $config->files->port
-        );
+        // $dependencies[] = new MogileFsDependencyCheck(
+        //     $config->files->mogileServer,
+        //     $config->files->mogileAccount,
+        //     $config->files->mogilePort
+        // );
 
         return $dependencies;
     }

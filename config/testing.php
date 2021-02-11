@@ -32,11 +32,20 @@ return [
     ],
     // Files settings
     'files' => [
-        'store' => 'mogile',
-        'server' => 'mogilefs',
-        'account' => 'netric',
-        'password' => 'n/a',
-        'port' => 7001,
+        'osAccount' => 'netric',
+        'osServer' => 'objectstorage',
+        'osSecret' => 'YCzL6bmR9rNt5MTWuRpQukE7BQ7b9PYm',
+        //'store' => 'mogile',
+        //'server' => '10.4.26.26',
+        'mogileServer' => 'mogilefs',
+        'mogileAccount' => 'netric',
+        // 'password' => 'n/a',
+        // 'port' => 7001,
+        // 'store' => 'mogile',
+        // 'server' => 'mogilefs',
+        // 'account' => 'netric',
+        // 'password' => 'n/a',
+        // 'port' => 7001,
     ],
     // Cache settings
     'cache' => [

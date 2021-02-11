@@ -33,14 +33,6 @@ return [
         'syshost' => "dat1-int-locsea.aereus.com",
         'dbname' => 'netric',
     ],
-    // Files settings
-    'files' => [
-        'store' => 'mogile',
-        'server' => 'dev1.aereus.com',
-        'account' => 'netric',
-        'password' => 'n/a',
-        'port' => 7001,
-    ],
     // Cache settings
     'cache' => [
         'driver' => 'memcache',

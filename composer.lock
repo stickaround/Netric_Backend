@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "87f8a2cbe5cffffcb196f7866b5331ae",
+    "content-hash": "d76050d4a010ffb272dce97670702721",
     "packages": [
         {
             "name": "aereus/lib",
@@ -12,13 +12,13 @@
             "source": {
                 "type": "git",
                 "url": "ssh://git@src.aereus.com:222/source/aereus.lib.php.git",
-                "reference": "7ac832c9ab29af9dd54ffaaf06ef07de815170bd"
+                "reference": "8a5de75d26aa4770365d22150c3fe9877d33d6f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://packagist.aereus.com/dist/aereus/lib/aereus-lib-dev-master-3a56b0.zip",
-                "reference": "7ac832c9ab29af9dd54ffaaf06ef07de815170bd",
-                "shasum": "a7305721a3f725884e4f4e30fc458d7adb1e42ec"
+                "url": "https://packagist.aereus.com/dist/aereus/lib/aereus-lib-dev-master-086821.zip",
+                "reference": "8a5de75d26aa4770365d22150c3fe9877d33d6f8",
+                "shasum": "5ab021cd111e824939be17127e32fd94a4d81a95"
             },
             "require": {
                 "graylog2/gelf-php": "^1.5",
@@ -71,7 +71,74 @@
             ],
             "description": "PHP Core Libraries for Aereus",
             "homepage": "https://src.aereus.com/source/application.lib.php/",
-            "time": "2021-01-29T18:01:23+00:00"
+            "time": "2021-02-11T15:03:28+00:00"
+        },
+        {
+            "name": "aereus/objectstorage-sdk",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "ssh://git@src.aereus.com:222/source/objectstorage.sdk.php.git",
+                "reference": "176e0c99c4fc01dd27436945a7ffc6d8b506f64c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.aereus.com/dist/aereus/objectstorage-sdk/aereus-objectstorage-sdk-dev-master-13511d.zip",
+                "reference": "176e0c99c4fc01dd27436945a7ffc6d8b506f64c",
+                "shasum": "861c5c4f552b596f5b1a66fe1a027201938536eb"
+            },
+            "require": {
+                "graylog2/gelf-php": "^1.5",
+                "php": "^7.4|^8.0",
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "aereus/codequality": "*",
+                "phpunit/phpunit": "^9",
+                "spatie/phpunit-watcher": "^1.23"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ObjectStorageSdk\\": "src/ObjectStorageSdk"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "ObjectStorageSdkTest\\": "test/ObjectStorageSdkTest"
+                }
+            },
+            "scripts": {
+                "lint": [
+                    "@composer lint-fix",
+                    "@composer lint-phpcs",
+                    "@composer lint-phpmd"
+                ],
+                "lint-phpcs": [
+                    "phpcs --standard=./vendor/aereus/codequality/phpcs.xml --report-checkstyle=.reports/checkstyle.xml ./src ./test"
+                ],
+                "lint-phpmd": [
+                    "phpmd ./src xml ./vendor/aereus/codequality/phpmd.xml --reportfile .reports/pmd.xml || true"
+                ],
+                "lint-fix": [
+                    "phpcbf --standard=./vendor/aereus/codequality/phpcs.xml ./src ./test"
+                ],
+                "test": [
+                    "vendor/bin/phpunit"
+                ],
+                "test-ci": [
+                    "@composer install",
+                    "@composer lint-phpcs",
+                    "@composer lint-phpmd",
+                    "@composer test"
+                ]
+            },
+            "license": [
+                "Commercial"
+            ],
+            "description": "PHP SDK for interacting with the ObjectStorage service",
+            "homepage": "https://src.aereus.com/source/objectstorage.sdk.php/",
+            "time": "2021-02-11T17:25:08+00:00"
         },
         {
             "name": "authorizenet/authorizenet",
@@ -5559,6 +5626,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "aereus/lib": 20,
+        "aereus/objectstorage-sdk": 20,
         "aereus/codequality": 20
     },
     "prefer-stable": false,

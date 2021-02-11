@@ -20,6 +20,7 @@ services:
       - memcached
       - gearmand
       - db1
+      - objectstorage
       - mogilefs
       - mogilestore
     entrypoint: 'bash -c "rm -f composer.lock && composer install && /start.sh"'
@@ -39,6 +40,7 @@ services:
       - memcached
       - gearmand
       - db1
+      - objectstorage
       - mogilefs
       - mogilestore
 
@@ -77,6 +79,14 @@ services:
     ports:
       - "5432:5432"
 
+  objectstorage:
+    image: dockerhub.aereus.com/objectstoragesvc:latest
+    depends_on:
+      - mogilefs
+      - mogilestore
+    environment:
+      - APPLICATION_ENV=development
+
   mogilefs:
     image: dockerhub.aereus.com/mogiletracker:latest
     environment:
@@ -108,3 +118,4 @@ services:
   #     - ./data/profile_runs:/profiles
   #   ports:
   #     - "8888:80"
+  

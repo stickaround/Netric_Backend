@@ -5,25 +5,25 @@
 namespace NetricTest\FileSystem\FileStore;
 
 use Netric;
-use Netric\FileSystem\FileStore\MogileFileStore;
+use Netric\FileSystem\FileStore\ObjectStorageStore;
 use Netric\FileSystem\FileStore\FileStoreInterface;
-use MogileFs;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Config\ConfigFactory;
+use ObjectStorageSdk\ObjectStorageClientInterface;
 
 /**
- * Running this test requires we have an ANS service running
+ * Running this test requires we have Objectstorage service running
  *
  * @group integration
  */
-class MogileFileStoreTest extends AbstractFileStoreTests
+class ObjectStorageStoreTest extends AbstractFileStoreTests
 {
     /**
      * Handle to a constructed LocalFiletore
      *
-     * @var MogileFs
+     * @var ObjectStorageClientInterface
      */
-    private $mogileFileStore = null;
+    private $objectStorageClinet = null;
 
     /**
      * Temp path for saving files
@@ -39,17 +39,15 @@ class MogileFileStoreTest extends AbstractFileStoreTests
 
         $this->tmpPath = __DIR__ . "/tmp";
 
-        $accId = $account->getAccountId();
         $entityLoader = $sm->get(EntityLoaderFactory::class);
-
         $config = $sm->get(ConfigFactory::class);
 
-        $this->mogileFileStore = new MogileFileStore(
+        $this->objectStorageClinet = new ObjectStorageStore(
             $entityLoader,
             $this->tmpPath,
-            $config->files->mogileServer,
-            $config->files->mogileAccount,
-            $config->files->mogilePort
+            $config->files->osServer,
+            $config->files->osAccount,
+            $config->files->osSecret
         );
 
         // Make directory if it does not exist
@@ -78,7 +76,7 @@ class MogileFileStoreTest extends AbstractFileStoreTests
      */
     protected function getFileStore()
     {
-        return $this->mogileFileStore;
+        return $this->objectStorageClinet;
     }
 
     /**

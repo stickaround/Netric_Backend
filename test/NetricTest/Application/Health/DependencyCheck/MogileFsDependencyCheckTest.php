@@ -26,9 +26,9 @@ class MogileFsDependencyCheckTest extends TestCase
         $config = $serviceLocator->get(ConfigFactory::class);
 
         $dependency = new MogileFsDependencyCheck(
-            $config->files->server,
-            $config->files->account,
-            $config->files->port
+            $config->files->mogileServer,
+            $config->files->mogileAccount,
+            $config->files->mogilePort
         );
         $this->assertTrue($dependency->isAvailable());
     }

@@ -27,12 +27,7 @@ class FileStoreFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
-        $store = $config->get('files')->get('store');
-
-        if ($store === "mogile") {
-            return $serviceLocator->get(MogileFileStoreFactory::class);
-        } else {
-            return $serviceLocator->get(LocalFileStoreFactory::class);
-        }
+        $storeFactory = $config->get('files')->get('store');
+        return $serviceLocator->get($storeFactory);
     }
 }

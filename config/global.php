@@ -1,6 +1,7 @@
 <?php
 
 use \net\authorize\api\constants\ANetEnvironment;
+use Netric\FileSystem\FileStore\MogileFileStoreFactory;
 
 return [
     // Determine if secure pages should be offered (not forced) in https
@@ -80,12 +81,16 @@ return [
     ],
     // Files settings
     'files' => [
-        'store' => 'mogile',
+        'store' => MogileFileStoreFactory::class,
+        'osAccount' => 'netric',
+        'osServer' => 'objectstorage',
+        'osSecret' => 'YCzL6bmR9rNt5MTWuRpQukE7BQ7b9PYm',
+        //'store' => 'mogile',
         //'server' => '10.4.26.26',
-        'server' => 'mogilefs_legacy',
-        'account' => 'netric',
-        'password' => 'n/a',
-        'port' => 7001,
+        'mogileServer' => 'mogilefs_legacy',
+        'mogileAccount' => 'netric',
+        // 'password' => 'n/a',
+        'mogilePort' => 7001,
     ],
     // Cache settings
     'cache' => [
