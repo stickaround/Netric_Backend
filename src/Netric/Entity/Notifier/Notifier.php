@@ -285,4 +285,17 @@ class Notifier
 
         return $followers;
     }
+
+    /**
+     * Subscribe to a push channel
+     *
+     * @param string $userId The ID of the netric user
+     * @param string $channel One of NotificationPusherClientInterface::CHANNEL_*
+     * @param array $data Data from the client to save in the subscription
+     * @return bool true on success, false on failure
+     */
+    public function subscribeToPush(string $userId, string $channel, array $data): bool
+    {
+        return false;
+    }
 }

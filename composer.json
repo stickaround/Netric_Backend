@@ -27,6 +27,7 @@
     "php": ">=7.4",
     "aereus/lib": "dev-master",
     "aereus/objectstorage-sdk": "dev-master",
+    "aereus/notificationpusher-sdk": "dev-master",
     "facebook/php-sdk-v4": "4.0.*",
     "zendframework/zend-crypt": "~2.5",
     "zendframework/zend-validator": "~2.5",
@@ -51,5 +52,8 @@
       "type": "composer",
       "url": "https://packagist.aereus.com"
     }
-  ]
+  ],
+  "config": {
+    "bin-compat": "full"
+  }
 }

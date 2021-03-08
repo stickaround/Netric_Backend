@@ -6,7 +6,9 @@
 
 namespace NetricTest\Entity\Notifier;
 
+use Netric\Authentication\AuthenticationService;
 use Netric\EntityQuery\EntityQuery;
+use Netric\EntityQuery\Index\IndexInterface;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\Notifier\Notifier;
 use Netric\Entity\EntityLoader;
@@ -19,6 +21,7 @@ use Netric\Entity\Notifier\NotifierFactory;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
+use NotificationPusherSdk\NotificationPusherClientInterface;
 
 class NotifierTest extends TestCase
 {
@@ -326,5 +329,23 @@ class NotifierTest extends TestCase
 
         // There should be no notifications created when updating the sort_order
         $this->assertEquals(0, count($notificationIds));
+    }
+
+    /**
+     * Check that we can subscribe a user to the notificationpusher
+     */
+    public function testSubscribeToPush(): void
+    {
+        $authMock = $this->createMock(AuthenticationService::class);
+        $entityLoaderMock = $this->createMock(EntityLoader::class);
+        $indexMock = $this->createMock(IndexInterface::class);
+        $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
+
+        $notifier = new Notifier($authMock, $entityLoaderMock, $indexMock, $pusherClientMock);
+        $this->assertFalse($notifier->subscribeToPush(
+            'TEST-UUID',
+            NotificationPusherClientInterface::CHANNEL_APNS,
+            [ 'token' => 'fake-token' ]
+        ));
     }
 }
