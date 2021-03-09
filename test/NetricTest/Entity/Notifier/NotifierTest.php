@@ -340,9 +340,10 @@ class NotifierTest extends TestCase
         $entityLoaderMock = $this->createMock(EntityLoader::class);
         $indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
+        $pusherClientMock->expects($this->once())->method('subscribe')->willReturn(true);
 
         $notifier = new Notifier($authMock, $entityLoaderMock, $indexMock, $pusherClientMock);
-        $this->assertFalse($notifier->subscribeToPush(
+        $this->assertTrue($notifier->subscribeToPush(
             'TEST-UUID',
             NotificationPusherClientInterface::CHANNEL_APNS,
             [ 'token' => 'fake-token' ]

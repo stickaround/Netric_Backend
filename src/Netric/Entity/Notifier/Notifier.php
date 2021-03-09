@@ -310,7 +310,7 @@ class Notifier
         return $this->notificationPusher->subscribe(
             'netric',
             $userId,
-            NotificationPusherClientInterface::CHANNEL_APNS,
+            $channel,
             $data
         );
     }

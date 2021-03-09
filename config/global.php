@@ -97,6 +97,13 @@ return [
         'driver' => 'memcache',
         'host' => '10.4.26.26',
     ],
+    'notifications' => [
+        'push' => [
+            'server' => 'notificationpusher',
+            'account' => 'netric',
+            'secret' => 'YCzL6bmR9rNt5MTWuRpQukE7BQ7b9PYm',
+        ],
+    ],
     // Profiler settings
     'profile' => [
         // If enabled the xhprof profiles will be created for every request made

@@ -23,6 +23,10 @@ class NotificationPusherFactory implements ApplicationServiceFactoryInterface
     {
         // Construct the NotificationPusherClient which just makes calls the an external service
         $config = $serviceManager->get(ConfigFactory::class);
-        return new NotificationPusherClient('netric', 'secret', 'server');
+        return new NotificationPusherClient(
+            $config->notifications->push->account,
+            $config->notifications->push->secret,
+            $config->notifications->push->server
+        );
     }
 }

@@ -498,4 +498,19 @@ abstract class AbstractRelationalDb
         // Default to doing nothing
         return $param;
     }
+
+    /**
+     * Execute SQL from a file
+     *
+     * @param string $filePath
+     * @return int
+     */
+    public function executeFile($filePath): int
+    {
+        $sql = file_get_contents($filePath);
+        $this->beginTransaction();
+        $numRowsImpacted = $this->pdoConnection->exec($sql);
+        $this->commitTransaction();
+        return $numRowsImpacted;
+    }
 }

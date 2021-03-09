@@ -260,4 +260,19 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
         // Default to tablename_columname_seq
         return $tableName . '_' . $columnName . '_seq';
     }
+
+    /**
+     * Get user created tables
+     *
+     * @return array
+     * @throws DatabaseQueryException
+     */
+    public function getTables(): array
+    {
+        $sql = "SELECT * FROM pg_catalog.pg_tables
+                WHERE schemaname != 'pg_catalog' AND
+                schemaname != 'information_schema'";
+        $result = $this->query($sql);
+        return $result->fetchAll();
+    }
 }

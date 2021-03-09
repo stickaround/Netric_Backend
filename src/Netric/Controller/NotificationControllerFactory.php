@@ -2,6 +2,7 @@
 
 namespace Netric\Controller;
 
+use Netric\Entity\Notifier\NotifierFactory;
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
@@ -25,6 +26,7 @@ class NotificationControllerFactory implements ControllerFactoryInterface
      */
     public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
     {
-        return new NotificationController();
+        $notifier = $serviceLocator->get(NotifierFactory::class);
+        return new NotificationController($notifier);
     }
 }

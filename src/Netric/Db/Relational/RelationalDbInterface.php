@@ -3,6 +3,7 @@
 namespace Netric\Db\Relational;
 
 use Netric\Db\Relational\Exception\DatabaseQueryException;
+use Aereus\Database\Relational\RelationalDbInterface as AereusRelationalDbInterface;
 
 /**
  * In most cases we try to keep relational db usage as generic as possible so
@@ -11,7 +12,7 @@ use Netric\Db\Relational\Exception\DatabaseQueryException;
  * a DataMapper created for each specific driver and be tested appropriately
  * via integration tests to assure all drivers work as designed.
  */
-interface RelationalDbInterface
+interface RelationalDbInterface extends AereusRelationalDbInterface
 {
     /**
      * Prepares and executes a statement returning a Results object
