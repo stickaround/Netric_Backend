@@ -25,6 +25,7 @@ class NotifierFactory implements ApplicationServiceFactoryInterface
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityIndex = $serviceManager->get(IndexFactory::class);
         $authService = $serviceManager->get(AuthenticationServiceFactory::class);
-        return new Notifier($authService, $entityLoader, $entityIndex);
+        $notificationPusher = $serviceManager->get(NotificationPusherFactory::class);
+        return new Notifier($authService, $entityLoader, $entityIndex, $notificationPusher);
     }
 }

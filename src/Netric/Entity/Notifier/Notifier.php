@@ -11,6 +11,7 @@ use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Authentication\AuthenticationService;
+use NotificationPusherSdk\NotificationPusherClientInterface;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -52,20 +53,30 @@ class Notifier
     private IndexInterface $entityIndex;
 
     /**
+     * Client used to connect with the notification pusher server
+     *
+     * @var NotificationPusherClientInterface
+     */
+    private NotificationPusherClientInterface $notificationPusher;
+
+    /**
      * Class constructor and dependency setter
      *
      * @param AuthenticationService $authService The current authenticated user & account
      * @param EntityLoader $entityLoader To create, find, and save entities
      * @param IndexInterface $index An entity index for querying existing notifications
+     * @param NotificationPusherClientInterface $notificationPusher Used for push notifications
      */
     public function __construct(
         AuthenticationService $authService,
         EntityLoader $entityLoader,
-        IndexInterface $index
+        IndexInterface $index,
+        NotificationPusherClientInterface $notificationPusher
     ) {
         $this->authService = $authService;
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $index;
+        $this->notificationPusher = $notificationPusher;
     }
 
     /**
@@ -296,6 +307,11 @@ class Notifier
      */
     public function subscribeToPush(string $userId, string $channel, array $data): bool
     {
-        return false;
+        return $this->notificationPusher->subscribe(
+            'netric',
+            $userId,
+            NotificationPusherClientInterface::CHANNEL_APNS,
+            $data
+        );
     }
 }
