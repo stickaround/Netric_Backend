@@ -97,6 +97,13 @@ class Group
     private $path = "";
 
     /**
+     * It is possible to filter groupings with fields, like per user
+     *
+     * @var array
+     */
+    private $filterFields = [];
+
+    /**
      * Convert class properties to an associative array
      *
      * @return array

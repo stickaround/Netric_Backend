@@ -59,9 +59,17 @@ class Entry
      */
     public function __construct($data = [])
     {
-        $this->id = $data["id"];
-        $this->name = $data["name"];
-        $this->parentId = $data["parent"];
+        if (isset($data["id"])) {
+            $this->id = $data["id"];
+        }
+
+        if (isset($data["name"])) {
+            $this->name = $data["name"];
+        }
+
+        if (isset($data["parent"])) {
+            $this->parentId = $data["parent"];
+        }
     }
 
     /**

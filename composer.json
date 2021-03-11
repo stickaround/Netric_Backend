@@ -28,13 +28,11 @@
     "aereus/lib": "dev-master",
     "aereus/objectstorage-sdk": "dev-master",
     "aereus/notificationpusher-sdk": "dev-master",
-    "facebook/php-sdk-v4": "4.0.*",
     "zendframework/zend-crypt": "~2.5",
     "zendframework/zend-validator": "~2.5",
     "zendframework/zend-console": "~2.5",
     "zendframework/zend-http": "~2.5",
     "zendframework/zend-loader": "~2.5",
-    "zircote/swagger-php": "^2.0",
     "php-mime-mail-parser/php-mime-mail-parser": "^7.0",
     "authorizenet/authorizenet": "^1.9",
     "graylog2/gelf-php": "^1.5",
@@ -43,7 +41,7 @@
     "firebase/php-jwt": "^5.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^8",
+    "phpunit/phpunit": "^9",
     "aereus/codequality": "dev-master",
     "spatie/phpunit-watcher": "^1.22"
   },

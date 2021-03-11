@@ -80,7 +80,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Cleanup Groupings
         foreach ($this->testGroupings as $groupData) {
-            $this->deleteGrouping($groupData['obj_type'], $groupData['field'], $groupData['id']);
+            $this->deleteGrouping($groupData['obj_type'], $groupData['field'], $groupData['group_id']);
         }
     }
 

@@ -246,7 +246,6 @@ class RecurrencePatternTest extends TestCase
         $this->assertEquals($import['date_start'], $exported['date_start']);
         $this->assertEquals($import['date_end'], $exported['date_end']);
         $this->assertEquals($import['f_active'], $exported['f_active']);
-        $this->assertEquals($import['obj_type'], $exported['obj_type']);
         $this->assertEquals($import['first_entity_id'], $exported['first_entity_id']);
         $this->assertEquals($import['date_processed_to'], $exported['date_processed_to']);
         $this->assertEquals($import['field_date_start'], $exported['field_date_start']);

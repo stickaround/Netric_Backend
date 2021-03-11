@@ -1,4 +1,5 @@
 <?php
+
 namespace ZPushTest\backend\netric;
 
 use PHPUnit\Framework\TestCase;
@@ -155,12 +156,12 @@ class ExportFolderChagesNetricTest extends TestCase
 
         // Check that the state was updated
         $expectedState = [
-             [
+            [
                 'type' => 'change',
                 'id' => 'test',
                 'mod' => 'Test',
                 'parent' => "0"
-             ]
+            ]
         ];
         $this->assertEquals($expectedState, $exporter->GetState());
     }
@@ -190,7 +191,8 @@ class ExportFolderChagesNetricTest extends TestCase
         $exporter->Config($state);
 
         // Initialize the netric exporter with the in-memory importer
-        $exporter->InitializeExporter(new \ChangesMemoryWrapper());
+        $memoryWrapper = new \ChangesMemoryWrapper();
+        $exporter->InitializeExporter($memoryWrapper);
 
         // Synchronize - should return no changes
         $this->assertFalse($exporter->Synchronize());
@@ -241,7 +243,8 @@ class ExportFolderChagesNetricTest extends TestCase
         $exporter->Config($state);
 
         // Initialize the netric exporter with the in-memory importer
-        $exporter->InitializeExporter(new \ChangesMemoryWrapper());
+        $memoryWrapper = new \ChangesMemoryWrapper();
+        $exporter->InitializeExporter($memoryWrapper);
 
         // Synchronize - should return no changes
         $this->assertFalse($exporter->Synchronize());

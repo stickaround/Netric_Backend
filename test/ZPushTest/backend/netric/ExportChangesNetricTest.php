@@ -1,4 +1,5 @@
 <?php
+
 namespace ZPushTest\backend\netric;
 
 use PHPUnit\Framework\TestCase;
@@ -51,16 +52,16 @@ class ExportChangesNetricTest extends TestCase
     protected function setUp(): void
     {
         $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
-                          ->disableOriginalConstructor()
-                          ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->collection = $this->getMockBuilder(
             '\Netric\EntitySync\Collection\CollectionInterface'
         )->getMock();
 
         $this->entityProvider = $this->getMockBuilder('\EntityProvider')
-                                     ->disableOriginalConstructor()
-                                     ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // Initialize zpush - copied from zpush index file
         if (!defined('REAL_BASE_PATH')) {
@@ -179,12 +180,12 @@ class ExportChangesNetricTest extends TestCase
 
         // Check that the state was updated
         $expectedState = [
-             [
+            [
                 'type' => 'change',
                 'id' => 1,
                 'flags' => 0,
                 'mod' => 2,
-             ]
+            ]
         ];
         $this->assertEquals($expectedState, $exporter->GetState());
     }

@@ -226,7 +226,10 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         }
 
         // Delete any existing entries for this user name attached to this account
-        $this->database->delete(self::TABLE_ACCOUNT_USER, ["account_id" => $accountId, "username" => $username]);
+        $this->database->delete(
+            self::TABLE_ACCOUNT_USER,
+            ["account_id" => $accountId, "username" => $username]
+        );
 
         // Insert into self::TABLE_ACCOUNT_USER table
         if ($emailAddress) {

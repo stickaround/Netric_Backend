@@ -5,7 +5,6 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
-use Netric\Account\AccountContainerFactory;
 use Netric\Account\AccountContainerInterface;
 use Netric\Application\Response\HttpResponse;
 use Netric\Request\HttpRequest;
@@ -18,7 +17,6 @@ use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityQuery\EntityQuery;
-use Netric\EntityQuery\FormParser;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Entity\BrowserView\BrowserViewService;
@@ -540,15 +538,15 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Load all the entity definitions
         $definitions = $this->entityDefinitionLoader->getAll($currentAccount->getAccountId());
 
-        $ret = [];
-        foreach ($definitions as $def) {
-            $ret[] = $this->fillDefinitionArray($def);
-        }
-
-        if (sizeOf($ret) == 0) {
+        if (!is_array($definitions) || sizeOf($definitions) == 0) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "Definitions could not be loaded."]);
             return $response;
+        }
+
+        $ret = [];
+        foreach ($definitions as $def) {
+            $ret[] = $this->fillDefinitionArray($def);
         }
 
         $response->write($ret);
@@ -621,7 +619,8 @@ class EntityController extends AbstractFactoriedController implements Controller
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if ($field->subtype // Make sure that this field has a subtype
+                    if (
+                        $field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
@@ -700,7 +699,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         if (!$def) {
             // If we are trying to edit an existing entity that could not be found, error out
-            if ($objData['id'] || $objData['entity_definition_id']) {
+            if (isset($objData['id']) || isset($objData['entity_definition_id'])) {
                 $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
                 $response->write(["error" => "Definition not found."]);
                 return $response;

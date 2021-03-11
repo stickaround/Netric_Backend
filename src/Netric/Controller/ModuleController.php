@@ -185,7 +185,9 @@ class ModuleController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         if ($rawBody) {
             $body = json_decode($rawBody, true);
-            $moduleId = $body['id'];
+            if (isset($body['id'])) {
+                $moduleId = $body['id'];
+            }
         }
 
         // Check if we have module id

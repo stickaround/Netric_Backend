@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Netric importer handles importing changes from the mobile device into netric
  *
  * The reason all the files are lowercase in here is because that is the z-push standard
  * so we stick with it to be consistent.
  */
-$zPushRoot = dirname(__FILE__) ."/../../";
+$zPushRoot = dirname(__FILE__) . "/../../";
 
 // Interfaces we are extending
 require_once($zPushRoot . 'lib/interface/iimportchanges.php');
@@ -257,7 +258,9 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
          * Both the remote (first param) and the local (third param) IDs are the same
          */
         $stat = $this->provider->getEntityStat($this->folderId, $id);
-        $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
+        if ($stat) {
+            $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
+        }
 
         return true;
     }
@@ -292,6 +295,12 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
              * Both the remote (first param) and the local (third param) IDs are the same
              */
             $stat = $this->provider->getEntityStat($this->folderId, $id);
+
+            // Set to nulls because we moved the entity
+            if (!$stat) {
+                $stat = ['mod' => null, 'id' => null];
+            }
+
             $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
             $this->log->info("ZPUSH->ImportChangesNetric->ImportMessageMove: $id from {$this->folderId} to {$newfolder}");

@@ -87,7 +87,8 @@ class WorkersControllerTest extends TestCase
 
         // Run the process action
         $response = $this->workersController->consoleProcessAction($request);
-        $this->assertStringContainsString("Processed 1 jobs", trim(array_pop($response->getOutputBuffer())));
+        $outputBuffer = $response->getOutputBuffer();
+        $this->assertStringContainsString("Processed 1 jobs", trim(array_pop($outputBuffer)));
     }
 
     /**

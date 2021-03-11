@@ -187,9 +187,9 @@ class EntityCollectionTest extends AbstractCollectionTests
         $collection = $this->getCollection();
 
         $data = [
-        'object_type' => ObjectTypes::CONTACT,
-        'field_name' => 'name',
-        'revision' => 1
+            'object_type' => ObjectTypes::CONTACT,
+            'field_name' => 'name',
+            'revision' => 1
         ];
 
         $collection->fromArray($data);

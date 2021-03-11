@@ -120,7 +120,8 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $response = new ConsoleResponse();
 
         // First make sure they passed the username and password params to the command
-        if (!$request->getParam("account") ||
+        if (
+            !$request->getParam("account") ||
             !$request->getParam("email") ||
             !$request->getParam("username") ||
             !$request->getParam("password")
@@ -217,7 +218,11 @@ class SetupController extends AbstractFactoriedController implements ControllerI
     {
         $rootPath = dirname(__FILE__) . "/../../../bin/scripts";
         $scriptName = $request->getParam("script");
-        $script = new BinScript($this->application, $this->account);
+        $accountName = $request->getParam("account");
+        $script = new BinScript(
+            $this->application,
+            $this->accountContainer->loadByName($accountName)
+        );
         $script->run($rootPath . "/" . $scriptName);
         $response = new ConsoleResponse();
         $response->setReturnCode(0);

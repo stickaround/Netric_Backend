@@ -40,7 +40,7 @@ class AbstractActionExecutorTest extends testCase
         // Create a new instance from the Abstract Class
         // This is a tad messy and magical, but it allows us to test the internals
         // of the abstract class without too much tooling.
-        $this->actionExectorBase = new class (
+        $this->actionExectorBase = new class(
             $this->mockEntityLoader,
             $this->mockActionEntity,
             'http://localhost' // Normally this comes form config
@@ -224,6 +224,6 @@ class AbstractActionExecutorTest extends testCase
     public function testGetErrors(): void
     {
         $this->actionExectorBase->addError(new Error('Test'));
-        $this->assertEquals(1, count($this->actionExectorBase->getLastError()));
+        $this->assertNotNUll($this->actionExectorBase->getLastError());
     }
 }

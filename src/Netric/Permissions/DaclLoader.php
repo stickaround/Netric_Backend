@@ -147,8 +147,8 @@ class DaclLoader
     {
         $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $accountId);
         $default = new Dacl();
-        $$groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
-        $default->allowGroup($$groupAdmin->getGroupId(), Dacl::PERM_FULL);
+        $groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
+        $default->allowGroup($groupAdmin->getGroupId(), Dacl::PERM_FULL);
         $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
         $default->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
         return $default;

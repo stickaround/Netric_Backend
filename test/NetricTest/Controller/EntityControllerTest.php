@@ -639,7 +639,10 @@ class EntityControllerTest extends TestCase
      */
     public function testPostSaveAction()
     {
+        // Create some fake IDs
         $savedTaskEntityId = Uuid::uuid4()->toString();
+        $definitionId = Uuid::uuid4()->toString();
+
         $daclPermissions = [
             'view' => true,
             'edit' => true,
@@ -710,6 +713,8 @@ class EntityControllerTest extends TestCase
     public function testPostSaveActionExistingEntity()
     {
         $existingEntityId = Uuid::uuid4()->toString();
+        $definitionId = Uuid::uuid4()->toString();
+
         $daclPermissions = [
             'view' => true,
             'edit' => true,

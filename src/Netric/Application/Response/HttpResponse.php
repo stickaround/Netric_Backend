@@ -4,6 +4,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
+
 namespace Netric\Application\Response;
 
 use Netric\Request\HttpRequest;
@@ -367,7 +368,7 @@ class HttpResponse implements ResponseInterface
         $this->lastModified = $modified;
         $this->setHeader(
             'Last-Modified',
-            gmdate('D, d M Y H:i:s', $modified->getTimestamp() . ' GMT')
+            gmdate('D, d M Y H:i:s', $modified->getTimestamp())
         );
     }
 
@@ -487,8 +488,10 @@ class HttpResponse implements ResponseInterface
         if ($this->isCacheable && $this->lastModified) {
             // Check if the file has been modified since the last time it was downloaded
             // And we are not trying to stream a segment of a file with HTTP_RANGE
-            if ($this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
-                !$this->request->getParam('HTTP_RANGE')) {
+            if (
+                $this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
+                !$this->request->getParam('HTTP_RANGE')
+            ) {
                 $if_modified_since = strtotime(preg_replace('/;.*$/', '', $this->request->getParam('HTTP_IF_MODIFIED_SINCE')));
                 if ($if_modified_since >= $this->lastModified->getTimestamp()) {
                     $this->setReturnCode(self::STATUS_CODE_NOT_MODIFIED, 'Not Modified');

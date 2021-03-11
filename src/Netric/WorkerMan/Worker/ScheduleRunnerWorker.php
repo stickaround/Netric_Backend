@@ -76,7 +76,7 @@ class ScheduleRunnerWorker extends AbstractWorker
         $workload = $job->getWorkload();
 
         // Make sure that the account ID was provided
-        if (!$workload['account_id']) {
+        if (!isset($workload['account_id'])) {
             throw new InvalidArgumentException(
                 "ScheduleRunnerWorker requires 'account_id' be set in the workload params"
             );

@@ -57,6 +57,10 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
      */
     public function checkIfColumnExist($bucketName, $columnName)
     {
+        if (!isset($this->schemaDefinition[$bucketName])) {
+            return false;
+        }
+
         $bucketDefinition = $this->schemaDefinition[$bucketName];
 
         // Loop thru definition properties and check if the column name exists

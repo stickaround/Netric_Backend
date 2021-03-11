@@ -83,9 +83,18 @@ class AuthenticationController extends AbstractFactoriedController implements Co
         $rawBody = $request->getBody();
         if ($rawBody) {
             $body = json_decode($rawBody, true);
-            $username = $body['username'];
-            $password = $body['password'];
-            $account = $body['account'];
+
+            if (isset($body['username'])) {
+                $username = $body['username'];
+            }
+
+            if (isset($body['password'])) {
+                $password = $body['password'];
+            }
+
+            if (isset($body['account'])) {
+                $account = $body['account'];
+            }
         }
 
         if (!$username || !$password || !$account) {

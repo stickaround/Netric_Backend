@@ -1,11 +1,10 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\Account\Account;
 use Netric\Entity\Entity;
-use Netric\EntityGroupings\Group;
 use Netric\EntityQuery\EntityQuery;
-use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityDefinition\Field;
@@ -13,7 +12,6 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Account\AccountContainer;
 use RuntimeException;
-use DateInterval;
 use DateTime;
 
 /**
@@ -104,6 +102,12 @@ class EntityValueSanitizer
         foreach ($queryConditions as $condition) {
             $fieldName = $condition->fieldName;
             $value = $condition->value;
+
+            // If full-text, just leave it alone
+            if ($fieldName === '*') {
+                $sanitizedConditions[] = $condition;
+                continue;
+            }
 
             // Get the Field Definition using the field name provided in the $condition
             $field = $entityDef->getField($fieldName);
@@ -243,7 +247,7 @@ class EntityValueSanitizer
 
         // If the value is not an array then we do not need to proceed
         if (!is_array($multiValue)) {
-             return;
+            return;
         }
 
         foreach ($multiValue as $index => $value) {

@@ -149,7 +149,7 @@ class AuthDotNetGatewayTest extends TestCase
         // Try again and make sure we get an error because we need to make sure there is
         // only one profile per card and customer
         $profileTokenAgain = $this->gateway->createPaymentProfileCard($customer, $card);
-        $this->assertEmpty($$profileTokenAgain);
+        $this->assertEmpty($profileTokenAgain);
         // Make sure there is an error
         $this->assertNotEmpty($this->gateway->getLastError());
     }

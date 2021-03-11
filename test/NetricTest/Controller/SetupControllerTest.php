@@ -86,6 +86,7 @@ class SetupControllerTest extends TestCase
         $request = new ConsoleRequest();
 
         // Queue to run the first script which does not really do anything
+        $request->setParam('account', 'test');
         $request->setParam("script", "update/once/005/001/001.php");
         $ret = $this->setupController->consoleRunAction($request);
 
@@ -99,7 +100,7 @@ class SetupControllerTest extends TestCase
     public function testGetVersionAction()
     {
         $ret = $this->setupController->getVersionAction();
-        $this->assertGreaterThan(0, $ret);
+        $this->assertNotNull($ret);
     }
 
     /**

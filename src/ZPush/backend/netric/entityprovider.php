@@ -1112,7 +1112,7 @@ class EntityProvider
         if ($bpReturnType != SYNC_BODYPREFERENCE_MIME) {
             // Attachments are only searched in the top-level part
             $attachments = $emailEntity->getValue("attachments");
-            if (count($attachments)) {
+            if (is_array($attachments) && count($attachments) > 1) {
                 $serviceManager = $this->account->getServiceManager();
                 $fileSystem = $serviceManager->get(FileSystemFactory::class);
 
@@ -1247,7 +1247,8 @@ class EntityProvider
         }
 
 
-        if (isset($syncNote->asbody) &&
+        if (
+            isset($syncNote->asbody) &&
             isset($syncNote->asbody->type) &&
             isset($syncNote->asbody->data)
         ) {
@@ -1364,7 +1365,8 @@ class EntityProvider
          * nokia sends an yearly event with 0 mins duration but as all day event,
          * so make it end next day
          */
-        if ($syncAppointment->starttime == $syncAppointment->endtime
+        if (
+            $syncAppointment->starttime == $syncAppointment->endtime
             && isset($syncAppointment->alldayevent)
             && $syncAppointment->alldayevent
         ) {
@@ -1758,7 +1760,8 @@ class EntityProvider
      */
     private function isDST($localtime, $tz)
     {
-        if (!isset($tz) || !is_array($tz) ||
+        if (
+            !isset($tz) || !is_array($tz) ||
             !isset($tz["dstbias"]) || $tz["dstbias"] == 0 ||
             !isset($tz["dststartmonth"]) || $tz["dststartmonth"] == 0 ||
             !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0

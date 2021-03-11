@@ -123,7 +123,7 @@ class FilesControllerTest extends TestCase
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
-        $mockDacl->method('toArray')->willReturn($daclDetails);
+        $mockDacl->method('toArray')->willReturn([]);
 
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
@@ -196,7 +196,7 @@ class FilesControllerTest extends TestCase
         $mockDacl = $this->createMock(Dacl::class);
         $mockDacl->method('isAllowed')->willReturn(true);
         $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
-        $mockDacl->method('toArray')->willReturn($daclDetails);
+        $mockDacl->method('toArray')->willReturn([]);
 
         // Create the group for testing
         $mockEntityGroup = $this->createMock(Group::class);

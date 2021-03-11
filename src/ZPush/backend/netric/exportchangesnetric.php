@@ -125,7 +125,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
             $account = $this->provider->getAccount();
 
             // Second param does not fast-forward the collection so we have to do it manually
-            $this->changes = $this->collection->getExportChanged(false, $cutoffDate);
+            $this->changes = (array) $this->collection->getExportChanged(false, $cutoffDate);
         }
 
         $this->log->info("ZPUSH->ExportChangeNetric:InitializeExporter Initialized {$this->folderId} with " . count($this->changes) . " content changes");
@@ -194,7 +194,8 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                 case "delete":
                     // Entity was deleted
                     if ($this->foundInSyncState($change['id'])) {
-                        if ($this->flags & BACKEND_DISCARD_DATA ||
+                        if (
+                            $this->flags & BACKEND_DISCARD_DATA ||
                             $this->importer->ImportMessageDeletion($change["id"]) == true
                         ) {
                             $this->collection->logExported($change['id'], 0);

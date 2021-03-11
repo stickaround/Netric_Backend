@@ -11,11 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Account\Account;
 use Netric\Account\AccountContainerInterface;
-use Netric\Application\Response\HttpResponse;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\AuthenticationController;
-use Netric\EntityDefinition\ObjectTypes;
 use NetricTest\Bootstrap;
 use Ramsey\Uuid\Uuid;
 
@@ -77,9 +75,9 @@ class AuthenticationControllerTest extends TestCase
     public function testPostAuthenticateAction()
     {
         $data = [
-            'username' => TEST_USER,
-            'password' => TEST_USER_PASS,
-            'account' => TEST_ACCOUNT_ID
+            'username' => self::TEST_USER,
+            'password' => self::TEST_USER_PASS,
+            'account' => self::TEST_ACCOUNT_ID
         ];
 
         // Mock the authentication service which is used to authenticate user
@@ -111,9 +109,9 @@ class AuthenticationControllerTest extends TestCase
         // Make sure getAuthenticateAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setParam('username', TEST_USER);
-        $request->setParam('password', TEST_USER_PASS);
-        $request->setParam('account', TEST_ACCOUNT_ID);
+        $request->setParam('username', self::TEST_USER);
+        $request->setParam('password', self::TEST_USER_PASS);
+        $request->setParam('account', self::TEST_ACCOUNT_ID);
         $response = $this->authenticationController->getAuthenticateAction($request);
 
         // It should only return the id of the default view
@@ -149,7 +147,7 @@ class AuthenticationControllerTest extends TestCase
         $data = [
             'username' => 'invalid',
             'password' => 'invalid',
-            'account' => TEST_ACCOUNT_ID
+            'account' => self::TEST_ACCOUNT_ID
         ];
 
         // Test if invalid login and authenticate will return false
@@ -173,9 +171,9 @@ class AuthenticationControllerTest extends TestCase
         // Make sure getLogoutAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setParam('username', TEST_USER);
-        $request->setParam('password', TEST_USER_PASS);
-        $request->setParam('account', TEST_ACCOUNT_ID);
+        $request->setParam('username', self::TEST_USER);
+        $request->setParam('password', self::TEST_USER_PASS);
+        $request->setParam('account', self::TEST_ACCOUNT_ID);
         $response = $this->authenticationController->getLogoutAction($request);
 
         // It should only return the id of the default view

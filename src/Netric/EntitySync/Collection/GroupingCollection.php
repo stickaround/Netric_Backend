@@ -105,7 +105,8 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
                     // First make sure we didn't just import this
                     $skipStat = false;
                     foreach ($imports as $imported) {
-                        if ($imported['local_id'] == $grp->getGroupId()
+                        if (
+                            $imported['local_id'] == $grp->getGroupId()
                             && $imported['local_revision'] == $grp->getCommitId()
                         ) {
                             // Skip over this export because we just imported it
@@ -181,35 +182,31 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      */
     public function fromArray($data)
     {
-        if ($data['entity_sync_collection_id']) {
+        if (isset($data['entity_sync_collection_id'])) {
             $this->setCollectionId($data['entity_sync_collection_id']);
         }
 
-        if ($data['object_type']) {
+        if (isset($data['object_type'])) {
             $this->setObjType($data['object_type']);
         }
 
-        if ($data['field_id']) {
-            $this->setFieldId($data['field_id']);
-        }
-
-        if ($data['field_name']) {
+        if (isset($data['field_name'])) {
             $this->setFieldName($data['field_name']);
         }
 
-        if ($data['ts_last_sync']) {
+        if (isset($data['ts_last_sync'])) {
             $this->setLastSync(new DateTime($data['ts_last_sync']));
         }
 
-        if ($data['conditions']) {
+        if (isset($data['conditions'])) {
             $this->setConditions($data['conditions']);
         }
 
-        if ($data['revision']) {
+        if (isset($data['revision'])) {
             $this->setRevision($data['revision']);
         }
 
-        if ($data['last_commit_id']) {
+        if (isset($data['last_commit_id'])) {
             $this->setLastCommitId($data['last_commit_id']);
         }
     }

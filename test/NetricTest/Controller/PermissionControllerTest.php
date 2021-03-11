@@ -194,6 +194,7 @@ class PermissionControllerTest extends TestCase
     public function testPostSaveDaclEntriesAction()
     {
         $taskEntityId = Uuid::uuid4()->toString();
+        $userEntityId = Uuid::uuid4()->toString();
         $taskEntityDetails = [
             'obj_type' => ObjectTypes::TASK,
             'entity_id' => $userEntityId,

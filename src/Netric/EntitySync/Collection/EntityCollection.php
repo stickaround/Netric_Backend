@@ -137,7 +137,8 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 // First make sure we didn't just import this
                 $skipStat = false;
                 foreach ($imports as $imported) {
-                    if ($imported['local_id'] == $ent->getEntityId() &&
+                    if (
+                        $imported['local_id'] == $ent->getEntityId() &&
                         $imported['local_revision'] == $ent->getValue("commit_id")
                     ) {
                         // Skip over this export because we just imported it
@@ -165,12 +166,6 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 if (($autoFastForward || $skipStat) && $ent->getValue("commit_id")) {
                     // Fast-forward $lastCommitId to last commit_id sent
                     $this->setLastCommitId($ent->getValue("commit_id"));
-
-                    if ($debug) {
-                        echo "debug: ";
-                        echo $ent->getEntityId() . "; ";
-                        echo $ent->getValue("commit_id") . "; ";
-                    }
 
                     // Save to exported log
                     $this->logExported(
@@ -249,35 +244,35 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
      */
     public function fromArray($data)
     {
-        if ($data['entity_sync_collection_id']) {
+        if (isset($data['entity_sync_collection_id'])) {
             $this->setCollectionId($data['entity_sync_collection_id']);
         }
 
-        if ($data['object_type']) {
+        if (isset($data['object_type'])) {
             $this->setObjType($data['object_type']);
         }
 
-        if ($data['field_id']) {
+        if (isset($data['field_id'])) {
             $this->setFieldId($data['field_id']);
         }
 
-        if ($data['field_name']) {
+        if (isset($data['field_name'])) {
             $this->setFieldName($data['field_name']);
         }
 
-        if ($data['ts_last_sync']) {
+        if (isset($data['ts_last_sync'])) {
             $this->setLastSync(new DateTime($data['ts_last_sync']));
         }
 
-        if ($data['conditions']) {
+        if (isset($data['conditions'])) {
             $this->setConditions($data['conditions']);
         }
 
-        if ($data['revision']) {
+        if (isset($data['revision'])) {
             $this->setRevision($data['revision']);
         }
 
-        if ($data['last_commit_id']) {
+        if (isset($data['last_commit_id'])) {
             $this->setLastCommitId($data['last_commit_id']);
         }
     }
