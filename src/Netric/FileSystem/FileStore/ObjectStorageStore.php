@@ -242,7 +242,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
 
         // Assume failure until we succeed
         $key = $file->getValue("dat_ans_key");
-        if (!$this->client->remove(self::BUCKET, $file->getValue("dat_ans_key"))) {
+        if (!$this->getClient()->remove(self::BUCKET, $file->getValue("dat_ans_key"))) {
             $this->addErrorFromMessage("Could not delete file");
             return false;
         }

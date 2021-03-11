@@ -1,20 +1,13 @@
 <?php
-/**
- * Factory used to initialize the netric filesystem filestore
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
+
 namespace Netric\FileSystem\FileStore;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
-use Netric\FileSystem\FileStore\MogileFileStoreFactory;
-use Netric\FileSystem\FileStore\LocalFileStoreFactory;
 
 /**
- * Create a file system storage service
+ * Factory used to initialize the netric filesystem filestore
  */
 class FileStoreFactory implements ApplicationServiceFactoryInterface
 {

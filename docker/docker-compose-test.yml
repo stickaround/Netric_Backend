@@ -15,8 +15,6 @@ services:
       - gearmand
       - db1
       - objectstorage
-      - mogilefs
-      - mogilestore
     entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh > /dev/stdout"'
     logging:
       driver: "json-file"
@@ -51,36 +49,5 @@ services:
 
   objectstorage:
     image: dockerhub.aereus.com/objectstoragesvc:latest
-    depends_on:
-      - mogilefs
-      - mogilestore
     environment:
-      - APPLICATION_ENV=development
-
-  mogilefs:
-    image: "dockerhub.aereus.com/mogiletracker:latest"
-    environment:
-      DB_USER: vagrant
-      DB_PASSWORD: vagrant
-      DB_HOST: mogiledb
-      DB_NAME: mogilefs
-      DB_PORT: 5432
-      DB_INIT: "true"
-      INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 480
-    depends_on:
-      - mogilestore
-      - mogiledb
-    logging:
-      driver: "json-file"
-
-  mogiledb:
-    image: postgres:10
-    environment:
-      POSTGRES_USER: vagrant
-      POSTGRES_PASSWORD: vagrant
-
-  mogilestore:
-    image: "dockerhub.aereus.com/mogilestore:latest"
-    logging:
-      driver: "json-file"
+      - APPLICATION_ENV=devdependency

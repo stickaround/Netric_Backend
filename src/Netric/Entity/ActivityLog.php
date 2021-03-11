@@ -106,14 +106,12 @@ class ActivityLog
         }
 
         // Get notes from the entity
-        if (!$notes) {
-            $notes = "";
-            if ($verb == ActivityEntity::VERB_UPDATED) {
-                $notes = $object->getChangeLogDescription();
-            }
-            if ($verb == ActivityEntity::VERB_CREATED) {
-                $notes = $object->getDescription();
-            }
+        $notes = "";
+        if ($verb == ActivityEntity::VERB_UPDATED) {
+            $notes = $object->getChangeLogDescription();
+        }
+        if ($verb == ActivityEntity::VERB_CREATED) {
+            $notes = $object->getDescription();
         }
 
         $actEntity = $this->entityLoader->create(ObjectTypes::ACTIVITY, $user->getAccountId());

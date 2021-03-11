@@ -53,14 +53,14 @@ RUN cd /tmp \
     && docker-php-ext-enable gearman
 
 # Install mogilefs since the pecl version will not work with PHP7
-RUN cd /tmp \
-    && git clone https://github.com/lstrojny/pecl-mogilefs.git \
-    && cd pecl-mogilefs \
-    && phpize \
-    && ./configure \
-    && make \
-    && make install \
-    && docker-php-ext-enable mogilefs
+#RUN cd /tmp \
+#    && git clone https://github.com/lstrojny/pecl-mogilefs.git \
+#    && cd pecl-mogilefs \
+#    && phpize \
+#    && ./configure \
+#    && make \
+#    && make install \
+#    && docker-php-ext-enable mogilefs
 
 # # Install xhprof for php
 # RUN cd /tmp \
@@ -95,7 +95,7 @@ RUN ln -s /etc/apache2/mods-available/ssl.load /etc/apache2/mods-enabled/
 
 # Copy configs for apache and php
 COPY docker/server/conf/apache2.conf /etc/apache2/apache2.conf
-COPY docker/server/conf/php-devel-ini.conf /usr/local/etc/php/php.ini
+#COPY docker/server/conf/php-devel-ini.conf /usr/local/etc/php/php.ini
 
 # Copy SSL
 RUN mkdir -p /etc/apache2/ssl
@@ -129,8 +129,16 @@ ENTRYPOINT ["/start.sh"]
 ###########################################################################
 FROM base as development
 
+# Enable xdebugger
+RUN echo "xdebug.mode=debug,coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+#RUN echo "xdebug.log =/tmp/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
 ###########################################################################
 FROM development as test
+
+RUN echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Copy everything
 COPY . /var/www/html

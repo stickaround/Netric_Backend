@@ -35,7 +35,7 @@
     "zendframework/zend-http": "~2.5",
     "zendframework/zend-loader": "~2.5",
     "zircote/swagger-php": "^2.0",
-    "php-mime-mail-parser/php-mime-mail-parser": "^2.4",
+    "php-mime-mail-parser/php-mime-mail-parser": "^7.0",
     "authorizenet/authorizenet": "^1.9",
     "graylog2/gelf-php": "^1.5",
     "ramsey/uuid": "^3.7",

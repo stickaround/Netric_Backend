@@ -12,7 +12,7 @@ services:
     environment:
       APPLICATION_ENV: development
       RUN_SETUP_INSTALL: 1
-      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1 remote_connect_back=0 remote_autostart=0"
+      XDEBUG_CONFIG: "client_host=host.docker.internal start_with_request=yes client_port=9003 mode=debug"
       PHP_IDE_CONFIG: "serverName=php.ide.config"
     volumes:
       - .:/var/www/html/
@@ -21,28 +21,24 @@ services:
       - gearmand
       - db1
       - objectstorage
-      - mogilefs
-      - mogilestore
     entrypoint: 'bash -c "rm -f composer.lock && composer install && /start.sh"'
 
-  netric_daemon:
-    build:
-      context: ./
-      target: development
-      dockerfile: ./Dockerfile
-    entrypoint: /start-daemon.sh
-    volumes:
-      - ./:/var/www/html/
-    environment:
-      APPLICATION_ENV: development
-      APPLICATION_VER: daemon-dev
-    depends_on:
-      - memcached
-      - gearmand
-      - db1
-      - objectstorage
-      - mogilefs
-      - mogilestore
+  # netric_daemon:
+  #   build:
+  #     context: ./
+  #     target: development
+  #     dockerfile: ./Dockerfile
+  #   entrypoint: /start-daemon.sh
+  #   volumes:
+  #     - ./:/var/www/html/
+  #   environment:
+  #     APPLICATION_ENV: development
+  #     APPLICATION_VER: daemon-dev
+  #   depends_on:
+  #     - memcached
+  #     - gearmand
+  #     - db1
+  #     - objectstorage
 
   memcached:
     image: memcached
@@ -81,41 +77,6 @@ services:
 
   objectstorage:
     image: dockerhub.aereus.com/objectstoragesvc:latest
-    depends_on:
-      - mogilefs
-      - mogilestore
     environment:
-      - APPLICATION_ENV=development
-
-  mogilefs:
-    image: dockerhub.aereus.com/mogiletracker:latest
-    environment:
-      DB_USER: vagrant
-      DB_PASSWORD: vagrant
-      DB_HOST: mogiledb
-      DB_NAME: mogilefs
-      DB_PORT: 5432
-      DB_INIT: "true"
-      INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 240
-    depends_on:
-      - mogilestore
-      - mogiledb
-
-  mogilestore:
-    image: dockerhub.aereus.com/mogilestore:latest
-
-  mogiledb:
-    image: postgres:10
-    environment:
-      POSTGRES_USER: vagrant
-      POSTGRES_PASSWORD: vagrant
-
-  # xhprof:
-  #   build: docker/xhprof/
-  #   container_name: xhprof
-  #   volumes:
-  #     - ./data/profile_runs:/profiles
-  #   ports:
-  #     - "8888:80"
+      - APPLICATION_ENV=devdependency
   

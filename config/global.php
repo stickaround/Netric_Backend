@@ -1,7 +1,7 @@
 <?php
 
 use \net\authorize\api\constants\ANetEnvironment;
-use Netric\FileSystem\FileStore\MogileFileStoreFactory;
+use Netric\FileSystem\FileStore\ObjectStorageStoreFactory;
 
 return [
     // Determine if secure pages should be offered (not forced) in https
@@ -81,7 +81,7 @@ return [
     ],
     // Files settings
     'files' => [
-        'store' => MogileFileStoreFactory::class,
+        'store' => ObjectStorageStoreFactory::class,
         'osAccount' => 'netric',
         'osServer' => 'objectstorage',
         'osSecret' => 'YCzL6bmR9rNt5MTWuRpQukE7BQ7b9PYm',

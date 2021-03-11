@@ -150,10 +150,7 @@ class EntityDefinitionLoader
      */
     private function loadDefinition(string $objType, string $accountId)
     {
-        // No cache, then load from dataMapper
-        if (!$def) {
-            $def = $this->dataMapper->fetchByName($objType, $accountId);
-        }
+        $def = $this->dataMapper->fetchByName($objType, $accountId);
 
         // Does not exist
         if (!$def) {
@@ -268,7 +265,7 @@ class EntityDefinitionLoader
         if (file_exists($basePath . "/" . $def->getObjType() . ".php")) {
             $ret = include($basePath . "/" . $def->getObjType() . ".php");
 
-            if (is_array($ret['aggregates'])) {
+            if (isset($ret['aggregates']) && is_array($ret['aggregates'])) {
                 foreach ($ret['aggregates'] as $aggData) {
                     $agg = new \stdClass();
                     $agg->field = $aggData['ref_obj_update'];

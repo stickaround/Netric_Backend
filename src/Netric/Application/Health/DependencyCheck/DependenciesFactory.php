@@ -29,13 +29,6 @@ class DependenciesFactory implements ApplicationServiceFactoryInterface
             $config->db->password
         );
 
-        // Mogile must be active
-        $dependencies[] = new MogileFsDependencyCheck(
-            $config->files->mogileServer,
-            $config->files->mogileAccount,
-            $config->files->mogilePort
-        );
-
         return $dependencies;
     }
 }

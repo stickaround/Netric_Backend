@@ -109,7 +109,7 @@ class Application
         }
 
         // Watch for error notices and log them
-        set_error_handler([self::$log, "phpErrorHandler"]);
+        //set_error_handler([self::$log, "phpErrorHandler"]);
 
         // Log unhandled exceptions
         //set_exception_handler(array(self::$log, "phpUnhandledExceptionHandler"));
