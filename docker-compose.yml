@@ -12,8 +12,8 @@ services:
     environment:
       APPLICATION_ENV: development
       RUN_SETUP_INSTALL: 1
-      XDEBUG_CONFIG: "client_host=host.docker.internal start_with_request=yes client_port=9003 mode=debug"
       PHP_IDE_CONFIG: "serverName=php.ide.config"
+      XDEBUG_TRIGGER: "yes"
     volumes:
       - .:/var/www/html/
     depends_on:
@@ -23,22 +23,22 @@ services:
       - objectstorage
     entrypoint: 'bash -c "rm -f composer.lock && composer install && /start.sh"'
 
-  # netric_daemon:
-  #   build:
-  #     context: ./
-  #     target: development
-  #     dockerfile: ./Dockerfile
-  #   entrypoint: /start-daemon.sh
-  #   volumes:
-  #     - ./:/var/www/html/
-  #   environment:
-  #     APPLICATION_ENV: development
-  #     APPLICATION_VER: daemon-dev
-  #   depends_on:
-  #     - memcached
-  #     - gearmand
-  #     - db1
-  #     - objectstorage
+  netric_daemon:
+    build:
+      context: ./
+      target: development
+      dockerfile: ./Dockerfile
+    entrypoint: /start-daemon.sh
+    volumes:
+      - ./:/var/www/html/
+    environment:
+      APPLICATION_ENV: development
+      APPLICATION_VER: daemon-dev
+    depends_on:
+      - memcached
+      - gearmand
+      - db1
+      - objectstorage
 
   memcached:
     image: memcached
@@ -79,4 +79,3 @@ services:
     image: dockerhub.aereus.com/objectstoragesvc:latest
     environment:
       - APPLICATION_ENV=devdependency
-  

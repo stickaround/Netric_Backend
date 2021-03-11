@@ -94,6 +94,11 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
      */
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
+        // If we are EOF
+        if ($numBytes === 0) {
+            return false;
+        }
+
         if (!$file->getValue("dat_ans_key")) {
             throw new Exception\FileNotFoundException(
                 $file->getEntityId() . ":" . $file->getName() . " not found. No key."
@@ -109,7 +114,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
         }
 
         // If the user did not indicate the number of bytes to read then whole file
-        if (!$numBytes) {
+        if ($numBytes === null) {
             $numBytes = $file->getValue("file_size");
         }
 
