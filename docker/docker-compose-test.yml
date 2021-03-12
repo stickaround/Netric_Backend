@@ -15,7 +15,7 @@ services:
       - gearmand
       - db1
       - objectstorage
-    entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh > /dev/stdout"'
+    entrypoint: 'bash -c "/netric-setup.sh && composer test > /dev/stdout"'
     logging:
       driver: "json-file"
   memcached:
