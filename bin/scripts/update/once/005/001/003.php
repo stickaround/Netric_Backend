@@ -29,6 +29,6 @@ for ($i = 0; $i < $result->rowCount(); $i++) {
 
     $db->query(
         "UPDATE entity SET field_data=:field_data WHERE entity_id=:entity_id",
-        ['field_data' => json_encode($row['field_data']), 'entity_id' => $row['entity_id']]
+        ['field_data' => json_encode($data), 'entity_id' => $row['entity_id']]
     );
 }
