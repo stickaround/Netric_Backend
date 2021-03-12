@@ -25,7 +25,7 @@ for ($i = 0; $i < $result->rowCount(); $i++) {
     $data['owner_id'] = $data['user_id'];
 
     $db->query(
-        "UPDATE field_data SET field_data=:field_data WHERE entity_id=:entity_id",
+        "UPDATE entity SET field_data=:field_data WHERE entity_id=:entity_id",
         ['field_data' => json_encode($row['field_data']), 'entity_id' => $row['entity_id']]
     );
 }
