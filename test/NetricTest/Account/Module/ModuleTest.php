@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Test a module in netric like - messages, work, etc...
  */
+
 namespace NetricTest\Account\Module;
 
 use Netric\Account\Module\Module;
@@ -71,22 +73,22 @@ class ModuleTest extends TestCase
         $module->setIcon("test-icon");
         $module->setDefaultRoute("all-notes");
         $module->setNavigation([
-                [
-                    "title" => "New Note",
-                    "type" => "entity",
-                    "default_route" => "new-note",
-                    "objType" => "note",
-                    "icon" => "plus",
-                ],
-                [
-                    "title" => "All Notes",
-                    "type" => "browse",
-                    "default_route" => "all-notes",
-                    "objType" => "note",
-                    "icon" => "tags",
-                    "browseby" => "groups",
-                ]
-            ]);
+            [
+                "title" => "New Note",
+                "type" => "entity",
+                "default_route" => "new-note",
+                "objType" => "note",
+                "icon" => "plus",
+            ],
+            [
+                "title" => "All Notes",
+                "type" => "browse",
+                "default_route" => "all-notes",
+                "objType" => "note",
+                "icon" => "tags",
+                "browseby" => "groups",
+            ]
+        ]);
 
         $data = $module->toArray();
         $this->assertEquals($data['id'], $module->getModuleId());
@@ -109,14 +111,14 @@ class ModuleTest extends TestCase
         $module->setModuleId(123);
         $module->setName("tester");
         $module->setNavigation([
-                [
-                    "title" => "New Note",
-                    "type" => "entity",
-                    "route" => "new-note",
-                    "objType" => "note",
-                    "icon" => "plus",
-                ]
-            ]);
+            [
+                "title" => "New Note",
+                "type" => "entity",
+                "route" => "new-note",
+                "objType" => "note",
+                "icon" => "plus",
+            ]
+        ]);
 
         $this->assertTrue($module->isDirty());
 
@@ -130,19 +132,19 @@ class ModuleTest extends TestCase
         $module->setModuleId(1);
         $module->setName("tester");
         $module->setNavigation([
-                [
-                    "title" => "New Note",
-                    "type" => "entity",
-                    "route" => "new-note",
-                    "objType" => "note",
-                    "icon" => "plus",
-                ]
-            ]);
+            [
+                "title" => "New Note",
+                "type" => "entity",
+                "route" => "new-note",
+                "objType" => "note",
+                "icon" => "plus",
+            ]
+        ]);
 
         $xmlNavigation = $module->convertNavigationToXml();
-        $this->assertRegexp("/xml/", $xmlNavigation);
-        $this->assertRegexp("/navigation/", $xmlNavigation);
-        $this->assertRegexp("/new-note/", $xmlNavigation);
+        $this->assertMatchesRegularExpression("/xml/", $xmlNavigation);
+        $this->assertMatchesRegularExpression("/navigation/", $xmlNavigation);
+        $this->assertMatchesRegularExpression("/new-note/", $xmlNavigation);
     }
 
     public function testConvertXmlToNavigation()

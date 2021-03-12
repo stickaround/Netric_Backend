@@ -3,7 +3,7 @@
 namespace NetricTest;
 
 // Get application autoloader
-include(__DIR__ . "/../init_autoloader.php");
+include(__DIR__ . "/../vendor/autoload.php");
 
 use Zend\Loader\StandardAutoloader;
 use Aereus\Config\ConfigLoader;

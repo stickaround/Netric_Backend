@@ -24,7 +24,7 @@ require_once($zPushRoot . 'include/mimeDecode.php');
 require_once($zPushRoot . 'include/z_RFC822.php');
 
 // Include netric autoloader for all netric libraries
-require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+require_once(dirname(__FILE__) . "/../../../../vendor/autoload.php");
 
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Entity\EntityInterface;

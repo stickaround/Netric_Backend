@@ -22,7 +22,7 @@ require_once($zPushRoot . 'backend/netric/changesnetric.php');
 require_once($zPushRoot . 'backend/netric/entityprovider.php');
 
 // Include netric autoloader for all netric libraries
-require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+require_once(dirname(__FILE__) . "/../../../../vendor/autoload.php");
 
 /**
  * Handle importing changes from the remote device to netric

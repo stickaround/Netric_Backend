@@ -5,7 +5,6 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
-use Netric\Account\AccountContainerFactory;
 use Netric\Account\AccountContainerInterface;
 use Netric\Account\AccountSetup;
 use Netric\Application\Response\HttpResponse;
@@ -13,17 +12,13 @@ use Netric\Application\Response\ConsoleResponse;
 use Netric\Request\ConsoleRequest;
 use Netric\Application\Setup\AccountUpdater;
 use Netric\Application\Setup\Setup;
-use Netric\Application\DatabaseSetup;
 use Netric\Application\Application;
 use Netric\Request\HttpRequest;
 use Netric\Authentication\AuthenticationService;
-use Netric\Entity\ObjType\UserEntity;
-use Netric\Permissions\Dacl;
 use Netric\Log\LogInterface;
 use Netric\Console\BinScript;
 use RuntimeException;
 use InvalidArgumentException;
-use Netric\Settings\SettingsFactory;
 
 /**
  * Controller used for setting up netric - mostly from the command line
@@ -46,11 +41,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
     private AccountSetup $accountSetup;
 
     /**
-     * Service that has the database setup functions
-     */
-    private DatabaseSetup $dbSetup;
-
-    /**
      * Service that can update an account
      */
     private AccountUpdater $accountUpdater;
@@ -71,7 +61,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
      * @param AccountContainerInterface $accountContainer Container used to load accounts
      * @param AuthenticationService $authService Service used to get the current user/account
      * @param AccountSetup $accountSetup Service that has the netric account setup functions
-     * @param DatabaseSetup $dbSetup Service that has the database setup functions
      * @param AccountUpdater $accountUpdater Service that can update an account
      * @param LogInterface $log Logger for recording what is going on
      * @param Application $application The current application instance
@@ -80,7 +69,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         AccountContainerInterface $accountContainer,
         AuthenticationService $authService,
         AccountSetup $accountSetup,
-        DatabaseSetup $dbSetup,
         AccountUpdater $accountUpdater,
         LogInterface $log,
         Application $application
@@ -88,7 +76,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $this->accountContainer = $accountContainer;
         $this->authService = $authService;
         $this->accountSetup = $accountSetup;
-        $this->dbSetup = $dbSetup;
         $this->accountUpdater = $accountUpdater;
         $this->log = $log;
         $this->application = $application;
@@ -136,11 +123,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
             );
         }
 
-        // TODO: Find out a way to determine if netric is already installed
-
-        // Create the database and update the schema
-        $this->dbSetup->updateDatabaseSchema();
-
         // Create account
         if (!$this->application->createAccount(
             $request->getParam("account"),
@@ -174,21 +156,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         // Update the application database
         $this->log->info("SetupController:: Updating application.");
         $response->write("Updating application");
-
-        $this->dbSetup->updateDatabaseSchema();
-
-        //        $applicationSetup = new Setup();
-        //        if (!$applicationSetup->updateApplication($this->getApplication())) {
-        //            $log->error(
-        //                "SetupController: Failed to update application: " .
-        //                    $applicationSetup->getLastError()->getMessage()
-        //            );
-        //
-        //            throw new \Exception(
-        //                "Failed to update application: " .
-        //                    $applicationSetup->getLastError()->getMessage()
-        //            );
-        //        }
 
         $response->write("\t\t[done]\n");
 

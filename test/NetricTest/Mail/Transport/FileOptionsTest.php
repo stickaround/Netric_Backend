@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\FileOptions;
@@ -24,7 +25,7 @@ class FileOptionsTest extends TestCase
         $callback = $this->options->getCallback();
         $this->assertIsCallable($callback);
         $test     = call_user_func($callback, '');
-        $this->assertRegExp('#^NetricMail_\d+_\d+\.eml$#', $test);
+        $this->assertMatchesRegularExpression('#^NetricMail_\d+_\d+\.eml$#', $test);
     }
 
     public function testPathIsMutable()

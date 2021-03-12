@@ -9,7 +9,7 @@ $zPushRoot = dirname(__FILE__) . "/../../";
 require_once($zPushRoot . 'lib/interface/istatemachine.php');
 
 // Include netric autoloader for all netric libraries
-require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+require_once(dirname(__FILE__) . "/../../../../vendor/autoload.php");
 
 use Netric\Db\DbInterface;
 use Netric\Log\LogInterface;

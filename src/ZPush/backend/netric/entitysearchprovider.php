@@ -19,7 +19,7 @@ require_once($zPushRoot . 'lib/exceptions/authenticationrequiredexception.php');
 require_once($zPushRoot . 'lib/exceptions/statusexception.php');
 
 // Include netric autoloader for all netric libraries
-require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+require_once(dirname(__FILE__) . "/../../../../vendor/autoload.php");
 
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;

@@ -12,6 +12,7 @@ fi
 # Check if we should run updates prior to starting
 if [ "${RUN_SETUP_UPDATE}" ]; then
     cd /var/www/html/bin
+    ./db-migrate
     ./netric setup/update
     cd /var/www/html
 fi

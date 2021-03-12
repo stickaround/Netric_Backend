@@ -28,7 +28,7 @@ require_once($zPushRoot . 'backend/netric/entitysearchprovider.php');
 require_once($zPushRoot . 'backend/netric/netricstatemachine.php');
 
 // Include netric autoloader for all netric libraries
-require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+require_once(dirname(__FILE__) . "/../../../../vendor/autoload.php");
 
 // Include provider to conver sync objects to entities
 require_once(dirname(__FILE__) . "/entityprovider.php");

@@ -5,7 +5,7 @@
  */
 
 // Setup autoloader
-include(__DIR__ . "/../init_autoloader.php");
+include(__DIR__ . "/../vendor/autoload.php");
 
 use Netric\Application\Application;
 use Aereus\Config\ConfigLoader;

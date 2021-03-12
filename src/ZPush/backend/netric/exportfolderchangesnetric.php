@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Netric exporter handles exporting folder changes from netric to the device
  *
  * The reason all the files are lowercase in here is because that is the z-push standard
  * so we stick with it to be consistent.
  */
-$zPushRoot = dirname(__FILE__) ."/../../";
+$zPushRoot = dirname(__FILE__) . "/../../";
 
 // Interfaces we are extending
 require_once($zPushRoot . 'lib/interface/iexportchanges.php');
@@ -21,7 +22,7 @@ require_once($zPushRoot . 'backend/netric/changesnetric.php');
 require_once($zPushRoot . 'backend/netric/entityprovider.php');
 
 // Include netric autoloader for all netric libraries
-require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+require_once(dirname(__FILE__) . "/../../../../vendor/autoload.php");
 
 /**
  * Handle exporting folder changes from netric to the device

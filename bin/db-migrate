@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+// Composer autoloading
+include __DIR__ . '/../vendor/autoload.php';
+
+use Netric\Db\Relational\PgsqlDb;
+use Aereus\Database\Relational\Schema\RelationalSchemaMigrator;
+use Aereus\Config\ConfigLoader;
+
+// Get the config
+$configLoader = new ConfigLoader();
+$applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+$config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
+
+// Get the database
+$database = new PgsqlDb(
+    $config->db["host"],
+    $config->db["dbname"],
+    $config->db["user"],
+    $config->db["password"]
+);
+
+// Make sure the database is up - or wait 10 seconds if it is not
+echo "db-migrate: checking database connection...\t";
+$iterationsLeft = 10;
+$connectionVerified = false;
+while ($connectionVerified === false && $iterationsLeft > 0) {
+    if ($database->checkConnection()) {
+        $connectionVerified = true;
+    }
+    // Wait a second before trying again
+    echo '.';
+    sleep(1);
+    $iterationsLeft--;
+}
+echo "[" . ($connectionVerified) ? 'OK' : 'FAILED' . "]\n\n";
+
+// Initialize the migrator
+$migrator = new RelationalSchemaMigrator(
+    $database,
+    __DIR__ . '/../data/db/schema',
+    $applicationEnvironment
+);
+
+// Loop through each script
+echo "Running migration scripts...\n";
+while (($result = $migrator->migrateIncremental()) !== null) {
+    if ($result !== null) {
+        echo "\t-" . $result->getScriptName() . "\t\t";
+        if ($result->wasSuccess()) {
+            echo "[OK]\n";
+        } else {
+            echo "[FAIL!]\n";
+            die($result->getMessage());
+        }
+    }
+}
+
+# Everythig should be updated
+echo "Good news! Everything is up to date.\n";

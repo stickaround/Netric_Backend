@@ -105,15 +105,11 @@ COPY docker/server/ssl/netric.key /etc/apache2/ssl/netric.key
 
 # Copy scripts for interacting with the sever
 COPY docker/server/bin/netric-setup.sh /
-COPY docker/server/bin/netric-update.sh /
-COPY docker/server/bin/netric-tests.sh /
 COPY docker/server/bin/start.sh /
 COPY docker/server/bin/start-daemon.sh /
 
 # Perimissions
 RUN chmod +x /netric-setup.sh
-RUN chmod +x /netric-update.sh
-RUN chmod +x /netric-tests.sh
 RUN chmod +x /start.sh
 RUN chmod +x /start-daemon.sh
 
@@ -132,13 +128,10 @@ FROM base as development
 # Enable xdebugger
 RUN echo "xdebug.mode=debug,coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-#RUN echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 #RUN echo "xdebug.log =/tmp/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 ###########################################################################
 FROM development as test
-
-RUN echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Copy everything
 COPY . /var/www/html

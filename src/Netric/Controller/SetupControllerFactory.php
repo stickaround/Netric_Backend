@@ -28,7 +28,6 @@ class SetupControllerFactory implements ControllerFactoryInterface
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         $authService = $serviceLocator->get(AuthenticationServiceFactory::class);
         $accountSetup = $serviceLocator->get(AccountSetupFactory::class);
-        $dbSetup = $serviceLocator->get(DatabaseSetupFactory::class);
         $accountUpdater = $serviceLocator->get(AccountUpdaterFactory::class);
         $log = $serviceLocator->get(LogFactory::class);
         $application = $serviceLocator->getApplication();
@@ -37,7 +36,6 @@ class SetupControllerFactory implements ControllerFactoryInterface
             $accountContainer,
             $authService,
             $accountSetup,
-            $dbSetup,
             $accountUpdater,
             $log,
             $application

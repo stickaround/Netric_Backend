@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Z-Push backend for netric
  *
@@ -6,11 +7,11 @@
  * so we stick with it to be consistent.
  */
 
-$zPushRoot = dirname(__FILE__) ."/../../";
+$zPushRoot = dirname(__FILE__) . "/../../";
 require_once($zPushRoot . 'lib/log/log.php');
 
 // Include netric autoloader for all netric libraries
-require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+require_once(dirname(__FILE__) . "/../../../../vendor/autoload.php");
 
 // Require backend application initialization
 require_once(dirname(__FILE__) . '/netricApplicationInit.php');

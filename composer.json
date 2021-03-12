@@ -5,7 +5,14 @@
   "homepage": "http://www.netric.com/",
   "autoload": {
     "psr-4": {
-      "Netric\\": "src/Netric"
+      "Netric\\": "src/Netric/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NetricTest\\": "test/NetricTest/",
+      "ZPushTest\\": "test/ZPushTest/",
+      "BinTest\\": "test/BinTest/"
     }
   },
   "scripts": {

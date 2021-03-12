@@ -16,7 +16,6 @@ use Netric\Controller\SetupController;
 use Netric\Application\Setup\AccountUpdater;
 use Netric\Log\LogInterface;
 use Netric\Account\AccountSetup;
-use Netric\Application\DatabaseSetup;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -47,7 +46,6 @@ class SetupControllerTest extends TestCase
     {
         // Create mocks
         $this->accountSetup = $this->createMock(AccountSetup::class);
-        $this->dbSetup = $this->createMock(DatabaseSetup::class);
         $this->mockLog = $this->createMock(LogInterface::class);
         $this->mockApplication = $this->createMock(Application::class);
         $this->mockAccountUpdater = $this->createMock(AccountUpdater::class);
@@ -69,7 +67,6 @@ class SetupControllerTest extends TestCase
             $this->accountContainer,
             $this->mockAuthService,
             $this->accountSetup,
-            $this->dbSetup,
             $this->mockAccountUpdater,
             $this->mockLog,
             $this->mockApplication,
