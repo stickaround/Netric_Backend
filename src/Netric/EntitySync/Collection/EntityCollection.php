@@ -137,8 +137,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 // First make sure we didn't just import this
                 $skipStat = false;
                 foreach ($imports as $imported) {
-                    if (
-                        $imported['local_id'] == $ent->getEntityId() &&
+                    if ($imported['local_id'] == $ent->getEntityId() &&
                         $imported['local_revision'] == $ent->getValue("commit_id")
                     ) {
                         // Skip over this export because we just imported it

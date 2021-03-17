@@ -12,13 +12,13 @@
             "source": {
                 "type": "git",
                 "url": "ssh://git@src.aereus.com:222/source/aereus.lib.php.git",
-                "reference": "8a5de75d26aa4770365d22150c3fe9877d33d6f8"
+                "reference": "ab61ca2e71c428e3600b1f03df2df4b6b7660ad4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://packagist.aereus.com/dist/aereus/lib/aereus-lib-dev-master-086821.zip",
-                "reference": "8a5de75d26aa4770365d22150c3fe9877d33d6f8",
-                "shasum": "5ab021cd111e824939be17127e32fd94a4d81a95"
+                "url": "https://packagist.aereus.com/dist/aereus/lib/aereus-lib-dev-master-eb81d8.zip",
+                "reference": "ab61ca2e71c428e3600b1f03df2df4b6b7660ad4",
+                "shasum": "b48fa6b29bd340d84171622c11b31123912eab85"
             },
             "require": {
                 "graylog2/gelf-php": "^1.5",
@@ -71,7 +71,7 @@
             ],
             "description": "PHP Core Libraries for Aereus",
             "homepage": "https://src.aereus.com/source/application.lib.php/",
-            "time": "2021-02-11T15:03:28+00:00"
+            "time": "2021-03-10T14:56:26+00:00"
         },
         {
             "name": "aereus/notificationpusher-sdk",
@@ -79,13 +79,13 @@
             "source": {
                 "type": "git",
                 "url": "ssh://git@src.aereus.com:222/source/notificationpusher.sdk.php.git",
-                "reference": "8aecc2fb45952e600f250c4f8c9d196ca8ff8fcf"
+                "reference": "78b5c7a62701c23c778837bb2e0e3857ee37f57d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://packagist.aereus.com/dist/aereus/notificationpusher-sdk/aereus-notificationpusher-sdk-dev-master-9e070a.zip",
-                "reference": "8aecc2fb45952e600f250c4f8c9d196ca8ff8fcf",
-                "shasum": "7b6c6494121d18e190973c871b970705fdcd444d"
+                "url": "https://packagist.aereus.com/dist/aereus/notificationpusher-sdk/aereus-notificationpusher-sdk-dev-master-0a788f.zip",
+                "reference": "78b5c7a62701c23c778837bb2e0e3857ee37f57d",
+                "shasum": "bef850e5915b37716646860cdd413dfe36710ec3"
             },
             "require": {
                 "graylog2/gelf-php": "^1.5",
@@ -138,7 +138,7 @@
             ],
             "description": "PHP SDK for interacting with the NotificationPusher service",
             "homepage": "https://src.aereus.com/source/notificationpusher.sdk.php/",
-            "time": "2021-03-05T02:54:42+00:00"
+            "time": "2021-03-05T13:46:03+00:00"
         },
         {
             "name": "aereus/objectstorage-sdk",

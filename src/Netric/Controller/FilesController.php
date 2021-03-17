@@ -9,12 +9,10 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
-use Netric\Account\AccountContainerFactory;
 use Netric\Account\AccountContainerInterface;
 use Netric\Application\Response\HttpResponse;
 use Netric\Request\HttpRequest;
 use Netric\Authentication\AuthenticationService;
-use Netric\Account\AccountContainer;
 use Netric\Entity\EntityLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\ImageResizer;
@@ -22,7 +20,6 @@ use Netric\EntityGroupings\GroupingLoader;
 use Netric\Permissions\DaclLoader;
 use Netric\Permissions\Dacl;
 use Netric\Log\LogInterface;
-use Netric\FileSystem\FileStreamWrapper;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use DateTime;
@@ -403,7 +400,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         $response->setHeader('X-Entity', $fileEntity->getEntityId());
 
         // Wrap the file in a stream wrapper and return the response
-        $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
+        $response->setStream($this->fileSystem->openFileStream($fileEntity));
         return $response;
     }
 

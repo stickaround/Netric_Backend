@@ -107,8 +107,7 @@ class ImageResizer implements ErrorAwareInterface
     {
         // First make sure it is an image
         $fileType = $source->getType();
-        if (
-            'jpg' !== $fileType &&
+        if ('jpg' !== $fileType &&
             'jpeg' !== $fileType &&
             'png' !== $fileType
         ) {
@@ -170,7 +169,7 @@ class ImageResizer implements ErrorAwareInterface
         $localTempName = tempnam($this->localTempPath, 'resizeimg');
 
         // Stream the file to a local copy
-        $inputStream = FileStreamWrapper::open($this->fileSystem, $source);
+        $inputStream = $this->fileSystem->openFileStream($source);
         $outputStream = fopen($localTempName, 'w');
         fwrite($outputStream, stream_get_contents($inputStream));
 

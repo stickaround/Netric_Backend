@@ -38,6 +38,14 @@ interface FileStoreInterface extends Error\ErrorAwareInterface
     public function writeFile(FileEntity $file, $dataOrStream, UserEntity $user);
 
     /**
+     * Get a file stream to read from
+     *
+     * @param FileEntity $file The meta-data Entity for this file
+     * @return resource
+     */
+    public function openFileStream(FileEntity $file);
+
+    /**
      * Upload a file to the data store
      *
      * @param FileEntity $file Meta-data Entity for the file

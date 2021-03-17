@@ -194,8 +194,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                 case "delete":
                     // Entity was deleted
                     if ($this->foundInSyncState($change['id'])) {
-                        if (
-                            $this->flags & BACKEND_DISCARD_DATA ||
+                        if ($this->flags & BACKEND_DISCARD_DATA ||
                             $this->importer->ImportMessageDeletion($change["id"]) == true
                         ) {
                             $this->collection->logExported($change['id'], 0);

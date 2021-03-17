@@ -2,6 +2,7 @@
 
 namespace Netric\FileSystem\FileStore;
 
+use http\Exception\RuntimeException;
 use Netric\Error;
 use Netric\Entity\ObjType\FileEntity;
 use Netric\Entity\EntityLoader;
@@ -94,11 +95,6 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
      */
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
-        // If we are EOF
-        if ($numBytes === 0) {
-            return false;
-        }
-
         if (!$file->getValue("dat_ans_key")) {
             throw new Exception\FileNotFoundException(
                 $file->getEntityId() . ":" . $file->getName() . " not found. No key."
@@ -123,6 +119,23 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
         }
 
         return false;
+    }
+
+    /**
+     * Get a file stream to read from
+     *
+     * @param FileEntity $file The meta-data Entity for this file
+     * @return resource
+     */
+    public function openFileStream(FileEntity $file)
+    {
+        if (!$file->getValue("dat_ans_key")) {
+            throw new Exception\FileNotFoundException(
+                $file->getEntityId() . ":" . $file->getName() . " not found. No key."
+            );
+        }
+
+        return $this->getClient()->getStream(self::BUCKET, $file->getValue("dat_ans_key"));
     }
 
     /**
@@ -174,7 +187,7 @@ class ObjectStorageStore extends Error\AbstractHasErrors implements FileStoreInt
      * @param FileEntity $file Meta-data Entity for the file
      * @param string $localPath Path of a local file
      * @param UserEntity $user
-     * @return true on success, false on failure
+     * @return bool true on success, false on failure
      */
     public function uploadFile(FileEntity $file, $localPath, UserEntity $user)
     {

@@ -158,6 +158,17 @@ class FileSystem implements Error\ErrorAwareInterface
     }
 
     /**
+     * Get a stream resource to read data for a file
+     *
+     * @param FileEntity $file
+     * @return resource
+     */
+    public function openFileStream(FileEntity $file)
+    {
+        return $this->fileStore->openFileStream($file);
+    }
+
+    /**
      * Delete a folder
      *
      * @param Folder $folder The folder to delee
@@ -198,7 +209,7 @@ class FileSystem implements Error\ErrorAwareInterface
     {
         $file = $this->openFileById($fileId, $user);
         if ($file) {
-            return FileStreamWrapper::open($this, $file);
+            return $this->openFileStream($file);
         } else {
             return null;
         }
