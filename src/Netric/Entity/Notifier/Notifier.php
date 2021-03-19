@@ -8,9 +8,9 @@ use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\OrderBy;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
+use Netric\Entity\ObjType\NotificationEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\Authentication\AuthenticationService;
 use NotificationPusherSdk\NotificationPusherClientInterface;
 use Ramsey\Uuid\Uuid;
 
@@ -20,7 +20,7 @@ use Ramsey\Uuid\Uuid;
  * Example for comment:
  *
  *  $comment = $entityLoader->create("comment", $currentUser->getAccountId());
- *  $comment->setValue("comment", "[user:1:Test]"); // tag to send notice to user id 1
+ *  $comment->setValue("comment", "@sky"); // tag to send notice to user sky
  *  $entityLoader->save($comment);
  *  $notifier = $sl->get("Netric/Entity/Notifier/Notifier");
  *  $notifier->send($comment, "create");
@@ -31,13 +31,6 @@ use Ramsey\Uuid\Uuid;
  */
 class Notifier
 {
-    /**
-     * Current user
-     *
-     * @var AuthenticationService
-     */
-    private AuthenticationService $authService;
-
     /**
      * Entity loader for getting and saving entities
      *
@@ -54,33 +47,21 @@ class Notifier
 
     /**
      * Client used to connect with the notification pusher server
-     *
-     * @var NotificationPusherClientInterface
      */
     private NotificationPusherClientInterface $notificationPusher;
 
     /**
-     * Adding this for testing which is really hacky
-     * 
-     * Eventually we need to move all the tests to mocks, but for now this will work
-     */
-    public bool $suppressPush = false;
-
-    /**
      * Class constructor and dependency setter
      *
-     * @param AuthenticationService $authService The current authenticated user & account
      * @param EntityLoader $entityLoader To create, find, and save entities
      * @param IndexInterface $index An entity index for querying existing notifications
      * @param NotificationPusherClientInterface $notificationPusher Used for push notifications
      */
     public function __construct(
-        AuthenticationService $authService,
         EntityLoader $entityLoader,
         IndexInterface $index,
         NotificationPusherClientInterface $notificationPusher
     ) {
-        $this->authService = $authService;
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $index;
         $this->notificationPusher = $notificationPusher;
@@ -92,35 +73,35 @@ class Notifier
      * @param EntityInterface $entity The entity that was just acted on
      * @param string $event The event that is triggering from ActivityEntity::VERB_*
      * @param UserEntity $user The user performing the event
+     * @param string $changedDescription The description of the change that took place
      * @return int[] List of notification entities created or updated
      */
-    public function send(EntityInterface $entity, string $event, UserEntity $user)
+    public function send(EntityInterface $entity, string $event, UserEntity $user, string $changedDescription = '')
     {
         $objType = $entity->getDefinition()->getObjType();
 
         // Array of notification entities we either create or update below
         $notificationIds = [];
 
-        // We obviously never want to send notifications about notifications or activities
-        if ($objType == ObjectTypes::NOTIFICATION || $objType == ObjectTypes::ACTIVITY) {
+        // We never want to send notifications about notifications or activities
+        // Or notifications from anonmymous or system users
+        if (
+            $objType == ObjectTypes::NOTIFICATION ||
+            $objType == ObjectTypes::ACTIVITY ||
+            $user->isSystem() ||
+            $user->isAnonymous()
+        ) {
             return $notificationIds;
         }
         $objReference = $entity->getEntityId();
 
-        // user, changed status, status value
-        $description = $entity->getChangeLogDescription();
-
         // Get a human-readable name to use for this notification
         $name = $this->getNameFromEventVerb($event, $entity->getDefinition()->getTitle());
 
+        $description = ($changedDescription) ? $changedDescription : $entity->getDescription();
+
         // Get followers of the referenced entity
         $followers = $this->getInterestedUsers($entity, $user);
-
-        // If no values, then return empty array
-        if (!is_array($followers)) {
-            return $notificationIds;
-        }
-
         foreach ($followers as $userGuid) {
             // If the follower id is not a valid user id then just skip
             if (!Uuid::isValid($userGuid)) {
@@ -129,8 +110,18 @@ class Notifier
 
             $followerEntity = $this->entityLoader->getEntityById($userGuid, $user->getAccountId());
 
-            // If the entity has been deleted, then skip
-            if (!$followerEntity) {
+            /**
+             * Make sure the follower is valid:
+             *
+             * 1. Was not deleted
+             * 2. Not the same as the user performing the action - no need to notify them they did something
+             * 3. Not a system user
+             */
+            if (!$followerEntity ||
+                $followerEntity->getEntityId() == $user->getEntityId() ||
+                $followerEntity->isSystem()
+            ) {
+                // Skip
                 continue;
             }
 
@@ -155,41 +146,14 @@ class Notifier
                 }
             }
 
-            // If there were no changes made in this entity, then we do not need to send a notification email.
-            if ($description === "No changes were made") {
-                continue;
-            }
+            // Create new notification, or update an existing unseen one
+            $notification = $this->getNotification($objReference, $userGuid, $user->getAccountId());
+            $notification->setValue("name", $name);
+            $notification->setValue("description", $description);
+            $notification->setValue("f_seen", false);
+            $notificationIds[] = $this->entityLoader->save($notification, $user);
 
-            /*
-             * Create a new notification if it is not the current user - we don't want
-             * to notify a user if they are the one performing the action.
-             *
-             * We also do not want to send notifications to users if the system does
-             * something like adding a new email.
-             */
-            if (
-                $followerEntity->getEntityId() != $user->getEntityId() &&
-                !$user->isSystem() &&
-                !$user->isAnonymous() &&
-                !$followerEntity->isSystem()
-            ) {
-                // Create new notification, or update an existing unseen one
-                $notification = $this->getNotification($objReference, $userGuid, $user->getAccountId());
-                $notification->setValue("name", $name);
-                $notification->setValue("description", $description);
-                $notification->setValue("f_email", true);
-                $notification->setValue('f_push', true);
-                $notification->setValue("f_popup", false);
-                $notification->setValue("f_sms", false);
-                $notification->setValue("f_seen", false);
-
-                // if running it test mode, disable the push call
-                if ($this->suppressPush) {
-                    $notification->setValue('f_push', false);
-                }
-
-                $notificationIds[] = $this->entityLoader->save($notification, $user);
-            }
+            $this->sendNotification($notification, $user);
         }
 
         return $notificationIds;
@@ -326,6 +290,141 @@ class Notifier
             $userId,
             $channel,
             $data
+        );
+    }
+
+    /**
+     * Send notification to various channels
+     *
+     * @param NotificationEntity $notification Notification to send
+     * @param UserEntity $user The user who performed the action causing the notification
+     * @return void
+     */
+    private function sendNotification(NotificationEntity $notification, UserEntity $user): void
+    {
+        $this->sendNotificationEmail($notification, $user);
+        $this->sendNotificationPush($notification, $user);
+    }
+
+    /**
+     * Email a notification
+     *
+     * @param NotificationEntity $notification Notification to send
+     * @param UserEntity $user The user who performed the action causing the notification
+     */
+    private function sendNotificationEmail(NotificationEntity $notification, UserEntity $user): void
+    {
+        // Make sure the notification has an owner or a creator
+        if (empty($notification->getValue("owner_id")) ||
+            empty($notification->getValue("creator_id"))) {
+            return;
+        }
+
+        // Get the user that owns this notice
+        $user = $this->entityLoader->getEntityById(
+            $notification->getValue("owner_id"),
+            $user->getAccountId()
+        );
+
+        // Get the user that triggered this notice
+        $creator = $this->entityLoader->getEntityById(
+            $notification->getValue("creator_id"),
+            $user->getAccountId()
+        );
+
+        // Make sure the user has an email
+        if (!$user || !$user->getValue("email")) {
+            return;
+        }
+
+        // Get the referenced entity
+        $objReference = $notification->getValue("obj_reference");
+        $referencedEntity = $this->entityLoader->getEntityById(
+            $objReference,
+            $user->getAccountId()
+        );
+        $def = $referencedEntity->getDefinition();
+
+        // Set the body
+        $body = $creator->getName() . " - " . $notification->getName('name') . " on ";
+        $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
+        $body .= "---------------------------------------\r\n\r\n";
+        $body .= $def->getTitle() . ": " . $referencedEntity->getName();
+
+        // If there is a notification description, then include it in the body
+        $description = $notification->getValue("description");
+        if ($description) {
+            $body .= "\r\n\r\n";
+
+            // If the description is already directed to a user, there is no need to add the Details text
+            if (!preg_match('/(directed a comment at you:)/', $description)) {
+                $body .= "Details: ";
+            }
+
+            $body .= "\r$description";
+        }
+
+        // TODO: Add link to body
+        // $body .= "\r\n\r\nLink: \r";
+        // $body .= $config->application_url . "/browse/" . $referencedEntity->getEntityId();
+        // $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
+        // $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
+
+        // // Set from
+        // $fromEmail = $config->email['noreply'];
+        $fromEmail = 'no-reply@netric.com';
+
+        // TODO: Add special dropbox that enables users to comment by just replying to an email
+        // if ($config->email['dropbox_catchall']) {
+        //     $fromEmail = $account->getName() . "-com-";
+        //     $fromEmail .= $objReference;
+        //     $fromEmail .= $config->email['dropbox_catchall'];
+        // }
+
+        // try {
+        //     $to = $user->getValue("email");
+        //     $subject = $this->getValue("name");
+
+        //     // Create a new message and send it
+        //     $from = new Address($fromEmail, $creator->getName());
+        //     $message = new Mail\Message();
+        //     $message->addFrom($fromEmail);
+        //     $message->addTo($user->getValue("email"));
+        //     $message->setBody($body);
+        //     $message->setEncoding('UTF-8');
+        //     $message->setSubject($this->getValue("name"));
+        //     $this->mailTransport->send($message);
+        // } catch (\Exception $ex) {
+        //     /*
+        //      * This should never happen, but in case we cannot send the email for
+        //      * reason we should log it as an error and continue working.
+        //      */
+        //     $log->error("NotificationEntity:: Could not send notification: " . $ex->getMessage(), var_export($config, true));
+        // }
+    }
+
+    /**
+     * Push a notification to a push channel like chrome html push or apple push notificaiton service
+     *
+     * @param NotificationEntity $notification Notification to send
+     * @param UserEntity $user The user who performed the action causing the notification
+     * @return bool true on success
+     */
+    public function sendNotificationPush(NotificationEntity $notification, UserEntity $user): bool
+    {
+        // Make sure the notification has an owner or a creator
+        if (empty($notification->getValue("owner_id")) ||
+            empty($notification->getValue("name")) ||
+            empty($notification->getValue("description"))) {
+            return false;
+        }
+
+        return $this->notificationPusher->send(
+            'netric',
+            $notification->getValue("owner_id"),
+            $notification->getValue("name"),
+            $notification->getValue("description"),
+            ['entityId' => $notification->getValue("obj_reference")]
         );
     }
 }

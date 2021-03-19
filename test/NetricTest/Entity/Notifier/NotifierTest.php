@@ -6,7 +6,6 @@
 
 namespace NetricTest\Entity\Notifier;
 
-use Netric\Authentication\AuthenticationService;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use PHPUnit\Framework\TestCase;
@@ -23,6 +22,9 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
 use NotificationPusherSdk\NotificationPusherClientInterface;
 
+/**
+ * Test the notifier service
+ */
 class NotifierTest extends TestCase
 {
     /**
@@ -74,11 +76,16 @@ class NotifierTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $this->notifier = $this->account->getServiceManager()->get(NotifierFactory::class);
-        $this->notifier->suppressPush = true;
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+
+        //$entityLoaderMock = $this->createMock(EntityLoader::class);
+        //$indexMock = $this->createMock(IndexInterface::class);
+        $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
+        $this->notifier = new Notifier($this->entityLoader, $index, $pusherClientMock);
+
 
         // Make sure test user does not exist from previous failed query
-        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        
         $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where("name")->equals("notifiertest");
         $result = $index->executeQuery($query);
@@ -300,54 +307,42 @@ class NotifierTest extends TestCase
     }
 
     /**
-     * Test creating new notifications and sending them to followers of an entity
-     */
-    public function testNotificationNotCreatedWhenUpdatingSortOrder()
-    {
-        // Create a test task entity and assign it to $this->testUser
-        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
-        $task->setValue("owner_id", $this->testUser->getEntityId());
-        $task->setValue("name", "test task");
-        $this->entityLoader->save($task, $this->account->getSystemUser());
-        $this->testEntities[] = $task;
-
-        // Saving created notices automatically, mark them all as read for the test
-        $this->notifier->markNotificationsSeen($task, $this->testUser);
-
-        $currentSortOrder = $task->getValue("sort_order");
-
-        // Now update the sort_order value
-        $task->setValue("sort_order", $currentSortOrder + 1);
-        $this->entityLoader->save($task, $this->account->getSystemUser());
-        $this->assertNotEquals($task->getValue("sort_order"), $currentSortOrder);
-
-        // Now try to re-create notifications
-        $notificationIds = $this->notifier->send(
-            $task,
-            ActivityEntity::VERB_UPDATED,
-            $this->account->getAuthenticatedUser()
-        );
-
-        // There should be no notifications created when updating the sort_order
-        $this->assertEquals(0, count($notificationIds));
-    }
-
-    /**
      * Check that we can subscribe a user to the notificationpusher
      */
     public function testSubscribeToPush(): void
     {
-        $authMock = $this->createMock(AuthenticationService::class);
         $entityLoaderMock = $this->createMock(EntityLoader::class);
         $indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
         $pusherClientMock->expects($this->once())->method('subscribe')->willReturn(true);
 
-        $notifier = new Notifier($authMock, $entityLoaderMock, $indexMock, $pusherClientMock);
+        $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock);
         $this->assertTrue($notifier->subscribeToPush(
             'TEST-UUID',
             NotificationPusherClientInterface::CHANNEL_APNS,
             [ 'token' => 'fake-token' ]
         ));
+    }
+
+    /**
+     * Test that a email is sent
+     */
+    public function testSendPushNotification()
+    {
+        $entityLoaderMock = $this->createMock(EntityLoader::class);
+        $indexMock = $this->createMock(IndexInterface::class);
+        $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
+        $pusherClientMock->expects($this->once())->method('send')->willReturn(true);
+
+        $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock);
+
+        // Setup a test notification
+        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
+        $notification->setValue("name", "New Comment");
+        $notification->setValue("description", "Sky said xxx");
+        $notification->setValue("owner_id", $this->testUser->getEntityId());
+        $notification->setValue("obj_reference", 'UUID-FAKE', 'Some Mock Task');
+
+        $this->assertTrue($notifier->sendNotificationPush($notification, $this->testUser));
     }
 }

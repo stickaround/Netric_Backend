@@ -70,5 +70,12 @@ return [
         'anet_url' => ANetEnvironment::SANDBOX,
         'anet_login' => '47zCW38But',
         // The key is in the vault
-    ]
+    ],
+    'notifications' => [
+        'push' => [
+            'server' => 'notificationpusher',
+            'account' => 'test',
+            'secret' => 'testsecret',
+        ],
+    ],
 ];

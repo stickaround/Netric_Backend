@@ -190,4 +190,16 @@ interface EntityInterface
      * @return Recurrence\RecurrencePattern
      */
     public function getRecurrencePattern();
+
+    /**
+     * Try and get a textual description of this entity typically found in fileds named "notes" or "description"
+     *
+     * @return string The name of this object
+     */
+    public function getDescription(): string;
+    
+    /**
+     * Get a textual representation of what changed
+     */
+    public function getChangeLogDescription(): string;
 }

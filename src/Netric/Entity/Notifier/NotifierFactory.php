@@ -21,11 +21,9 @@ class NotifierFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceManager)
     {
-        // TODO: The below is causing a circular reference so we need to figure that out
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityIndex = $serviceManager->get(IndexFactory::class);
-        $authService = $serviceManager->get(AuthenticationServiceFactory::class);
         $notificationPusher = $serviceManager->get(NotificationPusherFactory::class);
-        return new Notifier($authService, $entityLoader, $entityIndex, $notificationPusher);
+        return new Notifier($entityLoader, $entityIndex, $notificationPusher);
     }
 }

@@ -55,6 +55,13 @@ return [
         // We leave this for unit tests since we test gearman
         'server' => 'gearmand',
     ],
+    'notifications' => [
+        'push' => [
+            'server' => 'notificationpusher',
+            'account' => 'test',
+            'secret' => 'testsecret',
+        ],
+    ],
     'billing' => [
         'anet_url' => ANetEnvironment::SANDBOX,
         'anet_login' => '47zCW38But',

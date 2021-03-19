@@ -805,11 +805,11 @@ class Entity implements EntityInterface
      *
      * @return string The name of this object
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
-            if ($field->type == FIELD::TYPE_TEXT) {
+            if ($field->type == FIELD::TYPE_TEXT && $this->getValue($field->name)) {
                 if ($field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
@@ -826,9 +826,7 @@ class Entity implements EntityInterface
     /**
      * Get a textual representation of what changed
      */
-
-    // user, changed status, status value
-    public function getChangeLogDescription()
+    public function getChangeLogDescription(): string
     {
         $hide = [
             "commit_id",
@@ -849,7 +847,7 @@ class Entity implements EntityInterface
             $field = $this->def->getField($fname);
 
             // Skip multi key arrays
-            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
+            if ($field == null || $field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
                 continue;
             }
 
@@ -879,10 +877,6 @@ class Entity implements EntityInterface
                 }
                 $buf .= "to \"" . $newVal . "\" \n";
             }
-        }
-
-        if (!$buf) {
-            $buf = "No changes were made";
         }
 
         return $buf;

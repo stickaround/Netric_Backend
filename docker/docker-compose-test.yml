@@ -51,3 +51,20 @@ services:
     image: dockerhub.aereus.com/objectstoragesvc:latest
     environment:
       - APPLICATION_ENV=devdependency
+      
+  notificationpusher:
+    image: dockerhub.aereus.com/notificationpushersvc:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - pgsql
+    environment:
+      - APPLICATION_ENV=development
+      - RUN_SETUP_UPDATE=1
+
+  pgsql:
+    image: postgres
+    environment:
+      POSTGRES_USER: notpush
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: notificationpusher

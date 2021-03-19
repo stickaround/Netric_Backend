@@ -322,6 +322,9 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         // Call beforeSave
         $entity->beforeSave($this->serviceManager, $user);
 
+        // Get releveant changed description
+        $changedDesc = $entity->getChangeLogDescription();
+
         // Save data to DataMapper implementation
         $ret = $this->saveData($entity);
 
@@ -366,6 +369,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 'user_id' => $user->getEntityId(),
                 'entity_id' => $ret,
                 'event_name' => $event,
+                'changed_description' => $changedDesc
             ]);
         }
 

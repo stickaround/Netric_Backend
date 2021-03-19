@@ -63,9 +63,11 @@ class EntityPostSaveWorker extends AbstractWorker
         $entityIndex = $serviceManager->get(IndexFactory::class);
         $entityIndex->save($entity);
 
-        // Create or send notifications
-        $notifierService = $serviceManager->get(NotifierFactory::class);
-        $notifierService->send($entity, $workload['event_name'], $user);
+        // Create or send notifications if the changelog was sent
+        if (!empty($workload['changed_description']) && $user) {
+            $notifierService = $serviceManager->get(NotifierFactory::class);
+            $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
+        }
 
         // Log the activity
         $activityLog = $serviceManager->get(ActivityLogFactory::class);
