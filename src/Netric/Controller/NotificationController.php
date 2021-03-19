@@ -67,7 +67,7 @@ class NotificationController extends AbstractFactoriedController implements Cont
         // Log
         if ($this->log) {
             $this->log->info(
-                'NotificationController::postSubscribeAction: Registered subscription for ' . json_encode($objData) .
+                'NotificationController->postSubscribeAction: Registered subscription for ' . json_encode($objData) .
                 ' with result ' . json_encode($res)
             );
         }
