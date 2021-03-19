@@ -6,6 +6,7 @@ use Netric\Entity\Notifier\Notifier;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
 use Netric\Application\Response\HttpResponse;
+use Netric\Log\LogInterface;
 use Netric\Request\HttpRequest;
 
 /**
@@ -19,13 +20,20 @@ class NotificationController extends AbstractFactoriedController implements Cont
     private Notifier $notifier;
 
     /**
+     * Optional netric log
+     */
+    private LogInterface $log;
+
+    /**
      * Initialize controller and all dependencies
      *
      * @param Notifier $notifier Service for managing notifications
+     * @param LogInterface $log Optional logger
      */
-    public function __construct(Notifier $notifier)
+    public function __construct(Notifier $notifier, LogInterface $log = null)
     {
         $this->notifier = $notifier;
+        $this->log = $log;
     }
     /**
      * Setup a subscription to a push notification channel
@@ -55,6 +63,14 @@ class NotificationController extends AbstractFactoriedController implements Cont
         }
 
         $res = $this->notifier->subscribeToPush($objData['user_id'], $objData['channel'], $objData['channel_data']);
+
+        // Log
+        if ($this->log) {
+            $this->log->info(
+                'NotificationController::postSubscribeAction: Registered subscription for ' . json_encode($objData) .
+                ' with result ' . json_encode($res)
+            );
+        }
 
         // Send the message with the sender service
         $response->write(['result' => ($res) ? 'SUCCESS' : 'FAIL']);

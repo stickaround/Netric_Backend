@@ -12,6 +12,7 @@ use Netric\Account\Module\ModuleServiceFactory;
 use Netric\Account\Billing\AccountBillingServiceFactory;
 use Netric\PaymentGateway\SystemPaymentGatewayFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Construct the notification controller
@@ -27,6 +28,7 @@ class NotificationControllerFactory implements ControllerFactoryInterface
     public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
     {
         $notifier = $serviceLocator->get(NotifierFactory::class);
-        return new NotificationController($notifier);
+        $log = $serviceLocator->get(LogFactory::class);
+        return new NotificationController($notifier, $log);
     }
 }
