@@ -15,7 +15,7 @@ use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
 use Netric\Mail\Address;
 use Netric\Mail\Transport\TransportFactory;
-use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\Notifier\NotificationPusherFactory;
 use Netric\Log\LogFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
@@ -85,6 +85,12 @@ class NotificationEntity extends Entity implements EntityInterface
             if ($this->getValue("f_sms")) {
                 $this->sendSmsNotification();
             }
+
+            // If the push flag is set, then send push notifications to subscritpions
+            if ($this->getValue('f_push')) {
+                $this->sendPushNotification($serviceLocator, $user);
+            }
+
             return;
         }
     }
@@ -216,5 +222,46 @@ class NotificationEntity extends Entity implements EntityInterface
     private function sendSmsNotification()
     {
         // TODO: Not yet implemented since we have no transport/Gateway for SMS in Netric
+    }
+
+    /**
+     * Send this notice via email to the owner
+     *
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    private function sendPushNotification(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    {
+        // Get the account
+        $account = $this->accountContainer->loadById($this->getAccountId());
+
+        // Make sure the notification has an owner or a creator
+        if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id"))) {
+            return;
+        }
+
+        // Get the notification pusher client
+        $notificationPusher = $serviceLocator->get(NotificationPusherFactory::class);
+
+        // Get the user that owns this notice
+        $user = $this->entityLoader->getEntityById(
+            $this->getValue("owner_id"),
+            $user->getAccountId()
+        );
+
+        // Get the referenced entity
+        $referencedEntity = $this->entityLoader->getEntityById(
+            $this->getValue("obj_reference"),
+            $user->getAccountId()
+        );
+
+        // Send
+        $notificationPusher->send(
+            'netric',
+            $user->getEntityId(),
+            $this->getValue("name"),
+            $this->getValue("description"),
+            ['entityId' => $referencedEntity->getEntityId()]
+        );
     }
 }
