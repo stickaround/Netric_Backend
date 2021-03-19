@@ -60,6 +60,13 @@ class Notifier
     private NotificationPusherClientInterface $notificationPusher;
 
     /**
+     * Adding this for testing which is really hacky
+     * 
+     * Eventually we need to move all the tests to mocks, but for now this will work
+     */
+    public bool $suppressPush = false;
+
+    /**
      * Class constructor and dependency setter
      *
      * @param AuthenticationService $authService The current authenticated user & account
@@ -175,6 +182,11 @@ class Notifier
                 $notification->setValue("f_popup", false);
                 $notification->setValue("f_sms", false);
                 $notification->setValue("f_seen", false);
+
+                // if running it test mode, disable the push call
+                if ($this->suppressPush) {
+                    $notification->setValue('f_push', false);
+                }
 
                 $notificationIds[] = $this->entityLoader->save($notification, $user);
             }

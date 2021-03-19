@@ -7,6 +7,7 @@
 
 namespace Netric\Entity\ObjType;
 
+use Exception;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
@@ -21,6 +22,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Account\AccountContainerInterface;
+use NotificationPusherSdk\NotificationPusherClientInterface;
 
 /**
  * Notification entity
@@ -33,6 +35,11 @@ class NotificationEntity extends Entity implements EntityInterface
      * @var TransportInterface
      */
     private $mailTransport = null;
+
+    /**
+     * Notification pusher
+     */
+    private ?NotificationPusherClientInterface $notificationPusher = null;
 
     /**
      * The loader for a specific entity
@@ -105,6 +112,17 @@ class NotificationEntity extends Entity implements EntityInterface
     public function setMailTransport(TransportInterface $mailTransport)
     {
         $this->mailTransport = $mailTransport;
+    }
+
+    /**
+     * Set the notification pusher
+     *
+     * @param NotificationPusherClientInterface $notificationPusher
+     * @return void
+     */
+    public function setNotificationPusher(NotificationPusherClientInterface $notificationPusher): void
+    {
+        $this->notificationPusher = $notificationPusher;
     }
 
     /**
@@ -232,16 +250,10 @@ class NotificationEntity extends Entity implements EntityInterface
      */
     private function sendPushNotification(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
-        // Get the account
-        $account = $this->accountContainer->loadById($this->getAccountId());
-
         // Make sure the notification has an owner or a creator
-        if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id"))) {
+        if (empty($this->getValue("owner_id")) || empty($this->getValue("name")) || empty($this->getValue("description"))) {
             return;
         }
-
-        // Get the notification pusher client
-        $notificationPusher = $serviceLocator->get(NotificationPusherFactory::class);
 
         // Get the user that owns this notice
         $user = $this->entityLoader->getEntityById(
@@ -256,7 +268,11 @@ class NotificationEntity extends Entity implements EntityInterface
         );
 
         // Send
-        $notificationPusher->send(
+        if (!$this->notificationPusher) {
+            $this->notificationPusher = $serviceLocator->get(NotificationPusherFactory::class);
+        }
+
+        $this->notificationPusher->send(
             'netric',
             $user->getEntityId(),
             $this->getValue("name"),

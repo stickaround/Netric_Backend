@@ -13,12 +13,12 @@ use PHPUnit\Framework\TestCase;
 use Netric\Mail\Transport\InMemory;
 use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
-use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Config\ConfigFactory;
+use NotificationPusherSdk\NotificationPusherClientInterface;
 
 class NotificationTest extends TestCase
 {
@@ -148,6 +148,41 @@ class NotificationTest extends TestCase
         $this->assertStringContainsString(
             $config->email['noreply'],
             $message->getFrom()->current()->getEmail()
+        );
+    }
+
+    /**
+     * Test that a email is sent
+     */
+    public function testSendPushNotification()
+    {
+        // Set obj_reference to a task
+        $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $task->setValue("name", "A test task");
+        $this->entityLoader->save($task, $this->account->getSystemUser());
+        $this->testEntities[] = $task;
+
+        // Create a new notification
+        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
+        $notification->setValue('name', 'New Comment');
+        $notification->setValue('description', 'Someone said something');
+        $notification->setValue("f_push", true);
+        $notification->setValue("owner_id", $this->testUser->getEntityId());
+        $notification->setValue("creator_id", $this->user->getEntityId());
+        $notification->setValue("obj_reference", $task->getEntityId(), $task->getName());
+        // Setup testable transport
+        $mockPusher = $this->createMock(NotificationPusherClientInterface::class);
+        $mockPusher->expects($this->once())->method('send');
+        $notification->setNotificationPusher($mockPusher);
+
+        // Call onBeforeSave manually
+        $notification->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
+
+
+        // Check that obj_reference has value
+        $this->assertEquals(
+            $notification->getValue('obj_reference'),
+            $task->getEntityId()
         );
     }
 }

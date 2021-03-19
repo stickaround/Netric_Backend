@@ -75,6 +75,7 @@ class NotifierTest extends TestCase
         $this->account = Bootstrap::getAccount();
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $this->notifier = $this->account->getServiceManager()->get(NotifierFactory::class);
+        $this->notifier->suppressPush = true;
 
         // Make sure test user does not exist from previous failed query
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
