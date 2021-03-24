@@ -233,7 +233,7 @@ class AuthenticationService
         }
 
         // Make sure user is active
-        if (false == $user->getValue("active")) {
+        if (true !== $user->getValue("active")) {
             $this->lastErrorMessage = self::IDENTITY_DISABLED;
             return null;
         }
