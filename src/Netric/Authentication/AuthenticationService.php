@@ -234,7 +234,7 @@ class AuthenticationService
 
         // Make sure user is active
         if (true !== $user->getValue("active")) {
-            $this->lastErrorMessage = self::IDENTITY_DISABLED;
+            $this->lastErrorMessage = self::IDENTITY_DISABLED . json_encode($user->toArray());
             return null;
         }
 
