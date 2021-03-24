@@ -232,11 +232,11 @@ class AuthenticationService
             return null;
         }
 
-        // Make sure user is active
-        if (true !== $user->getValue("active")) {
-            $this->lastErrorMessage = self::IDENTITY_DISABLED . json_encode($user->toArray());
-            return null;
-        }
+        // // Make sure user is active
+        // if (true !== $user->getValue("active")) {
+        //     $this->lastErrorMessage = self::IDENTITY_DISABLED;
+        //     return null;
+        // }
 
         // Get the salt
         $salt = $user->getValue("password_salt");
