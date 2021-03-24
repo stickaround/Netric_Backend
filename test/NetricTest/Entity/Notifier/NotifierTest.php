@@ -16,7 +16,6 @@ use Netric\Account\Account;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
-use Netric\Entity\Notifier\NotifierFactory;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -85,7 +84,7 @@ class NotifierTest extends TestCase
 
 
         // Make sure test user does not exist from previous failed query
-        
+
         $query = new EntityQuery(ObjectTypes::USER, $this->account->getAccountId());
         $query->where("name")->equals("notifiertest");
         $result = $index->executeQuery($query);
@@ -320,7 +319,7 @@ class NotifierTest extends TestCase
         $this->assertTrue($notifier->subscribeToPush(
             'TEST-UUID',
             NotificationPusherClientInterface::CHANNEL_APNS,
-            [ 'token' => 'fake-token' ]
+            ['token' => 'fake-token']
         ));
     }
 
