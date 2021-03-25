@@ -6,7 +6,6 @@ use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Cache\CacheFactory;
 use Netric\Application\DataMapperFactory as ApplicationDataMapperFactory;
-use Netric\Authentication\AuthenticationServiceFactory;
 
 /**
  * Create a new Application DataMapper service

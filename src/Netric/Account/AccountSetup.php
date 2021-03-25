@@ -5,6 +5,7 @@ namespace Netric\Account;
 use Netric\Application\DataMapperInterface;
 use Netric\Application\Exception\AccountAlreadyExistsException;
 use Netric\Application\Exception\CouldNotCreateAccountException;
+use Netric\Account\Account\InitData\InitDataInterface;
 
 /**
  * Netric account setup functions
@@ -19,13 +20,22 @@ class AccountSetup
     private $appDataMapper = null;
 
     /**
+     * Array of data importers used to set and update initial data
+     *
+     * @var InitDataInterface[]
+     */
+    private array $dataImporters = [];
+
+    /**
      * Constructor
      *
      * @param DataMapperInterface $appDataMapper
+     * @param InitDataInterface[] $dataImporters
      */
-    public function __construct(DataMapperInterface $appDataMapper)
+    public function __construct(DataMapperInterface $appDataMapper, array $dataImporters = [])
     {
         $this->appDataMapper = $appDataMapper;
+        $this->dataImporters = $dataImporters;
     }
 
     /**
@@ -38,10 +48,7 @@ class AccountSetup
      * @return void
      */
     public function createAccount(
-        string $accountName,
-        string $adminUserName,
-        string $adminUserEmail,
-        string $adminPassword
+        string $accountName
     ) {
         // Make sure the account does not already exists
         if ($this->appDataMapper->getAccountByName($accountName)) {
@@ -102,5 +109,41 @@ class AccountSetup
         }
 
         return $cleanedName;
+    }
+
+    /**
+     * Iterate through all accounts and update the default data
+     *
+     * @return int
+     */
+    public function updateDataForAllAccounts(): int
+    {
+        $numUpdated = 0;
+
+        $accounts = $this->appDataMapper->getAccounts();
+        foreach ($accounts as $account) {
+            if ($this->updateDataForAccount($account)) {
+                $numUpdated++;
+            }
+        }
+
+        return $numUpdated;
+    }
+
+    /**
+     * Update the default data for a given account
+     *
+     * @param Account $account
+     * @return bool
+     */
+    private function updateDataForAccount(Account $account): bool
+    {
+        foreach ($this->dataImporters as $importer) {
+            // If one fails, then stop becauase they have downstream dependenceis
+            if (!$importer->setInitialData($account)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

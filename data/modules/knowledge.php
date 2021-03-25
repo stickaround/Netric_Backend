@@ -42,6 +42,6 @@ return [
             "route" => "spaces",
             "objType" => "infocenter_document",
             "icon" => "SearchIcon",
-        ]
-    ]
+        ],
+    ],
 ];
