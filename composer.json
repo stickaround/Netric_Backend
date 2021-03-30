@@ -11,8 +11,7 @@
   "autoload-dev": {
     "psr-4": {
       "NetricTest\\": "test/NetricTest/",
-      "ZPushTest\\": "test/ZPushTest/",
-      "BinTest\\": "test/BinTest/"
+      "ZPushTest\\": "test/ZPushTest/"
     }
   },
   "scripts": {

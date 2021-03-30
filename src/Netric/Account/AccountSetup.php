@@ -32,7 +32,7 @@ class AccountSetup
      * @param DataMapperInterface $appDataMapper
      * @param InitDataInterface[] $dataImporters
      */
-    public function __construct(DataMapperInterface $appDataMapper, array $dataImporters = [])
+    public function __construct(DataMapperInterface $appDataMapper, array $dataImporters)
     {
         $this->appDataMapper = $appDataMapper;
         $this->dataImporters = $dataImporters;
@@ -136,7 +136,7 @@ class AccountSetup
      * @param Account $account
      * @return bool
      */
-    private function updateDataForAccount(Account $account): bool
+    public function updateDataForAccount(Account $account): bool
     {
         foreach ($this->dataImporters as $importer) {
             // If one fails, then stop becauase they have downstream dependenceis

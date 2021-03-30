@@ -13,7 +13,6 @@ use Netric\Application\Application;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\SetupController;
-use Netric\Application\Setup\AccountUpdater;
 use Netric\Log\LogInterface;
 use Netric\Account\AccountSetup;
 use Ramsey\Uuid\Uuid;
@@ -48,7 +47,6 @@ class SetupControllerTest extends TestCase
         $this->accountSetup = $this->createMock(AccountSetup::class);
         $this->mockLog = $this->createMock(LogInterface::class);
         $this->mockApplication = $this->createMock(Application::class);
-        $this->mockAccountUpdater = $this->createMock(AccountUpdater::class);
 
         // Provide identity for mock auth service
         $this->mockAuthService = $this->createMock(AuthenticationService::class);
@@ -67,28 +65,11 @@ class SetupControllerTest extends TestCase
             $this->accountContainer,
             $this->mockAuthService,
             $this->accountSetup,
-            $this->mockAccountUpdater,
             $this->mockLog,
             $this->mockApplication,
         );
 
         $this->setupController->testMode = true;
-    }
-
-    /**
-     * Test automatic pagination
-     */
-    public function testTest()
-    {
-        $request = new ConsoleRequest();
-
-        // Queue to run the first script which does not really do anything
-        $request->setParam('account', 'test');
-        $request->setParam("script", "update/once/005/001/001.php");
-        $ret = $this->setupController->consoleRunAction($request);
-
-        // If the return code is 0, then it executed successfully
-        $this->assertEquals(0, $ret->getReturnCode());
     }
 
     /**

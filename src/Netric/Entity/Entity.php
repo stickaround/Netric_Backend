@@ -837,7 +837,9 @@ class Entity implements EntityInterface
             "num_comments",
             "num_attachments",
             "dacl",
-            "sort_order"
+            "sort_order",
+            "account_id",
+            "creator_id"
         ];
         $buf = "";
         foreach ($this->changelog as $fname => $log) {

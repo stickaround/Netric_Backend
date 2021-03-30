@@ -1,6 +1,7 @@
 <?php
 namespace Netric\Account;
 
+use Netric\Account\InitData\InitDataSetsFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Application\DataMapperFactory;
@@ -19,6 +20,7 @@ class AccountSetupFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $dataMapper = $serviceLocator->get(DataMapperFactory::class);
-        return new AccountSetup($dataMapper);
+        $dataImporters = $serviceLocator->get(InitDataSetsFactory::class);
+        return new AccountSetup($dataMapper, $dataImporters);
     }
 }

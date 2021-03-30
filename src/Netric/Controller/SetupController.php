@@ -10,13 +10,11 @@ use Netric\Account\AccountSetup;
 use Netric\Application\Response\HttpResponse;
 use Netric\Application\Response\ConsoleResponse;
 use Netric\Request\ConsoleRequest;
-use Netric\Application\Setup\AccountUpdater;
 use Netric\Application\Setup\Setup;
 use Netric\Application\Application;
 use Netric\Request\HttpRequest;
 use Netric\Authentication\AuthenticationService;
 use Netric\Log\LogInterface;
-use Netric\Console\BinScript;
 use RuntimeException;
 use InvalidArgumentException;
 
@@ -41,11 +39,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
     private AccountSetup $accountSetup;
 
     /**
-     * Service that can update an account
-     */
-    private AccountUpdater $accountUpdater;
-
-    /**
      * Logger for recording what is going on
      */
     private LogInterface $log;
@@ -61,7 +54,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
      * @param AccountContainerInterface $accountContainer Container used to load accounts
      * @param AuthenticationService $authService Service used to get the current user/account
      * @param AccountSetup $accountSetup Service that has the netric account setup functions
-     * @param AccountUpdater $accountUpdater Service that can update an account
      * @param LogInterface $log Logger for recording what is going on
      * @param Application $application The current application instance
      */
@@ -69,14 +61,12 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         AccountContainerInterface $accountContainer,
         AuthenticationService $authService,
         AccountSetup $accountSetup,
-        AccountUpdater $accountUpdater,
         LogInterface $log,
         Application $application
     ) {
         $this->accountContainer = $accountContainer;
         $this->authService = $authService;
         $this->accountSetup = $accountSetup;
-        $this->accountUpdater = $accountUpdater;
         $this->log = $log;
         $this->application = $application;
     }
@@ -162,36 +152,15 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $accounts = $this->application->getAccounts();
         foreach ($accounts as $account) {
             $response->write("Updating account {$account->getName()}. ");
-            if (!$this->accountUpdater->runUpdates($account)) {
-                $this->log->error("SetupController: Failed to update account: " . $this->accountUpdater->getLastError()->getMessage());
-                throw new \Exception("Failed to update account: " . $this->accountUpdater->getLastError()->getMessage());
+            if (!$this->accountSetup->updateDataForAccount($account)) {
+                $this->log->error("SetupController: Failed to update account: " . $this->accountSetup->getLastError());
+                throw new \Exception("Failed to update account: " . $this->accountSetup->getLastError());
             }
 
             $response->write("\t[done]\n");
         }
 
         $response->writeLine("-- Update Complete --");
-        return $response;
-    }
-
-    /**
-     * Run a specific script
-     *
-     * @param ConsoleRequest $request Request object for this run
-     * @return ConsoleResponse
-     */
-    public function consoleRunAction(ConsoleRequest $request): ConsoleResponse
-    {
-        $rootPath = dirname(__FILE__) . "/../../../bin/scripts";
-        $scriptName = $request->getParam("script");
-        $accountName = $request->getParam("account");
-        $script = new BinScript(
-            $this->application,
-            $this->accountContainer->loadByName($accountName)
-        );
-        $script->run($rootPath . "/" . $scriptName);
-        $response = new ConsoleResponse();
-        $response->setReturnCode(0);
         return $response;
     }
 

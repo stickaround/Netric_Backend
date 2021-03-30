@@ -1,6 +1,7 @@
 <?php
 
 use Netric\Entity\ObjType\TaskEntity;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Default groupings for entities
@@ -10,6 +11,14 @@ use Netric\Entity\ObjType\TaskEntity;
  * it being overwritten with each update.
  */
 return [
+    'user' => [
+        'groups' => [
+            ['name' => UserEntity::GROUP_USERS, 'f_admin' => 'f'],
+            ['name' => UserEntity::GROUP_EVERYONE, 'f_admin' => 'f'],
+            ['name' => UserEntity::GROUP_CREATOROWNER, 'f_admin' => 'f'],
+            ['name' => UserEntity::GROUP_ADMINISTRATORS, 'f_admin' => 't'],
+        ],
+    ],
     'task' => [
         'status_id' => [
             ["name" => TaskEntity::STATUS_TODO, "sort_oder" => 1, "color" => "2A4BD7"],

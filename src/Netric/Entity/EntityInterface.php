@@ -197,7 +197,7 @@ interface EntityInterface
      * @return string The name of this object
      */
     public function getDescription(): string;
-    
+
     /**
      * Get a textual representation of what changed
      */

@@ -109,4 +109,11 @@ interface EntityDefinitionDataMapperInterface
      * @throws \InvalidArgumentException If a non-system definition is passed in
      */
     public function updateSystemDefinition(EntityDefinition $def);
+
+    /**
+     * If an error was encountered, return the reason
+     *
+     * @return string
+     */
+    public function getLastError();
 }

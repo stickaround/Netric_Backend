@@ -16,7 +16,7 @@ class AccountSetupTest extends TestCase
     {
         $dataMapper = $this->getMockBuilder(DataMapperInterface::class)->getMock();
         $dataMapper->method('getAccountByName')->willReturn(null);
-        $accountSetup = new AccountSetup($dataMapper);
+        $accountSetup = new AccountSetup($dataMapper, []);
 
         $uniqueName = $accountSetup->getUniqueAccountName('My Company!$%#_-.');
         $this->assertEquals('mycompany', $uniqueName);
@@ -33,7 +33,7 @@ class AccountSetupTest extends TestCase
         $dataMapper->method('getAccountByName')->willReturn($accData1);
         $dataMapper->method('getAccounts')->willReturn([$accData1, $accData2, $accData3]);
 
-        $accountSetup = new AccountSetup($dataMapper);
+        $accountSetup = new AccountSetup($dataMapper, []);
 
         $uniqueName = $accountSetup->getUniqueAccountName('Test');
         $this->assertEquals('test3', $uniqueName);

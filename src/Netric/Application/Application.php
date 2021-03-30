@@ -13,11 +13,11 @@ use Netric\Log\Log;
 use Netric\Cache\CacheInterface;
 use Netric\Account\AccountContainer;
 use Netric\Account\AccountContainerFactory;
+use Netric\Account\AccountSetupFactory;
 use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Request\RequestFactory;
-use Netric\Application\Setup\AccountUpdaterFactory;
 use Netric\Cache\CacheFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -382,9 +382,8 @@ class Application
         }
 
         // Run update scripts and data - set it to the latest version first so we don't run old scripts
-        $updater = $account->getServiceManager()->get(AccountUpdaterFactory::class);
-        $updater->setCurrentAccountToLatestVersion($account);
-        $updater->runUpdates($account);
+        $updater = $account->getServiceManager()->get(AccountSetupFactory::class);
+        $updater->updateDataForAccount($account);
 
         // Create the admin user
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);

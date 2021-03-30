@@ -85,8 +85,7 @@ class Notifier
 
         // We never want to send notifications about notifications or activities
         // Or notifications from anonmymous or system users
-        if (
-            $objType == ObjectTypes::NOTIFICATION ||
+        if ($objType == ObjectTypes::NOTIFICATION ||
             $objType == ObjectTypes::ACTIVITY ||
             $user->isSystem() ||
             $user->isAnonymous()

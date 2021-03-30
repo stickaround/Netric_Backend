@@ -8,8 +8,6 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Account\AccountContainerFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Account\AccountSetupFactory;
-use Netric\Application\DatabaseSetupFactory;
-use Netric\Application\Setup\AccountUpdaterFactory;
 use Netric\Log\LogFactory;
 
 /**
@@ -28,7 +26,6 @@ class SetupControllerFactory implements ControllerFactoryInterface
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         $authService = $serviceLocator->get(AuthenticationServiceFactory::class);
         $accountSetup = $serviceLocator->get(AccountSetupFactory::class);
-        $accountUpdater = $serviceLocator->get(AccountUpdaterFactory::class);
         $log = $serviceLocator->get(LogFactory::class);
         $application = $serviceLocator->getApplication();
 
@@ -36,7 +33,6 @@ class SetupControllerFactory implements ControllerFactoryInterface
             $accountContainer,
             $authService,
             $accountSetup,
-            $accountUpdater,
             $log,
             $application
         );

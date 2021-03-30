@@ -14,9 +14,6 @@
     <testsuite name="NetricTest">
       <directory>./test/NetricTest</directory>
     </testsuite>
-    <testsuite name="BinTest">
-      <directory>./test/BinTest</directory>
-    </testsuite>
     <testsuite name="ZPushTest">
       <directory>./test/ZPushTest</directory>
     </testsuite>
