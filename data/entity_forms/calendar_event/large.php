@@ -62,7 +62,7 @@
         <header>Attendees</header>
         <row>
             <column>
-                <plugin name='Members' field='attendees'></plugin>
+                <members name='Members' field='attendees'></members>
             </column>
         </row>
         <header>References</header>

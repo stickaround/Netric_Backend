@@ -1,2 +1,2 @@
 <field name='subject' hidelabel="t" class='headline'></field>
-<plugin name='ChatRoomMessages'></plugin>
+<chat_room_messages></chat_room_messages>
