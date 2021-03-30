@@ -57,5 +57,7 @@ return [
     ["obj_type" => "payment_profile", "title" => "Payment Profile", "revision" => "0", "system" => true],
     ["obj_type" => "workflow_instance", "title" => "Workflow Instance", "revision" => "0", "system" => true],
     ["obj_type" => "workflow_action_scheduled", "title" => "Workflow Action Scheduled", "revision" => "0", "system" => true],
-    // TODO: chat_message, chat_room, member_badge
+    ["obj_type" => "chat_room", "title" => "Chat Room", "revision" => "0", "system" => true],
+    ["obj_type" => "chat_message", "title" => "Message", "revision" => "0", "system" => true],
+    ["obj_type" => "member_badge", "title" => "Member Badge", "revision" => "0", "system" => true],
 ];

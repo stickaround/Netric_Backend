@@ -8,14 +8,13 @@ namespace modules\navigation;
 
 return [
     "title" => "Message",
-    "icon" => "EmailIcon",
-    "default_route" => "email",
-    "name" => "messages",
-    "short_title" => 'Messages',
+    "icon" => "MessageIcon",
+    "default_route" => "rooms",
+    "name" => "message",
+    "short_title" => 'Message',
     "scope" => 'system',
-    "settings" => "Plugin_Messages_Settings",
     "sort_order" => '2',
-    "f_system" => 't',
+    "f_system" => true,
     "navigation" => [
         [
             "type" => "list-subheader",
@@ -31,7 +30,7 @@ return [
         [
             "title" => "Browse All Rooms",
             "type" => "browse",
-            "route" => "browse_rooms",
+            "route" => "rooms",
             "objType" => "chat_room",
             "icon" => "SearchIcon",
         ],
@@ -42,7 +41,7 @@ return [
         ],
         [
             "type" => "browse-leftnav",
-            "route" => "rooms",
+            "route" => "direct",
             "browser_view" => "my_direct_messages",
             "objType" => "chat_room"
         ],
