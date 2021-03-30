@@ -1,6 +1,7 @@
 <?php
 
 namespace modules\navigation;
+
 use Netric\EntityDefinition\ObjectTypes;
 
 /**

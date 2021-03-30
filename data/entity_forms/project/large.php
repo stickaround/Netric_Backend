@@ -16,7 +16,7 @@
                 <tab name='General'>
                     <row>
                         <column>
-                            <status_update/>
+                            <status_update />
                         </column>
                     </row>
                     <row>
@@ -57,14 +57,12 @@
         </row>
         <row>
             <column>
-                <field name='parent'
-                       tooltip='A project can be a child of much larger projects which allows for smaller teams working on massive projects. This is not a commonly used feature, few projects are of that scale; but if you find a project has too much noise from all the people and activity it might be helpful to split out subprojects and make smaller teams.'></field>
+                <field name='parent' tooltip='A project can be a child of much larger projects which allows for smaller teams working on massive projects. This is not a commonly used feature, few projects are of that scale; but if you find a project has too much noise from all the people and activity it might be helpful to split out subprojects and make smaller teams.'></field>
             </column>
         </row>
         <row>
             <column>
-                <field name='owner_id'
-                       tooltip='Each project must have one responisble owner even though many members may be working on the project.'></field>
+                <field name='owner_id' tooltip='Each project must have one responisble owner even though many members may be working on the project.'></field>
             </column>
         </row>
         <row>
@@ -79,14 +77,12 @@
         </row>
         <row>
             <column>
-                <field name='date_deadline'
-                       tooltip='If no deadline is set, this will be considered an ongoing project.'></field>
+                <field name='date_deadline' tooltip='If no deadline is set, this will be considered an ongoing project.'></field>
             </column>
         </row>
         <row>
             <column>
-                <field name='date_completed'
-                       tooltip='Once the project has been completed, enter the date here.'></field>
+                <field name='date_completed' tooltip='Once the project has been completed, enter the date here.'></field>
             </column>
         </row>
         <row>

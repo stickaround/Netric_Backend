@@ -34,16 +34,5 @@ return [
             "objType" => "chat_room",
             "icon" => "SearchIcon",
         ],
-        [
-            "type" => "list-subheader",
-            "title" => "Direct Messages",
-            "route" => "direct",
-        ],
-        [
-            "type" => "browse-leftnav",
-            "route" => "direct",
-            "browser_view" => "my_direct_messages",
-            "objType" => "chat_room"
-        ],
     ],
 ];

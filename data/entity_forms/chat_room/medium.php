@@ -1,2 +1,2 @@
 <field name='subject' hidelabel="t" class='headline'></field>
-<field name='scope' />
+<plugin name='ChatRoomMessages'></plugin>
