@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityDefinition;
 
 /**
@@ -29,7 +30,7 @@ class ObjectTypes
     const EMAIL_MESSAGE = 'email_message';
     const EMAIL_MESSAGE_ATTACHMENT = 'email_message_attachment';
     const EMAIL_THREAD = 'email_thread';
-    const CHAT_THREAD = 'chat_thread';
+    const CHAT_ROOM = 'chat_room';
     const FILE = 'file';
     const FOLDER = 'folder';
     const HTML_TEMPLATE = 'html_template';

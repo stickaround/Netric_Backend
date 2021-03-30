@@ -4,6 +4,7 @@ namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     "entity_id" => [
@@ -30,33 +31,42 @@ return [
     'attachments' => [
         'title' => 'Attachments',
         'type' => Field::TYPE_OBJECT_MULTI,
-        'subtype' => 'file',
+        'subtype' => ObjectTypes::FILE,
         'readonly' => true,
         'system' => true,
     ],
+    // Users that should be notified of changes to an entity
     'followers' => [
         'title' => 'Followers',
         'type' => Field::TYPE_OBJECT_MULTI,
-        'subtype' => 'user',
+        'subtype' => ObjectTypes::USER,
+        'readonly' => true,
+        'system' => true,
+    ],
+    // Users who have viewed an entity
+    'viewers' => [
+        'title' => 'Viewers',
+        'type' => Field::TYPE_OBJECT_MULTI,
+        'subtype' => ObjectTypes::USER,
         'readonly' => true,
         'system' => true,
     ],
     'activity' => [
         'title' => 'Activity',
         'type' => Field::TYPE_OBJECT_MULTI,
-        'subtype' => 'activity',
+        'subtype' => ObjectTypes::ACTIVITY,
         'system' => true,
     ],
     'comments' => [
         'title' => 'Comments',
         'type' => Field::TYPE_OBJECT_MULTI,
-        'subtype' => 'comment',
+        'subtype' => ObjectTypes::COMMENT,
         'readonly' => false,
         'system' => true,
     ],
     'num_comments' => [
         'title' => 'Num Comments',
-        'type' => 'number',
+        'type' => Field::TYPE_NUMBER,
         'subtype' => Field::TYPE_INTEGER,
         'readonly' => true,
         'system' => true,
@@ -78,13 +88,13 @@ return [
     'owner_id' => [
         'title' => 'Assigned To',
         'type' => Field::TYPE_OBJECT,
-        'subtype' => 'user',
+        'subtype' => ObjectTypes::USER,
         'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
     ],
     'creator_id' => [
         'title' => 'Creator',
         'type' => Field::TYPE_OBJECT,
-        'subtype' => 'user',
+        'subtype' => ObjectTypes::USER,
         'readonly' => true,
         'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
     ],

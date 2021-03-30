@@ -24,9 +24,7 @@ use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\Notifier\Notifier;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
-use Netric\Authentication\AuthenticationService;
 use Netric\Db\Relational\RelationalDbContainer;
-use Netric\Entity\EntityLoader;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
@@ -549,7 +547,8 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
             }
 
             // Set fval cache so we do not have to do crazy joins across tables
-            if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
+            if (
+                $fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
                 $fdef->type == "object" || $fdef->type == "object_multi"
             ) {
                 // Get the value names (if set) and save
