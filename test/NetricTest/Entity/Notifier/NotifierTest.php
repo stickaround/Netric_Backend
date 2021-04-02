@@ -201,7 +201,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $notification;
 
         // Make sure that the notification included the comment in the description
-        $this->assertEquals($notification->getValue("name"), $user->getName() . " added a comment");
+        $this->assertEquals($notification->getValue("name"), $user->getName() . " added comment");
         $this->assertEquals($notification->getValue("description"), $comment->getValue("comment"));
     }
 
