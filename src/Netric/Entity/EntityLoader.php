@@ -6,9 +6,7 @@ use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
-use Netric\Entity\Entity;
 use Netric\Entity\ObjType\UserEntity;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Entity service used to get/save/delete entities

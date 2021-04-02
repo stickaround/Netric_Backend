@@ -501,4 +501,67 @@ class EntityTest extends TestCase
         // This should return 1 result since we have created a document with is_rootspace field set to true
         $this->assertEquals(1, $res->getTotalNum());
     }
+
+    /**
+     * Check that groupings with fvalue names are handled correctly
+     *
+     * @return void
+     */
+    public function testFieldValueChangedGrouping(): void
+    {
+        $data = [
+            "status_id" => 'TEST-UUID',
+            "status_id_fval" => [
+                'TEST-UUID' => "Test"
+            ],
+        ];
+
+        // Load data into entity
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $cust->fromArray($data);
+
+        // Make sure the value changed
+        $this->assertTrue($cust->fieldValueChanged('status_id'));
+
+        // Reset the changelog, then set the same value again and make sure we are not fooled
+        $cust->resetIsDirty();
+        $cust->fromArray($data);
+        $this->assertFalse($cust->fieldValueChanged('status_id'));
+        $this->assertEmpty($cust->getChangeLogDescription());
+    }
+
+     /**
+     * Test loading from an array
+     */
+    public function testGetChangeLogDescription()
+    {
+        $data = [
+            "name" => "testGetChangeLogDescription",
+            "last_contacted" => time(),
+            "f_nocall" => true,
+            "company" => "test company",
+            "owner_id" => $this->user->getEntityId(),
+            "owner_id_fval" => [
+                $this->user->getEntityId() => $this->user->getValue("name")
+            ],
+        ];
+
+        // Load data into entity
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $cust->fromArray($data);
+
+        // Make sure the Changes are iin the log
+        $this->assertStringContainsString('testGetChangeLogDescription', $cust->getChangeLogDescription());
+
+        // Let's save $cust entity and try using ::fromArray() with an existing entity
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+        $dataMapper->save($cust, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $cust; // For cleanup
+
+        // Reload, and save again with no changes, make sure the changelog is empty
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $existingCust = $entityLoader->getEntityById($cust->getEntityId(), $this->account->getAccountId());
+        $dataMapper->save($existingCust, $this->account->getAuthenticatedUser());
+        $this->assertEmpty($existingCust->getChangeLogDescription());
+    }
 }

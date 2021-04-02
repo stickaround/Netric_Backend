@@ -136,12 +136,12 @@ class Notifier
                 $objReference = $entity->getValue("obj_reference");
                 $ownerName = $entity->getValueName("owner_id");
                 $followerName = $entity->getValueName('followers', $userGuid);
-                $comment = $entity->getValue("comment");
-                $description = "$ownerName added a comment: $comment";
+                $description = $entity->getValue("comment");
+                $name = "$ownerName added comment";
 
-                // Check if the user is being called out in the comment, if so, then let's change the description.
-                if (preg_match('/(@' . $followerName . ')/', $comment)) {
-                    $description = "$ownerName directed a comment at you: $comment";
+                // Check if the user is being called out in the comment, if so, then let's change the name.
+                if (preg_match('/(@' . $followerName . ')/', $description)) {
+                    $name = "$ownerName directed a comment at you";
                 }
             }
 
