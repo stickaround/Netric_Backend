@@ -7,7 +7,7 @@
 namespace modules\navigation;
 
 return [
-    "title" => "Message",
+    "title" => "Messages",
     "icon" => "MessageIcon",
     "default_route" => "rooms",
     "name" => "message",

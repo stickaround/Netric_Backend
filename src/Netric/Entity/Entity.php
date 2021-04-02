@@ -833,13 +833,21 @@ class Entity implements EntityInterface
             "uname",
             "ts_updated",
             "ts_entered",
+            "date_entered", // legacy
             "revision",
+            "f_seen",
             "num_comments",
+            "comments", // Ignore because comments make their own notice
+            "activity",
+            "entity_id",
+            "viewers",
             "num_attachments",
             "dacl",
             "sort_order",
             "account_id",
-            "creator_id"
+            "creator_id",
+            "path", // legacy
+            "uname", // system, no need to give to user
         ];
         $buf = "";
         foreach ($this->changelog as $fname => $log) {
