@@ -2,7 +2,6 @@
 
 namespace Netric\Controller;
 
-use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
 use Netric\Account\AccountContainerInterface;
@@ -16,7 +15,6 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoader;
-use Netric\EntityQuery\EntityQuery;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Entity\BrowserView\BrowserViewService;
@@ -25,6 +23,7 @@ use Netric\Permissions\Dacl;
 use Netric\Permissions\DaclLoader;
 use Ramsey\Uuid\Uuid;
 use Exception;
+use Netric\Log\LogInterface;
 
 /**
  * Controller for interacting with entities
@@ -72,6 +71,11 @@ class EntityController extends AbstractFactoriedController implements Controller
     private DaclLoader $daclLoader;
 
     /**
+     * Optional log interface
+     */
+    private ?LogInterface $log;
+
+    /**
      * Initialize controller and all dependencies
      *
      * @param AccountContainerInterface $accountContainer Container used to load accounts
@@ -91,7 +95,8 @@ class EntityController extends AbstractFactoriedController implements Controller
         GroupingLoader $groupingLoader,
         BrowserViewService $browserViewService,
         Forms $forms,
-        DaclLoader $daclLoader
+        DaclLoader $daclLoader,
+        ?LogInterface $log = null
     ) {
         $this->accountContainer = $accountContainer;
         $this->authService = $authService;
@@ -101,6 +106,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $this->browserViewService = $browserViewService;
         $this->forms = $forms;
         $this->daclLoader = $daclLoader;
+        $this->log = $log;
     }
 
     /**
@@ -315,38 +321,35 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
-        try {
-            // Create a new entity to save
+        $entity = null;
+
+        // If editing an existing etity, then load it, otherwise create a new entity
+        if (!empty($objData['entity_id'])) {
+            $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
+            if ($objData['entity_id'] === 'f99e46c7-4776-4dec-aeb8-c82b95f0e94a' && $this->log) {
+                $this->log->warning('Before: ' . var_export($entity->toArray(), true));
+            }
+        } elseif (empty($objData['entity_id'])) {
             $entity = $this->entityLoader->create($objData['obj_type'], $currentAccount->getAccountId());
+        }
 
-            // If editing an existing etity, then load it rather than using the new entity
-            if (isset($objData['entity_id']) && !empty($objData['entity_id'])) {
-                $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
-            }
-
-            // If no entity is found, then return an error.
-            if (!$entity) {
-                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
-                $response->write([
-                    "error" => "No entity found.",
-                    "entity_id" => $objData['entity_id']
-                ]);
-                return $response;
-            }
-
-            // Make sure that the user has a permission to save this entity
-            if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
-                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
-                $response->write([
-                    "error" => "You do not have permission to edit this.",
-                    "entity_id" => $entity->getEntityId()
-                ]);
-                return $response;
-            }
-        } catch (Exception $ex) {
-            return $this->sendOutput(["error" => $ex->getMessage()]);
+        // If no entity is found or created, then return an error.
+        if (!$entity) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
-            $response->write(["error" => "Error saving entity."]);
+            $response->write([
+                "error" => "No entity found.",
+                "entity_id" => $objData['entity_id']
+            ]);
+            return $response;
+        }
+
+        // Make sure that the user has a permission to save this entity
+        if ($entity->getEntityId() && !$this->checkIfUserIsAllowed($entity, Dacl::PERM_EDIT)) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write([
+                "error" => "You do not have permission to edit this.",
+                "entity_id" => $entity->getEntityId()
+            ]);
             return $response;
         }
 
@@ -369,9 +372,13 @@ class EntityController extends AbstractFactoriedController implements Controller
         }
 
         // Check to see if any new object_multi objects were sent awaiting save
-        $this->savePendingObjectMultiObjects($entity, $objData);
+        //$this->savePendingObjectMultiObjects($entity, $objData);
 
         $entityData = $entity->toArray();
+
+        if ($entity->getEntityId() === 'f99e46c7-4776-4dec-aeb8-c82b95f0e94a' && $this->log) {
+            $this->log->warning('After: ' . var_export($entityData, true));
+        }
 
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());

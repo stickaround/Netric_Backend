@@ -403,54 +403,6 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertTrue($ret);
     }
 
-    // /**
-    //  * Test Set Entity Moved To
-    //  */
-    // public function testUpdateOldReferences()
-    // {
-    //     $dm = $this->getDataMapper();
-    //     if (!$dm) {
-    //         return;
-    //     }
-
-    //     // Get entity definition
-    //     $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-
-    //     // Create first entity
-    //     $user = $entityLoader->create(ObjectTypes::USER);
-    //     $user->setValue("name", "testSetEntityMovedTo");
-    //     $userId1 = $dm->save($user, $this->user);
-
-    //     // Queue for cleanup
-    //     $this->testEntities[] = $user;
-
-    //     // Create second entity
-    //     $user2 = $entityLoader->create(ObjectTypes::USER);
-    //     $user2->setValue("name", "testSetEntityMovedTo");
-    //     $userId2 = $dm->save($user2, $this->user);
-
-    //     // Queue for cleanup
-    //     $this->testEntities[] = $user2;
-
-    //     // Create a task entity and set the user entity as owner
-    //     $task = $entityLoader->create(ObjectTypes::TASK);
-    //     $task->setValue("name", "ReferencedEntity");
-    //     $task->setValue("owner_id", $user->getEntityId());
-    //     $taskId = $dm->save($task, $this->user);
-
-    //     // Queue for cleanup
-    //     $this->testEntities[] = $task;
-
-    //     // Update Entity References
-    //     $def = $user->getDefinition();
-    //     $dm->updateOldReferences($def, $user->getEntityId(), $user2->getEntityId());
-
-    //     // Get the entity of $taskId using the datamapper and it should update the owner_id to $userId2
-    //     $taskEntity = $dm->getEntityById($taskId);
-
-    //     $this->assertEquals($user2->getEntityId(), $taskEntity->getValue("owner_id"));
-    // }
-
     /**
      * Test entity has moved functionalty
      */

@@ -12,6 +12,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use Netric\Entity\FormsFactory;
+use Netric\Log\LogFactory;
 use Netric\Permissions\DaclLoaderFactory;
 
 /**
@@ -35,6 +36,7 @@ class EntityControllerFactory implements ControllerFactoryInterface
         $browserViewService = $serviceLocator->get(BrowserViewServiceFactory::class);
         $forms = $serviceLocator->get(FormsFactory::class);
         $daclLoader = $serviceLocator->get(DaclLoaderFactory::class);
+        $log = $serviceLocator->get(LogFactory::class);
 
         return new EntityController(
             $accountContainer,
@@ -44,7 +46,8 @@ class EntityControllerFactory implements ControllerFactoryInterface
             $groupingLoader,
             $browserViewService,
             $forms,
-            $daclLoader
+            $daclLoader,
+            $log
         );
     }
 }
