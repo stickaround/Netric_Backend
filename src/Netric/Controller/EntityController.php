@@ -71,11 +71,6 @@ class EntityController extends AbstractFactoriedController implements Controller
     private DaclLoader $daclLoader;
 
     /**
-     * Optional log interface
-     */
-    private ?LogInterface $log;
-
-    /**
      * Initialize controller and all dependencies
      *
      * @param AccountContainerInterface $accountContainer Container used to load accounts
@@ -95,8 +90,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         GroupingLoader $groupingLoader,
         BrowserViewService $browserViewService,
         Forms $forms,
-        DaclLoader $daclLoader,
-        ?LogInterface $log = null
+        DaclLoader $daclLoader
     ) {
         $this->accountContainer = $accountContainer;
         $this->authService = $authService;
@@ -106,7 +100,6 @@ class EntityController extends AbstractFactoriedController implements Controller
         $this->browserViewService = $browserViewService;
         $this->forms = $forms;
         $this->daclLoader = $daclLoader;
-        $this->log = $log;
     }
 
     /**
@@ -326,9 +319,6 @@ class EntityController extends AbstractFactoriedController implements Controller
         // If editing an existing etity, then load it, otherwise create a new entity
         if (!empty($objData['entity_id'])) {
             $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
-            if ($objData['entity_id'] === 'f99e46c7-4776-4dec-aeb8-c82b95f0e94a' && $this->log) {
-                $this->log->warning('Before: ' . var_export($entity->toArray(), true));
-            }
         } elseif (empty($objData['entity_id'])) {
             $entity = $this->entityLoader->create($objData['obj_type'], $currentAccount->getAccountId());
         }
@@ -375,10 +365,6 @@ class EntityController extends AbstractFactoriedController implements Controller
         //$this->savePendingObjectMultiObjects($entity, $objData);
 
         $entityData = $entity->toArray();
-
-        if ($entity->getEntityId() === 'f99e46c7-4776-4dec-aeb8-c82b95f0e94a' && $this->log) {
-            $this->log->warning('After: ' . var_export($entityData, true));
-        }
 
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());

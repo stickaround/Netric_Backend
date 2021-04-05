@@ -682,7 +682,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                         $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
 
                         // Clear the value in preparation for an update - or to remove it if group was deleted
-                        $entity->setValue($field->name, null);
                         $group = $grouping->getByGuidOrGroupId($value);
 
                         if ($group) {
