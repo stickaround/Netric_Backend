@@ -134,7 +134,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
      *
      * @param bool $hard Flag to indicate if we should just soft delete (save with flag) or purge
      */
-    private function removeMessages($hard = false, UserEntity $user)
+    private function removeMessages($hard, UserEntity $user)
     {
         if (!$this->getEntityId()) {
             return;

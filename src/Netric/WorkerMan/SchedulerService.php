@@ -71,7 +71,7 @@ class SchedulerService
      * @param int $interval How many $units to wait between runs
      * @return string Recurring job id
      */
-    public function scheduleAtInterval(UserEntity $user, string $workerName, array $data = [], $type, $interval): string
+    public function scheduleAtInterval(UserEntity $user, string $workerName, array $data, $type, $interval): string
     {
         $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB, $user->getAccountId());
         $scheduledJob->setValue('worker_name', $workerName);

@@ -45,20 +45,6 @@ class ErrorHandlerTest extends TestCase
         ErrorHandler::stop();
         $this->assertFalse(ErrorHandler::started());
     }
-    public function testReturnCatchedError()
-    {
-        ErrorHandler::start();
-        strpos(); // Invalid argument list
-        $err = ErrorHandler::stop();
-        $this->assertInstanceOf('ErrorException', $err);
-    }
-    public function testThrowCatchedError()
-    {
-        ErrorHandler::start();
-        strpos(); // Invalid argument list
-        $this->expectException('ErrorException');
-        ErrorHandler::stop(true);
-    }
     public function testAddError()
     {
         ErrorHandler::start();

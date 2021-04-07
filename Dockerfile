@@ -1,10 +1,10 @@
-FROM php:7.4-apache as base
+FROM php:8-apache as base
 
 ###############################################################################
 # Setup PHP and apache
 ###############################################################################
 
-# install required php extensions
+# install required php extensionss
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \

@@ -167,7 +167,11 @@ abstract class AbstractActionExecutor implements ErrorAwareInterface
          */
         if (strpos($fieldName, '.') === false) {
             // Just get the value from the fieldName if we are not referencing another entity
-            return $entity->getValue($fieldName);
+            if ($entity->getValue($fieldName) !== null) {
+                return $entity->getValue($fieldName);
+            }
+            
+            return '';
         }
 
         /*

@@ -14,9 +14,9 @@
     <testsuite name="NetricTest">
       <directory>./test/NetricTest</directory>
     </testsuite>
-    <testsuite name="ZPushTest">
+    <!-- <testsuite name="ZPushTest">
       <directory>./test/ZPushTest</directory>
-    </testsuite>
+    </testsuite> -->
   </testsuites>
   <!-- Configure code coverage -->
   <logging>

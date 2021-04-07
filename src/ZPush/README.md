@@ -2,7 +2,7 @@
 
 We utilize Z-Push to enable ActiveSync in netric.
 
-There are only 3 edits that need to be preserved when updating:
+There are only 2 edits that need to be preserved when updating:
 
 1. ./backend/netric/* 
 2. ./README.md (this file)
