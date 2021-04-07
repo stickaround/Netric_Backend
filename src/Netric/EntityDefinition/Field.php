@@ -315,9 +315,7 @@ class Field implements \ArrayAccess
         $ret = $value;
 
         if ($this->default && is_array($this->default) && count($this->default)) {
-            if ($this->default['on']) {
-                $on = $this->default['on'];
-            }
+            $on = ($this->default['on']) ? ($this->default['on']) : '';
 
             // Check if condition is part of the default
             if (isset($this->default['where']) && $this->default['where'] && $obj) {
