@@ -198,10 +198,22 @@ class EntityController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         if ($rawBody) {
             $body = json_decode($rawBody, true);
-            $entityId = $body['entity_id'];
-            $objType = $body['obj_type'];
-            $uname = $body['uname'];
-            $unameConditions = $body['uname_conditions'];
+            
+            if (isset($body['entity_id'])) {
+                $entityId = $body['entity_id'];
+            }
+
+            if (isset($body['obj_type'])) {
+                $objType = $body['obj_type'];
+            }
+
+            if (isset($body['uname'])) {
+                $uname = $body['uname'];
+            }
+
+            if (isset($body['uname_conditions'])) {
+                $unameConditions = $body['uname_conditions'];
+            }
         }
 
         // Use id for backwards compatibility

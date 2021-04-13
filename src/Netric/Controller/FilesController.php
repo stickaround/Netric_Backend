@@ -148,11 +148,26 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         $rawBody = $request->getBody();
         if ($rawBody) {
             $body = json_decode($rawBody, true);
-            $folderid = $body['folderid'];
-            $path = $body['path'];
-            $files = $body['files'];
-            $fileId = $body['file_id'];
-            $fileName = $body['file_name'];
+
+            if (isset($body['folderid'])) {
+                $folderid = $body['folderid'];
+            }
+
+            if (isset($body['path'])) {
+                $path = $body['path'];
+            }
+
+            if (isset($body['files'])) {
+                $files = $body['files'];
+            }
+
+            if (isset($body['file_id'])) {
+                $fileId = $body['file_id'];
+            }
+
+            if (isset($body['file_name'])) {
+                $fileName = $body['file_name'];
+            }
         }
 
         $currentUser = $currentAccount->getAuthenticatedUser();
