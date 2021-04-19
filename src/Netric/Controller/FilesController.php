@@ -260,7 +260,9 @@ class FilesController extends AbstractFactoriedController implements ControllerI
 
             if ($folderEntity) {
                 $dacl = $this->daclLoader->getForEntity($folderEntity, $currentUser);
-                if (!$dacl->isAllowed($currentUser)) {
+
+                // Provide the $folderEntity when checking the if the $currentUser has access to the folder.
+                if (!$dacl->isAllowed($currentUser, Dacl::PERM_FULL, $folderEntity)) {
                     // Log a warning to flag repeat offenders
                     $this->log->warning(
                         "User " . $currentUser->getName() . " tried to upload to $folderPath but does not have access"
