@@ -643,6 +643,7 @@ class Entity implements EntityInterface
         $entityFolder = $fileSystem->openFolder($folderPath, $user);
         if ($entityFolder && $entityFolder->getValue('entity_id')) {
             $dacl = $daclLoader->getForEntity($this, $user);
+
             if ($dacl) {
                 $fileSystem->setFolderDacl($entityFolder, $dacl, $user);
             }
@@ -810,7 +811,8 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if ($field->type == FIELD::TYPE_TEXT && $this->getValue($field->name)) {
-                if ($field->name == "description"
+                if (
+                    $field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
                     || $field->name == "comment"

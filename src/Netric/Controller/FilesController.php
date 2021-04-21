@@ -173,7 +173,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         $currentUser = $currentAccount->getAuthenticatedUser();
 
         // If folderid has been passed the override the text path
-        $folder;
+        $folder = null;
         if ($folderid) {
             $folder = $this->fileSystem->openFolderById($folderid, $currentUser);
         } elseif ($path) {
@@ -258,7 +258,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
              */
             $folderEntity = $this->fileSystem->openFolder($folderPath, $currentUser);
 
-            if ($folderEntity) {
+            if ($folderEntity && $folderPath !== FileSystem::PATH_TEMP) {
                 $dacl = $this->daclLoader->getForEntity($folderEntity, $currentUser);
 
                 // Provide the $folderEntity when checking the if the $currentUser has access to the folder.
@@ -353,7 +353,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
 
         // Make sure the current user has access
         $dacl = $this->daclLoader->getForEntity($fileEntity, $currentUser);
-        if (!$dacl->isAllowed($currentUser, Dacl::PERM_VIEW)) {
+        if (!$dacl->isAllowed($currentUser, Dacl::PERM_VIEW, $fileEntity)) {
             $this->log->warning(
                 "FilesController->getDownloadAction: User " . $currentUser->getName() .
                     " does not have permissions to " .
