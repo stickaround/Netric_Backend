@@ -20,7 +20,7 @@ return [
             'title' => 'Scope',
             'type' => Field::TYPE_TEXT,
             'subtype' => '32',
-            'optional_values' => ["room" => "Room", "direct" => "Direct"],
+            'optional_values' => ["room" => "Room", "direct" => "Direct"]
         ],
         'last_message_body' => [
             'title' => 'Last Message',
