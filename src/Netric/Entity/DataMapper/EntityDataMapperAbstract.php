@@ -259,7 +259,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     public function save(EntityInterface $entity, UserEntity $user): string
     {
         // Make sure the user is valid - must have account_id and either an entityId or be anonymous or system
-        if (empty($user->getAccountId()) ||
+        if (
+            empty($user->getAccountId()) ||
             (empty($user->getEntityId()) && !$user->isAnonymous() && !$user->isSystem())
         ) {
             throw new RuntimeException(
@@ -397,8 +398,9 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         // Load a recurrence pattern if set
         if ($entity->getDefinition()->recurRules) {
             // If we have a recurrence pattern id then load it
+            // NOTE: we filter out non-uuid IDs because we changed
             $recurId = $entity->getValue($entity->getDefinition()->recurRules['field_recur_id']);
-            if ($recurId) {
+            if ($recurId && !is_numeric($recurId)) {
                 $recurPattern = $this->recurIdentityMapper->getById($recurId, $accountId);
                 if ($recurPattern) {
                     $entity->setRecurrencePattern($recurPattern);
