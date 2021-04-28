@@ -198,7 +198,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         if ($rawBody) {
             $body = json_decode($rawBody, true);
-            
+
             if (isset($body['entity_id'])) {
                 $entityId = $body['entity_id'];
             }

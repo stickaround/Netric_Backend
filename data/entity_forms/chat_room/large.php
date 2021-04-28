@@ -14,7 +14,7 @@
                 <chat_room_messages></chat_room_messages>
             </column>
             <column type="sidebar">
-                <plugin name='Members' field='members'></plugin>
+                <members field='members' />
             </column>
         </row>
     </column>

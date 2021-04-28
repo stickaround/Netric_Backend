@@ -170,7 +170,7 @@ abstract class AbstractActionExecutor implements ErrorAwareInterface
             if ($entity->getValue($fieldName) !== null) {
                 return $entity->getValue($fieldName);
             }
-            
+
             return '';
         }
 

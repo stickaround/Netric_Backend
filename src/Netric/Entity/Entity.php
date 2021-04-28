@@ -811,8 +811,7 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if ($field->type == FIELD::TYPE_TEXT && $this->getValue($field->name)) {
-                if (
-                    $field->name == "description"
+                if ($field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
                     || $field->name == "comment"
@@ -924,16 +923,17 @@ class Entity implements EntityInterface
     {
         $fields = $this->def->getFields();
         foreach ($fields as $fname => $field) {
-            // Currently multi-values are not supported for defaults
-            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
-                continue;
-            }
-
             $val = $this->getValue($fname);
             $new = $field->getDefault($val, $event, $this, $user);
 
             // If the default was different, then set it
             if ($new != $val) {
+                if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
+                    $this->addMultiValue($fname, $val);
+                    return;
+                }
+
+                // Set value
                 $this->setValue($fname, $new);
             }
         }

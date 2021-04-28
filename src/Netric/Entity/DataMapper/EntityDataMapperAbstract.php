@@ -259,8 +259,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     public function save(EntityInterface $entity, UserEntity $user): string
     {
         // Make sure the user is valid - must have account_id and either an entityId or be anonymous or system
-        if (
-            empty($user->getAccountId()) ||
+        if (empty($user->getAccountId()) ||
             (empty($user->getEntityId()) && !$user->isAnonymous() && !$user->isSystem())
         ) {
             throw new RuntimeException(
