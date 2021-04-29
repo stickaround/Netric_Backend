@@ -7,7 +7,6 @@
 namespace data\browser_views;
 
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityQuery\Where;
 
 return [

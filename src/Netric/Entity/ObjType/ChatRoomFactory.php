@@ -8,9 +8,9 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
 
 /**
- * Create a new activity entity
+ * Create a new chat_root entity
  */
-class ActivityFactory implements EntityFactoryInterface
+class ChatRoomFactory implements EntityFactoryInterface
 {
     /**
      * Entity creation factory
@@ -22,6 +22,6 @@ class ActivityFactory implements EntityFactoryInterface
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new ActivityEntity($def, $entityLoader);
+        return new ChatRoomEntity($def, $entityLoader);
     }
 }

@@ -14,7 +14,6 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -174,7 +173,8 @@ class UserEntity extends Entity implements EntityInterface
 
         // Add to authenticated users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
-        if ($this->getEntityId() &&
+        if (
+            $this->getEntityId() &&
             !$this->isAnonymous() &&
             !$this->getValueName('groups', $groupUser->getGroupId())
         ) {
@@ -183,7 +183,8 @@ class UserEntity extends Entity implements EntityInterface
 
         // Of course every user is part of everyone
         $groupEveryone = $userGroups->getByName(self::GROUP_EVERYONE);
-        if ($this->getEntityId() &&
+        if (
+            $this->getEntityId() &&
             !$this->isAnonymous() &&
             !$this->getValueName('groups', $groupEveryone->getGroupId())
         ) {
