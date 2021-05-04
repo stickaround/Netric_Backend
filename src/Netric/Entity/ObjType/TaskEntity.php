@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Provides extensions for the Task object
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
@@ -38,6 +40,7 @@ class TaskEntity extends Entity implements EntityInterface
     /**
      * Constant Types
      */
+    const TYPE_SUPPORT = 'Support';
     const TYPE_ENHANCEMENT = 'Enhancement';
     const TYPE_DEFECT = 'Defect';
 

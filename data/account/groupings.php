@@ -35,6 +35,7 @@ return [
         'type_id' => [
             ["name" => TaskEntity::TYPE_ENHANCEMENT, "color" => "1D6914"],
             ["name" => TaskEntity::TYPE_DEFECT, "color" => "AD2323"],
+            ["name" => TaskEntity::TYPE_SUPPORT, "color" => "575757"],
         ]
     ],
     'marketing_campaign' => [
