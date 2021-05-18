@@ -51,10 +51,12 @@ class GroupingsInitData implements InitDataInterface
                 // Get groupings for each objType and $fieldName
                 $groupings = $this->groupingLoader->get("$objType/$fieldName", $account->getAccountId());
 
+                // TODO: We are going to add any groups that might be missing below
+                // and see if that creates any problems for now.
                 // Only create default groupings if none exist
-                if (count($groupings->getAll()) > 0) {
-                    continue;
-                }
+                // if (count($groupings->getAll()) > 0) {
+                //     continue;
+                // }
 
                 // Loop through each group and add
                 foreach ($groupsData as $groupData) {
