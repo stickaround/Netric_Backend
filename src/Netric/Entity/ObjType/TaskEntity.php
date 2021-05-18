@@ -26,9 +26,10 @@ class TaskEntity extends Entity implements EntityInterface
      */
     const STATUS_TODO = 'ToDo';
     const STATUS_IN_PROGRESS = 'In-Progress';
-    const STATUS_COMPLETED = 'Completed';
     const STATUS_IN_TEST = "In-Test";
     const STATUS_IN_REVIEW = "In-Review";
+    const STATUS_COMPLETED = 'Completed';
+    const STATUS_DEFERRED = 'Deferred';
 
     /**
      * Constant Priorities

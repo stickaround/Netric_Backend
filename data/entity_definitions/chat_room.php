@@ -25,7 +25,9 @@ return [
                 "channel" => "Channel",
                 // Direct mesage/threads between two or more people
                 "direct" => "Direct"
-            ]
+            ],
+            'readonly' => true,
+            'default' => ["value" => 'channel', "on" => "null"]
         ],
         'last_message_body' => [
             'title' => 'Last Message',

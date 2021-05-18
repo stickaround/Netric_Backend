@@ -26,7 +26,7 @@ return [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'scope',
                 'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => 'room'
+                'value' => 'channel'
             ],
         ],
         'order_by' => [

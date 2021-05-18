@@ -55,6 +55,11 @@ class ChatRoomEntity extends Entity implements EntityInterface
         // Make sure the owner has full control
         $dacl->allowGroup(UserEntity::GROUP_CREATOROWNER, Dacl::PERM_FULL);
 
+        // If this is not a direct message, then add administrators
+        if ($this->getValue('scope') === 'channel') {
+            $dacl->allowGroup(UserEntity::GROUP_ADMINISTRATORS, Dacl::PERM_FULL);
+        }
+
         // Save custom permissions
         $this->setValue('dacl', json_encode($dacl->toArray()));
     }
