@@ -15,9 +15,8 @@
                             <field name='type_id'></field>
                         </column>
                         <column>
-                            <field name='depends_task_id' tooltip='Optional task that needs to be completed before this task can be worked on.'></field>
                             <field name='project'></field>
-                            <field name='obj_reference'></field>
+                            <field name='depends_task_id' tooltip='Optional task that needs to be completed before this task can be worked on.'></field>
                         </column>
                     </row>
                 </fieldset>
