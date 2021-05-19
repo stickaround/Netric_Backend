@@ -1,65 +1,67 @@
 <?php
+
 /**
  * Return navigation for entity of object type 'settings'
  */
+
 namespace modules\navigation;
 
-return array(
+return [
     "title" => "Settings",
     "icon" => "SettingsIcon",
     "default_route" => "profile",
     "name" => "settings",
     "short_title" => 'Settings',
     "sort_order" => 11,
-    "navigation" => array(
-        array(
+    "navigation" => [
+        [
             "title" => "My Profile",
             "type" => "plugin",
             "route" => "profile",
-            "plugin" => "Profile",
+            "plugin" => "SettingsProfile",
             "icon" => "AccountProfileIcon",
-        ),
-        array(
+        ],
+        [
             "title" => "Account & Billing",
             "type" => "plugin",
             "route" => "account_billing",
-            "plugin" => "AccountBilling",
+            "plugin" => "SettingsAccountBilling",
             "icon" => "AccountBoxIcon",
-        ),
-        array(
+        ],
+        [
             "title" => "Modules",
             "type" => "plugin",
             "route" => "modules",
-            "plugin" => "Modules",
+            "plugin" => "SettingsModules",
             "icon" => "ExtensionIcon",
-        ),
-        array(
+        ],
+        [
             "title" => "Entities",
             "type" => "plugin",
             "route" => "entities",
-            "plugin" => "Entities",
+            "plugin" => "SettingsEntities",
             "icon" => "TocIcon",
-        ),
-        array(
+        ],
+        [
             "title" => "Automated Workflows",
             "type" => "browse",
             "objType" => "workflow",
             "route" => "workflows",
             "icon" => "SettingsApplicationsIcon",
-        ),
-        array(
+        ],
+        [
             "title" => "Users",
             "type" => "browse",
             "objType" => "user",
             "route" => "users",
             "icon" => "GroupIcon"
-        ),
-        array(
+        ],
+        [
             "title" => "User Teams",
             "type" => "browse",
             "objType" => "user_team",
             "route" => "user-teams",
             "icon" => "StreetViewIcon"
-        )
-    )
-);
+        ]
+    ]
+];
