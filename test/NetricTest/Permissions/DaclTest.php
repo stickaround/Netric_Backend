@@ -263,4 +263,20 @@ class DaclTest extends TestCase
         $fullPermission = $dacl->getUserPermissions($user);
         $this->assertEquals($fullPermission, ['view' => true, 'edit' => true, 'delete' => true]);
     }
+
+    /**
+     * Run tests that will verify the validity of dacl data
+     */
+    public function testVerifyDaclData()
+    {
+        $dacl = new Dacl();
+
+        // Set a valid group id 
+        $dacl->allowGroup($this->userGroup->getGroupId(), Dacl::PERM_VIEW);
+        $this->assertEquals($dacl->verifyDaclData(), true);
+
+        // Now set an invalid group id 
+        $dacl->allowGroup(-1, Dacl::PERM_VIEW);
+        $this->assertEquals($dacl->verifyDaclData(), false);
+    }
 }

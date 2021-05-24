@@ -53,32 +53,25 @@ class DaclLoader
     public function getForEntity(EntityInterface $entity, UserEntity $user): ?Dacl
     {
         $daclData = $entity->getValue("dacl");
+        $entityDacl = null;
         if (!empty($daclData)) {
             $decoded = json_decode($daclData, true);
             if ($decoded !== false) {
-                return new Dacl($decoded);
+                $entityDacl = new Dacl($decoded);
             }
         }
 
         // Check to see if the entity type has a parent
         $parentDacl = $this->getForParentEntity($entity, $user);
         if ($parentDacl) {
-            return $parentDacl;
+            $entityDacl = $parentDacl;
         }
-        // $objDef = $entity->getDefinition();
-        // if ($objDef->parentField) {
-        //     $fieldDef = $objDef->getField($objDef->parentField);
-        //     if ($entity->getValue($objDef->parentField) && $fieldDef->subtype) {
-        //         $parentEntity = $this->entityLoader->getEntityById($entity->getValue($objDef->parentField));
-        //         if ($parentEntity) {
-        //             $dacl = $this->getForEntity($parentEntity, false);
-        //             if ($dacl) {
-        //                 return $dacl;
-        //             }
-        //         }
-        //     }
-        // }
 
+        // If we have now the dacl for entity and it has valid dacl data, then return the dacl
+        if ($entityDacl && $entityDacl->verifyDaclData()) {
+            return $entityDacl;
+        }
+        
         // Now try to get DACL for obj type
         $objDef = $entity->getDefinition();
         // Try to get for from the object definition if permissions have been customized

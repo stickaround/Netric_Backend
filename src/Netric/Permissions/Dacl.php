@@ -5,6 +5,7 @@ namespace Netric\Permissions;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Permissions\Dacl\Entry as DaclEntry;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Discretionary access control list
@@ -397,5 +398,23 @@ class Dacl
         }
 
         return false;
+    }
+
+    /**
+     * Verifies if we have valid uuids in the dacl data
+     * 
+     * @return bool true if dacl data has valid, otherwise false
+     */
+    public function verifyDaclData(): bool {
+        $uuids = array_merge($this->getGroups(), $this->getUsers());
+        
+        foreach($uuids as $uuid) {
+            // If uuid is not empty and not valid uuid, this means that we have a bad dacl data
+            if (!empty($uuid) && !Uuid::isValid($uuid)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

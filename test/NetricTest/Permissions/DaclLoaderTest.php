@@ -124,6 +124,35 @@ class DaclLoaderTest extends TestCase
     }
 
     /**
+     * Test getting a dacl for a specific entity with an invalid dacl data, it should return the definition's dacl
+     */
+    public function testGetForEntityWithInvalidDaclData()
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // New file
+        $file = $entityLoader->create(ObjectTypes::FILE, $this->account->getAccountId());
+        $file->setValue("name", "myFiletest.txt");
+        $daclData = [
+            "entries" => [
+                [
+                    "name" => Dacl::PERM_VIEW,
+                    "users" => [-1]
+                ],
+            ],
+        ];
+        $file->setValue("dacl", json_encode($daclData));
+        $entityLoader->save($file, $this->user);
+        $this->testEntities[] = $file;
+
+        $dacl = $this->daclLoader->getForEntity($file, $this->user);
+        $this->assertNotNull($dacl);
+
+        // Dacl should not have an invalid dacl data
+        $this->assertTrue(sizeof($dacl->getUsers()) === 0);
+    }
+
+    /**
      * Test getting a dacl from an inherited parent entity like a file from a folder
      */
     public function testGetForEntity_Parent()

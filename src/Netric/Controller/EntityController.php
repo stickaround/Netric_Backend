@@ -272,8 +272,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write([
                 "error" => "You do not have permission to view this.",
                 "entity_id" => $entity->getEntityId(),
-                "dacl_data" => $dacl->toArray(),
-                "params" => $params
+                "dacl_data" => $dacl->toArray()
             ]);
             return $response;
         }
