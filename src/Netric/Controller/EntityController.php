@@ -261,21 +261,22 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
+        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
+        $user = $currentAccount->getAuthenticatedUser();
+        $dacl = $this->daclLoader->getForEntity($entity, $user);
+        $currentUserPermissions = $dacl->getUserPermissions($user, $entity);
+        
         // If user is not allowed, then return an error
         if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write([
                 "error" => "You do not have permission to view this.",
                 "entity_id" => $entity->getEntityId(),
+                "dacl_data" => $dacl->toArray(),
                 "params" => $params
             ]);
             return $response;
         }
-
-        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
-        $user = $currentAccount->getAuthenticatedUser();
-        $dacl = $this->daclLoader->getForEntity($entity, $user);
-        $currentUserPermissions = $dacl->getUserPermissions($user, $entity);
 
         // Export the entity to array if the current user has access to view this entity
         if ($currentUserPermissions['view']) {
