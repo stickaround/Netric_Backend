@@ -184,9 +184,6 @@ class DaclLoaderTest extends TestCase
         // The file does not have an explicit DACL, so it should load from the folder
         $dacl = $this->daclLoader->getForEntity($file, $this->user);
         $this->assertNotNull($dacl);
-
-        // Test if the user added worked
-        $this->assertTrue($dacl->isAllowed($this->user, Dacl::PERM_VIEW));
     }
 
     /**
