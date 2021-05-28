@@ -2,6 +2,8 @@
 
 namespace modules\navigation;
 
+use Netric\Account\Module\LeftNavItemTypes;
+
 /**
  * Return navigation for entity of object type 'home'
  */
@@ -19,7 +21,7 @@ return [
     "navigation" => [
         [
             "title" => "Dashboards",
-            "type" => "dashboard",
+            "type" => LeftNavItemTypes::DASHBOARD,
             "route" => "activity",
             "objType" => "dashboard",
             "icon" => "DashboardIcon"

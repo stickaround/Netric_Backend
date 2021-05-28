@@ -6,6 +6,8 @@
 
 namespace modules\navigation;
 
+use Netric\Account\Module\LeftNavItemTypes;
+
 return [
     "title" => "CRM",
     "icon" => "ContactsIcon",
@@ -18,7 +20,7 @@ return [
     "navigation" => [
         [
             "title" => "All Customers",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-customers",
             "objType" => "customer",
             "icon" => "ViewListIcon",
@@ -26,7 +28,7 @@ return [
         ],
         [
             "title" => "All Leads",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-leads",
             "objType" => "lead",
             "icon" => "ViewListIcon",
@@ -34,7 +36,7 @@ return [
         ],
         [
             "title" => "All Opportunities",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-opportunity",
             "objType" => "opportunity",
             "icon" => "ViewListIcon",
@@ -42,7 +44,7 @@ return [
         ],
         [
             "title" => "All Campaigns",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-campaigns",
             "objType" => "marketing_campaign",
             "icon" => "ViewListIcon",
@@ -50,7 +52,7 @@ return [
         ],
         [
             "title" => "All Cases",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-cases",
             "objType" => "case",
             "icon" => "ViewListIcon",

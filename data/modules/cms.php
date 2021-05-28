@@ -1,5 +1,8 @@
 <?php
+
 namespace modules\navigation;
+
+use Netric\Account\Module\LeftNavItemTypes;
 
 /**
  * Return navigation for entity of object type 'content'
@@ -16,14 +19,14 @@ return [
     "navigation" => [
         [
             "title" => "Sites",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "sites",
             "objType" => "cms_site",
             "icon" => "ViewListIcon",
         ],
         [
             "title" => "Feeds",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "feeds",
             "objType" => "content_feed",
             "icon" => "ViewListIcon",

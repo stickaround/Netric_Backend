@@ -6,6 +6,8 @@
 
 namespace modules\navigation;
 
+use Netric\Account\Module\LeftNavItemTypes;
+
 return [
     "title" => "Calendar",
     "icon" => "DateRangeIcon",
@@ -18,7 +20,7 @@ return [
     "navigation" => [
         [
             "title" => "All Calendars",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-calendars",
             "objType" => "calendar",
             "icon" => "ViewListIcon",

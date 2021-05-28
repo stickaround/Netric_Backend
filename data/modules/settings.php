@@ -6,6 +6,8 @@
 
 namespace modules\navigation;
 
+use Netric\Account\Module\LeftNavItemTypes;
+
 return [
     "title" => "Settings",
     "icon" => "SettingsIcon",
@@ -16,49 +18,45 @@ return [
     "navigation" => [
         [
             "title" => "My Profile",
-            "type" => "plugin",
+            "type" => LeftNavItemTypes::SETTINGS_PROFILE,
             "route" => "profile",
-            "plugin" => "SettingsProfile",
             "icon" => "AccountProfileIcon",
         ],
         [
             "title" => "Account & Billing",
-            "type" => "plugin",
+            "type" => LeftNavItemTypes::SETTINGS_ACCOUNT_BILLING,
             "route" => "account_billing",
-            "plugin" => "SettingsAccountBilling",
             "icon" => "AccountBoxIcon",
         ],
         [
             "title" => "Modules",
-            "type" => "plugin",
+            "type" => LeftNavItemTypes::SETTIGS_MODULES,
             "route" => "modules",
-            "plugin" => "SettingsModules",
             "icon" => "ExtensionIcon",
         ],
         [
             "title" => "Entities",
-            "type" => "plugin",
+            "type" => LeftNavItemTypes::SETTINGS_ENTITIES,
             "route" => "entities",
-            "plugin" => "SettingsEntities",
             "icon" => "TocIcon",
         ],
         [
             "title" => "Automated Workflows",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "objType" => "workflow",
             "route" => "workflows",
             "icon" => "SettingsApplicationsIcon",
         ],
         [
             "title" => "Users",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "objType" => "user",
             "route" => "users",
             "icon" => "GroupIcon"
         ],
         [
             "title" => "User Teams",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "objType" => "user_team",
             "route" => "user-teams",
             "icon" => "StreetViewIcon"

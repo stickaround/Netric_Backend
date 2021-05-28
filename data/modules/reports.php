@@ -1,12 +1,16 @@
 <?php
+
 /**
  * Return navigation for entity of object type 'reports'
  */
+
 namespace modules\navigation;
+
+use Netric\Account\Module\LeftNavItemTypes;
 
 // TODO: The Reports module is no longer installed by default
 
-return array(
+return [
     "title" => "Reports",
     "icon" => "AssignmentIcon",
     "default_route" => "all-reports",
@@ -15,14 +19,14 @@ return array(
     "scope" => 'system',
     "sort_order" => '11',
     "f_system" => true,
-    "navigation" => array(
-        array(
+    "navigation" => [
+        [
             "title" => "All Reports",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-reports",
             "objType" => "report",
             "icon" => "ViewListIcon",
             "browseby" => "groups",
-        )
-    )
-);
+        ]
+    ]
+];

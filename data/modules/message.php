@@ -6,6 +6,8 @@
 
 namespace modules\navigation;
 
+use Netric\Account\Module\LeftNavItemTypes;
+
 return [
     "title" => "Messages",
     "icon" => "MessageIcon",
@@ -17,19 +19,19 @@ return [
     "f_system" => true,
     "navigation" => [
         [
-            "type" => "list-subheader",
+            "type" => LeftNavItemTypes::HEADER,
             "title" => "Rooms",
             "route" => "rooms",
         ],
         [
-            "type" => "browse-leftnav",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE_LEFTNAV,
             "route" => "rooms",
             "browser_view" => "my_rooms",
             "objType" => "chat_room"
         ],
         [
             "title" => "Browse All Rooms",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "rooms",
             "objType" => "chat_room",
             "icon" => "SearchIcon",

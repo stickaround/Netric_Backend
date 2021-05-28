@@ -8,6 +8,8 @@
 
 namespace modules\navigation;
 
+use Netric\Account\Module\LeftNavItemTypes;
+
 return [
     "title" => "Knowledge",
     "icon" => "LightbulbOutlineIcon",
@@ -20,25 +22,25 @@ return [
     "navigation" => [
         [
             "title" => "My Notes",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "my-notes",
             "objType" => "note",
             "icon" => "AssignmentIcon",
         ],
         [
-            "type" => "list-subheader",
+            "type" => LeftNavItemTypes::HEADER,
             "title" => "Spaces",
             "route" => "spaces",
         ],
         [
-            "type" => "browse-leftnav",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE_LEFTNAV,
             "route" => "spaces",
             "browser_view" => "spaces",
             "objType" => "infocenter_document"
         ],
         [
             "title" => "All Documents",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "spaces",
             "objType" => "infocenter_document",
             "icon" => "SearchIcon",

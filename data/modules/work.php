@@ -3,6 +3,7 @@
 namespace modules\navigation;
 
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Account\Module\LeftNavItemTypes;
 
 /**
  * Return navigation for entity of work module
@@ -23,14 +24,14 @@ return [
     "navigation" => [
         [
             "title" => "New Task",
-            "type" => "link",
+            "type" => LeftNavItemTypes::LINK,
             "route" => "browse/" . ObjectTypes::TASK . "/new",
             "objType" => ObjectTypes::TASK,
             "icon" => "AddBoxIcon",
         ],
         [
             "title" => "My Tasks",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "browser_view" => "my_task",
             "route" => "my-task",
             "objType" => ObjectTypes::TASK,
@@ -38,7 +39,7 @@ return [
         ],
         [
             "title" => "Delegated Tasks",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "browser_view" => "tasks_i_have_assigned",
             "route" => "delegated-task",
             "objType" => ObjectTypes::TASK,
@@ -46,7 +47,7 @@ return [
         ],
         [
             "title" => "All Tasks",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "browser_view" => "all_tasks",
             "route" => "all-task",
             "objType" => ObjectTypes::TASK,
@@ -54,19 +55,19 @@ return [
         ],
         [
             "title" => "Task Board",
-            "type" => "board-view",
+            "type" => LeftNavItemTypes::TASK_BOARD,
             "browser_view" => "my_task",
             "route" => "board-view",
             "objType" => ObjectTypes::TASK,
             "icon" => "ViewColumnIcon",
         ],
         [
-            "type" => "list-subheader",
+            "type" => LeftNavItemTypes::HEADER,
             "title" => "Projects",
             "route" => "projects"
         ],
         [
-            "type" => "browse-leftnav",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE_LEFTNAV,
             "route" => "projects",
             "browser_view" => "my_open_projects",
             "objType" => ObjectTypes::PROJECT,
@@ -74,7 +75,7 @@ return [
         ],
         [
             "title" => "All Projects",
-            "type" => "browse",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "projects",
             "objType" => ObjectTypes::PROJECT,
             "icon" => "SearchIcon",
