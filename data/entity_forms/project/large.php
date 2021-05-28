@@ -29,7 +29,7 @@
                     <attachments></attachments>
                 </tab>
                 <tab name='Members'>
-                    <plugin name='Members' field='members'></plugin>
+                    <members name='Members' field='members'></members>
                 </tab>
             </tabs>
         </row>

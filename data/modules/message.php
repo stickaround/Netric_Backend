@@ -19,6 +19,26 @@ return [
     "f_system" => true,
     "navigation" => [
         [
+            "type" => LeftNavItemTypes::ENTITY,
+            "title" => "New Direct Message",
+            "route" => "newdirect",
+            "icon" => "ChatIcon",
+            "objType" => "chat_room",
+            "data" => [
+                "scope" => "direct"
+            ]
+        ],
+        [
+            "type" => LeftNavItemTypes::ENTITY,
+            "title" => "New Room",
+            "route" => "newroom",
+            "icon" => "ForumIcon",
+            "objType" => "chat_room",
+            "data" => [
+                "scope" => "channel"
+            ]
+        ],
+        [
             "type" => LeftNavItemTypes::HEADER,
             "title" => "Rooms",
             "route" => "rooms",
@@ -35,6 +55,17 @@ return [
             "route" => "rooms",
             "objType" => "chat_room",
             "icon" => "SearchIcon",
+        ],
+        [
+            "type" => LeftNavItemTypes::HEADER,
+            "title" => "Direct",
+            "route" => "direct",
+        ],
+        [
+            "type" => LeftNavItemTypes::ENTITY_BROWSE_LEFTNAV,
+            "route" => "rooms",
+            "browser_view" => "my_direct_messages",
+            "objType" => "chat_room"
         ],
     ],
 ];
