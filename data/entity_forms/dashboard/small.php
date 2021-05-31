@@ -10,4 +10,4 @@
         </fieldset>
     </column>
 </row>
-<plugin name='DashboardWidgets'></plugin>
+<dashboard_widgets />

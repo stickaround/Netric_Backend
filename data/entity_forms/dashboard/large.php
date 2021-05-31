@@ -34,7 +34,7 @@
         </row>
         <row>
             <column>
-                <plugin name='DashboardWidgets'></plugin>
+                <dashboard_widgets />
             </column>
         </row>
     </column>

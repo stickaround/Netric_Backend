@@ -1,6 +1,6 @@
 <row>
     <column>
-        <plugin name='MessageThread'></plugin>
-        <plugin name='ThreadCompose'></plugin>
+    <message_thread />
+        <thread_compose />
     </column>
 </row>

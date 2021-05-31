@@ -10,7 +10,7 @@
 </row>
 <row>
     <column>
-        <plugin name='Recipients'></plugin>
+        <recipients />
     </column>
 </row>
 

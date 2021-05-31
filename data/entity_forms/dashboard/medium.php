@@ -28,6 +28,6 @@
                 </column>
             </row>
         </fieldset>
-        <plugin name='DashboardWidgets'></plugin>
+        <dashboard_widgets />
     </column>
 </row>

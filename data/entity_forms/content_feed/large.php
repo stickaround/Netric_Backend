@@ -28,9 +28,6 @@
             <tab name='Comments'>
                 <field name='comments'></field>
             </tab>
-            <tab name='Custom Fields'>
-                <plugin name='CustomFields' objType='content_feed_post' ref_field='feed_id'></plugin>
-            </tab>
             <tab name='Settings'>
 
                 <row>

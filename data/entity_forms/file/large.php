@@ -16,7 +16,7 @@
     </row>
     <row>
         <column>
-            <plugin name='DisplayFile'></plugin>
+            <display_file />
         </column>
     </row>
     <row showif="id=*">

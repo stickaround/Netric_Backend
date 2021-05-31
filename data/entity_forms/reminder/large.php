@@ -12,7 +12,7 @@
         </row>
         <row>
             <column>
-                <plugin name='ExecuteTime'></plugin>
+                <execute_time name='Time' field='specific_time' />
             </column>
         </row>
         <row>
