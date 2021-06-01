@@ -20,7 +20,7 @@ return [
     "navigation" => [
         [
             "type" => LeftNavItemTypes::ENTITY,
-            "title" => "New Direct Message",
+            "title" => "New Message",
             "route" => "newdirect",
             "icon" => "ChatIcon",
             "objType" => "chat_room",
