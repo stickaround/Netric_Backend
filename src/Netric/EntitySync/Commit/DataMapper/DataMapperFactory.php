@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Commit\DataMapper;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * Create a Entity Sync Commit DataMapper service
  */
-class DataMapperFactory implements ApplicationServiceFactoryInterface
+class DataMapperFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return DataMapperInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $database = $serviceLocator->get(RelationalDbFactory::class);
         return new DataMapperRdb($database);

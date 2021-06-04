@@ -14,7 +14,7 @@ use Netric\Cache\CacheInterface;
 use Netric\Account\AccountContainer;
 use Netric\Account\AccountContainerFactory;
 use Netric\Account\AccountSetupFactory;
-use Netric\ServiceManager\ApplicationServiceManager;
+use Aereus\Application\ApplicationServiceManager
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Request\RequestFactory;

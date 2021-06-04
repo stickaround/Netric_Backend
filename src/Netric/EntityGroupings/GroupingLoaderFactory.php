@@ -9,23 +9,24 @@
 
 namespace Netric\EntityGroupings;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Cache\CacheFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 
 /**
  * Create a Grouping Loader service
  */
-class GroupingLoaderFactory implements ApplicationServiceFactoryInterface
+class GroupingLoaderFactory implements use Aereus\ServiceContainer\FactoryInterface;
+
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return GroupingLoader
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $dm = $serviceLocator->get(EntityGroupingDataMapperFactory::class);
         $cache = $serviceLocator->get(CacheFactory::class);

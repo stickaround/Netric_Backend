@@ -8,7 +8,7 @@
 
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Crypt\BlockCipher;
 use Netric\Crypt\VaultServiceFactory;
 use Netric\Entity\Entity;
@@ -36,10 +36,10 @@ class EmailAccountEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onBeforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // If the password was updated for this user then encrypt it
         if ($this->fieldValueChanged("password")) {

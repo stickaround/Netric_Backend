@@ -12,7 +12,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Mail;
 use Netric\Mime;
 use Netric\FileSystem\FileSystem;
@@ -97,10 +97,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onBeforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Make sure a unique message_id is set
         if (!$this->getValue('message_id')) {
@@ -122,10 +122,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onAfterSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         if ($this->isArchived()) {
             $thread = $this->entityLoader->getEntityById(
@@ -152,10 +152,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onBeforeDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // If purging, then clear the raw file holding our message data
         if ($this->getValue('file_id')) {
@@ -169,10 +169,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onAfterDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         $thread = $this->entityLoader->getEntityById(
             $this->getValue("thread"),

@@ -2,8 +2,8 @@
 
 namespace Netric\WorkerMan;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Aereus\Config\Config;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -11,15 +11,15 @@ use Netric\EntityQuery\Index\IndexFactory;
 /**
  * Handle setting up a job scheduler service
  */
-class SchedulerServiceFactory implements ApplicationServiceFactoryInterface
+class SchedulerServiceFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $sl ServiceLocator for injecting dependencies
      * @return SchedulerService
      */
-    public function createService(ServiceLocatorInterface $sl)
+    public function __invoke(ServiceContainerInterface $sl)
     {
         $entityIndex = $sl->get(IndexFactory::class);
         $entityLoader = $sl->get(EntityLoaderFactory::class);

@@ -7,8 +7,8 @@
  */
 namespace Netric\Request;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Console\Console;
 
 /**
@@ -16,15 +16,15 @@ use Netric\Console\Console;
  *
  * @package Netric\Request
  */
-class RequestFactory implements ApplicationServiceFactoryInterface
+class RequestFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return RequestInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         if (Console::isConsole()) {
             return new ConsoleRequest();

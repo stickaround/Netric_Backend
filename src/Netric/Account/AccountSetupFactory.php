@@ -2,22 +2,22 @@
 namespace Netric\Account;
 
 use Netric\Account\InitData\InitDataSetsFactory;
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Application\DataMapperFactory;
 
 /**
  * Create a new AccountSetup service
  */
-class AccountSetupFactory implements ApplicationServiceFactoryInterface
+class AccountSetupFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return DataMapperInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $dataMapper = $serviceLocator->get(DataMapperFactory::class);
         $dataImporters = $serviceLocator->get(InitDataSetsFactory::class);

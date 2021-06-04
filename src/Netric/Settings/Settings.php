@@ -11,7 +11,7 @@ namespace Netric\Settings;
 
 use Netric\Cache\CacheInterface;
 use Netric\Db\DbInterface;
-use Netric\ServiceManager;
+//use Netric\ServiceManager; Not sure if we need  to import this. comment out for now
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Db\Relational\RelationalDbInterface;
 

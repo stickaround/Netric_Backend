@@ -2,22 +2,22 @@
 
 namespace Netric\Db\Relational;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Config\ConfigFactory;
 
 /**
  * Create a service that returns a handle to an account database
  */
-class RelationalDbFactory implements ApplicationServiceFactoryInterface
+class RelationalDbFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return RelationalDbInterface
      */
-    public function createService(ServiceLocatorInterface $sl)
+    public function __invoke(ServiceContainerInterface $sl)
     {
         $config = $sl->get(ConfigFactory::class);
 

@@ -1,23 +1,23 @@
 <?php
 namespace Netric\Mail\Transport;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Mail\Transport\BulkSmtpFactory;
 
 /**
  * Create a new Transport service based on account settings for bulk email
  */
-class BulkTransportFactory implements ApplicationServiceFactoryInterface
+class BulkTransportFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return TransportInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         // Get the required method
         $config = $serviceLocator->get(ConfigFactory::class);

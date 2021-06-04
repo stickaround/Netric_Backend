@@ -4,7 +4,7 @@ namespace Netric\Controller;
 
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Application\Health\HealthCheckFactory;
 use Netric\Log\LogFactory;
 
@@ -16,10 +16,10 @@ class HealthControllerFactory implements ControllerFactoryInterface
     /**
      * Construct a controller and return it
      *
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param ServiceContainerInterface $serviceLocator
      * @return ControllerInterface
      */
-    public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
+    public function get(ServiceContainerInterface $serviceLocator): ControllerInterface
     {
         $healthCheck = $serviceLocator->get(HealthCheckFactory::class);
         $log = $serviceLocator->get(LogFactory::class);

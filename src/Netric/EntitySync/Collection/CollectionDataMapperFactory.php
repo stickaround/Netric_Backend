@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Db\Relational\RelationalDbContainerFactory;
-use Netric\ServiceManager;
+//use Netric\ServiceManager; I think no need to import this, comment out for now
 
 /**
  * Create a Entity Sync Commit DataMapper service
  */
-class CollectionDataMapperFactory implements ApplicationServiceFactoryInterface
+class CollectionDataMapperFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return CollectionDataMapperInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
 

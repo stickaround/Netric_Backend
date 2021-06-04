@@ -3,21 +3,21 @@
 namespace Netric\Cache;
 
 use Netric\Config\ConfigFactory;
-use Netric\ServiceManager\ServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 
 /**
  * Create a Cache service
  */
-class CacheFactory implements ServiceFactoryInterface
+class CacheFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return CacheInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
         return new MemcachedCache($config->cache);

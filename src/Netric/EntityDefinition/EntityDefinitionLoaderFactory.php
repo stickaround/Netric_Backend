@@ -9,8 +9,8 @@
 
 namespace Netric\EntityDefinition;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Cache\CacheFactory;
 use Netric\Config\ConfigFactory;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
@@ -18,15 +18,15 @@ use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperFactory;
 /**
  * Create a Entity Definition Loader service
  */
-class EntityDefinitionLoaderFactory implements ApplicationServiceFactoryInterface
+class EntityDefinitionLoaderFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return EntityDefinitionLoader
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $definitionDataMapper = $serviceLocator->get(EntityDefinitionDataMapperFactory::class);
         $configLoader = $serviceLocator->get(ConfigFactory::class);

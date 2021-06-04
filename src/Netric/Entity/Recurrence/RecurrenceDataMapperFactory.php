@@ -11,21 +11,21 @@ namespace Netric\Entity\Recurrence;
 
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Db\Relational\RelationalDbContainerFactory;
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 
 /**
  * Create a new Recurring DataMapper service
  */
-class RecurrenceDataMapperFactory implements ApplicationServiceFactoryInterface
+class RecurrenceDataMapperFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return RecurrenceDataMapper
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);

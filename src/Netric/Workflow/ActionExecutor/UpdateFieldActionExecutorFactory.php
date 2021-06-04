@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\WorkflowActionEntity;
@@ -17,11 +17,11 @@ class UpdateFieldActionExecutorFactory
     /**
      * Construct action exector with dependencies
      *
-     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
+     * @param ServiceContainerInterface $serviceLocator For loading dependencies
      * @return ActionExectorInterface
      */
     public static function create(
-        ServiceLocatorInterface $serviceLocator,
+        ServiceContainerInterface $serviceLocator,
         WorkflowActionEntity $actionEntity
     ): ActionExecutorInterface {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

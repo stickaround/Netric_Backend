@@ -2,7 +2,7 @@
 
 namespace Netric\EntityQuery\Plugin;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\Recurrence\RecurrenceSeriesManagerFactory;
 
@@ -19,11 +19,11 @@ class RecurrenceQueryPlugin
     /**
      * Use the RecurrenceSeriesManager to create instances from soon-to-be-run query
      *
-     * @param ServiceLocatorInterface $serviceLocator A service locator for getting dependencies
+     * @param ServiceContainerInterface $serviceLocator A service locator for getting dependencies
      * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onBeforeExecuteQuery(ServiceLocatorInterface $serviceLocator, EntityQuery $query)
+    public function onBeforeExecuteQuery(ServiceContainerInterface $serviceLocator, EntityQuery $query)
     {
         $recurSeriesManager = $serviceLocator->get(RecurrenceSeriesManagerFactory::class);
 
@@ -34,11 +34,11 @@ class RecurrenceQueryPlugin
     /**
      * Perform an operation after a query is executed
      *
-     * @param ServiceLocatorInterface $serviceLocator A service locator for getting dependencies
+     * @param ServiceContainerInterface $serviceLocator A service locator for getting dependencies
      * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onAfterExecuteQuery(ServiceLocatorInterface $serviceLocator, EntityQuery $query)
+    public function onAfterExecuteQuery(ServiceContainerInterface $serviceLocator, EntityQuery $query)
     {
         // Nothing to do after the query is executed for now
     }

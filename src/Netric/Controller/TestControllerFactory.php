@@ -3,16 +3,12 @@ namespace Netric\Controller;
 
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
-
-// This will now remove and replace with Aereus ServiceContainer
-// use Netric\ServiceManager\ServiceLocatorInterface;    
-
 use Aereus\ServiceContainer\FactoryInterface;
 use Aereus\ServiceContainer\ServiceContainerInterface;
 
 /**
  * Construct test controller and implements Aereus ServiceContainer FactoryInterface.
- * This is to replace the current Netric\ServiceManager ServiceLocator
+ * This is to replace the current Netric ServiceManager ServiceLocator
  */
 class TestControllerFactory implements FactoryInterface
 {

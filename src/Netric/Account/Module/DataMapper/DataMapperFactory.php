@@ -2,8 +2,8 @@
 
 namespace Netric\Account\Module\DataMapper;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\EntityLoaderFactory;
@@ -11,15 +11,15 @@ use Netric\Entity\EntityLoaderFactory;
 /**
  * Create a data mapper service for modules
  */
-class DataMapperFactory implements ApplicationServiceFactoryInterface
+class DataMapperFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return DataMapperInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $db = $serviceLocator->get(RelationalDbFactory::class);
         $config = $serviceLocator->get(ConfigFactory::class);

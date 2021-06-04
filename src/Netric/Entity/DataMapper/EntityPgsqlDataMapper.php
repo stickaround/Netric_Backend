@@ -25,7 +25,7 @@ use Netric\Entity\Notifier\Notifier;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Db\Relational\RelationalDbContainer;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
 use DateTime;
@@ -71,7 +71,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         EntityDefinitionLoader $entityDefLoader,
         ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
-        ServiceLocatorInterface $serviceManager,
+        ServiceContainerInterface $serviceContainer,
         RelationalDbContainer $dbContainer,
         WorkerService $workerService
     ) {
@@ -87,7 +87,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
             $entityDefLoader,
             $activityLog,
             $groupingLoader,
-            $serviceManager,
+            $serviceContainer,
             $workerService
         );
 

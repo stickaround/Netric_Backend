@@ -4,7 +4,7 @@ namespace Netric\Controller;
 
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Account\AccountContainerFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Permissions\DaclLoaderFactory;
@@ -21,10 +21,10 @@ class PermissionControllerFactory implements ControllerFactoryInterface
     /**
      * Construct a controller and return it
      *
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param ServiceContainerInterface $serviceLocator
      * @return ControllerInterface
      */
-    public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
+    public function get(ServiceContainerInterface $serviceLocator): ControllerInterface
     {
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         $authService = $serviceLocator->get(AuthenticationServiceFactory::class);

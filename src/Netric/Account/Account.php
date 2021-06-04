@@ -4,7 +4,7 @@ namespace Netric\Account;
 
 use Netric\Application\Application;
 use Netric\Authentication\AuthenticationIdentity;
-use Netric\ServiceManager\ApplicationServiceManager;
+use Aereus\Application\ApplicationServiceManager;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\EntityLoaderFactory;

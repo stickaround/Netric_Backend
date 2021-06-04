@@ -7,8 +7,8 @@
 
 namespace Netric\WorkerMan;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Config\ConfigFactory;
 use Netric\WorkerMan\Queue\Gearman;
 use Netric\WorkerMan\Queue\InMemory;
@@ -17,15 +17,15 @@ use RuntimeException;
 /**
  * Handle setting up a worker service
  */
-class WorkerServiceFactory implements ApplicationServiceFactoryInterface
+class WorkerServiceFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return WorkerService
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
         $workerFactory = new WorkerFactory($serviceLocator);

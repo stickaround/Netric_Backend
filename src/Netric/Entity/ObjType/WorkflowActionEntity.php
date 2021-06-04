@@ -5,7 +5,7 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
