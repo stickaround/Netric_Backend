@@ -45,7 +45,7 @@
                         </column>
                     </tab>
                     <tab name='Dependent Tasks'>
-                        <objectsref obj_type='task' ref_field='depends_task_id'></objectsref>
+                        <objectsref obj_type='task' ref_field='depends_task_id' view_id='all_incomplete_tasks'></objectsref>
                     </tab>
 
                     <tab name='Time'>
