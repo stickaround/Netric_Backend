@@ -13,7 +13,7 @@
             <column>
                 <chat_room_messages></chat_room_messages>
             </column>
-            <column type="sidebar">
+            <column type="sidebar" showif='scope=channel'>
                 <members field='members' />
             </column>
         </row>
