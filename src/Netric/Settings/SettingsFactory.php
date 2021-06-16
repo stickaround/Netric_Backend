@@ -1,8 +1,8 @@
 <?php
 namespace Netric\Settings;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Cache\CacheFactory;
 
@@ -11,15 +11,15 @@ use Netric\Cache\CacheFactory;
  *
  * @package Netric\FileSystem
  */
-class SettingsFactory implements FactoryInterface
+class SettingsFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $database = $serviceLocator->get(RelationalDbFactory::class);
         $cache = $serviceLocator->get(CacheFactory::class);

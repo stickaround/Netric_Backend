@@ -1,24 +1,24 @@
 <?php
 namespace Netric\Mail\Transport;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Mail\Transport\SmtpFactory;
 
 /**
  * Create the default SMTP transport
  */
-class TransportFactory implements FactoryInterface
+class TransportFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return TransportInterface
      * @throws Exception\InvalidArgumentException if a transport could not be created
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         // Get the required method
         $config = $serviceLocator->get(ConfigFactory::class);

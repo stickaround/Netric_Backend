@@ -6,7 +6,7 @@
 
 namespace Netric\Mail\Protocol;
 
-use Aereus\ServiceContainer\AbstractPluginManager;
+use Netric\ServiceManager\AbstractPluginManager;
 
 /**
  * Plugin manager implementation for SMTP extensions.

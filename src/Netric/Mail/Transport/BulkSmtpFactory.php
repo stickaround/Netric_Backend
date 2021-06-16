@@ -1,8 +1,8 @@
 <?php
 namespace Netric\Mail\Transport;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Settings\SettingsFactory;
 use Netric\Account\AccountContainerFactory;
@@ -22,7 +22,7 @@ use Netric\Authentication\AuthenticationService;
  * This factory is basically just gathering configuration options from either the system
  * settings or user-defined account settings.
  */
-class BulkSmtpFactory implements FactoryInterface
+class BulkSmtpFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Container used to load accounts
@@ -37,11 +37,11 @@ class BulkSmtpFactory implements FactoryInterface
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return TransportInterface
      * @throws Exception\InvalidArgumentException if a transport could not be created
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         // Get the required method
         $config = $serviceLocator->get(ConfigFactory::class);

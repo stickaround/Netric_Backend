@@ -7,7 +7,7 @@
 
 namespace Netric\EntityQuery\Plugin;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityQuery\EntityQuery;
 
 /**
@@ -18,18 +18,18 @@ interface PluginInterface
     /**
      * Perform an operation before a query is executed
      *
-     * @param ServiceContainerInterface $serviceLocator A service locator for getting dependencies
+     * @param ServiceLocatorInterface $serviceLocator A service locator for getting dependencies
      * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onBeforeExecuteQuery(ServiceContainerInterface $serviceLocator, EntityQuery $query);
+    public function onBeforeExecuteQuery(ServiceLocatorInterface $serviceLocator, EntityQuery $query);
 
     /**
      * Perform an operation after a query is executed
      *
-     * @param ServiceContainerInterface $serviceLocator A service locator for getting dependencies
+     * @param ServiceLocatorInterface $serviceLocator A service locator for getting dependencies
      * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onAfterExecuteQuery(ServiceContainerInterface $serviceLocator, EntityQuery $query);
+    public function onAfterExecuteQuery(ServiceLocatorInterface $serviceLocator, EntityQuery $query);
 }

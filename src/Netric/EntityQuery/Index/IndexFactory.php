@@ -7,8 +7,8 @@
  */
 namespace Netric\EntityQuery\Index;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Db\Relational\RelationalDbContainerFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityFactoryFactory;
@@ -18,15 +18,15 @@ use Netric\Entity\EntityValueSanitizerFactory;
 /**
  * Create a EntityQuery Index service
  */
-class IndexFactory implements FactoryInterface
+class IndexFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return IndexInterface
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $entityFactory = $serviceLocator->get(EntityFactoryFactory::class);

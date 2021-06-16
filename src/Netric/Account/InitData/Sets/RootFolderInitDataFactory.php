@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace Netric\Account\InitData\Sets;
 
 use Netric\FileSystem\FileSystemFactory;
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Return data intializer
  */
-class RootFolderInitDataFactory implements FactoryInterface
+class RootFolderInitDataFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return InitDataInterface[]
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $fileSystem = $serviceLocator->get(FileSystemFactory::class);
         return new RootFolderInitData($fileSystem);

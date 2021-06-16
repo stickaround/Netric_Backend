@@ -11,7 +11,7 @@ use Exception;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
 use Netric\Mail\Address;

@@ -8,7 +8,7 @@
 namespace Netric\ServiceManager\Test;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Class used to demonstrate loading a service through the ServiceManager
@@ -18,10 +18,10 @@ class ServiceFactory implements ApplicationServiceFactoryInterface
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return mixed Initailized service object
      */
-    public function createService(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         return new Service();
     }

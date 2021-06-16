@@ -3,23 +3,23 @@
 namespace Netric\Entity\Notifier;
 
 use Netric\Config\ConfigFactory;
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use NotificationPusherSdk\NotificationPusherClient;
 use NotificationPusherSdk\NotificationPusherClientInterface;
 
 /**
  * Create a new notification pusher client
  */
-class NotificationPusherFactory implements FactoryInterface
+class NotificationPusherFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
      * @return NotificationPusherClientInterface
      */
-    public function __invoke(ServiceContainerInterface $serviceManager)
+    public function createService(ServiceLocatorInterface $serviceManager)
     {
         // Construct the NotificationPusherClient which just makes calls the an external service
         $config = $serviceManager->get(ConfigFactory::class);

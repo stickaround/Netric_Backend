@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\WorkflowActionEntity;
@@ -18,11 +18,11 @@ class CheckConditionActionExecutorFactory
     /**
      * Construct action exector with dependencies
      *
-     * @param ServiceContainerInterface $serviceLocator For loading dependencies
+     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
      * @return ActionExectorInterface
      */
     public static function create(
-        ServiceContainerInterface $serviceLocator,
+        ServiceLocatorInterface $serviceLocator,
         WorkflowActionEntity $actionEntity
     ): ActionExecutorInterface {
 

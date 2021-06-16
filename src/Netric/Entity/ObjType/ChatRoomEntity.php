@@ -11,7 +11,7 @@ namespace Netric\Entity\ObjType;
 
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinition;
@@ -36,10 +36,10 @@ class ChatRoomEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         if (!$this->fieldValueChanged('members')) {
             return;

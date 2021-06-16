@@ -7,8 +7,8 @@
 
 namespace Netric\Entity;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Account\AccountContainerFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -19,15 +19,15 @@ use Netric\Log\LogFactory;
 /**
  * Create a service for delivering mail
  */
-class EntityMaintainerServiceFactory implements FactoryInterface
+class EntityMaintainerServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntityMaintainerService
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $log = $serviceLocator->get(LogFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

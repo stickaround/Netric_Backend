@@ -2,23 +2,23 @@
 
 namespace Netric\Permissions;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a DaclLoader
  */
-class DaclLoaderFactory implements FactoryInterface
+class DaclLoaderFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return DaclLoader
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);

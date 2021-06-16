@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\WorkerMan\Worker;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Construct worker called to mark a commit as stale for all sync collections
@@ -14,10 +14,10 @@ class EntitySyncSetExportedStaleWorkerFactory
     /**
      * Entity creation factory
      *
-     * @param ServiceContainerInterface $serviceLocator For injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator For injecting dependencies
      * @return EntitySyncSetExportedStaleWorker
      */
-    public function create(ServiceContainerInterface $serviceLocator)
+    public function create(ServiceLocatorInterface $serviceLocator)
     {
         return new EntitySyncSetExportedStaleWorker($serviceLocator->getApplication());
     }

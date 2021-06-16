@@ -8,7 +8,7 @@
 namespace Netric\Entity\ObjType;
 
 use Netric\FileSystem\FileStore\FileStoreFactory;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\UserEntity;
@@ -52,10 +52,10 @@ class FileEntity extends Entity implements EntityInterface
     /**
      * Called right before the endity is purged (hard delete)
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         $fileStore = $serviceLocator->get(FileStoreFactory::class);
 

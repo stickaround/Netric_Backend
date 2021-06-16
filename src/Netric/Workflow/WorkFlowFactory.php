@@ -6,8 +6,8 @@
 
 namespace Netric\WorkFlowLegacy;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkFlowLegacy\Action\ActionFactory;
 
 /**
@@ -15,15 +15,15 @@ use Netric\WorkFlowLegacy\Action\ActionFactory;
  *
  * @package Netric\FileSystem
  */
-class WorkFlowLegacyFactory implements FactoryInterface
+class WorkFlowLegacyFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $actionFactory = new ActionFactory($serviceLocator);
         return new WorkFlowLegacy($actionFactory);

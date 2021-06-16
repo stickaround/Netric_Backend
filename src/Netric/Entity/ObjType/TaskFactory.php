@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
@@ -21,11 +21,11 @@ class TaskFactory implements EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param EntityDefinition $def The definition of this type of object
      * @return EntityInterface TaskEntity
      */
-    public static function create(ServiceContainerInterface $serviceLocator, EntityDefinition $def)
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         return new TaskEntity($def, $entityLoader);

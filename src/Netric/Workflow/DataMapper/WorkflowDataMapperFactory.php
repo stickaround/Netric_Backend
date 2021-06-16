@@ -2,8 +2,8 @@
 
 namespace Netric\WorkFlowLegacy\DataMapper;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkFlowLegacy\Action\ActionFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -12,15 +12,15 @@ use Netric\Db\Relational\RelationalDbFactory;
 /**
  * Base DataMapper class
  */
-class WorkflowDataMapperFactory implements FactoryInterface
+class WorkflowDataMapperFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return WorkflowDataMapperInterface
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $actionFactory = new ActionFactory($serviceLocator);
         $database = $serviceLocator->get(RelationalDbFactory::class);

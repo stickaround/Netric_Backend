@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\EntityDefinition;
 
 /**
@@ -18,9 +18,9 @@ interface EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param EntityDefinition $def The definition of this type of object
      * @return new EntityInterface object
      */
-    public static function create(ServiceContainerInterface $serviceLocator, EntityDefinition $def);
+    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def);
 }

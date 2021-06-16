@@ -3,23 +3,23 @@
 namespace Netric\Entity\Notifier;
 
 use Netric\Authentication\AuthenticationServiceFactory;
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new Notifier service
  */
-class NotifierFactory implements FactoryInterface
+class NotifierFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
      * @return Notifier
      */
-    public function __invoke(ServiceContainerInterface $serviceManager)
+    public function createService(ServiceLocatorInterface $serviceManager)
     {
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityIndex = $serviceManager->get(IndexFactory::class);

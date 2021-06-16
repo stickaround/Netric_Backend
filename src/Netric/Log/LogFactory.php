@@ -7,21 +7,21 @@
  */
 namespace Netric\Log;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Create a Log service
  */
-class LogFactory implements FactoryInterface
+class LogFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface $serviceLocator For loading dependencies
+     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
      * @return LogInterface
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         return $serviceLocator->getApplication()->getLog();
     }

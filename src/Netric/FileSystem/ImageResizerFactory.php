@@ -7,8 +7,8 @@
  */
 namespace Netric\FileSystem;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\FileSystem\FileSystemFactory;
 
@@ -17,15 +17,15 @@ use Netric\FileSystem\FileSystemFactory;
  *
  * @package Netric\FileSystem
  */
-class ImageResizerFactory implements FactoryInterface
+class ImageResizerFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return ImageResizer
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $fileSystem = $serviceLocator->get(FileSystemFactory::class);
         $config = $serviceLocator->get(ConfigFactory::class);

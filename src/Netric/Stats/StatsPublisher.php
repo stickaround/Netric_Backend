@@ -3,7 +3,7 @@
 namespace Netric\Stats;
 
 use Aereus\Config\ConfigLoader;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Stats publisher

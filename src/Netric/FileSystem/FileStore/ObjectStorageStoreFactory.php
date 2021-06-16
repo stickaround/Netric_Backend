@@ -1,23 +1,23 @@
 <?php
 namespace Netric\FileSystem\FileStore;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a file system storage service that uses aereus object storage
  */
-class ObjectStorageStoreFactory implements FactoryInterface
+class ObjectStorageStoreFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return ObjectStorageStore
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
 

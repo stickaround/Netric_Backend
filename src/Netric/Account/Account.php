@@ -4,7 +4,7 @@ namespace Netric\Account;
 
 use Netric\Application\Application;
 use Netric\Authentication\AuthenticationIdentity;
-use Aereus\ServiceContainer\ServiceContainer;
+use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\EntityLoaderFactory;
@@ -50,7 +50,7 @@ class Account
     /**
      * Service manager for this account
      *
-     * @var ServiceContainer
+     * @var ApplicationServiceManager
      */
     private $serviceManager = null;
 
@@ -206,7 +206,7 @@ class Account
     /**
      * Get ServiceManager for this account
      *
-     * @return ServiceContainer
+     * @return ApplicationServiceManager
      */
     public function getServiceManager()
     {

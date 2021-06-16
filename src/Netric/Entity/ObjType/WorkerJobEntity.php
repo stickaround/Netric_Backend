@@ -5,7 +5,7 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Aereus\ServiceContainer\AccountServiceManagerInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;

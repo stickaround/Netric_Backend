@@ -2,7 +2,7 @@
 
 namespace Netric\Entity;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
@@ -18,16 +18,16 @@ class EntityFactory
     /**
      * ServiceLocator for injecting dependencies
      *
-     * @var ServiceContainerInterface
+     * @var ServiceLocatorInterface
      */
     private $serviceManager = null;
 
     /**
      * Class constructor
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator implementation for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator implementation for injecting dependencies
      */
-    public function __construct(ServiceContainerInterface $serviceLocator)
+    public function __construct(ServiceLocatorInterface $serviceLocator)
     {
         $this->serviceManager = $serviceLocator;
     }

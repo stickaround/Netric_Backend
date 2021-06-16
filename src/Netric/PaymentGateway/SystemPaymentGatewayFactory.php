@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Netric\PaymentGateway;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Crypt\VaultServiceFactory;
 
 /**
  * This is the payment gateway used for netric system charges like account billing
  */
-class SystemPaymentGatewayFactory implements FactoryInterface
+class SystemPaymentGatewayFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Create service
      *
-     * @param ServiceContainerInterface $sl
+     * @param ServiceLocatorInterface $sl
      * @return void
      */
-    public function __invoke(ServiceContainerInterface $sl)
+    public function createService(ServiceLocatorInterface $sl)
     {
         // Get secure keys from the vault (we never check these in)
         $vaultService = $sl->get(VaultServiceFactory::class);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\EntitySync\Collection;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntitySync\EntitySync;
 use RuntimeException;
 use DateTime;
@@ -14,16 +14,16 @@ class CollectionFactory implements CollectionFactoryInterface
     /**
      * ServiceLocator for injecting dependencies
      *
-     * @var ServiceContainerInterface
+     * @var ServiceLocatorInterface
      */
     private $serviceLocator = null;
 
     /**
      * Construct an instance of this factory so we can inject it as a dependency
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      */
-    public function __construct(ServiceContainerInterface $serviceLocator)
+    public function __construct(ServiceLocatorInterface $serviceLocator)
     {
         $this->serviceLocator = $serviceLocator;
     }

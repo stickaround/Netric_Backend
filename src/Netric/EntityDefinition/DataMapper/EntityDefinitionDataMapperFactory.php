@@ -7,8 +7,8 @@
  */
 namespace Netric\EntityDefinition\DataMapper;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Db\Relational\RelationalDbContainerFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\WorkerMan\WorkerServiceFactory;
@@ -17,15 +17,15 @@ use Netric\Config\ConfigFactory;
 /**
  * Create a Entity Definition DataMapper service
  */
-class EntityDefinitionDataMapperFactory implements FactoryInterface
+class EntityDefinitionDataMapperFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntityDefinitionRdbDataMapper
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);

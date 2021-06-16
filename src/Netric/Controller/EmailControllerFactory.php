@@ -6,7 +6,7 @@ use Netric\Account\AccountContainerFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Mail\SenderServiceFactory;
 use Netric\Mail\DeliveryServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
@@ -20,10 +20,10 @@ class EmailControllerFactory implements ControllerFactoryInterface
     /**
      * Construct a controller and return it
      *
-     * @param ServiceContainerInterface $serviceLocator
+     * @param ServiceLocatorInterface $serviceLocator
      * @return ControllerInterface
      */
-    public function get(ServiceContainerInterface $serviceLocator): ControllerInterface
+    public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $senderService = $serviceLocator->get(SenderServiceFactory::class);

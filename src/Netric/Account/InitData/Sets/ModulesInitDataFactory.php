@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace Netric\Account\InitData\Sets;
 
 use Netric\Account\Module\ModuleServiceFactory;
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Return data intializer
  */
-class ModulesInitDataFactory implements FactoryInterface
+class ModulesInitDataFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return InitDataInterface[]
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $data = require(__DIR__ . '/../../../../../data/account/modules.php');
         $moduleDataDir = __DIR__ . '/../../../../../data/modules';

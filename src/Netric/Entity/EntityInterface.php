@@ -6,7 +6,7 @@
 
 namespace Netric\Entity;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\ObjType\UserEntity;
 
 interface EntityInterface
@@ -106,34 +106,34 @@ interface EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user);
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user);
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(ServiceContainerInterface $serviceLocator, UserEntity $user);
+    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user);
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user);
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user);
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user);
+    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user);
 
     /**
      * Check if a field value changed since created or opened

@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace Netric\Config;
 
 use Aereus\Config\ConfigLoader;
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Handle setting up the config service
  */
-class ConfigFactory implements FactoryInterface
+class ConfigFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
      * @return Config
      */
-    public function __invoke(ServiceContainerInterface $sl)
+    public function createService(ServiceLocatorInterface $sl)
     {
         $configLoader = new ConfigLoader();
         $appEnv = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : 'production';

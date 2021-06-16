@@ -3,22 +3,20 @@ namespace Netric\Controller;
 
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
- * Construct test controller and implements Aereus ServiceContainer FactoryInterface.
- * This is to replace the current Netric ServiceManager ServiceLocator
+ * Construct test controller
  */
-class TestControllerFactory implements FactoryInterface
+class TestControllerFactory implements ControllerFactoryInterface
 {
     /**
-     * Construct a controller and return a ControllerInterface value type
+     * Construct a controller and return it
      *
-     * @param ServiceContainerInterface $container
+     * @param ServiceLocatorInterface $serviceLocator
      * @return ControllerInterface
      */
-    public function __invoke(ServiceContainerInterface $container): ControllerInterface
+    public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
     {
         return new TestController();
     }

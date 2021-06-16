@@ -18,7 +18,7 @@ use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityFactory;
 use Netric\DataMapperAbstract;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Ramsey\Uuid\Uuid;
 use Netric\Entity\EntityAggregatorFactory;
 use Netric\Entity\ObjType\UserEntity;
@@ -125,7 +125,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      * for an iterative refactor to pass to entity callbacks and will eventually
      * need to be removed. DO NOT USE IT FOR ANYTHING NEW.
      */
-    private ServiceContainerInterface $serviceContainer;
+    private ServiceLocatorInterface $serviceManager;
 
     /**
      * Used to schedule background jobs
@@ -145,7 +145,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      * @param EntityDefinitionLoader $entityDefLoader
      * @param ActivityLog $activityLog
      * @param GroupingLoader $groupingLoader
-     * @param ServiceContainerInterface $serviceContainer
+     * @param ServiceLocatorInterface $serviceManager
      */
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
@@ -158,7 +158,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         EntityDefinitionLoader $entityDefLoader,
         ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
-        ServiceContainerInterface $serviceContainer,
+        ServiceLocatorInterface $serviceManager,
         WorkerService $workerService
     ) {
         $this->recurIdentityMapper = $recurIdentityMapper;
@@ -169,7 +169,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         //$this->entityAggregator = $entityAggregator;
         $this->entityDefLoader = $entityDefLoader;
         $this->groupingLoader = $groupingLoader;
-        $this->serviceContainer = $serviceContainer;
+        $this->serviceManager = $serviceManager;
         $this->workerService = $workerService;
     }
 
@@ -320,7 +320,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         // Call beforeSave
-        $entity->beforeSave($this->serviceContainer, $user);
+        $entity->beforeSave($this->serviceManager, $user);
 
         // Get releveant changed description
         $changedDesc = $entity->getChangeLogDescription();
@@ -344,10 +344,10 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         // Call onAfterSave
-        $entity->afterSave($this->serviceContainer, $user);
+        $entity->afterSave($this->serviceManager, $user);
 
         // Update any aggregates that could be impacted by saving $entity
-        $this->entityAggregator = $this->serviceContainer->get(EntityAggregatorFactory::class);
+        $this->entityAggregator = $this->serviceManager->get(EntityAggregatorFactory::class);
         $this->entityAggregator->updateAggregates($entity, $user);
 
         // Reset dirty flag and changelog
@@ -507,7 +507,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         // Query for matching IDs
-        $this->entityIndex = $this->serviceContainer->get(IndexFactory::class);
+        $this->entityIndex = $this->serviceManager->get(IndexFactory::class);
         $result = $this->entityIndex->executeQuery($query);
         for ($i = 0; $i < $result->getTotalNum(); $i++) {
             $entity = $result->getEntity($i);
@@ -531,7 +531,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
 
         // Call beforeDeleteHard so the entity can do any pre-purge operations
-        $entity->beforeDeleteHard($this->serviceContainer, $user);
+        $entity->beforeDeleteHard($this->serviceManager, $user);
 
         // Purge the recurrence pattern if set
         if ($entity->getRecurrencePattern()) {
@@ -545,10 +545,10 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $ret = $this->deleteHard($entity, $user->getAccountId());
 
         // Call onBeforeDeleteHard so the entity can do any post-purge operations
-        $entity->afterDeleteHard($this->serviceContainer, $user);
+        $entity->afterDeleteHard($this->serviceManager, $user);
 
         // Delete from EntityCollection_Index
-        $this->entityIndex = $this->serviceContainer->get(IndexFactory::class);
+        $this->entityIndex = $this->serviceManager->get(IndexFactory::class);
         $this->entityIndex->delete($entity);
 
         // Determine if we are flagging the entity as deleted or actually purging
@@ -813,7 +813,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         // Check if any objects match
-        $this->entityIndex = $this->serviceContainer->get(IndexFactory::class);
+        $this->entityIndex = $this->serviceManager->get(IndexFactory::class);
         $result = $this->entityIndex->executeQuery($query);
 
         if ($result->getTotalNum() > 0) {

@@ -9,7 +9,7 @@
 
 namespace Netric\Entity\ObjType;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\Entity;
@@ -54,10 +54,10 @@ class FolderEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         $path = $this->getValue("name");
 
@@ -85,10 +85,10 @@ class FolderEntity extends Entity implements EntityInterface
     /**
      * Checks before a hard delete
      *
-     * @param ServiceContainerInterface $serviceLocator
+     * @param ServiceLocatorInterface $serviceLocator
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
+    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         if ($this->getValue("f_system") === true) {
             throw new \RuntimeException("A system folder cannot be deleted: " . $this->getFullPath());

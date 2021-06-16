@@ -7,20 +7,20 @@ namespace Netric\Account\Billing;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Log\LogFactory;
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\PaymentGateway\SystemPaymentGatewayFactory;
 
-class AccountBillingServiceFactory implements FactoryInterface
+class AccountBillingServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Create service
      *
-     * @param ServiceContainerInterface $serviceLocator
+     * @param ServiceLocatorInterface $serviceLocator
      * @return void
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
         return new AccountBillingService(

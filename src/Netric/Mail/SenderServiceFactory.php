@@ -5,8 +5,8 @@
  */
 namespace Netric\Mail;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Mail\Transport\TransportFactory;
 use Netric\Mail\Transport\BulkTransportFactory;
 use Netric\Log\LogFactory;
@@ -14,15 +14,15 @@ use Netric\Log\LogFactory;
 /**
  * Create a service for sending email
  */
-class SenderServiceFactory implements FactoryInterface
+class SenderServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return SenderService
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $transport = $serviceLocator->get(TransportFactory::class);
         $bulkTransport = $serviceLocator->get(BulkTransportFactory::class);

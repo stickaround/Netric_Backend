@@ -1,8 +1,8 @@
 <?php
 namespace Netric\EntityGroupings\DataMapper;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Db\Relational\RelationalDbContainerFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntitySync\Commit\CommitManagerFactory;
@@ -12,15 +12,15 @@ use Netric\WorkerMan\WorkerServiceFactory;
 /**
  * Create a EntityGroupings DataMapper service
  */
-class EntityGroupingDataMapperFactory implements FactoryInterface
+class EntityGroupingDataMapperFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return EntityGroupingRdbDataMapper
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);

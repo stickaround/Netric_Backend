@@ -5,8 +5,8 @@
  */
 namespace Netric\Mail;
 
-use Aereus\ServiceContainer\FactoryInterface;
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -16,15 +16,15 @@ use Netric\Log\LogFactory;
 /**
  * Create a service for delivering mail
  */
-class DeliveryServiceFactory implements FactoryInterface
+class DeliveryServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return DeliveryService
      */
-    public function __invoke(ServiceContainerInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);

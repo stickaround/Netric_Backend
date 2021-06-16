@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Aereus\ServiceContainer\ServiceContainerInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\ActionExecutor\Exception\ActionNotFoundException;
 use InvalidArgumentException;
@@ -17,16 +17,16 @@ class ActionExecutorFactory
     /**
      * Service ServiceLocator for injecting dependencies
      *
-     * @var ServiceContainerInterface
+     * @var ServiceLocatorInterface
      */
-    private ServiceContainerInterface $serviceManager;
+    private ServiceLocatorInterface $serviceManager;
 
     /**
      * Class constructor
      *
-     * @param ServiceContainerInterface $serviceLocator For injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator For injecting dependencies
      */
-    public function __construct(ServiceContainerInterface $serviceLocator)
+    public function __construct(ServiceLocatorInterface $serviceLocator)
     {
         $this->serviceManager = $serviceLocator;
     }
