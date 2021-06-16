@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\WorkerMan;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 
 /**
  * Factory for creating workers to be executed through the WorkerMan queue
@@ -14,16 +14,16 @@ class WorkerFactory
     /**
      * ServiceLocator for injecting dependencies
      *
-     * @var ServiceLocatorInterface
+     * @var ServiceContainerInterface
      */
     private $serviceManager = null;
 
     /**
      * Class constructor
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      */
-    public function __construct(ServiceLocatorInterface $serviceLocator)
+    public function __construct(ServiceContainerInterface $serviceLocator)
     {
         $this->serviceManager = $serviceLocator;
     }

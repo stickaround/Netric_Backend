@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
@@ -23,11 +23,11 @@ class ProjectFactory implements EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param EntityDefinition $def The definition of this type of object
      * @return EntityInterface ProjectEntity
      */
-    public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
+    public static function create(ServiceContainerInterface $serviceLocator, EntityDefinition $def)
     {
         $entityIndex = $serviceLocator->get(IndexFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

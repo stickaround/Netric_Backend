@@ -2,8 +2,8 @@
 
 namespace Netric\Authentication;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Account\AccountContainerFactory;
 use Netric\Request\RequestFactory;
 use Netric\Crypt\VaultServiceFactory;
@@ -11,15 +11,15 @@ use Netric\Crypt\VaultServiceFactory;
 /**
  * Create an authentication service
  */
-class AuthenticationServiceFactory implements ApplicationServiceFactoryInterface
+class AuthenticationServiceFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return AuthenticationService
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         $request = $serviceLocator->get(RequestFactory::class);

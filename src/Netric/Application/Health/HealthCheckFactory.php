@@ -1,23 +1,23 @@
 <?php
 namespace Netric\Application\Health;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Log\LogFactory;
 use Netric\Application\Health\DependencyCheck\DependenciesFactory;
 
 /**
  * Construct an application health service
  */
-class HealthCheckFactory implements ApplicationServiceFactoryInterface
+class HealthCheckFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
+     * @param ServiceContainerInterface $serviceLocator For loading dependencies
      * @return HealthCheck
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $log = $serviceLocator->get(LogFactory::class);
         $dependencies = $serviceLocator->get(DependenciesFactory::class);

@@ -14,22 +14,22 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntitySync\EntitySyncFactory;
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\WorkerMan\WorkerServiceFactory;
 
 /**
  * Create a Entity DataMapper service
  */
-class EntityDataMapperFactory implements ApplicationServiceFactoryInterface
+class EntityDataMapperFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return EntityPgsqlDataMapper
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $recurIdentityMapper = $serviceLocator->get(RecurrenceIdentityMapperFactory::class);
         $commitManager = $serviceLocator->get(CommitManagerFactory::class);

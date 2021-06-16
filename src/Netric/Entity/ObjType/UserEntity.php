@@ -13,7 +13,7 @@ use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -98,10 +98,10 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onBeforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // If the password was updated for this user then encrypt it
         if ($this->fieldValueChanged("password")) {
@@ -119,10 +119,10 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onAfterSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Get the account
         $account = $this->accountContainer->loadById($this->getAccountId());
@@ -146,10 +146,10 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses and called just before a hard delete occurs
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onBeforeDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Get the account
         $account = $this->accountContainer->loadById($this->getAccountId());

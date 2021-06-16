@@ -2,22 +2,22 @@
 
 namespace Netric\Application\Health\DependencyCheck;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Config\ConfigFactory;
 
 /**
  * Create a service that returns a handle to an application (not account) database
  */
-class DependenciesFactory implements ApplicationServiceFactoryInterface
+class DependenciesFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return array of DependencyCheckInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $dependencies = [];
         $config = $serviceLocator->get(ConfigFactory::class);

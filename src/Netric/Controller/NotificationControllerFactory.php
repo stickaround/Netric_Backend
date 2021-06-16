@@ -5,7 +5,7 @@ namespace Netric\Controller;
 use Netric\Entity\Notifier\NotifierFactory;
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Account\AccountContainerFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Account\Module\ModuleServiceFactory;
@@ -22,10 +22,10 @@ class NotificationControllerFactory implements ControllerFactoryInterface
     /**
      * Construct a controller and return it
      *
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param ServiceContainerInterface $serviceLocator
      * @return ControllerInterface
      */
-    public function get(ServiceLocatorInterface $serviceLocator): ControllerInterface
+    public function get(ServiceContainerInterface $serviceLocator): ControllerInterface
     {
         $notifier = $serviceLocator->get(NotifierFactory::class);
         $log = $serviceLocator->get(LogFactory::class);

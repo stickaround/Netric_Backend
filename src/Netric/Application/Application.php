@@ -14,7 +14,7 @@ use Netric\Cache\CacheInterface;
 use Netric\Account\AccountContainer;
 use Netric\Account\AccountContainerFactory;
 use Netric\Account\AccountSetupFactory;
-use Netric\ServiceManager\ApplicationServiceManager;
+use Aereus\ServiceContainer\ServiceContainer;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Request\RequestFactory;
@@ -78,7 +78,7 @@ class Application
     /**
      * Application service manager
      *
-     * @var ApplicationServiceManager
+     * @var ServiceContainer
      */
     private $serviceManager = null;
 
@@ -118,7 +118,7 @@ class Application
         //register_shutdown_function(array(self::$log, "phpShutdownErrorChecker"));
 
         // Setup the application service manager
-        $this->serviceManager = new ApplicationServiceManager($this);
+        $this->serviceManager = new ServiceContainer($this);
 
         // Setup application datamapper
         $this->dm = $this->serviceManager->get(DataMapperFactory::class);
@@ -425,7 +425,7 @@ class Application
     /**
      * Get the application service manager
      *
-     * @return ApplicationServiceManager
+     * @return ServiceContainer
      */
     public function getServiceManager()
     {

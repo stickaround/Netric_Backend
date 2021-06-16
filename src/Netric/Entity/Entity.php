@@ -2,7 +2,7 @@
 
 namespace Netric\Entity;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\FileSystem\FileSystem;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\EntityDefinition\EntityDefinition;
@@ -602,10 +602,10 @@ class Entity implements EntityInterface
     /**
      * The datamapper will call this just before the entity is saved
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function beforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function beforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Update or add followers based on changes to fields
         $this->updateFollowers();
@@ -617,20 +617,20 @@ class Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onBeforeSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
     }
 
     /**
      * The datamapper will call this just after the entity is saved
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function afterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function afterSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         $daclLoader = $serviceLocator->get(DaclLoaderFactory::class);
         $fileSystem = $serviceLocator->get(FileSystemFactory::class);
@@ -656,20 +656,20 @@ class Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onAfterSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
     }
 
     /**
      * The datamapper will call this just before an entity is purged -- hard delete
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function beforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function beforeDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Call derived extensions
         $this->onBeforeDeleteHard($serviceLocator, $user);
@@ -678,20 +678,20 @@ class Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onBeforeDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onBeforeDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
     }
 
     /**
      * The datamapper will call this just after an entity is purged -- hard delete
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function afterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function afterDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Call derived extensions
         $this->onAfterDeleteHard($serviceLocator, $user);
@@ -700,10 +700,10 @@ class Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
+     * @param ServiceContainerInterface $serviceLocator Service manager used to load supporting services
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onAfterDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
     }
 

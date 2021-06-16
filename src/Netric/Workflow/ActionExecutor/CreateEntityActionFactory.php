@@ -2,7 +2,7 @@
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Entity\EntityLoaderFactory;
 
 /**
@@ -13,10 +13,10 @@ class CreateEntityActionFactory
     /**
      * Construct new action
      *
-     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
+     * @param ServiceContainerInterface $serviceLocator For loading dependencies
      * @return ActionInterface
      */
-    public static function create(ServiceLocatorInterface $serviceLocator)
+    public static function create(ServiceContainerInterface $serviceLocator)
     {
         // Return a new TestAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

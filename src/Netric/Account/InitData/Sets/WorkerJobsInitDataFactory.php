@@ -6,22 +6,22 @@ namespace Netric\Account\InitData\Sets;
 
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\WorkerMan\SchedulerServiceFactory;
 
 /**
  * Return data intializer
  */
-class WorkerJobsInitDataFactory implements ApplicationServiceFactoryInterface
+class WorkerJobsInitDataFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return InitDataInterface[]
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $data = require(__DIR__ . '/../../../../../data/account/worker-jobs.php');
         $entityIndex = $serviceLocator->get(IndexFactory::class);

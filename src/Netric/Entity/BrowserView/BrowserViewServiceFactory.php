@@ -1,8 +1,8 @@
 <?php
 namespace Netric\Entity\BrowserView;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Config\ConfigFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Settings\SettingsFactory;
@@ -14,15 +14,15 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
  *
  * @package Netric\FileSystem
  */
-class BrowserViewServiceFactory implements ApplicationServiceFactoryInterface
+class BrowserViewServiceFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
         $defLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);

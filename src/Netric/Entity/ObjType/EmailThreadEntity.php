@@ -12,7 +12,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
@@ -57,10 +57,10 @@ class EmailThreadEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onAfterSave(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Check it see if the user deleted the whole thread
         if ($this->isArchived()) {
@@ -74,10 +74,10 @@ class EmailThreadEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface $serviceLocator ServiceLocator for injecting dependencies
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    public function onAfterDeleteHard(ServiceContainerInterface $serviceLocator, UserEntity $user)
     {
         // Purge all messages that were in this thread
         $this->removeMessages(true, $user); // Now purge

@@ -2,22 +2,22 @@
 
 namespace Netric\FileSystem\FileStore;
 
-use Netric\ServiceManager\ApplicationServiceFactoryInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Aereus\ServiceContainer\FactoryInterface;
+use Aereus\ServiceContainer\ServiceContainerInterface;
 use Netric\Config\ConfigFactory;
 
 /**
  * Factory used to initialize the netric filesystem filestore
  */
-class FileStoreFactory implements ApplicationServiceFactoryInterface
+class FileStoreFactory implements FactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param ServiceContainerInterface ServiceLocator for injecting dependencies
      * @return FileStoreInterface
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ServiceContainerInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
         $storeFactory = $config->get('files')->get('store');
