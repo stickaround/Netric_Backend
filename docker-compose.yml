@@ -40,6 +40,15 @@ services:
       - db1
       - objectstorage
 
+  thrift:
+    image: dockerhub.aereus.com/thrift:development
+    volumes:
+      - ./thrift:/data/thrift
+      - ./src/ThriftGen:/data/thrift-out
+    environment:
+      THRIFT_FILE: netric.thrift
+      THRIFT_LANGUAGE: php:server
+
   memcached:
     image: memcached
 

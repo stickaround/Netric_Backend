@@ -129,6 +129,10 @@ class Router
      */
     public function run(RequestInterface $request): ResponseInterface
     {
+        // Check for thrift call
+        if ($request->getParam('handler') && $request->getParam('content-type') === 'application/x-thrift') {
+        }
+
         $fName = $this->setControllerAndGetAction($request);
 
         // Make sure the request had both a controller and action
@@ -141,10 +145,10 @@ class Router
             return new HttpResponse($request);
         }
 
-        // If a factory does not exist for the controller, call the legacy Controller caller
-        if (!class_exists($this->className . "Factory")) {
-            return $this->runLegacyWithoutFactory($request, $fName);
-        }
+        // // If a factory does not exist for the controller, call the legacy Controller caller
+        // if (!class_exists($this->className . "Factory")) {
+        //     return $this->runLegacyWithoutFactory($request, $fName);
+        // }
 
         // Create new instance of class if it does not exist
         $factoryClassName = $this->className . "Factory";
@@ -175,98 +179,98 @@ class Router
         throw new NotAuthorizedForRouteException("Authorization Required");
     }
 
-    /**
-     * Execute methods in server class without a factory
-     *
-     * This is being replaced with the Controller factory pattern
-     * to make testing and DI easier in the controllers.
-     *
-     * @param RequestInterface $request The request being made to run
-     * @param string $fName the name of the action function to load
-     * @return ResponseInterface on success, exception on failure
-     *
-     * @throws RouteNotFoundException When client calls non-existent route
-     * @throws NotAuthorizedForRouteException When client does not have permission
-     */
-    private function runLegacyWithoutFactory(RequestInterface $request, string $fName): ResponseInterface
-    {
-        global $_REQUEST;
+    // /**
+    //  * Execute methods in server class without a factory
+    //  *
+    //  * This is being replaced with the Controller factory pattern
+    //  * to make testing and DI easier in the controllers.
+    //  *
+    //  * @param RequestInterface $request The request being made to run
+    //  * @param string $fName the name of the action function to load
+    //  * @return ResponseInterface on success, exception on failure
+    //  *
+    //  * @throws RouteNotFoundException When client calls non-existent route
+    //  * @throws NotAuthorizedForRouteException When client does not have permission
+    //  */
+    // private function runLegacyWithoutFactory(RequestInterface $request, string $fName): ResponseInterface
+    // {
+    //     global $_REQUEST;
 
-        // Create new instance of class if it does not exist
-        if ($this->className && !$this->controllerClass && class_exists($this->className)) {
-            $clsname = $this->className;
-            $this->controllerClass = new $clsname($this->application, $this->account);
+    //     // Create new instance of class if it does not exist
+    //     if ($this->className && !$this->controllerClass && class_exists($this->className)) {
+    //         $clsname = $this->className;
+    //         $this->controllerClass = new $clsname($this->application, $this->account);
 
-            if (isset($this->controllerClass->testMode)) {
-                $this->controllerClass->testMode = $this->testMode;
-            }
-        } else {
-            throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
-        }
+    //         if (isset($this->controllerClass->testMode)) {
+    //             $this->controllerClass->testMode = $this->testMode;
+    //         }
+    //     } else {
+    //         throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
+    //     }
 
-        $requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
-        if (method_exists($this->controllerClass, $fName) && $requestMethod != 'OPTIONS') {
-            /*
-             * TODO: $params are no longer needed for action functions
-             * since every controller now has a $this->request object
-             * which is more useful for different environments
-             */
-            // forward request variables in as params
-            $params = [];
+    //     $requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
+    //     if (method_exists($this->controllerClass, $fName) && $requestMethod != 'OPTIONS') {
+    //         /*
+    //          * TODO: $params are no longer needed for action functions
+    //          * since every controller now has a $this->request object
+    //          * which is more useful for different environments
+    //          */
+    //         // forward request variables in as params
+    //         $params = [];
 
-            // POST params
-            foreach ($_POST as $varname => $varval) {
-                if ($varname != 'function') {
-                    $params[$varname] = $varval;
-                }
-            }
+    //         // POST params
+    //         foreach ($_POST as $varname => $varval) {
+    //             if ($varname != 'function') {
+    //                 $params[$varname] = $varval;
+    //             }
+    //         }
 
-            // Add raw post body for JSON
-            $params['raw_body'] = file_get_contents("php://input");
+    //         // Add raw post body for JSON
+    //         $params['raw_body'] = file_get_contents("php://input");
 
-            // GET params
-            foreach ($_GET as $varname => $varval) {
-                if ($varname != 'function' && $varname != 'authentication') {
-                    $params[$varname] = $varval;
-                }
-            }
+    //         // GET params
+    //         foreach ($_GET as $varname => $varval) {
+    //             if ($varname != 'function' && $varname != 'authentication') {
+    //                 $params[$varname] = $varval;
+    //             }
+    //         }
 
-            // If testing, add session
-            // I'm not sure why we are doing this - Sky Stebnicki
-            if ($this->testMode) {
-                foreach ($_REQUEST as $varname => $varval) {
-                    if ($varname != 'function') {
-                        $params[$varname] = $varval;
-                    }
-                }
-            }
+    //         // If testing, add session
+    //         // I'm not sure why we are doing this - Sky Stebnicki
+    //         if ($this->testMode) {
+    //             foreach ($_REQUEST as $varname => $varval) {
+    //                 if ($varname != 'function') {
+    //                     $params[$varname] = $varval;
+    //                 }
+    //             }
+    //         }
 
-            // Manually set output if passed as a param
-            if (isset($params['output'])) {
-                $this->controllerClass->output = $params['output'];
-            }
+    //         // Manually set output if passed as a param
+    //         if (isset($params['output'])) {
+    //             $this->controllerClass->output = $params['output'];
+    //         }
 
-            // Check permissions to make sure the current user has access to the controller
-            $hasPermission = $this->currentUserHasPermission($request);
+    //         // Check permissions to make sure the current user has access to the controller
+    //         $hasPermission = $this->currentUserHasPermission($request);
 
-            // Call class method and pass request params
-            if ($hasPermission) {
-                $response = call_user_func([$this->controllerClass, $fName], $params);
+    //         // Call class method and pass request params
+    //         if ($hasPermission) {
+    //             $response = call_user_func([$this->controllerClass, $fName], $params);
 
-                // New controllers should all return a ResponseInterface which handles output
-                if (is_object($response) && $response instanceof ResponseInterface) {
-                    $response->printOutput();
-                }
+    //             // New controllers should all return a ResponseInterface which handles output
+    //             if (is_object($response) && $response instanceof ResponseInterface) {
+    //                 $response->printOutput();
+    //             }
 
-                return $response;
-            } else {
-                // TODO: return 401 Authorization Required
-                throw new NotAuthorizedForRouteException("Legacy controller could not be loaded");
-            }
-        }
+    //             return $response;
+    //         } else {
+    //             // TODO: return 401 Authorization Required
+    //             throw new NotAuthorizedForRouteException("Legacy controller could not be loaded");
+    //         }
+    //     }
 
-        throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
-    }
+    //     throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
+    // }
 
     /**
      * Set the controller and get the action name from the request

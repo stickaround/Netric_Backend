@@ -128,7 +128,7 @@ FROM base as development
 # Enable xdebugger
 RUN echo "xdebug.mode=debug,coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.log =/tmp/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.log=/tmp/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 ###########################################################################
 FROM development as test
@@ -154,4 +154,3 @@ RUN chown -R www-data:www-data /var/www/html/data/
 
 # In a base well change this to ONBUILD
 RUN composer install --no-dev --no-scripts
-#ONBUILD RUN --mount=type=ssh composer install --no-dev --no-scripts --optimize-autoloader
