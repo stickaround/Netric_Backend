@@ -377,7 +377,6 @@ class Application
         return $accounts;
     }
 
-
     /**
      * Get account and username from email address
      *

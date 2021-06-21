@@ -49,6 +49,6 @@ class AuthenticationHandler implements AuthenticationIf
      */
     public function isTokenValid($token): bool
     {
-        return false;
+        return $this->authService->isTokenValid($token);
     }
 }
