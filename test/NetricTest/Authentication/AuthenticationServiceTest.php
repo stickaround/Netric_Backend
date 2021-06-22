@@ -165,64 +165,8 @@ class AuthenticationServiceTest extends TestCase
     }
 
     /**
-     * @deprecated We should use JWT now
-     *
-     * @return void
+     * Make sure we can get an authenticated user
      */
-    // public function testGetSignedSession()
-    // {
-    //     $userId = 1;
-    //     $expires = -1; // Never
-    //     $pass = self::TEST_USER_PASS;
-    //     $salt = "testsalt";
-
-    //     $sessionStr = $this->authService->getSignedSession($userId, $expires, $pass, $salt);
-    //     $parts = explode(":", $sessionStr);
-    //     $sessUid = $parts[AuthenticationService::SESSIONPART_USERID];
-    //     $sessExp = $parts[AuthenticationService::SESSIONPART_EXPIRES];
-    //     $sessPwd = $parts[AuthenticationService::SESSIONPART_PASSWORD];
-    //     $sessSgn = $parts[AuthenticationService::SESSIONPART_SIGNATURE];
-
-    //     // Setup a reflection object to test validation which is private
-    //     $refAuthService = new \ReflectionObject($this->authService);
-    //     $sessionSignatureIsValid = $refAuthService->getMethod("sessionSignatureIsValid");
-    //     $sessionSignatureIsValid->setAccessible(true);
-
-    //     // Simulate validating an unchanged session
-    //     $ret = $sessionSignatureIsValid->invoke($this->authService, $sessUid, $sessExp, $sessPwd, $sessSgn);
-    //     $this->assertTrue($ret);
-
-    //     // Pretend the client tampered with the expires param
-    //     $sessExp = 0;
-    //     $ret = $sessionSignatureIsValid->invoke($this->authService, $sessUid, $sessExp, $sessPwd, $sessSgn);
-    //     $this->assertFalse($ret);
-    //     $sessExp = $parts[AuthenticationService::SESSIONPART_EXPIRES];
-
-    //     // Pretend the client tries to chage the user id
-    //     $sessUid = 100;
-    //     $ret = $sessionSignatureIsValid->invoke($this->authService, $sessUid, $sessExp, $sessPwd, $sessSgn);
-    //     $this->assertFalse($ret);
-    // }
-
-    // public function testGetIdentity()
-    // {
-    //     $expires = -1; // Never
-    //     $pass = self::TEST_USER_PASS;
-    //     $salt = "testsalt";
-
-    //     $sessionStr = $this->authService->getSignedSession($this->user->getEntityId(), $expires, $pass, $salt);
-
-    //     // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
-    //     $req = $this->getMockBuilder(RequestInterface::class)
-    //         ->getMock();
-    //     $req->method('getParam')->willReturn($sessionStr);
-    //     $this->authService->setRequest($req);
-
-    //     // Now get the identity (userid) of the authenticated user
-    //     $authUserId = $this->authService->getIdentity();
-    //     $this->assertEquals($this->user->getEntityId(), $authUserId);
-    // }
-
     public function testGetAuthenticatedUser()
     {
         // Create a valid token to test
@@ -244,40 +188,21 @@ class AuthenticationServiceTest extends TestCase
     }
 
     /**
-     * Make sure we can get an identity from a shared private key
+     * Verify that a token is valid
      *
-     * This is used for service-to-service calls only. The private key
-     * will never be shared outside of our service network.
+     * @return void
      */
-    // public function testGetIdentityPrivateKey()
-    // {
-    //     $authHeader = AuthenticationService::METHOD_PRIVATE_KEY .
-    //         " " . $this->account->getAccountId() . ':' . self::PRIVATE_KEY;
+    public function testIsTokenValid(): void
+    {
+        // Create a valid token to test
+        $sessionToken = $this->authService->authenticate(
+            self::TEST_USER,
+            self::TEST_USER_PASS,
+            $this->account->getName()
+        );
 
-    //     // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
-    //     $req = $this->getMockBuilder(RequestInterface::class)->getMock();
-    //     $req->method('getParam')->willReturn($authHeader);
-    //     $this->authService->setRequest($req);
-
-    //     // Make sure the system user was loaded
-    //     $authUserId = $this->authService->getIdentity();
-    //     $this->assertNotNull($authUserId, "UserId for system user not found");
-    // }
-
-    /**
-     * Verify that a bad private key will result in no identity being returned
-     */
-    // public function testGetIdentityPrivateKeyWithBadKey()
-    // {
-    //     $authHeader = AuthenticationService::METHOD_PRIVATE_KEY . " BADKEY";
-
-    //     // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
-    //     $req = $this->getMockBuilder(RequestInterface::class)->getMock();
-    //     $req->method('getParam')->willReturn($authHeader);
-    //     $this->authService->setRequest($req);
-
-    //     // Make sure the system user was loaded
-    //     $authUserId = $this->authService->getIdentity();
-    //     $this->assertNull($authUserId);
-    // }
+        $this->assertTrue($this->authService->isTokenValid($sessionToken));
+        $this->assertFalse($this->authService->isTokenValid(""));
+        $this->assertFalse($this->authService->isTokenValid("BAD_TOKEN"));
+    }
 }

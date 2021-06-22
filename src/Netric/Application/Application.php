@@ -2,6 +2,11 @@
 
 namespace Netric\Application;
 
+use Thrift\Factory\TTransportFactory;
+use Thrift\Factory\TBinaryProtocolFactory;
+use Thrift\Transport\TBufferedTransport;
+use Thrift\Protocol\TBinaryProtocol;
+use Thrift\Transport\TPhpStream;
 use Netric\Account\Account;
 use Netric\Application\Exception;
 use Netric\Mvc\Exception\NotAuthorizedForRouteException;
@@ -207,6 +212,99 @@ class Application
     }
 
     /**
+     * Run The application through thrift
+     *
+     * @param string $path Optional initial route to load
+     * @return int Return status code
+     */
+    public function runThrift(): int
+    {
+        $returnStatusCode = 0;
+
+        // We give each request a unique ID in order to track calls and logs through the system
+        $this->requestId = uniqid();
+
+        // Add to every log to make tracking down problems easier
+        self::$log->setRequestId($this->requestId);
+
+        // Get the request
+        $request = $this->serviceManager->get(RequestFactory::class);
+
+        if (!$request->getParam('handler')) {
+            header('HTTP/1.1 404 No Handler Specified');
+            // No need to process the profiler
+            return -1;
+        }
+
+        // Try executing
+        try {
+            // Normalize the name
+            $handlerName = $request->getParam('handler');
+            $handlerName = str_replace("_", " ", $handlerName);
+            $handlerName = str_replace("-", " ", $handlerName);
+            $handlerName = ucwords($handlerName);
+            $handlerName = str_replace(" ", "", $handlerName);
+
+            $handlerClass = "Netric\\Handler\\${handlerName}Handler";
+            $processorClass = "NetricApi\\${handlerName}Processor";
+
+            // Try loading the process and handler classes
+            // Handler is created in Netric, the Processor is auto-generated
+            if (
+                !class_exists($handlerClass) ||
+                !class_exists($processorClass)
+            ) {
+                header("HTTP/1.1 404 ${handlerName} not found");
+                // No need to process the profiler
+                return -1;
+            }
+
+            $handler = $this->serviceManager->get($handlerClass . "Factory");
+            $processor = new $processorClass($handler);
+
+            $transportFactory = new TTransportFactory();
+            $protocolFactory = new TBinaryProtocolFactory(true, true);
+            $transport = new TBufferedTransport(new TPhpStream(TPhpStream::MODE_R | TPhpStream::MODE_W));
+            $protocol = new TBinaryProtocol($transport, true, true);
+
+            header('Content-Type', 'application/x-thrift');
+            $transport->open();
+            $processor->process($protocol, $protocol);
+            $transport->close();
+        } catch (NotAuthorizedForRouteException $NotAuthorizedException) {
+            header('HTTP/1.1 401 Unauthorized');
+            print($NotAuthorizedException->getMessage());
+            $returnStatusCode = -1;
+        } catch (\Exception $unhandledException) {
+            // An exception took place and was not handled
+            $this->getLog()->error(
+                'Unhandled application exception in ' .
+                    $unhandledException->getFile() .
+                    ':' . $unhandledException->getLine() .
+                    "; message=" . $unhandledException->getMessage() .
+                    "\n" . $unhandledException->getTraceAsString()
+            );
+
+            // If we are suppressing logs then print out this exception
+            header('HTTP/1.1 403 Unhandled exception');
+            print($this->config->log->writer . "\n" .
+                'Unhandled application exception in ' .
+                $unhandledException->getFile() .
+                ':' . $unhandledException->getLine() .
+                "; message=" . $unhandledException->getMessage() .
+                "\n" . $unhandledException->getTraceAsString());
+            //}
+
+            // Fail
+            $returnStatusCode = -1;
+        }
+
+        // Handle any profiling needed for this request
+        $this->profileRequest();
+        return $returnStatusCode;
+    }
+
+    /**
      * Get initialized config
      *
      * @return Config
@@ -278,7 +376,6 @@ class Application
 
         return $accounts;
     }
-
 
     /**
      * Get account and username from email address

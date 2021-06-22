@@ -4,19 +4,11 @@ This is the source code for both the client and the server.
 
 ## Running Local Development Server
 
-Note: On some windows installations python is invoked by typing 'py'
-
-1. Install docker native (not docker toolbox)
+1. Install docker
 
    http://www.docker.com
 
-2. Log into dockerhub
-
-   docker login dockerhub.aereus.com
-   user: aereusdev
-   password: p7pfsGRe
-
-3. Run dev environment
+2. Run dev environment
 
    docker-compose up
 
@@ -24,13 +16,13 @@ Note: On some windows installations python is invoked by typing 'py'
 
 Run tests within the container by executing.
 
-    docker-compose exec netric_server APPLICATION_ENV=testing vendor/bin/phpunit
+    docker-compose exec netric_server composer test
 
 ### Accessing Services
 
 - http://localhost:80 - load netric
 - http://localhost:8888 - view performance profiles
-- localhost:5432 - connect to postgres with user vagrant and password vagrant
+- http://localhost:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging
 
@@ -44,6 +36,12 @@ You can remote into the server with the follwoing command:
 
 This will spawn a new interactive process in the container and run bash which
 is similar what happens when you SSH into a remote machine.
+
+## API
+
+We are transitioning away from hand-build SDKs and REST APIs for services. Instead, we are using apache thrift. Services must be defined in the /thrift directry, and all API processors need to be generated on each change by running:
+
+`docker-compose exec netric_server composer build-api`
 
 ## The Client
 
@@ -61,6 +59,7 @@ Each of the respective client repos will contain build and deployment instructio
 
 - `/src` - all classes and functions
 - `/public` - all served assets and where apache will look for index files
+- `/thrift` - API definition for apache thrift calls
 - `/vendor` - third party libraries
 - `/data` - non-executable stored data
 - `/bin` - binary scripts to run on the server

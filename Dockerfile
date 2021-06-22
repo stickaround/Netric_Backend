@@ -154,4 +154,3 @@ RUN chown -R www-data:www-data /var/www/html/data/
 
 # In a base well change this to ONBUILD
 RUN composer install --no-dev --no-scripts
-#ONBUILD RUN --mount=type=ssh composer install --no-dev --no-scripts --optimize-autoloader

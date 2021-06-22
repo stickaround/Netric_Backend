@@ -5,7 +5,6 @@ namespace Netric\Authentication;
 use Netric\Authentication\Token\AuthenticationTokenInterface;
 use Netric\Authentication\Token\HmakToken;
 use Netric\Entity\EntityLoader;
-use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Request\RequestInterface;
 use Netric\EntityDefinition\ObjectTypes;
@@ -151,6 +150,30 @@ class AuthenticationService
         }
 
         return null;
+    }
+
+    /**
+     * Check if a token is valid
+     *
+     * @param string $fullAuthToken as "<METHOD> <TOKEN>"
+     * @return boolean
+     */
+    public function isTokenValid(string $fullAuthToken): bool
+    {
+        if (!$fullAuthToken === "" || strpos($fullAuthToken, " ") === false) {
+            return false;
+        }
+
+        // Get the parts of the full token from "<METHOD> <TOKEN>" string
+        list($methodName, $token) = explode(" ", $fullAuthToken);
+
+        // Opps, looks like a bad full toeken string
+        if ($token === null) {
+            return false;
+        }
+
+        $token = $this->createTokenInstance($methodName, $token);
+        return $token->tokenIsValid();
     }
 
     /**
