@@ -234,6 +234,27 @@ class Field implements \ArrayAccess
     }
 
     /**
+     * Get the name of this field
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set the name for this field
+     *
+     * @param string $name
+     * @return void
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
      * Conver field definition to array
      *
      * @return array

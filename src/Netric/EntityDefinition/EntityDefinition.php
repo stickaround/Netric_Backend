@@ -3,6 +3,7 @@
 namespace Netric\EntityDefinition;
 
 use Netric\Permissions\Dacl;
+use RuntimeException;
 
 /**
  * Define the meta-data for an object type (fields)
@@ -676,5 +677,36 @@ class EntityDefinition
     public function getSystem()
     {
         return $this->system;
+    }
+
+    /**
+     * Check if there is a field that will be used to inherit a DACL from
+     *
+     * A classic example of this would be that files in folder should, by default,
+     * inherit the permissions of the parent folder.
+     *
+     * @return Field
+     */
+    public function getFieldToInheritDaclFrom(): ?Field
+    {
+        $field = null;
+
+        /*
+         * We will prefer to use inheritDaclRef because it is more explicitely
+         * stating that this entity should inherit from a reference. Otherwise we'll
+         * go with the implicit parent (folder to a file) option.
+         */
+        if ($this->inheritDaclRef) {
+            $field = $this->getField($this->inheritDaclRef);
+        } elseif ($this->parentField) {
+            $field = $this->getField($this->parentField);
+        }
+
+        // It should never happen that this field is not an object, but check just in case
+        if ($field && $field->type !== Field::TYPE_OBJECT) {
+            throw new RuntimeException('Cannot inherit permissions from a field of type ' . $field->type);
+        }
+
+        return $field;
     }
 }

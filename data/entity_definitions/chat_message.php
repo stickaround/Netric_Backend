@@ -8,7 +8,7 @@ use Netric\EntityDefinition\ObjectTypes;
 return [
     'default_activity_level' => 1,
     'store_revisions' => false,
-    'inherit_dacl_ref' => 'chat_room',
+    'parent_field' => 'folder_id',
     'fields' => [
         'chat_room' => [
             'title' => 'Room',

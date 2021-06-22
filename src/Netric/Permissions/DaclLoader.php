@@ -71,7 +71,7 @@ class DaclLoader
         if ($entityDacl && $entityDacl->verifyDaclData()) {
             return $entityDacl;
         }
-        
+
         // Now try to get DACL for obj type
         $objDef = $entity->getDefinition();
         // Try to get for from the object definition if permissions have been customized
@@ -94,16 +94,16 @@ class DaclLoader
     {
         // Check to see if the entity type has a parent
         $objDef = $entity->getDefinition();
-        if ($objDef->parentField) {
-            $fieldDef = $objDef->getField($objDef->parentField);
-            if ($entity->getValue($objDef->parentField) && $fieldDef->subtype) {
+        $fieldToInheritFrom = $objDef->getFieldToInheritDaclFrom();
+        if ($fieldToInheritFrom) {
+            if ($entity->getValue($fieldToInheritFrom->getName())) {
                 // See if we can retrieve the parent entity
-                $parentEntity = $this->entityLoader->getEntityById($entity->getValue(
-                    $objDef->parentField
+                $inheritableEntity = $this->entityLoader->getEntityById($entity->getValue(
+                    $fieldToInheritFrom->getName()
                 ), $user->getAccountId());
 
-                if ($parentEntity) {
-                    $dacl = $this->getForEntity($parentEntity, $user);
+                if ($inheritableEntity) {
+                    $dacl = $this->getForEntity($inheritableEntity, $user);
                     if ($dacl) {
                         return $dacl;
                     }

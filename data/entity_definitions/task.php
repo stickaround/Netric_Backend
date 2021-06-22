@@ -3,7 +3,6 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
-use Netric\Entity\ObjType\UserEntity;
 
 return [
     'inherit_dacl_ref' => 'project',
