@@ -265,7 +265,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $user = $currentAccount->getAuthenticatedUser();
         $dacl = $this->daclLoader->getForEntity($entity, $user);
         $currentUserPermissions = $dacl->getUserPermissions($user, $entity);
-        
+
         // If user is not allowed, then return an error
         if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
@@ -624,7 +624,8 @@ class EntityController extends AbstractFactoriedController implements Controller
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if ($field->subtype // Make sure that this field has a subtype
+                    if (
+                        $field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data

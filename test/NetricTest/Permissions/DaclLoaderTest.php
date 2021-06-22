@@ -155,22 +155,16 @@ class DaclLoaderTest extends TestCase
     /**
      * Test getting a dacl from an inherited parent entity like a file from a folder
      */
-    public function testGetForEntity_Parent()
+    public function testGetForEntityParent()
     {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New folder which is the parent of a file
         $folder = $entityLoader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $folder->setValue("name", "MyFolder");
-        $daclData = [
-            "entries" => [
-                [
-                    "name" => Dacl::PERM_VIEW,
-                    "users" => [$this->user->getEntityId()]
-                ],
-            ],
-        ];
-        $folder->setValue("dacl", json_encode($daclData));
+        $folderDacl = new Dacl();
+        $folderDacl->allowUser($this->user->getEntityId(), Dacl::PERM_VIEW);
+        $folder->setValue("dacl", json_encode($folderDacl->toArray()));
         $entityLoader->save($folder, $this->user);
         $this->testEntities[] = $folder;
 
@@ -183,7 +177,33 @@ class DaclLoaderTest extends TestCase
 
         // The file does not have an explicit DACL, so it should load from the folder
         $dacl = $this->daclLoader->getForEntity($file, $this->user);
-        $this->assertNotNull($dacl);
+        $this->assertEquals([$this->user->getEntityId()], $dacl->getUsers());
+    }
+
+    /**
+     * Test getting a dacl from an inherited field
+     */
+    public function testGetForEntitInherit()
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // Create a new room, which makes a custom DACL with the contents of members field
+        $chatRoom = $entityLoader->create(ObjectTypes::CHAT_ROOM, $this->account->getAccountId());
+        $chatRoom->setValue("subject", "MyFolder");
+        $chatRoom->addMultiValue("members", $this->user->getEntityId(), $this->user->getName());
+        $entityLoader->save($chatRoom, $this->user);
+        $this->testEntities[] = $chatRoom;
+
+        // Now put a message in the field
+        $chatMessage = $entityLoader->create(ObjectTypes::CHAT_MESSAGE, $this->account->getAccountId());
+        $chatMessage->setValue("chat_room", $chatRoom->getEntityId());
+        $chatMessage->setValue("body", "Test Message");
+        $entityLoader->save($chatMessage, $this->user);
+        $this->testEntities[] = $chatMessage;
+
+        // The file does not have an explicit DACL, so it should load from the folder
+        $dacl = $this->daclLoader->getForEntity($chatMessage, $this->user);
+        $this->assertEquals([$this->user->getEntityId()], $dacl->getUsers());
     }
 
     /**

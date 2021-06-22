@@ -31,6 +31,7 @@ class ObjectTypes
     const EMAIL_MESSAGE_ATTACHMENT = 'email_message_attachment';
     const EMAIL_THREAD = 'email_thread';
     const CHAT_ROOM = 'chat_room';
+    const CHAT_MESSAGE = 'chat_message';
     const FILE = 'file';
     const FOLDER = 'folder';
     const HTML_TEMPLATE = 'html_template';

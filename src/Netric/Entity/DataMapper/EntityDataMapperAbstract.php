@@ -259,7 +259,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     public function save(EntityInterface $entity, UserEntity $user): string
     {
         // Make sure the user is valid - must have account_id and either an entityId or be anonymous or system
-        if (empty($user->getAccountId()) ||
+        if (
+            empty($user->getAccountId()) ||
             (empty($user->getEntityId()) && !$user->isAnonymous() && !$user->isSystem())
         ) {
             throw new RuntimeException(
@@ -762,7 +763,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         // If the unique name already exists, then append with id or a random number
         if (!$isUnique) {
             $uname .= "-";
-            $uname .= ($this->id) ? $this->id : uniqid();
+            $uname .= ($entity->getEntityId()) ? $entity->getEntityId() : uniqid();
         }
 
         // Set the uname

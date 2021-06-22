@@ -15,6 +15,8 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Permissions\Dacl;
 
 /**
@@ -45,6 +47,11 @@ class ChatRoomEntity extends Entity implements EntityInterface
             return;
         }
 
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        $userGroups = $groupingLoader->get(ObjectTypes::USER . '/groups', $user->getAccountId());
+        $groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
+        $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
+
         // Make sure all members have view access to the room
         $dacl = new Dacl();
         $members = $this->getValue('members');
@@ -53,11 +60,11 @@ class ChatRoomEntity extends Entity implements EntityInterface
         }
 
         // Make sure the owner has full control
-        $dacl->allowGroup(UserEntity::GROUP_CREATOROWNER, Dacl::PERM_FULL);
+        $dacl->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
 
         // If this is not a direct message, then add administrators
         if ($this->getValue('scope') === 'channel') {
-            $dacl->allowGroup(UserEntity::GROUP_ADMINISTRATORS, Dacl::PERM_FULL);
+            $dacl->allowGroup($groupAdmin->getGroupId(), Dacl::PERM_FULL);
         }
 
         // Save custom permissions

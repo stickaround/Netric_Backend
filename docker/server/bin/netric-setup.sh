@@ -19,8 +19,6 @@ until ./netric health/test-dependencies > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; 
 done
 echo "All dependencies are up"
 
-
-
 # Run install in case this is our first run - it will exit gracefully if
 # netric was previously installed
 ./netric setup/install --account=localtest --email=test@netric.com --username=test --password=password

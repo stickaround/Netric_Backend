@@ -52,24 +52,22 @@ class DaclLoader
      */
     public function getForEntity(EntityInterface $entity, UserEntity $user): ?Dacl
     {
-        $daclData = $entity->getValue("dacl");
         $entityDacl = null;
+        $daclData = $entity->getValue("dacl");
         if (!empty($daclData)) {
             $decoded = json_decode($daclData, true);
             if ($decoded !== false) {
                 $entityDacl = new Dacl($decoded);
+                if ($entityDacl->verifyDaclData()) {
+                    return $entityDacl;
+                }
             }
         }
 
         // Check to see if the entity type has a parent
         $parentDacl = $this->getForParentEntity($entity, $user);
         if ($parentDacl) {
-            $entityDacl = $parentDacl;
-        }
-
-        // If we have now the dacl for entity and it has valid dacl data, then return the dacl
-        if ($entityDacl && $entityDacl->verifyDaclData()) {
-            return $entityDacl;
+            return $parentDacl;
         }
 
         // Now try to get DACL for obj type

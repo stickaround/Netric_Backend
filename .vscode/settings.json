@@ -1,6 +1,5 @@
 {
     "php.suggest.basic": false,
-    "php.validate.executablePath": "php",
     "php-docblocker.useShortNames": true,
     "phpcbf.onsave": true,
     "phpcbf.standard": "./vendor/aereus/codequality/phpcs.xml",
