@@ -1,5 +1,10 @@
 <tabs>
-    <tab name='General'>
+    <tab name='General'>    
+        <row>
+            <column>
+                <field name='image_id' profile_image='t'></field>
+            </column>
+        </row>
         <row>
             <column>
                 <field name='name' hidelabel="t" class='headline'></field>
@@ -7,7 +12,7 @@
         </row>
         <fieldset name='Details'>
             <row>
-                <column>
+                <column>                    
                     <field name='priority'></field>
                     <field name='parent' tooltip='A project can be a child of much larger projects which allows for smaller teams working on massive projects. This is not a commonly used feature, few projects are of that scale; but if you find a project has too much noise from all the people and activity it might be helpful to split out subprojects and make smaller teams.'></field>
                     <field name='owner_id' tooltip='Each project must have one responisble owner even though many members may be working on the project.'></field>

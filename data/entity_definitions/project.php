@@ -79,5 +79,10 @@ return array(
             'autocreatename' => 'id', // the field to pull the new object name from
             'fkey_table' => array("key" => "id", "title" => "name")
         ),
+        'image_id' => [
+            'title'=>'Image',
+            'type'=>Field::TYPE_OBJECT,
+            'subtype'=>'file'
+        ],
     ),
 );

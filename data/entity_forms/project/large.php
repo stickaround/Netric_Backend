@@ -1,5 +1,5 @@
 <row>
-    <column>
+    <column>        
         <row>
             <column>
                 <field name='name' hidelabel="t" class='headline'></field>
@@ -35,8 +35,12 @@
         </row>
     </column>
     <column type="sidebar">
-        <header>Details</header>
-
+        <header>Details</header>        
+        <row>
+            <column>
+                <field name='image_id' profile_image='t'></field>
+            </column>
+        </row>
         <row>
             <column>
                 <field name='priority'></field>
