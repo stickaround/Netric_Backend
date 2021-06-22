@@ -6,9 +6,6 @@ services:
       context: ./
       target: development
       dockerfile: ./Dockerfile
-    ports:
-      - "80:80"
-      - "443:443"
     environment:
       APPLICATION_ENV: development
       RUN_SETUP_INSTALL: 1
@@ -49,6 +46,15 @@ services:
       THRIFT_FILE: netric.thrift
       THRIFT_LANGUAGE: php:server
 
+  # api server used when developing the client locally
+  api:
+    image: dockerhub.aereus.com/api_netric_com
+    ports:
+      - "80:3001"
+    environment: 
+      NODE_ENV: devdependency
+      APPLICATION_ENV: devdependency
+        
   memcached:
     image: memcached
 
