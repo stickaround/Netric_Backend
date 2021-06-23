@@ -119,6 +119,7 @@ return [
         'subtype' => ObjectTypes::USER,
         'readonly' => true,
         'system' => true,
+        'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
     ],
 
     'revision' => [

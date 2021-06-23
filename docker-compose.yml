@@ -6,6 +6,8 @@ services:
       context: ./
       target: development
       dockerfile: ./Dockerfile
+    ports:
+      - "8081:80"
     environment:
       APPLICATION_ENV: development
       RUN_SETUP_INSTALL: 1
