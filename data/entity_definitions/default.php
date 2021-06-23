@@ -118,7 +118,9 @@ return [
         'type' => Field::TYPE_OBJECT_MULTI,
         'subtype' => ObjectTypes::USER,
         'readonly' => true,
-        'system' => true
+        'system' => true,
+        // TODO: For some reason this broke all kinds of unit tests?
+        //'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
     ],
 
     'revision' => [
