@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Netric\Handler;
 
+use Netric\Entity\EntityLoaderFactory;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 
 /**
- * Construct the test hanlder
+ * Construct the entity handler
  */
-class TestHandlerFactory implements ApplicationServiceFactoryInterface
+class EntityHandlerFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Construct a controller and return it
@@ -20,6 +21,7 @@ class TestHandlerFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new TestHandler();
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        return new EntityHandler($entityLoader);
     }
 }

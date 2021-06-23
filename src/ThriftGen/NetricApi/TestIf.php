@@ -16,6 +16,9 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
+/**
+ * Test service used for ping and healthchecks
+ */
 interface TestIf
 {
     /**

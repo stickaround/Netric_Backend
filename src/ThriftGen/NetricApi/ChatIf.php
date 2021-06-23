@@ -17,15 +17,15 @@ use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
 /**
- * Authentication service
+ * Chat service used for chat-specific operations
  */
-interface AuthenticationIf
+interface ChatIf
 {
     /**
-     * Check if a given auth token is valid
+     * Notify any members who were not in a room when a new message is sent
      * 
-     * @param string $token
-     * @return bool
+     * @param string $messageId
+     * @param string $accountId
      */
-    public function isTokenValid($token);
+    public function notifyAbsentOfNewMessage($messageId, $accountId);
 }

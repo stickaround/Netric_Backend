@@ -111,6 +111,16 @@ return [
             "on" => "null"
         ],
     ],
+
+    // List of users who have seen this entity
+    'seen_by' => [
+        'title' => 'Seen By',
+        'type' => Field::TYPE_OBJECT_MULTI,
+        'subtype' => ObjectTypes::USER,
+        'readonly' => true,
+        'system' => true,
+    ],
+
     'revision' => [
         'title' => 'Revision',
         'type' => Field::TYPE_NUMBER,

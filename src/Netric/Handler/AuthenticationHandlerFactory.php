@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netric\Handler;
 
 use Netric\ServiceManager\ServiceLocatorInterface;

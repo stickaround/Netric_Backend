@@ -17,15 +17,16 @@ use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
 /**
- * Authentication service
+ * Entity service
  */
-interface AuthenticationIf
+interface EntityIf
 {
     /**
-     * Check if a given auth token is valid
+     * Indicate that an entity has been seen by a given user
      * 
-     * @param string $token
-     * @return bool
+     * @param string $entityId
+     * @param string $userId
+     * @param string $accountId
      */
-    public function isTokenValid($token);
+    public function setEntitySeenBy($entityId, $userId, $accountId);
 }
