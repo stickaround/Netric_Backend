@@ -102,13 +102,13 @@ class Notifier
 
         // Get followers of the referenced entity
         $followers = $this->getInterestedUsers($entity, $user);
-        foreach ($followers as $userGuid) {
+        foreach ($followers as $followerId) {
             // If the follower id is not a valid user id then just skip
-            if (!Uuid::isValid($userGuid)) {
+            if (!Uuid::isValid($followerId)) {
                 continue;
             }
 
-            $followerEntity = $this->entityLoader->getEntityById($userGuid, $user->getAccountId());
+            $follower = $this->entityLoader->getEntityById($followerId, $user->getAccountId());
 
             /**
              * Make sure the follower is valid:
@@ -118,9 +118,9 @@ class Notifier
              * 3. Not a system user
              */
             if (
-                !$followerEntity ||
-                $followerEntity->getEntityId() == $user->getEntityId() ||
-                $followerEntity->isSystem()
+                !$follower ||
+                $follower->getEntityId() == $user->getEntityId() ||
+                $follower->isSystem()
             ) {
                 // Skip
                 continue;
@@ -128,12 +128,12 @@ class Notifier
 
             // If the verb is create or sent, then check to see if the entity
             // has already been seen by the user we are about to send the notification to
-            if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
-                if (in_array($userGuid, $entity->getValue('seen_by'))) {
-                    // Skip because the user has already seen the entity
-                    continue;
-                }
-            }
+            // if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
+            //     if (in_array($followerId, $entity->getValue('seen_by'))) {
+            //         // Skip because the user has already seen the entity
+            //         continue;
+            //     }
+            // }
 
             /*
              * Get the object reference which is the entity this notice is about.
@@ -146,7 +146,7 @@ class Notifier
             if ($objType == ObjectTypes::COMMENT) {
                 $objReference = $entity->getValue("obj_reference");
                 $ownerName = $entity->getValueName("owner_id");
-                $followerName = $entity->getValueName('followers', $userGuid);
+                $followerName = $entity->getValueName('followers', $followerId);
                 $description = $entity->getValue("comment");
                 $name = "$ownerName added comment";
 
@@ -165,7 +165,7 @@ class Notifier
             if ($objType == ObjectTypes::CHAT_MESSAGE) {
                 $objReference = $entity->getValue("chat_room");
                 $ownerName = $entity->getValueName("owner_id");
-                $followerName = $entity->getValueName('followers', $userGuid);
+                $followerName = $entity->getValueName('followers', $followerId);
                 $description = $entity->getValue("comment");
                 $name = "$ownerName sent a message";
 
@@ -176,7 +176,7 @@ class Notifier
             }
 
             // Create new notification, or update an existing unseen one
-            $notification = $this->getNotification($objReference, $userGuid, $user->getAccountId());
+            $notification = $this->getNotification($objReference, $followerId, $user->getAccountId());
             $notification->setValue("name", $name);
             $notification->setValue("description", $description);
             $notification->setValue("f_seen", false);
