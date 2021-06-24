@@ -65,6 +65,7 @@ class EntityPostSaveWorker extends AbstractWorker
 
         // Log to figure out what is going on
         if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
+            $userInfo = ($user) ? $user->getEntityId() : 'NO USER LOADED';
             $log->info(
                 __CLASS__ .
                     ': worker_chat_message ' .
@@ -74,7 +75,7 @@ class EntityPostSaveWorker extends AbstractWorker
                     ' - ' .
                     $workload['user_id'] .
                     ' - ' .
-                    ($user) ? $user->getEntityId() : 'NO USER LOADED'
+                    $userInfo
             );
         }
 
