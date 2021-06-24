@@ -11,6 +11,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
 use Netric\Entity\Notifier\NotifierFactory;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogFactory;
 use RuntimeException;
 
@@ -62,8 +63,14 @@ class EntityPostSaveWorker extends AbstractWorker
         $entityIndex = $serviceManager->get(IndexFactory::class);
         $entityIndex->save($entity);
 
+        // Log to figure out what is going on
+        if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
+            $log->info(__CLASS__ . ': worker dealing with chat_message ' . $workload['entity_id'] . ' - ' . $workload['changed_description']);
+        }
+
         // Create or send notifications if the changelog was sent
         if (!empty($workload['changed_description']) && $user) {
+            $log->info(__CLASS__ . ': worker sending notifiation for chat_message' . $workload['entity_id']);
             $notifierService = $serviceManager->get(NotifierFactory::class);
             $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
         }

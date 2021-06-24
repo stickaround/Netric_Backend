@@ -116,6 +116,7 @@ class Notifier
              * 1. Was not deleted
              * 2. Not the same as the user performing the action - no need to notify them they did something
              * 3. Not a system user
+             * 4. Had not already seen the entity before the notification was triggered (like for chat messages)
              */
             if (
                 !$follower ||
@@ -128,12 +129,12 @@ class Notifier
 
             // If the verb is create or sent, then check to see if the entity
             // has already been seen by the user we are about to send the notification to
-            // if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
-            //     if (in_array($followerId, $entity->getValue('seen_by'))) {
-            //         // Skip because the user has already seen the entity
-            //         continue;
-            //     }
-            // }
+            if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
+                if (in_array($followerId, $entity->getValue('seen_by'))) {
+                    // Skip because the user has already seen the entity
+                    continue;
+                }
+            }
 
             /*
              * Get the object reference which is the entity this notice is about.
