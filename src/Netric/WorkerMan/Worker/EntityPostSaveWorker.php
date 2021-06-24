@@ -35,7 +35,6 @@ class EntityPostSaveWorker extends AbstractWorker
             throw new RuntimeException("entity_id, account_id, and user_id are all required");
         }
 
-        // Example of getting the current working application
         $serviceManager = $this->getApplication()->getServiceManager();
 
         // Log it

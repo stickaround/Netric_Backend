@@ -129,7 +129,7 @@ class Notifier
             // If the verb is create or sent, then check to see if the entity
             // has already been seen by the user we are about to send the notification to
             if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
-                if (!in_array($userGuid, $entity->getValue('seen_by'))) {
+                if (in_array($userGuid, $entity->getValue('seen_by'))) {
                     // Skip because the user has already seen the entity
                     continue;
                 }
