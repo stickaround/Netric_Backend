@@ -65,7 +65,15 @@ class EntityPostSaveWorker extends AbstractWorker
 
         // Log to figure out what is going on
         if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
-            $log->info(__CLASS__ . ': worker dealing with chat_message ' . $workload['entity_id'] . ' - ' . $workload['changed_description']);
+            $log->info(
+                __CLASS__ .
+                    ': worker_chat_message ' .
+                    $workload['entity_id'] .
+                    ' - ' .
+                    $workload['user_id'] .
+                    ' - ' .
+                    $workload['changed_description']
+            );
         }
 
         // Create or send notifications if the changelog was sent
