@@ -76,7 +76,7 @@ class Notifier
      * @param string $changedDescription The description of the change that took place
      * @return int[] List of notification entities created or updated
      */
-    public function send(EntityInterface $entity, string $event, UserEntity $user, string $changedDescription = '', $log = null)
+    public function send(EntityInterface $entity, string $event, UserEntity $user, string $changedDescription = '')
     {
         $objType = $entity->getDefinition()->getObjType();
 
@@ -103,17 +103,6 @@ class Notifier
         // Get followers of the referenced entity
         $followers = $this->getInterestedUsers($entity, $user);
 
-        if ($objType == ObjectTypes::CHAT_MESSAGE && $log) {
-            $log->info(
-                __CLASS__ .
-                    '->send: ' .
-                    $entity->getEntityId() .
-                    ' - ' .
-                    var_export($followers, true) .
-                    ' ::: ' .
-                    var_export($entity->getValue('seen_by'), true)
-            );
-        }
         foreach ($followers as $followerId) {
             // If the follower id is not a valid user id then just skip
             if (!Uuid::isValid($followerId)) {
@@ -179,7 +168,7 @@ class Notifier
                 $objReference = $entity->getValue("chat_room");
                 $ownerName = $entity->getValueName("owner_id");
                 $followerName = $entity->getValueName('followers', $followerId);
-                $description = $entity->getValue("comment");
+                $description = $entity->getValue("body");
                 $name = "$ownerName sent a message";
 
                 // Check if the user is being called out in the message, if so, then let's change the name.
@@ -194,10 +183,6 @@ class Notifier
             $notification->setValue("description", $description);
             $notification->setValue("f_seen", false);
             $notificationIds[] = $this->entityLoader->save($notification, $user);
-
-            if ($objType == ObjectTypes::CHAT_MESSAGE && $log) {
-                $log->info(__CLASS__ . '->sent2: ' . $entity->getEntityId());
-            }
 
             $this->sendNotification($notification, $user);
         }

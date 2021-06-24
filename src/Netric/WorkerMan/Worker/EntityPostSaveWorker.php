@@ -66,7 +66,7 @@ class EntityPostSaveWorker extends AbstractWorker
         // Create or send notifications if the changelog was sent
         if (!empty($workload['changed_description']) && $user) {
             $notifierService = $serviceManager->get(NotifierFactory::class);
-            $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description'], $log);
+            $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
         }
 
         // Log the activity
