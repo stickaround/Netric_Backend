@@ -70,15 +70,19 @@ class EntityPostSaveWorker extends AbstractWorker
                     ': worker_chat_message ' .
                     $workload['entity_id'] .
                     ' - ' .
+                    $workload['changed_description'] .
+                    ' - ' .
                     $workload['user_id'] .
                     ' - ' .
-                    $workload['changed_description']
+                    var_export($user, true)
             );
         }
 
         // Create or send notifications if the changelog was sent
         if (!empty($workload['changed_description']) && $user) {
-            $log->info(__CLASS__ . ': worker sending notifiation for chat_message' . $workload['entity_id']);
+            if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
+                $log->info(__CLASS__ . ': worker_chat_message notification - ' . $workload['entity_id']);
+            }
             $notifierService = $serviceManager->get(NotifierFactory::class);
             $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
         }
