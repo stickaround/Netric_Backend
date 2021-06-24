@@ -74,7 +74,7 @@ class EntityPostSaveWorker extends AbstractWorker
                     ' - ' .
                     $workload['user_id'] .
                     ' - ' .
-                    var_export($user, true)
+                    ($user) ? $user->getEntityId() : 'NO USER LOADED'
             );
         }
 
