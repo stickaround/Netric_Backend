@@ -85,7 +85,8 @@ class Notifier
 
         // We never want to send notifications about notifications or activities
         // Or notifications from anonmymous or system users
-        if ($objType == ObjectTypes::NOTIFICATION ||
+        if (
+            $objType == ObjectTypes::NOTIFICATION ||
             $objType == ObjectTypes::ACTIVITY ||
             $user->isSystem() ||
             $user->isAnonymous()
@@ -116,12 +117,22 @@ class Notifier
              * 2. Not the same as the user performing the action - no need to notify them they did something
              * 3. Not a system user
              */
-            if (!$followerEntity ||
+            if (
+                !$followerEntity ||
                 $followerEntity->getEntityId() == $user->getEntityId() ||
                 $followerEntity->isSystem()
             ) {
                 // Skip
                 continue;
+            }
+
+            // If the verb is create or sent, then check to see if the entity
+            // has already been seen by the user we are about to send the notification to
+            if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
+                if (!in_array($userGuid, $entity->getValue('seen_by'))) {
+                    // Skip because the user has already seen the entity
+                    continue;
+                }
             }
 
             /*
@@ -142,6 +153,25 @@ class Notifier
                 // Check if the user is being called out in the comment, if so, then let's change the name.
                 if (preg_match('/(@' . $followerName . ')/', $description)) {
                     $name = "$ownerName directed a comment at you";
+                }
+            }
+
+            /*
+             * If this is a chat message, point the object reference
+             * to the room rather than the message. That way when the user
+             * clicks on the link for the notification, it will take them to the
+             * chat room.
+             */
+            if ($objType == ObjectTypes::CHAT_MESSAGE) {
+                $objReference = $entity->getValue("chat_room");
+                $ownerName = $entity->getValueName("owner_id");
+                $followerName = $entity->getValueName('followers', $userGuid);
+                $description = $entity->getValue("comment");
+                $name = "$ownerName sent a message";
+
+                // Check if the user is being called out in the message, if so, then let's change the name.
+                if (preg_match('/(@' . $followerName . ')/', $description)) {
+                    $name = "$ownerName directed a message at you";
                 }
             }
 
@@ -314,8 +344,10 @@ class Notifier
     private function sendNotificationEmail(NotificationEntity $notification, UserEntity $user): void
     {
         // Make sure the notification has an owner or a creator
-        if (empty($notification->getValue("owner_id")) ||
-            empty($notification->getValue("creator_id"))) {
+        if (
+            empty($notification->getValue("owner_id")) ||
+            empty($notification->getValue("creator_id"))
+        ) {
             return;
         }
 
@@ -412,9 +444,11 @@ class Notifier
     public function sendNotificationPush(NotificationEntity $notification, UserEntity $user): bool
     {
         // Make sure the notification has an owner or a creator
-        if (empty($notification->getValue("owner_id")) ||
+        if (
+            empty($notification->getValue("owner_id")) ||
             empty($notification->getValue("name")) ||
-            empty($notification->getValue("description"))) {
+            empty($notification->getValue("description"))
+        ) {
             return false;
         }
 
