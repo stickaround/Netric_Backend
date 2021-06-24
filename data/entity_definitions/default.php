@@ -44,13 +44,6 @@ return [
         'system' => true,
     ],
     // Users who have viewed an entity
-    'viewers' => [
-        'title' => 'Viewers',
-        'type' => Field::TYPE_OBJECT_MULTI,
-        'subtype' => ObjectTypes::USER,
-        'readonly' => true,
-        'system' => true,
-    ],
     'activity' => [
         'title' => 'Activity',
         'type' => Field::TYPE_OBJECT_MULTI,
@@ -119,8 +112,7 @@ return [
         'subtype' => ObjectTypes::USER,
         'readonly' => true,
         'system' => true,
-        // TODO: For some reason this broke all kinds of unit tests?
-        //'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
+        'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
     ],
 
     'revision' => [

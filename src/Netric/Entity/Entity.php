@@ -811,7 +811,8 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             if ($field->type == FIELD::TYPE_TEXT && $this->getValue($field->name)) {
-                if ($field->name == "description"
+                if (
+                    $field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
                     || $field->name == "comment"
@@ -841,7 +842,7 @@ class Entity implements EntityInterface
             "comments", // Ignore because comments make their own notice
             "activity",
             "entity_id",
-            "viewers",
+            "seen_by",
             "num_attachments",
             "dacl",
             "sort_order",
@@ -930,11 +931,10 @@ class Entity implements EntityInterface
             if ($new != $val) {
                 if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
                     $this->addMultiValue($fname, $val);
-                    return;
+                } else {
+                    // Set value
+                    $this->setValue($fname, $new);
                 }
-
-                // Set value
-                $this->setValue($fname, $new);
             }
         }
     }
