@@ -76,7 +76,7 @@ class Notifier
      * @param string $changedDescription The description of the change that took place
      * @return int[] List of notification entities created or updated
      */
-    public function send(EntityInterface $entity, string $event, UserEntity $user, string $changedDescription = '')
+    public function send(EntityInterface $entity, string $event, UserEntity $user, string $changedDescription = '', $log = null)
     {
         $objType = $entity->getDefinition()->getObjType();
 
@@ -102,6 +102,16 @@ class Notifier
 
         // Get followers of the referenced entity
         $followers = $this->getInterestedUsers($entity, $user);
+
+        if ($objType == ObjectTypes::CHAT_MESSAGE && $log) {
+            $log->info(
+                __CLASS__ .
+                    '->send: ' .
+                    $entity->getEntityId() .
+                    ' - ' .
+                    var_export($followers, true)
+            );
+        }
         foreach ($followers as $followerId) {
             // If the follower id is not a valid user id then just skip
             if (!Uuid::isValid($followerId)) {

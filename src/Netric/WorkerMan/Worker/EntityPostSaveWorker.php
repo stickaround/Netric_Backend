@@ -64,28 +64,25 @@ class EntityPostSaveWorker extends AbstractWorker
         $entityIndex->save($entity);
 
         // Log to figure out what is going on
-        if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
-            $userInfo = ($user) ? $user->getEntityId() : 'NO USER LOADED';
-            $log->info(
-                __CLASS__ .
-                    ': worker_chat_message ' .
-                    $workload['entity_id'] .
-                    ' - ' .
-                    $workload['changed_description'] .
-                    ' - ' .
-                    $workload['user_id'] .
-                    ' - ' .
-                    $userInfo
-            );
-        }
+        // if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
+        //     $userInfo = ($user) ? $user->getEntityId() : 'NO USER LOADED';
+        //     $log->info(
+        //         __CLASS__ .
+        //             ': worker_chat_message ' .
+        //             $workload['entity_id'] .
+        //             ' - ' .
+        //             $workload['changed_description'] .
+        //             ' - ' .
+        //             $workload['user_id'] .
+        //             ' - ' .
+        //             $userInfo
+        //     );
+        // }
 
         // Create or send notifications if the changelog was sent
         if (!empty($workload['changed_description']) && $user) {
-            if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
-                $log->info(__CLASS__ . ': worker_chat_message notification - ' . $workload['entity_id']);
-            }
             $notifierService = $serviceManager->get(NotifierFactory::class);
-            $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
+            $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description'], $log);
         }
 
         // Log the activity
