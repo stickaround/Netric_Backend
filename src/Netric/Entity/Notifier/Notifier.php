@@ -109,7 +109,9 @@ class Notifier
                     '->send: ' .
                     $entity->getEntityId() .
                     ' - ' .
-                    var_export($followers, true)
+                    var_export($followers, true) .
+                    ' ::: ' .
+                    var_export($entity->getValue('seen_by'), true)
             );
         }
         foreach ($followers as $followerId) {
@@ -192,6 +194,10 @@ class Notifier
             $notification->setValue("description", $description);
             $notification->setValue("f_seen", false);
             $notificationIds[] = $this->entityLoader->save($notification, $user);
+
+            if ($objType == ObjectTypes::CHAT_MESSAGE && $log) {
+                $log->info(__CLASS__ . '->sent2: ' . $entity->getEntityId());
+            }
 
             $this->sendNotification($notification, $user);
         }

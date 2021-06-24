@@ -63,22 +63,6 @@ class EntityPostSaveWorker extends AbstractWorker
         $entityIndex = $serviceManager->get(IndexFactory::class);
         $entityIndex->save($entity);
 
-        // Log to figure out what is going on
-        // if ($entity->getDefinition()->getObjtype() === ObjectTypes::CHAT_MESSAGE) {
-        //     $userInfo = ($user) ? $user->getEntityId() : 'NO USER LOADED';
-        //     $log->info(
-        //         __CLASS__ .
-        //             ': worker_chat_message ' .
-        //             $workload['entity_id'] .
-        //             ' - ' .
-        //             $workload['changed_description'] .
-        //             ' - ' .
-        //             $workload['user_id'] .
-        //             ' - ' .
-        //             $userInfo
-        //     );
-        // }
-
         // Create or send notifications if the changelog was sent
         if (!empty($workload['changed_description']) && $user) {
             $notifierService = $serviceManager->get(NotifierFactory::class);
