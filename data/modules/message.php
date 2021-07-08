@@ -63,8 +63,13 @@ return [
         ],
         [
             "type" => LeftNavItemTypes::ENTITY_BROWSE_LEFTNAV,
-            "route" => "rooms",
+            "route" => "direct",
             "browser_view" => "my_direct_messages",
+            "objType" => "chat_room"
+        ],
+        [
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "direct",
             "objType" => "chat_room"
         ],
     ],
