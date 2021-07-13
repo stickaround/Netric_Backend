@@ -11,7 +11,7 @@ use Netric\Account\Module\LeftNavItemTypes;
 return [
     "title" => "Messages",
     "icon" => "MessageIcon",
-    "default_route" => "rooms",
+    "default_route" => "direct",
     "name" => "message",
     "short_title" => 'Message',
     "scope" => 'system',
