@@ -44,8 +44,8 @@ return [
     ],
     // Cache settings
     'cache' => [
-        'driver' => 'memcache',
-        'host' => 'memcached',
+        'driver' => 'redis',
+        'host' => 'redis',
     ],
     // Background worker settings
     'workers' => [

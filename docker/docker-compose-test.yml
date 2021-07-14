@@ -20,6 +20,8 @@ services:
       driver: "json-file"
   memcached:
     image: memcached
+  redis:
+    image: redis:6
   gearmand:
     image: kendu/gearman
     depends_on:

@@ -49,8 +49,8 @@ return [
     ],
     // Cache settings
     'cache' => [
-        'driver' => 'memcache',
-        'host' => 'memcached',
+        'driver' => 'redis',
+        'host' => 'redis',
     ],
     // Profiler settings
     'profile' => [

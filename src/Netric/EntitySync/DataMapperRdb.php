@@ -8,14 +8,12 @@ use Netric\EntitySync\Partner;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Collection\CollectionInterface;
 use Netric\EntitySync\Collection\CollectionFactory;
-use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\WorkerMan\Worker\EntitySyncLogImportedWorker;
 use Netric\WorkerMan\Worker\EntitySyncLogExportedWorker;
 use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
 use Netric\WorkerMan\WorkerService;
-use RuntimeException;
 use DateTime;
 
 /**

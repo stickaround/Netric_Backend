@@ -26,6 +26,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable mcrypt \
     && pecl install memcached \
     && docker-php-ext-enable memcached \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
     && docker-php-ext-install pcntl \

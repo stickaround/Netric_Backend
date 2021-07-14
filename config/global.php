@@ -94,8 +94,8 @@ return [
     ],
     // Cache settings
     'cache' => [
-        'driver' => 'memcache',
-        'host' => '10.4.26.26',
+        'driver' => 'redis',
+        'host' => 'redis',
     ],
     'notifications' => [
         'push' => [

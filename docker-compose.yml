@@ -60,6 +60,9 @@ services:
   memcached:
     image: memcached
 
+  redis:
+    image: redis:6
+
   gearmand:
     image: kendu/gearman
     # environment:

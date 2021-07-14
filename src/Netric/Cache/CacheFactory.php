@@ -20,6 +20,10 @@ class CacheFactory implements ServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
+        if ($config->cache->driver === 'redis') {
+            return new RedisCache($config->cache);
+        }
+
         return new MemcachedCache($config->cache);
     }
 }

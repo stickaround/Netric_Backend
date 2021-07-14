@@ -85,7 +85,7 @@ interface DataMapperInterface
     );
 
     /**
-     * Log that a commit was exported from this collection
+     * Log that a commit was imported to this collection
      *
      * @param string $accountId The account that owns the collection
      * @param int $collectionId The id of the collection we are logging changes to

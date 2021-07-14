@@ -4,7 +4,7 @@ namespace NetricTest\Cache;
 
 use Netric;
 use NetricTest\Bootstrap;
-use Netric\Cache\MemcachedCache;
+use Netric\Cache\RedisCache;
 use Netric\Cache\CacheFactory;
 
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class CacheFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            MemcachedCache::class,
+            RedisCache::class,
             $sm->get(CacheFactory::class)
         );
     }
