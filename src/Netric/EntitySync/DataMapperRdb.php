@@ -46,7 +46,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Setup this datamapper
      *
      * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
-     * @param CollectionFactory $collectionFactory Collection factory that will create an instance of entity/grouping collection
+     * @param CollectionFactory $collectionFactory Collection factory that will create an instance of a collection
      * @param WorkerService $workerService Used to schedule background jobs
      */
     protected function setUp(

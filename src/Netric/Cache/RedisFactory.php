@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netric\Cache;
 
 use Netric\Config\ConfigFactory;
@@ -9,7 +11,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 /**
  * Create a Cache service
  */
-class CacheFactory implements ServiceFactoryInterface
+class RedisFactory implements ServiceFactoryInterface
 {
     /**
      * Service creation factory
@@ -20,10 +22,6 @@ class CacheFactory implements ServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
-        if ($config->cache->driver === 'redis') {
-            return $serviceLocator->get(RedisFactory::class);
-        }
-
-        return new MemcachedCache($config->cache);
+        return new RedisCache($config->cache);
     }
 }

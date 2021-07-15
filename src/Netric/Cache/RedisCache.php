@@ -10,9 +10,10 @@
 namespace Netric\Cache;
 
 use Aereus\Config\Config;
+use Netric\PubSub\PubSubInterface;
 use Redis;
 
-class RedisCache implements CacheInterface
+class RedisCache implements CacheInterface, PubSubInterface
 {
     /**
      * Instance of Memcached
@@ -83,5 +84,17 @@ class RedisCache implements CacheInterface
     public function remove($key)
     {
         return $this->delete($key);
+    }
+
+    /**
+     * Publish to a redis topic
+     *
+     * @param string $topic
+     * @param array $data
+     * @return void
+     */
+    public function publish(string $topic, array $data): void
+    {
+        $this->redis->publish($topic, json_encode($data));
     }
 }

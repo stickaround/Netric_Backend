@@ -1,5 +1,29 @@
 <?php
 
+/**
+ * EntitySync is a set of classes that makes it possible to handle 2-way sync with
+ * 'partners' which are usually devices.
+ *
+ * Terms and concepts:
+ *
+ * Partner
+ * -------
+ * A partner is a device, or a browser client session with a unique ID (client generated)
+ *
+ * Collection
+ * ----------
+ * A tracked subset of data, usually from an EntityQuery, that is updated over time. The
+ * reason it is tracked is because entities will be imported from the client and might not share the
+ * same unique ID (with outlook or active sync mobile devices for instance). So we export local netric
+ * IDs and import remote IDs and collections keep track of it all to make sure we don't duplicate data.
+ *
+ * Commit
+ * ------
+ * In netric every entity/grouping/definition change event is associated with a sortable commit ID.
+ * This is really useful for querying changes that have occurred since the last commit, which is far
+ * more dependable than timestamps due to the lack of collisions.
+ */
+
 declare(strict_types=1);
 
 namespace Netric\EntitySync;

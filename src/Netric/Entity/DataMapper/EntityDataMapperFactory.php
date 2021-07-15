@@ -2,18 +2,14 @@
 
 namespace Netric\Entity\DataMapper;
 
-use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Db\Relational\RelationalDbContainerFactory;
-use Netric\Entity\ActivityLogFactory;
-use Netric\Entity\EntityAggregatorFactory;
 use Netric\Entity\EntityFactoryFactory;
-use Netric\Entity\Notifier\NotifierFactory;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapperFactory;
 use Netric\Entity\Validator\EntityValidatorFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntitySync\Commit\CommitManagerFactory;
-use Netric\EntitySync\EntitySyncFactory;
+use Netric\PubSub\PubSubFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerServiceFactory;
@@ -39,21 +35,19 @@ class EntityDataMapperFactory implements ApplicationServiceFactoryInterface
         $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $relationalDbCon = $serviceLocator->get(RelationalDbContainerFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);
+        $pubSub = $serviceLocator->get(PubSubFactory::class);
 
         return new EntityPgsqlDataMapper(
             $recurIdentityMapper,
             $commitManager,
-            null, // $entitySync,
             $entityValidator,
             $entityFactory,
-            null, // $notifier,
-            null, // $entityAggregator,
             $entityDefLoader,
-            null, // $activityLog,
             $groupingLoader,
             $serviceLocator,
             $relationalDbCon,
-            $workerService
+            $workerService,
+            $pubSub
         );
     }
 }

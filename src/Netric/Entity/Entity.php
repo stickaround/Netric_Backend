@@ -128,7 +128,7 @@ class Entity implements EntityInterface
      *
      * @return EntityDefinition
      */
-    public function getDefinition()
+    public function getDefinition(): EntityDefinition
     {
         return $this->def;
     }

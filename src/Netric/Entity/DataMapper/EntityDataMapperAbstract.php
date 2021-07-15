@@ -23,6 +23,7 @@ use Ramsey\Uuid\Uuid;
 use Netric\Entity\EntityAggregatorFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\PubSub\PubSubInterface;
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Worker\EntityPostSaveWorker;
 use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
@@ -133,44 +134,43 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     private WorkerService $workerService;
 
     /**
+     * PubSub service for emitting important events about entities
+     */
+    private PubSubInterface $pubSub;
+
+    /**
      * Class constructor
      *
      * @param RecurrenceIdentityMapper $recurIdentityMapper
      * @param CommitManager $commitManager
-     * @param EntitySync $entitySync
      * @param EntityValidator $entityValidator
      * @param EntityFactory $entityFactory
-     * @param Notifier $notifier
-     * @param EntityAggregator $entityAggregator
      * @param EntityDefinitionLoader $entityDefLoader
-     * @param ActivityLog $activityLog
      * @param GroupingLoader $groupingLoader
      * @param ServiceLocatorInterface $serviceManager
+     * @param WorkerSErvice $workerService
+     * @param PubSubInterface $pubSub
      */
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
         CommitManager $commitManager,
-        EntitySync $entitySync = null,
         EntityValidator $entityValidator,
         EntityFactory $entityFactory,
-        Notifier $notifier = null,
-        EntityAggregator $entityAggregator = null,
         EntityDefinitionLoader $entityDefLoader,
-        ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
         ServiceLocatorInterface $serviceManager,
-        WorkerService $workerService
+        WorkerService $workerService,
+        PubSubInterface $pubSub
     ) {
         $this->recurIdentityMapper = $recurIdentityMapper;
         $this->commitManager = $commitManager;
-        // $this->entitySync = $entitySync;
         $this->entityValidator = $entityValidator;
         $this->entityFactory = $entityFactory;
-        //$this->entityAggregator = $entityAggregator;
         $this->entityDefLoader = $entityDefLoader;
         $this->groupingLoader = $groupingLoader;
         $this->serviceManager = $serviceManager;
         $this->workerService = $workerService;
+        $this->pubSub = $pubSub;
     }
 
     /**
@@ -350,6 +350,19 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         // Update any aggregates that could be impacted by saving $entity
         $this->entityAggregator = $this->serviceManager->get(EntityAggregatorFactory::class);
         $this->entityAggregator->updateAggregates($entity, $user);
+
+        // Send saved event to pubsub (redis) so that other services can respond
+        // One primary use of this is the api.netric.com server will watch for entity
+        // changes on behalf of the client to send updates for things like badges and
+        // changes to notifications.
+        $this->pubSub->publish(
+            'netric/' . $entity->getAccountId() . '/entity_change',
+            [
+                'action' => $event,
+                'before' => ($event === 'update') ? $this->getDataBeforeChanges($entity) : [],
+                'after' => $entity->toArray()
+            ]
+        );
 
         // Reset dirty flag and changelog
         $entity->resetIsDirty();
@@ -576,6 +589,19 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 'new_commit_id' => $commitId
             ]);
         }
+
+        // Send delete event to pubsub (redis) so that other services can respond
+        // One primary use of this is the api.netric.com server will watch for entity
+        // changes on behalf of the client to send updates for things like badges and
+        // changes to notifications.
+        $this->pubSub->publish(
+            'netric/' . $entity->getAccountId() . '/entity_change',
+            [
+                'action' => 'delete',
+                'before' => $entity->toArray(),
+                'after' => [] // no more
+            ]
+        );
 
         return $ret;
     }
@@ -892,5 +918,32 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         return $ret;
+    }
+
+    /**
+     * Get a data representation of what the entity looked like before it was changed (last save)
+     *
+     * @param EntityInterface $entity
+     * @return array
+     */
+    private function getDataBeforeChanges(EntityInterface $entity): array
+    {
+        // First thing to do is check if we saved a brand new entity
+        if ($entity->fieldValueChanged('entity_id')) {
+            // All values changed since it was a new entity
+            return [];
+        }
+
+        // Determine what we changed
+        $data = $entity->toArray();
+        $definition = $entity->getDefinition();
+        $fields = $definition->getFields();
+        foreach ($fields as $field) {
+            if ($entity->fieldValueChanged($field->getName())) {
+                $data[$field->getName()] = $entity->getPreviousValue($field->getName());
+            }
+        }
+
+        return $data;
     }
 }

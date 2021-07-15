@@ -3,8 +3,6 @@
 namespace Netric\Entity\DataMapper;
 
 use Netric\Account\Account;
-use Netric\Entity\EntityAggregator;
-use Netric\Entity\ActivityLog;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
@@ -20,7 +18,6 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Entity\Entity;
-use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\Notifier\Notifier;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
@@ -29,6 +26,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
 use DateTime;
+use Netric\PubSub\PubSubInterface;
 use RuntimeException;
 
 /**
@@ -63,32 +61,26 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
         CommitManager $commitManager,
-        EntitySync $entitySync = null,
         EntityValidator $entityValidator,
         EntityFactory $entityFactory,
-        Notifier $notifier = null,
-        EntityAggregator $entityAggregator = null,
         EntityDefinitionLoader $entityDefLoader,
-        ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
         ServiceLocatorInterface $serviceManager,
         RelationalDbContainer $dbContainer,
-        WorkerService $workerService
+        WorkerService $workerService,
+        PubSubInterface $pubSub
     ) {
         // Pass in this aboslutely terrible list of dependencies
         parent::__construct(
             $recurIdentityMapper,
             $commitManager,
-            $entitySync,
             $entityValidator,
             $entityFactory,
-            $notifier,
-            $entityAggregator,
             $entityDefLoader,
-            $activityLog,
             $groupingLoader,
             $serviceManager,
-            $workerService
+            $workerService,
+            $pubSub
         );
 
         // Used to get active database connection for the right account
@@ -547,7 +539,8 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
             }
 
             // Set fval cache so we do not have to do crazy joins across tables
-            if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
+            if (
+                $fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
                 $fdef->type == "object" || $fdef->type == "object_multi"
             ) {
                 // Get the value names (if set) and save

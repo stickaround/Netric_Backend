@@ -20,11 +20,17 @@ return [
     "f_system" => true,
     "navigation" => [
         [
-            "title" => "Dashboards",
+            "title" => "Home",
             "type" => LeftNavItemTypes::DASHBOARD,
             "route" => "activity",
             "objType" => "dashboard",
             "icon" => "DashboardIcon"
+        ],
+        [
+            "title" => "Feed (new WIP)",
+            "type" => LeftNavItemTypes::HOME_FEED,
+            "route" => "feed",
+            "icon" => "ViewAgendaIcon"
         ]
     ]
 ];
