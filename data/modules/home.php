@@ -31,6 +31,13 @@ return [
             "type" => LeftNavItemTypes::HOME_FEED,
             "route" => "feed",
             "icon" => "ViewAgendaIcon"
+        ],
+        [
+            "title" => "Notifications",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "notifications",
+            "objType" => "notification",
+            "icon" => "NotificationsIcon"
         ]
     ]
 ];
