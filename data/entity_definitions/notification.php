@@ -46,7 +46,7 @@ return array(
             ),
         ),
 
-        // Flag indicating if the notification has been showed already
+        // Flag indicating if the notification has been shown already
         'f_shown' => array(
             'title' => 'Showed',
             'type' => Field::TYPE_BOOL,

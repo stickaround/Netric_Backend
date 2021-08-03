@@ -11,7 +11,7 @@ use Netric\Account\Module\LeftNavItemTypes;
 return [
     "title" => "Home",
     "icon" => "HomeIcon",
-    "default_route" => "activity",
+    "default_route" => "feed",
     "name" => "home",
     "short_title" => 'Home',
     "scope" => 'system',
@@ -20,14 +20,7 @@ return [
     "f_system" => true,
     "navigation" => [
         [
-            "title" => "Home",
-            "type" => LeftNavItemTypes::DASHBOARD,
-            "route" => "activity",
-            "objType" => "dashboard",
-            "icon" => "DashboardIcon"
-        ],
-        [
-            "title" => "Feed (new WIP)",
+            "title" => "Feed",
             "type" => LeftNavItemTypes::HOME_FEED,
             "route" => "feed",
             "icon" => "ViewAgendaIcon"

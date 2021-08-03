@@ -14,7 +14,7 @@ return [
         'obj_type' => 'chat_room',
         'name' => 'My Rooms',
         'description' => 'Rooms where I am a member',
-        'default' => true,
+        'default' => false,
         'conditions' => [
             'members' => [
                 'blogic' => Where::COMBINED_BY_AND,
@@ -42,7 +42,7 @@ return [
         'obj_type' => 'chat_room',
         'name' => 'Direct Messages',
         'description' => 'Direct conversations not hosted in a room',
-        'default' => false,
+        'default' => true,
         'conditions' => [
             'members' => [
                 'blogic' => Where::COMBINED_BY_AND,
