@@ -62,6 +62,7 @@ class ModulesInitData implements InitDataInterface
                 $module->setShortTitle($moduleData['short_title']);
                 $module->setNavigation($moduleData['navigation']);
                 $module->setSortOrder($moduleData['sort_order']);
+                $module->setDefaultRoute($moduleData['default_route']);
             }
 
             // Module has not yet been added. Create a new module and import the data
