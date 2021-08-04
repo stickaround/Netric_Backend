@@ -68,6 +68,7 @@ return [
             "objType" => "chat_room"
         ],
         [
+            "title" => "All Direct Messages",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "direct",
             "objType" => "chat_room"
