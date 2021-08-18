@@ -22,5 +22,14 @@ return [
             'subtype' => '',
             'readonly' => false,
         ],
+        // List of users this was sent to at the time of creation -
+        // which means, every member of a room
+        'to' => [
+            'title' => 'To',
+            'type' => Field::TYPE_OBJECT_MULTI,
+            'subtype' => ObjectTypes::USER,
+            'readonly' => true,
+            'system' => true,
+        ],
     ],
 ];

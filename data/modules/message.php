@@ -54,6 +54,7 @@ return [
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "rooms",
             "objType" => "chat_room",
+            "browser_view" => "my_rooms",
             "icon" => "SearchIcon",
         ],
         [
@@ -71,7 +72,9 @@ return [
             "title" => "All Direct Messages",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "direct",
-            "objType" => "chat_room"
+            "objType" => "chat_room",
+            "icon" => "SearchIcon",
+            "browser_view" => "my_direct_messages",
         ],
     ],
 ];

@@ -23,8 +23,8 @@ return [
         'status_id' => [
             ["name" => TaskEntity::STATUS_TODO, "sort_oder" => 1, "color" => "2A4BD7"],
             ["name" => TaskEntity::STATUS_IN_PROGRESS, "sort_oder" => 2, "color" => "FF9233"],
-            ["name" => TaskEntity::STATUS_IN_TEST, "sort_oder" => 3, "color" => "FFEE33"],
-            ["name" => TaskEntity::STATUS_IN_REVIEW, "sort_oder" => 4, "color" => "575757"],
+            // ["name" => TaskEntity::STATUS_IN_TEST, "sort_oder" => 3, "color" => "FFEE33"],
+            // ["name" => TaskEntity::STATUS_IN_REVIEW, "sort_oder" => 4, "color" => "575757"],
             ["name" => TaskEntity::STATUS_DEFERRED, "sort_oder" => 5, "color" => "1D6914"],
             ["name" => TaskEntity::STATUS_COMPLETED, "sort_oder" => 6, "color" => "1D6914"],
         ],
