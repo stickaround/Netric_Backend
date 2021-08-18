@@ -11,11 +11,11 @@ namespace modules\navigation;
 use Netric\Account\Module\LeftNavItemTypes;
 
 return [
-    "title" => "Knowledge",
+    "title" => "Document",
     "icon" => "LightbulbOutlineIcon",
     "default_route" => "my-notes",
     "name" => "knowledge",
-    "short_title" => 'Knowledge',
+    "short_title" => 'Document',
     "scope" => 'system',
     "sort_order" => '10',
     "f_system" => true,
