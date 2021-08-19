@@ -3,7 +3,7 @@
         <field name='title' hidelabel="t" class='headline'></field>
     </column>
 </row>
-<row showif="editMode">
+<row showif="editMode=1">
     <column>
         <field name='is_rootspace'></field>
     </column>
