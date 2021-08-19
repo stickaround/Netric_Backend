@@ -28,8 +28,7 @@ return [
             'title' => 'To',
             'type' => Field::TYPE_OBJECT_MULTI,
             'subtype' => ObjectTypes::USER,
-            'readonly' => true,
-            'default' => ["value" => 'text', "on" => "null"]
+            'readonly' => true
         ],
  		'message_type' => [
             'title' => 'Message Type',
