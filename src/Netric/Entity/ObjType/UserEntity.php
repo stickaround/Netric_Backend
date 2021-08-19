@@ -92,7 +92,7 @@ class UserEntity extends Entity implements EntityInterface
         $this->groupingLoader = $groupingLoader;
         $this->accountContainer = $accountContainer;
 
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**

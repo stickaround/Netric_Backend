@@ -48,7 +48,7 @@ class ProjectEntity extends Entity implements EntityInterface
         $this->entityLoader = $entityLoader;
         $this->indexInterface = $indexInterface;
 
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**

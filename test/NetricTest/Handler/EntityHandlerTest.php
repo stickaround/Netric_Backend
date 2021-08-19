@@ -55,7 +55,7 @@ class EntityHandlerTest extends TestCase
         $field = new Field('seen_by');
         $field->type = Field::TYPE_OBJECT_MULTI;
         $taskDefinition->addField($field);
-        $task = new Entity($taskDefinition, $this->mockEntityLoader);
+        $task = new Entity($taskDefinition);
 
         // Setup user
         $userDefinition = new EntityDefinition('user', $accountId);

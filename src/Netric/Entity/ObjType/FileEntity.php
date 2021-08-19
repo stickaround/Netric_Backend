@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Provides extensions for the File object
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\ObjType;
 
 use Netric\FileSystem\FileStore\FileStoreFactory;
@@ -31,11 +33,10 @@ class FileEntity extends Entity implements EntityInterface
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
-     * @param EntityLoader $entityLoader The loader for a specific entity
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def)
     {
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**

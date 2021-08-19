@@ -33,7 +33,7 @@ class CommentEntity extends Entity implements EntityInterface
     public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
     {
         $this->entityLoader = $entityLoader;
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**

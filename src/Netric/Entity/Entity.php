@@ -70,23 +70,15 @@ class Entity implements EntityInterface
     private $isRecurrenceException = false;
 
     /**
-     * Loader used to get entity owner details and entity members
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
-    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader Loader used to get entity followers and entity owner details
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def)
     {
         $this->def = $def;
         $this->objType = $def->getObjType();
-        $this->entityLoader = $entityLoader;
     }
 
     /**

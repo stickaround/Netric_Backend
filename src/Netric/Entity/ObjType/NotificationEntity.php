@@ -64,7 +64,7 @@ class NotificationEntity extends Entity implements EntityInterface
     {
         $this->entityLoader = $entityLoader;
         $this->accountContainer = $accountContainer;
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     // /**
