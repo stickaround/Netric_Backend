@@ -1,5 +1,25 @@
-<field name='title' hidelabel="t" class='headline'></field>
-<field name='is_rootspace'></field>
-<field name='groups'></field>
-<field hidelabel='t' multiline='t' rich='t' name='body'></field>
-<field name='comments'></field>
+<row>
+    <column>
+        <field name='title' hidelabel="t" class='headline'></field>
+    </column>
+</row>
+<row showif="editMode">
+    <column>
+        <field name='is_rootspace'></field>
+    </column>
+</row>
+<row>
+    <column>
+        <field name='groups'></field>
+    </column>
+</row>
+<row>
+    <column>
+        <field hidelabel='t' multiline='t' rich='t' name='body'></field>
+    </column>
+</row>
+<row>
+    <column>
+        <field name='comments'></field>
+    </column>
+</row>
