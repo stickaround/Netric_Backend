@@ -29,7 +29,20 @@ return [
             'type' => Field::TYPE_OBJECT_MULTI,
             'subtype' => ObjectTypes::USER,
             'readonly' => true,
-            'system' => true,
+            'default' => ["value" => 'text', "on" => "null"]
+        ],
+ 		'message_type' => [
+            'title' => 'Message Type',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '32',
+            'optional_values' => [
+                // Normal messages 
+                "text" => "Text",
+                // Special messages like members leaving the chat room
+                "notification" => "Notification"
+            ],
+            'readonly' => true,
+            'default' => ["value" => 'text', "on" => "null"]
         ],
     ],
 ];
