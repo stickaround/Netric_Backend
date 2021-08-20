@@ -24,6 +24,14 @@ use Netric\Permissions\Dacl;
 class ChatRoomEntity extends Entity implements EntityInterface
 {
     /**
+     * System scope
+     *
+     * @const string
+     */
+    const ROOM_CHANNEL = 'channel';
+    const ROOM_DIRECT = 'direct';
+
+    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
@@ -50,19 +58,26 @@ class ChatRoomEntity extends Entity implements EntityInterface
         $groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
         $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
 
-        // Make sure all members have view access to the room
+        // Make sure all members have view and edit access to the room
         $dacl = new Dacl();
         $members = $this->getValue('members');
+        $membersName = [];
         foreach ($members as $userId) {
-            $dacl->allowUser($userId, Dacl::PERM_VIEW);
+            $dacl->allowUser($userId, Dacl::PERM_VIEW);            
+            $membersName[] = $this->getValueName('members', $userId);
         }
 
         // Make sure the owner has full control
         $dacl->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
 
         // If this is not a direct message, then add administrators
-        if ($this->getValue('scope') === 'channel') {
+        if ($this->getValue('scope') === self::ROOM_CHANNEL) {
             $dacl->allowGroup($groupAdmin->getGroupId(), Dacl::PERM_FULL);
+        }
+
+        // If this room has no subject, then set the member names as the subject
+        if (empty($this->getValue('subject'))) {
+            $this->setValue('subject', implode(", ", $membersName));
         }
 
         // Save custom permissions

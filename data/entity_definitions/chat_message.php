@@ -28,8 +28,20 @@ return [
             'title' => 'To',
             'type' => Field::TYPE_OBJECT_MULTI,
             'subtype' => ObjectTypes::USER,
+            'readonly' => true
+        ],
+ 		'message_type' => [
+            'title' => 'Message Type',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '32',
+            'optional_values' => [
+                // Message that the user sent 
+                "user_sent" => "User Sent",
+                // Special messages like members leaving the chat room
+                "notification" => "Notification"
+            ],
             'readonly' => true,
-            'system' => true,
+            'default' => ["value" => 'text', "on" => "null"]
         ],
     ],
 ];

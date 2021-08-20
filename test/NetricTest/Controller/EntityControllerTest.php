@@ -13,6 +13,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\Forms;
 use Netric\Entity\ObjType\TaskEntity;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\ChatRoomEntity;
 use Netric\Entity\BrowserView\BrowserViewService;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
@@ -1315,5 +1316,39 @@ class EntityControllerTest extends TestCase
         $request->setBody(json_encode(['entity_ids' => [$taskEntityId1]]));
         $response = $this->entityController->postUpdateSortOrderEntitiesAction($request);
         $this->assertEquals([$taskDetails], $response->getOutputBuffer());
+    }
+
+    /**
+     * Test the updating the sort order of entities
+     */
+    public function testPostRemoveCurrentUserAsMemberAction()
+    {
+        $roomId = Uuid::uuid4()->toString();
+        $roomDetails = [
+            'obj_type' => 'chat_room',
+            'entity_id' => $roomId,
+            'subject' => 'Room 1',
+            'scope' => ChatRoomEntity::ROOM_DIRECT,
+            'members' => [
+                'member-00001',
+                'member-00002'
+            ]
+        ];
+
+        // Create ChatRoomEntity
+        $mockChatRoom = $this->createMock(TaskEntity::class);
+        $mockChatRoom->method('getName')->willReturn('Test Task 2');
+        $mockChatRoom->method('toArray')->willReturn($roomDetails);
+
+        // Mock the entity loader service which is used to create a new entity and can save it
+        $this->mockEntityLoader->method('getEntityById')->willReturn($mockChatRoom);
+        $this->mockEntityLoader->method('save')->willReturn($mockChatRoom);
+        
+        // Make sure postRemoveCurrentUserAsMemberAction is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['entity_id' => $roomId]));
+        $response = $this->entityController->postRemoveCurrentUserAsMemberAction($request);
+        $this->assertEquals($roomDetails, $response->getOutputBuffer());
     }
 }

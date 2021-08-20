@@ -1251,4 +1251,66 @@ class EntityController extends AbstractFactoriedController implements Controller
         $response->write(array_reverse($updatedEntities));
         return $response;
     }
+
+    /**
+     * Function that will remove the current user as a member for an entity
+     *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
+     */
+    public function postRemoveCurrentUserAsMemberAction(HttpRequest $request): HttpResponse
+    {
+        $rawBody = $request->getBody();
+        $response = new HttpResponse($request);
+
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        // Check if we have required params. If it is not defined, then return an error
+        if (!isset($objData['entity_id'])) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "entity_id is a required param."]);
+            return $response;
+        }
+
+        // Make sure that we have an authenticated account
+        $currentAccount = $this->getAuthenticatedAccount();
+        if (!$currentAccount) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "Account authentication error."]);
+            return $response;
+        }
+
+        $entityId = $objData['entity_id'];
+        $currentUser = $currentAccount->getAuthenticatedUser();        
+        try {
+            if (Uuid::isValid($entityId)) {
+                // Load the entity that we are going to update
+                $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
+
+                // We will now remove the user as a member for this entity
+                $entity->removeMultiValue("members", $currentUser->getEntityId());
+
+                // Save the entity
+                $this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser());
+
+                // Return the entity that were updated
+                $response->write($entity->toArray());
+            } else {
+                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                $response->write(["error" => "Error trying to remove a member in the entity: $entityId."]);
+            }
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);            
+        }
+
+        return $response;
+    }
 }
