@@ -35,8 +35,8 @@ return [
             'type' => Field::TYPE_TEXT,
             'subtype' => '32',
             'optional_values' => [
-                // Normal messages 
-                "text" => "Text",
+                // Message that the user sent 
+                "user_sent" => "User Sent",
                 // Special messages like members leaving the chat room
                 "notification" => "Notification"
             ],

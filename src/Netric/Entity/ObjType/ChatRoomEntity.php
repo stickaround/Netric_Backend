@@ -63,30 +63,21 @@ class ChatRoomEntity extends Entity implements EntityInterface
         $members = $this->getValue('members');
         $membersName = [];
         foreach ($members as $userId) {
-            $dacl->allowUser($userId, Dacl::PERM_VIEW);
-            $dacl->allowUser($userId, Dacl::PERM_EDIT);
-            
+            $dacl->allowUser($userId, Dacl::PERM_VIEW);            
             $membersName[] = $this->getValueName('members', $userId);
         }
 
         // Make sure the owner has full control
         $dacl->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
 
-        switch ($this->getValue('scope')) {
-            case self::ROOM_CHANNEL: {
-                // If this is a channel room, then add administrators
-                $dacl->allowGroup($groupAdmin->getGroupId(), Dacl::PERM_FULL);
-                break;
-            }
+        // If this is not a direct message, then add administrators
+        if ($this->getValue('scope') === self::ROOM_CHANNEL) {
+            $dacl->allowGroup($groupAdmin->getGroupId(), Dacl::PERM_FULL);
+        }
 
-            case self::ROOM_DIRECT: {
-                // If this is a direct room, then set the subject to members
-                $this->setValue('subject', implode(", ", $membersName));
-            }
-
-            default: {
-                break;
-            }
+        // If this room has no subject, then set the member names as the subject
+        if (empty($this->getValue('subject'))) {
+            $this->setValue('subject', implode(", ", $membersName));
         }
 
         // Save custom permissions
