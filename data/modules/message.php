@@ -13,7 +13,7 @@ return [
     "icon" => "MessageIcon",
     "default_route" => "direct",
     "name" => "message",
-    "short_title" => 'Message',
+    "short_title" => 'Chat',
     "scope" => 'system',
     "sort_order" => '2',
     "f_system" => true,

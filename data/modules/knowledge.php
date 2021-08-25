@@ -15,7 +15,7 @@ return [
     "icon" => "LightbulbOutlineIcon",
     "default_route" => "my-notes",
     "name" => "knowledge",
-    "short_title" => 'Document',
+    "short_title" => 'Docs',
     "scope" => 'system',
     "sort_order" => '10',
     "f_system" => true,
