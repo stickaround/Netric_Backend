@@ -65,7 +65,8 @@ class TaskEntity extends Entity implements EntityInterface
         if ($this->getValue('status_id')) {
             $this->setValue(
                 'done',
-                ($this->getValueName('status_id') === self::STATUS_COMPLETED)
+                ($this->getValueName('status_id') === self::STATUS_COMPLETED ||
+                    $this->getValueName('status_id') === self::STATUS_DEFERRED)
             );
         }
     }
