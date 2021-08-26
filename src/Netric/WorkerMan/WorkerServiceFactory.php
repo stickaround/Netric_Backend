@@ -44,6 +44,6 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
                 break;
         }
 
-        return new WorkerService($serviceLocator->getApplication(), $queue, $workerFactory);
+        return new WorkerService($queue, $workerFactory);
     }
 }

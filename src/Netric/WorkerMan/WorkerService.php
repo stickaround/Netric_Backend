@@ -19,13 +19,6 @@ class WorkerService
     private $jobQueue = null;
 
     /**
-     * Current running netric application
-     *
-     * @var Application
-     */
-    private $application = null;
-
-    /**
      * Array of workers to handle jobs
      *
      * @var WorkerInterface[]
@@ -44,11 +37,9 @@ class WorkerService
      * @param QueueInterface $queue The Queue used to push jobs and pull info
      */
     public function __construct(
-        Application $application,
         QueueInterface $queue,
         WorkerFactory $workerFactory
     ) {
-        $this->application = $application;
         $this->jobQueue = $queue;
         $this->workerFactory = $workerFactory;
     }
