@@ -10,7 +10,7 @@ use Netric\Account\Module\LeftNavItemTypes;
 
 return [
     "title" => "Messages",
-    "icon" => "MessageIcon",
+    "icon" => "ChatBubbleIcon",
     "default_route" => "direct",
     "name" => "message",
     "short_title" => 'Chat',

@@ -12,10 +12,10 @@ use Netric\Account\Module\LeftNavItemTypes;
 
 return [
     "title" => "Document",
-    "icon" => "LightbulbOutlineIcon",
+    "icon" => "AssignmentIcon",
     "default_route" => "my-notes",
     "name" => "knowledge",
-    "short_title" => 'Docs',
+    "short_title" => 'Document',
     "scope" => 'system',
     "sort_order" => '10',
     "f_system" => true,
