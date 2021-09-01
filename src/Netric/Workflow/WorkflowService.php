@@ -7,7 +7,7 @@ namespace Netric\Workflow;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\WorkflowEntity;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\Workflow\ActionExecutor\ActionExecutorFactory;
+use Netric\Workflow\ActionExecutorFactory;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\DataMapper\WorkflowDataMapperInterface;
@@ -15,7 +15,7 @@ use Netric\Log\Log;
 use Netric\Log\LogInterface;
 
 /**
- * Workflow service
+ * Workflow service responsible for running/stopping workflows on entities with various events
  */
 class WorkflowService
 {
@@ -64,6 +64,7 @@ class WorkflowService
      */
     public function runWorkflowsOnEvent(EntityInterface $entity, string $eventName, UserEntity $user): array
     {
+        // Get array of active entities that are listening for changes for the given entity type
         $entityType = $entity->getDefinition()->getObjType();
         $activeWorkflows = $this->workFlowDataMapper->getActiveWorkflowsForEvent(
             $entityType,
@@ -73,31 +74,20 @@ class WorkflowService
 
         $instancesStarted = [];
         foreach ($activeWorkflows as $workflow) {
+            // Make sure we don't re-run a job if the workflow is an f_singleton
+            if (
+                $workflow->getValue('f_singleton') &&
+                $this->workFlowDataMapper->getInstancesForEntity($workflow, $entity) != []
+            ) {
+                // Skip the workflow because it has already run
+                continue;
+            }
+
             // Start an instance
-            $instancesStarted[] = $this->startWorkflowInstance($workflow, $entity, $user);
+            $instancesStarted[] = $this->startInstanceAndRunActions($workflow, $entity, $user);
         }
 
         return $instancesStarted;
-    }
-
-    /**
-     * Run actions that were scheduled by a workflow instance
-     */
-    public function runScheduledActions()
-    {
-        // /*
-        //  * Get array of instances and actions that are scheduled to run on
-        //  * or before this moment.
-        //  */
-        // $scheduled = $this->workFlowDataMapper->getScheduledActions();
-        // foreach ($scheduled as $queued) {
-        //     $workFlowInstance = $queued['instance'];
-        //     $action = $queued['action'];
-        //     $this->executeAction($action, $workFlowInstance, true);
-        // }
-
-        // // Log what just happened
-        // $this->log->info("Found and executed " . count($scheduled) . " scheduled actions");
     }
 
     /**
@@ -107,61 +97,47 @@ class WorkflowService
      * @param EntityInterface $entity The entity we are running on
      * @param UserEntity $user
      */
-    private function startWorkflowInstance(WorkflowEntity $workflow, EntityInterface $entity, UserEntity $user)
+    private function startInstanceAndRunActions(WorkflowEntity $workflow, EntityInterface $entity, UserEntity $user)
     {
         // Create a new instance for this workflow and entity
-        // $workflowInstance = $this->workFlowDataMapper->createWorkflowInstance(
-        //     $workflow,
-        //     $entity,
-        //     $user
-        // );
+        $workflowInstance = $this->workFlowDataMapper->createWorkflowInstance(
+            $workflow,
+            $entity,
+            $user
+        );
 
         // Now execute first level of actions in the workflow
         $actions = $this->workFlowDataMapper->getActions($user->getAccountId(), $workflow->getEntityId());
         foreach ($actions as $action) {
-            $this->executeAction($action, $entity, $user);
+            $this->executeAction($workflowInstance, $action, $entity, $user);
         }
     }
 
     /**
      * Execute an action for a workflow instance
      *
+     * @param EntityInterface $workflowInstance The instance we are running
      * @param WorkflowActionEntity $action Entity with action state
      * @param EntityInterface $actOnEntity The entity we are acting on
      * @param UserEntity $user
      */
-    private function executeAction(WorkflowActionEntity $actionEntity, EntityInterface $actOnEntity, UserEntity $user)
-    {
+    private function executeAction(
+        WorkflowActionEntity $actionEntity,
+        EntityInterface $actOnEntity,
+        UserEntity $user
+    ) {
         // Get the action executor - we split this because the entity state for action is pretty
         // generic but the execution is highly dynamic and specific.
-        $actionExecutor = $this->actionFactory->create($actionEntity->getValue('type_name'));
-        if ($actionExecutor->execute($actionEntity, $actOnEntity, $user)) {
+        $actionExecutor = $this->actionFactory->create($actionEntity);
+        if ($actionExecutor->execute($actOnEntity, $user)) {
             // Log what just happened for troubleshooting
             $this->log->info(
                 "Executed action " .
-                    $actionEntity->getEntityId() .
-                    " against instance " .
-                    $workflowInstance->getEntityId()
+                    $actionEntity->getEntityId()
             );
-
-            // TODO: Not sure why we did this initially
-            // // Delete any scheduled tasks if set
-            // if ($purgeScheduled) {
-            //     $this->workFlowDataMapper->deleteScheduledAction(
-            //          $workflowInstance->getEntityId(),
-            //          $actionEntity->getEntityId()
-            //      );
-            // }
 
             // If action completed and returned true then run children
-            $childActions = $this->workFlowDataMapper->getActions(
-                $user->getAccountId(),
-                $workflowInstance->getValue('workflow_id'),
-                $actionEntity->getEntityId()
-            );
-            foreach ($childActions as $childAction) {
-                $this->executeAction($childAction, $workflowInstance, $user);
-            }
+            $this->runChildActions($actionEntity, $actOnEntity, $user);
         } elseif ($actionExecutor->getLastError()) {
             // Log the error
             $this->log->error(
@@ -170,6 +146,37 @@ class WorkflowService
                     "(" . $actionEntity->getEntityId() . "): " .
                     $actionExecutor->getLastError()->getMessage()
             );
+        }
+    }
+
+    /**
+     * Run child actions for a given parent action
+     *
+     * Note: We keep this public because WaitCondition executors require
+     * we pause the workflow. This is how we resume it.
+     *
+     * @param WorkflowActionEntity $parentAction
+     * @param EntityInterface $actOnEntity
+     * @param UserEntity $user
+     * @return void
+     */
+    public function runChildActions(WorkflowActionEntity $parentAction, EntityInterface $actOnEntity, UserEntity $user)
+    {
+        // Log what just happened for troubleshooting
+        $this->log->info(
+            __CLASS__ . '->runChildActions: for ' .
+                $parentAction->getEntityId()
+        );
+
+        // If action completed and returned true then run children
+        $childActions = $this->workFlowDataMapper->getActions(
+            $user->getAccountId(),
+            $parentAction->getValue('workflow_id'),
+            $parentAction->getEntityId()
+        );
+
+        foreach ($childActions as $childAction) {
+            $this->executeAction($childAction, $actOnEntity, $user);
         }
     }
 }

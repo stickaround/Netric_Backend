@@ -194,7 +194,7 @@ abstract class AbstractActionExecutor implements ErrorAwareInterface
         // Get the field of the referenced value
         $field = $entity->getDefinition()->getField($fieldName);
 
-        if ($referencedEntityId && $field->type == FIELD::TYPE_OBJECT) {
+        if ($referencedEntityId && $field->type == Field::TYPE_OBJECT) {
             // Load the referenced entity
             $referencedEntity = $this->entityLoader->getEntityById($referencedEntityId, $entity->getAccountId());
 
@@ -214,6 +214,26 @@ abstract class AbstractActionExecutor implements ErrorAwareInterface
     protected function getEntityloader(): EntityLoader
     {
         return $this->entityLoader;
+    }
+
+    /**
+     * Get the entity id for this action (all actions are entities)
+     *
+     * @return string
+     */
+    protected function getActionEntityId(): string
+    {
+        return $this->actionEntity->getEntityId();
+    }
+
+    /**
+     * Get the account id that this action belongs to
+     *
+     * @return string
+     */
+    protected function getActionAccountId(): string
+    {
+        return $this->actionEntity->getAccountId();
     }
 
     /**

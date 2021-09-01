@@ -6,7 +6,6 @@ namespace Netric\Workflow\ActionExecutor;
 
 use Netric\Entity\EntityInterface;
 use Netric\Error\ErrorAwareInterface;
-use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Entity\ObjType\UserEntity;
 
 /**

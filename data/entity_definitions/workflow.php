@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
@@ -24,7 +26,7 @@ return array(
 
         // Object type we execute against
         'object_type' => array(
-            'title' => 'Object Type',
+            'title' => 'Entity Type',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => true,
@@ -70,23 +72,7 @@ return array(
             'readonly' => false,
         ),
 
-        // Only run if conditions were previously unmet
-        'f_condition_unmet' => array(
-            'title' => 'When Previously Unmet Conditions',
-            'type' => Field::TYPE_BOOL,
-            'subtype' => '',
-            'readonly' => false,
-        ),
-
-        // Can be manually started
-        'f_allow_manual' => array(
-            'title' => 'Allow Manual Start',
-            'type' => Field::TYPE_BOOL,
-            'subtype' => '',
-            'readonly' => false,
-        ),
-
-        // Active and ready to be triggered
+        // Active and ready to be run
         'f_active' => array(
             'title' => 'Active',
             'type' => Field::TYPE_BOOL,
@@ -98,14 +84,6 @@ return array(
         'ts_lastrun' => array(
             'title' => 'Time Last Run',
             'type' => Field::TYPE_TIMESTAMP,
-            'subtype' => '',
-            'readonly' => true,
-        ),
-
-        // Conditions that need to be met before executing the workflow
-        'conditions' => array(
-            'title' => 'Conditions',
-            'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true,
         ),

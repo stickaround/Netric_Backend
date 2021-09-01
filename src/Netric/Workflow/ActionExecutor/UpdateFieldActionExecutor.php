@@ -59,7 +59,7 @@ class UpdateFieldActionExecutor extends AbstractActionExecutor implements Action
     private function setEntityValue(EntityInterface $entity, string $fieldType, string $fieldName, $value): void
     {
         // Check if we are dealing with a multi value field
-        if ($fieldType == FIELD::TYPE_GROUPING_MULTI || $fieldType == FIELD::TYPE_OBJECT_MULTI) {
+        if ($fieldType == Field::TYPE_GROUPING_MULTI || $fieldType == Field::TYPE_OBJECT_MULTI) {
             $entity->addMultiValue($fieldName, $value);
             return;
         }

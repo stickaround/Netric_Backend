@@ -29,7 +29,7 @@ return [
                 "start_workflow" => "Start a Workflow",
                 "update_field" => "Update a Field",
                 "wait_condition" => "Wait",
-                "webhook" => "Call Web Page (Webhook]",
+                "webhook" => "Call Web Page (Webhook)",
             ],
         ],
 

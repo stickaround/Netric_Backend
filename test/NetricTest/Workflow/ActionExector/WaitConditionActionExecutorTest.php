@@ -10,16 +10,15 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityQuery\Where;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
-use Netric\Workflow\ActionExecutor\CheckConditionActionExecutor;
-use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityQuery\Results;
+use Netric\Workflow\ActionExecutor\WaitConditionActionExecutor;
+use Netric\WorkerMan\SchedulerService;
+use Netric\Workflow\WorkflowScheudleTimes;
 
 /**
  * Test action executor
  */
-class CheckConditionActionExecutorTest extends TestCase
+class WaitConditionActionExecutorTest extends TestCase
 {
     /**
      * Executor to test (not a mock of course)
@@ -31,7 +30,8 @@ class CheckConditionActionExecutorTest extends TestCase
      */
     private EntityLoader $mockEntityLoader;
     private WorkflowActionEntity $mockActionEntity;
-    private IndexInterface $mockEntityIndex;
+    private SchedulerService $mockScheduler;
+
     /**
      * Mock and stub out the action exector
      */
@@ -39,25 +39,24 @@ class CheckConditionActionExecutorTest extends TestCase
     {
         $this->mockActionEntity = $this->createMock(WorkflowActionEntity::class);
         $this->mockEntityLoader = $this->createMock(EntityLoader::class);
-        $this->mockEntityIndex = $this->createMock(IndexInterface::class);
-        $this->executor = new CheckConditionActionExecutor(
+        $this->mockScheduler = $this->createMock(SchedulerService::class);
+        $this->executor = new WaitConditionActionExecutor(
             $this->mockEntityLoader,
             $this->mockActionEntity,
             'http://mockhost',
-            $this->mockEntityIndex
+            $this->mockScheduler
         );
     }
 
     /**
-     * Make sure we can update a basic field
+     * Make sure we can schedule a job to run after a certain amount of time
      */
     public function testExecute(): void
     {
-        // Set the entity action data
+        // Set the entity action to run in 1 day
         $this->mockActionEntity->method("getData")->willReturn([
-            'conditions' => [
-                ['field_name' => 'first_name', 'operator' => Where::OP_EQ, 'value' => 'Sky']
-            ]
+            'when_interval' => 1,
+            'when_unit' => WorkflowScheudleTimes::TIME_UNIT_DAY,
         ]);
 
         // Create test entity and a mock entity definition that is returned
@@ -68,18 +67,15 @@ class CheckConditionActionExecutorTest extends TestCase
         $mockEntityDefinition->method('getObjType')->willReturn('user');
         $testEntity->method("getDefinition")->willReturn($mockEntityDefinition);
 
-        // Fake results
-        $mockResults = $this->createMock(Results::class);
-        $mockResults->method('getNum')->willReturn(1);
-        $this->mockEntityIndex->method('executeQuery')->willReturn($mockResults);
-
-        // TODO: We need to find a test to test the actual query
-
         // Stub the user to satisfy requirements for call to execute
         $user = $this->createMock(UserEntity::class);
         $user->method('getAccountId')->willReturn('UUID-ACCOUNT-ID');
+        $user->method('getEntityId')->willReturn('UUID-USER-ID');
 
-        // Execute
-        $this->assertTrue($this->executor->execute($testEntity, $user));
+        // Make sure we called scheudleAtTime
+        $this->mockScheduler->expects($this->once())->method('scheduleAtTime');
+
+        // Execution should return false which pauses the workflow
+        $this->assertFalse($this->executor->execute($testEntity, $user));
     }
 }
