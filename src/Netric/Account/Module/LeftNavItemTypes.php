@@ -73,4 +73,9 @@ interface LeftNavItemTypes
      * Home page feed - similar to social media home pages - but for work
      */
     const HOME_FEED = 'HomeFeed';
+
+    /**
+     * Home for work task page feed - similar to social media home pages - but for work tasks
+     */
+    const WORK_HOME = 'WorkHome';
 }

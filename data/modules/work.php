@@ -23,6 +23,13 @@ return [
     "f_system" => true,
     "navigation" => [
         [
+            "title" => "Work Home",
+            "type" => LeftNavItemTypes::WORK_HOME,
+            "route" => "home",
+            "objType" => ObjectTypes::TASK,
+            "icon" => "ViewAgendaIcon"
+        ],
+        [
             "title" => "New Task",
             "type" => LeftNavItemTypes::LINK,
             "route" => "browse/" . ObjectTypes::TASK . "/new",
