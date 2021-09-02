@@ -1,17 +1,18 @@
 <?php
 
-/**
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
-use Netric\Workflow\DataMapper\WorkflowDataMapperInterface;
-use Netric\Workflow\WorkFlowLegacy;
-use Netric\Workflow\workFlowInstance;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\WorkflowActionEntity;
+use Netric\WorkerMan\SchedulerService;
+use Netric\WorkerMan\Worker\WorkflowWaitActionWorker;
+use Netric\Workflow\WorkflowScheudleTimes;
+use DateTime;
+use InvalidArgumentException;
 
 /**
  * Action used for delaying the execution of child actions
@@ -20,88 +21,89 @@ use Netric\Workflow\workFlowInstance;
  *  when_unit       int REQUIRED A time unit from WorkFlowLegacy::TIME_UNIT_*
  *  when_interval   int REQUIRED An interval to use with the unit like 1 month or 1 day
  */
-class WaitConditionActionExecutor extends AbstractActionExecutor implements ActionInterface
+class WaitConditionActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
     /**
-     * WorkFlowLegacy data mapper for getting and setting scheduled actions
+     * Scheudler serivice to queue jobs into the future
      *
-     * @var WorkflowDataMapperInterface
+     * @var SchedulerService
      */
-    private $workFlowDataMapper = null;
+    private SchedulerService $scheduler;
 
     /**
-     * Set dependencies
+     * This must be called by all derived classes
      *
      * @param EntityLoader $entityLoader
-     * @param ActionExecutorFactory $actionFactory
-     * @param WorkflowDataMapperInterface $workFlowDataMapper
+     * @param WorkflowActionEntity $actionEntity
+     * @param string $appliactionUrl
      */
-    public function __construct(EntityLoader $entityLoader, ActionExecutorFactory $actionFactory, WorkflowDataMapperInterface $workFlowDataMapper)
-    {
-        $this->workFlowDataMapper = $workFlowDataMapper;
+    public function __construct(
+        EntityLoader $entityLoader,
+        WorkflowActionEntity $actionEntity,
+        string $applicationUrl,
+        SchedulerService $schedulerService
+    ) {
+        $this->scheduler = $schedulerService;
 
         // Should always call the parent constructor for base dependencies
-        parent::__construct($entityLoader, $actionFactory);
+        parent::__construct($entityLoader, $actionEntity, $applicationUrl);
     }
 
     /**
-     * Execute this action
+     * Execute an action on an entity
      *
-     * @param WorkFlowLegacyInstance $workflowInstance The workflow instance we are executing in
+     * @param EntityInterface $actOnEntity The entity (any type) we are acting on
+     * @param UserEntity $user The user who is initiating the action
      * @return bool true on success, false on failure
      */
-    public function execute(WorkFlowLegacyInstance $workflowInstance)
+    public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
-        // Get the entity being acted on
-        $entity = $workflowInstance->getEntity();
+        // Entity must be saved to meet conditions
+        if (!$actOnEntity->getEntityId()) {
+            return false;
+        }
 
         // Get merged params
-        $params = $this->getParams($entity);
+        $whenUnit = $this->getParam('when_unit', $actOnEntity);
+        $whenInterval = $this->getParam('when_interval', $actOnEntity);
 
         // Execute now if no interval is set or it's been set to 'execute immediately'
-        if (!isset($params['when_unit']) || !isset($params['when_interval']) || $params['when_interval'] === 0) {
+        if (!$whenUnit || !$whenInterval) {
             return true;
         }
 
-        // We cannot set future actions if we are not running in a workflow instance
-        if (!$workflowInstance) {
-            throw new \RuntimeException("Cannot schedule the action because workFlowInstance was not set");
-        }
-
-        // We can only schedule an action that was previously saved
-        if (!$this->getWorkFlowLegacyActionId()) {
-            throw new \RuntimeException("Cannot schedule the action because it has not been saved yet");
-        }
-
-        /*
-         * Now that we know that this action is setup correctly, we can execute the schedule logic.
-         * The first thing we will do is find out if we are re-executing on a previously
-         * saved action. This is expected when the scheduled task finally launches.
+        /**
+         * Set the payload
          */
-        if ($this->workFlowDataMapper->getScheduledActionTime($workflowInstance->getWorkFlowLegacyInstanceId(), $this->getWorkFlowLegacyActionId())) {
-            // Delete the scheduled action since we are now finished processing it.
-            $this->workFlowDataMapper->deleteScheduledAction($workflowInstance->getWorkFlowLegacyInstanceId(), $this->getWorkFlowLegacyActionId());
-
-            // Return true to continue processing children.
-            return true;
-        }
+        $payload = [
+            'action_id' => $this->getActionEntityId(),
+            'account_id' => $this->getActionAccountId(),
+            'entity_id' => $actOnEntity->getEntityId(),
+            'user_id' => $user->getEntityId(),
+        ];
 
         /*
-         * Determine the execute date from $params.
+         * Determine the execute date from $whenUnit and $whenInterval.
          * This will eventually be a lot more complex where we can key off of
          * any field in $workFlowInstance->getEntityId() but right now we
-         * just schedule everything from the start of the workflow.
+         * just schedule everything in the future relative to 'now'
          */
-        $executeDate = $this->getExecuteDate($params['when_unit'], $params['when_interval']);
+        $executeTime = $this->getExecuteDate($whenUnit, $whenInterval);
 
-        // Schedule the action for later
-        $this->workFlowDataMapper->scheduleAction(
-            $workflowInstance->getWorkFlowLegacyInstanceId(),
-            $this->getWorkFlowLegacyActionId(),
-            $executeDate
+        // Schedule the action for later - to see how execution continues
+        // please review the WorkflowWaitActionWorker. It essentially
+        // resumes execution of the workflow through the WorkflowService
+        // beginning at this action.
+        $this->scheduler->scheduleAtTime(
+            $user,
+            WorkflowWaitActionWorker::class,
+            $executeTime,
+            $payload
         );
 
-        // Do not process children, but set no errors
+        // Return false to stop processing children (for now)
+        // The WorfkowWaitActionWorker will continue processing any children
+        // after the specified wait time
         return false;
     }
 
@@ -110,9 +112,9 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
      *
      * @param int $whenUnit A unit of time from Where::TIME_UNIT_*
      * @param int $whenInterval How many whenUnits to add
-     * @return \DateTime
+     * @return DateTime DateTime in the future to execute
      */
-    public function getExecuteDate($whenUnit, $whenInterval)
+    private function getExecuteDate($whenUnit, $whenInterval): DateTime
     {
         $intervalUnit = $this->getDateIntervalUnit($whenUnit);
         /*
@@ -135,36 +137,36 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
     }
 
     /**
-     * Convert a WorkFlowLegacy::TIME_UNIT_* to a DateInterval textual unit
+     * Convert a WorkflowScheudleTimes::TIME_UNIT_* to a DateInterval textual unit
      *
      * @param int $unit A unit id from WorkFlowLegacy::TIME_UNIT_*
      * @return string Unit character used for PHP's DateInterval constructor
-     * @throws \InvalidArgumentException if we do not recognize the constant being passed
+     * @throws InvalidArgumentException if we do not recognize the constant being passed
      */
-    private function getDateIntervalUnit($unit)
+    private function getDateIntervalUnit($unit): string
     {
         switch ($unit) {
-            case WorkFlowLegacy::TIME_UNIT_YEAR:
+            case WorkflowScheudleTimes::TIME_UNIT_YEAR:
                 return 'Y';
 
-            case WorkFlowLegacy::TIME_UNIT_MONTH:
+            case WorkflowScheudleTimes::TIME_UNIT_MONTH:
                 return 'M';
 
-            case WorkFlowLegacy::TIME_UNIT_WEEK:
+            case WorkflowScheudleTimes::TIME_UNIT_WEEK:
                 return 'W';
 
-            case WorkFlowLegacy::TIME_UNIT_DAY:
+            case WorkflowScheudleTimes::TIME_UNIT_DAY:
                 return 'D';
 
-            case WorkFlowLegacy::TIME_UNIT_HOUR:
+            case WorkflowScheudleTimes::TIME_UNIT_HOUR:
                 return 'H';
 
-            case WorkFlowLegacy::TIME_UNIT_MINUTE:
+            case WorkflowScheudleTimes::TIME_UNIT_MINUTE:
                 return 'm';
 
             default:
                 // This should never happen, but if it does throw an exception
-                throw new \InvalidArgumentException("No DateTinerval conversion for unit $unit");
+                throw new InvalidArgumentException("No DateTinerval conversion for unit $unit");
         }
     }
 }

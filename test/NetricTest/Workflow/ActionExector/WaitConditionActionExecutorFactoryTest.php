@@ -7,15 +7,15 @@ namespace NetricTest\Workflow\ActionExecutor;
 use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\WorkflowActionEntity;
-use Netric\Workflow\ActionExecutor\CheckConditionActionExecutor;
-use Netric\Workflow\ActionExecutor\CheckConditionActionExecutorFactory;
+use Netric\Workflow\ActionExecutor\WaitConditionActionExecutor;
+use Netric\Workflow\ActionExecutor\WaitConditionActionExecutorFactory;
 
 /**
  * Integration test to make sure the factory works
  *
  * @group integration
  */
-class CheckConditionActionExecutorFactoryTest extends TestCase
+class WaitConditionActionExecutorFactoryTest extends TestCase
 {
     public function testCreate(): void
     {
@@ -24,8 +24,8 @@ class CheckConditionActionExecutorFactoryTest extends TestCase
         // Simple stub
         $testEntity = $this->createStub(WorkflowActionEntity::class);
 
-        $factory = new CheckConditionActionExecutorFactory();
+        $factory = new WaitConditionActionExecutorFactory();
         $exector = $factory->create($serviceLocator, $testEntity);
-        $this->assertInstanceOf(CheckConditionActionExecutor::class, $exector);
+        $this->assertInstanceOf(WaitConditionActionExecutor::class, $exector);
     }
 }
