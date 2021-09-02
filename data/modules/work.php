@@ -15,7 +15,7 @@ use Netric\Account\Module\LeftNavItemTypes;
 return [
     "title" => "Work",
     "icon" => "WorkIcon",
-    "default_route" => "my-task",
+    "default_route" => "home",
     "name" => "work",
     "short_title" => 'Work',
     "scope" => 'system',
