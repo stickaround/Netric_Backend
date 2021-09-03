@@ -86,18 +86,4 @@ class TaskEntity extends Entity implements EntityInterface
             return "task";
         }
     }
-
-    /**
-     * This function is called just before we import entity data
-     *
-     * @param array $data The data array import
-     */
-    protected function onBeforeFromArray(array $data): array
-    {
-        // We changed 'done' to closed on 9/3/2021 - sky
-        if (isset($data['done']) && !isset($data['is_closed'])) {
-            $data['is_closed'] = $data['is_closed'];
-        }
-        return $data;
-    }
 }
