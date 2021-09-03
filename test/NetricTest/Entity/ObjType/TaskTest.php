@@ -65,7 +65,7 @@ class TaskTest extends TestCase
         $task->setValue('status_id', 1, TaskEntity::STATUS_COMPLETED);
         $mockServiceManager = $this->getMockBuilder(ServiceLocatorInterface::class)->getMock();
         $task->onBeforeSave($mockServiceManager, $this->account->getSystemUser());
-        $this->assertTrue($task->getValue('done'));
+        $this->assertTrue($task->getValue('is_closed'));
     }
 
     public function testOnRecurrence()

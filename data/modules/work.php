@@ -22,19 +22,20 @@ return [
     "sort_order" => '6',
     "f_system" => true,
     "navigation" => [
+
+        [
+            "type" => LeftNavItemTypes::ENTITY,
+            "title" => "New Task",
+            "route" => "newtask",
+            "icon" => "AddBoxIcon",
+            "objType" => ObjectTypes::TASK,
+        ],
         [
             "title" => "Work Home",
             "type" => LeftNavItemTypes::WORK_HOME,
             "route" => "home",
             "objType" => ObjectTypes::TASK,
-            "icon" => "ViewAgendaIcon"
-        ],
-        [
-            "title" => "New Task",
-            "type" => LeftNavItemTypes::LINK,
-            "route" => "browse/" . ObjectTypes::TASK . "/new",
-            "objType" => ObjectTypes::TASK,
-            "icon" => "AddBoxIcon",
+            "icon" => "DashboardIcon"
         ],
         [
             "title" => "My Tasks",

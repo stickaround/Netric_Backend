@@ -455,6 +455,9 @@ class Entity implements EntityInterface
      */
     public function fromArray($data, $onlyProvidedFields = false)
     {
+        // Handle any pre-processing like changed column names
+        $data = $this->onBeforeFromArray($data);
+
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
             $fname = $field->name;
@@ -697,6 +700,16 @@ class Entity implements EntityInterface
      */
     public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
+    }
+
+    /**
+     * This function is called just before we import entity data
+     *
+     * @param array $data The data array import
+     */
+    protected function onBeforeFromArray(array $data): array
+    {
+        return $data;
     }
 
     /**

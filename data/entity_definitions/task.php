@@ -27,8 +27,8 @@ return [
             'subtype' => '',
             'readonly' => false
         ],
-        'done' => [
-            'title' => 'Completed',
+        'is_closed' => [
+            'title' => 'Closed',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false

@@ -64,7 +64,7 @@ class TaskEntity extends Entity implements EntityInterface
     {
         if ($this->getValue('status_id')) {
             $this->setValue(
-                'done',
+                'is_closed',
                 ($this->getValueName('status_id') === self::STATUS_COMPLETED ||
                     $this->getValueName('status_id') === self::STATUS_DEFERRED)
             );
@@ -78,12 +78,26 @@ class TaskEntity extends Entity implements EntityInterface
      */
     public function getIconName()
     {
-        $done = $this->getValue("done");
+        $closed = $this->getValue('is_closed');
 
-        if ($done === 't' || $done === true) {
+        if ($closed === true) {
             return "task_on";
         } else {
             return "task";
         }
+    }
+
+    /**
+     * This function is called just before we import entity data
+     *
+     * @param array $data The data array import
+     */
+    protected function onBeforeFromArray(array $data): array
+    {
+        // We changed 'done' to closed on 9/3/2021 - sky
+        if (isset($data['done']) && !isset($data['is_closed'])) {
+            $data['is_closed'] = $data['is_closed'];
+        }
+        return $data;
     }
 }

@@ -97,12 +97,12 @@ class EntityValueSanitizerTest extends TestCase
     public function testSanitizeEntityQueryBooleanConditions()
     {
         $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
-        $query->where('done')->equals(true);
+        $query->where('is_closed')->equals(true);
         $ret = $this->entityValueSanitizer->sanitizeQuery($query);
         $this->assertEquals($ret[0]->value, "true");
 
         $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
-        $query->where('done')->equals(false);
+        $query->where('is_closed')->equals(false);
         $ret = $this->entityValueSanitizer->sanitizeQuery($query);
         $this->assertEquals($ret[0]->value, "false");
     }
@@ -114,17 +114,17 @@ class EntityValueSanitizerTest extends TestCase
     {
         // Create a test task
         $task = $this->entityLoader->create(ObjectTypes::TASK, $this->account->getAccountId());
-        $task->setValue("done", "f");
+        $task->setValue('is_closed', 'f');
 
         // Test the sanitizing of date fields
         $ret = $this->entityValueSanitizer->sanitizeEntity($task);
 
-        $this->assertEquals($ret["done"], false);
+        $this->assertEquals($ret['is_closed'], false);
 
         // Now lets try setting the boolean value to "t"
-        $task->setValue("done", "t");
+        $task->setValue('is_closed', "t");
         $ret = $this->entityValueSanitizer->sanitizeEntity($task);
-        $this->assertEquals($ret["done"], true);
+        $this->assertEquals($ret['is_closed'], true);
     }
 
     /**
@@ -181,7 +181,7 @@ class EntityValueSanitizerTest extends TestCase
         // Test the sanitizing of object multi values
         $ret = $this->entityValueSanitizer->sanitizeEntity($project);
 
-        $this->assertContains($currentUser->getEntityId(), $ret["members"], "testSanitizeFieldObjectMultiValues did not sanitize the current user") ;
+        $this->assertContains($currentUser->getEntityId(), $ret["members"], "testSanitizeFieldObjectMultiValues did not sanitize the current user");
         $this->assertEquals($ret["members_fval"][$currentUser->getEntityId()], $currentUser->getName());
     }
 

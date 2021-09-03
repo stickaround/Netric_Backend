@@ -898,7 +898,7 @@ class EntityProvider
         $task = new SyncTask();
         $task->subject = $taskEntity->getValue('name');
         $task->body = $taskEntity->getValue('notes');
-        $task->complete = ($taskEntity->getValue('done') == 't') ? 1 : 0;
+        $task->complete = ($taskEntity->getValue('is_closed') === true) ? 1 : 0;
         if ($taskEntity->getValue('date_completed')) {
             $task->datecompleted = $taskEntity->getValue('date_completed');
         }
@@ -1247,7 +1247,8 @@ class EntityProvider
         }
 
 
-        if (isset($syncNote->asbody) &&
+        if (
+            isset($syncNote->asbody) &&
             isset($syncNote->asbody->type) &&
             isset($syncNote->asbody->data)
         ) {
@@ -1364,7 +1365,8 @@ class EntityProvider
          * nokia sends an yearly event with 0 mins duration but as all day event,
          * so make it end next day
          */
-        if ($syncAppointment->starttime == $syncAppointment->endtime
+        if (
+            $syncAppointment->starttime == $syncAppointment->endtime
             && isset($syncAppointment->alldayevent)
             && $syncAppointment->alldayevent
         ) {
@@ -1758,7 +1760,8 @@ class EntityProvider
      */
     private function isDST($localtime, $tz)
     {
-        if (!isset($tz) || !is_array($tz) ||
+        if (
+            !isset($tz) || !is_array($tz) ||
             !isset($tz["dstbias"]) || $tz["dstbias"] == 0 ||
             !isset($tz["dststartmonth"]) || $tz["dststartmonth"] == 0 ||
             !isset($tz["dstendmonth"]) || $tz["dstendmonth"] == 0

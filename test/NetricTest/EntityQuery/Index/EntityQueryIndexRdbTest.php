@@ -12,7 +12,6 @@
 namespace NetricTest\EntityQuery\Index;
 
 use Netric;
-use PHPUnit\Framework\TestCase;
 use Netric\EntityQuery\Index\EntityQueryIndexRdb;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
@@ -271,11 +270,11 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
         // Test Equals
         $query = new EntityQuery(ObjectTypes::TASK, $this->account->getAccountId());
-        $query->where('done')->equals(true);
+        $query->where('is_closed')->equals(true);
         $ret = $this->entityValueSanitizer->sanitizeQuery($query);
 
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $ret[0]);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'done', ''))::boolean = true");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'is_closed', ''))::boolean = true");
 
         // Test Not Equal
         $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId());
