@@ -74,12 +74,14 @@ class WorkflowEntityDataMapper implements WorkflowDataMapperInterface
             case WorkflowEntity::EVENT_DELETE:
                 $query->andWhere("f_on_delete")->equals(true);
                 break;
-            case WorkflowEntity::EVENT_DAILY:
-                $query->andWhere("f_on_daily")->equals(true);
-                $yesterday = date("Y-m-d H:i:s T", strtotime("-1 day"));
-                $query->andWhere("ts_lastrun")->isLessOrEqualTo($yesterday);
-                $query->orWhere("ts_lastrun")->equals(null);
-                break;
+
+                // TODO: do we really need daily workflows any more?
+                // case WorkflowEntity::EVENT_DAILY:
+                //     $query->andWhere("f_on_daily")->equals(true);
+                //     $yesterday = date("Y-m-d H:i:s T", strtotime("-1 day"));
+                //     $query->andWhere("ts_lastrun")->isLessOrEqualTo($yesterday);
+                //     $query->orWhere("ts_lastrun")->equals(null);
+                //     break;
         }
 
         $result = $this->entityIndex->executeQuery($query);
@@ -112,9 +114,7 @@ class WorkflowEntityDataMapper implements WorkflowDataMapperInterface
         // Query all actions
         $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION, $accountId);
         $query->andWhere("workflow_id")->equals($workflowId);
-        if ($parentActionId) {
-            $query->andWhere("parent_action_id")->equals($parentActionId);
-        }
+        $query->andWhere("parent_action_id")->equals($parentActionId);
 
         $result = $this->entityIndex->executeQuery($query);
         if (!$result) {
@@ -146,7 +146,7 @@ class WorkflowEntityDataMapper implements WorkflowDataMapperInterface
         $workflowInstance = $this->entityLoader->create(ObjectTypes::WORKFLOW_INSTANCE, $user->getAccountId());
         $workflowInstance->setValue('entity_definition_id', $actOnEntity->getDefinition()->getEntityDefinitionId());
         $workflowInstance->setValue('object_type', $actOnEntity->getDefinition()->getObjType());
-        $workflowInstance->setValue('entity_id', $actOnEntity->getEntityId());
+        $workflowInstance->setValue('act_on_entity_id', $actOnEntity->getEntityId());
         $workflowInstance->setValue('workflow_id', $workflow->getEntityId());
         $workflowInstance->setValue('ts_started', 'now');
 
@@ -166,7 +166,7 @@ class WorkflowEntityDataMapper implements WorkflowDataMapperInterface
     {
         $query = new EntityQuery(ObjectTypes::WORKFLOW_INSTANCE, $actOnEntity->getAccountId());
         $query->andWhere("workflow_id")->equals($workflow->getEntityId());
-        $query->andWhere('entity_id')->equals($actOnEntity->getEntityId());
+        $query->andWhere('act_on_entity_id')->equals($actOnEntity->getEntityId());
         $result = $this->entityIndex->executeQuery($query);
         if (!$result) {
             throw new RuntimeException(

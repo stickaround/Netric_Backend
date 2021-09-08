@@ -11,7 +11,6 @@ use Netric\Workflow\ActionExecutorFactory;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\DataMapper\WorkflowDataMapperInterface;
-use Netric\Log\Log;
 use Netric\Log\LogInterface;
 
 /**
@@ -42,12 +41,12 @@ class WorkflowService
      * @param WorkflowDataMapperInterface $workFlowDataMapper
      * @param ActionExecutorFactory $actionFactory
      * @param IndexInterface $index The query index interface
-     * @param Log $log Netric log
+     * @param LogInterface $log Netric log
      */
     public function __construct(
         WorkflowDataMapperInterface $workFlowDataMapper,
         ActionExecutorFactory $actionFactory,
-        Log $log
+        LogInterface $log
     ) {
         $this->workFlowDataMapper = $workFlowDataMapper;
         $this->actionFactory = $actionFactory;
@@ -60,9 +59,8 @@ class WorkflowService
      * @param EntityInterface $entity The entity being acted on
      * @param string $eventName One of Workflow::EVENT_
      * @param UserEntity $user The user that triggered the event
-     * @return string[] ID of each workflow instance started
      */
-    public function runWorkflowsOnEvent(EntityInterface $entity, string $eventName, UserEntity $user): array
+    public function runWorkflowsOnEvent(EntityInterface $entity, string $eventName, UserEntity $user): void
     {
         // Get array of active entities that are listening for changes for the given entity type
         $entityType = $entity->getDefinition()->getObjType();
@@ -72,7 +70,6 @@ class WorkflowService
             $eventName
         );
 
-        $instancesStarted = [];
         foreach ($activeWorkflows as $workflow) {
             // Make sure we don't re-run a job if the workflow is an f_singleton
             if (
@@ -84,10 +81,8 @@ class WorkflowService
             }
 
             // Start an instance
-            $instancesStarted[] = $this->startInstanceAndRunActions($workflow, $entity, $user);
+            $this->startInstanceAndRunActions($workflow, $entity, $user);
         }
-
-        return $instancesStarted;
     }
 
     /**
@@ -100,7 +95,7 @@ class WorkflowService
     private function startInstanceAndRunActions(WorkflowEntity $workflow, EntityInterface $entity, UserEntity $user)
     {
         // Create a new instance for this workflow and entity
-        $workflowInstance = $this->workFlowDataMapper->createWorkflowInstance(
+        $this->workFlowDataMapper->createWorkflowInstance(
             $workflow,
             $entity,
             $user
@@ -109,7 +104,7 @@ class WorkflowService
         // Now execute first level of actions in the workflow
         $actions = $this->workFlowDataMapper->getActions($user->getAccountId(), $workflow->getEntityId());
         foreach ($actions as $action) {
-            $this->executeAction($workflowInstance, $action, $entity, $user);
+            $this->executeAction($action, $entity, $user);
         }
     }
 

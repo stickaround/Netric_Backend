@@ -12,11 +12,10 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
-use Netric\Entity\Notifier\NotifierFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogFactory;
 use Netric\WorkerMan\SchedulerServiceFactory;
-use Netric\WorkerMan\WorkerServiceFactory;
+use Netric\Workflow\WorkflowServiceFactory;
 use RuntimeException;
 
 /**
@@ -49,6 +48,13 @@ class EntityPostSaveWorker extends AbstractWorker
         // Get the account
         $accountContainer = $serviceManager->get(AccountContainerFactory::class);
         $account = $accountContainer->loadById($workload['account_id']);
+
+        // Handle deleted/deactivated account
+        if (!$account) {
+            $log->info(__CLASS__ . ': worker exiting gracefully because account is deleted');
+            return true;
+        }
+
         $serviceManager = $account->getServiceManager();
 
         // Get the user
@@ -101,8 +107,16 @@ class EntityPostSaveWorker extends AbstractWorker
         }
 
         // Log the activity
-        $activityLog = $serviceManager->get(ActivityLogFactory::class);
-        $activityLog->log($user, $workload['event_name'], $entity);
+        if ($user) {
+            $activityLog = $serviceManager->get(ActivityLogFactory::class);
+            $activityLog->log($user, $workload['event_name'], $entity);
+        }
+
+        // Launch workflows
+        if ($user) {
+            $workflowService = $serviceManager->get(WorkflowServiceFactory::class);
+            $workflowService->runWorkflowsOnEvent($entity, $workload['event_name'], $user);
+        }
 
         return true;
     }

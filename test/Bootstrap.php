@@ -9,6 +9,7 @@ use Zend\Loader\StandardAutoloader;
 use Aereus\Config\ConfigLoader;
 use Netric\Application\Application;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 error_reporting(E_ALL | E_STRICT);
@@ -69,6 +70,16 @@ class Bootstrap
         // Set the user each time since tests may have modified it
         static::$account->setCurrentUser(static::$user);
         return static::$account;
+    }
+
+    /**
+     * Get the created test user
+     *
+     * @return UserEntity
+     */
+    public static function getTestUser(): UserEntity
+    {
+        return static::$user;
     }
 
     protected static function initAutoloader()

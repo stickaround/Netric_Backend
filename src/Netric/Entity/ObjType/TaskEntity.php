@@ -1,18 +1,9 @@
 <?php
 
-/**
- * Provides extensions for the Task object
- *
- * @author Marl Tumulak <marl.tumulak@aereus.com>
- * @copyright 2016 Aereus
- */
-
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 
 /**
@@ -52,23 +43,6 @@ class TaskEntity extends Entity implements EntityInterface
     public function __construct(EntityDefinition $def)
     {
         parent::__construct($def);
-    }
-
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
-     * @param UserEntity $user The user that is acting on this entity
-     */
-    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
-    {
-        if ($this->getValue('status_id')) {
-            $this->setValue(
-                'is_closed',
-                ($this->getValueName('status_id') === self::STATUS_COMPLETED ||
-                    $this->getValueName('status_id') === self::STATUS_DEFERRED)
-            );
-        }
     }
 
     /**

@@ -80,6 +80,14 @@ return array(
             'readonly' => false,
         ),
 
+        // System worfklow - cannot edit name
+        'f_system' => array(
+            'title' => 'System',
+            'type' => Field::TYPE_BOOL,
+            'subtype' => '',
+            'readonly' => true,
+        ),
+
         // When the workflow was last executed
         'ts_lastrun' => array(
             'title' => 'Time Last Run',

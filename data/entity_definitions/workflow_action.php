@@ -33,6 +33,14 @@ return [
             ],
         ],
 
+        // System worfklow - cannot edit name
+        'f_system' => [
+            'title' => 'System',
+            'type' => Field::TYPE_BOOL,
+            'subtype' => '',
+            'readonly' => true,
+        ],
+
         // Longer description of this entity
         'notes' => [
             'title' => 'Notes',

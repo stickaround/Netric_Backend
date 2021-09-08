@@ -409,7 +409,7 @@ class BrowserViewServiceTest extends TestCase
             }
         }
 
-        $this->assertFalse($foundDoneField);
+        $this->assertTrue($foundDoneField);
     }
 
     /**
