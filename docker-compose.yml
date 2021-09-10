@@ -53,6 +53,8 @@ services:
     image: dockerhub.aereus.com/api_netric_com
     ports:
       - "80:3001"
+    depends_on: 
+      - redis
     environment: 
       NODE_ENV: devdependency
       APPLICATION_ENV: devdependency

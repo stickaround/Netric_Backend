@@ -1,7 +1,10 @@
 <?php
+
 namespace NetricTest\EntityDefinition;
 
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\ObjectTypes;
 use PHPUnit\Framework\TestCase;
 
 class FieldTest extends TestCase
@@ -129,5 +132,24 @@ class FieldTest extends TestCase
         ];
 
         $this->assertNotNull($field->getDefault(null, "null"));
+    }
+
+    public function testSeenByDefaultValue()
+    {
+        $field = new Field();
+        $field->type = Field::TYPE_OBJECT_MULTI;
+        $field->subtype = ObjectTypes::USER;
+        $field->default = [
+            "value" => UserEntity::USER_CURRENT,
+            "on" => "null"
+        ];
+
+        $mockUser = $this->createMock(UserEntity::class);
+        $mockUser->method('getEntityId')->willReturn('UUID-USER');
+
+        $this->assertEquals(
+            'UUID-USER',
+            $field->getDefault(null, "null", null, $mockUser)
+        );
     }
 }

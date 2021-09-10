@@ -36,9 +36,8 @@ abstract class DmTestsAbstract extends TestCase
     /**
      * Administrative user
      *
-     * @var \Netric\User
      */
-    protected $user = null;
+    protected UserEntity $user;
 
     /**
      * Test entities created that needt to be cleaned up
@@ -906,5 +905,21 @@ abstract class DmTestsAbstract extends TestCase
         // Cleanup groupings
         $groupingsStat->delete($statGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsStat);
+    }
+
+    /**
+     * Entities have some default fields, that have some important defaults
+     *
+     * @return void
+     */
+    public function testDefaultFieldsDefaults(): void
+    {
+        $dm = $this->getDataMapper();
+        $customer = $this->createCustomer();
+        $cid = $dm->save($customer, $this->user);
+        $this->testEntities[] = $customer;
+
+        // The seen_by field should default to the user who created the entity
+        $this->assertEquals([$this->user->getEntityId()], $customer->getValue('seen_by'));
     }
 }

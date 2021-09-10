@@ -922,7 +922,7 @@ class Entity implements EntityInterface
             // If the default was different, then set it
             if (!empty($new) && $new != $val) {
                 if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
-                    $this->addMultiValue($fname, $val);
+                    $this->addMultiValue($fname, $new);
                 } else {
                     // Set value
                     $this->setValue($fname, $new);
