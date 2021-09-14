@@ -602,6 +602,11 @@ class Entity implements EntityInterface
         // Update or add followers based on changes to fields
         $this->updateFollowers();
 
+        // If the owner of this entity is the current user, then set the f_seen value to true
+        if ($user->getEntityId() == $this->getOwnerId()) {
+            $this->setValue("f_seen", true);
+        }
+
         // Call derived extensions
         $this->onBeforeSave($serviceLocator, $user);
     }
