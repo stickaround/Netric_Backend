@@ -590,4 +590,28 @@ class EntityTest extends TestCase
         // If seen should be true
         $this->assertTrue($task->getValue("f_seen"));
     }
+
+    /**
+     * Test setting of f_seen to true if the owner of entity is the current user
+     */
+    public function testFSeenForNonOwnerUser()
+    {
+        $data = [
+            "name" => "testFSeenForCurrentUserNot",
+            "owner_id" => Uuid::uuid4()->toString(),
+            "creator_id" => Uuid::uuid4()->toString()
+        ];
+
+        // Load data into entity
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $task->fromArray($data);
+
+        // Let's save $task
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+        $dataMapper->save($task, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $task; // For cleanup
+
+        // If seen should be false
+        $this->assertFalse($task->getValue("f_seen"));
+    }
 }

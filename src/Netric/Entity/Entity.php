@@ -603,7 +603,7 @@ class Entity implements EntityInterface
         $this->updateFollowers();
 
         // If the owner of this entity is the current user, then set the f_seen value to true
-        if ($user->getEntityId() == $this->getOwnerId()) {
+        if ($user->getEntityId() == $this->getOwnerId() && $this->getObjType() !== ObjectTypes::NOTIFICATION) {
             $this->setValue("f_seen", true);
         }
 
