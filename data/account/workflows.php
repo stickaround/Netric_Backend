@@ -55,7 +55,7 @@ return [
                         ]),
                         "child_actions" => [
                             [
-                                "name" => "Wait 24 Hours",
+                                "name" => "Close the Task",
                                 "uname" => "task-close-on-complete-close",
                                 "type_name" => "update_field",
                                 "f_system" => true,

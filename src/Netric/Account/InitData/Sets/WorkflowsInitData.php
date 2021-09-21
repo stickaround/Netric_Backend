@@ -66,7 +66,7 @@ class WorkflowsInitData implements InitDataInterface
             // Get the existing workflow by uname
             $workflow = $this->entityLoader->getByUniqueName(
                 ObjectTypes::WORKFLOW,
-                $workflowData['name'],
+                $workflowData['uname'],
                 $account->getAccountId()
             );
 
@@ -76,7 +76,8 @@ class WorkflowsInitData implements InitDataInterface
             }
 
             // Set fields from data array and save
-            $workflow->fromArray($workflowData);
+            // second param will only update provided fields so we don't overwrite entity_id and such
+            $workflow->fromArray($workflowData, true);
             $workflowId = $this->entityLoader->save($workflow, $account->getSystemUser());
 
             // Now save actions
@@ -112,10 +113,16 @@ class WorkflowsInitData implements InitDataInterface
             }
 
             // Set fields from data array and save
-            $action->fromArray($actionData);
+            // second param will only update provided fields so we don't overwrite entity_id and such
+            $action->fromArray($actionData, true);
+
+            // Set the workflow id
+            $action->setValue('workflow_id', $workflowId);
 
             // Set parentId
-            $action->setValue('parent_action_id', $parentId);
+            if ($parentId) {
+                $action->setValue('parent_action_id', $parentId);
+            }
 
             $actionId = $this->entityLoader->save($action, $account->getSystemUser());
 

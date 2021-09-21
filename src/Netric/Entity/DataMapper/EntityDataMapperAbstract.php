@@ -489,10 +489,15 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             }
         }
 
-        $filterValues = array_merge($namespaceFieldValues, $parentFieldCondition, ['uname' => $uname]);
+        $filterValues = array_merge(
+            $namespaceFieldValues,
+            $parentFieldCondition,
+            ['uname' => $uname]
+        );
         $matches = $this->getIdsFromFieldValues($objType, $filterValues, $accountId);
 
-        if (count($matches) == 1 || !empty($matches[0])) {
+        // Return the first match
+        if (!empty($matches[0])) {
             $entity = $this->getEntityById($matches[0], $accountId);
             return $entity;
         }
