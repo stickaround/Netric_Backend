@@ -171,6 +171,7 @@ return [
                 'value' => true
             ],
         ],
+        'group_first_order_by' => true,
         'order_by' => [
             'status_id' => [
                 'field_name' => 'status_id',
