@@ -177,12 +177,8 @@ return [
                 'field_name' => 'status_id',
                 'direction' => 'desc',
             ],
-            'sort_order' => [
-                'field_name' => 'sort_order',
-                'direction' => 'desc',
-            ],
             'date' => [
-                'field_name' => 'date_completed',
+                'field_name' => 'ts_entered',
                 'direction' => 'desc',
             ],
             'deadline' => [
