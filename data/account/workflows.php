@@ -50,7 +50,7 @@ return [
                         "type_name" => "wait_condition",
                         "f_system" => true,
                         "data" => json_encode([
-                            'when_unit' => WorkflowScheudleTimes::TIME_UNIT_DAY,
+                            'when_unit' => WorkflowScheudleTimes::TIME_UNIT_HOUR,
                             'when_interval' => 1
                         ]),
                         "child_actions" => [
