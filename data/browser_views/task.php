@@ -23,13 +23,13 @@ return [
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ],
-            'status_id' => [
+            'status_id_com' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'status_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                 'value' => TaskEntity::STATUS_COMPLETED
             ],
-            'status_id' => [
+            'status_id_def' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'status_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
