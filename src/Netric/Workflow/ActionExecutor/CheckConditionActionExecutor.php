@@ -9,6 +9,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityQuery\Where;
 use Netric\EntityQuery\EntityQuery;
 
 /**
@@ -83,7 +84,11 @@ class CheckConditionActionExecutor extends AbstractActionExecutor implements Act
         // Add conditions
         if (is_array($conditions)) {
             foreach ($conditions as $cond) {
-                $query->andWhere($cond['field_name'], $cond['operator'], $cond['value']);
+                if ($cond['blogic'] ===  Where::COMBINED_BY_OR) {
+                    $query->orWhere($cond['field_name'], $cond['operator'], $cond['value']);    
+                } else {
+                    $query->andWhere($cond['field_name'], $cond['operator'], $cond['value']);
+                }
             }
         }
 
