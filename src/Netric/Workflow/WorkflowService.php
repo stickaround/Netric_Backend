@@ -113,7 +113,7 @@ class WorkflowService
         // Now execute first level of actions in the workflow
         $actions = $this->workFlowDataMapper->getActions($user->getAccountId(), $workflow->getEntityId());
         $this->log->info(
-            "WorkflowService->startInstanceAndRunActions: running" .
+            "WorkflowService->startInstanceAndRunActions: running " .
                 count($actions) .
                 " against " .
                 $entity->getEntityId()
@@ -139,6 +139,12 @@ class WorkflowService
         // Get the action executor - we split this because the entity state for action is pretty
         // generic but the execution is highly dynamic and specific.
         $actionExecutor = $this->actionFactory->create($actionEntity);
+        $this->log->info(
+            "WorkflowService->executeAction: running " .
+                get_class($actionExecutor) .
+                " on " .
+                $actOnEntity->getEntityId()
+        );
         if ($actionExecutor->execute($actOnEntity, $user)) {
             // Log what just happened for troubleshooting
             $this->log->info(
@@ -159,6 +165,13 @@ class WorkflowService
                     $actOnEntity->getEntityId() .
                     " with error " .
                     $actionExecutor->getLastError()->getMessage()
+            );
+        } else {
+            $this->log->info(
+                "WorkflowService->executeAction: returned false - " .
+                    get_class($actionExecutor) .
+                    " on " .
+                    $actOnEntity->getEntityId()
             );
         }
     }
