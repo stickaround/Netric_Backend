@@ -112,6 +112,12 @@ class WorkflowService
 
         // Now execute first level of actions in the workflow
         $actions = $this->workFlowDataMapper->getActions($user->getAccountId(), $workflow->getEntityId());
+        $this->log->info(
+            "WorkflowService->startInstanceAndRunActions: running" .
+                count($actions) .
+                " against " .
+                $entity->getEntityId()
+        );
         foreach ($actions as $action) {
             $this->executeAction($action, $entity, $user);
         }
