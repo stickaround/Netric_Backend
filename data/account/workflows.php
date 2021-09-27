@@ -26,7 +26,7 @@ return [
                 "uname" => "task-close-on-complete-condition",
                 "type_name" => "check_condition",
                 "f_system" => true,
-                "data" => json_encode([
+                "data" => [
                     // Launch if status=completed or status=deferred
                     'conditions' => [
                         [
@@ -42,27 +42,27 @@ return [
                             'value' => TaskEntity::STATUS_DEFERRED
                         ]
                     ]
-                ]),
+                ],
                 "child_actions" => [
                     [
                         "name" => "Wait 24 Hours",
                         "uname" => "task-close-on-complete-wait",
                         "type_name" => "wait_condition",
                         "f_system" => true,
-                        "data" => json_encode([
+                        "data" => [
                             'when_unit' => WorkflowScheudleTimes::TIME_UNIT_MINUTE,
                             'when_interval' => 1
-                        ]),
+                        ],
                         "child_actions" => [
                             [
                                 "name" => "Close the Task",
                                 "uname" => "task-close-on-complete-close",
                                 "type_name" => "update_field",
                                 "f_system" => true,
-                                "data" => json_encode([
+                                "data" => [
                                     'update_field' => "is_closed",
                                     'update_value' => true
-                                ]),
+                                ],
                             ],
                         ],
                     ],

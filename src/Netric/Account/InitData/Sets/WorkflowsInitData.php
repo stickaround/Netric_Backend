@@ -7,10 +7,13 @@ namespace Netric\Account\InitData\Sets;
 use Netric\Account\Account;
 use Netric\Account\InitData\InitDataInterface;
 use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\Field;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityQuery\EntityQuery;
+use Ramsey\Uuid\Uuid;
 use Netric\WorkerMan\SchedulerService;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
+use RuntimeException;
 
 /**
  * Initializer to make sure accounts have a default set of groupings
@@ -38,6 +41,13 @@ class WorkflowsInitData implements InitDataInterface
     private Entityloader $entityLoader;
 
     /**
+     * Used to get actual grouping IDs from names
+     *
+     * @var GroupingLoader
+     */
+    private GroupingLoader $groupingLoader;
+
+    /**
      * Constructor
      *
      * @param array $workflowsData
@@ -46,12 +56,14 @@ class WorkflowsInitData implements InitDataInterface
         array $workflowsData,
         IndexInterface $entityIndex,
         SchedulerService $schedulerService,
-        EntityLoader $entityLoader
+        EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader
     ) {
         $this->workflowsData = $workflowsData;
         $this->entityIndex = $entityIndex;
         $this->schedulerService = $schedulerService;
         $this->entityLoader = $entityLoader;
+        $this->groupingLoader = $groupingLoader;
     }
 
     /**
@@ -82,7 +94,7 @@ class WorkflowsInitData implements InitDataInterface
 
             // Now save actions
             if (isset($workflowData['child_actions'])) {
-                $this->saveActions($account, $workflowId, $workflowData['child_actions']);
+                $this->saveActions($account, $workflowId, $workflowData['object_type'], $workflowData['child_actions']);
             }
         }
 
@@ -94,10 +106,11 @@ class WorkflowsInitData implements InitDataInterface
      *
      * @param Account $account
      * @param string $workflowId
+     * @param string $objectType
      * @param array $actions
      * @return void
      */
-    private function saveActions(Account $account, string $workflowId, array $actions, string $parentId = '')
+    private function saveActions(Account $account, string $workflowId, string $objectType, array $actions, string $parentId = '')
     {
         foreach ($actions as $actionData) {
             // Get the existing action by uname
@@ -111,6 +124,9 @@ class WorkflowsInitData implements InitDataInterface
             if (!$action) {
                 $action = $this->entityLoader->create(ObjectTypes::WORKFLOW_ACTION, $account->getAccountId());
             }
+
+            // Sanitize data - like grouping names-to-IDs - and encode json
+            $actionData['data'] = $this->sanitizeAndEncodeParams($account, $objectType, $actionData);
 
             // Set fields from data array and save
             // second param will only update provided fields so we don't overwrite entity_id and such
@@ -128,8 +144,51 @@ class WorkflowsInitData implements InitDataInterface
 
             // Check for child actions
             if (isset($actionData['child_actions'])) {
-                $this->saveActions($account, $workflowId, $actionData['child_actions'], $actionId);
+                $this->saveActions($account, $workflowId, $objectType, $actionData['child_actions'], $actionId);
             }
         }
+    }
+
+    /**
+     * Sanitize data fields - like changing grouping names to IDs
+     *
+     * @param Account $account
+     * @param string $objectType
+     * @param array $data
+     * @return string JSON encoded params
+     */
+    private function sanitizeAndEncodeParams(Account $account, string $objectType, array $actionData): string
+    {
+        $params = $actionData['data'];
+
+        if ($actionData['type_name'] === 'check_condition') {
+            $definition = $this->entityLoader->getEntityDefinitionByName(
+                $objectType,
+                $account->getAccountId()
+            );
+            for ($i = 0; $i < count($params['conditions']); $i++) {
+                $condition = $params['conditions'][$i];
+                $field = $definition->getField($condition['field_name']);
+                if (!$field) {
+                    throw new RuntimeException("Field " . $condition['field_name'] . " not found");
+                }
+
+                // Replace group names with UUIDs
+                if ($field->type === Field::TYPE_GROUPING && !Uuid::isValid($condition['value'])) {
+                    $groupings = $this->groupingLoader->get(
+                        $objectType . "/" . $field->name,
+                        $account->getAccountId()
+                    );
+
+                    $group = $groupings->getByName($condition['value']);
+                    if ($group) {
+                        // Replace the name with the ID of the grouping
+                        $params['conditions'][$i]['value'] = $group->getGroupId();
+                    }
+                }
+            }
+        }
+
+        return json_encode($params);
     }
 }

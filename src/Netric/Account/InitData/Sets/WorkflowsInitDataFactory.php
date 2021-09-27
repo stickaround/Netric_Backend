@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netric\Account\InitData\Sets;
 
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
@@ -27,6 +28,13 @@ class WorkflowsInitDataFactory implements ApplicationServiceFactoryInterface
         $entityIndex = $serviceLocator->get(IndexFactory::class);
         $schedulerService = $serviceLocator->get(SchedulerServiceFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new WorkflowsInitData($data, $entityIndex, $schedulerService, $entityLoader);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        return new WorkflowsInitData(
+            $data,
+            $entityIndex,
+            $schedulerService,
+            $entityLoader,
+            $groupingLoader
+        );
     }
 }

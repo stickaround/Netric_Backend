@@ -10,6 +10,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Entity\ObjType\WorkflowEntity;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -71,6 +72,12 @@ class WorkflowsInitDataTest extends TestCase
         );
         $this->assertInstanceOf(WorkflowActionEntity::class, $actionWait);
         $this->assertEquals($actionCheckCond->getEntityId(), $actionWait->getValue('parent_action_id'));
+        $this->assertEquals($actionCheckCond->getValue('workflow_id'), $workflow->getEntityId());
+
+        // Make sure that we replaces COMPLETED and DEFERRED with goup IDs
+        $params = json_decode($actionCheckCond->getValue('data'), true);
+        $this->assertTrue(Uuid::isValid($params['conditions'][0]['value']));
+        $this->assertTrue(Uuid::isValid($params['conditions'][1]['value']));
 
         // Update Field Action
         $actionUpdate = $this->entityLoader->getByUniqueName(
@@ -80,5 +87,6 @@ class WorkflowsInitDataTest extends TestCase
         );
         $this->assertInstanceOf(WorkflowActionEntity::class, $actionUpdate);
         $this->assertEquals($actionWait->getEntityId(), $actionUpdate->getValue('parent_action_id'));
+        $this->assertEquals($actionUpdate->getValue('workflow_id'), $workflow->getEntityId());
     }
 }

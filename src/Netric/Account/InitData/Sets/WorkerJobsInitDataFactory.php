@@ -27,6 +27,11 @@ class WorkerJobsInitDataFactory implements ApplicationServiceFactoryInterface
         $entityIndex = $serviceLocator->get(IndexFactory::class);
         $schedulerService = $serviceLocator->get(SchedulerServiceFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new WorkerJobsInitData($data, $entityIndex, $schedulerService, $entityLoader);
+        return new WorkerJobsInitData(
+            $data,
+            $entityIndex,
+            $schedulerService,
+            $entityLoader,
+        );
     }
 }
