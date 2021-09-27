@@ -127,8 +127,10 @@ class WorkflowService
         if ($actionExecutor->execute($actOnEntity, $user)) {
             // Log what just happened for troubleshooting
             $this->log->info(
-                "Executed action " .
-                    $actionEntity->getEntityId()
+                "WorkflowService->executeAction: successfully ran action " .
+                    $actionEntity->getEntityId() .
+                    " on " .
+                    $actOnEntity->getEntityId()
             );
 
             // If action completed and returned true then run children
@@ -136,9 +138,11 @@ class WorkflowService
         } elseif ($actionExecutor->getLastError()) {
             // Log the error
             $this->log->error(
-                "Failed to execute " .
+                "WorkflowService->executeAction: Failed to execute " .
                     $actionEntity->getEntityId() .
-                    "(" . $actionEntity->getEntityId() . "): " .
+                    "on " .
+                    $actOnEntity->getEntityId() .
+                    " with error " .
                     $actionExecutor->getLastError()->getMessage()
             );
         }
