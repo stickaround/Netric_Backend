@@ -80,6 +80,15 @@ class WorkflowService
                 continue;
             }
 
+            $this->log->info(
+                "WorkflowService->runWorkflowsOnEvent: running workflow " .
+                    $workflow->getEntityId() .
+                    " against " .
+                    $entity->getEntityId() .
+                    " on event " .
+                    $eventName
+            );
+
             // Start an instance
             $this->startInstanceAndRunActions($workflow, $entity, $user);
         }

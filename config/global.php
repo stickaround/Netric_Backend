@@ -28,7 +28,7 @@ return [
     // Log settings
     'log' => [
         'writer' => 'gelf',
-        // Set log level - 5 = NOTICE (DEFAULT), 7 = DEBUG
+        // Set log level - 5 = NOTICE, 6 = INFO, 7 = DEBUG
         'level' => 6,
         // Optional remote server for logging if writer supports it
         'server' => 'pvt-logstash.aereus.com',
