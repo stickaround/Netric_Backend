@@ -113,4 +113,22 @@ class FileEntity extends Entity implements EntityInterface
                 return "application/octet-stream";
         }
     }
+
+    /**
+     * Check if this file is an image
+     *
+     * @return bool
+     */
+    public function isImage(): bool
+    {
+        $type = $this->getType();
+        switch ($type) {
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                return true;
+        }
+
+        return false;
+    }
 }

@@ -78,7 +78,7 @@ class DaclLoader
         }
 
         // If none is found, return a default where admin and creator owner has access only
-        return $this->createDefaultDacl($objDef->getAccountId());
+        return $this->createDefaultDacl($objDef);
     }
 
     /**
@@ -125,23 +125,37 @@ class DaclLoader
         }
 
         // If none is found, return a default where admin and creator owner has access only
-        return $this->createDefaultDacl($entityDefinition->getAccountId());
+        return $this->createDefaultDacl($entityDefinition);
     }
 
     /**
      * Private function that creates a default entries of Dacl
      *
-     * @param string $accountId The account that will be used to get the user groups
+     * @param EntityDefinition $entityDefinition
      * @return Dacl
      */
-    private function createDefaultDacl(string $accountId)
+    private function createDefaultDacl(EntityDefinition $entityDefinition)
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $accountId);
+        $userGroups = $this->groupingLoader->get(
+            ObjectTypes::USER . '/groups',
+            $entityDefinition->getAccountId()
+        );
         $default = new Dacl();
         $groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
         $default->allowGroup($groupAdmin->getGroupId(), Dacl::PERM_FULL);
         $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
         $default->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
+
+        // There's a few special cases where we want to default to giving all users
+        // access to view the entity in question
+        if (
+            $entityDefinition->getObjType() === ObjectTypes::USER ||
+            $entityDefinition->getObjType() === ObjectTypes::STATUS_UPDATE
+        ) {
+            $groupUsers = $userGroups->getByName(UserEntity::GROUP_USERS);
+            $default->allowGroup($groupUsers->getGroupId(), Dacl::PERM_VIEW);
+        }
+
         return $default;
     }
 }
