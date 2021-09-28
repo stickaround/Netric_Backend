@@ -56,7 +56,7 @@ class CheckConditionActionExecutorTest extends TestCase
         // Set the entity action data
         $this->mockActionEntity->method("getData")->willReturn([
             'conditions' => [
-                ['field_name' => 'first_name', 'operator' => Where::OP_EQ, 'value' => 'Sky']
+                ['blogic' => Where::COMBINED_BY_AND, 'field_name' => 'first_name', 'operator' => Where::OP_EQ, 'value' => 'Sky']
             ]
         ]);
 
