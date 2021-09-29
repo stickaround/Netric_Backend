@@ -395,7 +395,8 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         }
 
         // Set standard file headers
-        $response->setContentDisposition('inline', $fileEntity->getName());
+        $disposition = ($request->getParam('disposition')) ? $request->getParam('disposition') : 'inline';
+        $response->setContentDisposition($disposition, $fileEntity->getName());
         $response->setContentType($fileEntity->getMimeType());
         $response->setContentLength($fileEntity->getValue('file_size'));
         $dateLastModified = new DateTime();
