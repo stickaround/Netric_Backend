@@ -14,12 +14,12 @@ use Netric\Account\Module\LeftNavItemTypes;
 
 return [
     "title" => "Work",
-    "icon" => "WorkIcon",
+    "icon" => "CheckBoxIcon",
     "default_route" => "home",
     "name" => "work",
     "short_title" => 'Work',
     "scope" => 'system',
-    "sort_order" => '6',
+    "sort_order" => 4,
     "f_system" => true,
     "navigation" => [
 

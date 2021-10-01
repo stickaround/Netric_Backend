@@ -97,7 +97,8 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $response = new ConsoleResponse();
 
         // First make sure they passed the username and password params to the command
-        if (!$request->getParam("account") ||
+        if (
+            !$request->getParam("account") ||
             !$request->getParam("email") ||
             !$request->getParam("username") ||
             !$request->getParam("password")
@@ -185,10 +186,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $response = new HttpResponse($request);
         $response->setContentType(HttpResponse::TYPE_JSON);
 
-        if ($this->testMode) {
-            $response->suppressOutput(true);
-        }
-
         $originalName = $request->getParam("name");
         $uniqueName = $this->accountSetup->getUniqueAccountName($originalName);
         $response->write(['name' => $uniqueName]);
@@ -205,10 +202,6 @@ class SetupController extends AbstractFactoriedController implements ControllerI
     {
         $response = new HttpResponse($request);
         $response->setContentType(HttpResponse::TYPE_JSON);
-
-        if ($this->testMode) {
-            $response->suppressOutput(true);
-        }
 
         $rawBody = $request->getBody();
         if (!$rawBody) {

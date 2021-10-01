@@ -107,7 +107,8 @@ class ImageResizer implements ErrorAwareInterface
     {
         // First make sure it is an image
         $fileType = $source->getType();
-        if ('jpg' !== $fileType &&
+        if (
+            'jpg' !== $fileType &&
             'jpeg' !== $fileType &&
             'png' !== $fileType
         ) {
@@ -150,10 +151,8 @@ class ImageResizer implements ErrorAwareInterface
             $user,
             $resizedLocalFilePath,
             FileSystem::PATH_TEMP,
-            basename($resizedLocalFilePath)
+            $nameResized
         );
-
-        // TODO: Copy permissions from source
 
         return $resizedFileEntity;
     }

@@ -38,7 +38,8 @@ class ObjectTypes
     const HTML_SNIPPET = 'cms_snippet';
     const INVOICE = 'invoice';
     const INVOICE_TEMPLATE = 'invoice_template';
-    const ISSUE = 'case';
+    const TICKET = 'ticket';
+    const TICKET_CHANNEL = 'ticket_channel';
     const LEAD = 'lead';
     const LOG = 'log';
     const MARKETING_CAMPAIGN = 'marketing_campaign';

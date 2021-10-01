@@ -2,11 +2,11 @@
     <column>
         <tabs>
             <tab name='General'>
-                    <row showif='id=null'>
-                        <column>
-                            <field name='type_id'></field>
-                        </column>
-                    </row>
+                <row showif='id=null'>
+                    <column>
+                        <field name='type_id'></field>
+                    </column>
+                </row>
                 <row showif='type_id=1'>
                     <column>
                         <field name='first_name'></field>
@@ -53,8 +53,8 @@
                 <objectsref obj_type='calendar_event' ref_field='customer_id'></objectsref>
             </tab>
 
-            <tab name='Cases'>
-                <objectsref obj_type='case' ref_field='customer_id'></objectsref>
+            <tab name='Tickets'>
+                <objectsref obj_type='ticket' ref_field='customer_id'></objectsref>
             </tab>
 
             <tab name='Opportunities'>
@@ -70,9 +70,9 @@
         <row>
             <column>
                 <field name='image_id' hidelabel='t' profile_image='t'></field>
-                <text field='job_title'/>
+                <text field='job_title' />
                 <text showif='primary_account=*'> at</text>
-                <text field='primary_account'/>
+                <text field='primary_account' />
             </column>
         </row>
         <row>

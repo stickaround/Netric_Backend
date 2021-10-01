@@ -320,7 +320,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                if ($fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
+                if (
+                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
                     || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
@@ -452,7 +453,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     case FIELD::TYPE_TEXT:
                         break;
                     case FIELD::TYPE_OBJECT:
-                        if (!empty($field->subtype)
+                        if (
+                            !empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
                             && is_numeric($value)
                         ) {
@@ -669,15 +671,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $conditionString = "$fieldName NOT IN (WITH RECURSIVE children AS
                                     (
                                         -- non-recursive term
-                                        SELECT field_data->>'id' FROM $refDefTable WHERE field_data->>'id' = '$value'
+                                        SELECT field_data->>'entity_id' FROM $refDefTable WHERE field_data->>'entity_id' = '$value'
                                         UNION ALL
                                         -- recursive term
-                                        SELECT $refDefTable.field_data->>'id'
+                                        SELECT $refDefTable.field_data->>'entity_id'
                                         FROM $refDefTable
                                         JOIN children AS chld
-                                            ON ($refDefTable.field_data->>'$parentField' = chld.id)
+                                            ON ($refDefTable.field_data->>'$parentField' = chld.entity_id)
                                     )
-                                    SELECT id
+                                    SELECT entity_id
                                     FROM children)";
                         }
                     } else {

@@ -17,7 +17,7 @@ return [
     "name" => "knowledge",
     "short_title" => 'Document',
     "scope" => 'system',
-    "sort_order" => '10',
+    "sort_order" => 3,
     "f_system" => true,
     "navigation" => [
         [

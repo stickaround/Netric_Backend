@@ -401,10 +401,10 @@ class Entity implements EntityInterface
     {
         $ownerGuid = '';
 
-        if ($this->getValue('creator_id')) {
-            $ownerGuid = $this->getValue('creator_id');
-        } elseif ($this->getValue('owner_id')) {
+        if ($this->getValue('owner_id')) {
             $ownerGuid = $this->getValue('owner_id');
+        } elseif ($this->getValue('creator_id')) {
+            $ownerGuid = $this->getValue('creator_id');
         }
 
         // No owner
@@ -636,13 +636,24 @@ class Entity implements EntityInterface
         $this->processTempFiles($fileSystem, $user);
 
         // Set permissions for entity folder (if we have attachments)
-        $folderPath = '/System/Entity/' . $this->getValue('entity_id');
+        $folderPath = '/System/Entity/' . $this->getEntityId();
         $entityFolder = $fileSystem->openFolder($folderPath, $user);
-        if ($entityFolder && $entityFolder->getValue('entity_id')) {
+        if ($entityFolder && $entityFolder->getEntityId()) {
             $dacl = $daclLoader->getForEntity($this, $user);
 
             if ($dacl) {
+                // Make sure all interested users are given permission to view
+                $followers = $this->getValue('followers');
+                foreach ($followers as $followerId) {
+                    $dacl->allowUser($followerId);
+                }
+
                 $fileSystem->setFolderDacl($entityFolder, $dacl, $user);
+            }
+
+            // Copy owner
+            if ($this->getOwnerId() && $this->getOwnerId() !== $entityFolder->getOwnerId()) {
+                $fileSystem->setFolderOwner($entityFolder, $this->getOwnerId(), $user);
             }
         }
 

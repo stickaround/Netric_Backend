@@ -4,5 +4,6 @@ return [
     'work',
     'knowledge',
     'message',
+    'support',
     'settings'
 ];
