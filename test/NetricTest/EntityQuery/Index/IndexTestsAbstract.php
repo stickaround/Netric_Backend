@@ -886,26 +886,28 @@ abstract class IndexTestsAbstract extends TestCase
         $testEnt = $this->createTestCustomer();
 
         // Create a test case attached to the customer
-        $case = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ISSUE, $this->account->getAccountId());
-        $case->setValue("name", "Unit Test Case");
-        $case->setValue("customer_id", $testEnt->getEntityId(), $testEnt->getName());
-        $cid = $dm->save($case, $this->account->getSystemUser());
+        $ticket = $this->account->getServiceManager()->get(
+            EntityLoaderFactory::class
+        )->create(ObjectTypes::TICKET, $this->account->getAccountId());
+        $ticket->setValue("name", "Unit Test Task");
+        $ticket->setValue("contact_id", $testEnt->getEntityId(), $testEnt->getName());
+        $cid = $dm->save($ticket, $this->account->getSystemUser());
 
         // Make sure this gets cleaned up
-        $this->testEntities[] = $case;
+        $this->testEntities[] = $ticket;
 
         // Query for customer id
-        $query = new EntityQuery($case->getObjType(), $this->account->getAccountId());
-        $query->where('customer_id')->equals($testEnt->getEntityId());
+        $query = new EntityQuery($ticket->getObjType(), $this->account->getAccountId());
+        $query->where('contact_id')->equals($testEnt->getEntityId());
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
 
         // Query with null customer id
-        $case->setValue("customer_id", "");
-        $dm->save($case, $this->account->getSystemUser());
-        $query = new EntityQuery($case->getObjType(), $this->account->getAccountId());
-        $query->where('entity_id')->equals($case->getEntityId());
-        $query->where('customer_id')->equals("");
+        $ticket->setValue("contact_id", "");
+        $dm->save($ticket, $this->account->getSystemUser());
+        $query = new EntityQuery($ticket->getObjType(), $this->account->getAccountId());
+        $query->where('entity_id')->equals($ticket->getEntityId());
+        $query->where('contact_id')->equals("");
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
     }

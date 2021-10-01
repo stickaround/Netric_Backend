@@ -7,6 +7,7 @@
 namespace modules\navigation;
 
 use Netric\Account\Module\LeftNavItemTypes;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     "title" => "CRM",
@@ -51,10 +52,10 @@ return [
             "browseby" => "groups",
         ],
         [
-            "title" => "All Cases",
+            "title" => "All Tickets",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-cases",
-            "objType" => "case",
+            "objType" => ObjectTypes::TICKET,
             "icon" => "ViewListIcon",
             "browseby" => "groups",
         ]

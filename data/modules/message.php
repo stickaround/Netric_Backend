@@ -15,7 +15,7 @@ return [
     "name" => "message",
     "short_title" => 'Chat',
     "scope" => 'system',
-    "sort_order" => '2',
+    "sort_order" => 2,
     "f_system" => true,
     "navigation" => [
         [

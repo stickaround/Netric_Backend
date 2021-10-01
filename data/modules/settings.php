@@ -14,7 +14,7 @@ return [
     "default_route" => "profile",
     "name" => "settings",
     "short_title" => 'Settings',
-    "sort_order" => 11,
+    "sort_order" => 20,
     "navigation" => [
         [
             "title" => "My Profile",
