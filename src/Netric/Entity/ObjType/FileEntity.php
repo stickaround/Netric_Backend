@@ -108,7 +108,18 @@ class FileEntity extends Entity implements EntityInterface
                 return "image/jpeg";
             case 'png':
                 return "image/png";
-
+            case 'mp4':
+                return "video/mp4";
+            case 'mov':
+                return "video/quicktime";
+            case 'avi':
+                return "video/x-msvideo";
+            case 'wmv':
+                return "video/x-ms-wmv";
+            case '3gp':
+                return "video/3gpp";
+            case 'mkv':
+                return "video/x-matroska";
             default:
                 return "application/octet-stream";
         }
