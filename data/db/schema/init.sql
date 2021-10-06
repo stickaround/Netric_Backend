@@ -161,7 +161,7 @@ CREATE INDEX entity_account_id_entity_definition_id_idx
 -- INDEX: entity_account_id_entity_definition_id_idx
 
 CREATE UNIQUE INDEX entity_uname_idx 
-    ON public.entity USING btree (uname, account_id, f_deleted);
+    ON public.entity USING btree (uname, account_id, entity_definition_id, f_deleted);
 
 --
 -- TABLE: entity_definition
