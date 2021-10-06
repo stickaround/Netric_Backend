@@ -73,16 +73,16 @@ class EntityValidatorTest extends TestCase
 
         $uname = 'utest-cust-' . rand(0, 1000);
 
-        // Create first dashboard with uname
-        $entity1 = $serviceManager->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
+        // Create first user with uname
+        $entity1 = $serviceManager->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $entity1->setValue('name', $uname); // will automatically set uname
         $entityDataMapper->save($entity1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity1;
         $isValid = $this->validator->isValid($entity1, $entityDataMapper);
         $this->assertTrue($isValid);
 
-        // Now try to create another dashboard with the same uname
-        $entity2 = $serviceManager->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
+        // Now try to create another user with the same uname
+        $entity2 = $serviceManager->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $entity2->setValue('name', $uname . '-copy');
         $entity2->setValue('uname', $uname); // manually set to same as above
 

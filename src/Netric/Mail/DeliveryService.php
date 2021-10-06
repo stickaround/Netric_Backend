@@ -15,7 +15,6 @@ use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Mail\Exception\AddressNotFoundException;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\Mime;
 use Netric\EntityDefinition\ObjectTypes;
 use PhpMimeMailParser;
 
@@ -108,7 +107,9 @@ class DeliveryService extends AbstractHasErrors
         string $filePath,
         Account $account
     ): string {
+
         // TODO: Check if the email is a drop-box email and process accordingly
+        // --------------------------------------------------------------------
 
         // First get the email account from the address
         $emailAccount = $this->getEmailAccountFromAddress($emailAddress, $account->getAccountId());

@@ -188,16 +188,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     ): bool;
 
     /**
-     * Update the old references when moving an entity
-     *
-     * @param EntityDefinition $def The defintion of this object type
-     * @param string $fromId The id to move
-     * @param string $toId The unique id of the object this was moved to
-     * @return bool true on success, false on failure
-     */
-    //abstract public function updateOldReferences(EntityDefinition $def, string $fromId, string $toId): bool;
-
-    /**
      * Get entity data by guid
      *
      * @param string $entityId
@@ -250,6 +240,18 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     abstract protected function getRevisionsData(string $entityId, string $accountId): array;
 
     /**
+     * Call used to generate a unique ID for a uname field
+     *
+     * We use this because a UUID used for entity IDs is not really human-readable
+     * so this is a per-account unique ID generator to make it easier for internal
+     * users to share entities with numbers.
+     *
+     * @param string $accountId
+     * @return string
+     */
+    abstract protected function generateUnameId(string $accountId): string;
+
+    /**
      * Save entity data
      *
      * @param EntityInterface $entity The entity to save
@@ -295,7 +297,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $event = ($revision > 1) ? "update" : "create";
         $entity->setFieldsDefault($event, $user);
 
-        // Create a unique name if the entity supports it
+        // Create a unique name or human-readable number - UUIDs are hard to remember
         $this->setUniqueName($entity);
 
         // Create global uuid if not already set
@@ -758,28 +760,65 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     {
         $def = $entity->getDefinition();
 
-        // If we are not using unique names with this object just return
-        if (!$def->unameSettings) {
-            return false;
-        }
-
         // If we have already created a uname and saved it then do nothing
-        if ($entity->getValue("uname")) {
+        // We add this to reduce load since there's no point in validating
+        // a uname over and over is nothing has changed since it was last saved
+        if ($entity->getValue("uname") && !$entity->fieldValueChanged('uname')) {
             return false;
         }
 
-        $unameSettings = explode(":", $def->unameSettings);
+        // Check if uname was manually entered / edited
+        if ($entity->getValue("uname") && $entity->fieldValueChanged('uname')) {
+            if (!$this->verifyUniqueName($entity, $entity->getValue("uname"))) {
+                // Uhoh, they entered a uname that already exists
+                // prepend a unique ID
+                $uname = $entity->getValue('uname');
+                $uname .= "-";
+                $uname .= $this->generateUnameId($entity->getAccountId());
+                $entity->setValue('uname', $uname);
+                return true;
+            }
+            return false;
+        }
+
+        // If this object type does not have an auto-generate field to use,
+        // just make a new unique number to use
+        if (empty($def->unameSettings) && empty($entity->getValue("uname"))) {
+            $unameNumber = $this->generateUnameId($entity->getAccountId());
+            $entity->setValue('uname', $unameNumber);
+            return true;
+        }
+
+        return $this->setUniqueNameFromSettings($entity, $def->unameSettings);
+    }
+
+    /**
+     * Automatically create a uname from an entity value
+     *
+     * This is usually used for things with unique human names like users where
+     * uname=name or blog posts which are url friendly version of the title
+     *
+     * @param EntityInterface $entity
+     * @param string $unameSettings
+     * @return bool
+     */
+    private function setUniqueNameFromSettings(EntityInterface $entity, string $unameSettings): bool
+    {
+        $unameSettingsParts = explode(":", $unameSettings);
 
         // Create desired uname from the right field
         // Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
-        $lastPart = end($unameSettings);
+        $lastPart = end($unameSettingsParts);
 
-        // The unique name field is the last part of unameSettings
+        // The unique name field is the last part of unameSettingsParts
         $uname = ($lastPart == "name") ? $entity->getName() : $entity->getValue($lastPart);
 
-        // The uname must be populated before we try to save anything
+        // If fields that would contain data for uname are blank
+        // then just provide a unique number
         if (!$uname) {
-            return;
+            $uname = $this->generateUnameId($entity->getAccountId());
+            $entity->setValue("uname", $uname);
+            return true;
         }
 
         // Now escape the uname field to a uri friendly name
@@ -789,12 +828,10 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $uname = str_replace("@", "_at_", $uname);
         $uname = preg_replace('/[^A-Za-z0-9._-]/', '', $uname);
 
-        $isUnique = $this->verifyUniqueName($entity, $uname);
-
         // If the unique name already exists, then append with id or a random number
-        if (!$isUnique) {
+        if (!$this->verifyUniqueName($entity, $uname)) {
             $uname .= "-";
-            $uname .= ($entity->getEntityId()) ? $entity->getEntityId() : uniqid();
+            $uname .= $this->generateUnameId($entity->getAccountId());
         }
 
         // Set the uname

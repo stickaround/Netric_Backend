@@ -1051,6 +1051,7 @@ class Entity implements EntityInterface
         $thisData['entity_id'] = null;
         $thisData['revision'] = 0;
         $thisData['ts_created'] = null;
+        $thisData['uname'] = null; // We cannot have a collision of unique names
         // ts_executed is used in recurring entities sometimes for reminders,
         // notifications, or jobs and should always default to null
         $thisData['ts_executed'] = null;

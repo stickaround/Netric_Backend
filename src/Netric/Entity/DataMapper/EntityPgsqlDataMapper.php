@@ -737,4 +737,23 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
 
         return $ret;
     }
+
+    /**
+     * Call used to generate a unique ID for a uname field
+     *
+     * We use this because a UUID used for entity IDs is not really human-readable
+     * so this is a per-account unique ID generator to make it easier for internal
+     * users to share entities with numbers.
+     *
+     * @param string $accountId
+     * @return string
+     */
+    protected function generateUnameId(string $accountId): string
+    {
+        $result = $this->getDatabase($accountId)->query(
+            "SELECT nextval('entity_uname_seq') as num"
+        );
+
+        return $result->fetch()['num'];
+    }
 }

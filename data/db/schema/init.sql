@@ -134,7 +134,8 @@ ALTER TABLE ONLY public.async_users
 CREATE TABLE public.entity (
     entity_id uuid PRIMARY KEY,
     account_id uuid NOT NULL,
-    uname character varying(256),
+    entity_number bigserial UNIQUE,
+    uname character varying(256) NOT NULL,
     entity_definition_id uuid,
     ts_entered timestamp with time zone,
     ts_updated timestamp with time zone,
@@ -157,6 +158,10 @@ CREATE INDEX entity_tsv_fulltext_idx ON public.entity USING gin (tsv_fulltext);
 CREATE INDEX entity_account_id_entity_definition_id_idx 
     ON public.entity USING btree (account_id, entity_definition_id);
 
+-- INDEX: entity_account_id_entity_definition_id_idx
+
+CREATE UNIQUE INDEX entity_uname_idx 
+    ON public.entity USING btree (uname, account_id, f_deleted);
 
 --
 -- TABLE: entity_definition
@@ -503,13 +508,27 @@ CREATE INDEX entity_view_owner_id_idx ON public.entity_view USING btree (owner_i
 
 
 --
--- SEQUENCE: object_commit_seq
+-- SEQUENCE: entity_commit_seq
 -- 
 -- Used just to increment our way through save/update actions to entity so
 -- that we can do differential operations
 --
 
 CREATE SEQUENCE public.entity_commit_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- SEQUENCE: entity_uname_seq
+-- 
+-- Used to provide unique auto-generated unames for entities
+-- like T-123456 for a task.
+--
+
+CREATE SEQUENCE public.entity_uname_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE

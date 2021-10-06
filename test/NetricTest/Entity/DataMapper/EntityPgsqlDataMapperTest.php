@@ -4,7 +4,6 @@ namespace NetricTest\Entity\DataMapper;
 
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
-use Netric\Entity\DataMapper\EntityPgsqlDataMapper;
 
 /**
  * Test entity definition loader class that is responsible for creating and initializing existing definitions

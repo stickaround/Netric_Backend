@@ -172,20 +172,25 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             return $response;
         }
 
-        // Make sure that we have an authenticated account
-        $currentAccount = $this->getAuthenticatedAccount();
-        if (!$currentAccount) {
+        // Make sure that we have an authenticated account that is sending
+        // Note: We should only use this to auth the call, once we have the
+        // recpipient we get the current account from that.
+        $authenticatedAccount = $this->getAuthenticatedAccount();
+        if (!$authenticatedAccount) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(['error' => "No authenticated account found."]);
             return $response;
         }
+
+        // TODO: This is where we need to get the actual account from the recipient
+        // since the smtp gateway does not have that information before routing
 
         // Try to import message
         try {
             $messageGuid = $this->deliveryService->deliverMessageFromFile(
                 $recipient,
                 $files['message']['tmp_name'],
-                $currentAccount
+                $authenticatedAccount
             );
             $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
             $response->write(['result' => true, 'entity_id' => $messageGuid]);

@@ -14,7 +14,6 @@ use Netric\EntityQuery\Aggregation\AggregationInterface;
 use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityValueSanitizer;
 
 /**

@@ -752,7 +752,7 @@ abstract class DmTestsAbstract extends TestCase
         $uniqueName = uniqid();
 
         // Try saving an entity with an obviously unique name
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $isUnique = $dm->verifyUniqueName($customer, $uniqueName);
         $this->assertEquals(true, $isUnique);
     }
@@ -767,7 +767,7 @@ abstract class DmTestsAbstract extends TestCase
         $uniqueName = uniqid();
 
         // Try saving a dashboard entity with an obviously unique name
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $customer->setValue("uname", $uniqueName);
         $dm->save($customer, $this->user);
 
@@ -776,9 +776,9 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Create a second entity and make sure we could not set the same uname
-        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
-        $isUnique = $dm->verifyUniqueName($customer2, $uniqueName);
-        $this->assertEquals(false, $isUnique);
+        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
+        $canReuse = $dm->verifyUniqueName($customer2, $uniqueName);
+        $this->assertFalse($canReuse);
     }
 
     /**
@@ -789,7 +789,7 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
 
         // Try saving an entity with an obviously unique name
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD, $this->account->getAccountId());
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $customer->setValue("name", "test unique name");
         $dm->save($customer, $this->user);
 

@@ -10,13 +10,13 @@
                 <fieldset name="Details">
                     <row>
                         <column>
+                            <field name='channel_id'></field>
                             <field name='status_id'></field>
-                            <field name='priority_id'></field>
-                            <field name='source_id'></field>
                         </column>
                         <column>
-                            <field name='creator_id'></field>
-                            <field name='contact_id' tooltip='Optional task that needs to be completed before this task can be worked on.'></field>
+                            <field name='source_id'></field>
+                            <field name='priority_id'></field>
+
                         </column>
                     </row>
                 </fieldset>

@@ -34,12 +34,12 @@ return [
             'title' => 'Status',
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
+            'required' => true
         ],
         'status_note' => [
             'title' => 'Status Note',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
         ],
         'source_id' => [
             'title' => 'Source',
