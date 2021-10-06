@@ -3,6 +3,7 @@
 namespace Netric\Mail;
 
 use Netric\Account\Account;
+use Netric\Account\AccountContainer;
 use Netric\EntityGroupings\Group;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Error\AbstractHasErrors;
@@ -69,6 +70,18 @@ class DeliveryService extends AbstractHasErrors
     private $fileSystem = null;
 
     /**
+     * Mailsystem service used to interact with email
+     */
+    private MailSystemInterface $mailSystem;
+
+    /**
+     * Account loader
+     * 
+     * @var AccountContainer
+     */
+    private AccountContainer $accountContainer;
+
+    /**
      * Construct the transport service
      *
      * @param Log $log
@@ -104,12 +117,11 @@ class DeliveryService extends AbstractHasErrors
      */
     public function deliverMessageFromFile(
         string $emailAddress,
-        string $filePath,
-        Account $account
+        string $filePath
     ): string {
 
-        // TODO: Check if the email is a drop-box email and process accordingly
-        // --------------------------------------------------------------------
+        // First thing we do is try to get the account if there is one associated with the domain
+        $account = $this->getNetricAccountFromAddress($emailAddress);
 
         // First get the email account from the address
         $emailAccount = $this->getEmailAccountFromAddress($emailAddress, $account->getAccountId());
@@ -122,6 +134,9 @@ class DeliveryService extends AbstractHasErrors
             $emailAccount->getOwnerId(),
             $account->getAccountId()
         );
+
+        // TODO: Check if the email is a drop-box email and process accordingly
+        // --------------------------------------------------------------------
 
         // Get Inbox for user
         $mailboxGroups = $this->groupingLoader->get(
@@ -149,15 +164,6 @@ class DeliveryService extends AbstractHasErrors
 
         // Check if the message was flagged as spam by the spam filters
         $spamFlag = (trim(strtolower($parser->getHeader('x-spam-flag'))) == "yes") ? true : false;
-
-        // Make sure messages are unicode
-        /*
-        $htmlCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("html"));
-        $plainCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("text"));
-        ini_set('mbstring.substitute_character', "none");
-        $plainbody= mb_convert_encoding($plainbody, 'UTF-8', $plainCharType);
-        $htmlbody= mb_convert_encoding($htmlbody, 'UTF-8', $htmlCharType);
-        */
 
         $origDate = $parser->getHeader('date');
         if (is_array($origDate)) {
@@ -256,6 +262,27 @@ class DeliveryService extends AbstractHasErrors
         }
 
         return $result->getEntity(0);
+    }
+
+    /**
+     * Get the netric account for an email address
+     */
+    private function getNetricAccountFromAddress(string $emailAddress): ?Account
+    {
+        // Split out email address to get %user% and %domain%
+        $addressParts = explode('@', $emailAddress);
+        if (!isset($addressParts[1])) {
+            return null;
+        }
+        
+        // Ge tthe account ID form the domain
+        $accountId = $this->mailSystem->getAccountIdFromDomain($addressParts[1]);
+        if (!$accountId) {
+            return null;
+        }
+
+        // Return the account
+        return $this->accountContainer->loadById($accountId);
     }
 
     /**
