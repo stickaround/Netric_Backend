@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace NetricTest\Mail;
 
 use PHPUnit\Framework\TestCase;
