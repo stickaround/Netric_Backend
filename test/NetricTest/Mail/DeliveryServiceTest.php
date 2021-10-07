@@ -21,7 +21,8 @@ class DeliveryServiceTest extends TestCase
     /**
      * Email address we'll use for testing in this class
      */
-    const TEST_EMAIL = 'test@deliveryservice.com';
+    const TEST_EMAIL = 'autotest@autotest.netric.com';
+    const TEST_EMAIL_SUPPORT = 'support@autotest.netric.com';
 
     /**
      * The user that owns the email account
@@ -138,15 +139,39 @@ class DeliveryServiceTest extends TestCase
     public function testDeliverMessageFromFileComplex()
     {
         $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
-        $messageGuid = $deliveryService->deliverMessageFromFile(
+        $entityId = $deliveryService->deliverMessageFromFile(
             self::TEST_EMAIL,
-            __DIR__ . '/_files/m6.complex.mime.unseen',
-            $this->account
+            __DIR__ . '/_files/m6.complex.mime.unseen'
         );
 
-        $this->assertNotNull($messageGuid);
+        $this->assertNotNull($entityId);
 
-        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($messageGuid, $this->account->getAccountId());
+        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
+        $this->testEntities[] = $emailMessage;
+
+        // Check some snippets of text that should be in the hrml body
+        $this->assertStringContainsString("$2,399", $emailMessage->getValue("body"));
+        // Make sure the body which is quoted-printable was decoded
+        $this->assertStringContainsString(
+            "td style=\"font-weight: bold; padding-top: 10px; padding-left: 12px;\"",
+            $emailMessage->getValue("body")
+        );
+    }
+
+    /**
+     * Make sure that support@defaultdomain.com creates a ticket
+     */
+    public function testDeliverMessageToSupportDropbox()
+    {
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
+        $entityId = $deliveryService->deliverMessageFromFile(
+            self::TEST_EMAIL_SUPPORT,
+            __DIR__ . '/_files/m1.example.org.unseen'
+        );
+
+        $this->assertNotNull($entityId);
+
+        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
         $this->testEntities[] = $emailMessage;
 
         // Check some snippets of text that should be in the hrml body

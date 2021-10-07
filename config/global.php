@@ -6,7 +6,9 @@ use Netric\FileSystem\FileStore\ObjectStorageStoreFactory;
 return [
     // Determine if secure pages should be offered (not forced) in https
     'use_https' => true,
-    // This is where netric is hosted
+    // This is used any time we need to prepend an account name
+    // for something like email mailboxes: aereus.netric.com will route
+    // to the 'aereus' account in netric.
     'localhost_root' => 'netric.com',
     // Unique application name
     'application_name' => 'netri.svc',

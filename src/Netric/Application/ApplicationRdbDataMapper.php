@@ -263,7 +263,6 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $insertData = [
             "account_id" => $newAccountId,
             "name" => $name,
-            //"database" => $this->defaultAccountDatabase,
         ];
 
         // If it fails for some reason, it will throw an exception
@@ -297,7 +296,6 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         }
 
         // Tables with account_id column to cleanup before deleting the account
-        // TODO: we can probably just iterate through /data/db/schema.php for this
         $cleanup = [
             self::TABLE_ACCOUNT_USER,
             EntityDefinitionRdbDataMapper::ENTITY_TYPE_TABLE,

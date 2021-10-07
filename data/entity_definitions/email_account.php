@@ -3,171 +3,193 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
+return [
     'is_private' => true,
     'default_activity_level' => 1,
     'store_revisions' => true,
-    'fields' => array(
+    'fields' => [
         // Textual name of the account
-        'name' => array(
+        'name' => [
             'title' => 'Title',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
             'require' => true
-        ),
+        ],
 
-        "type" => array(
+        "type" => [
             'title' => 'Server Type',
             'type' => Field::TYPE_TEXT,
             'subtype' => '4',
             'readonly' => false,
-            'optional_values' => array(
+            'optional_values' => [
                 "none" => "None - just reply from this address",
                 "imap" => "IMAP",
                 "pop3" => "POP3",
-                "sys" => "System Dropbox"
-            ),
-        ),
+                "dropbox" => "System Dropbox"
+            ],
+        ],
 
-        'address' => array(
+        'address' => [
             'title' => 'Email Address',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
             'require' => true
-        ),
+        ],
 
-        'reply_to' => array(
+        'reply_to' => [
             'title' => 'Reply To',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
-        ),
+        ],
 
-        'signature' => array(
+        'signature' => [
             'title' => 'Signature',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
-        ),
+        ],
 
-        'host' => array(
+        'host' => [
             'title' => 'Host',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
             'require' => true
-        ),
+        ],
 
-        'username' => array(
+        'username' => [
             'title' => 'Username',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
             'require' => true
-        ),
+        ],
 
-        'password' => array(
+        'password' => [
             'title' => 'Password',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
             'require' => true
-        ),
+        ],
 
-        'port' => array(
+        'port' => [
             'title' => 'Port',
             'type' => Field::TYPE_NUMBER,
             'subtype' => 'integer',
             'readonly' => false,
             'require' => true
-        ),
+        ],
 
-        'f_default' => array(
+        'f_default' => [
             'title' => 'Default Account',
             'type' => Field::TYPE_BOOL,
             'readonly' => false
-        ),
+        ],
 
-        'f_ssl' => array(
+        'f_ssl' => [
             'title' => 'Require SSL',
             'type' => Field::TYPE_BOOL,
             'readonly' => false
-        ),
+        ],
 
-        'sync_data' => array(
+        'sync_data' => [
             'title' => 'Sync Data',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
-        ),
+        ],
 
-        'ts_last_full_sync' => array(
+        'ts_last_full_sync' => [
             'title' => 'Last Full Sync',
             'type' => Field::TYPE_TIMESTAMP,
             'subtype' => '',
             'readonly' => false
-        ),
+        ],
 
-        'f_synchronizing' => array(
+        'f_synchronizing' => [
             'title' => 'Sync In Process',
             'type' => Field::TYPE_BOOL,
             'subtype' => 'true'
-        ),
+        ],
 
-        'f_system' => array(
+        'f_system' => [
             'title' => 'System',
             'type' => Field::TYPE_BOOL,
             'readonly' => false
-        ),
+        ],
 
-        'f_outgoing_auth' => array(
+        'f_outgoing_auth' => [
             'title' => 'Outgoing Auth',
             'type' => Field::TYPE_BOOL,
             'readonly' => false
-        ),
+        ],
 
-        'host_out' => array(
+        'host_out' => [
             'title' => 'Host Out',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
-        ),
+        ],
 
-        'port_out' => array(
+        'port_out' => [
             'title' => 'Port Out',
             'type' => Field::TYPE_NUMBER,
             'subtype' => 'integer',
             'readonly' => false
-        ),
+        ],
 
-        'f_ssl_out' => array(
+        'f_ssl_out' => [
             'title' => 'SSL Out',
             'type' => Field::TYPE_BOOL,
             'readonly' => false
-        ),
+        ],
 
-        'username_out' => array(
+        'username_out' => [
             'title' => 'Username Out',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
-        ),
+        ],
 
-        'password_out' => array(
+        'password_out' => [
             'title' => 'Password Out',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
-        ),
+        ],
 
-        'forward' => array(
+        'forward' => [
             'title' => 'Forward',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
-        ),
-    ),
-);
+        ],
+
+        // Used for type=dropbox
+        'dropbox_create_type' => [
+            'title' => "Create Type",
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '64',
+            'optional_values' => [
+                // Supported dropboxes
+                ObjectTypes::TICKET => "Ticket",
+                ObjectTypes::COMMENT => "Comment",
+                // TODO: later we'll add note, file, activity
+            ],
+            'readonly' => true,
+        ],
+
+        'dropbox_obj_reference' => [
+            'title' => 'References',
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => '',
+            'readonly' => true,
+        ],
+    ],
+];

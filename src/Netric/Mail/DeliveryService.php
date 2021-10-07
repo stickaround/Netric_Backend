@@ -4,6 +4,7 @@ namespace Netric\Mail;
 
 use Netric\Account\Account;
 use Netric\Account\AccountContainer;
+use Netric\Account\AccountContainerInterface;
 use Netric\EntityGroupings\Group;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Error\AbstractHasErrors;
@@ -18,6 +19,7 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use PhpMimeMailParser;
+use PhpMimeMailParser\Parser as MailParser;
 
 /**
  * Service responsible for delivering messages into netric
@@ -76,10 +78,10 @@ class DeliveryService extends AbstractHasErrors
 
     /**
      * Account loader
-     * 
+     *
      * @var AccountContainer
      */
-    private AccountContainer $accountContainer;
+    private AccountContainerInterface $accountContainer;
 
     /**
      * Construct the transport service
@@ -91,17 +93,21 @@ class DeliveryService extends AbstractHasErrors
      * @param FileSystem $fileSystem For saving attachments
      */
     public function __construct(
+        MailSystemInterface $mailSystem,
         Log $log,
         EntityLoader $entityLoader,
         GroupingLoader $groupingLoader,
         IndexInterface $entityIndex,
-        FileSystem $fileSystem
+        FileSystem $fileSystem,
+        AccountContainerInterface $accountContainer
     ) {
         $this->log = $log;
         $this->entityLoader = $entityLoader;
         $this->groupingLoader = $groupingLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
+        $this->mailSystem = $mailSystem;
+        $this->accountContainer = $accountContainer;
 
         if (!function_exists('mailparse_msg_parse')) {
             throw new \RuntimeException("'pecl/mailparse' is a required extension.");
@@ -123,6 +129,9 @@ class DeliveryService extends AbstractHasErrors
         // First thing we do is try to get the account if there is one associated with the domain
         $account = $this->getNetricAccountFromAddress($emailAddress);
 
+        // TODO: Check if the email is a drop-box email and process accordingly
+        // --------------------------------------------------------------------
+
         // First get the email account from the address
         $emailAccount = $this->getEmailAccountFromAddress($emailAddress, $account->getAccountId());
         if (!$emailAccount) {
@@ -135,9 +144,78 @@ class DeliveryService extends AbstractHasErrors
             $account->getAccountId()
         );
 
-        // TODO: Check if the email is a drop-box email and process accordingly
-        // --------------------------------------------------------------------
+        // If this is a dropbux, process incoming message
+        if ($emailAccount->getValue('type') === 'dropbox') {
+            return $this->deliverSystemDropbox($emailAccount, $user, $filePath, $account);
+        }
 
+        // Otherwise, just deliver the email to a mailbox
+        return $this->deliverUserMailbox($emailAccount, $user, $filePath, $account);
+    }
+
+    private function deliverSystemDropbox(EmailAccountEntity $emailAccount, UserEntity $user, string $filePath, Account $account): string
+    {
+        // Ready to deliver the message, create a parser and point it to the email message file
+        $parser = new PhpMimeMailParser\Parser();
+        $parser->setPath($filePath);
+
+        // Create EmailMessageEntity and import Mail\Message
+        $emailEntity = $this->entityLoader->create("email_message", $account->getAccountId());
+        $plainbody = $parser->getMessageBody('text');
+        $htmlbody = $parser->getMessageBody('html');
+
+        // Create a unique ID from hashing the file
+        $uniqueId = hash_file('md5', $filePath);
+
+        // Check if the message was flagged as spam by the spam filters
+        $spamFlag = (trim(strtolower($parser->getHeader('x-spam-flag'))) == "yes") ? true : false;
+
+        $origDate = $parser->getHeader('date');
+        if (is_array($origDate)) {
+            $origDate = $origDate[count($origDate) - 1];
+        }
+        if (!strtotime($origDate) && $origDate) {
+            $origDate = substr($origDate, 0, strrpos($origDate, " "));
+        }
+        $messageDate = ($origDate) ? date(DATE_RFC822, strtotime($origDate)) : date(DATE_RFC822);
+
+        // Create new mail object and save it to ANT
+        $emailEntity->setValue("message_date", $messageDate);
+        $emailEntity->setValue("parse_rev", self::PARSE_REV);
+        $emailEntity->setValue("subject", $parser->getHeader('subject'));
+        $emailEntity->setValue("sent_from", $parser->getHeader('from'));
+        $emailEntity->setValue("send_to", $parser->getHeader('to'));
+        $emailEntity->setValue("cc", $parser->getHeader('cc'));
+        $emailEntity->setValue("bcc", $parser->getHeader('bcc'));
+        $emailEntity->setValue("in_reply_to", $parser->getHeader('in-reply-to'));
+        $emailEntity->setValue("flag_spam", $spamFlag);
+        $emailEntity->setValue("message_id", $parser->getHeader('message-id'));
+        if ($htmlbody) {
+            $emailEntity->setValue("body", $htmlbody);
+            $emailEntity->setValue("body_type", "html");
+        } elseif ($plainbody) {
+            $emailEntity->setValue("body", $plainbody);
+            $emailEntity->setValue("body_type", "plain");
+        }
+
+        $attachments = $parser->getAttachments();
+        foreach ($attachments as $att) {
+            $this->importMailParseAtt($att, $emailEntity, $user);
+        }
+
+        // Cleanup resources
+        $parser = null;
+        $emailEntity->setValue("email_account", $emailAccount->getEntityId());
+        $emailEntity->setValue("owner_id", $user->getEntityId());
+        $emailEntity->setValue("mailbox_id", $mailboxId);
+        $emailEntity->setValue("message_uid", $uniqueId);
+        $emailEntity->setValue("flag_seen", false);
+        $this->entityLoader->save($emailEntity, $user);
+        return $emailEntity->getEntityId();
+    }
+
+    private function deliverUserMailbox(EmailAccountEntity $emailAccount, UserEntity $user, string $filePath, Account $account): string
+    {
         // Get Inbox for user
         $mailboxGroups = $this->groupingLoader->get(
             ObjectTypes::EMAIL_MESSAGE . "/mailbox_id/" . $user->getEntityId(),
@@ -252,6 +330,20 @@ class DeliveryService extends AbstractHasErrors
      */
     private function getEmailAccountFromAddress(string $emailAddress, string $accountId): ?EmailAccountEntity
     {
+        // Check for comment-reply dropbox which is comment.[UUID]@anyaccountdomain
+        // The reason we use any domain, is because they could change the default
+        // but we'd still want sent emails to be able to be replied to
+        preg_match('!comment.([a-z0-9\-]*)@!i', $emailAddress, $matches);
+        if (isset($matches[0]) && isset($matches[1])) {
+            // Create a dynamic email account (we never save it though)
+            $emailAccount = $this->entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $accountId);
+            $emailAccount->setValue('type', 'dropbox');
+            $emailAccount->setvalue('address', $emailAddress);
+            $emailAccount->setValue('dropbox_create_type', 'comment');
+            $emailAccount->setValue('dropbox_obj_reference', $matches[1]);
+            return $emailAccount;
+        }
+
         // Query email accounts for unique email address
         $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT, $accountId);
         $query->where("address")->equals($emailAddress);
@@ -274,7 +366,7 @@ class DeliveryService extends AbstractHasErrors
         if (!isset($addressParts[1])) {
             return null;
         }
-        
+
         // Ge tthe account ID form the domain
         $accountId = $this->mailSystem->getAccountIdFromDomain($addressParts[1]);
         if (!$accountId) {
