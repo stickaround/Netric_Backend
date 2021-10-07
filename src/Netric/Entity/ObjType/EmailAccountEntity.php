@@ -22,6 +22,11 @@ use Netric\EntityDefinition\EntityDefinition;
  */
 class EmailAccountEntity extends Entity implements EntityInterface
 {
+    const TYPE_DROPBOX = 'dropbox';
+    const TYPE_REPLY = 'none';
+    const TYPE_IMAP = 'imap';
+    const TYPE_POP3 = 'pop3';
+
     /**
      * Class constructor
      *

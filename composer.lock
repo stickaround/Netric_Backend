@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "afd4ada2d4a3949ca29c5875967ede53",
+    "content-hash": "55bb56b93f69cdf49a51f614e542ea46",
     "packages": [
         {
             "name": "aereus/lib",
@@ -5785,7 +5785,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-mailparse": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.1.0"

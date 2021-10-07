@@ -18,6 +18,7 @@ use Netric\Mail\Exception\AddressNotFoundException;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Mail\Maildrop\MaildropContainer;
 use PhpMimeMailParser;
 use PhpMimeMailParser\Parser as MailParser;
 
@@ -84,6 +85,13 @@ class DeliveryService extends AbstractHasErrors
     private AccountContainerInterface $accountContainer;
 
     /**
+     * The container used to get maildrop drivers for delivering mail
+     * 
+     * @var MaildropContainer
+     */
+    private MaildropContainer $maildropContainer;
+
+    /**
      * Construct the transport service
      *
      * @param Log $log
@@ -94,6 +102,7 @@ class DeliveryService extends AbstractHasErrors
      */
     public function __construct(
         MailSystemInterface $mailSystem,
+        MaildropContainer $maildropContainer,
         Log $log,
         EntityLoader $entityLoader,
         GroupingLoader $groupingLoader,
@@ -108,6 +117,7 @@ class DeliveryService extends AbstractHasErrors
         $this->fileSystem = $fileSystem;
         $this->mailSystem = $mailSystem;
         $this->accountContainer = $accountContainer;
+        $this->maildropContainer = $maildropContainer;
 
         if (!function_exists('mailparse_msg_parse')) {
             throw new \RuntimeException("'pecl/mailparse' is a required extension.");
@@ -142,15 +152,20 @@ class DeliveryService extends AbstractHasErrors
         $user = $this->entityLoader->getEntityById(
             $emailAccount->getOwnerId(),
             $account->getAccountId()
+
         );
 
-        // If this is a dropbux, process incoming message
-        if ($emailAccount->getValue('type') === 'dropbox') {
-            return $this->deliverSystemDropbox($emailAccount, $user, $filePath, $account);
-        }
+        // Get the maildrop driver
+        $maildrop = $this->maildropContainer->getMaildropForEmailAccount($emailAccount);
+        return $maildrop->createEntityFromMessage($filePath, $emailAccount);
 
-        // Otherwise, just deliver the email to a mailbox
-        return $this->deliverUserMailbox($emailAccount, $user, $filePath, $account);
+        // // If this is a dropbux, process incoming message
+        // if ($emailAccount->getValue('type') === 'dropbox') {
+        //     return $this->deliverSystemDropbox($emailAccount, $user, $filePath, $account);
+        // }
+
+        // // Otherwise, just deliver the email to a mailbox
+        // return $this->deliverUserMailbox($emailAccount, $user, $filePath, $account);
     }
 
     private function deliverSystemDropbox(EmailAccountEntity $emailAccount, UserEntity $user, string $filePath, Account $account): string

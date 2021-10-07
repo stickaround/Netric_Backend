@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
-
 namespace Netric\Mail;
 
 use Netric\Account\AccountContainerFactory;
@@ -15,6 +10,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\Log\LogFactory;
+use Netric\Mail\Maildrop\MaildropContainerFactory;
 
 /**
  * Create a service for delivering mail
@@ -30,6 +26,7 @@ class DeliveryServiceFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $maildropContainer = $serviceLocator->get(MaildropContainerFactory::class);
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $log = $serviceLocator->get(LogFactory::class);
         $index = $serviceLocator->get(IndexFactory::class);
@@ -39,6 +36,7 @@ class DeliveryServiceFactory implements ApplicationServiceFactoryInterface
 
         return new DeliveryService(
             $mailSystem,
+            $maildropContainer,
             $log,
             $entityLoader,
             $groupingsLoader,

@@ -46,6 +46,7 @@
     "graylog2/gelf-php": "^1.5",
     "ramsey/uuid": "^3.7",
     "ext-json": "*",
+    "ext-mailparse": "*",
     "firebase/php-jwt": "^5.2",
     "apache/thrift": "^0.11.0"
   },
