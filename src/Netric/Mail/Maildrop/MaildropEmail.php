@@ -103,7 +103,8 @@ class MaildropEmail implements MaildropInterface
         $uniqueId = hash_file('md5', $messageFilePath);
 
         // Check if the message was flagged as spam by the spam filters
-        $spamFlag = (trim(strtolower($parser->getHeader('x-spam-flag'))) == "yes") ? true : false;
+        $spamFlagText = $parser->getHeader('x-spam-flag') ? $parser->getHeader('x-spam-flag') : '';
+        $spamFlag = trim(strtolower($spamFlagText)) === "yes";
 
         $origDate = $parser->getHeader('date');
         if (is_array($origDate)) {

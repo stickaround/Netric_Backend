@@ -30,18 +30,14 @@ class DeliveryServiceFactory implements ApplicationServiceFactoryInterface
         $groupingsLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $log = $serviceLocator->get(LogFactory::class);
         $index = $serviceLocator->get(IndexFactory::class);
-        $fileSystem = $serviceLocator->get(FileSystemFactory::class);
         $mailSystem = $serviceLocator->get(MailSystemFactory::class);
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
 
         return new DeliveryService(
             $mailSystem,
             $maildropContainer,
-            $log,
             $entityLoader,
-            $groupingsLoader,
             $index,
-            $fileSystem,
             $accountContainer
         );
     }

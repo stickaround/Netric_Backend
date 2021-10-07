@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Db\Relational;
 
 use Netric\Db\Relational\PgsqlDb;
@@ -32,7 +33,7 @@ class PgsqlDbTest extends AbstractRelationalDbTests
         );
 
         // Try creating the unit test database (use @ to suppress error if already exists)
-        @pg_query($dbh, 'CREATE DATABASE automatedtests');
+        @pg_query($dbh, 'CREATE DATABASE IF NOT EXISTS automatedtests');
 
         return new PgsqlDb(
             $config->db->syshost,
