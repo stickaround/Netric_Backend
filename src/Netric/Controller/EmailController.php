@@ -153,6 +153,8 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         $files = $request->getParam('files');
         $recipient = $request->getParam('recipient');
 
+        $this->log->info("EmailController->postReceiveAction: Delivering for: $recipient");
+
         if (!$recipient) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(['error' => "'recipient is a required param"]);
