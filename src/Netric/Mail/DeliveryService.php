@@ -106,13 +106,6 @@ class DeliveryService extends AbstractHasErrors
             throw new AddressNotFoundException("$emailAddress not found");
         }
 
-        // Get user entity from email account
-        $user = $this->entityLoader->getEntityById(
-            $emailAccount->getOwnerId(),
-            $account->getAccountId()
-
-        );
-
         // Get the maildrop driver
         $maildrop = $this->maildropContainer->getMaildropForEmailAccount($emailAccount);
         return $maildrop->createEntityFromMessage($filePath, $emailAccount);

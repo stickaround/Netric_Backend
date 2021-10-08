@@ -170,6 +170,31 @@ class DeliveryServiceTest extends TestCase
         );
     }
 
+    /**
+     * Test comment dropbox
+     *
+     * We should be able to reply to a comment via email, and have that comment inserted into netric
+     */
+    public function testCommentDropbox()
+    {
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
+
+        // We will comment on the current user - you can comment on any entity in netric
+        $entityId = $deliveryService->deliverMessageFromFile(
+            'comment.' . $this->user->getEntityId() . '@autotest.netric.com',
+            __DIR__ . '/_files/m1.example.org.unseen'
+        );
+
+        $this->assertNotNull($entityId);
+
+        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
+        $this->testEntities[] = $comment;
+
+        // Check some snippets of text that should be in the hrml body
+        $this->assertStringContainsString("Again a simple message", $comment->getValue("comment"));
+        $this->assertEquals($this->user->getEntityId(), $comment->getValue('obj_reference'));
+    }
+
     // /**
     //  * Make sure that support@defaultdomain.com creates a ticket
     //  */

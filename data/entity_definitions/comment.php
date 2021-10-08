@@ -47,11 +47,6 @@ return array(
             'subtype' => '',
             'readonly' => true
         ),
-        'attachments' => array(
-            'title' => 'Attachments',
-            'type' => Field::TYPE_OBJECT_MULTI,
-            'subtype' => 'file',
-        ),
     ),
     'inherit_dacl_ref' => 'obj_reference',
 );
