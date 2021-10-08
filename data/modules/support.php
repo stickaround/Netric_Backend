@@ -35,6 +35,14 @@ return [
             "icon" => "CheckIcon",
         ],
         [
+            "title" => "All Tickets",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "browser_view" => "all_tickets",
+            "objType" => ObjectTypes::TICKET,
+            "route" => "all-tickets",
+            "icon" => "DoneAllIcon",
+        ],
+        [
             "type" => LeftNavItemTypes::HEADER,
             "title" => "Channels",
             "route" => "channels"
