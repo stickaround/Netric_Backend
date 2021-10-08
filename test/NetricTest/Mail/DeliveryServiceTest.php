@@ -22,7 +22,7 @@ class DeliveryServiceTest extends TestCase
      * Email address we'll use for testing in this class
      */
     const TEST_EMAIL = 'autotest@autotest.netric.com';
-    const TEST_EMAIL_SUPPORT = 'support@autotest.netric.com';
+    const TEST_EMAIL_SUPPORT = 'support-test@autotest.netric.com';
 
     /**
      * The user that owns the email account
@@ -195,28 +195,24 @@ class DeliveryServiceTest extends TestCase
         $this->assertEquals($this->user->getEntityId(), $comment->getValue('obj_reference'));
     }
 
-    // /**
-    //  * Make sure that support@defaultdomain.com creates a ticket
-    //  */
-    // public function testDeliverMessageToSupportDropbox()
-    // {
-    //     $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
-    //     $entityId = $deliveryService->deliverMessageFromFile(
-    //         self::TEST_EMAIL_SUPPORT,
-    //         __DIR__ . '/_files/m1.example.org.unseen'
-    //     );
+    /**
+     * Make sure that we can create a ticket from a support email
+     */
+    public function testDeliverMessageToSupportDropbox()
+    {
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
+        $entityId = $deliveryService->deliverMessageFromFile(
+            self::TEST_EMAIL_SUPPORT,
+            __DIR__ . '/_files/m1.example.org.unseen'
+        );
 
-    //     $this->assertNotNull($entityId);
+        $this->assertNotNull($entityId);
 
-    //     $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
-    //     $this->testEntities[] = $emailMessage;
+        $ticket = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
+        $this->testEntities[] = $ticket;
 
-    //     // Check some snippets of text that should be in the hrml body
-    //     $this->assertStringContainsString("$2,399", $emailMessage->getValue("body"));
-    //     // Make sure the body which is quoted-printable was decoded
-    //     $this->assertStringContainsString(
-    //         "td style=\"font-weight: bold; padding-top: 10px; padding-left: 12px;\"",
-    //         $emailMessage->getValue("body")
-    //     );
-    // }
+        // Check some snippets of text that should have been imported
+        $this->assertEquals($ticket->getvalue('name'), 'Test Subject');
+        $this->assertStringContainsString("Again a simple message", $ticket->getValue("description"));
+    }
 }

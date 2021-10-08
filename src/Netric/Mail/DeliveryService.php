@@ -97,9 +97,6 @@ class DeliveryService extends AbstractHasErrors
         // First thing we do is try to get the account if there is one associated with the domain
         $account = $this->getNetricAccountFromAddress($emailAddress);
 
-        // TODO: Check if the email is a drop-box email and process accordingly
-        // --------------------------------------------------------------------
-
         // First get the email account from the address
         $emailAccount = $this->getEmailAccountFromAddress($emailAddress, $account->getAccountId());
         if (!$emailAccount) {

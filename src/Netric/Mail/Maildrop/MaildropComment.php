@@ -100,8 +100,7 @@ class MaildropComment extends AbstractMaildrop implements MaildropInterface
         $htmlbody = $parser->getMessageBody('html');
 
         if ($htmlbody && !$plainbody) {
-            // TODO: later we should probably use html2text/html2tex
-            $plainbody = strip_tags($htmlbody);
+            $plainbody = $this->htmlBodyToPlainText($htmlbody);
         }
 
         // Create new comment and set the properties

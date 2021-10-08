@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Netric\Mail\Maildrop;
 
 use Netric\Entity\ObjType\EmailAccountEntity;
-use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a container for getting maildrop drivers

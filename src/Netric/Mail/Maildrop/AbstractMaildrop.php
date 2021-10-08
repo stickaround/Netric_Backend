@@ -44,18 +44,30 @@ abstract class AbstractMaildrop
         fseek($tmpFile, 0);
 
         // Stream the temp file into the fileSystem
-        $file = $this->fileSystem->createFile(
+        $file = $fileSystem->createFile(
             "%tmp%",
             $parserAttach->getFilename(),
             $user,
             true
         );
 
-        if ($this->fileSystem->writeFile($file, $tmpFile, $user)) {
+        if ($fileSystem->writeFile($file, $tmpFile, $user)) {
             $entity->addMultiValue("attachments", $file->getEntityId(), $file->getName());
         }
 
         // Cleanup
         $tmpFile = null;
+    }
+
+    /**
+     * Convert html to plain text
+     *
+     * @param string $html
+     * @return string
+     */
+    protected function htmlBodyToPlainText(string $html): string
+    {
+        // TODO: later we should probably use html2text/html2tex
+        return strip_tags($html);
     }
 }
