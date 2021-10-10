@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Mail\Transport;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
@@ -71,30 +72,33 @@ class SmtpFactory implements ApplicationServiceFactoryInterface
          * Check for account overrides in settings. This allows specific
          * accounts to utilize another email server to send messages from.
          */
-        $settings = $serviceLocator->get(SettingsFactory::class);
-        $host = $settings->get("email/smtp_host", $currentAccount->getAccountId());
-        $username = $settings->get("email/smtp_user", $currentAccount->getAccountId());
-        $password = $settings->get("email/smtp_password", $currentAccount->getAccountId());
-        $port = $settings->get("email/smtp_port", $currentAccount->getAccountId());
-        if ($host) {
-            $options['host'] = $host;
+        if ($currentAccount) {
+            $settings = $serviceLocator->get(SettingsFactory::class);
+            $host = $settings->get("email/smtp_host", $currentAccount->getAccountId());
+            $username = $settings->get("email/smtp_user", $currentAccount->getAccountId());
+            $password = $settings->get("email/smtp_password", $currentAccount->getAccountId());
+            $port = $settings->get("email/smtp_port", $currentAccount->getAccountId());
+            if ($host) {
+                $options['host'] = $host;
 
-            // Check for login information
-            if ($username && $password) {
-                $options['connection_class'] = 'login';
-                $options['connection_config'] = [
-                    'username' => $username,
-                    'password' => $password,
-                ];
-            } else {
-                unset($options['connection_class']);
-                unset($options['connection_config']);
-            }
+                // Check for login information
+                if ($username && $password) {
+                    $options['connection_class'] = 'login';
+                    $options['connection_config'] = [
+                        'username' => $username,
+                        'password' => $password,
+                    ];
+                } else {
+                    unset($options['connection_class']);
+                    unset($options['connection_config']);
+                }
 
-            if ($port) {
-                $options['port'] = $port;
+                if ($port) {
+                    $options['port'] = $port;
+                }
             }
         }
+
 
         // Apply set options to the transport
         $transport->setOptions(new SmtpOptions($options));

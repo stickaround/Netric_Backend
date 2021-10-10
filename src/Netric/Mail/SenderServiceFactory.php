@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Mail;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
@@ -24,6 +26,7 @@ class SenderServiceFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
+        // TODO: we really need to fix this
         $transport = $serviceLocator->get(TransportFactory::class);
         $bulkTransport = $serviceLocator->get(BulkTransportFactory::class);
         $log = $serviceLocator->get(LogFactory::class);
