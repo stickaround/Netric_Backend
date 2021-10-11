@@ -213,7 +213,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
      *
      * @return Account
      */
-    private function getAuthenticatedAccount(): Account
+    private function getAuthenticatedAccount(): ?Account
     {
         $authIdentity = $this->authService->getIdentity();
         if (!$authIdentity) {
