@@ -57,8 +57,6 @@ class EmailControllerTest extends TestCase
 
         // Create the controller with mocks
         $this->emailController = new EmailController(
-            $this->mockEntityLoader,
-            $this->mockSenderService,
             $this->mockDeliveryService,
             $this->mockLog,
             $this->mockAuthService,
@@ -67,76 +65,6 @@ class EmailControllerTest extends TestCase
         $this->emailController->testMode = true;
     }
 
-    /**
-     * Try sending a draft email
-     */
-    public function testPostSendAction()
-    {
-        // Create test email message
-        $mockEmailMessage = $this->createMock(EmailMessageEntity::class);
-
-        // Mock the entity loader service which is used to load the email_message by guid
-        $this->mockEntityLoader->method('getEntityById')->willReturn($mockEmailMessage);
-
-        // Create a mock sender service that is used to actually transport the message to SMTP
-        $this->mockSenderService->method('send')->willReturn(true);
-
-        // Make sure send is called and we get a response
-        $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['entity_id' => Uuid::uuid4()->toString()]));
-        $response = $this->emailController->postSendAction($request);
-        $this->assertEquals(['result' => true], $response->getOutputBuffer());
-    }
-
-    /**
-     * Make sure call without body fails
-     */
-    public function testPostSendActionNoBody()
-    {
-        // Mocks for DI - they are never used though
-        $entityLoader = $this->createMock(EntityLoader::class);
-        $senderService = $this->createMock(SenderService::class);
-        $deliveryService = $this->createMock(DeliveryService::class);
-        $log = $this->createMock(LogInterface::class);
-        $authServiceMock = $this->createStub(AuthenticationService::class);
-        $accountContainer = $this->createMock(AccountContainerInterface::class);
-
-        // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log, $authServiceMock, $accountContainer);
-
-        // Make sure send is called and we get a response
-        $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $response = $controller->postSendAction($request);
-
-        $this->assertEquals(HttpResponse::STATUS_CODE_BAD_REQUEST, $response->getReturnCode());
-    }
-
-    /**
-     * Make sure call without sending it the guid of a saved message it fails
-     */
-    public function testPostSendActionNoSavedEmail()
-    {
-        // Mocks for DI - they are never used though
-        $entityLoader = $this->createMock(EntityLoader::class);
-        $senderService = $this->createMock(SenderService::class);
-        $deliveryService = $this->createMock(DeliveryService::class);
-        $log = $this->createMock(LogInterface::class);
-        $accountContainer = $this->createMock(AccountContainerInterface::class);
-        $authServiceMock = $this->createMock(AuthenticationService::class);
-
-        // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log, $authServiceMock, $accountContainer);
-
-        // Make sure send is called and we get a response
-        $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['bogus' => 'data']));
-        $response = $controller->postSendAction($request);
-
-        $this->assertEquals(HttpResponse::STATUS_CODE_BAD_REQUEST, $response->getReturnCode());
-    }
 
     /**
      * Make sure we can receive a new message
@@ -184,7 +112,7 @@ class EmailControllerTest extends TestCase
         $accountContainer->method('loadById')->willReturn($mockAccount);
 
         // Create the controller with mocks
-        $controller = new EmailController($entityLoader, $senderService, $deliveryService, $log, $authServiceMock, $accountContainer);
+        $controller = new EmailController($deliveryService, $log, $authServiceMock, $accountContainer);
 
         // Create a request that is missing 'message' and 'recipient'
         $request = new HttpRequest();

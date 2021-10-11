@@ -33,7 +33,16 @@ class PgsqlDbTest extends AbstractRelationalDbTests
         );
 
         // Try creating the unit test database (use @ to suppress error if already exists)
-        @pg_query($dbh, 'CREATE DATABASE automatedtests');
+        if (
+            0 === pg_num_rows(
+                pg_query(
+                    $dbh,
+                    "SELECT datname FROM pg_catalog.pg_database WHERE datname='automatedtests'"
+                )
+            )
+        ) {
+            pg_query($dbh, 'CREATE DATABASE automatedtests');
+        }
 
         return new PgsqlDb(
             $config->db->syshost,

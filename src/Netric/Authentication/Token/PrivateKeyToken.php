@@ -3,7 +3,6 @@
 namespace Netric\Authentication\Token;
 
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Entity\EntityLoader;
 
 /**
  * Token based on a private key.
