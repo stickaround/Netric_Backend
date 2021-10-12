@@ -9,7 +9,6 @@ use Netric\Authentication\AuthenticationIdentity;
 use Netric\Authentication\AuthenticationService;
 use Netric\Entity\EntityLoader;
 use Netric\Controller\EmailController;
-use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Log\LogInterface;
 use Netric\Mail\SenderService;
 use Netric\Mail\DeliveryService;
@@ -59,7 +58,6 @@ class EmailControllerTest extends TestCase
         $this->emailController = new EmailController(
             $this->mockDeliveryService,
             $this->mockLog,
-            $this->mockAuthService,
             $accountContainer
         );
         $this->emailController->testMode = true;
@@ -112,7 +110,7 @@ class EmailControllerTest extends TestCase
         $accountContainer->method('loadById')->willReturn($mockAccount);
 
         // Create the controller with mocks
-        $controller = new EmailController($deliveryService, $log, $authServiceMock, $accountContainer);
+        $controller = new EmailController($deliveryService, $log, $accountContainer);
 
         // Create a request that is missing 'message' and 'recipient'
         $request = new HttpRequest();

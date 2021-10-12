@@ -7,7 +7,6 @@ use Netric\Account\AccountContainerInterface;
 use Netric\Log\LogInterface;
 use Netric\Mvc\ControllerInterface;
 use Netric\Application\Response\HttpResponse;
-use Netric\Authentication\AuthenticationService;
 use Netric\Request\HttpRequest;
 use Netric\Mail\DeliveryService;
 use Netric\Mvc\AbstractFactoriedController;
@@ -29,16 +28,6 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     private LogInterface $log;
 
     /**
-     * Container used to load accounts
-     */
-    private AccountContainerInterface $accountContainer;
-
-    /**
-     * Service used to get the current user/account
-     */
-    private AuthenticationService $authService;
-
-    /**
      * If in test mode, we don't do file upload validation
      *
      * @var bool
@@ -54,12 +43,10 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     public function __construct(
         DeliveryService $deliveryService,
         LogInterface $log,
-        AuthenticationService $authService,
         AccountContainerInterface $accountContainer
     ) {
         $this->deliveryService = $deliveryService;
         $this->log = $log;
-        $this->authService = $authService;
         $this->accountContainer = $accountContainer;
     }
 
@@ -102,16 +89,6 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             return $response;
         }
 
-        // Make sure that we have an authenticated account that is sending
-        // Note: We should only use this to auth the call, once we have the
-        // recpipient we get the current account from that.
-        // $authenticatedAccount = $this->getAuthenticatedAccount();
-        // if (!$authenticatedAccount) {
-        //     $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-        //     $response->write(['error' => "No authenticated account found."]);
-        //     return $response;
-        // }
-
         // Try to import message
         try {
             $messageGuid = $this->deliveryService->deliverMessageFromFile(
@@ -130,20 +107,5 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             $response->write(['error' => $exception->getMessage()]);
             return $response;
         }
-    }
-
-    /**
-     * Get the currently authenticated account
-     *
-     * @return Account
-     */
-    private function getAuthenticatedAccount(): ?Account
-    {
-        $authIdentity = $this->authService->getIdentity();
-        if (!$authIdentity) {
-            return null;
-        }
-
-        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 }
