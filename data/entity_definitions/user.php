@@ -137,22 +137,38 @@ return [
             'readonly' => false,
             'required' => false
         ],
-        'state' => [
-            'title' => 'State',
+        // Used to indicate the presence of a user
+        'presence' => [
+            'title' => 'Presence',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
-            'required' => false
+            'required' => false,
+            'optional_values' => [
+                "online" => "Online",
+                "idle" => "Idle",
+                "offline" => "Offline",
+            ],
         ],
         'active' => [
             'title' => 'Active',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,
-            "default" => ["value" => "t", "on" => "null"]
+            "default" => ["value" => true, "on" => "null"]
+        ],
+        // Tracks activity in netric
+        "last_active" => [
+            'title' => 'Last Active',
+            'type' => Field::TYPE_TIMESTAMP,
+            'subtype' => '',
+            'readonly' => true,
         ],
         'last_login' => [
-            'title' => 'Last Login', 'type' => 'timestamp', 'subtype' => '', 'readonly' => true
+            'title' => 'Last Login',
+            'type' => 'timestamp',
+            'subtype' => '',
+            'readonly' => true
         ],
         'image_id' => [
             'title' => 'Image',
