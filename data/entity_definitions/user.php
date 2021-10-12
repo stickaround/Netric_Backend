@@ -137,19 +137,6 @@ return [
             'readonly' => false,
             'required' => false
         ],
-        // Used to indicate the presence of a user
-        'presence' => [
-            'title' => 'Presence',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '256',
-            'readonly' => false,
-            'required' => false,
-            'optional_values' => [
-                "online" => "Online",
-                "idle" => "Idle",
-                "offline" => "Offline",
-            ],
-        ],
         'active' => [
             'title' => 'Active',
             'type' => Field::TYPE_BOOL,
