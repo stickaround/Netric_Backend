@@ -105,12 +105,12 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // Make sure that we have an authenticated account that is sending
         // Note: We should only use this to auth the call, once we have the
         // recpipient we get the current account from that.
-        $authenticatedAccount = $this->getAuthenticatedAccount();
-        if (!$authenticatedAccount) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(['error' => "No authenticated account found."]);
-            return $response;
-        }
+        // $authenticatedAccount = $this->getAuthenticatedAccount();
+        // if (!$authenticatedAccount) {
+        //     $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+        //     $response->write(['error' => "No authenticated account found."]);
+        //     return $response;
+        // }
 
         // Try to import message
         try {
