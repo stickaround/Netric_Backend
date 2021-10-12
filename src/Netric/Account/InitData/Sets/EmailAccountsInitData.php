@@ -8,6 +8,7 @@ use Netric\Account\Account;
 use Netric\Account\InitData\InitDataInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Mail\MailSystemInterface;
 
 /**
  * Initializer to make sure accounts have a default set of groupings
@@ -25,14 +26,23 @@ class EmailAccountsInitData implements InitDataInterface
     private Entityloader $entityLoader;
 
     /**
+     * Mailsystem for getting domain defaults
+     *
+     * @var MailSystemInterface
+     */
+    private MailSystemInterface $mailSystem;
+
+    /**
      * Constructor
      */
     public function __construct(
         array $emailAccountsData,
         EntityLoader $entityLoader,
+        MailSystemInterface $mailSytem
     ) {
         $this->emailAccountsData = $emailAccountsData;
         $this->entityLoader = $entityLoader;
+        $this->mailSystem = $mailSytem;
     }
 
     /**
@@ -63,6 +73,8 @@ class EmailAccountsInitData implements InitDataInterface
             // second param will only update provided fields so we don't
             // overwrite entity_id and such
             $emailAccount->fromArray($emailAcocuntData, true);
+            $defaultDomain = $this->mailSystem->getDefaultDomain($account->getAccountId());
+            $emailAccount->setValue('address', 'support@' . $defaultDomain);
             $this->entityLoader->save(
                 $emailAccount,
                 $account->getSystemUser()

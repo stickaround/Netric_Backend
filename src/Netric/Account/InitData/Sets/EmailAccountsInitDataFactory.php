@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netric\Account\InitData\Sets;
 
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Mail\MailSystemFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 
@@ -23,9 +24,11 @@ class EmailAccountsInitDataFactory implements ApplicationServiceFactoryInterface
     {
         $data = require(__DIR__ . '/../../../../../data/account/email-accounts.php');
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $mailSystem = $serviceLocator->get(MailSystemFactory::class);
         return new EmailAccountsInitData(
             $data,
-            $entityLoader
+            $entityLoader,
+            $mailSystem
         );
     }
 }
