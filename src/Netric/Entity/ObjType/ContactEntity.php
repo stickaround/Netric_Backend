@@ -6,7 +6,7 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
 
-class CustomerEntity extends Entity implements EntityInterface
+class ContactEntity extends Entity implements EntityInterface
 {
     /**
      * Class constructor

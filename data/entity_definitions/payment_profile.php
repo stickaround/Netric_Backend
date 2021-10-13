@@ -3,6 +3,7 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     'store_revisions' => true,
@@ -16,7 +17,7 @@ return [
         'customer' => [
             'title' => 'Customer',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'customer'
+            'subtype' => ObjectTypes::CONTACT
         ],
         'payment_gateway' => [
             'title' => 'Payment Gateway',

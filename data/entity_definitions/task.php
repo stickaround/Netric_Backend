@@ -3,6 +3,7 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     'inherit_dacl_ref' => 'project',
@@ -115,7 +116,7 @@ return [
         'customer_id' => [
             'title' => 'Contact',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'customer'
+            'subtype' => ObjectTypes::CONTACT,
         ],
         'recur_id' => [
             'title' => 'Recurrance',

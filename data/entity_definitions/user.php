@@ -2,7 +2,9 @@
 
 namespace data\entity_definitions;
 
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     'uname_settings' => 'name',
@@ -24,6 +26,25 @@ return [
             'subtype' => '128',
             'readonly' => false,
             'required' => true
+        ],
+
+        // We support different types of users
+        'type' => [
+            'title' => 'Type',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '16',
+            'readonly' => true,
+            'optional_values' => [
+                // Users that can log in and are memers of the Users group
+                UserEntity::TYPE_INTERNAL => "Internal User",
+                // Public users are generally third parties - partners/customers
+                UserEntity::TYPE_PUBLIC => "Public User",
+                // API used by code to interact with netric - not a human
+                UserEntity::TYPE_SYSTEM => "API / System",
+                // Meta-users are users that point to actual users, like Creator/Owner
+                UserEntity::TYPE_META => "Meta",
+            ],
+            "default" => ["value" => UserEntity::TYPE_INTERNAL, "on" => "null"]
         ],
 
         'password' => [
@@ -177,5 +198,11 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => 'user'
         ],
+        // Every user has a contact where we store contact data like address etc
+        'contact_id' => [
+            'title' => "Contact",
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::CONTACT,
+        ]
     ],
 ];

@@ -58,7 +58,7 @@ class Partner
     /**
      * Object collections this partner is listening for
      *
-     * For example: 'customer','task' would mean the partner is
+     * For example: 'contact','task' would mean the partner is
      * only tracking changes for objects of type customer and task
      * but will ignore all others. This will keep overhead to a minimal
      * when tracking changes. In additional collections can have filters

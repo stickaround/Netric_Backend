@@ -17,7 +17,7 @@ class ObjectTypes
     const CALENDAR_EVENT = 'calendar_event';
     const CALENDAR_EVENT_PROPOSAL = 'calendar_event_proposal';
     const COMMENT = 'comment';
-    const CONTACT = 'customer';
+    const CONTACT = 'contact';
     const CONTACT_PERSONAL = 'contact_personal';
     const CONTENT_FEED = 'content_feed';
     const CONTENT_FEED_POST = 'content_feed_post';

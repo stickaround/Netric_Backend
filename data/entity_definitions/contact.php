@@ -3,6 +3,7 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     "fields" => [
@@ -360,12 +361,12 @@ return [
         'primary_contact' => [
             'title' => 'Primary Contact',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'customer'
+            'subtype' => ObjectTypes::CONTACT,
         ],
         'primary_account' => [
             'title' => 'Organization',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'customer'
+            'subtype' => ObjectTypes::CONTACT,
         ],
         'stage_id' => [
             'title' => 'Stage',

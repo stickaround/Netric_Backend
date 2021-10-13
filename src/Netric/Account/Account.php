@@ -436,22 +436,18 @@ class Account
     public function getStatusName()
     {
         switch ($this->status) {
-            case self::STATUS_ACTIVE: {
+            case self::STATUS_ACTIVE:
                 return "Active";
                 break;
-            }
-            case self::STATUS_EXPIRED: {
+            case self::STATUS_EXPIRED:
                 return "Expired";
                 break;
-            }
-            case self::STATUS_DELETED: {
+            case self::STATUS_DELETED:
                 return "Deleted";
                 break;
-            }
-            case self::STATUS_PASTDUE: {
+            case self::STATUS_PASTDUE:
                 return "Past Due";
                 break;
-            }
         }
     }
 }

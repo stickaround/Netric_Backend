@@ -58,7 +58,7 @@ return array(
         "customer_id" => array(
             'title' => 'Contact',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'customer',
+            'subtype' => ObjectTypes::CONTACT,
             'readonly' => false,
         ),
 

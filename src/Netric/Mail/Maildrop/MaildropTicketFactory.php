@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netric\Mail\Maildrop;
 
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
@@ -26,7 +27,8 @@ class MaildropTicketFactory implements ApplicationServiceFactoryInterface
         return new MaildropTicket(
             $serviceLocator->get(EntityLoaderFactory::class),
             $serviceLocator->get(FileSystemFactory::class),
-            $serviceLocator->get(IndexFactory::class)
+            $serviceLocator->get(IndexFactory::class),
+            $serviceLocator->get(GroupingLoaderFactory::class)
         );
     }
 }

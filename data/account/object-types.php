@@ -30,7 +30,7 @@ return [
     ["obj_type" => "invoice_template", "title" => "Invoice Template", "revision" => "0", "system" => true],
     ["obj_type" => "infocenter_document", "title" => "IC Document", "revision" => "0", "system" => true],
     ["obj_type" => "calendar_event_proposal", "title" => "Meeting Proposal", "revision" => "0", "system" => true],
-    ["obj_type" => "customer", "title" => "Customer", "revision" => "0", "system" => true],
+    ["obj_type" => "contact", "title" => "Contact", "revision" => "0", "system" => true],
     ["obj_type" => "approval", "title" => "Approval Request", "revision" => "0", "system" => true],
     ["obj_type" => "member", "title" => "Member", "revision" => "0", "system" => true],
     ["obj_type" => "sales_order", "title" => "Order", "revision" => "0", "system" => true],

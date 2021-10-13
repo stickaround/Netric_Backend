@@ -224,10 +224,10 @@ class AccountBillingService implements AccountBillingServiceInterface
     {
         $query = new EntityQuery(ObjectTypes::USER, $accountId);
         $query->andWhere('active')->equals(true);
-        $query->andWhere('name')->doesNotEqual(UserEntity::USER_ANONYMOUS);
-        $query->andWhere('name')->doesNotEqual(UserEntity::USER_CURRENT);
-        $query->andWhere('name')->doesNotEqual(UserEntity::USER_SYSTEM);
-        $query->andWhere('name')->doesNotEqual(UserEntity::USER_WORKFLOW);
+        // We only charge for internal users, not public, system, or meta users
+        $query->andWhere('type')->doesNotEqual(UserEntity::TYPE_PUBLIC);
+        $query->andWhere('type')->doesNotEqual(UserEntity::TYPE_SYSTEM);
+        $query->andWhere('type')->doesNotEqual(UserEntity::TYPE_META);
         $result = $this->entityIndex->executeQuery($query);
         return $result->getTotalNum();
     }

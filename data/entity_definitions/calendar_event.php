@@ -4,6 +4,7 @@ namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 return array(
     'fields' => array(
@@ -130,7 +131,7 @@ return array(
         'customer_id' => array(
             'title' => 'Customer',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'customer'
+            'subtype' => ObjectTypes::CONTACT,
         ),
         'attendees' => array(
             'title' => 'Attendees',

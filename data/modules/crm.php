@@ -23,7 +23,7 @@ return [
             "title" => "All Customers",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-customers",
-            "objType" => "customer",
+            "objType" => ObjectTypes::CONTACT,
             "icon" => "ViewListIcon",
             "browseby" => "groups",
         ],
