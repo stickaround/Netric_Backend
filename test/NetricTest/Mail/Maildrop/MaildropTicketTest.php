@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace NetricTest\Mail;
 
 use Netric\Account\Account;
-use Netric\Account\AccountContainer;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\TicketEntity;
@@ -14,24 +13,12 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityQuery\Results;
 use Netric\FileSystem\FileSystem;
 use Netric\Mail\Maildrop\MaildropTicket;
-use Netric\Mail\MailSystem;
-use Netric\Mail\MailSystemInterface;
-use PHPUnit\Framework\InvalidArgumentException;
-use PHPUnit\Framework\MockObject\ClassAlreadyExistsException;
-use PHPUnit\Framework\MockObject\ClassIsFinalException;
-use PHPUnit\Framework\MockObject\DuplicateMethodException;
-use PHPUnit\Framework\MockObject\InvalidMethodNameException;
-use PHPUnit\Framework\MockObject\OriginalConstructorInvocationRequiredException;
-use PHPUnit\Framework\MockObject\ReflectionException;
-use PHPUnit\Framework\MockObject\RuntimeException;
-use PHPUnit\Framework\MockObject\UnknownTypeException;
-use PhpMimeMailParser\Exception;
-use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
-use SebastianBergmann\RecursionContext\InvalidArgumentException as RecursionContextInvalidArgumentException;
 
 /**
  * Test the global mailsystem service
@@ -42,6 +29,7 @@ class MaildropTicketTest extends TestCase
     const TEST_ACCOUNT_ID  = 'UUID-ACCOUNT';
     const TEST_USER_ID  = 'UUID-USER';
     const TEST_GROUP_SOURCE_EMAIL = 'UUID-EMAIL-SOURCE';
+    const TEST_CONTACT_ID = 'UUID-CONTACT';
 
     private EntityLoader $entityLoaderMock;
     private FileSystem $fileSystemMock;
@@ -60,6 +48,7 @@ class MaildropTicketTest extends TestCase
         $this->userMock = $this->createStub(UserEntity::class);
         $this->userMock->method('getEntityId')->willReturn(self::TEST_USER_ID);
         $this->userMock->method('getAccountId')->willReturn(self::TEST_ACCOUNT_ID);
+        $this->userMock->method('getValue')->with('contact_id')->willReturn(self::TEST_CONTACT_ID);
 
         // Setup a test email account
         $this->mockEmailAccount = $this->createStub(EmailAccountEntity::class);
@@ -109,7 +98,7 @@ class MaildropTicketTest extends TestCase
         );
 
         // Make sure values are set from the email
-        $mockTicket->expects($this->exactly(5))
+        $mockTicket->expects($this->exactly(6))
             ->method('setValue')
             ->withConsecutive(
                 [$this->equalTo('description'), $this->equalTo('Again a simple message')],
@@ -117,6 +106,8 @@ class MaildropTicketTest extends TestCase
                 [$this->equalTo('is_closed'), $this->equalTo(false)],
                 [$this->equalTo('f_seen'), $this->equalTo(false)],
                 [$this->equalTo('source_id'), $this->equalTo(self::TEST_GROUP_SOURCE_EMAIL)],
+                // This means it queried and found a user with matching email
+                [$this->equalTo('contact_id'), $this->equalTo(self::TEST_CONTACT_ID)],
             );
 
         // Make sure we save the entity with the given user
@@ -127,11 +118,69 @@ class MaildropTicketTest extends TestCase
                 $this->equalTo($this->userMock)
             );
 
+        // Simulate returning an existing that the ticket will be created for
+        $queryResults = new Results(new EntityQuery(ObjectTypes::USER, self::TEST_ACCOUNT_ID, self::TEST_USER_ID));
+        $queryResults->addEntity($this->userMock);
+        $this->indexMock->method('executeQuery')->willReturn($queryResults);
+
         $entityId = $this->maildrop->createEntityFromMessage(
             __DIR__ . '/../_files/m1.example.org.unseen',
             $this->mockEmailAccount
         );
 
         $this->assertEquals($mockTicket->getEntityId(), $entityId);
+    }
+
+    /**
+     * Make sure we can create an entity from a plain text email
+     */
+    public function testCreateNewPublicUser(): void
+    {
+        // Create a ticket entity and return it from the EntityLoader:create mock
+        $mockTicket = $this->createMock(TicketEntity::class);
+        $mockTicket->method('getEntityId')->willReturn("UUID-TICKET");
+
+        // Create an observable user entity so we can see if creating a new user works as expected
+        $observeNewUser = $this->createMock(UserEntity::class);
+        $observeNewUser->method('getEntityId')->willReturn("UUID-NEW-USER");
+        $observeNewUser->method('getValue')->with('contact_id')->willReturn(self::TEST_CONTACT_ID);
+
+        // Create gets called twice, once for the ticket, and again for the user
+        $this->entityLoaderMock->method('create')->withConsecutive(
+            [ObjectTypes::TICKET, self::TEST_ACCOUNT_ID],
+            [ObjectTypes::USER, self::TEST_ACCOUNT_ID]
+        )->willReturnOnConsecutiveCalls(
+            $mockTicket,
+            $observeNewUser
+        );
+
+        // Make sure new user values are what is expected
+        $observeNewUser->expects($this->exactly(4))
+            ->method('setValue')
+            ->withConsecutive(
+                [$this->equalTo('type'), $this->equalTo(UserEntity::TYPE_PUBLIC)],
+                // Name should be generated from external@netric.com to external.netric.com (replace @)
+                [$this->equalTo('name'), $this->equalTo('external.netric.com')],
+                // Full name should be extracted from the From header
+                [$this->equalTo('full_name'), $this->equalTo('Some User')],
+                [$this->equalTo('email'), $this->equalTo('external@netric.com')],
+            );
+
+        // Make sure we save the entity with the given user
+        $this->entityLoaderMock->expects($this->exactly(2))
+            ->method('save')
+            ->withConsecutive(
+                [$this->equalTo($observeNewUser), $this->equalTo($this->userMock)],
+                [$this->equalTo($mockTicket), $this->equalTo($this->userMock)],
+            );
+
+        // Simulate not finding an existing user which should cause it to create one
+        $queryResults = new Results(new EntityQuery(ObjectTypes::USER, self::TEST_ACCOUNT_ID, self::TEST_USER_ID));
+        $this->indexMock->method('executeQuery')->willReturn($queryResults);
+
+        $this->maildrop->createEntityFromMessage(
+            __DIR__ . '/../_files/mail.support.simple',
+            $this->mockEmailAccount
+        );
     }
 }

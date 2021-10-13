@@ -130,6 +130,12 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
         $emailSource = $sources->getByName(TicketEntity::SOURCE_EMAIL);
         $ticket->setValue('source_id', $emailSource->getGroupId(), $emailSource->getName());
 
+        // Try to get a sending user
+        $fromUser = $this->getOrCreateFromUser($parser, $user);
+        if ($fromUser->getValue('contact_id')) {
+            $ticket->setValue('contact_id', $fromUser->getValue('contact_id'));
+        }
+
         // We might use this later to detect replying to another
         //$ticket->setValue("in_reply_to", $parser->getHeader('in-reply-to'));
         // $ticket->setValue("sent_from", $parser->getHeader('from'));
@@ -149,11 +155,8 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
 
     /**
      * Try to find or create a public user for the sender
-     *
-     * @param MailParser $parser
-     * @return UserEntity The ID of the user this is sent from
      */
-    private function getOrCreateFromUser(MailParser $parser, string $accountId, string $userId): EntityInterface
+    private function getOrCreateFromUser(MailParser $parser, UserEntity $accountUser): EntityInterface
     {
         // returns [["display"=>"test", "address"=>"test@example.com", "is_group"=>false]]
         $arrayHeaderFrom = $parser->getAddresses('from');
@@ -161,7 +164,7 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
         $address = strtolower($arrayHeaderFrom[0]['address']);
 
         // Search for existing user with email address
-        $query = new EntityQuery(ObjectTypes::USER, $accountId, $userId);
+        $query = new EntityQuery(ObjectTypes::USER, $accountUser->getAccountId(), $accountUser->getEntityId());
         $query->andWhere('email')->equals($address);
         $result = $this->entityIndex->executeQuery($query);
         if ($result->getNum() > 0) {
@@ -169,20 +172,12 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
         }
 
         // If none is found, create the user
-        $user = $this->entityLoader->create(ObjectTypes::USER, $accountId);
-        $user->setValue('type', UserEntity::TYPE_PUBLIC);
-        $user->setValue('name', substr($address, 0, strpos($address, '@')));
-        $user->setValue('full_name', $displayName);
-        $user->setValue('email', $address);
-        //$this->entityLoader->save($user);
+        $sendingUser = $this->entityLoader->create(ObjectTypes::USER, $accountUser->getAccountId());
+        $sendingUser->setValue('type', UserEntity::TYPE_PUBLIC);
+        $sendingUser->setValue('name', str_replace('@', ".", $address));
+        $sendingUser->setValue('full_name', $displayName);
+        $sendingUser->setValue('email', $address);
+        $this->entityLoader->save($sendingUser, $accountUser);
+        return $sendingUser;
     }
-
-    // /**
-    //  * Get the user id or contact id of the sender
-    //  */
-    // private function getSenderId($emailAddress): string
-    // {
-    //     // Not found
-    //     return '';
-    // }
 }

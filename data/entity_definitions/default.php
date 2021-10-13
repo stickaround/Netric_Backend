@@ -82,7 +82,6 @@ return [
         'title' => 'Assigned To',
         'type' => Field::TYPE_OBJECT,
         'subtype' => ObjectTypes::USER,
-        'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
     ],
     'creator_id' => [
         'title' => 'Creator',
