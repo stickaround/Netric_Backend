@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Netric\Mail\Maildrop;
 
+use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\TicketEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\FileSystem\FileSystem;
 use PhpMimeMailParser\Parser as MailParser;
@@ -151,15 +153,29 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
      * @param MailParser $parser
      * @return UserEntity The ID of the user this is sent from
      */
-    // private function getOrCreateFromUser(MailParser $parser): UserEntity
-    // {
-    //     // returns [["display"=>"test", "address"=>"test@example.com", "is_group"=>false]]
-    //     $arrayHeaderFrom = $parser->getAddresses('from');
+    private function getOrCreateFromUser(MailParser $parser, string $accountId, string $userId): EntityInterface
+    {
+        // returns [["display"=>"test", "address"=>"test@example.com", "is_group"=>false]]
+        $arrayHeaderFrom = $parser->getAddresses('from');
+        $displayName = $arrayHeaderFrom[0]['display'];
+        $address = strtolower($arrayHeaderFrom[0]['address']);
 
-    //     // Search for existing user with email address
+        // Search for existing user with email address
+        $query = new EntityQuery(ObjectTypes::USER, $accountId, $userId);
+        $query->andWhere('email')->equals($address);
+        $result = $this->entityIndex->executeQuery($query);
+        if ($result->getNum() > 0) {
+            return $result->getEntity(0);
+        }
 
-    //     // If none is found, create the user
-    // }
+        // If none is found, create the user
+        $user = $this->entityLoader->create(ObjectTypes::USER, $accountId);
+        $user->setValue('type', UserEntity::TYPE_PUBLIC);
+        $user->setValue('name', substr($address, 0, strpos($address, '@')));
+        $user->setValue('full_name', $displayName);
+        $user->setValue('email', $address);
+        //$this->entityLoader->save($user);
+    }
 
     // /**
     //  * Get the user id or contact id of the sender
