@@ -648,6 +648,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             // Make sure that the owner_id was set
             if ($entity->getValue("owner_id")) {
                 $userEntity = $this->getEntityById($entity->getValue("owner_id"), $user->getAccountId());
+            } elseif ($entity->getValue("creator_id")) {
+                $userEntity = $this->getEntityById($entity->getValue("creator_id"), $user->getAccountId());
             }
 
             if ($userEntity) {

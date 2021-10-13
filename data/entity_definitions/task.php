@@ -135,5 +135,12 @@ return [
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
         ],
+        // Override field in default.php because don't want a default value for tasks
+        // since they can be unassinged
+        'owner_id' => [
+            'title' => 'Assigned To',
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::USER,
+        ],
     ]
 ];

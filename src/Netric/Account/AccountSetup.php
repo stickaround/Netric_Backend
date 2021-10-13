@@ -41,10 +41,7 @@ class AccountSetup
     /**
      * Create a new account with a default admin account
      *
-     * @param [type] $accountName
-     * @param [type] $adminUserName
-     * @param [type] $adminUserEmail
-     * @param [type] $adminPassword
+     * @param string $accountName
      * @return void
      */
     public function createAccount(

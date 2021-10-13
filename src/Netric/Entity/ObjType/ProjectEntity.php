@@ -76,7 +76,11 @@ class ProjectEntity extends Entity implements EntityInterface
         $num = $res->getNum();
 
         // Get the owner of the project
-        $userProjectOwner = $this->entityLoader->getEntityById($this->getValue('owner_id'), $this->getAccountId());
+        if ($this->getValue('owner_id')) {
+            $userProjectOwner = $this->entityLoader->getEntityById($this->getValue('owner_id'), $this->getAccountId());
+        } elseif ($this->getValue('creator_id')) {
+            $userProjectOwner = $this->entityLoader->getEntityById($this->getValue('creator_id'), $this->getAccountId());
+        }
 
         // Loop through each task of this project entity
         for ($i = 0; $i < $num; $i++) {

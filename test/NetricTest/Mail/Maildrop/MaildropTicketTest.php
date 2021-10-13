@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace NetricTest\Mail;
 
-use Netric\Account\Account;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\TicketEntity;

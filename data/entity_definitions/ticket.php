@@ -68,5 +68,12 @@ return [
             'subtype' => '',
             'readonly' => false
         ],
+        // Override field in default.php because don't want a default value for tickets
+        // since they can be unassinged
+        'owner_id' => [
+            'title' => 'Assigned To',
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::USER,
+        ],
     ],
 ];
