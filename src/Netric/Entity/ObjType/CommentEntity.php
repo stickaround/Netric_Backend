@@ -2,7 +2,6 @@
 
 namespace Netric\Entity\ObjType;
 
-use Netric\EntityDefinition\Field;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;

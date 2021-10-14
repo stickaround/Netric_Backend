@@ -35,7 +35,7 @@ class MaildropComment extends AbstractMaildrop implements MaildropInterface
 
     /**
      * Index used to search for entities
-     * 
+     *
      * @var IndexInterface
      */
     private IndexInterface $entityIndex;

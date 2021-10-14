@@ -47,6 +47,18 @@ return [
             'subtype' => '',
             'readonly' => true
         ],
+        // If the comment is public, email any public users
+        // otherwise we'll only notify internal users
+        'is_public' => [
+            'title' => 'Public',
+            'type' => Field::TYPE_BOOL,
+            'subtype' => '',
+            'readonly' => false,
+            'default' => [
+                "value" => false,
+                "on" => "null"
+            ],
+        ]
     ],
     'inherit_dacl_ref' => 'obj_reference',
 ];

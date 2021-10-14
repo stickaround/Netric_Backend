@@ -28,7 +28,8 @@ class MaildropTicketFactory implements ApplicationServiceFactoryInterface
             $serviceLocator->get(EntityLoaderFactory::class),
             $serviceLocator->get(FileSystemFactory::class),
             $serviceLocator->get(IndexFactory::class),
-            $serviceLocator->get(GroupingLoaderFactory::class)
+            $serviceLocator->get(GroupingLoaderFactory::class),
+            $serviceLocator->get(MaildropCommentFactory::class)
         );
     }
 }

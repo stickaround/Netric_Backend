@@ -16,6 +16,7 @@ use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery\Results;
 use Netric\FileSystem\FileSystem;
+use Netric\Mail\Maildrop\MaildropInterface;
 use Netric\Mail\Maildrop\MaildropTicket;
 use PHPUnit\Framework\TestCase;
 
@@ -37,6 +38,7 @@ class MaildropTicketTest extends TestCase
     private MaildropTicket $maildrop;
     private EmailAccountEntity $mockEmailAccount;
     private UserEntity $userMock;
+    private MaildropInterface $maildropCommentMock;
 
     /**
      * Lots of interesting mocks to setup here
@@ -73,11 +75,14 @@ class MaildropTicketTest extends TestCase
             ->with(ObjectTypes::TICKET . "/source_id", self::TEST_ACCOUNT_ID)
             ->will($this->returnValue($groups));
 
+        $this->maildropCommentMock = $this->createMock(MaildropInterface::class);
+
         $this->maildrop = new MaildropTicket(
             $this->entityLoaderMock,
             $this->fileSystemMock,
             $this->indexMock,
-            $this->groupingLoaderMock
+            $this->groupingLoaderMock,
+            $this->maildropCommentMock
         );
     }
 
@@ -179,6 +184,46 @@ class MaildropTicketTest extends TestCase
 
         $this->maildrop->createEntityFromMessage(
             __DIR__ . '/../_files/mail.support.simple',
+            $this->mockEmailAccount
+        );
+    }
+
+    /**
+     * Test that we can route commens to the commment maildrop
+     *
+     * @return void
+     */
+    public function testReplyComment(): void
+    {
+        // Make sure the test email account returns the test email address
+        $this->mockEmailAccount->method('getValue')->with('address')->willReturn(self::TEST_EMAIL);
+
+        // Create an observable email account so we can make sure values are set correctly
+        $mockEmailAccount = $this->createMock(EmailAccountEntity::class);
+        $this->entityLoaderMock->method('create')->with(
+            ObjectTypes::EMAIL_ACCOUNT,
+            self::TEST_ACCOUNT_ID
+        )->will(
+            $this->returnValue($mockEmailAccount)
+        );
+
+        // Make sure email account values are correct
+        $mockEmailAccount->expects($this->exactly(4))
+            ->method('setValue')
+            ->withConsecutive(
+                [$this->equalTo('type'), $this->equalTo(EmailAccountEntity::TYPE_DROPBOX)],
+                [$this->equalTo('address'), $this->equalTo(self::TEST_EMAIL)],
+                [$this->equalTo('dropbox_create_type'), $this->equalTo(MaildropInterface::TYPE_COMMENT)],
+                // Match the UUID from the email header
+                [$this->equalTo('dropbox_obj_reference'), $this->equalTo('UUID-TEST-TICKET')],
+            );
+
+        // Make sure we route the message to the comment maildrop
+        $this->maildropCommentMock->expects($this->once())
+            ->method('createEntityFromMessage');
+
+        $entityId = $this->maildrop->createEntityFromMessage(
+            __DIR__ . '/../_files/mail.support.inreply',
             $this->mockEmailAccount
         );
     }

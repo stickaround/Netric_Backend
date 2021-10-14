@@ -46,23 +46,33 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
     private GroupingLoader $groupingLoader;
 
     /**
+     * Maildrop for delivering comments rather than a ticket if this is a reply
+     *
+     * @var MaildropInterface
+     */
+    private MaildropInterface $maildropComment;
+
+    /**
      * Construct the transport service
      *
      * @param EntityLoader $entityLoader Loader to get and save messages
      * @param FileSystem $fileSystem For saving attachments
      * @param IndexInterface $entityIndex The index for querying entities,
      * @param GroupingLoader $groupingLoader For loading mailbox groupings
+     * @param MaildropInterface $maildropComment
      */
     public function __construct(
         EntityLoader $entityLoader,
         FileSystem $fileSystem,
         IndexInterface $entityIndex,
-        GroupingLoader $groupingLoader
+        GroupingLoader $groupingLoader,
+        MaildropInterface $maildropComment
     ) {
         $this->entityLoader = $entityLoader;
         $this->fileSystem = $fileSystem;
         $this->entityIndex = $entityIndex;
         $this->groupingLoader = $groupingLoader;
+        $this->maildropComment = $maildropComment;
     }
 
     /**
@@ -96,6 +106,20 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
 
         // TODO: check $parser->getHeader('in-reply-to') to see if we're replying to an
         // existing ticket, in which case we should just create a comment.
+        if ($this->getInReplyToEntityId($parser)) {
+
+            // Store in variable so we can cleanup
+            $ticketId = $this->getInReplyToEntityId($parser);
+
+            // Cleanup resources
+            $parser = null;
+
+            return $this->routeMessageToCommentMaildrop(
+                $messageFilePath,
+                $emailAccount,
+                $ticketId
+            );
+        }
 
         // First check if the message was flagged as spam by the spam filters
         // TODO: We shhould probably not deliver this?
@@ -136,10 +160,6 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
             $ticket->setValue('contact_id', $fromUser->getValue('contact_id'));
         }
 
-        // We might use this later to detect replying to another
-        //$ticket->setValue("in_reply_to", $parser->getHeader('in-reply-to'));
-        // $ticket->setValue("sent_from", $parser->getHeader('from'));
-
         $attachments = $parser->getAttachments();
         foreach ($attachments as $att) {
             $this->importAttachments($att, $ticket, $user, $this->fileSystem);
@@ -179,5 +199,54 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
         $sendingUser->setValue('email', $address);
         $this->entityLoader->save($sendingUser, $accountUser);
         return $sendingUser;
+    }
+
+    /**
+     * See if we can get an entity ID out of the value of in-reply-to
+     *
+     * When a notification of a ticket, or a reply to a ticket, is sent
+     * we will put the entity id of the ticket in the 'In-Reply-To' header with
+     * the format: <[uuid-of-ticket]>
+     *
+     * @param MailParser $parser
+     * @return string
+     */
+    private function getInReplyToEntityId(MailParser $parser): string
+    {
+        $inReplyTo = $parser->getHeader('in-reply-to');
+
+        if (empty($inReplyTo)) {
+            return '';
+        }
+
+        // Strip <> from the value
+        if ($inReplyTo[0] === "<") {
+            return substr($inReplyTo, 1, -1);
+        }
+
+        // Malformed
+        return '';
+    }
+
+    /**
+     * Route this message to deliver a comment on a ticket that already exists
+     *
+     * @param string $messageFilePath
+     * @param EmailAccountEntity $emailAccount
+     * @param string $inReplyTo
+     * @return string UUID of comment
+     */
+    private function routeMessageToCommentMaildrop(
+        string $messageFilePath,
+        EmailAccountEntity $emailAccount,
+        string $inReplyTo
+    ): string {
+        // Create a dynamic email account (we never save it though)
+        $commentAccount = $this->entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $emailAccount->getAccountId());
+        $commentAccount->setValue('type', EmailAccountEntity::TYPE_DROPBOX);
+        $commentAccount->setvalue('address', $emailAccount->getValue('address'));
+        $commentAccount->setValue('dropbox_create_type', MaildropInterface::TYPE_COMMENT);
+        $commentAccount->setValue('dropbox_obj_reference', $inReplyTo);
+        return $this->maildropComment->createEntityFromMessage($messageFilePath, $commentAccount);
     }
 }

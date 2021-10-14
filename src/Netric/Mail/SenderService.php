@@ -1,10 +1,9 @@
 <?php
+
 namespace Netric\Mail;
 
 use Netric\Error\AbstractHasErrors;
-use Netric\Entity\ActivityLog;
 use Netric\Entity\ObjType\EmailMessageEntity;
-use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Mail\Transport\TransportInterface;
 use Netric\Log\Log;
 
@@ -85,7 +84,7 @@ class SenderService extends AbstractHasErrors
             $toEmail = $message->getTo()->current();
             $this->log->info(
                 "Message successfully sent to " .
-                (($toEmail) ? $toEmail->toString() : "unknown")
+                    (($toEmail) ? $toEmail->toString() : "unknown")
             );
 
             // Save the message in the sent directory for the current user
@@ -118,7 +117,7 @@ class SenderService extends AbstractHasErrors
             // Log info
             $this->log->info(
                 "Message successfully sent to " .
-                $message->getTo()->current()->toString()
+                    $message->getTo()->current()->toString()
             );
 
             // Save activity since this is a bulk message and has no sent folder
