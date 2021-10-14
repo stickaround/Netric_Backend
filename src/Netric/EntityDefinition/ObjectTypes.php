@@ -66,6 +66,7 @@ class ObjectTypes
     const TIME = 'time';
     const USER = 'user';
     const USER_TEAM = 'user_team';
+    const USER_REACTION = 'user_reaction';
     const WORKFLOW = 'workflow';
     const WORKFLOW_ACTION = 'workflow_action';
     const WORKFLOW_ACTION_SCHEDULED = 'workflow_action_scheduled';

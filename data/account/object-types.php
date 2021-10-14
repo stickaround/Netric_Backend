@@ -61,4 +61,5 @@ return [
     ["obj_type" => "chat_room", "title" => "Chat Room", "revision" => "0", "system" => true],
     ["obj_type" => "chat_message", "title" => "Message", "revision" => "0", "system" => true],
     ["obj_type" => "member_badge", "title" => "Member Badge", "revision" => "0", "system" => true],
+    ["obj_type" => "user_reaction", "title" => "User Reaction", "revision" => "0", "system" => true],
 ];
