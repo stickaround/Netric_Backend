@@ -19,6 +19,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Account\AccountContainerInterface;
+use Netric\Permissions\Dacl;
 
 /**
  * Description of User Reaction
@@ -65,5 +66,40 @@ class UserReactionEntity extends Entity implements EntityInterface
         $this->accountContainer = $accountContainer;
 
         parent::__construct($def);
+    }
+
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    {
+        if (!$this->fieldValueChanged('reaction')) {
+            return;
+        }
+
+        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $user->getAccountId());
+        $groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
+        $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
+
+        $chatMessageEntity = $this->entityLoader->getEntityById($this->getValue("obj_reference"), $user->getAccountId());
+        $chatRoomEntity = $this->entityLoader->getEntityById($chatMessageEntity->getValue("chat_room"), $user->getAccountId());
+
+        // Make sure all members have view access to the user reaction
+        $dacl = new Dacl();
+        $members = $chatRoomEntity->getValue('members');
+        $membersName = [];
+        foreach ($members as $userId) {
+            $dacl->allowUser($userId, Dacl::PERM_VIEW);
+        }
+
+        // Make sure the owner has full control
+        $dacl->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
+
+
+        // Save custom permissions
+        $this->setValue('dacl', json_encode($dacl->toArray()));
     }
 }
