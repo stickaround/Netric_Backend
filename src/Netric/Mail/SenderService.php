@@ -2,132 +2,99 @@
 
 namespace Netric\Mail;
 
-use Netric\Error\AbstractHasErrors;
-use Netric\Entity\ObjType\EmailMessageEntity;
-use Netric\Mail\Transport\TransportInterface;
-use Netric\Log\Log;
+use Aereus\Config\Config;
+use Netric\Log\LogInterface;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 /**
  * Service used for sending email messages
  */
-class SenderService extends AbstractHasErrors
+class SenderService
 {
-    /**
-     * Mail transport for sending messages
-     *
-     * @var TransportInterface
-     */
-    private $mailTransport = null;
-
-    /**
-     * Mail transport for sending bulk messages
-     *
-     * It is often smart to utilize a different mailserver for
-     * bulk messages to keep your primary mail transport clean.
-     *
-     * @var TransportInterface
-     */
-    private $bulkMailTransport = null;
-
     /**
      * Log
      *
      * @var Log
      */
-    private $log = null;
+    private LogInterface $log;
 
+    private Config $mailConfig;
     /**
-     * Construct the transport service
+     * Construct the sender service
      *
-     * @param TransportInterface $mailTransport Sending transport for regular mail
-     * @param TransportInterface $bulkTransport Sending transport for bulk mail
      * @param Log $log
+     * @param Confit $mailConfig Is the [mail] section of our config
      */
-    public function __construct(
-        TransportInterface $mailTransport,
-        TransportInterface $bulkTransport,
-        Log $log
-    ) {
-        $this->mailTransport = $mailTransport;
-        $this->bulkMailTransport = $bulkTransport;
+    public function __construct(LogInterface $log, Config $mailConfig)
+    {
         $this->log = $log;
+        $this->mailConfig = $mailConfig;
     }
 
     /**
-     * Set an alternate transport for sending messages
+     * Send a single email with raw data
      *
-     * This is useful for unit tests and one-off alternate sending methods
+     * NOTE: Under the hood this uses PHPs mail() function so make sure we
+     * have sendmail and/or the right SMTP settings in php.ini
      *
-     * @param TransportInterface $mailTransport For sending messages
+     * @param string $toAddress The address (or addresses) to send to
+     * @param string $subject Message subject
+     * @param string $body The raw body of the message
+     * @param array $headers Any additional headers
+     * @return bool true if successs, false on failure with details written to the log
      */
-    public function setMailTransport(TransportInterface $mailTransport)
+    public function send(string $toAddress, string $subject, string $body, array $headers = []): bool
     {
-        $this->mailTransport = $mailTransport;
-    }
+        //Create an instance; passing `true` enables exceptions
+        $mail = new PHPMailer(true);
 
-    /**
-     * Handle sending an email message
-     *
-     * @param EmailMessageEntity $emailMessage Email to send
-     * @return bool true on success, false on failure with $this->getLastError set
-     */
-    public function send(EmailMessageEntity $emailMessage)
-    {
-        // Get Mime Message from the entity
-        $message = $emailMessage->toMailMessage();
+        $from = isset($headers['from']) ? $headers['from'] : $this->mailConfig->noreply;
 
-        // Attempt to send
         try {
-            $this->mailTransport->send($message);
+            //Server settings
+            //$mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+            $mail->isSMTP();                                            //Send using SMTP
+            $mail->Host       = $this->mailConfig->server;                     //Set the SMTP server to send through
+            $mail->SMTPAuth   = false;                                   //Enable SMTP authentication
+            // $mail->Username   = 'user@example.com';                     //SMTP username
+            // $mail->Password   = 'secret';                               //SMTP password
+            // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+            $mail->Port       = $this->mailConfig->port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
-            // Log info
-            $toEmail = $message->getTo()->current();
-            $this->log->info(
-                "Message successfully sent to " .
-                    (($toEmail) ? $toEmail->toString() : "unknown")
-            );
+            //Recipients
+            $mail->setFrom($from);
+            $mail->addAddress($toAddress, 'Test User');     //Add a recipient
+            //$mail->addAddress('ellen@example.com');               //Name is optional
+            // $mail->addReplyTo('info@example.com', 'Information');
+            // $mail->addCC('cc@example.com');
+            // $mail->addBCC('bcc@example.com');
 
-            // Save the message in the sent directory for the current user
+            // //Attachments
+            // $mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+            // $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
 
-            return true;
-        } catch (Transport\Exception\RuntimeException $ex) {
-            $this->addErrorFromMessage($ex->getMessage());
-            $this->log->error($ex->getMessage());
+            //Content
+            //$mail->isHTML(true);                                  //Set email format to HTML
+            $mail->Subject = $subject;
+            $mail->Body    = $body;
+            //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+
+            return $mail->send();
+        } catch (PHPMailerException $e) {
+            $this->log->error("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
             return false;
         }
     }
 
     /**
      * Handle sending a bulk email message
-     *
-     * @param EmailMessageEntity $emailMessage Email to send
      * @return bool true on success, false on failure with $this->getLastError set
      */
-    public function sendBulk(EmailMessageEntity $emailMessage)
+    public function sendFromTemplate(string $contactId, string $emailTemplateId)
     {
-        // Get Mime Message from the entity
-        $message = $emailMessage->toMailMessage();
-
-        // TODO: Check nospam flag for customer
-
-        // Attempt to send
-        try {
-            $this->bulkMailTransport->send($message);
-
-            // Log info
-            $this->log->info(
-                "Message successfully sent to " .
-                    $message->getTo()->current()->toString()
-            );
-
-            // Save activity since this is a bulk message and has no sent folder
-            //$this->activityLog->log($message, ActivityEntity::VERB_SENT);
-
-            return true;
-        } catch (Transport\Exception\RuntimeException $ex) {
-            $this->addErrorFromMessage($ex->getMessage());
-            $this->log->error($ex->getMessage());
-            return false;
-        }
+        $this->log->error("sendFromTemplate was called and it should not have been");
+        return false;
     }
 }

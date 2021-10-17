@@ -42,13 +42,21 @@ return [
         // If set to true, no emails will be sent
         'supress' => false,
         'mode' => 'smtp',
-        'server' => "in-v3.mailjet.com",
+        // Service name for smtp server
+        'server' => "smtp_netric",
         'dropbox' => "incoming@sys.netric.com",
         'dropbox_catchall' => "@sys.netric.com",
         'noreply' => "no-reply@netric.com",
-        'username' => "b112da3342c636e002eda3c51355a51f",
-        'password' => "834e70cabc642b54d30de418809066c8",
-        'port' => 587,
+        'username' => "",
+        'password' => "",
+        'port' => 25,
+        // 'server' => "in-v3.mailjet.com",
+        // 'dropbox' => "incoming@sys.netric.com",
+        // 'dropbox_catchall' => "@sys.netric.com",
+        // 'noreply' => "no-reply@netric.com",
+        // 'username' => "b112da3342c636e002eda3c51355a51f",
+        // 'password' => "834e70cabc642b54d30de418809066c8",
+        // 'port' => 587,
 
         // Set to imap for system backend. If these options are non-null then
         // by default ANT will retrieve email messages from this backend using the
