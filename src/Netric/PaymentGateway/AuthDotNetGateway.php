@@ -3,7 +3,7 @@
 namespace Netric\PaymentGateway;
 
 use \net\authorize\api\constants\ANetEnvironment;
-use Netric\Entity\ObjType\CustomerEntity;
+use Netric\Entity\ObjType\ContactEntity;
 use Netric\Entity\ObjType\PaymentProfileEntity;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
 use Netric\PaymentGateway\PaymentMethod\BankAccount;
@@ -105,11 +105,11 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * If you try to create a profile that already exists, this will return the
      * profile token.
      *
-     * @param CustomerEntity $customer Provide the gateway with needed customer data
+     * @param ContactEntity $customer Provide the gateway with needed customer data
      * @param CreditCard $card Credit card
      * @return string Encoded profile string with the customer and payment profile
      */
-    public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card): string
+    public function createPaymentProfileCard(ContactEntity $customer, CreditCard $card): string
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
@@ -176,11 +176,11 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * We always store bank account information with the gateway since we
      * do not want to accept liability for securing bank accounts on our system.
      *
-     * @param CustomerEntity $customer Provide the gateway with needed customer data
+     * @param ContactEntity $customer Provide the gateway with needed customer data
      * @param BankAccount $bankAccount Bank account details such as routing number and account number
      * @return string
      */
-    public function createPaymentProfileBankAccount(CustomerEntity $customer, BankAccount $bankAccount): string
+    public function createPaymentProfileBankAccount(ContactEntity $customer, BankAccount $bankAccount): string
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
@@ -250,7 +250,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * @return string
      */
-    private function createOrGetCustomerProfileId(CustomerEntity $customer): string
+    private function createOrGetCustomerProfileId(ContactEntity $customer): string
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
@@ -414,12 +414,12 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     /**
      * Charge a credit or debit card directly
      *
-     * @param CustomerEntity $customer
+     * @param ContactEntity $customer
      * @param CreditCard $card
      * @param float $amount
      * @return ChargeResponse
      */
-    public function chargeCard(CustomerEntity $customer, CreditCard $card, float $amount): ChargeResponse
+    public function chargeCard(ContactEntity $customer, CreditCard $card, float $amount): ChargeResponse
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
@@ -522,10 +522,10 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     /**
      * Get an existing profile from the gateway
      *
-     * @param CustomerEntity $customer
+     * @param ContactEntity $customer
      * @return void
      */
-    private function getExistingRemoteProfile(CustomerEntity $customer)
+    private function getExistingRemoteProfile(ContactEntity $customer)
     {
         // Get auth for connecting to the merchant gateway
         $merchantAuth = $this->getMerchantAuth();
@@ -570,7 +570,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * @return array
      */
-    // private function getExistingRemotePaymentProfiles(CustomerEntity $customer): array
+    // private function getExistingRemotePaymentProfiles(ContactEntity $customer): array
     // {
     //     // Get auth for connecting to the merchant gateway
     //     $merchantAuth = $this->getMerchantAuth();
@@ -606,10 +606,10 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     /**
      * Create a billing address object for AuthDotNet from a customer entity
      *
-     * @param CustomerEntity $customer
+     * @param ContactEntity $customer
      * @return AnetAPI\CustomerAddressType
      */
-    private function getBillingAddressFromCustomer(CustomerEntity $customer): AnetAPI\CustomerAddressType
+    private function getBillingAddressFromCustomer(ContactEntity $customer): AnetAPI\CustomerAddressType
     {
         $billTo = new AnetAPI\CustomerAddressType();
 
@@ -688,10 +688,10 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     /**
      * We have to convert our 36 character uuid into a 20 char unique id
      *
-     * @param CustomerEntity $customerEntity
+     * @param ContactEntity $customerEntity
      * @return string
      */
-    private function getUniqueIdFromCustomer(CustomerEntity $customerEntity): string
+    private function getUniqueIdFromCustomer(ContactEntity $customerEntity): string
     {
         $uuid = $customerEntity->getEntityId();
         return substr(md5($uuid), 0, 20);

@@ -11,7 +11,7 @@ use NetricTest\Bootstrap;
 use \net\authorize\api\constants\ANetEnvironment;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Entity\ObjType\CustomerEntity;
+use Netric\Entity\ObjType\ContactEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
@@ -98,7 +98,7 @@ class AuthDotNetGatewayTest extends TestCase
     /**
      * Create a test customer for interacting with
      *
-     * @return CustomerEntity
+     * @return ContactEntity
      */
     private function getTestCustomer()
     {

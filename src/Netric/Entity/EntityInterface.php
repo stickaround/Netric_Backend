@@ -8,6 +8,7 @@ namespace Netric\Entity;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinition;
 
 interface EntityInterface
 {
@@ -36,7 +37,7 @@ interface EntityInterface
      *
      * @return EntityDefinition
      */
-    public function getDefinition();
+    public function getDefinition(): EntityDefinition;
 
     /**
      * Return either the string or an array of values if *_multi
@@ -202,4 +203,12 @@ interface EntityInterface
      * Get a textual representation of what changed
      */
     public function getChangeLogDescription(): string;
+
+    /**
+     * Get previous value of a changed field
+     *
+     * @param string $checkfield The field name
+     * @return null if not found, mixed old value if set
+     */
+    public function getPreviousValue($checkfield);
 }

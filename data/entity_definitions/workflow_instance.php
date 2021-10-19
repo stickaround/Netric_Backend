@@ -19,7 +19,7 @@ return [
             'subtype' => '',
             'readonly' => false,
         ],
-        'entity_id' => [
+        'act_on_entity_id' => [
             'title' => 'Entity',
             'type' => Field::TYPE_UUID,
             'subtype' => '',
@@ -49,7 +49,7 @@ return [
             'readonly' => false
         ],
         'f_completed' => [
-            'title' => 'Actual Time',
+            'title' => 'All Actions Run',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,

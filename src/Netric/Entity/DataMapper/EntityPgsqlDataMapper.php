@@ -3,8 +3,6 @@
 namespace Netric\Entity\DataMapper;
 
 use Netric\Account\Account;
-use Netric\Entity\EntityAggregator;
-use Netric\Entity\ActivityLog;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
@@ -20,7 +18,6 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Entity\Entity;
-use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\Notifier\Notifier;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
@@ -29,6 +26,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
 use DateTime;
+use Netric\PubSub\PubSubInterface;
 use RuntimeException;
 
 /**
@@ -63,32 +61,26 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
         CommitManager $commitManager,
-        EntitySync $entitySync = null,
         EntityValidator $entityValidator,
         EntityFactory $entityFactory,
-        Notifier $notifier = null,
-        EntityAggregator $entityAggregator = null,
         EntityDefinitionLoader $entityDefLoader,
-        ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
         ServiceLocatorInterface $serviceManager,
         RelationalDbContainer $dbContainer,
-        WorkerService $workerService
+        WorkerService $workerService,
+        PubSubInterface $pubSub
     ) {
         // Pass in this aboslutely terrible list of dependencies
         parent::__construct(
             $recurIdentityMapper,
             $commitManager,
-            $entitySync,
             $entityValidator,
             $entityFactory,
-            $notifier,
-            $entityAggregator,
             $entityDefLoader,
-            $activityLog,
             $groupingLoader,
             $serviceManager,
-            $workerService
+            $workerService,
+            $pubSub
         );
 
         // Used to get active database connection for the right account
@@ -106,179 +98,6 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         return $this->databaseContainer->getDbHandleForAccountId($accountId);
     }
 
-    // /**
-    //  * Open object by id
-    //  *
-    //  * @var EntityInterface $entity The entity to load data into
-    //  * @var string $entityId The Id of the entity to load
-    //  * @var string $accountId The account we are loading from
-    //  * @return bool true on success, false on failure
-    //  */
-    // protected function loadAndFillEntityById(EntityInterface $entity, string $entityId, string $acountId): bool
-    // {
-    //     $sql = 'SELECT entity_id, entity_definition_id, field_data FROM ' .
-    //         self::ENTITY_TABLE .
-    //         ' WHERE entity_id=:entity_id AND account_id=:account_id';
-
-    //     $result = $this->getDatabase($this->getAccountId())->query(
-    //         $sql,
-    //         ['entity_id' => $entityId, 'account_id' => $acountId]
-    //     );
-
-    //     // The entity was not found
-    //     if ($result->rowCount() === 0) {
-    //         return false;
-    //     }
-
-    //     // Load rows and set values in the entity
-    //     $row = $result->fetch();
-    //     $entityData = json_decode($row['field_data'], true);
-
-    //     // If entityId is missing from the entity data, then add it
-    //     if (empty($entityData['entity_id'])) {
-    //         $entityData['entity_id'] = $row['entity_id'];
-    //     }
-
-    //     $def = $entity->getDefinition();
-    //     $allFields = $def->getFields();
-    //     foreach ($allFields as $field) {
-    //         // Sanitize the entity value.
-    //         $value = $this->sanitizeDbValuesToEntityFieldValue($field, $entityData[$field->name]);
-
-    //         $valueName = null;
-    //         if (!empty($entityData["{$field->name}_fval"])) {
-    //             $valueName = $entityData["{$field->name}_fval"];
-    //         }
-
-    //         // Set entity value
-    //         $entity->setValue($field->name, $value, $valueName);
-    //     }
-
-    //     // Make sure that we are now using guid for object references
-    //     // if (!$skipObjRefUpdate) {
-    //     //     $this->updatObjectReferencesToGuid($entity);
-    //     // }
-
-    //     return true;
-    // }
-
-    /**
-     * Update the object references to guid instead of just an id.
-     *
-     * @param EntityInterface $entity The entity to update its object references
-     */
-    // private function updatObjectReferencesToGuid(Entity $entity)
-    // {
-    //     $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
-    //     $groupingLoader = $this->account->getServiceManager()->get(GroupingLoaderFactory::class);
-
-    //     $entity->resetIsDirty();
-    //     $fields = $entity->getDefinition()->getFields();
-    //     foreach ($fields as $field) {
-    //         switch ($field->type) {
-    //             case Field::TYPE_GROUPING:
-    //             case Field::TYPE_GROUPING_MULTI:
-    //                 $fieldValue = $entity->getValue($field->name);
-    //                 $ownerGuid = $entity->getOwnerId();
-
-    //                 // Since we do not know if the group saved is a private grouping, we will just query both groupings and look for its id
-    //                 $publicGroupings = $groupingLoader->get($entity->getObjType() . "/{$field->name}");
-
-    //                 // Only load the private groupings if we have a valid ownerGuid
-    //                 if ($ownerGuid) {
-    //                     $privateGroupings = $groupingLoader->get($entity->getObjType() . "/{$field->name}/$ownerGuid");
-    //                 }
-
-    //                 // Check if this field is a grouping multi
-    //                 if ($field->isMultiValue()) {
-    //                     // Make sure that we have fieldValue and it is an array
-    //                     if ($fieldValue && is_array($fieldValue)) {
-    //                         // Loop thru the fieldValue and look for referenced group that still have id
-    //                         foreach ($fieldValue as $value) {
-    //                             if (!$value) {
-    //                                 continue;
-    //                             }
-
-    //                             // Look first in public groupings and see if the group id exists.
-    //                             $group = $publicGroupings->getByGuidOrGroupId($value);
-
-    //                             // If we haven't found the group in the public groupings, then let's look in the private groupings
-    //                             if (!$group && $privateGroupings) {
-    //                                 $group = $privateGroupings->getByGuidOrGroupId($value);
-    //                             }
-
-    //                             // Make sure that we have retrieved now the group from private groupings or public groupings
-    //                             if ($group) {
-    //                                 // Before adding the new guid value of the group, we need to remove first the existing one.
-    //                                 $entity->removeMultiValue($field->name, $value);
-
-    //                                 // Now that we have already removed the old group id, we can now add the new group's guid
-    //                                 $entity->addMultiValue($field->name, $group->getGroupId(), $group->name);
-    //                             }
-    //                         }
-    //                     }
-    //                 } elseif ($fieldValue && !Uuid::isValid($fieldValue) && $fieldValue) {
-    //                     // Here we will handle the grouping field and make sure that the fieldValue is still not a guid
-
-    //                     // Look first in public groupings and see if the group id exists.
-    //                     $group = $publicGroupings->getByGuidOrGroupId($fieldValue);
-
-    //                     // If we haven't found the group in the public groupings, then let's look in the private groupings
-    //                     if (!$group && $privateGroupings) {
-    //                         $group = $privateGroupings->getByGuidOrGroupId($fieldValue);
-    //                     }
-
-    //                     // Make sure that we have retrieved the group
-    //                     if ($group) {
-    //                         $entity->setValue($field->name, $group->getGroupId(), $group->name);
-    //                     }
-    //                 }
-    //                 break;
-
-    //             case Field::TYPE_OBJECT:
-    //                 $objValue = $entity->getValue($field->name);
-
-    //                 if ($objValue) {
-    //                     // Get the referenced entity
-    //                     $referencedEntity = $entityLoader->getEntityById($objValue);
-
-    //                     if ($referencedEntity) {
-    //                         $entity->setValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
-    //                     }
-    //                 }
-    //                 break;
-
-    //             case Field::TYPE_OBJECT_MULTI:
-    //                 $refValues = $entity->getValue($field->name);
-
-    //                 // Make sure the the multi value is an array
-    //                 if (is_array($refValues)) {
-    //                     foreach ($refValues as $value) {
-    //                         if ($value) {
-    //                             // Get the referenced entity
-    //                             $referencedEntity = $entityLoader->getEntityById($value);
-
-    //                             // If we have successfully loaded the referenced entity, then we will add its guid
-    //                             if ($referencedEntity) {
-    //                                 // Before adding the new guid value of the object, we need to remove first the existing one.
-    //                                 $entity->removeMultiValue($field->name, $value);
-
-    //                                 // Now that we have already removed the old object id, we can now add the new object's guid
-    //                                 $entity->addMultiValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //                 break;
-    //         }
-    //     }
-
-    //     // Save this entity only if there were changes made.
-    //     if ($entity->isDirty()) {
-    //         $this->saveData($entity);
-    //     }
-    // }
-
     /**
      * Get entity data by guid
      *
@@ -288,7 +107,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
      */
     protected function fetchDataByEntityId(string $entityId, string $accountId): ?array
     {
-        $sql = 'SELECT entity_id, field_data FROM ' . self::ENTITY_TABLE .
+        $sql = 'SELECT entity_id, uname, field_data FROM ' . self::ENTITY_TABLE .
             ' WHERE entity_id = :entity_id AND account_id=:account_id';
         $result = $this->getDatabase($accountId)->query(
             $sql,
@@ -311,6 +130,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
          */
         $entityData['entity_id'] = $row['entity_id'];
         $entityData['account_id'] = $accountId;
+        $entityData['uname'] = $row['uname'];
         return $entityData;
     }
 
@@ -547,7 +367,8 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
             }
 
             // Set fval cache so we do not have to do crazy joins across tables
-            if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
+            if (
+                $fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
                 $fdef->type == "object" || $fdef->type == "object_multi"
             ) {
                 // Get the value names (if set) and save
@@ -616,85 +437,9 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         ];
         $this->getDatabase($accountId)->insert(self::ENTITY_MOVED_TABLE, $data);
 
-        // Update the referenced entities
-        // $this->updateOldReferences($def, $fromId, $toId);
-
         // If it fails an exception will be thrown
         return true;
     }
-
-    /**
-     * Update the old references when moving an entity
-     *
-     * @param EntityDefinition $def The defintion of this object type
-     * @param string $fromId The id to move
-     * @param string $toId The unique id of the object this was moved to
-     */
-    // public function updateOldReferences(EntityDefinition $def, string $fromId, string $toId): bool
-    // {
-    //     $entityDefinitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-    //     $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
-    //     $entityLoader = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class);
-
-    //     $toEntity = $entityLoader->getEntityById($toId);
-    //     $definitions = $entityDefinitionLoader->getAll();
-
-    //     // Loop thru all the entity definitions and check if we have fields that needs to update the reference
-    //     foreach ($definitions as $definition) {
-    //         $fields = $definition->getFields();
-
-    //         foreach ($fields as $field) {
-    //             // Skip over any fields that are not a reference to an object
-    //             if ($field->type != Field::TYPE_OBJECT && $field->type != Field::TYPE_OBJECT_MULTI) {
-    //                 continue;
-    //             }
-
-    //             // Create an EntityQuery for each object type
-    //             $query = new EntityQuery($definition->getObjType());
-    //             $oldFieldValue = null;
-    //             $newFieldValue = null;
-
-    //             // Check if field subtype is the same as the $def objtype and if field is not multivalue
-    //             if ($field->subtype == $def->getObjType()) {
-    //                 $oldFieldValue = $fromId;
-    //                 $newFieldValue = $toEntity->getEntityId();
-    //             }
-
-
-
-    //             // Only continue if the field met one of the conditions above
-    //             if (!$oldFieldValue || !$newFieldValue) {
-    //                 continue;
-    //             }
-
-    //             // Query the index for entities with a matching field
-    //             $query->where($field->name)->equals($oldFieldValue);
-    //             $result = $entityIndex->executeQuery($query);
-
-    //             if ($result) {
-    //                 $num = $result->getNum();
-
-    //                 // Update each entity with a field that matched
-    //                 for ($i = 0; $i < $num; $i++) {
-    //                     $entity = $result->getEntity($i);
-
-    //                     // Check if field is a multi field
-    //                     if ($field->isMultiValue()) {
-    //                         $entity->removeMultiValue($field->name, $oldFieldValue);
-    //                         $entity->addMultiValue($field->name, $newFieldValue);
-    //                     } else {
-    //                         $entity->setValue($field->name, $newFieldValue);
-    //                     }
-
-    //                     // Save the changes made in the entity
-    //                     $this->save($entity);
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return true;
-    // }
 
     /**
      * Save revision snapshot
@@ -743,5 +488,24 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         }
 
         return $ret;
+    }
+
+    /**
+     * Call used to generate a unique ID for a uname field
+     *
+     * We use this because a UUID used for entity IDs is not really human-readable
+     * so this is a per-account unique ID generator to make it easier for internal
+     * users to share entities with numbers.
+     *
+     * @param string $accountId
+     * @return string
+     */
+    protected function generateUnameId(string $accountId): string
+    {
+        $result = $this->getDatabase($accountId)->query(
+            "SELECT nextval('entity_uname_seq') as num"
+        );
+
+        return $result->fetch()['num'];
     }
 }

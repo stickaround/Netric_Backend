@@ -41,7 +41,7 @@ class WorkerServicetest extends TestCase
         $workerFactory = $this->createMock(WorkerFactory::class);
         $queue = new InMemory($workerFactory);
 
-        $this->workerService = new WorkerService($this->account->getApplication(), $queue, $workerFactory);
+        $this->workerService = new WorkerService($queue, $workerFactory);
     }
 
     public function testDoWorkBackground()

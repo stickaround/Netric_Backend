@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Provides extensions for the File object
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\ObjType;
 
 use Netric\FileSystem\FileStore\FileStoreFactory;
@@ -31,11 +33,10 @@ class FileEntity extends Entity implements EntityInterface
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
-     * @param EntityLoader $entityLoader The loader for a specific entity
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def)
     {
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**
@@ -107,9 +108,38 @@ class FileEntity extends Entity implements EntityInterface
                 return "image/jpeg";
             case 'png':
                 return "image/png";
-
+            case 'mp4':
+                return "video/mp4";
+            case 'mov':
+                return "video/quicktime";
+            case 'avi':
+                return "video/x-msvideo";
+            case 'wmv':
+                return "video/x-ms-wmv";
+            case '3gp':
+                return "video/3gpp";
+            case 'mkv':
+                return "video/x-matroska";
             default:
                 return "application/octet-stream";
         }
+    }
+
+    /**
+     * Check if this file is an image
+     *
+     * @return bool
+     */
+    public function isImage(): bool
+    {
+        $type = $this->getType();
+        switch ($type) {
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                return true;
+        }
+
+        return false;
     }
 }

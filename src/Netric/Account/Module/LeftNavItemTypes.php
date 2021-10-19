@@ -68,4 +68,14 @@ interface LeftNavItemTypes
      * Settings module: manage entities
      */
     const SETTINGS_ENTITIES = 'SettingsEntities';
+
+    /**
+     * Home page feed - similar to social media home pages - but for work
+     */
+    const HOME_FEED = 'HomeFeed';
+
+    /**
+     * Home for work task page feed - similar to social media home pages - but for work tasks
+     */
+    const WORK_HOME = 'WorkHome';
 }

@@ -9,7 +9,7 @@ use Netric\Account\Billing\AccountBillingService;
 use Netric\Account\Billing\AccountBillingServiceInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
-use Netric\Entity\ObjType\CustomerEntity;
+use Netric\Entity\ObjType\ContactEntity;
 use Netric\Entity\ObjType\PaymentProfileEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
@@ -80,7 +80,7 @@ class AccountBillingServiceTest extends TestCase
          * In netric each account has a customer/contact account in the main account
          * (aereus account) to make billing and support possible through netric itself
          */
-        $mockContact = $this->createMock(CustomerEntity::class);
+        $mockContact = $this->createMock(ContactEntity::class);
         $mockContact->method('getEntityId')->willReturn(self::TEST_ACCOUNT_CONTACT_ID);
         $this->mockEntityLoader->method('getEntityById')
             ->with(self::TEST_ACCOUNT_CONTACT_ID, self::TEST_MAIN_ACCOUNT_ID)

@@ -51,7 +51,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
 
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**

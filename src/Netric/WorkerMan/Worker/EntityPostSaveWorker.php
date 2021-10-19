@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace Netric\WorkerMan\Worker;
 
+use DateInterval;
+use DateTime;
 use Netric\Account\AccountContainerFactory;
 use Netric\Entity\ActivityLogFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
-use Netric\Entity\Notifier\NotifierFactory;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogFactory;
+use Netric\WorkerMan\SchedulerServiceFactory;
+use Netric\Workflow\WorkflowServiceFactory;
 use RuntimeException;
 
 /**
@@ -44,6 +48,13 @@ class EntityPostSaveWorker extends AbstractWorker
         // Get the account
         $accountContainer = $serviceManager->get(AccountContainerFactory::class);
         $account = $accountContainer->loadById($workload['account_id']);
+
+        // Handle deleted/deactivated account
+        if (!$account) {
+            $log->info(__CLASS__ . ': worker exiting gracefully because account is deleted');
+            return true;
+        }
+
         $serviceManager = $account->getServiceManager();
 
         // Get the user
@@ -58,19 +69,54 @@ class EntityPostSaveWorker extends AbstractWorker
             return true;
         }
 
+        // Avoid worker jobs which is kind of circular
+        if ($entity->getDefinition()->getObjType() === ObjectTypes::WORKER_JOB) {
+            return true;
+        }
+
         // Save data to EntityQuery Index
         $entityIndex = $serviceManager->get(IndexFactory::class);
         $entityIndex->save($entity);
 
         // Create or send notifications if the changelog was sent
+        // We exclude worker jobs because right now the scheduler creates a new entity of type worker_job
+        // which would cause an infinite loop. When we switch over to a better job queue with scheduling
+        // this will become cleaner - and faster too
         if (!empty($workload['changed_description']) && $user) {
-            $notifierService = $serviceManager->get(NotifierFactory::class);
-            $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
+            // Send in 3 seconds to give the UI time to register if the entity is alraedy seen
+            // before spamming them with notifications
+            $executeAt = new DateTime();
+            $executeAt->add(new DateInterval('PT3S')); // +3 seconds
+            $schedulerSerivce = $serviceManager->get(SchedulerServiceFactory::class);
+            $schedulerSerivce->scheduleAtTime(
+                $user,
+                NotificationWorker::class,
+                $executeAt,
+                [
+                    'account_id' => $account->getAccountId(),
+                    'entity_id' => $entity->getEntityId(),
+                    'user_id' => $user->getEntityid(),
+                    'event_name' => 'sent',
+                    'changed_description' => 'Did something'
+                ]
+            );
+
+            // Run in a separate worker now
+            // $notifierService = $serviceManager->get(NotifierFactory::class);
+            // $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
         }
 
         // Log the activity
-        $activityLog = $serviceManager->get(ActivityLogFactory::class);
-        $activityLog->log($user, $workload['event_name'], $entity);
+        if ($user) {
+            $activityLog = $serviceManager->get(ActivityLogFactory::class);
+            $activityLog->log($user, $workload['event_name'], $entity);
+        }
+
+        // Launch workflows
+        if ($user) {
+            $workflowService = $serviceManager->get(WorkflowServiceFactory::class);
+            $workflowService->runWorkflowsOnEvent($entity, $workload['event_name'], $user);
+        }
 
         return true;
     }

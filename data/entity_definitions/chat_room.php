@@ -5,6 +5,7 @@ namespace data\entity_definitions;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\ChatRoomEntity;
 
 return [
     'default_activity_level' => 1,
@@ -22,12 +23,12 @@ return [
             'subtype' => '32',
             'optional_values' => [
                 // Channels are used for persistent rooms
-                "channel" => "Channel",
+                "channel" => ChatRoomEntity::ROOM_CHANNEL,
                 // Direct mesage/threads between two or more people
-                "direct" => "Direct"
+                "direct" => ChatRoomEntity::ROOM_DIRECT
             ],
             'readonly' => true,
-            'default' => ["value" => 'channel', "on" => "null"]
+            'default' => ["value" => ChatRoomEntity::ROOM_CHANNEL, "on" => "null"]
         ],
         'last_message_body' => [
             'title' => 'Last Message',

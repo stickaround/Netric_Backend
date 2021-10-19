@@ -12,7 +12,6 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\EntityQuery;
-use ReflectionException;
 
 /**
  * @group integration
@@ -61,6 +60,7 @@ class AuthenticationServiceTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->authService = $this->account->getServiceManager()->get(AuthenticationServiceFactory::class);
         $this->authService->setPrivateKey(self::PRIVATE_KEY);
+        $this->authService->clearAuthorizedCache();
 
         // Setup entity datamapper for handling users
         $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
@@ -90,7 +90,7 @@ class AuthenticationServiceTest extends TestCase
     {
         if ($this->user) {
             $dm = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
-            $dm->delete($this->user, $this->account->getAuthenticatedUser());
+            $dm->delete($this->user, $this->user);
         }
     }
 
@@ -184,6 +184,24 @@ class AuthenticationServiceTest extends TestCase
         // Now get the identity (userid) of the authenticated user
         $identity = $this->authService->getIdentity();
         $this->assertEquals($this->user->getEntityId(), $identity->getUserId());
+        $this->assertEquals($this->user->getValue('account_id'), $identity->getAccountId());
+    }
+
+    /**
+     * Make sure we can get an authenticated user
+     */
+    public function testGetAuthenticatedAccountPkey()
+    {
+        // Create a valid token to test
+        $sessionToken = "NTRC-PKY " . $this->user->getAccountId() . ':' . self::PRIVATE_KEY;
+
+        // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
+        $req = $this->getMockBuilder(RequestInterface::class)->getMock();
+        $req->method('getParam')->willReturn($sessionToken);
+        $this->authService->setRequest($req);
+
+        // Now get the identity (userid) of the authenticated user
+        $identity = $this->authService->getIdentity();
         $this->assertEquals($this->user->getValue('account_id'), $identity->getAccountId());
     }
 

@@ -14,7 +14,6 @@ use Netric\EntityQuery\Aggregation\AggregationInterface;
 use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityValueSanitizer;
 
 /**
@@ -186,14 +185,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
          * If there is no f_deleted field condition set and entityDefinition has f_deleted field
          * We will make sure that we will get the non-deleted records
          */
-        if (!$query->fieldIsInWheres('f_deleted') && $entityDefinition->getField("f_deleted")) {
+        if (!$query->fieldIsInWheres('f_deleted')) {
             // If $conditionString is not empty, then we will just append the "and" blogic
             if (!empty($conditionString)) {
                 $conditionString .= " AND ";
             }
 
             $castType = $this->castType(FIELD::TYPE_BOOL);
-            $conditionString .= "((nullif(field_data->>'f_deleted', ''))$castType = false OR field_data->>'f_deleted' IS NULL)";
+            $conditionString .= "(f_deleted is not true)";
         }
 
         // Add entity_definition_id constraint
@@ -320,7 +319,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                if ($fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
+                if (
+                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
                     || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
@@ -452,7 +452,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     case FIELD::TYPE_TEXT:
                         break;
                     case FIELD::TYPE_OBJECT:
-                        if (!empty($field->subtype)
+                        if (
+                            !empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
                             && is_numeric($value)
                         ) {
@@ -576,25 +577,23 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $fieldName = $condition->fieldName;
         $value = pg_escape_string($condition->value);
 
+        // Handle special indexed columns
+        switch ($fieldName) {
+            case 'uname':
+            case 'entity_id':
+                return "$fieldName='$value'";
+        }
+
         $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($value) {
-                    // Old column-based query condition
-                    //$conditionString = "$fieldName=" . $this->database->quote($value);
                     // New jsonb-based query condition
                     $conditionString = "field_data->>'$fieldName' = '$value'";
                 } else {
                     // Value is null/empty or key does not exist
                     $conditionString = "(field_data->>'$fieldName') IS NULL OR field_data->>'$fieldName' = ''";
-
-                    // Old column-based query condition
-                    // $conditionString = "$fieldName is null";
-
-                    // if (empty($field->subtype)) {
-                    //     $conditionString .= " or $fieldName=''";
-                    // }
                 }
                 break;
             case FIELD::TYPE_OBJECT_MULTI:
@@ -669,15 +668,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $conditionString = "$fieldName NOT IN (WITH RECURSIVE children AS
                                     (
                                         -- non-recursive term
-                                        SELECT field_data->>'id' FROM $refDefTable WHERE field_data->>'id' = '$value'
+                                        SELECT field_data->>'entity_id' FROM $refDefTable WHERE field_data->>'entity_id' = '$value'
                                         UNION ALL
                                         -- recursive term
-                                        SELECT $refDefTable.field_data->>'id'
+                                        SELECT $refDefTable.field_data->>'entity_id'
                                         FROM $refDefTable
                                         JOIN children AS chld
-                                            ON ($refDefTable.field_data->>'$parentField' = chld.id)
+                                            ON ($refDefTable.field_data->>'$parentField' = chld.entity_id)
                                     )
-                                    SELECT id
+                                    SELECT entity_id
                                     FROM children)";
                         }
                     } else {

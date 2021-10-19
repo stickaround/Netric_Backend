@@ -61,7 +61,7 @@ class ChatHandlerTest extends TestCase
         $field = new Field('members');
         $field->type = Field::TYPE_OBJECT_MULTI;
         $roomDefinition->addField($field);
-        $room = new Entity($roomDefinition, $this->mockEntityLoader);
+        $room = new Entity($roomDefinition);
         $room->addMultiValue('members', $userOneId, 'user1');
         $room->addMultiValue('members', $userTwoId, 'user2');
 
@@ -76,7 +76,7 @@ class ChatHandlerTest extends TestCase
         $bodyField = new Field('body');
         $bodyField->type = Field::TYPE_TEXT;
         $messageDefinition->addField($bodyField);
-        $message = new Entity($messageDefinition, $this->mockEntityLoader);
+        $message = new Entity($messageDefinition);
         $message->addMultiValue('seen_by', $userOneId, 'user1');
         $message->setValue('chat_room', $roomId);
         $message->setValue('body', 'My Test Message');

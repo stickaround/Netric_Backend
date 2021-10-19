@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;

@@ -388,7 +388,7 @@ class BrowserViewServiceTest extends TestCase
     }
 
     /**
-     * Make sure that the task browser views are using status_id instead of "done" field
+     * Make sure that the task browser views are using status_id instead of "is_closed" field
      */
     public function testTaskSystemBrowserViewsStatus()
     {
@@ -397,8 +397,8 @@ class BrowserViewServiceTest extends TestCase
         $foundDoneField = false;
         foreach ($systemViews as $sysView) {
             foreach ($sysView->getConditions() as $cond) {
-                // If we have found a "done" field in the conditions, then
-                if ($cond->fieldName == "done") {
+                // If we have found a "is_closed" field in the conditions, then
+                if ($cond->fieldName == 'is_closed') {
                     $foundDoneField = true;
                 }
 
@@ -409,7 +409,7 @@ class BrowserViewServiceTest extends TestCase
             }
         }
 
-        $this->assertFalse($foundDoneField);
+        $this->assertTrue($foundDoneField);
     }
 
     /**

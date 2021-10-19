@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\EntitySync;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntitySync\DataMapperFactory;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntitySync\Partner;
@@ -152,8 +153,8 @@ abstract class AbstractCollectionTests extends TestCase
     public function testSetAndGetObjType()
     {
         $coll = $this->getCollection();
-        $coll->setObjType("customer");
-        $this->assertEquals("customer", $coll->getObjType());
+        $coll->setObjType(ObjectTypes::CONTACT);
+        $this->assertEquals(ObjectTypes::CONTACT, $coll->getObjType());
     }
 
     public function testSetAndGetFieldName()

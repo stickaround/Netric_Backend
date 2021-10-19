@@ -59,15 +59,6 @@ class TaskTest extends TestCase
         $this->assertInstanceOf(TaskEntity::class, $entity);
     }
 
-    public function testOnBeforeSaveFlagsDoneWhenCompleted()
-    {
-        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
-        $task->setValue('status_id', 1, TaskEntity::STATUS_COMPLETED);
-        $mockServiceManager = $this->getMockBuilder(ServiceLocatorInterface::class)->getMock();
-        $task->onBeforeSave($mockServiceManager, $this->account->getSystemUser());
-        $this->assertTrue($task->getValue('done'));
-    }
-
     public function testOnRecurrence()
     {
         // Setup entity datamapper for handling users

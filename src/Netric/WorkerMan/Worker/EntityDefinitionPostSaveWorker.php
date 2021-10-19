@@ -37,6 +37,12 @@ class EntityDefinitionPostSaveWorker extends AbstractWorker
         // Get the account
         $accountContainer = $serviceManager->get(AccountContainerFactory::class);
         $account = $accountContainer->loadById($workload['account_id']);
+
+        // Exit if account has been removed
+        if (!$account) {
+            return true;
+        }
+
         $serviceManager = $account->getServiceManager();
 
         // Clear the cache
@@ -53,7 +59,8 @@ class EntityDefinitionPostSaveWorker extends AbstractWorker
      */
     private function validWorkload(array $workload): bool
     {
-        if (empty($workload['entity_definition_id']) ||
+        if (
+            empty($workload['entity_definition_id']) ||
             empty($workload['account_id']) ||
             empty($workload['obj_type'])
         ) {

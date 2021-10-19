@@ -5,7 +5,6 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new chat_root entity
@@ -21,7 +20,6 @@ class ChatRoomFactory implements EntityFactoryInterface
      */
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new ChatRoomEntity($def, $entityLoader);
+        return new ChatRoomEntity($def);
     }
 }

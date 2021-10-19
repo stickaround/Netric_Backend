@@ -1,19 +1,9 @@
 <?php
 
-/**
- * Provides extensions for the Task object
- *
- * @author Marl Tumulak <marl.tumulak@aereus.com>
- * @copyright 2016 Aereus
- */
-
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\Entity\ObjType\UserEntity;
-use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinition;
 
 /**
@@ -49,27 +39,10 @@ class TaskEntity extends Entity implements EntityInterface
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
-     * @param EntityLoader $entityLoader The loader for a specific entity
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def)
     {
-        parent::__construct($def, $entityLoader);
-    }
-
-    /**
-     * Callback function used for derrived subclasses
-     *
-     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
-     * @param UserEntity $user The user that is acting on this entity
-     */
-    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
-    {
-        if ($this->getValue('status_id')) {
-            $this->setValue(
-                'done',
-                ($this->getValueName('status_id') === self::STATUS_COMPLETED)
-            );
-        }
+        parent::__construct($def);
     }
 
     /**
@@ -79,9 +52,9 @@ class TaskEntity extends Entity implements EntityInterface
      */
     public function getIconName()
     {
-        $done = $this->getValue("done");
+        $closed = $this->getValue('is_closed');
 
-        if ($done === 't' || $done === true) {
+        if ($closed === true) {
             return "task_on";
         } else {
             return "task";

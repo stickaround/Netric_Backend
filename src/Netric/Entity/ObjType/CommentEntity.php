@@ -2,7 +2,6 @@
 
 namespace Netric\Entity\ObjType;
 
-use Netric\EntityDefinition\Field;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
@@ -33,7 +32,7 @@ class CommentEntity extends Entity implements EntityInterface
     public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
     {
         $this->entityLoader = $entityLoader;
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**

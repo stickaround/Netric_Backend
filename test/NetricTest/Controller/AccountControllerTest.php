@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Account\Account;
 use Netric\Account\AccountContainerInterface;
-use Netric\Application\Response\HttpResponse;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationIdentity;
 use Netric\Controller\AccountController;
@@ -19,7 +18,7 @@ use Netric\Account\Module\Module;
 use Netric\Account\Module\ModuleService;
 use Netric\Account\Billing\AccountBillingService;
 use Netric\Entity\EntityLoader;
-use Netric\Entity\ObjType\CustomerEntity;
+use Netric\Entity\ObjType\ContactEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
@@ -128,7 +127,7 @@ class AccountControllerTest extends TestCase
         ];
 
         // Create test contact entity
-        $mockCustomerEntity = $this->createMock(CustomerEntity::class);
+        $mockCustomerEntity = $this->createMock(ContactEntity::class);
         $mockCustomerEntity->method('getName')->willReturn($contactDetails['name']);
         $mockCustomerEntity->method('getEntityId')->willReturn($contactId);
         $mockCustomerEntity->method('toArray')->willReturn($contactDetails);

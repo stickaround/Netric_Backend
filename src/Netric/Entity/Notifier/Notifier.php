@@ -116,13 +116,15 @@ class Notifier
              *
              * 1. Was not deleted
              * 2. Not the same as the user performing the action - no need to notify them they did something
-             * 3. Not a system user
-             * 4. Had not already seen the entity before the notification was triggered (like for chat messages)
+             * 3. Not a meta user (user poiinter like creator/owner)
+             * 4. Not a public user IF the entity is not public
              */
             if (
                 !$follower ||
                 $follower->getEntityId() == $user->getEntityId() ||
-                $follower->isSystem()
+                $follower->getValue('type') == UserEntity::TYPE_META ||
+                $follower->getValue('type') == UserEntity::TYPE_SYSTEM ||
+                ($follower->getValue('type') == UserEntity::TYPE_PUBLIC && $entity->getValue('is_public') !== true)
             ) {
                 // Skip
                 continue;

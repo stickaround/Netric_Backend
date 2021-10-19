@@ -530,7 +530,7 @@ class EntityTest extends TestCase
         $this->assertEmpty($cust->getChangeLogDescription());
     }
 
-     /**
+    /**
      * Test loading from an array
      */
     public function testGetChangeLogDescription()
@@ -563,5 +563,55 @@ class EntityTest extends TestCase
         $existingCust = $entityLoader->getEntityById($cust->getEntityId(), $this->account->getAccountId());
         $dataMapper->save($existingCust, $this->account->getAuthenticatedUser());
         $this->assertEmpty($existingCust->getChangeLogDescription());
+    }
+
+    /**
+     * Test setting of f_seen to true if the owner of entity is the current user
+     */
+    public function testFSeenForCurrentUser()
+    {
+        $data = [
+            "name" => "testFSeenForCurrentUser",
+            "owner_id" => $this->user->getEntityId(),
+            "owner_id_fval" => [
+                $this->user->getEntityId() => $this->user->getValue("name")
+            ],
+        ];
+
+        // Load data into entity
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $task->fromArray($data);
+
+        // Let's save $task
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+        $dataMapper->save($task, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $task; // For cleanup
+
+        // If seen should be true
+        $this->assertTrue($task->getValue("f_seen"));
+    }
+
+    /**
+     * Test setting of f_seen to true if the owner of entity is the current user
+     */
+    public function testFSeenForNonOwnerUser()
+    {
+        $data = [
+            "name" => "testFSeenForCurrentUserNot",
+            "owner_id" => Uuid::uuid4()->toString(),
+            "creator_id" => Uuid::uuid4()->toString()
+        ];
+
+        // Load data into entity
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $task->fromArray($data);
+
+        // Let's save $task
+        $dataMapper = $this->account->getServiceManager()->get(EntityDataMapperFactory::class);
+        $dataMapper->save($task, $this->account->getAuthenticatedUser());
+        $this->testEntities[] = $task; // For cleanup
+
+        // If seen should be false
+        $this->assertFalse($task->getValue("f_seen"));
     }
 }

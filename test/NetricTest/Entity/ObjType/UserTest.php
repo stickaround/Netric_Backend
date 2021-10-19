@@ -7,8 +7,6 @@
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
-use Netric\Permissions\DaclLoaderFactory;
-use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
 use NetricTest\Bootstrap;
@@ -129,6 +127,21 @@ class UserTest extends TestCase
 
         // Make sure we created a random salt
         $this->assertNotEmpty($user->getValue('password_salt'));
+    }
+
+    /**
+     * Make sure a contact was created when the test user was created
+     *
+     * @return void
+     */
+    public function testOnBeforeSaveContactSet(): void
+    {
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
+        $user->setValue("name", self::TEST_USER);
+        $user->setValue("password", self::TEST_USER_PASS);
+        $user->onBeforeSave($this->account->getServiceManager(), $this->account->getSystemUser());
+
+        $this->assertNotEmpty($user->getValue('contact_id'));
     }
 
     public function testGenerateSaltForPasswords()

@@ -23,10 +23,10 @@ return array(
             ),
         ),
         'order_by' => array(
-            'sort_order' => array(
-                'field_name' => 'sort_order',
+            'date' => [
+                'field_name' => 'ts_entered',
                 'direction' => 'desc',
-            ),
+            ],
         ),
         'table_columns' => array('name', 'ts_execute')
     ),

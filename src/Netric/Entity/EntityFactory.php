@@ -61,10 +61,9 @@ class EntityFactory
             return $entity;
         }
 
-        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
         // TODO: if !$def then throw an exception
-        $entity = new Entity($def, $entityLoader);
+        $entity = new Entity($def);
         $entity->setvalue('account_id', $accountId);
         return $entity;
     }

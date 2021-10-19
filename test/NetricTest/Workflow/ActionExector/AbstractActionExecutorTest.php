@@ -16,7 +16,7 @@ use Netric\EntityDefinition\EntityDefinition;
 /**
  * Test action executor
  */
-class AbstractActionExecutorTest extends testCase
+class AbstractActionExecutorTest extends TestCase
 {
     /**
      * The base abstract class we are testing

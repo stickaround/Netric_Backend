@@ -23,6 +23,7 @@ use Ramsey\Uuid\Uuid;
 use Netric\Entity\EntityAggregatorFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\PubSub\PubSubInterface;
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Worker\EntityPostSaveWorker;
 use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
@@ -133,44 +134,43 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     private WorkerService $workerService;
 
     /**
+     * PubSub service for emitting important events about entities
+     */
+    private PubSubInterface $pubSub;
+
+    /**
      * Class constructor
      *
      * @param RecurrenceIdentityMapper $recurIdentityMapper
      * @param CommitManager $commitManager
-     * @param EntitySync $entitySync
      * @param EntityValidator $entityValidator
      * @param EntityFactory $entityFactory
-     * @param Notifier $notifier
-     * @param EntityAggregator $entityAggregator
      * @param EntityDefinitionLoader $entityDefLoader
-     * @param ActivityLog $activityLog
      * @param GroupingLoader $groupingLoader
      * @param ServiceLocatorInterface $serviceManager
+     * @param WorkerSErvice $workerService
+     * @param PubSubInterface $pubSub
      */
     public function __construct(
         RecurrenceIdentityMapper $recurIdentityMapper,
         CommitManager $commitManager,
-        EntitySync $entitySync = null,
         EntityValidator $entityValidator,
         EntityFactory $entityFactory,
-        Notifier $notifier = null,
-        EntityAggregator $entityAggregator = null,
         EntityDefinitionLoader $entityDefLoader,
-        ActivityLog $activityLog = null,
         GroupingLoader $groupingLoader,
         ServiceLocatorInterface $serviceManager,
-        WorkerService $workerService
+        WorkerService $workerService,
+        PubSubInterface $pubSub
     ) {
         $this->recurIdentityMapper = $recurIdentityMapper;
         $this->commitManager = $commitManager;
-        // $this->entitySync = $entitySync;
         $this->entityValidator = $entityValidator;
         $this->entityFactory = $entityFactory;
-        //$this->entityAggregator = $entityAggregator;
         $this->entityDefLoader = $entityDefLoader;
         $this->groupingLoader = $groupingLoader;
         $this->serviceManager = $serviceManager;
         $this->workerService = $workerService;
+        $this->pubSub = $pubSub;
     }
 
     /**
@@ -186,16 +186,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         string $toId,
         string $accountId
     ): bool;
-
-    /**
-     * Update the old references when moving an entity
-     *
-     * @param EntityDefinition $def The defintion of this object type
-     * @param string $fromId The id to move
-     * @param string $toId The unique id of the object this was moved to
-     * @return bool true on success, false on failure
-     */
-    //abstract public function updateOldReferences(EntityDefinition $def, string $fromId, string $toId): bool;
 
     /**
      * Get entity data by guid
@@ -250,6 +240,18 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     abstract protected function getRevisionsData(string $entityId, string $accountId): array;
 
     /**
+     * Call used to generate a unique ID for a uname field
+     *
+     * We use this because a UUID used for entity IDs is not really human-readable
+     * so this is a per-account unique ID generator to make it easier for internal
+     * users to share entities with numbers.
+     *
+     * @param string $accountId
+     * @return string
+     */
+    abstract protected function generateUnameId(string $accountId): string;
+
+    /**
      * Save entity data
      *
      * @param EntityInterface $entity The entity to save
@@ -295,7 +297,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $event = ($revision > 1) ? "update" : "create";
         $entity->setFieldsDefault($event, $user);
 
-        // Create a unique name if the entity supports it
+        // Create a unique name or human-readable number - UUIDs are hard to remember
         $this->setUniqueName($entity);
 
         // Create global uuid if not already set
@@ -350,6 +352,19 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         // Update any aggregates that could be impacted by saving $entity
         $this->entityAggregator = $this->serviceManager->get(EntityAggregatorFactory::class);
         $this->entityAggregator->updateAggregates($entity, $user);
+
+        // Send saved event to pubsub (redis) so that other services can respond
+        // One primary use of this is the api.netric.com server will watch for entity
+        // changes on behalf of the client to send updates for things like badges and
+        // changes to notifications.
+        $this->pubSub->publish(
+            'netric/' . $entity->getAccountId() . '/entity_change',
+            [
+                'action' => $event,
+                'before' => ($event === 'update') ? $this->getDataBeforeChanges($entity) : [],
+                'after' => $entity->toArray()
+            ]
+        );
 
         // Reset dirty flag and changelog
         $entity->resetIsDirty();
@@ -476,10 +491,15 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             }
         }
 
-        $filterValues = array_merge($namespaceFieldValues, $parentFieldCondition, ['uname' => $uname]);
+        $filterValues = array_merge(
+            $namespaceFieldValues,
+            $parentFieldCondition,
+            ['uname' => $uname]
+        );
         $matches = $this->getIdsFromFieldValues($objType, $filterValues, $accountId);
 
-        if (count($matches) == 1 || !empty($matches[0])) {
+        // Return the first match
+        if (!empty($matches[0])) {
             $entity = $this->getEntityById($matches[0], $accountId);
             return $entity;
         }
@@ -577,6 +597,19 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             ]);
         }
 
+        // Send delete event to pubsub (redis) so that other services can respond
+        // One primary use of this is the api.netric.com server will watch for entity
+        // changes on behalf of the client to send updates for things like badges and
+        // changes to notifications.
+        $this->pubSub->publish(
+            'netric/' . $entity->getAccountId() . '/entity_change',
+            [
+                'action' => 'delete',
+                'before' => $entity->toArray(),
+                'after' => [] // no more
+            ]
+        );
+
         return $ret;
     }
 
@@ -615,6 +648,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             // Make sure that the owner_id was set
             if ($entity->getValue("owner_id")) {
                 $userEntity = $this->getEntityById($entity->getValue("owner_id"), $user->getAccountId());
+            } elseif ($entity->getValue("creator_id")) {
+                $userEntity = $this->getEntityById($entity->getValue("creator_id"), $user->getAccountId());
             }
 
             if ($userEntity) {
@@ -727,28 +762,65 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     {
         $def = $entity->getDefinition();
 
-        // If we are not using unique names with this object just return
-        if (!$def->unameSettings) {
-            return false;
-        }
-
         // If we have already created a uname and saved it then do nothing
-        if ($entity->getValue("uname")) {
+        // We add this to reduce load since there's no point in validating
+        // a uname over and over is nothing has changed since it was last saved
+        if ($entity->getValue("uname") && !$entity->fieldValueChanged('uname')) {
             return false;
         }
 
-        $unameSettings = explode(":", $def->unameSettings);
+        // Check if uname was manually entered / edited
+        if ($entity->getValue("uname") && $entity->fieldValueChanged('uname')) {
+            if (!$this->verifyUniqueName($entity, $entity->getValue("uname"))) {
+                // Uhoh, they entered a uname that already exists
+                // prepend a unique ID
+                $uname = $entity->getValue('uname');
+                $uname .= "-";
+                $uname .= $this->generateUnameId($entity->getAccountId());
+                $entity->setValue('uname', $uname);
+                return true;
+            }
+            return false;
+        }
+
+        // If this object type does not have an auto-generate field to use,
+        // just make a new unique number to use
+        if (empty($def->unameSettings) && empty($entity->getValue("uname"))) {
+            $unameNumber = $this->generateUnameId($entity->getAccountId());
+            $entity->setValue('uname', $unameNumber);
+            return true;
+        }
+
+        return $this->setUniqueNameFromSettings($entity, $def->unameSettings);
+    }
+
+    /**
+     * Automatically create a uname from an entity value
+     *
+     * This is usually used for things with unique human names like users where
+     * uname=name or blog posts which are url friendly version of the title
+     *
+     * @param EntityInterface $entity
+     * @param string $unameSettings
+     * @return bool
+     */
+    private function setUniqueNameFromSettings(EntityInterface $entity, string $unameSettings): bool
+    {
+        $unameSettingsParts = explode(":", $unameSettings);
 
         // Create desired uname from the right field
         // Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
-        $lastPart = end($unameSettings);
+        $lastPart = end($unameSettingsParts);
 
-        // The unique name field is the last part of unameSettings
+        // The unique name field is the last part of unameSettingsParts
         $uname = ($lastPart == "name") ? $entity->getName() : $entity->getValue($lastPart);
 
-        // The uname must be populated before we try to save anything
+        // If fields that would contain data for uname are blank
+        // then just provide a unique number
         if (!$uname) {
-            return;
+            $uname = $this->generateUnameId($entity->getAccountId());
+            $entity->setValue("uname", $uname);
+            return true;
         }
 
         // Now escape the uname field to a uri friendly name
@@ -758,12 +830,10 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $uname = str_replace("@", "_at_", $uname);
         $uname = preg_replace('/[^A-Za-z0-9._-]/', '', $uname);
 
-        $isUnique = $this->verifyUniqueName($entity, $uname);
-
         // If the unique name already exists, then append with id or a random number
-        if (!$isUnique) {
+        if (!$this->verifyUniqueName($entity, $uname)) {
             $uname .= "-";
-            $uname .= ($entity->getEntityId()) ? $entity->getEntityId() : uniqid();
+            $uname .= $this->generateUnameId($entity->getAccountId());
         }
 
         // Set the uname
@@ -892,5 +962,32 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         return $ret;
+    }
+
+    /**
+     * Get a data representation of what the entity looked like before it was changed (last save)
+     *
+     * @param EntityInterface $entity
+     * @return array
+     */
+    private function getDataBeforeChanges(EntityInterface $entity): array
+    {
+        // First thing to do is check if we saved a brand new entity
+        if ($entity->fieldValueChanged('entity_id')) {
+            // All values changed since it was a new entity
+            return [];
+        }
+
+        // Determine what we changed
+        $data = $entity->toArray();
+        $definition = $entity->getDefinition();
+        $fields = $definition->getFields();
+        foreach ($fields as $field) {
+            if ($entity->fieldValueChanged($field->getName())) {
+                $data[$field->getName()] = $entity->getPreviousValue($field->getName());
+            }
+        }
+
+        return $data;
     }
 }

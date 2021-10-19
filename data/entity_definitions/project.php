@@ -1,88 +1,91 @@
 <?php
+
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
+return [
     'parent_field' => "parent",
-    'child_dacls' => array("case", "task", "project_milestone"),
-    'fields' => array(
-        'name' => array(
+    'child_dacls' => ["case", "task", "project_milestone"],
+    'fields' => [
+        'name' => [
             'title' => 'Title',
-            'type'=>Field::TYPE_TEXT,
+            'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => false
-        ),
-        'notes' => array(
+        ],
+        'notes' => [
             'title' => 'Description',
-            'type'=>Field::TYPE_TEXT,
+            'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => false
-        ),
-        'news' => array(
+        ],
+        'news' => [
             'title' => 'Updates',
-            'type'=>Field::TYPE_TEXT,
+            'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => false
-        ),
-        'date_started' => array(
+        ],
+        'date_started' => [
             'title' => 'Start Date',
-            'type'=>Field::TYPE_DATE,
+            'type' => Field::TYPE_DATE,
             'subtype' => '',
             'readonly' => false,
-            'default' => array("value" => "now", "on" => "create")
-        ),
-        'date_deadline' => array(
+            'default' => ["value" => "now", "on" => "create"]
+        ],
+        'date_deadline' => [
             'title' => 'Deadline',
-            'type'=>Field::TYPE_DATE,
+            'type' => Field::TYPE_DATE,
             'subtype' => '',
             'readonly' => false
-        ),
-        'date_completed' => array(
+        ],
+        'date_completed' => [
             'title' => 'Completed',
-            'type'=>Field::TYPE_DATE,
+            'type' => Field::TYPE_DATE,
             'subtype' => '',
             'readonly' => false
-        ),
-        'parent' => array(
+        ],
+        'parent' => [
             'title' => 'Parent',
-            'type'=>Field::TYPE_OBJECT,
+            'type' => Field::TYPE_OBJECT,
             'subtype' => 'project',
-            'fkey_table' => array("key" => "id", "title" => "name")
-        ),
-        'priority' => array(
+            'fkey_table' => ["key" => "id", "title" => "name"]
+        ],
+        'priority' => [
             'title' => 'Priority',
-            'type'=>Field::TYPE_GROUPING,
+            'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
-        ),        
-        'customer_id' => array(
+        ],
+        'customer_id' => [
             'title' => 'Contact',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype' => 'customer'
-        ),
-        'groups' => array(
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::CONTACT
+        ],
+        'groups' => [
             'title' => 'Groups',
-            'type'=>Field::TYPE_GROUPING_MULTI,
+            'type' => Field::TYPE_GROUPING_MULTI,
             'subtype' => 'object_groupings',
-        ),
-        'members' => array(
+        ],
+        'members' => [
             'title' => 'Members',
-            'type'=>Field::TYPE_OBJECT_MULTI,
-            'subtype' => 'user',
-            'default' => array("value" => UserEntity::USER_CURRENT, "on" => "create")
-        ),
-        'folder_id' => array(
-            'type'=>Field::TYPE_OBJECT,
-            'subtype' => 'folder',
+            'type' => Field::TYPE_OBJECT_MULTI,
+            'subtype' => ObjectTypes::USER,
+            'default' => ["value" => UserEntity::USER_CURRENT, "on" => "create"]
+        ],
+        'folder_id' => [
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::FOLDER,
             'autocreate' => true, // Create foreign object automatically
             'autocreatebase' => '/System/Project Files', // Where to create (for folders, the path with no trail slash)
             'autocreatename' => 'id', // the field to pull the new object name from
-            'fkey_table' => array("key" => "id", "title" => "name")
-        ),
-        'image_id' => [
-            'title'=>'Image',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'file'
+            'fkey_table' => ["key" => "id", "title" => "name"]
         ],
-    ),
-);
+        'image_id' => [
+            'title' => 'Image',
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::FILE
+        ],
+    ],
+];

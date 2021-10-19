@@ -56,11 +56,18 @@ class UserEntity extends Entity implements EntityInterface
     const GROUP_ADMINISTRATORS = 'Administrators';
 
     /**
-     * The loader for a specific entity
-     *
-     * @var EntityLoader
+     * Types of users
      */
-    private $entityLoader = null;
+    // Authenticated internal user - member of the 'Users' group
+    const TYPE_INTERNAL = 'internal';
+    // Public users that are usually customers/partners and right now only a member of "Everyone"
+    // so permissions need to be explicitely granted on a per-user bases to entities such as
+    // comments and tickets
+    const TYPE_PUBLIC = 'public';
+    // System/code/API users
+    const TYPE_SYSTEM = 'system';
+    // Users that point to other users, like Creator Owner or Anonymous (no-user)
+    const TYPE_META = 'meta';
 
     /**
      * Grouping loader used to get user groups
@@ -73,6 +80,13 @@ class UserEntity extends Entity implements EntityInterface
      * Container used to load accounts
      */
     private AccountContainerInterface $accountContainer;
+
+    /**
+     * Loader used to get/create/save entities
+     *
+     * @var EntityLoader
+     */
+    private EntityLoader $entityLoader;
 
     /**
      * Class constructor
@@ -92,7 +106,7 @@ class UserEntity extends Entity implements EntityInterface
         $this->groupingLoader = $groupingLoader;
         $this->accountContainer = $accountContainer;
 
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**
@@ -112,6 +126,11 @@ class UserEntity extends Entity implements EntityInterface
         // Check to see if the username is an email and copy to email if empty
         if (!$this->getValue("email") && strpos($this->getValue("name"), "@")) {
             $this->setValue("email", $this->getValue("name"));
+        }
+
+        // Check to make sure we have a contact for this user to store contact data
+        if (!$this->getValue('contact_id')) {
+            $this->createAndSetContact($user);
         }
     }
 
@@ -171,14 +190,15 @@ class UserEntity extends Entity implements EntityInterface
         // Make sure default groups are set correctly
         $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
 
-        // Add to authenticated users group if we have determined this is a valid user
+        // Add to internal users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
         if (
             $this->getEntityId() &&
             !$this->isAnonymous() &&
-            !$this->getValueName('groups', $groupUser->getGroupId())
+            !$this->getValueName('groups', $groupUser->getGroupId()) &&
+            $this->getValue('type') === 'internal'
         ) {
-            $this->addMultiValue('groups', $groupUser->getGroupId(), 'Users');
+            $this->addMultiValue('groups', $groupUser->getGroupId(), self::GROUP_USERS);
         }
 
         // Of course every user is part of everyone
@@ -188,7 +208,7 @@ class UserEntity extends Entity implements EntityInterface
             !$this->isAnonymous() &&
             !$this->getValueName('groups', $groupEveryone->getGroupId())
         ) {
-            $this->addMultiValue('groups', $groupEveryone->getGroupId(), 'Users');
+            $this->addMultiValue('groups', $groupEveryone->getGroupId(), self::GROUP_USERS);
         }
     }
 
@@ -233,7 +253,11 @@ class UserEntity extends Entity implements EntityInterface
 
         // Add to authenticated users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
-        if ($this->getEntityId() &&  !$this->isAnonymous() && !in_array($groupUser->getGroupId(), $groups)) {
+        if (
+            $this->getEntityId() &&
+            ($this->getValue('type') === self::TYPE_INTERNAL || empty($this->getValue('type'))) &&
+            !in_array($groupUser->getGroupId(), $groups)
+        ) {
             $groups[] = $groupUser->getGroupId();
         }
 
@@ -346,5 +370,21 @@ class UserEntity extends Entity implements EntityInterface
         }
 
         return parent::getOwnerId();
+    }
+
+    /**
+     * All users have an associated contact to store contact details in
+     *
+     * @return void
+     */
+    private function createAndSetContact(UserEntity $savingUser): void
+    {
+        // Later we might want to check contacts for a match with email before recreating.
+        $contact = $this->entityLoader->create(ObjectTypes::CONTACT, $savingUser->getAccountId());
+        $contact->setValue('first_name', $this->getFirstName());
+        $contact->setValue('last_name', $this->getLastName());
+        $contact->setValue('email', $this->getValue('email'));
+        $contactId = $this->entityLoader->save($contact, $savingUser);
+        $this->setValue('contact_id', $contactId, $contact->getName());
     }
 }

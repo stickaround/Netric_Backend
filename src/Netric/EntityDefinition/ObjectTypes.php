@@ -17,7 +17,7 @@ class ObjectTypes
     const CALENDAR_EVENT = 'calendar_event';
     const CALENDAR_EVENT_PROPOSAL = 'calendar_event_proposal';
     const COMMENT = 'comment';
-    const CONTACT = 'customer';
+    const CONTACT = 'contact';
     const CONTACT_PERSONAL = 'contact_personal';
     const CONTENT_FEED = 'content_feed';
     const CONTENT_FEED_POST = 'content_feed_post';
@@ -38,7 +38,8 @@ class ObjectTypes
     const HTML_SNIPPET = 'cms_snippet';
     const INVOICE = 'invoice';
     const INVOICE_TEMPLATE = 'invoice_template';
-    const ISSUE = 'case';
+    const TICKET = 'ticket';
+    const TICKET_CHANNEL = 'ticket_channel';
     const LEAD = 'lead';
     const LOG = 'log';
     const MARKETING_CAMPAIGN = 'marketing_campaign';
@@ -65,6 +66,7 @@ class ObjectTypes
     const TIME = 'time';
     const USER = 'user';
     const USER_TEAM = 'user_team';
+    const USER_REACTION = 'user_reaction';
     const WORKFLOW = 'workflow';
     const WORKFLOW_ACTION = 'workflow_action';
     const WORKFLOW_ACTION_SCHEDULED = 'workflow_action_scheduled';

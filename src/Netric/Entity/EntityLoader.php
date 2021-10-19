@@ -7,6 +7,7 @@ use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Entity service used to get/save/delete entities
@@ -261,5 +262,17 @@ class EntityLoader
         return $this->dataMapper->setEntityMovedTo($fromId, $toId, $accountId);
         $this->clearCacheByGuid($fromId);
         $this->clearCacheByGuid($toId);
+    }
+
+    /**
+     * Get an entity definition
+     *
+     * @param string $type
+     * @param string $accountId
+     * @return EntityDefinition|null
+     */
+    public function getEntityDefinitionByName(string $type, string $accountId): ?EntityDefinition
+    {
+        return $this->definitionLoader->get($type, $accountId);
     }
 }

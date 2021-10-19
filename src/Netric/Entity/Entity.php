@@ -70,23 +70,15 @@ class Entity implements EntityInterface
     private $isRecurrenceException = false;
 
     /**
-     * Loader used to get entity owner details and entity members
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
-    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader Loader used to get entity followers and entity owner details
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def)
     {
         $this->def = $def;
         $this->objType = $def->getObjType();
-        $this->entityLoader = $entityLoader;
     }
 
     /**
@@ -128,7 +120,7 @@ class Entity implements EntityInterface
      *
      * @return EntityDefinition
      */
-    public function getDefinition()
+    public function getDefinition(): EntityDefinition
     {
         return $this->def;
     }
@@ -409,10 +401,10 @@ class Entity implements EntityInterface
     {
         $ownerGuid = '';
 
-        if ($this->getValue('creator_id')) {
-            $ownerGuid = $this->getValue('creator_id');
-        } elseif ($this->getValue('owner_id')) {
+        if ($this->getValue('owner_id')) {
             $ownerGuid = $this->getValue('owner_id');
+        } elseif ($this->getValue('creator_id')) {
+            $ownerGuid = $this->getValue('creator_id');
         }
 
         // No owner
@@ -610,6 +602,11 @@ class Entity implements EntityInterface
         // Update or add followers based on changes to fields
         $this->updateFollowers();
 
+        // If the owner of this entity is the current user, then set the f_seen value to true
+        if ($user->getEntityId() == $this->getOwnerId() && $this->getObjType() !== ObjectTypes::NOTIFICATION) {
+            $this->setValue("f_seen", true);
+        }
+
         // Call derived extensions
         $this->onBeforeSave($serviceLocator, $user);
     }
@@ -639,13 +636,24 @@ class Entity implements EntityInterface
         $this->processTempFiles($fileSystem, $user);
 
         // Set permissions for entity folder (if we have attachments)
-        $folderPath = '/System/Entity/' . $this->getValue('entity_id');
+        $folderPath = '/System/Entity/' . $this->getEntityId();
         $entityFolder = $fileSystem->openFolder($folderPath, $user);
-        if ($entityFolder && $entityFolder->getValue('entity_id')) {
+        if ($entityFolder && $entityFolder->getEntityId()) {
             $dacl = $daclLoader->getForEntity($this, $user);
 
             if ($dacl) {
+                // Make sure all interested users are given permission to view
+                $followers = $this->getValue('followers');
+                foreach ($followers as $followerId) {
+                    $dacl->allowUser($followerId);
+                }
+
                 $fileSystem->setFolderDacl($entityFolder, $dacl, $user);
+            }
+
+            // Copy owner
+            if ($this->getOwnerId() && $this->getOwnerId() !== $entityFolder->getOwnerId()) {
+                $fileSystem->setFolderOwner($entityFolder, $this->getOwnerId(), $user);
             }
         }
 
@@ -930,7 +938,7 @@ class Entity implements EntityInterface
             // If the default was different, then set it
             if (!empty($new) && $new != $val) {
                 if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
-                    $this->addMultiValue($fname, $val);
+                    $this->addMultiValue($fname, $new);
                 } else {
                     // Set value
                     $this->setValue($fname, $new);
@@ -1043,6 +1051,7 @@ class Entity implements EntityInterface
         $thisData['entity_id'] = null;
         $thisData['revision'] = 0;
         $thisData['ts_created'] = null;
+        $thisData['uname'] = null; // We cannot have a collision of unique names
         // ts_executed is used in recurring entities sometimes for reminders,
         // notifications, or jobs and should always default to null
         $thisData['ts_executed'] = null;

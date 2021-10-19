@@ -10,7 +10,6 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use DateTime;
 use DateInterval;
-use Zend\Validator\Date;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -139,7 +138,7 @@ class SchedulerServiceTest extends TestCase
     /**
      * Test getting scheduled recurring jobs
      */
-    public function testGetScheduledToRunRecurring_FirstRun()
+    public function testGetScheduledToRunRecurringFirstRun()
     {
         // Create a job that should recur every day
         $id = $this->scheduler->scheduleAtInterval(

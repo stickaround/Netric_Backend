@@ -3,6 +3,7 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     'inherit_dacl_ref' => 'project',
@@ -27,8 +28,8 @@ return [
             'subtype' => '',
             'readonly' => false
         ],
-        'done' => [
-            'title' => 'Completed',
+        'is_closed' => [
+            'title' => 'Closed',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
@@ -115,7 +116,7 @@ return [
         'customer_id' => [
             'title' => 'Contact',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'customer'
+            'subtype' => ObjectTypes::CONTACT,
         ],
         'recur_id' => [
             'title' => 'Recurrance',
@@ -133,6 +134,13 @@ return [
             'title' => 'Type',
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
+        ],
+        // Override field in default.php because don't want a default value for tasks
+        // since they can be unassinged
+        'owner_id' => [
+            'title' => 'Assigned To',
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::USER,
         ],
     ]
 ];

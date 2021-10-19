@@ -4,6 +4,7 @@ namespace NetricTest\WorkerMan;
 
 use PHPUnit\Framework\TestCase;
 use Netric\WorkerMan\WorkerService;
+use Netric\WorkerMan\WorkerServiceFactory;
 use NetricTest\Bootstrap;
 
 /**
@@ -17,7 +18,7 @@ class WorkerServiceFactoryTest extends TestCase
         $sm = $account->getApplication()->getServiceManager();
         $this->assertInstanceOf(
             WorkerService::class,
-            $sm->get(WorkerService::class)
+            $sm->get(WorkerServiceFactory::class)
         );
     }
 }

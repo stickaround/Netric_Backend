@@ -21,7 +21,8 @@ class DeliveryServiceTest extends TestCase
     /**
      * Email address we'll use for testing in this class
      */
-    const TEST_EMAIL = 'test@deliveryservice.com';
+    const TEST_EMAIL = 'autotest@autotest.netric.com';
+    const TEST_EMAIL_SUPPORT = 'support-test@autotest.netric.com';
 
     /**
      * The user that owns the email account
@@ -43,6 +44,8 @@ class DeliveryServiceTest extends TestCase
      * @var EmailAccountEntity
      */
     private $emailAccount = null;
+
+    private EmailAccountEntity $supportAccount;
 
     /**
      * Active test account
@@ -104,6 +107,16 @@ class DeliveryServiceTest extends TestCase
         $this->emailAccount->setValue("password", getenv('TESTS_NETRIC_MAIL_PASSWORD'));
         $entityLoader->save($this->emailAccount, $this->user);
         $this->testEntities[] = $this->emailAccount;
+
+        // Create a support test dropbox
+        $this->supportAccount = $entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
+        $this->supportAccount->setValue("type", EmailAccountEntity::TYPE_DROPBOX);
+        $this->supportAccount->setValue('address', self::TEST_EMAIL_SUPPORT);
+        $this->supportAccount->setValue('owner_id', $this->user->getEntityId());
+        $this->supportAccount->setValue("name", "test-support-dropbox");
+        $this->supportAccount->setValue("dropbox_create_type", ObjectTypes::TICKET);
+        $entityLoader->save($this->supportAccount, $this->user);
+        $this->testEntities[] = $this->supportAccount;
     }
 
     protected function tearDown(): void
@@ -138,15 +151,14 @@ class DeliveryServiceTest extends TestCase
     public function testDeliverMessageFromFileComplex()
     {
         $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
-        $messageGuid = $deliveryService->deliverMessageFromFile(
+        $entityId = $deliveryService->deliverMessageFromFile(
             self::TEST_EMAIL,
-            __DIR__ . '/_files/m6.complex.mime.unseen',
-            $this->account
+            __DIR__ . '/_files/m6.complex.mime.unseen'
         );
 
-        $this->assertNotNull($messageGuid);
+        $this->assertNotNull($entityId);
 
-        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($messageGuid, $this->account->getAccountId());
+        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
         $this->testEntities[] = $emailMessage;
 
         // Check some snippets of text that should be in the hrml body
@@ -156,5 +168,51 @@ class DeliveryServiceTest extends TestCase
             "td style=\"font-weight: bold; padding-top: 10px; padding-left: 12px;\"",
             $emailMessage->getValue("body")
         );
+    }
+
+    /**
+     * Test comment dropbox
+     *
+     * We should be able to reply to a comment via email, and have that comment inserted into netric
+     */
+    public function testCommentDropbox()
+    {
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
+
+        // We will comment on the current user - you can comment on any entity in netric
+        $entityId = $deliveryService->deliverMessageFromFile(
+            'comment.' . $this->user->getEntityId() . '@autotest.netric.com',
+            __DIR__ . '/_files/m1.example.org.unseen'
+        );
+
+        $this->assertNotNull($entityId);
+
+        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
+        $this->testEntities[] = $comment;
+
+        // Check some snippets of text that should be in the hrml body
+        $this->assertStringContainsString("Again a simple message", $comment->getValue("comment"));
+        $this->assertEquals($this->user->getEntityId(), $comment->getValue('obj_reference'));
+    }
+
+    /**
+     * Make sure that we can create a ticket from a support email
+     */
+    public function testDeliverMessageToSupportDropbox()
+    {
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
+        $entityId = $deliveryService->deliverMessageFromFile(
+            self::TEST_EMAIL_SUPPORT,
+            __DIR__ . '/_files/m1.example.org.unseen'
+        );
+
+        $this->assertNotNull($entityId);
+
+        $ticket = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->getEntityById($entityId, $this->account->getAccountId());
+        $this->testEntities[] = $ticket;
+
+        // Check some snippets of text that should have been imported
+        $this->assertEquals($ticket->getvalue('name'), 'Test Subject');
+        $this->assertStringContainsString("Again a simple message", $ticket->getValue("description"));
     }
 }

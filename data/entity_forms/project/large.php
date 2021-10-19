@@ -1,5 +1,5 @@
 <row>
-    <column>        
+    <column>
         <row>
             <column>
                 <field name='name' hidelabel="t" class='headline'></field>
@@ -14,7 +14,7 @@
         <row>
             <tabs>
                 <tab name='Task'>
-                    <objectsref obj_type='task' ref_field='project' view_id='all_tasks'></objectsref>
+                    <objectsref obj_type='task' ref_field='project' view_id='all_incomplete_tasks'></objectsref>
                 </tab>
 
                 <tab name='Discussions'>
@@ -35,7 +35,7 @@
         </row>
     </column>
     <column type="sidebar">
-        <header>Details</header>        
+        <header>Details</header>
         <row>
             <column>
                 <field name='image_id' profile_image='t'></field>

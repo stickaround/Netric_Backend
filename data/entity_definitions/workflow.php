@@ -1,113 +1,99 @@
 <?php
 
+declare(strict_types=1);
+
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
 
-return array(
-    'fields' => array(
+return [
+    'fields' => [
         // Textual name
-        'name' => array(
+        'name' => [
             'title' => 'Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
-        ),
+        ],
 
         // Longer description of this entity
-        'notes' => array(
+        'notes' => [
             'title' => 'Notes',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => false,
-        ),
+        ],
 
         // Object type we execute against
-        'object_type' => array(
-            'title' => 'Object Type',
+        'object_type' => [
+            'title' => 'Entity Type',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => true,
-        ),
+        ],
 
         // Trigger workflow when an entity is created
-        'f_on_create' => array(
+        'f_on_create' => [
             'title' => 'On Create',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,
-        ),
+        ],
 
         // Trigger workflow when an entity is updated
-        'f_on_update' => array(
+        'f_on_update' => [
             'title' => 'On Update',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,
-        ),
+        ],
 
         // Trigger workflow when an entity is deleted
-        'f_on_delete' => array(
+        'f_on_delete' => [
             'title' => 'On Delete',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,
-        ),
+        ],
 
         // Check daily if the worklfow should be triggered
-        'f_on_daily' => array(
+        'f_on_daily' => [
             'title' => 'On Daily',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,
-        ),
+        ],
 
         // Only allow one instance
-        'f_singleton' => array(
+        'f_singleton' => [
             'title' => 'Run Only Once',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,
-        ),
+        ],
 
-        // Only run if conditions were previously unmet
-        'f_condition_unmet' => array(
-            'title' => 'When Previously Unmet Conditions',
-            'type' => Field::TYPE_BOOL,
-            'subtype' => '',
-            'readonly' => false,
-        ),
-
-        // Can be manually started
-        'f_allow_manual' => array(
-            'title' => 'Allow Manual Start',
-            'type' => Field::TYPE_BOOL,
-            'subtype' => '',
-            'readonly' => false,
-        ),
-
-        // Active and ready to be triggered
-        'f_active' => array(
+        // Active and ready to be run
+        'f_active' => [
             'title' => 'Active',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,
-        ),
+        ],
+
+        // System worfklow - cannot edit name
+        'f_system' => [
+            'title' => 'System',
+            'type' => Field::TYPE_BOOL,
+            'subtype' => '',
+            'readonly' => true,
+        ],
 
         // When the workflow was last executed
-        'ts_lastrun' => array(
+        'ts_lastrun' => [
             'title' => 'Time Last Run',
             'type' => Field::TYPE_TIMESTAMP,
             'subtype' => '',
             'readonly' => true,
-        ),
-
-        // Conditions that need to be met before executing the workflow
-        'conditions' => array(
-            'title' => 'Conditions',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '',
-            'readonly' => true,
-        ),
-    ),
-);
+        ],
+    ],
+];

@@ -6,6 +6,7 @@ use Netric;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
@@ -38,8 +39,8 @@ class ResultsTest extends TestCase
 
         // Simulate results and add entities
         $results = new Results($query);
-        $results->addEntity(new Entity($testDefinition, $entityLoader));
-        $results->addEntity(new Entity($testDefinition, $entityLoader));
+        $results->addEntity(new Entity($testDefinition));
+        $results->addEntity(new Entity($testDefinition));
         $results->setTotalNum(5);
 
         // Should push us to the second page
@@ -61,7 +62,7 @@ class ResultsTest extends TestCase
     public function testGetEntityOutOfBounds()
     {
         $account = Bootstrap::getAccount();
-        $query = new EntityQuery("customer", $account->getAccountId());
+        $query = new EntityQuery(ObjectTypes::CONTACT, $account->getAccountId());
         $results = new Results($query);
 
         $this->expectException(\RuntimeException::class);

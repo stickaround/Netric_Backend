@@ -58,10 +58,12 @@ class ModulesInitData implements InitDataInterface
             $module = $this->moduleService->getByName($moduleName, $account->getAccountId());
             if ($module) {
                 // We do this in case the user has modified publish status or sort_order
+                $module->setIcon($moduleData['icon']);
                 $module->setTitle($moduleData['title']);
                 $module->setShortTitle($moduleData['short_title']);
                 $module->setNavigation($moduleData['navigation']);
                 $module->setSortOrder($moduleData['sort_order']);
+                $module->setDefaultRoute($moduleData['default_route']);
             }
 
             // Module has not yet been added. Create a new module and import the data

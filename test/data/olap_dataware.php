@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file populates a datacube called 'test'
  */
@@ -15,7 +16,6 @@ $mtime = explode(" ", $mtime);
 $mtime = $mtime[1] + $mtime[0];
 $starttime = $mtime;
 
-//$objectType = "customer";
 $objectType = "contact_personal";
 $owner = USER_SYSTEM;
 $dbh = new CDatabase();
@@ -62,4 +62,4 @@ $mtime = explode(" ", $mtime);
 $mtime = $mtime[1] + $mtime[0];
 $endtime = $mtime;
 $totaltime = number_format(($endtime - $starttime), 2);
-echo "\nTotal time: " .$totaltime. " seconds";
+echo "\nTotal time: " . $totaltime . " seconds";

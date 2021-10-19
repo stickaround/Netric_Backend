@@ -10,7 +10,6 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityDefinition\Field;
 use Netric\EntityQuery\Where;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
 use Netric\Workflow\ActionExecutor\CheckConditionActionExecutor;
@@ -20,7 +19,7 @@ use Netric\EntityQuery\Results;
 /**
  * Test action executor
  */
-class CheckConditionActionExecutorTest extends testCase
+class CheckConditionActionExecutorTest extends TestCase
 {
     /**
      * Executor to test (not a mock of course)
@@ -57,7 +56,7 @@ class CheckConditionActionExecutorTest extends testCase
         // Set the entity action data
         $this->mockActionEntity->method("getData")->willReturn([
             'conditions' => [
-                ['field_name' => 'first_name', 'operator' => Where::OP_EQ, 'value' => 'Sky']
+                ['blogic' => Where::COMBINED_BY_AND, 'field_name' => 'first_name', 'operator' => Where::OP_EQ, 'value' => 'Sky']
             ]
         ]);
 

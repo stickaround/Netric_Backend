@@ -395,7 +395,8 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         }
 
         // Set standard file headers
-        $response->setContentDisposition('inline', $fileEntity->getName());
+        $disposition = ($request->getParam('disposition')) ? $request->getParam('disposition') : 'inline';
+        $response->setContentDisposition($disposition, $fileEntity->getName());
         $response->setContentType($fileEntity->getMimeType());
         $response->setContentLength($fileEntity->getValue('file_size'));
         $dateLastModified = new DateTime();
@@ -404,13 +405,16 @@ class FilesController extends AbstractFactoriedController implements ControllerI
 
         $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $currentAccount->getAccountId());
 
-        // Allow caching if everyone has access
-        if ($dacl->groupIsAllowed($userGroups->getByName(UserEntity::GROUP_EVERYONE), Dacl::PERM_VIEW)) {
+        // Allow caching if everyone has access or if this is an image
+        if ($dacl->groupIsAllowed($userGroups->getByName(UserEntity::GROUP_EVERYONE), Dacl::PERM_VIEW) || $fileEntity->isImage()) {
             $response->setCacheable(
                 md5($currentAccount->getName() .
                     ".file." . $fileEntity->getEntityId() .
                     '.r' . $fileEntity->getValue("revision"))
             );
+
+            // Only allow caching on the browser for 1 day
+            $response->setHeader("Cache-Control", "private, max-age=86400");
         }
 
         // Set netric entity header

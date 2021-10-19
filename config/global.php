@@ -6,7 +6,9 @@ use Netric\FileSystem\FileStore\ObjectStorageStoreFactory;
 return [
     // Determine if secure pages should be offered (not forced) in https
     'use_https' => true,
-    // This is where netric is hosted
+    // This is used any time we need to prepend an account name
+    // for something like email mailboxes: aereus.netric.com will route
+    // to the 'aereus' account in netric.
     'localhost_root' => 'netric.com',
     // Unique application name
     'application_name' => 'netri.svc',
@@ -28,7 +30,7 @@ return [
     // Log settings
     'log' => [
         'writer' => 'gelf',
-        // Set log level - 5 = NOTICE (DEFAULT), 7 = DEBUG
+        // Set log level - 5 = NOTICE, 6 = INFO, 7 = DEBUG
         'level' => 6,
         // Optional remote server for logging if writer supports it
         'server' => 'pvt-logstash.aereus.com',
@@ -40,13 +42,21 @@ return [
         // If set to true, no emails will be sent
         'supress' => false,
         'mode' => 'smtp',
-        'server' => "in-v3.mailjet.com",
+        // Service name for smtp server
+        'server' => "smtp_netric",
         'dropbox' => "incoming@sys.netric.com",
         'dropbox_catchall' => "@sys.netric.com",
         'noreply' => "no-reply@netric.com",
-        'username' => "b112da3342c636e002eda3c51355a51f",
-        'password' => "834e70cabc642b54d30de418809066c8",
-        'port' => 587,
+        'username' => "",
+        'password' => "",
+        'port' => 25,
+        // 'server' => "in-v3.mailjet.com",
+        // 'dropbox' => "incoming@sys.netric.com",
+        // 'dropbox_catchall' => "@sys.netric.com",
+        // 'noreply' => "no-reply@netric.com",
+        // 'username' => "b112da3342c636e002eda3c51355a51f",
+        // 'password' => "834e70cabc642b54d30de418809066c8",
+        // 'port' => 587,
 
         // Set to imap for system backend. If these options are non-null then
         // by default ANT will retrieve email messages from this backend using the
@@ -94,8 +104,8 @@ return [
     ],
     // Cache settings
     'cache' => [
-        'driver' => 'memcache',
-        'host' => '10.4.26.26',
+        'driver' => 'redis',
+        'host' => 'redis',
     ],
     'notifications' => [
         'push' => [

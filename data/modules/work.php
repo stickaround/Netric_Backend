@@ -14,20 +14,28 @@ use Netric\Account\Module\LeftNavItemTypes;
 
 return [
     "title" => "Work",
-    "icon" => "WorkIcon",
-    "default_route" => "my-task",
+    "icon" => "CheckBoxIcon",
+    "default_route" => "home",
     "name" => "work",
     "short_title" => 'Work',
     "scope" => 'system',
-    "sort_order" => '6',
+    "sort_order" => 4,
     "f_system" => true,
     "navigation" => [
+
         [
+            "type" => LeftNavItemTypes::ENTITY,
             "title" => "New Task",
-            "type" => LeftNavItemTypes::LINK,
-            "route" => "browse/" . ObjectTypes::TASK . "/new",
-            "objType" => ObjectTypes::TASK,
+            "route" => "newtask",
             "icon" => "AddBoxIcon",
+            "objType" => ObjectTypes::TASK,
+        ],
+        [
+            "title" => "Work Home",
+            "type" => LeftNavItemTypes::WORK_HOME,
+            "route" => "home",
+            "objType" => ObjectTypes::TASK,
+            "icon" => "DashboardIcon"
         ],
         [
             "title" => "My Tasks",

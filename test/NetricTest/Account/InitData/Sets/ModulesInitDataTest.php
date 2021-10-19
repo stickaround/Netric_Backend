@@ -26,7 +26,7 @@ class ModulesInitDataTest extends TestCase
         $moduleService = $account->getServiceManager()->get(ModuleServiceFactory::class);
         $module = $moduleService->getByName('settings', $account->getAccountId());
 
-        // Check if sort_order of settings is equal to 11
-        $this->assertEquals($module->getSortOrder(), 11);
+        // Check if sort_order of settings is equal to 20
+        $this->assertEquals($module->getSortOrder(), 20);
     }
 }

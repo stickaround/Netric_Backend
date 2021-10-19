@@ -58,7 +58,7 @@ class Partner
     /**
      * Object collections this partner is listening for
      *
-     * For example: 'customer','task' would mean the partner is
+     * For example: 'contact','task' would mean the partner is
      * only tracking changes for objects of type customer and task
      * but will ignore all others. This will keep overhead to a minimal
      * when tracking changes. In additional collections can have filters
@@ -243,7 +243,8 @@ class Partner
                         $found = false;
 
                         foreach ($collConds as $cmdCond) {
-                            if ($cmdCond['blogic'] == $cond['blogic']
+                            if (
+                                $cmdCond['blogic'] == $cond['blogic']
                                 && $cmdCond['field'] == $cond['field']
                                 && $cmdCond['operator'] == $cond['operator']
                                 && $cmdCond['condValue'] == $cond['condValue']
@@ -262,7 +263,8 @@ class Partner
                     foreach ($collConds as $cond) {
                         $found = false;
                         foreach ($conditions as $cmdCond) {
-                            if ($cmdCond['blogic'] == $cond['blogic']
+                            if (
+                                $cmdCond['blogic'] == $cond['blogic']
                                 && $cmdCond['field'] == $cond['field']
                                 && $cmdCond['operator'] == $cond['operator']
                                 && $cmdCond['condValue'] == $cond['condValue']

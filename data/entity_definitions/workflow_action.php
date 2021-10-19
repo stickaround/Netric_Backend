@@ -29,8 +29,16 @@ return [
                 "start_workflow" => "Start a Workflow",
                 "update_field" => "Update a Field",
                 "wait_condition" => "Wait",
-                "webhook" => "Call Web Page (Webhook]",
+                "webhook" => "Call Web Page (Webhook)",
             ],
+        ],
+
+        // System worfklow - cannot edit name
+        'f_system' => [
+            'title' => 'System',
+            'type' => Field::TYPE_BOOL,
+            'subtype' => '',
+            'readonly' => true,
         ],
 
         // Longer description of this entity

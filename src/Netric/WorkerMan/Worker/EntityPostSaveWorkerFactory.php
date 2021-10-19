@@ -6,6 +6,7 @@ namespace Netric\WorkerMan\Worker;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
 
+
 /**
  * Construct worker called after each entity save
  */

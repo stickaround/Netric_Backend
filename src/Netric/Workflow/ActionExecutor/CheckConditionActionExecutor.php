@@ -9,6 +9,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityQuery\Where;
 use Netric\EntityQuery\EntityQuery;
 
 /**
@@ -83,7 +84,11 @@ class CheckConditionActionExecutor extends AbstractActionExecutor implements Act
         // Add conditions
         if (is_array($conditions)) {
             foreach ($conditions as $cond) {
-                $query->andWhere($cond['field_name'], $cond['operator'], $cond['value']);
+                if ($cond['blogic'] ===  Where::COMBINED_BY_OR) {
+                    $query->orWhere($cond['field_name'], $cond['operator'], $cond['value']);    
+                } else {
+                    $query->andWhere($cond['field_name'], $cond['operator'], $cond['value']);
+                }
             }
         }
 
@@ -91,65 +96,4 @@ class CheckConditionActionExecutor extends AbstractActionExecutor implements Act
         $result = $this->entityIndex->executeQuery($query);
         return ($result->getNum()) ? true : false;
     }
-
-    // Below is the old conditions match we once used for the overall workflow
-    //    /**
-    //     * Test to see if an entity matches a set of WorkFlowLegacy conditions
-    //     *
-    //     * @param WorkflowEntity $workflow A workflow that we might run if the conditions match
-    //     * @param EntityInterface $entity The entity we are checking against the workflow conditions
-    //     * @param UserEntity $user
-    //     * @return bool true if the entity matches, or false if it does not
-    //     */
-    //    private function workFlowConditionsMatch(WorkflowEntity $workflow, EntityInterface $entity, UserEntity $user)
-    //    {
-    //        // We use the index for checking if conditions match since it contains all the condition logic
-    //        $query = new EntityQuery($entity->getDefinition()->getObjType());
-    //
-    //        // Add the entity as a condition to see if it meets the criteria
-    //        $query->where("entity_id")->equals($entity->getEntityId());
-    //
-    //        // Query deleted if the entity is deleted
-    //        if ($entity->isArchived()) {
-    //            $query->andWhere("f_deleted")->equals(true);
-    //        }
-    //
-    //        /*
-    //         * If the workflow has a onlyOnConditionsUnmet flag then we
-    //         * need to check to see if any of the fields that match conditions
-    //         * were changed (presumably to match the conditions) before we trigger the
-    //         * workflow. This is useful in cases where we check if something like
-    //         * task done='t' then send email, but if the user just hits save for notes
-    //         * we don't want to send another email about it being completed.
-    //         * However, if they update the task to mark it as incomplete for some reason,
-    //         * then later complete it again, we do want to trigger the notification.
-    //         */
-    //        $fieldChanged = false;
-    //
-    //        // Get where conditions from the workflow
-    //        $conditionText = $workflow->getValue('conditions');
-    //        if ($conditionText) {
-    //            $conditionData = json_decode($conditionText, true);
-    //            foreach ($conditionData as $condArr) {
-    //                $cond = new EntityQuery\Where();
-    //                $cond->fromArray($condArr);
-    //                $query->andWhere($cond->fieldName, $cond->operator, $cond->value);
-    //                if ($entity->fieldValueChanged($cond->fieldName)) {
-    //                    $fieldChanged = true;
-    //                }
-    //            }
-    //        }
-    //
-    //        // Get results
-    //        $result = $this->entityIndex->executeQuery($query);
-    //        $num = $result->getNum();
-    //
-    //        // See comments above for $fieldChanged variable explanation
-    //        if ($workflow->getValue('f_condition_unmet') && !$fieldChanged) {
-    //            return false;
-    //        }
-    //
-    //        // If we found the entity in the query we know it is a match
-    //        return ($num) ? true : false;
-    //    }
 }

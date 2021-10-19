@@ -41,12 +41,11 @@ use Netric\Cache\CacheFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntitySync\EntitySyncFactory;
-use Netric\EntitySync\DataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 use Netric\EntitySync\Collection\EntityCollectionFactory;
-use Netric\EntitySync\EntitySync;
+use Netric\EntitySync\EntitySyncFactory;
+use Netric\EntitySync\DataMapperFactory;
 
 /**
  * Netric backend class

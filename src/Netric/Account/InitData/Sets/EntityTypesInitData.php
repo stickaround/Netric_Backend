@@ -9,6 +9,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Account\InitData\InitDataInterface;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use RuntimeException;
 
 /**
  * Return array of data initializers to run for an account
@@ -64,7 +65,7 @@ class EntityTypesInitData implements InitDataInterface
                 $def->fromArray($objDefData);
                 $this->defDatamapper->save($def);
                 if (!$def->getEntityDefinitionId()) {
-                    throw new \RuntimeException("Could not save " . $this->defDatamapper->getLastError());
+                    throw new RuntimeException("Could not save " . $this->defDatamapper->getLastError());
                 }
             }
 

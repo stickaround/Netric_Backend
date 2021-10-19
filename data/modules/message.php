@@ -10,12 +10,12 @@ use Netric\Account\Module\LeftNavItemTypes;
 
 return [
     "title" => "Messages",
-    "icon" => "MessageIcon",
-    "default_route" => "rooms",
+    "icon" => "ChatBubbleIcon",
+    "default_route" => "direct",
     "name" => "message",
-    "short_title" => 'Message',
+    "short_title" => 'Chat',
     "scope" => 'system',
-    "sort_order" => '2',
+    "sort_order" => 2,
     "f_system" => true,
     "navigation" => [
         [
@@ -54,6 +54,7 @@ return [
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "rooms",
             "objType" => "chat_room",
+            "browser_view" => "my_rooms",
             "icon" => "SearchIcon",
         ],
         [
@@ -63,9 +64,17 @@ return [
         ],
         [
             "type" => LeftNavItemTypes::ENTITY_BROWSE_LEFTNAV,
-            "route" => "rooms",
+            "route" => "direct",
             "browser_view" => "my_direct_messages",
             "objType" => "chat_room"
+        ],
+        [
+            "title" => "All Direct Messages",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "direct",
+            "objType" => "chat_room",
+            "icon" => "SearchIcon",
+            "browser_view" => "my_direct_messages",
         ],
     ],
 ];

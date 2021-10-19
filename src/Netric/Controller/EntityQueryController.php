@@ -153,6 +153,7 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
             } else {
                 $entityData["entity_id"] = $ent->getEntityId();
                 $entityData["name"] = $ent->getName();
+                $entityData["obj_type"] = $ent->getObjType();
             }
 
             $entityData["currentuser_permissions"] = $currentUserPermissions;

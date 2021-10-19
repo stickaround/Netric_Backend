@@ -425,8 +425,10 @@ class Field implements \ArrayAccess
         }
 
         if ((
-            ($this->type == self::TYPE_OBJECT && $this->subtype == "user") ||
-            ($this->type == self::TYPE_GROUPING_MULTI && $this->subtype == "user")) && $ret == UserEntity::USER_CURRENT) {
+                ($this->type == self::TYPE_OBJECT && $this->subtype == "user") ||
+                ($this->type == self::TYPE_OBJECT_MULTI && $this->subtype == "user")) &&
+            $ret == UserEntity::USER_CURRENT
+        ) {
             if ($user) {
                 $ret = $user->getEntityId();
             } else {

@@ -26,6 +26,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable mcrypt \
     && pecl install memcached \
     && docker-php-ext-enable memcached \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
     && docker-php-ext-install pcntl \
@@ -128,7 +130,9 @@ FROM base as development
 # Enable xdebugger
 RUN echo "xdebug.mode=debug,coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.log=/tmp/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+# Silence the console complaining about not connecting, comment this out if you are having trouble
+# getting your debugging workin in your IDE
+RUN echo "xdebug.log_level=o" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 ###########################################################################
 FROM development as test

@@ -1,16 +1,16 @@
 <?php
 
-namespace Netric\WorkFlowLegacy\DataMapper;
+declare(strict_types=1);
+
+namespace Netric\Workflow\DataMapper;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\WorkFlowLegacy\Action\ActionFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\Db\Relational\RelationalDbFactory;
 
 /**
- * Base DataMapper class
+ * service factory to construct the workflow datamapper
  */
 class WorkflowDataMapperFactory implements ApplicationServiceFactoryInterface
 {
@@ -22,10 +22,8 @@ class WorkflowDataMapperFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $actionFactory = new ActionFactory($serviceLocator);
-        $database = $serviceLocator->get(RelationalDbFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $entityIndex = $serviceLocator->get(IndexFactory::class);
-        return new WorkFlowLegacyRdbDataMapper($database, $entityLoader, $entityIndex, $actionFactory);
+        return new WorkflowEntityDataMapper($entityLoader, $entityIndex);
     }
 }

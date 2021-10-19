@@ -15,7 +15,7 @@ use Netric\Workflow\ActionExecutor\CheckConditionActionExecutorFactory;
  *
  * @group integration
  */
-class CheckConditionActionExecutorFactoryTest extends testCase
+class CheckConditionActionExecutorFactoryTest extends TestCase
 {
     public function testCreate(): void
     {

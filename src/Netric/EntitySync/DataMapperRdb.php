@@ -8,14 +8,12 @@ use Netric\EntitySync\Partner;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Collection\CollectionInterface;
 use Netric\EntitySync\Collection\CollectionFactory;
-use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\WorkerMan\Worker\EntitySyncLogImportedWorker;
 use Netric\WorkerMan\Worker\EntitySyncLogExportedWorker;
 use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
 use Netric\WorkerMan\WorkerService;
-use RuntimeException;
 use DateTime;
 
 /**
@@ -48,7 +46,7 @@ class DataMapperRdb extends AbstractDataMapper implements DataMapperInterface
      * Setup this datamapper
      *
      * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
-     * @param CollectionFactory $collectionFactory Collection factory that will create an instance of entity/grouping collection
+     * @param CollectionFactory $collectionFactory Collection factory that will create an instance of a collection
      * @param WorkerService $workerService Used to schedule background jobs
      */
     protected function setUp(

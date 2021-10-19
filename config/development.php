@@ -17,8 +17,8 @@ return [
     // Email server settings
     'email' => [
         // Do not actually send any email in development mode
-        'supress' => true,
-        'server' => 'smtp',
+        'supress' => false,
+        'server' => 'smtp_netric',
         'backend_host' => 'mail',
     ],
     // Stats service
@@ -49,8 +49,8 @@ return [
     ],
     // Cache settings
     'cache' => [
-        'driver' => 'memcache',
-        'host' => 'memcached',
+        'driver' => 'redis',
+        'host' => 'redis',
     ],
     // Profiler settings
     'profile' => [

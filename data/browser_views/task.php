@@ -23,11 +23,17 @@ return [
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ],
-            'status_id' => [
+            'status_id_com' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'status_id',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                 'value' => TaskEntity::STATUS_COMPLETED
+            ],
+            'status_id_def' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'status_id',
+                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                'value' => TaskEntity::STATUS_DEFERRED
             ],
         ],
         'filter_key' => 'project',
@@ -61,11 +67,11 @@ return [
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ],
-            'status_id' => [
+            'is_closed' => [
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'status_id',
+                'field_name' => 'is_closed',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => TaskEntity::STATUS_COMPLETED
+                'value' => true
             ],
             'deadline' => [
                 'blogic' => Where::COMBINED_BY_AND,
@@ -132,11 +138,11 @@ return [
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                 'value' => UserEntity::USER_CURRENT,
             ],
-            'status_id' => [
+            'is_closed' => [
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'status_id',
+                'field_name' => 'is_closed',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => TaskEntity::STATUS_COMPLETED
+                'value' => true
             ],
         ],
         'order_by' => [
@@ -158,24 +164,21 @@ return [
         'description' => 'All Tasks that have not yet been completed',
         'default' => false,
         'conditions' => [
-            'status_id' => [
+            'is_closed' => [
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'status_id',
+                'field_name' => 'is_closed',
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => TaskEntity::STATUS_COMPLETED
+                'value' => true
             ],
         ],
+        'group_first_order_by' => true,
         'order_by' => [
             'status_id' => [
                 'field_name' => 'status_id',
                 'direction' => 'desc',
             ],
-            'sort_order' => [
-                'field_name' => 'sort_order',
-                'direction' => 'desc',
-            ],
             'date' => [
-                'field_name' => 'date_completed',
+                'field_name' => 'ts_entered',
                 'direction' => 'desc',
             ],
             'deadline' => [

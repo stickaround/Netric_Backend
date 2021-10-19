@@ -39,11 +39,10 @@ class ActivityEntity extends Entity implements EntityInterface
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
-     * @param EntityLoader $entityLoader The loader for a specific entity
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $entityDefinition)
     {
-        parent::__construct($def, $entityLoader);
+        parent::__construct($entityDefinition);
     }
 
     /**
@@ -67,7 +66,8 @@ class ActivityEntity extends Entity implements EntityInterface
         }
 
         // Make sure the required data is set
-        if (empty($this->getValue("subject")) ||
+        if (
+            empty($this->getValue("subject")) ||
             empty($this->getValue("verb"))
         ) {
             throw new \InvalidArgumentException(

@@ -48,7 +48,7 @@ class FolderEntity extends Entity implements EntityInterface
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityQueryIndex;
 
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**

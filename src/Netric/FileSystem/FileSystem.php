@@ -439,6 +439,21 @@ class FileSystem implements Error\ErrorAwareInterface
     }
 
     /**
+     *  Set/change the folder owner
+     *
+     * @param FolderEntity $folder
+     * @param string $ownerId the ID of the owner
+     * @param UserEntity $user Current user making the change
+     * @return void
+     */
+    public function setFolderOwner(FolderEntity $folder, string $ownerId, UserEntity $user)
+    {
+        $folder->setValue('owner_id', $ownerId);
+        echo "SEtting the folder owner to $ownerId";
+        $this->entityLoader->save($folder, $user);
+    }
+
+    /**
      * Write data to a file
      *
      * @param FileEntity $file The meta-data Entity for this file

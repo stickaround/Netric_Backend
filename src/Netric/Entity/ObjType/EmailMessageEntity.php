@@ -91,7 +91,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $this->fileSystem = $fileSystem;
         $this->accountContainer = $accountContainer;
 
-        parent::__construct($def, $entityLoader);
+        parent::__construct($def);
     }
 
     /**
@@ -641,7 +641,8 @@ class EmailMessageEntity extends Entity implements EntityInterface
         // Update the delivered date
         if ($this->getValue("message_date")) {
             // Only update if this is newer than the last message added
-            if (!$thread->getValue("ts_delivered")
+            if (
+                !$thread->getValue("ts_delivered")
                 || $thread->getValue("ts_delivered") < $this->getValue("message_date")
             ) {
                 // Set  the last delivered date of the thread to this message date

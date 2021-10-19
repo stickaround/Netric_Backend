@@ -17,7 +17,7 @@ use Netric\Workflow\ActionExecutor\UpdateFieldActionExecutor;
 /**
  * Test action executor
  */
-class UpdateFieldActionExectorTest extends testCase
+class UpdateFieldActionExectorTest extends TestCase
 {
     /**
      * Executor to test (not a mock of course)
