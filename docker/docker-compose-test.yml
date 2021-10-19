@@ -16,7 +16,7 @@ services:
       - db1
       - objectstorage
       - smtp4dev
-    entrypoint: 'bash -c "/netric-setup.sh && vendor/bin/phpunit -—no-coverage > /dev/stdout"' 
+    entrypoint: 'bash -c "/netric-setup.sh && vendor/bin/phpunit --no-coverage > /dev/stdout"' 
     logging:
       driver: "json-file"
   memcached:
