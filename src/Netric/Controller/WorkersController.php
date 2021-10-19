@@ -2,7 +2,6 @@
 
 namespace Netric\Controller;
 
-use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
 use Netric\Application\Response\ConsoleResponse;
