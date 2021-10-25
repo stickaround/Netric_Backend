@@ -19,6 +19,7 @@ use Netric\Entity\EntityInterface;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Mail\SenderService;
 use NotificationPusherSdk\NotificationPusherClientInterface;
 
 /**
@@ -80,7 +81,8 @@ class NotifierTest extends TestCase
         //$entityLoaderMock = $this->createMock(EntityLoader::class);
         //$indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
-        $this->notifier = new Notifier($this->entityLoader, $index, $pusherClientMock);
+        $mailSenderMock = $this->createMock(SenderService::class);
+        $this->notifier = new Notifier($this->entityLoader, $index, $pusherClientMock, $mailSenderMock);
 
 
         // Make sure test user does not exist from previous failed query
@@ -316,8 +318,9 @@ class NotifierTest extends TestCase
         $indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
         $pusherClientMock->expects($this->once())->method('subscribe')->willReturn(true);
+        $mailSenderMock = $this->createMock(SenderService::class);
 
-        $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock);
+        $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock, $mailSenderMock);
         $this->assertTrue($notifier->subscribeToPush(
             'TEST-UUID',
             NotificationPusherClientInterface::CHANNEL_APNS,
@@ -334,8 +337,9 @@ class NotifierTest extends TestCase
         $indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
         $pusherClientMock->expects($this->once())->method('send')->willReturn(true);
+        $mailSenderMock = $this->createMock(SenderService::class);
 
-        $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock);
+        $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock, $mailSenderMock);
 
         // Setup a test notification
         $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION, $this->account->getAccountId());

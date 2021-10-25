@@ -5,7 +5,6 @@ namespace Netric\Mail;
 use Aereus\Config\Config;
 use Netric\Log\LogInterface;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 /**
@@ -54,32 +53,42 @@ class SenderService
 
         try {
             //Server settings
-            //$mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-            $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = $this->mailConfig->server;                     //Set the SMTP server to send through
-            $mail->SMTPAuth   = false;                                   //Enable SMTP authentication
-            // $mail->Username   = 'user@example.com';                     //SMTP username
-            // $mail->Password   = 'secret';                               //SMTP password
-            // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-            $mail->Port       = $this->mailConfig->port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
-            //Recipients
+            //Enable verbose debug output
+            // $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+
+            // Send using SMTP
+            $mail->isSMTP();
+            // Set the SMTP server to send through
+            $mail->Host       = $this->mailConfig->server;
+            // Disable SMTP authentication
+            $mail->SMTPAuth   = false;
+            // $mail->Username   = 'user@example.com';
+            // $mail->Password   = 'secret';
+            // Enable implicit TLS encryption
+            // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            // TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            $mail->Port       = $this->mailConfig->port;
+
+            // Recipients
             $mail->setFrom($from);
-            $mail->addAddress($toAddress, 'Test User');     //Add a recipient
-            //$mail->addAddress('ellen@example.com');               //Name is optional
+
+            // Add a recipient (second param can be a display name if available)
+            $mail->addAddress($toAddress);
+
             // $mail->addReplyTo('info@example.com', 'Information');
             // $mail->addCC('cc@example.com');
             // $mail->addBCC('bcc@example.com');
 
-            // //Attachments
-            // $mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
-            // $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+            /// Add attachments
+            // $mail->addAttachment('/var/tmp/file.tar.gz');
+            // $mail->addAttachment('/tmp/image.jpg', 'new.jpg'); //Optional name
 
-            //Content
-            //$mail->isHTML(true);                                  //Set email format to HTML
+            // Set email format to HTML
+            // $mail->isHTML(true);
             $mail->Subject = $subject;
             $mail->Body    = $body;
-            //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+            // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
             return $mail->send();
         } catch (PHPMailerException $e) {

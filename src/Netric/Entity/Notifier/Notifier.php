@@ -11,6 +11,7 @@ use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Mail\SenderService;
 use NotificationPusherSdk\NotificationPusherClientInterface;
 use Ramsey\Uuid\Uuid;
 
@@ -51,6 +52,13 @@ class Notifier
     private NotificationPusherClientInterface $notificationPusher;
 
     /**
+     * Service used to send smtp email
+     *
+     * @var SenderService
+     */
+    private SenderService $mailSenderService;
+
+    /**
      * Class constructor and dependency setter
      *
      * @param EntityLoader $entityLoader To create, find, and save entities
@@ -60,11 +68,13 @@ class Notifier
     public function __construct(
         EntityLoader $entityLoader,
         IndexInterface $index,
-        NotificationPusherClientInterface $notificationPusher
+        NotificationPusherClientInterface $notificationPusher,
+        SenderService $mailSenderService
     ) {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $index;
         $this->notificationPusher = $notificationPusher;
+        $this->mailSenderService = $mailSenderService;
     }
 
     /**
@@ -408,6 +418,12 @@ class Notifier
         // // Set from
         // $fromEmail = $config->email['noreply'];
         $fromEmail = 'no-reply@netric.com';
+
+        $this->mailSenderService->send(
+            $user->getValue("email"),
+            $notification->getName('name'),
+            $body
+        );
 
         // TODO: Add special dropbox that enables users to comment by just replying to an email
         // if ($config->email['dropbox_catchall']) {

@@ -2,11 +2,11 @@
 
 namespace Netric\Entity\Notifier;
 
-use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Mail\SenderServiceFactory;
 
 /**
  * Create a new Notifier service
@@ -24,6 +24,7 @@ class NotifierFactory implements ApplicationServiceFactoryInterface
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityIndex = $serviceManager->get(IndexFactory::class);
         $notificationPusher = $serviceManager->get(NotificationPusherFactory::class);
-        return new Notifier($entityLoader, $entityIndex, $notificationPusher);
+        $mailSender = $serviceManager->get(SenderServiceFactory::class);
+        return new Notifier($entityLoader, $entityIndex, $notificationPusher, $mailSender);
     }
 }
