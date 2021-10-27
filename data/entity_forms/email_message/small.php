@@ -5,4 +5,4 @@
 <field name='bcc'></field>
 <field name='subject'></field>
 <attachments></attachments>
-<field hidelabel='t' multiline='true' rich='true' name='body'></field>
+<field hidelabel='true' multiline='true' rich='true' name='body'></field>

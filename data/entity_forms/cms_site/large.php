@@ -34,7 +34,7 @@
                         <field name='comments'></field>
                     </tab>
                     <tab name='Media'>
-                        <field hidelabel='t' name='folder_id'></field>
+                        <field hidelabel='true' name='folder_id'></field>
                     </tab>
                 </tabs>
             </column>

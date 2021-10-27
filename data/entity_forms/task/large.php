@@ -1,6 +1,6 @@
 <row>
     <column>
-        <field name='name' hidelabel="true" class='headline'></field>
+        <field name='name' class='headline'></field>
     </column>
 </row>
 <row>
@@ -25,7 +25,7 @@
         <row>
             <column>
                 <fieldset name="Notes">
-                    <field name='notes' hidelabel='t' multiline='true'></field>
+                    <field name='notes' hidelabel='true' multiline='true'></field>
                 </fieldset>
             </column>
         </row>

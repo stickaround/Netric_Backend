@@ -34,7 +34,7 @@
         </row>
         <row>
             <column>
-                <field hidelabel='t' multiline='true' rich='true' name='data' plugins='cms'></field>
+                <field hidelabel='true' multiline='true' rich='true' name='data' plugins='cms'></field>
             </column>
         </row>
         <row>

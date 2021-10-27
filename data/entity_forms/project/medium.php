@@ -22,7 +22,7 @@
                     <field name='date_started'></field>
                     <field name='date_deadline' tooltip='If no deadline is set, this will be considered an ongoing project.'></field>
                     <field name='date_completed' tooltip='Once the project has been completed, enter the date here.'></field>
-                    <field name='groups' hidelabel='t'></field>
+                    <field name='groups' hidelabel='true'></field>
                 </column>
             </row>
         </fieldset>

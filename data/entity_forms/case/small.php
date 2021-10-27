@@ -8,5 +8,5 @@
 <field name='ts_entered'></field>
 <all_additional></all_additional>
 <attachments></attachments>
-<field name='description' hidelabel='t' multiline='true'></field>
+<field name='description' hidelabel='true' multiline='true'></field>
 <field name='comments'></field>

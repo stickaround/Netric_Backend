@@ -34,19 +34,19 @@
         <field name='active' />
     </column>
     <column>
-        <field name='groups' hidelabel='t' />
+        <field name='groups' hidelabel='true' />
         <field name='manager_id' />
     </column>
 </row>
 
 <row>
     <column>
-        <field name='notes' hidelabel='t' multiline='true' />
+        <field name='notes' hidelabel='true' multiline='true' />
     </column>
 </row>
 
 <row>
     <column>
-        <field hidelabel='t' name='activity' />
+        <field hidelabel='true' name='activity' />
     </column>
 </row>

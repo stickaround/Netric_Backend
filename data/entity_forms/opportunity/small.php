@@ -7,4 +7,4 @@
 <field name='expected_close_date'></field>
 <field name='objection_id'></field>
 
-<field name='notes' hidelabel='t' multiline='true'></field>
+<field name='notes' hidelabel='true' multiline='true'></field>

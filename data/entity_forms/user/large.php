@@ -2,7 +2,7 @@
     <column type="half">
         <row>
             <column type="half">
-                <field name='image_id' hidelabel='t' profile_image='t'></field>
+                <field name='image_id' hidelabel='true' profile_image='t'></field>
             </column>
             <column>
                 <header field='full_name' />
@@ -29,7 +29,7 @@
                 <fieldset name='Admin'>
                     <field name='team_id' />
                     <field name='active' />
-                    <field name='groups' hidelabel='t' />
+                    <field name='groups' hidelabel='true' />
                     <field name='manager_id' />
                 </fieldset>
             </column>
@@ -69,13 +69,13 @@
         </row>
         <row>
             <column>
-                <field name='notes' hidelabel='t' multiline='true' />
+                <field name='notes' hidelabel='true' multiline='true' />
             </column>
         </row>
     </column>
     <column type="sidebar">
         <row>
-            <field hidelabel='t' name='activity' />
+            <field hidelabel='true' name='activity' />
         </row>
     </column>
 </row>

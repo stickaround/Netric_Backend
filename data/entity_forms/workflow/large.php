@@ -7,12 +7,12 @@
 </row>
 <row>
     <column>
-        <field name='name' class='headline' hidelabel='t'></field>
+        <field name='name' class='headline' hidelabel='true'></field>
     </column>
 </row>
 <row>
     <column>
-        <field name='notes' hidelabel='t' multiline='true'></field>
+        <field name='notes' hidelabel='true' multiline='true'></field>
     </column>
 </row>
 <row>

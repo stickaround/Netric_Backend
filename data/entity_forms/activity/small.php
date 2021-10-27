@@ -3,5 +3,5 @@
 <field required='t' name='ts_entered'></field>
 <field name='obj_reference'></field>
 <field name='direction'></field>
-<field name='notes' hidelabel='t' multiline='true'></field>
+<field name='notes' hidelabel='true' multiline='true'></field>
 <field name='comments'></field>

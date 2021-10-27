@@ -19,7 +19,7 @@
         </row>
     </tab>
     <tab name='Feeds &amp; Blogs'>
-        <objectsref obj_type='content_feed' ref_field='site_id'/>
+        <objectsref obj_type='content_feed' ref_field='site_id' />
     </tab>
     <tab name='Pages'>
         <objectsref obj_type='cms_page' ref_field='site_id'></objectsref>
@@ -34,6 +34,6 @@
         <field name='comments'></field>
     </tab>
     <tab name='Media'>
-        <field hidelabel='t' name='folder_id'></field>
+        <field hidelabel='true' name='folder_id'></field>
     </tab>
 </tabs>

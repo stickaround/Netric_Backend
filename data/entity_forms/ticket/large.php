@@ -25,7 +25,7 @@
         <row>
             <column>
                 <fieldset name="Notes">
-                    <field name='description' hidelabel='t' multiline='true'></field>
+                    <field name='description' hidelabel='true' multiline='true'></field>
                 </fieldset>
             </column>
         </row>

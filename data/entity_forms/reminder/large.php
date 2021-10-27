@@ -17,7 +17,7 @@
         </row>
         <row>
             <column>
-                <field name='notes' hidelabel='t' multiline='true' rich='true'></field>
+                <field name='notes' hidelabel='true' multiline='true' rich='true'></field>
             </column>
         </row>
     </column>

@@ -37,12 +37,12 @@
         </row>
         <row>
             <column>
-                <field name='description' hidelabel='t' multiline='true'></field>
+                <field name='description' hidelabel='true' multiline='true'></field>
             </column>
         </row>
         <row>
             <column>
-                <field name='comments' hidelabel='t'></field>
+                <field name='comments' hidelabel='true'></field>
             </column>
         </row>
     </column>

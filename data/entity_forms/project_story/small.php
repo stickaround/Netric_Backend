@@ -11,6 +11,6 @@
 <field name='ts_entered'></field>
 <all_additional></all_additional>
 <attachments></attachments>
-<field name='notes' hidelabel='t' multiline='true'></field>
+<field name='notes' hidelabel='true' multiline='true'></field>
 <objectsref name='Tasks' obj_type='task' ref_field='story_id'></objectsref>
 <field name='comments'></field>

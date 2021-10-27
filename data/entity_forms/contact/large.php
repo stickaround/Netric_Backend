@@ -27,12 +27,12 @@
                 </row>
                 <row>
                     <column>
-                        <field name='notes' hidelabel='t' multiline='true'></field>
+                        <field name='notes' hidelabel='true' multiline='true'></field>
                     </column>
                 </row>
                 <row>
                     <column>
-                        <field hidelabel='t' name='activity'></field>
+                        <field hidelabel='true' name='activity'></field>
                     </column>
                 </row>
             </tab>
@@ -69,7 +69,7 @@
     <column type="sidebar">
         <row>
             <column>
-                <field name='image_id' hidelabel='t' profile_image='t'></field>
+                <field name='image_id' hidelabel='true' profile_image='t'></field>
                 <text field='job_title' />
                 <text showif='primary_account=*'> at</text>
                 <text field='primary_account' />
@@ -150,7 +150,7 @@
         </row>
         <header>Groups</header>
         <row>
-            <field name='groups' hidelabel='t'></field>
+            <field name='groups' hidelabel='true'></field>
         </row>
         <header>Important Dates</header>
         <row>

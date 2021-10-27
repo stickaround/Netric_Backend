@@ -17,7 +17,7 @@
                 <field name='ts_start' part='date'></field>
             </column>
             <column>
-                <field name='ts_start' part='time' hidelabel='t'></field>
+                <field name='ts_start' part='time' hidelabel='true'></field>
             </column>
         </row>
         <row>
@@ -47,12 +47,12 @@
         </row>
         <row>
             <column>
-                <field name='notes' hidelabel='t' multiline='true'></field>
+                <field name='notes' hidelabel='true' multiline='true'></field>
             </column>
         </row>
         <row>
             <column>
-                <field name='comments' hidelabel='t'></field>
+                <field name='comments' hidelabel='true'></field>
             </column>
         </row>
     </column>

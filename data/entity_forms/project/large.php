@@ -78,7 +78,7 @@
         </row>
         <row>
             <column>
-                <field name='groups' hidelabel='t'></field>
+                <field name='groups' hidelabel='true'></field>
             </column>
         </row>
 

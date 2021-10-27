@@ -5,10 +5,10 @@
     <field name='ts_start' part='date' label='When'></field>
 </column>
 <column showif='all_day=f'>
-    <field name='ts_start' part='time' hidelabel='t'></field>
+    <field name='ts_start' part='time' hidelabel='true'></field>
 </column>
 <column>
-    <field name='ts_end' part='time' hidelabel='t'></field>
+    <field name='ts_end' part='time' hidelabel='true'></field>
 </column>
 <column>
     <field name='all_day'></field>
@@ -26,7 +26,7 @@
     <all_additional></all_additional>
 </column>
 <column>
-    <field name='notes' hidelabel='t' multiline='true'></field>
+    <field name='notes' hidelabel='true' multiline='true'></field>
 </column>
 <column>
     <field name='comments'></field>

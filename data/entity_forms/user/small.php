@@ -11,6 +11,6 @@
 <field label='Ext' name='phone_ext' />
 <field name='team_id' />
 <field name='active' />
-<field name='groups' hidelabel='t' />
+<field name='groups' hidelabel='true' />
 <field name='manager_id' />
-<field name='notes' hidelabel='t' multiline='true' />
+<field name='notes' hidelabel='true' multiline='true' />

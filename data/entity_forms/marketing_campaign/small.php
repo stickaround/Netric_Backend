@@ -17,4 +17,4 @@
 <field name='resp_estimated'></field>
 <field name='resp_actual'></field>
 
-<field name='description' hidelabel='t' multiline='true'></field>
+<field name='description' hidelabel='true' multiline='true'></field>
