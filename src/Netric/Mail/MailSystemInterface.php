@@ -13,12 +13,12 @@ interface MailSystemInterface
      */
     public function getDefaultDomain(string $accountId): string;
 
-    // /**
-    //  * TODO: Add a domain for an account
-    //  *
-    //  * @return bool true on success, false on failure
-    //  */
-    // public function addDomain(string $accountId, string $domain): bool;
+    /**
+     * TODO: Add a domain for an account
+     *
+     * @return bool true on success, false on failure
+     */
+    public function addDomain(string $accountId, string $domain): bool;
 
     // /**
     //  * TODO: Get all domains for an account
@@ -33,4 +33,14 @@ interface MailSystemInterface
      * @return string UUID of the account that owns this domain
      */
     public function getAccountIdFromDomain(string $domain): string;
+
+    /**
+     * Generate a dynamic system email domain for a given account
+     *
+     * We utilize [accountName].neric.com by default.
+     *
+     * @param string $accountId
+     * @return string
+     */
+    public function getAccountDynamicSystemDomain(string $accountId): string;
 }

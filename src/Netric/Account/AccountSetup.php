@@ -6,6 +6,8 @@ use Netric\Application\DataMapperInterface;
 use Netric\Application\Exception\AccountAlreadyExistsException;
 use Netric\Application\Exception\CouldNotCreateAccountException;
 use Netric\Account\Account\InitData\InitDataInterface;
+use Netric\EntityDefinition\ObjectTypes;
+use rtf;
 
 /**
  * Netric account setup functions
@@ -27,33 +29,54 @@ class AccountSetup
     private array $dataImporters = [];
 
     /**
+     * Account container is used to load accounts
+     *
+     * @var AccountContainer
+     */
+    private AccountContainer $accountContianer;
+
+    /**
+     * Entityloader user to create users
+     *
+     * @var EntityLoader
+     */
+    private EntityLoader $entityLoader;
+
+    /**
      * Constructor
      *
      * @param DataMapperInterface $appDataMapper
+     * @param AccountContainer $accountContainer
      * @param InitDataInterface[] $dataImporters
      */
-    public function __construct(DataMapperInterface $appDataMapper, array $dataImporters)
+    public function __construct(DataMapperInterface $appDataMapper, AccountContainer $accountContainer, array $dataImporters)
     {
         $this->appDataMapper = $appDataMapper;
+        $this->accountContianer = $accountContainer;
         $this->dataImporters = $dataImporters;
     }
 
     /**
      * Create a new account with a default admin account
      *
-     * @param string $accountName
-     * @return void
+     * @param string $accountName A unique name for the new account
+     * @param string $adminUserName Required username for the admin/first user
+     * @param string $adminUserPassword Required password for the admin
+     * @return Account
      */
-    public function createAccount(
-        string $accountName
-    ) {
+    public function createAndInitailizeNewAccount(
+        string $accountName,
+        string $adminUserName,
+        string $adminEmail,
+        string $adminPassword
+    ): Account {
         // Make sure the account does not already exists
         if ($this->appDataMapper->getAccountByName($accountName)) {
             throw new AccountAlreadyExistsException($accountName . " already exists");
         }
 
-        // Make sure the name is clearn
-        $cleanedAccountName = $this->getUniqueAccountName($accountName);
+        // TODO: Make sure the name is valid
+        //$cleanedAccountName = $this->getUniqueAccountName($accountName);
 
         // Add new account record
         $accountId = $this->appDataMapper->createAccount($cleanedAccountName);
@@ -64,6 +87,27 @@ class AccountSetup
                 "Failed creating account " . $this->appDataMapper->getLastError()->getMessage()
             );
         }
+
+        // Load the newly created account
+        $account = $this->accountContianer->loadById($accountId);
+
+        // Make sure it worked
+        if ($account === null) {
+            throw new CouldNotCreateAccountException('Account creation failed');
+        }
+
+        // Set data for this account
+        $this->updateDataForAccount($account);
+
+        // Create the admin user
+        $adminUser = $this->entityLoader->create(ObjectTypes::USER, $account->getAccountId());
+        $adminUser->setValue("name", $adminUserName);
+        $adminUser->setValue("email", $adminEmail);
+        $adminUser->setValue("password", $adminPassword);
+        $adminUser->setIsAdmin(true);
+        $this->entityLoader->save($adminUser, $account->getSystemUser());
+
+        return $account;
     }
 
     /**

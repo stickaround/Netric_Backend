@@ -38,11 +38,14 @@ class MailSystem implements MailSystemInterface
     }
 
     /**
-     * Returns the default domain for an account
+     * Generate a dynamic system email domain for a given account
      *
-     * @return string The domain that should be used by default for an account
+     * We utilize [accountName].neric.com by default.
+     *
+     * @param string $accountId
+     * @return string
      */
-    public function getDefaultDomain(string $accountId): string
+    public function getAccountDynamicSystemDomain(string $accountId): string
     {
         $account = $this->accountContainer->loadById($accountId);
 
@@ -57,12 +60,25 @@ class MailSystem implements MailSystemInterface
     }
 
     /**
+     * Returns the default domain for an account
+     *
+     * @return string The domain that should be used by default for an account
+     */
+    public function getDefaultDomain(string $accountId): string
+    {
+        // This is the fallback in case no domains have been created yet
+        return $this->getAccountDynamicSystemDomain($accountId);
+    }
+
+    /**
      * This looks for the account ID associated with a domain
      *
      * @return string UUID of the account that owns this domain
      */
     public function getAccountIdFromDomain(string $domain): string
     {
+        // TODO: try to load the domain from the database rather than this bit of magic
+
         $domainParts = explode(".", $domain);
         // The first part should be the account, let's test that theory
         if (count($domainParts) === 3 && isset($domainParts[0])) {
@@ -75,5 +91,15 @@ class MailSystem implements MailSystemInterface
         // Nothing found, this could be a very common scneario since anyone can
         // attempt to send email to random addresses from the outside world.
         return "";
+    }
+
+    /**
+     * Add a domain for an account
+     *
+     * @return bool true on success, false on failure
+     */
+    public function addDomain(string $accountId, string $domain): bool
+    {
+        return false;
     }
 }
