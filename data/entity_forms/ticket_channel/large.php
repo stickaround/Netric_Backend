@@ -1,7 +1,7 @@
 <form>
     <row>
         <column>
-            <field name='name' hidelabel="t" class='headline'></field>
+            <field name='name' hidelabel="true" class='headline'></field>
         </column>
     </row>
     <row>

@@ -1,6 +1,6 @@
 <row>
     <column>
-        <field name='title' hidelabel="t" class='headline'></field>
+        <field name='title' hidelabel="true" class='headline'></field>
     </column>
 </row>
 <row showif="editMode=1">
@@ -15,7 +15,7 @@
 </row>
 <row>
     <column>
-        <field hidelabel='t' multiline='t' rich='t' name='body'></field>
+        <field hidelabel='t' multiline='true' rich='true' name='body'></field>
     </column>
 </row>
 <row>

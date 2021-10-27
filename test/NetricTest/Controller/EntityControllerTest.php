@@ -174,7 +174,7 @@ class EntityControllerTest extends TestCase
         $mockTaskEntity = $this->createMock(TaskEntity::class);
         $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
-        $mockTaskEntity->method('toArray')->willReturn([
+        $mockTaskEntity->method('toArrayWithNoPermissions')->willReturn([
             'obj_type' => 'task',
             'entity_id' => $taskEntityId,
             'name' => 'Test Task',
@@ -1343,7 +1343,7 @@ class EntityControllerTest extends TestCase
         // Mock the entity loader service which is used to create a new entity and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockChatRoom);
         $this->mockEntityLoader->method('save')->willReturn($mockChatRoom);
-        
+
         // Make sure postRemoveCurrentUserAsMemberAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);

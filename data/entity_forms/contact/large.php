@@ -21,13 +21,13 @@
                 </row>
                 <row showif='type_id=2'>
                     <column>
-                        <field name='name' hidelabel="t" class='headline'></field>
+                        <field name='name' hidelabel="true" class='headline'></field>
                         <field ref_field='type_id' ref_value='1' name='primary_contact'></field>
                     </column>
                 </row>
                 <row>
                     <column>
-                        <field name='notes' hidelabel='t' multiline='t'></field>
+                        <field name='notes' hidelabel='t' multiline='true'></field>
                     </column>
                 </row>
                 <row>

@@ -105,6 +105,13 @@ interface EntityInterface
     public function toArray();
 
     /**
+     * Special function used to get data visible to users who have no view permission
+     *
+     * @return array Associative array of select fields in array(field_name=>value) format
+     */
+    public function toArrayWithNoPermissions();
+
+    /**
      * Callback function used for derrived subclasses
      *
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies

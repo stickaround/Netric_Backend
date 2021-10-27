@@ -26,7 +26,7 @@
     <all_additional></all_additional>
 </column>
 <column>
-    <field name='notes' hidelabel='t' multiline='t'></field>
+    <field name='notes' hidelabel='t' multiline='true'></field>
 </column>
 <column>
     <field name='comments'></field>

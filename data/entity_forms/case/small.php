@@ -1,4 +1,4 @@
-<field name='title' hidelabel="t" class='headline'></field>
+<field name='title' hidelabel="true" class='headline'></field>
 <field name='severity_id'></field>
 <field name='type_id'></field>
 <field name='owner_id'></field>
@@ -8,5 +8,5 @@
 <field name='ts_entered'></field>
 <all_additional></all_additional>
 <attachments></attachments>
-<field name='description' hidelabel='t' multiline='t'></field>
+<field name='description' hidelabel='t' multiline='true'></field>
 <field name='comments'></field>

@@ -439,7 +439,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         // Make sure that we have an authenticated account
         $currentAccount = $this->getAuthenticatedAccount();
         if (!$currentAccount) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST, "No authenticated account found.");
+            $response->setReturnCode(HttpResponse::STATUS_CODE_FORBIDDEN, "No authenticated account found.");
             return $response;
         }
 
@@ -461,14 +461,12 @@ class FilesController extends AbstractFactoriedController implements ControllerI
             return $response;
         }
 
-        // Set the request file id
-        $request->setParam('file_id', $imageId);
-
-        /*
-         * Now do a backend redirect where no response is sent to the browser
-         * but the newly modified request will be sent to $this->getDownloadAction()
-         * becaues we want to preserve caching with the user profile links
-         */
-        return $this->getDownloadAction($request);
+        // Return a temporary redirect
+        $newParams = "file_id=$imageId";
+        $newParams .= "&Authentication=" . $request->getParam('Authentication');
+        //die("/api/v1/files/download?$newParams");
+        $response->setHeader("Location", "/api/v1/files/download?$newParams");
+        $response->setReturnCode(HttpResponse::STATUS_CODE_TEMPORARY_REDIRECT);
+        return $response;
     }
 }

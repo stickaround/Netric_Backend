@@ -118,10 +118,10 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
         try {
             $res = $this->entityIndex->executeQuery($query);
         } catch (\Exception $ex) {
-            // Log the error so we can setup some alerts
-            $this->getApplication()->getLog()->error(
-                "EntityQueryController: Failed API Query - " . $ex->getMessage()
-            );
+            // // Log the error so we can setup some alerts
+            // $this->getApplication()->getLog()->error(
+            //     "EntityQueryController: Failed API Query - " . $ex->getMessage()
+            // );
 
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(["error" => $ex->getMessage(), "query_ran" => $query->toArray()]);
@@ -151,11 +151,10 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
                 $entityData = $ent->toArray();
                 $entityData["applied_dacl"] = $dacl->toArray();
             } else {
-                $entityData["entity_id"] = $ent->getEntityId();
-                $entityData["name"] = $ent->getName();
-                $entityData["obj_type"] = $ent->getObjType();
+                $entityData = $ent->toArrayWithNoPermissions();
             }
 
+            // Applied/computed values
             $entityData["currentuser_permissions"] = $currentUserPermissions;
 
             // Print full details

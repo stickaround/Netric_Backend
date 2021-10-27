@@ -23,7 +23,6 @@ use Netric\Permissions\Dacl;
 use Netric\Permissions\DaclLoader;
 use Ramsey\Uuid\Uuid;
 use Exception;
-use Netric\Log\LogInterface;
 
 /**
  * Controller for interacting with entities
@@ -282,10 +281,10 @@ class EntityController extends AbstractFactoriedController implements Controller
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
         } else {
-            $entityData['entity_id'] = $entity->getEntityId();
-            $entityData['name'] = $entity->getName();
+            $entityData = $entity->toArrayWithNoPermissions();
         }
 
+        // Add applied properties - not field values but processed
         $entityData['currentuser_permissions'] = $currentUserPermissions;
 
         $response->write($entityData);
@@ -387,9 +386,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
         } else {
-            $entityData = [];
-            $entityData['entity_id'] = $entity->getEntityId();
-            $entityData['name'] = $entity->getName();
+            $entityData = $entity->toArrayWithNoPermissions();
         }
 
         $entityData['currentuser_permissions'] = $currentUserPermissions;
@@ -1288,7 +1285,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         }
 
         $entityId = $objData['entity_id'];
-        $currentUser = $currentAccount->getAuthenticatedUser();        
+        $currentUser = $currentAccount->getAuthenticatedUser();
         try {
             if (Uuid::isValid($entityId)) {
                 // Load the entity that we are going to update
@@ -1308,7 +1305,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             }
         } catch (Exception $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
-            $response->write(["error" => $ex->getMessage()]);            
+            $response->write(["error" => $ex->getMessage()]);
         }
 
         return $response;
