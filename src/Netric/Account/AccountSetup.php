@@ -7,7 +7,6 @@ use Netric\Application\Exception\AccountAlreadyExistsException;
 use Netric\Application\Exception\CouldNotCreateAccountException;
 use Netric\Account\Account\InitData\InitDataInterface;
 use Netric\EntityDefinition\ObjectTypes;
-use rtf;
 
 /**
  * Netric account setup functions

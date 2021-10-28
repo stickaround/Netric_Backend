@@ -67,8 +67,9 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // Messages are sent as a multipart form with a file param called 'message'
         $files = $request->getParam('files');
         $recipient = $request->getParam('recipient');
+        $to = $request->getParam('to');
 
-        $this->log->info("EmailController->postReceiveAction: Delivering for: $recipient");
+        $this->log->info("EmailController->postReceiveAction: Delivering for: $recipient, $to");
 
         if (!$recipient) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
