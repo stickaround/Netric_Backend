@@ -5,7 +5,7 @@ CREATE TABLE public.email_alias (
     address character varying(256) PRIMARY KEY,
     goto text,
     is_active boolean DEFAULT true,
-    account_id uuid REFERENCES public.account (account_id) ON DELETE CASCADE,
+    account_id uuid REFERENCES public.account (account_id) ON DELETE CASCADE
 );
 
 --
@@ -15,7 +15,7 @@ CREATE TABLE public.email_domain (
     domain character varying(256) PRIMARY KEY,
     description text,
     is_active boolean DEFAULT true,
-    account_id uuid REFERENCES public.account (account_id) ON DELETE CASCADE,
+    account_id uuid REFERENCES public.account (account_id) ON DELETE CASCADE
 );
 
 
@@ -27,5 +27,5 @@ CREATE TABLE public.email_user (
     email_address character varying(256),
     maildir character varying(128),
     password character varying(128),
-    account_id uuid REFERENCES public.account (account_id) ON DELETE CASCADE,
+    account_id uuid REFERENCES public.account (account_id) ON DELETE CASCADE
 );
