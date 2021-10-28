@@ -6,8 +6,6 @@ namespace Netric\Account\InitData\Sets;
 
 use Netric\Account\Account;
 use Netric\Account\InitData\InitDataInterface;
-use Netric\Entity\EntityLoader;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\Mail\MailSystemInterface;
 
 /**
