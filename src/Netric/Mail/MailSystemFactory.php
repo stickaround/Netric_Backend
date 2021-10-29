@@ -6,6 +6,7 @@ namespace Netric\Mail;
 
 use Netric\Account\AccountContainerFactory;
 use Netric\Config\ConfigFactory;
+use Netric\Mail\DataMapper\MailDataMapperFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use RuntimeException;
@@ -32,7 +33,8 @@ class MailSystemFactory implements ApplicationServiceFactoryInterface
 
         return new MailSystem(
             $config->localhost_root,
-            $accountContainer
+            $accountContainer,
+            $serviceLocator->get(MailDataMapperFactory::class)
         );
     }
 }

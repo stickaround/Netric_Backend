@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netric\Mail;
 
 use Netric\Account\AccountContainer;
+use Netric\Mail\DataMapper\MailDataMapperInterface;
 use RuntimeException;
 
 /**
@@ -29,12 +30,23 @@ class MailSystem implements MailSystemInterface
     private AccountContainer $accountContainer;
 
     /**
+     * DataMapper used for interacting with the mailsystem database
+     *
+     * @var MailDataMapperInterface
+     */
+    private MailDataMapperInterface $mailDataMapper;
+
+    /**
      * Setup dependencies
      */
-    public function __construct(string $localhostRoot, AccountContainer $accountContainer)
-    {
+    public function __construct(
+        string $localhostRoot,
+        AccountContainer $accountContainer,
+        MailDataMapperInterface $mailDataMapper
+    ) {
         $this->localhostRoot = $localhostRoot;
         $this->accountContainer = $accountContainer;
+        $this->mailDataMapper = $mailDataMapper;
     }
 
     /**
@@ -100,6 +112,6 @@ class MailSystem implements MailSystemInterface
      */
     public function addDomain(string $accountId, string $domain): bool
     {
-        return false;
+        return $this->mailDataMapper->addIncomingDomain($accountId, $domain);
     }
 }

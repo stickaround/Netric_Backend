@@ -42,6 +42,7 @@ class EmailDomainInitData implements InitDataInterface
 
         // Add the domain if it does not already exist
         $this->mailSystem->addDomain($account->getAccountId(), $accountSysDomain);
+
         return true;
     }
 }
