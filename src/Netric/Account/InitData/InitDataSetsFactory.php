@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netric\Account\InitData;
 
 use Netric\Account\InitData\Sets\EmailAccountsInitDataFactory;
+use Netric\Account\InitData\Sets\EmailDomainInitDataFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Account\InitData\Sets\EntityTypesInitDataFactory;
@@ -37,7 +38,8 @@ class InitDataSetsFactory implements ApplicationServiceFactoryInterface
             $serviceLocator->get(ModulesInitDataFactory::class),
             $serviceLocator->get(WorkerJobsInitDataFactory::class),
             $serviceLocator->get(WorkflowsInitData::class),
-            $serviceLocator->get(EmailAccountsInitDataFactory::class)
+            $serviceLocator->get(EmailAccountsInitDataFactory::class),
+            $serviceLocator->get(EmailDomainInitDataFactory::class)
         ];
     }
 }
