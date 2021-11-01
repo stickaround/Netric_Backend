@@ -485,7 +485,7 @@ class Application
         // Create the admin user
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $adminUser = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
-        $adminUser->setValue("name", $adminUserName);
+        $adminUser->setValue("name", $accountName);
         $adminUser->setValue("email", $adminEmail);
         $adminUser->setValue("password", $adminPassword);
         $adminUser->setIsAdmin(true);
