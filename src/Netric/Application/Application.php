@@ -486,7 +486,6 @@ class Application
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $adminUser = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
         $adminUser->setValue("name", $accountName);
-        $adminUser->setValue("username", $adminUserName);
         $adminUser->setValue("email", $adminEmail);
         $adminUser->setValue("password", $adminPassword);
         $adminUser->setIsAdmin(true);
