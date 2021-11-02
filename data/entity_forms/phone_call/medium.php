@@ -1,7 +1,6 @@
 <row>
     <column>
-        <field name='name' hidelabel="t" class='headline'
-               tooltip="Enter the subject of this call"></field>
+        <field name='name' hidelabel="true" class='headline' tooltip="Enter the subject of this call"></field>
     </column>
 </row>
 <row>
@@ -15,7 +14,7 @@
         <field name='ts_start' part='date'></field>
     </column>
     <column>
-        <field name='ts_start' part='time' hidelabel='t'></field>
+        <field name='ts_start' part='time' hidelabel='true'></field>
     </column>
 </row>
 <row>
@@ -45,11 +44,11 @@
 </row>
 <row>
     <column>
-        <field name='notes' hidelabel='t' multiline='t'></field>
+        <field name='notes' hidelabel='true' multiline='true'></field>
     </column>
 </row>
 <row>
     <column>
-        <field name='comments' hidelabel='t'></field>
+        <field name='comments' hidelabel='true'></field>
     </column>
 </row>

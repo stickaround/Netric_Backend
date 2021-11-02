@@ -6,6 +6,7 @@ namespace NetricTest\Mail;
 
 use Netric\Account\Account;
 use Netric\Account\AccountContainer;
+use Netric\Mail\DataMapper\MailDataMapperInterface;
 use Netric\Mail\MailSystem;
 use Netric\Mail\MailSystemInterface;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +35,11 @@ class MailSystemTest extends TestCase
         $mockAccountContainer = $this->createMock(AccountContainer::class);
         $this->mockAccountContainer = $mockAccountContainer;
 
-        $this->mailSystem = new MailSystem('test.com', $mockAccountContainer);
+        // Mock the DataMapper
+        $mockDataMapper = $this->createMock(MailDataMapperInterface::class);
+        $this->mockDataMapper = $mockDataMapper;
+
+        $this->mailSystem = new MailSystem('test.com', $mockAccountContainer, $mockDataMapper);
     }
 
     public function testGetDefaultDomain()

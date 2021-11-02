@@ -84,6 +84,7 @@ class EmailControllerTest extends TestCase
             "tmp_name" => __DIR__ . "/fixtures/mail.mime.txt", "name" => "files-upload-test.txt"
         ]]);
         $request->setParam('recipient', 'test@netric.com');
+        $request->setParam('to', 'test@netric.com');
 
         $response = $this->emailController->postReceiveAction($request);
         $this->assertEquals(['result' => true, 'entity_id' => $mockGuid], $response->getOutputBuffer());

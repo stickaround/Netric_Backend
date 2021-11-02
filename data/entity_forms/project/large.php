@@ -2,12 +2,12 @@
     <column>
         <row>
             <column>
-                <field name='name' hidelabel="t" class='headline'></field>
+                <field name='name' hidelabel="true" class='headline'></field>
             </column>
         </row>
         <row>
             <column>
-                <field name='notes' multiline='t'></field>
+                <field name='notes' multiline='true'></field>
                 <all_additional></all_additional>
             </column>
         </row>
@@ -78,7 +78,7 @@
         </row>
         <row>
             <column>
-                <field name='groups' hidelabel='t'></field>
+                <field name='groups' hidelabel='true'></field>
             </column>
         </row>
 

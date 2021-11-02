@@ -2,7 +2,7 @@
     <tab name='General'>
         <row>
             <column>
-                <field class='headline' hidelabel='t' name='name'></field>
+                <field class='headline' hidelabel='true' name='name'></field>
             </column>
         </row>
         <row>
@@ -31,7 +31,7 @@
         </row>
         <row>
             <column>
-                <field name='notes' hidelabel='t' multiline='t'></field>
+                <field name='notes' hidelabel='true' multiline='true'></field>
             </column>
         </row>
         <row>

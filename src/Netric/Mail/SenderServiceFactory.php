@@ -25,6 +25,6 @@ class SenderServiceFactory implements ApplicationServiceFactoryInterface
         // TODO: we really need to fix this
         $log = $serviceLocator->get(LogFactory::class);
         $config = $serviceLocator->get(ConfigFactory::class);
-        return new SenderService($log, $config->mail);
+        return new SenderService($log, $config->email);
     }
 }

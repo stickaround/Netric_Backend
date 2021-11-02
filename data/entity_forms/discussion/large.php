@@ -20,7 +20,7 @@
                 </row>
                 <row>
                     <column>
-                        <field hidelabel='t' multiline='t' name='message'></field>
+                        <field hidelabel='true' multiline='true' name='message'></field>
                     </column>
                 </row>
                 <row>

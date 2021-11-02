@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Account;
 
 use Netric\Account\InitData\InitDataSetsFactory;
@@ -21,6 +22,7 @@ class AccountSetupFactory implements ApplicationServiceFactoryInterface
     {
         $dataMapper = $serviceLocator->get(DataMapperFactory::class);
         $dataImporters = $serviceLocator->get(InitDataSetsFactory::class);
-        return new AccountSetup($dataMapper, $dataImporters);
+        $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
+        return new AccountSetup($dataMapper, $accountContainer, $dataImporters);
     }
 }

@@ -243,4 +243,26 @@ class UserTest extends TestCase
         // Normally the entity would return the owner_id, but users always return themselves
         $this->assertEquals($userGuid, $user->getOwnerId());
     }
+
+    /**
+     * Make sure we export only select fields if the user has no permissions
+     *
+     * @return void
+     */
+    public function testToArrayWithNoPermissions()
+    {
+        $sm = $this->account->getServiceManager();
+        $user = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
+        $user->setValue("name", 'testuser');
+        $user->setValue("full_name", 'Test User');
+
+        $data = $user->toArrayWithNoPermissions();
+        // The user entity also exports full_name, make sure it is set
+        $this->assertEquals($user->getValue('full_name'), $data['full_name']);
+
+        // All other fields are tested in the ../EntityTest.php tests
+        // but we'll test obj_type here just ot make sure the
+        // parent::toArrayWithNoPermissions() was called
+        $this->assertEquals(ObjectTypes::USER, $data['obj_type']);
+    }
 }

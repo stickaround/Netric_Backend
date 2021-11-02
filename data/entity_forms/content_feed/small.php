@@ -7,4 +7,4 @@
 <field name='sort_by'></field>
 <field name='limit_num'></field>
 <field name='subs_title'></field>
-<field name='subs_body' multiline='t' rich='t'></field>
+<field name='subs_body' multiline='true' rich='true'></field>

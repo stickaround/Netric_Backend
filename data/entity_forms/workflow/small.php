@@ -1,11 +1,11 @@
 <row>
     <column>
-        <field name='name' class='headline' hidelabel='t'></field>
+        <field name='name' class='headline' hidelabel='true'></field>
     </column>
 </row>
 <row>
     <column>
-        <field name='notes' hidelabel='t' multiline='t'></field>
+        <field name='notes' hidelabel='true' multiline='true'></field>
     </column>
 </row>
 <row>
@@ -15,6 +15,6 @@
 </row>
 <row>
     <column>
-        <workflow/>
+        <workflow />
     </column>
 </row>

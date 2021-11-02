@@ -40,7 +40,7 @@
                     <field name='subs_title'></field>
                 </row>
                 <row>
-                    <field name='subs_body' multiline='t' rich='t'></field>
+                    <field name='subs_body' multiline='true' rich='true'></field>
                 </row>
             </tab>
         </tabs>

@@ -1,4 +1,4 @@
-<field name='name' hidelabel="t" class='headline'></field>
+<field name='name' hidelabel="true" class='headline'></field>
 <field name='priority_id'></field>
 <field name='type_id'></field>
 <field name='status_id'></field>
@@ -11,6 +11,6 @@
 <field name='ts_entered'></field>
 <all_additional></all_additional>
 <attachments></attachments>
-<field name='notes' hidelabel='t' multiline='t'></field>
+<field name='notes' hidelabel='true' multiline='true'></field>
 <objectsref name='Tasks' obj_type='task' ref_field='story_id'></objectsref>
 <field name='comments'></field>

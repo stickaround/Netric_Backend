@@ -14,8 +14,8 @@
     <field ref_field='type_id' ref_value='1' name='primary_contact'></field>
 </column>
 <column>
-    <field name='notes' multiline='t'></field>
+    <field name='notes' multiline='true'></field>
 </column>
 <column>
-    <field hidelabel='t' name='activity'></field>
+    <field hidelabel='true' name='activity'></field>
 </column>

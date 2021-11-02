@@ -66,13 +66,19 @@ class EmailController extends AbstractFactoriedController implements ControllerI
 
         // Messages are sent as a multipart form with a file param called 'message'
         $files = $request->getParam('files');
-        $recipient = $request->getParam('recipient');
 
-        $this->log->info("EmailController->postReceiveAction: Delivering for: $recipient");
+        // In netric, all email is routed to incoming@[accountname].[domain.com]
+        // The recipient is this incoming mailbox, but the 'to' is the actual
+        // recipient in netric and we'll use it to deliver mail to the right
+        // email_acount from netric.
+        $incomingMailboxAddress = $request->getParam('recipient');
+        $to = $request->getParam('to');
 
-        if (!$recipient) {
+        $this->log->info("EmailController->postReceiveAction: Delivering for: $incomingMailboxAddress, $to");
+
+        if (!$incomingMailboxAddress || !$to) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(['error' => "'recipient is a required param"]);
+            $response->write(['error' => "'recipient and to are required params"]);
             return $response;
         }
 
@@ -92,7 +98,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // Try to import message
         try {
             $messageGuid = $this->deliveryService->deliverMessageFromFile(
-                $recipient,
+                $to,
                 $files['message']['tmp_name'],
             );
             $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
@@ -100,7 +106,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             return $response;
         } catch (RuntimeException $exception) {
             $this->log->error(
-                "EmailController::postReceiveAction: failed to deliver message to $recipient - " .
+                "EmailController::postReceiveAction: failed to deliver message to $incomingMailboxAddress - " .
                     $exception->getMessage()
             );
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);

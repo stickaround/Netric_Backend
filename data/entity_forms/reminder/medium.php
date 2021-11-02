@@ -10,11 +10,11 @@
 </row>
 <row>
     <column>
-    <execute_time name='Time' field='specific_time' />
+        <execute_time name='Time' field='specific_time' />
     </column>
 </row>
 <row>
     <column>
-        <field name='notes' hidelabel='t' multiline='t' rich='t'></field>
+        <field name='notes' hidelabel='true' multiline='true' rich='true'></field>
     </column>
 </row>

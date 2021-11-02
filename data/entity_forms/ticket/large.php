@@ -1,6 +1,6 @@
 <row>
     <column>
-        <field name='name' hidelabel="t" class='headline'></field>
+        <field name='name' hidelabel="true" class='headline'></field>
     </column>
 </row>
 <row>
@@ -25,7 +25,7 @@
         <row>
             <column>
                 <fieldset name="Notes">
-                    <field name='description' hidelabel='t' multiline='t'></field>
+                    <field name='description' hidelabel='true' multiline='true'></field>
                 </fieldset>
             </column>
         </row>
@@ -39,7 +39,7 @@
         <row>
             <column>
                 <column>
-                    <comments />
+                    <comments allowpublic="true" />
                 </column>
             </column>
         </row>

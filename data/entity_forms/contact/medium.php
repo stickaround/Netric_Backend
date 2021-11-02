@@ -25,12 +25,12 @@
         </row>
         <row>
             <column>
-                <field name='notes' hidelabel='t' multiline='t'></field>
+                <field name='notes' hidelabel='true' multiline='true'></field>
             </column>
         </row>
         <row>
             <column>
-                <field hidelabel='t' name='activity'></field>
+                <field hidelabel='true' name='activity'></field>
             </column>
         </row>
     </tab>

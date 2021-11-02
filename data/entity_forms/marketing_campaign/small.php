@@ -1,4 +1,4 @@
-<field name='name' hidelabel="t" class='headline'></field>
+<field name='name' hidelabel="true" class='headline'></field>
 
 <field name='parent_id'></field>
 <field name='type_id'></field>
@@ -17,4 +17,4 @@
 <field name='resp_estimated'></field>
 <field name='resp_actual'></field>
 
-<field name='description' hidelabel='t' multiline='t'></field>
+<field name='description' hidelabel='true' multiline='true'></field>

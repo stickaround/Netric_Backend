@@ -122,6 +122,26 @@ class EntityTest extends TestCase
     }
 
     /**
+     * Make sure we export only select fields if the user has no permissions
+     *
+     * @return void
+     */
+    public function testToArrayWithNoPermissions()
+    {
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
+        $cust->setValue("name", "Entity_DataMapperTests");
+        $cust->setValue("owner_id", $this->user->getEntityId(), $this->user->getValue("name"));
+        $cust->setValue("last_contacted", time());
+
+        $data = $cust->toArrayWithNoPermissions();
+        $this->assertEquals($cust->getValue("name"), $data["name"]);
+        $this->assertEquals(ObjectTypes::CONTACT, $data['obj_type']);
+        // This should be blank
+        $this->assertFalse(isset($data['owner_id']));
+        $this->assertFalse(isset($data['last_contacted']));
+    }
+
+    /**
      * Test loading from an array
      */
     public function testFromArray()

@@ -18,6 +18,7 @@ use Netric\Entity\BrowserView\BrowserViewService;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityGroupings\EntityGroupings;
@@ -174,11 +175,10 @@ class EntityControllerTest extends TestCase
         $mockTaskEntity = $this->createMock(TaskEntity::class);
         $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
-        $mockTaskEntity->method('toArray')->willReturn([
-            'obj_type' => 'task',
+        $mockTaskEntity->method('toArrayWithNoPermissions')->willReturn([
+            'obj_type' => ObjectTypes::TASK,
             'entity_id' => $taskEntityId,
             'name' => 'Test Task',
-            'description' => 'Task for testing'
         ]);
 
         // Mock the entity loader service which is used to load the task by guid
@@ -200,6 +200,7 @@ class EntityControllerTest extends TestCase
 
         // It should only return the entity_id, name, and current permission
         $this->assertEquals([
+            'obj_type' => ObjectTypes::TASK,
             'entity_id' => $taskEntityId,
             'name' => 'Test Task',
             'currentuser_permissions' => $daclPermissions
@@ -1343,7 +1344,7 @@ class EntityControllerTest extends TestCase
         // Mock the entity loader service which is used to create a new entity and can save it
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockChatRoom);
         $this->mockEntityLoader->method('save')->willReturn($mockChatRoom);
-        
+
         // Make sure postRemoveCurrentUserAsMemberAction is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);

@@ -387,4 +387,21 @@ class UserEntity extends Entity implements EntityInterface
         $contactId = $this->entityLoader->save($contact, $savingUser);
         $this->setValue('contact_id', $contactId, $contact->getName());
     }
+
+    /**
+     * Special function used to get data visible to users who have no view permission
+     *
+     * We are overriding the default so that we can add full_name to the list of exported fields
+     *
+     * @return array Associative array of select fields in array(field_name=>value) format
+     */
+    public function toArrayWithNoPermissions()
+    {
+        // Use the default fields from the base/parent
+        $data = parent::toArrayWithNoPermissions();
+
+        // Add full_name since this should always be visible to everyone
+        $data['full_name'] = $this->getValue('full_name');
+        return $data;
+    }
 }

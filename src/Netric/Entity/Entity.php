@@ -592,6 +592,42 @@ class Entity implements EntityInterface
     }
 
     /**
+     * Special function used to get data visible to users who have no view permission
+     *
+     * @return array Associative array of select fields in array(field_name=>value) format
+     */
+    public function toArrayWithNoPermissions()
+    {
+        // Handle any pre-processing like default values
+        $this->onBeforeToArray();
+
+        $data = [
+            "obj_type" => $this->objType,
+            "entity_id" => $this->getEntityId(),
+            "name" => $this->getName(),
+        ];
+
+        if ($this->def->getField('image_id')) {
+            $data['image_id'] = $this->getValue('image_id');
+        }
+
+        // If this is a recurring object, indicate if this is an exception
+        if ($this->def->recurRules) {
+            // If the field_recur_id is set then this is part of a series
+            if ($this->getValue($this->def->recurRules['field_recur_id'])) {
+                $data['recurrence_exception'] = $this->isRecurrenceException;
+            }
+        }
+
+        // Send the recurrence pattern if it is set
+        if ($this->recurrencePattern) {
+            $data['recurrence_pattern'] = $this->recurrencePattern->toArray();
+        }
+
+        return $data;
+    }
+
+    /**
      * The datamapper will call this just before the entity is saved
      *
      * @param ServiceLocatorInterface $serviceLocator Service manager used to load supporting services
