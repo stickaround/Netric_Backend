@@ -58,7 +58,14 @@ class SenderServiceTest extends TestCase
     public function testSend()
     {
         $this->assertTrue(
-            $this->senderService->send('test@example.com', 'test', 'body')
+            $this->senderService->send(
+                'test@example.com',
+                "Test To",
+                "from@example.com",
+                "From Name",
+                'test',
+                'body'
+            )
         );
     }
 }

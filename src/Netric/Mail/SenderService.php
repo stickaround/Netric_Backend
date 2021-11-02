@@ -44,12 +44,20 @@ class SenderService
      * @param array $headers Any additional headers
      * @return bool true if successs, false on failure with details written to the log
      */
-    public function send(string $toAddress, string $subject, string $body, array $headers = []): bool
-    {
+    public function send(
+        string $toAddress,
+        string $toDisplay,
+        string $fromAddress,
+        string $fromDisplay,
+        string $subject,
+        string $body,
+        array $headers = []
+    ): bool {
         //Create an instance; passing `true` enables exceptions
         $mail = new PHPMailer(true);
 
         $from = isset($headers['from']) ? $headers['from'] : $this->mailConfig->noreply;
+        $this->log->info("SendingSerivce->send: sending email to $toAddress, from $fromAddress");
 
         try {
             //Server settings

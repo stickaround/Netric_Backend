@@ -417,19 +417,19 @@ class Notifier
 
         // // Set from
         // $fromEmail = $config->email['noreply'];
-        $fromEmail = 'comment.' . $referencedEntity->getEntityId() . '@netric.com';
-
+        $fromEmail = 'comment.' . $referencedEntity->getEntityId() . '@aereus.netric.com';
 
         // TODO: Handle from
         // If this is a support, then we should reply from the email address,
         // otherwise we can use the comment dropbox
 
-
         $this->mailSenderService->send(
             $user->getValue("email"),
+            $user->getValue("full_name"),
+            $fromEmail,
+            "Support",
             $notification->getName('name'),
-            $body,
-            ['from' => $fromEmail]
+            $body
         );
 
         // TODO: Add special dropbox that enables users to comment by just replying to an email
