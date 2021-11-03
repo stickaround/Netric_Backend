@@ -5,6 +5,7 @@ namespace Netric\Mail;
 use Aereus\Config\Config;
 use Netric\Log\LogInterface;
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 /**
@@ -68,7 +69,10 @@ class SenderService
             // Send using SMTP
             $mail->isSMTP();
             // Set the SMTP server to send through
-            $mail->Host       = $this->mailConfig->server;
+            // We wrap this in gethostbyname because of a bug with IPV6 and php
+            // @see https://netcorecloud.com/tutorials/phpmailer-smtp-error-could-not-connect-to-smtp-host/
+            $mail->Host = gethostbyname($this->mailConfig->server);
+
             // Disable SMTP authentication
             $mail->SMTPAuth   = false;
             $mail->SMTPAutoTLS = false;
@@ -102,7 +106,7 @@ class SenderService
             return $mail->send();
         } catch (PHPMailerException $e) {
             $this->log->error(
-                "SendingSerivce->send: {$this->mailConfig->server} Mailer Error: " .
+                "SendingSerivce->send: Mailer Error: " .
                     $mail->ErrorInfo
             );
             return false;
