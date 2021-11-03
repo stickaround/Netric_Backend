@@ -71,6 +71,7 @@ class SenderService
             $mail->Host       = $this->mailConfig->server;
             // Disable SMTP authentication
             $mail->SMTPAuth   = false;
+            $mail->SMTPAutoTLS = false;
             // $mail->Username   = 'user@example.com';
             // $mail->Password   = 'secret';
             // Enable implicit TLS encryption
@@ -79,10 +80,10 @@ class SenderService
             $mail->Port       = $this->mailConfig->port;
 
             // Recipients
-            $mail->setFrom($from);
+            $mail->setFrom($from, $fromDisplay);
 
             // Add a recipient (second param can be a display name if available)
-            $mail->addAddress($toAddress);
+            $mail->addAddress($toAddress, $toDisplay);
 
             // $mail->addReplyTo('info@example.com', 'Information');
             // $mail->addCC('cc@example.com');
@@ -101,9 +102,8 @@ class SenderService
             return $mail->send();
         } catch (PHPMailerException $e) {
             $this->log->error(
-                "Message could not be sent. Mailer Error: " .
-                    $mail->ErrorInfo . "-" . $e->getMessage() . " - config:" .
-                    var_export($this->mailConfig, true)
+                "SendingSerivce->send: Mailer Error: " .
+                    $mail->ErrorInfo
             );
             return false;
         }
