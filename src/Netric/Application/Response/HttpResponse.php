@@ -488,14 +488,19 @@ class HttpResponse implements ResponseInterface
         if ($this->isCacheable && $this->lastModified) {
             // Check if the file has been modified since the last time it was downloaded
             // And we are not trying to stream a segment of a file with HTTP_RANGE
-            if ($this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
+            if (
+                $this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
                 !$this->request->getParam('HTTP_RANGE')
             ) {
                 $if_modified_since = strtotime(preg_replace('/;.*$/', '', $this->request->getParam('HTTP_IF_MODIFIED_SINCE')));
                 if ($if_modified_since >= $this->lastModified->getTimestamp()) {
                     $this->setReturnCode(self::STATUS_CODE_NOT_MODIFIED, 'Not Modified');
                     $this->printHeaders();
-                    return;
+                    // Force headers so the client can decide to stop tranmission
+                    flush();
+                    // We are attemping a flush rather than stopping downlaod to see
+                    // if it fixes caching problems in electron
+                    // return;
                 }
             }
         }
