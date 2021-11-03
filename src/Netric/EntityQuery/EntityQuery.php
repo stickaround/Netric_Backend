@@ -191,7 +191,7 @@ class EntityQuery
      * @param string $fieldName
      * @return Where
      */
-    public function andWhere(string $fieldName, string $operator = "", string $value = "")
+    public function andWhere(string $fieldName, string $operator = "", $value = "")
     {
         return $this->where($fieldName, $operator, $value);
     }
