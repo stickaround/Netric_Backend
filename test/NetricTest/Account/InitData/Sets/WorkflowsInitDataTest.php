@@ -76,8 +76,8 @@ class WorkflowsInitDataTest extends TestCase
 
         // Make sure that we replaces COMPLETED and DEFERRED with goup IDs
         $params = json_decode($actionCheckCond->getValue('data'), true);
-        $this->assertTrue(Uuid::isValid($params['conditions'][0]['value']));
         $this->assertTrue(Uuid::isValid($params['conditions'][1]['value']));
+        $this->assertTrue(Uuid::isValid($params['conditions'][2]['value']));
 
         // Update Field Action
         $actionUpdate = $this->entityLoader->getByUniqueName(
