@@ -174,7 +174,7 @@ class EntityQuery
      * @param mixed $value The condition value
      * @return Where
      */
-    public function where(string $fieldName, string $operator = "", string $value = "")
+    public function where(string $fieldName, string $operator = "", $value = "")
     {
         $where = new Where($fieldName);
         if ($operator) {
