@@ -60,7 +60,7 @@ class WorkflowWaitActionWorker implements WorkerInterface
     {
         $workload = $job->getWorkload();
 
-        $this->log->error("WorkflowWaitActionWorker->work: starting");
+        $this->log->error("WorkflowWaitActionWorker->work: starting for " . $workload['entity_id']);
 
         // Validate our workload
         if (!$this->isWorkloadValid($workload)) {
