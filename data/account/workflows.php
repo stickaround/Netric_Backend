@@ -31,6 +31,12 @@ return [
                     'conditions' => [
                         [
                             'blogic' => Where::COMBINED_BY_AND,
+                            'field_name' => 'is_closed',
+                            'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                            'value' => true
+                        ],
+                        [
+                            'blogic' => Where::COMBINED_BY_AND,
                             'field_name' => 'status_id',
                             'operator' => Where::OPERATOR_EQUAL_TO,
                             'value' => TaskEntity::STATUS_COMPLETED
