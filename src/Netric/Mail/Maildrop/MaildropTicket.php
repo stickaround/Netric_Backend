@@ -160,6 +160,9 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
             $ticket->setValue('contact_id', $fromUser->getValue('contact_id'));
         }
 
+        // Add follower for notifications (if public)
+        $ticket->addMultiValue('followers', $fromUser->getEntityId(), $fromUser->getName());
+
         $attachments = $parser->getAttachments();
         foreach ($attachments as $att) {
             $this->importAttachments($att, $ticket, $user, $this->fileSystem);

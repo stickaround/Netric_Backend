@@ -134,7 +134,8 @@ class Notifier
                 $follower->getEntityId() == $user->getEntityId() ||
                 $follower->getValue('type') == UserEntity::TYPE_META ||
                 $follower->getValue('type') == UserEntity::TYPE_SYSTEM ||
-                ($follower->getValue('type') == UserEntity::TYPE_PUBLIC && $entity->getValue('is_public') !== true)
+                ($follower->getValue('type') == UserEntity::TYPE_PUBLIC &&
+                    $entity->getValue('is_public') !== true)
             ) {
                 // Skip
                 continue;
