@@ -4,15 +4,9 @@ namespace NetricTest\Mail;
 
 use Aereus\Config\Config;
 use Netric\Mail\Transport\TransportInterface;
-use Netric\Mail\Transport\InMemory;
 use Netric\Mail\SenderService;
-use Netric\Mail\Message;
 use Netric\Account\Account;
 use PHPUnit\Framework\TestCase;
-use Netric\Log\LogFactory;
-use Netric\Entity\EntityLoaderFactory;
-use NetricTest\Bootstrap;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogInterface;
 
 /**
@@ -52,7 +46,11 @@ class SenderServiceTest extends TestCase
     {
         $this->senderService = new SenderService(
             $this->createStub(LogInterface::class),
-            new Config(['server' => 'smtp4dev', 'port' => 25, 'noreply' => 'from@example.com'])
+            new Config([
+                'server' => 'smtp4dev',
+                'port' => 25, 'noreply' =>
+                'from@example.com'
+            ])
         );
     }
     public function testSend()

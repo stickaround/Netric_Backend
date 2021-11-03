@@ -45,13 +45,13 @@ return [
                 ],
                 "child_actions" => [
                     [
-                        "name" => "Wait 24 Hours",
+                        "name" => "Wait 30 minutes",
                         "uname" => "task-close-on-complete-wait",
                         "type_name" => "wait_condition",
                         "f_system" => true,
                         "data" => [
-                            'when_unit' => WorkflowScheudleTimes::TIME_UNIT_HOUR,
-                            'when_interval' => 1
+                            'when_unit' => WorkflowScheudleTimes::TIME_UNIT_MINUTE,
+                            'when_interval' => 30
                         ],
                         "child_actions" => [
                             [
