@@ -102,7 +102,7 @@ class SenderService
             return $mail->send();
         } catch (PHPMailerException $e) {
             $this->log->error(
-                "SendingSerivce->send: Mailer Error: " .
+                "SendingSerivce->send: {$this->mailConfig->server} Mailer Error: " .
                     $mail->ErrorInfo
             );
             return false;
