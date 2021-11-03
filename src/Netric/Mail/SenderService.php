@@ -100,7 +100,11 @@ class SenderService
 
             return $mail->send();
         } catch (PHPMailerException $e) {
-            $this->log->error("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            $this->log->error(
+                "Message could not be sent. Mailer Error: " .
+                    $mail->ErrorInfo . "-" . $e->getMessage() . " - config:" .
+                    var_export($this->mailConfig, true)
+            );
             return false;
         }
     }
