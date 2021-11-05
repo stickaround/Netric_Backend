@@ -185,6 +185,10 @@ return [
             'readonly' => true,
         ],
 
+        // If set this is the entity that email messages will
+        // be attached to. For instance, if it is a ticket_channel,
+        // the new ticket will be routed to that channel. If it is
+        // a notebook (future type), the note will go to that notebook
         'dropbox_obj_reference' => [
             'title' => 'References',
             'type' => Field::TYPE_OBJECT,

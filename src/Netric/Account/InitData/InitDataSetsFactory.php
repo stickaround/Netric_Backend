@@ -13,6 +13,7 @@ use Netric\Account\InitData\Sets\GroupingsInitDataFactory;
 use Netric\Account\InitData\Sets\UsersInitDataFactory;
 use Netric\Account\InitData\Sets\ModulesInitDataFactory;
 use Netric\Account\InitData\Sets\RootFolderInitDataFactory;
+use Netric\Account\InitData\Sets\TicketChannelsInitDataFactory;
 use Netric\Account\InitData\Sets\WorkerJobsInitDataFactory;
 use Netric\Account\InitData\Sets\WorkflowsInitData;
 
@@ -39,7 +40,8 @@ class InitDataSetsFactory implements ApplicationServiceFactoryInterface
             $serviceLocator->get(WorkerJobsInitDataFactory::class),
             $serviceLocator->get(WorkflowsInitData::class),
             $serviceLocator->get(EmailAccountsInitDataFactory::class),
-            $serviceLocator->get(EmailDomainInitDataFactory::class)
+            $serviceLocator->get(EmailDomainInitDataFactory::class),
+            $serviceLocator->get(TicketChannelsInitDataFactory::class),
         ];
     }
 }

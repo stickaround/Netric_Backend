@@ -65,12 +65,43 @@ class TicketChannelsInitData implements InitDataInterface
             // Set fields from data array and save
             // second param will only update provided fields so we don't
             // overwrite entity_id and such
-            $channel->fromArray($channelData, true);
-            $defaultDomain = $this->mailSystem->getDefaultDomain($account->getAccountId());
+            $channel->setValue('uname', $channelData['uname']);
+            $channel->setValue('name', $channelData['name']);
+
+            // This is where we link an existing email account if set
+            $emailAccount = null;
+            if (
+                $channelData['lookup_email_account_uname'] &&
+                empty($channel->getValue('email_account_id'))
+            ) {
+                $emailAccount = $this->entityLoader->getByUniqueName(
+                    ObjectTypes::EMAIL_ACCOUNT,
+                    $channelData['lookup_email_account_uname'],
+                    $account->getAccountId()
+                );
+            }
+
+            // Link the email account to this channel if loaded
+            if ($emailAccount) {
+                $channel->setValue('email_account_id', $emailAccount->getEntityId());
+            }
+
+            // Save the channel
             $this->entityLoader->save(
                 $channel,
                 $account->getSystemUser()
             );
+
+            // Now set the object reference for this email account to be the channel
+            // so that when new tickets are created from email sent to this dropbox,
+            // it will automatically add the ticket to this channel
+            if ($emailAccount && empty($emailAccount->getValue('dropbox_obj_reference'))) {
+                $emailAccount->setValue('dropbox_obj_reference', $channel->getEntityId());
+                $this->entityLoader->save(
+                    $emailAccount,
+                    $account->getSystemUser()
+                );
+            }
         }
 
         return true;

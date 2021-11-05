@@ -22,7 +22,7 @@ class TicketChannelsInitDataFactory implements ApplicationServiceFactoryInterfac
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $data = require(__DIR__ . '/../../../../../data/account/email-accounts.php');
+        $data = require(__DIR__ . '/../../../../../data/account/ticket-channels.php');
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $mailSystem = $serviceLocator->get(MailSystemFactory::class);
         return new TicketChannelsInitData(
