@@ -16,7 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-class TestProcessor
+class WorkerProcessor
 {
     protected $handler_ = null;
     public function __construct($handler)
@@ -46,34 +46,34 @@ class TestProcessor
         return true;
     }
 
-    protected function process_ping($seqid, $input, $output)
+    protected function process_processJob($seqid, $input, $output)
     {
         $bin_accel = ($input instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary_after_message_begin');
         if ($bin_accel) {
             $args = thrift_protocol_read_binary_after_message_begin(
                 $input,
-                '\NetricApi\Test_ping_args',
+                '\NetricApi\Worker_processJob_args',
                 $input->isStrictRead()
             );
         } else {
-            $args = new \NetricApi\Test_ping_args();
+            $args = new \NetricApi\Worker_processJob_args();
             $args->read($input);
         }
         $input->readMessageEnd();
-        $result = new \NetricApi\Test_ping_result();
-        $result->success = $this->handler_->ping();
+        $result = new \NetricApi\Worker_processJob_result();
+        $result->success = $this->handler_->processJob($args->jobName, $args->jsonPayload);
         $bin_accel = ($output instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
         if ($bin_accel) {
             thrift_protocol_write_binary(
                 $output,
-                'ping',
+                'processJob',
                 TMessageType::REPLY,
                 $result,
                 $seqid,
                 $output->isStrictWrite()
             );
         } else {
-            $output->writeMessageBegin('ping', TMessageType::REPLY, $seqid);
+            $output->writeMessageBegin('processJob', TMessageType::REPLY, $seqid);
             $result->write($output);
             $output->writeMessageEnd();
             $output->getTransport()->flush();

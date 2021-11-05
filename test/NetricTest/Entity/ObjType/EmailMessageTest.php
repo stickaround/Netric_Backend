@@ -2,16 +2,14 @@
 
 namespace NetricTest\Entity\ObjType;
 
-use Netric\Entity;
 use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Entity\EntityInterface;
 use Netric\FileSystem\FileSystemFactory;
-use Netric\Mime;
-use Netric\Mail;
+// use Netric\Mime;
+// use Netric\Mail;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
 
@@ -67,140 +65,104 @@ class EmailMessageTest extends TestCase
         $this->assertInstanceOf(EmailMessageEntity::class, $entity);
     }
 
-    /**
-     * Make sure we can parse , or ; separated message lists
-     */
-    public function testGetAddressListFromString()
-    {
-        $method = new \ReflectionMethod(EmailMessageEntity::class, 'getAddressListFromString');
-        $method->setAccessible(true);
+    // /**
+    //  * Make sure we can parse , or ; separated message lists
+    //  */
+    // public function testGetAddressListFromString()
+    // {
+    //     $method = new \ReflectionMethod(EmailMessageEntity::class, 'getAddressListFromString');
+    //     $method->setAccessible(true);
 
-        $entityFactory = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailEntity = $entityFactory->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $addresses = "\"Test\" <test@test.com>, test@test2.com";
-        $addressList = $method->invoke($emailEntity, $addresses);
-        $this->assertEquals(2, $addressList->count());
+    //     $entityFactory = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+    //     $emailEntity = $entityFactory->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+    //     $addresses = "\"Test\" <test@test.com>, test@test2.com";
+    //     $addressList = $method->invoke($emailEntity, $addresses);
+    //     $this->assertEquals(2, $addressList->count());
 
-        $addresses2 = "\"Test\" <test@test.com>;, test@test2.com";
-        $addressList = $method->invoke($emailEntity, $addresses2);
-        $this->assertEquals(2, $addressList->count());
-    }
-
-    /**
-     * Test convert a EmailMessageEntity into a Mail/Message that is mime encoded
-     */
-    public function testToMailMimeMessage()
-    {
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $emailMessage->setValue("subject", "My Test Message");
-        $emailMessage->setValue("body", "<p>My Body</p>");
-        $emailMessage->setValue("sent_from", "Test User <test@myaereuscom>");
-        $emailMessage->setValue("send_to", "Another User <test2@myaereuscom>");
-        $emailMessage->setValue("cc", "Copy User <test3@myaereuscom>");
-        $emailMessage->setValue("bcc", "Blind User <test4@myaereuscom>");
-
-        $mailMessage = $emailMessage->toMailMessage();
-
-        // Test headers
-        $headers = $mailMessage->getHeaders();
-        $this->assertTrue($headers->has("subject"));
-        $this->assertTrue($headers->has("to"));
-        $this->assertTrue($headers->has("cc"));
-        $this->assertTrue($headers->has("bcc"));
-
-        // Test body
-        $body = $mailMessage->getBody();
-        $parts = $body->getParts();
-        $this->assertStringContainsString("My Body", $parts[0]->getContent());
-        $this->assertStringContainsString("<p>My Body</p>", $parts[0]->getContent());
-    }
-
-    /**
-     * Test convert a EmailMessageEntity into a Mail/Message that is mime encoded
-     */
-    public function testToMailMimeMessageAttachment()
-    {
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $emailMessage->setValue("subject", "My Test Message");
-        $emailMessage->setValue("body", "<p>My Body</p>");
-        $emailMessage->setValue("sent_from", "Test User <test@myaereuscom>");
-        $emailMessage->setValue("send_to", "Another User <test2@myaereuscom>");
-
-        // Add an attachment
-        $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
-        $file = $fileSystem->createFile("%tmp%", "testfile.txt", $this->account->getAuthenticatedUser(), true);
-        $fileSystem->writeFile($file, "Textual Data", $this->user);
-        $this->testEntities[] = $file;
-        $emailMessage->addMultiValue("attachments", $file->getEntityId(), $file->getName());
-
-
-        $mailMessage = $emailMessage->toMailMessage();
-
-        // Test attachments
-        $body = $mailMessage->getBody();
-        $parts = $body->getParts();
-        $this->assertStringContainsString(
-            "Textual Data",
-            // 0 = body, 1 = file
-            $parts[1]->getRawContent()
-        );
-        $this->assertEquals("testfile.txt", $parts[1]->getFileName());
-        $this->assertEquals("application/octet-stream", $parts[1]->getType());
-        $this->assertEquals(Mime\Mime::ENCODING_BASE64, $parts[1]->getEncoding());
-    }
+    //     $addresses2 = "\"Test\" <test@test.com>;, test@test2.com";
+    //     $addressList = $method->invoke($emailEntity, $addresses2);
+    //     $this->assertEquals(2, $addressList->count());
+    // }
 
     // /**
-    //  * Test importing a complex mime Mail\Message into an EmailEntity
+    //  * Test convert a EmailMessageEntity into a Mail/Message that is mime encoded
     //  */
-    // public function testFromMailMessage()
+    // public function testToMailMimeMessage()
+    // {
+    //     $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+    //     $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+    //     $emailMessage->setValue("subject", "My Test Message");
+    //     $emailMessage->setValue("body", "<p>My Body</p>");
+    //     $emailMessage->setValue("sent_from", "Test User <test@myaereuscom>");
+    //     $emailMessage->setValue("send_to", "Another User <test2@myaereuscom>");
+    //     $emailMessage->setValue("cc", "Copy User <test3@myaereuscom>");
+    //     $emailMessage->setValue("bcc", "Blind User <test4@myaereuscom>");
+
+    //     $mailMessage = $emailMessage->toMailMessage();
+
+    //     // Test headers
+    //     $headers = $mailMessage->getHeaders();
+    //     $this->assertTrue($headers->has("subject"));
+    //     $this->assertTrue($headers->has("to"));
+    //     $this->assertTrue($headers->has("cc"));
+    //     $this->assertTrue($headers->has("bcc"));
+
+    //     // Test body
+    //     $body = $mailMessage->getBody();
+    //     $parts = $body->getParts();
+    //     $this->assertStringContainsString("My Body", $parts[0]->getContent());
+    //     $this->assertStringContainsString("<p>My Body</p>", $parts[0]->getContent());
+    // }
+
+    // /**
+    //  * Test convert a EmailMessageEntity into a Mail/Message that is mime encoded
+    //  */
+    // public function testToMailMimeMessageAttachment()
+    // {
+    //     $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+    //     $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+    //     $emailMessage->setValue("subject", "My Test Message");
+    //     $emailMessage->setValue("body", "<p>My Body</p>");
+    //     $emailMessage->setValue("sent_from", "Test User <test@myaereuscom>");
+    //     $emailMessage->setValue("send_to", "Another User <test2@myaereuscom>");
+
+    //     // Add an attachment
+    //     $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
+    //     $file = $fileSystem->createFile("%tmp%", "testfile.txt", $this->account->getAuthenticatedUser(), true);
+    //     $fileSystem->writeFile($file, "Textual Data", $this->user);
+    //     $this->testEntities[] = $file;
+    //     $emailMessage->addMultiValue("attachments", $file->getEntityId(), $file->getName());
+
+
+    //     $mailMessage = $emailMessage->toMailMessage();
+
+    //     // Test attachments
+    //     $body = $mailMessage->getBody();
+    //     $parts = $body->getParts();
+    //     $this->assertStringContainsString(
+    //         "Textual Data",
+    //         // 0 = body, 1 = file
+    //         $parts[1]->getRawContent()
+    //     );
+    //     $this->assertEquals("testfile.txt", $parts[1]->getFileName());
+    //     $this->assertEquals("application/octet-stream", $parts[1]->getType());
+    //     $this->assertEquals(Mime\Mime::ENCODING_BASE64, $parts[1]->getEncoding());
+    // }
+
+    // /**
+    //  * Test importing a simple text Mail\Message into an entity
+    //  */
+    // public function testFromMailMessage_Plain()
     // {
     //     $message = new Mail\Message();
     //     $message->setEncoding('UTF-8');
     //     $message->setSubject("Test Email");
     //     $message->addFrom("test@myaereus.com");
     //     $message->addTo("test2@myaereus.com");
-    //     $message->addTo("test3@myaereus.com");
-    //     $message->addCc("test4@myaereus.com");
-    //     $message->addBcc("test5@myaereus.com");
-
-    //     // HTML part
-    //     $htmlPart = new Mime\Part("<p>My Body</p>");
-    //     $htmlPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
-    //     $htmlPart->setType(Mime\Mime::TYPE_HTML);
-    //     $htmlPart->setCharset("UTF-8");
-
-    //     // Plain text part
-    //     $textPart = new Mime\Part("My Body");
-    //     $textPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
-    //     $textPart->setType(Mime\Mime::TYPE_TEXT);
-    //     $textPart->setCharset("UTF-8");
-
-    //     // Create a multipart/alternative message for the text and html parts
-    //     $bodyMessage = new Mime\Message();
-    //     $bodyMessage->addPart($textPart);
-    //     $bodyMessage->addPart($htmlPart);
-
-    //     // Create mime message to wrap both the body and any attachments
-    //     $mimeMessage = new Mime\Message();
-
-    //     // Add text & html alternatives to the mime message wrapper
-    //     $bodyPart = new Mime\Part($bodyMessage->generateMessage());
-    //     $bodyPart->setType(Mime\Mime::MULTIPART_ALTERNATIVE);
-    //     $bodyPart->setBoundary($bodyMessage->getMime()->boundary());
-    //     $mimeMessage->addPart($bodyPart);
-
-    //     // Add attachments to the mime message
-    //     $attachment = new Mime\Part("attachment-content");
-    //     $attachment->setType(Mime\Mime::TYPE_TEXT);
-    //     $attachment->setFileName("myfile.txt");
-    //     $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
-    //     $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
-    //     $mimeMessage->addPart($attachment);
+    //     $message->getHeaders()->addHeaderLine("content-type", Mime\Mime::TYPE_TEXT);
 
     //     // Add the message to the mail/Message and return
-    //     $message->setBody($mimeMessage);
+    //     $message->setBody("My Body");
 
     //     // Now import this message into entity
     //     $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -209,76 +171,37 @@ class EmailMessageTest extends TestCase
 
     //     // Test values
     //     $this->assertEquals("Test Email", $emailMessage->getValue("subject"));
-    //     $this->assertEquals(
-    //         "<test2@myaereus.com>,<test3@myaereus.com>",
-    //         $emailMessage->getValue("send_to")
-    //     );
-    //     $this->assertEquals("<test4@myaereus.com>", $emailMessage->getValue("cc"));
-    //     $this->assertEquals("<test5@myaereus.com>", $emailMessage->getValue("bcc"));
-    //     $this->assertEquals("<p>My Body</p>", $emailMessage->getValue("body"));
-    //     $this->assertEquals("html", $emailMessage->getValue("body_type"));
-
-    //     // Check attachments
-    //     $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
-    //     $attachments = $emailMessage->getValue("attachments");
-    //     $file = $fileSystem->openFileById($attachments[0]);
-    //     $this->assertEquals("attachment-content", $fileSystem->readFile($file));
-    //     $this->testEntities[] = $file;
+    //     $this->assertEquals("<test2@myaereus.com>", $emailMessage->getValue("send_to"));
+    //     $this->assertEquals("My Body", $emailMessage->getValue("body"));
+    //     $this->assertEquals("plain", $emailMessage->getValue("body_type"));
     // }
 
-    /**
-     * Test importing a simple text Mail\Message into an entity
-     */
-    public function testFromMailMessage_Plain()
-    {
-        $message = new Mail\Message();
-        $message->setEncoding('UTF-8');
-        $message->setSubject("Test Email");
-        $message->addFrom("test@myaereus.com");
-        $message->addTo("test2@myaereus.com");
-        $message->getHeaders()->addHeaderLine("content-type", Mime\Mime::TYPE_TEXT);
+    // /**
+    //  * Test importing a simple text Mail\Message into an entity
+    //  */
+    // public function testFromMailMessage_Html()
+    // {
+    //     $message = new Mail\Message();
+    //     $message->setEncoding('UTF-8');
+    //     $message->setSubject("Test Email");
+    //     $message->addFrom("test@myaereus.com");
+    //     $message->addTo("test2@myaereus.com");
+    //     $message->getHeaders()->addHeaderLine("content-type", Mime\Mime::TYPE_HTML);
 
-        // Add the message to the mail/Message and return
-        $message->setBody("My Body");
+    //     // Add the message to the mail/Message and return
+    //     $message->setBody("<p>My Body</p>");
 
-        // Now import this message into entity
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $emailMessage->fromMailMessage($message);
+    //     // Now import this message into entity
+    //     $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+    //     $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+    //     $emailMessage->fromMailMessage($message);
 
-        // Test values
-        $this->assertEquals("Test Email", $emailMessage->getValue("subject"));
-        $this->assertEquals("<test2@myaereus.com>", $emailMessage->getValue("send_to"));
-        $this->assertEquals("My Body", $emailMessage->getValue("body"));
-        $this->assertEquals("plain", $emailMessage->getValue("body_type"));
-    }
-
-    /**
-     * Test importing a simple text Mail\Message into an entity
-     */
-    public function testFromMailMessage_Html()
-    {
-        $message = new Mail\Message();
-        $message->setEncoding('UTF-8');
-        $message->setSubject("Test Email");
-        $message->addFrom("test@myaereus.com");
-        $message->addTo("test2@myaereus.com");
-        $message->getHeaders()->addHeaderLine("content-type", Mime\Mime::TYPE_HTML);
-
-        // Add the message to the mail/Message and return
-        $message->setBody("<p>My Body</p>");
-
-        // Now import this message into entity
-        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $emailMessage->fromMailMessage($message);
-
-        // Test values
-        $this->assertEquals("Test Email", $emailMessage->getValue("subject"));
-        $this->assertEquals("<test2@myaereus.com>", $emailMessage->getValue("send_to"));
-        $this->assertEquals("<p>My Body</p>", $emailMessage->getValue("body"));
-        $this->assertEquals("html", $emailMessage->getValue("body_type"));
-    }
+    //     // Test values
+    //     $this->assertEquals("Test Email", $emailMessage->getValue("subject"));
+    //     $this->assertEquals("<test2@myaereus.com>", $emailMessage->getValue("send_to"));
+    //     $this->assertEquals("<p>My Body</p>", $emailMessage->getValue("body"));
+    //     $this->assertEquals("html", $emailMessage->getValue("body_type"));
+    // }
 
     public function testDiscoverThread()
     {
@@ -375,34 +298,6 @@ class EmailMessageTest extends TestCase
         // $thread = $entityLoader->getEntityById($email1->getValue("thread"), $this->account->getAccountId());
         // $this->assertTrue($thread->isArchived());
     }
-
-    /**
-     * @deprecated We are attempting to get away from message imports like this
-     *
-     * @return void
-     */
-    // public function testOnBeforeDeleteHard()
-    // {
-    //     $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-    //     $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-
-    //     // Add an attachment
-    //     $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
-    //     $file = $fileSystem->createFile("%tmp%", "testfile.txt", true);
-    //     $fileSystem->writeFile($file, "Textual Data", $this->user);
-    //     $this->testEntities[] = $file;
-
-    //     // Set the raw file id
-    //     $emailMessage->setValue("file_id", $file->getEntityId(), $file->getName());
-    //     $entityLoader->save($emailMessage, $this->user);
-
-    //     // Cache file id for later testing
-    //     $fileId = $file->getEntityId();
-
-    //     // Purge the email message and make sure the file goes with it
-    //     $entityLoader->delete($emailMessage, $this->account->getAuthenticatedUser());
-    //     $this->assertNull($fileSystem->openFileById($fileId));
-    // }
 
     public function testGetHtmlBody()
     {

@@ -7,11 +7,8 @@
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Netric\Entity\EntityInterface;
-use Netric\Entity\EntityLoader;
 use Netric\Error\Error;
 use Netric\Workflow\WorkFlowLegacyInstance;
-use Zend\Http\Client;
 
 /**
  * Action to call an external page - very useful for API integration
@@ -64,40 +61,40 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionInte
      */
     public function execute(WorkFlowLegacyInstance $workflowInstance)
     {
-        // Get the entity being acted on
-        $entity = $workflowInstance->getEntity();
+        // // Get the entity being acted on
+        // $entity = $workflowInstance->getEntity();
 
-        // Get merged params
-        $params = $this->getParams($entity);
+        // // Get merged params
+        // $params = $this->getParams($entity);
 
-        $search = ["(", ")", " ", "\"", "'"];
-        $replace = ["%28", "%29", "%20", "%22", "%27"];
+        // $search = ["(", ")", " ", "\"", "'"];
+        // $replace = ["%28", "%29", "%20", "%22", "%27"];
 
-        $url = str_replace($search, $replace, $params["url"]);
+        // $url = str_replace($search, $replace, $params["url"]);
 
-        /*
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $resultUrl = curl_exec($ch);
-        $ret = (curl_errno($ch)) ? false : true;
-        curl_close($ch);
-        */
+        // /*
+        // $ch = curl_init();
+        // curl_setopt($ch, CURLOPT_URL, $url);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // $resultUrl = curl_exec($ch);
+        // $ret = (curl_errno($ch)) ? false : true;
+        // curl_close($ch);
+        // */
 
-        $client = new Client($url, [
-            'maxredirects' => 10,
-            'timeout'      => 30,
-        ]);
-        if ($this->adapeter) {
-            $client->setAdapter($this->adapeter);
-        }
+        // $client = new Client($url, [
+        //     'maxredirects' => 10,
+        //     'timeout'      => 30,
+        // ]);
+        // if ($this->adapeter) {
+        //     $client->setAdapter($this->adapeter);
+        // }
 
-        try {
-            $this->response = $client->send();
-            return ($client->getResponse()->getStatusCode() === 200) ? true : false;
-        } catch (Client\Adapter\Exception\RuntimeException $e) {
-            $this->errors[] = new Error($e->getMessage());
-            return false;
-        }
+        // try {
+        //     $this->response = $client->send();
+        //     return ($client->getResponse()->getStatusCode() === 200) ? true : false;
+        // } catch (Client\Adapter\Exception\RuntimeException $e) {
+        //     $this->errors[] = new Error($e->getMessage());
+        //     return false;
+        // }
     }
 }

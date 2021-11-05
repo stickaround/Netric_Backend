@@ -8,12 +8,9 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\Mime;
-use Netric\Mail;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\EmailThreadEntity;
 use Netric\EntityDefinition\ObjectTypes;

@@ -107,7 +107,6 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
         // TODO: check $parser->getHeader('in-reply-to') to see if we're replying to an
         // existing ticket, in which case we should just create a comment.
         if ($this->getInReplyToEntityId($parser)) {
-
             // Store in variable so we can cleanup
             $ticketId = $this->getInReplyToEntityId($parser);
 

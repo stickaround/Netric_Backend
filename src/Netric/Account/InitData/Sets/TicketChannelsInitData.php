@@ -13,12 +13,12 @@ use Netric\Mail\MailSystemInterface;
 /**
  * Initializer to make sure accounts have a default set of groupings
  */
-class EmailAccountsInitData implements InitDataInterface
+class TicketChannelsInitData implements InitDataInterface
 {
     /**
-     * List of worfklows to create
+     * List of ticket channels to create
      */
-    private array $emailAccountsData = [];
+    private array $channelsData = [];
 
     /**
      * Entity loader
@@ -26,21 +26,14 @@ class EmailAccountsInitData implements InitDataInterface
     private Entityloader $entityLoader;
 
     /**
-     * Mailsystem for getting domain defaults
-     *
-     * @var MailSystemInterface
-     */
-    private MailSystemInterface $mailSystem;
-
-    /**
      * Constructor
      */
     public function __construct(
-        array $emailAccountsData,
+        array $channelsData,
         EntityLoader $entityLoader,
         MailSystemInterface $mailSytem
     ) {
-        $this->emailAccountsData = $emailAccountsData;
+        $this->channelsData = $channelsData;
         $this->entityLoader = $entityLoader;
         $this->mailSystem = $mailSytem;
     }
@@ -53,18 +46,18 @@ class EmailAccountsInitData implements InitDataInterface
      */
     public function setInitialData(Account $account): bool
     {
-        foreach ($this->emailAccountsData as $emailAcocuntData) {
-            // Get the existing account by uname
-            $emailAccount = $this->entityLoader->getByUniqueName(
-                ObjectTypes::EMAIL_ACCOUNT,
-                $emailAcocuntData['uname'],
+        foreach ($this->channelsData as $channelData) {
+            // Get the existing channel by uname
+            $channel = $this->entityLoader->getByUniqueName(
+                ObjectTypes::TICKET_CHANNEL,
+                $channelData['uname'],
                 $account->getAccountId()
             );
 
             // If it does not already exist, then create it
-            if (!$emailAccount) {
-                $emailAccount = $this->entityLoader->create(
-                    ObjectTypes::EMAIL_ACCOUNT,
+            if (!$channel) {
+                $channel = $this->entityLoader->create(
+                    ObjectTypes::TICKET_CHANNEL,
                     $account->getAccountId()
                 );
             }
@@ -72,11 +65,10 @@ class EmailAccountsInitData implements InitDataInterface
             // Set fields from data array and save
             // second param will only update provided fields so we don't
             // overwrite entity_id and such
-            $emailAccount->fromArray($emailAcocuntData, true);
+            $channel->fromArray($channelData, true);
             $defaultDomain = $this->mailSystem->getDefaultDomain($account->getAccountId());
-            $emailAccount->setValue('address', $emailAcocuntData['address_user'] . '@' . $defaultDomain);
             $this->entityLoader->save(
-                $emailAccount,
+                $channel,
                 $account->getSystemUser()
             );
         }

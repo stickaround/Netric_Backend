@@ -13,8 +13,8 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\Mail;
-use Netric\Mime;
+// use Netric\Mail;
+// use Netric\Mime;
 use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\UserEntity;
@@ -188,165 +188,165 @@ class EmailMessageEntity extends Entity implements EntityInterface
         }
     }
 
-    /**
-     * Export the contents of this entity to a mime message for sending
-     *
-     * @return Mail\Message
-     */
-    public function toMailMessage()
-    {
-        $message = new Mail\Message();
-        $message->setEncoding('UTF-8');
-        $message->setSubject($this->getValue("subject"));
+    // /**
+    //  * Export the contents of this entity to a mime message for sending
+    //  *
+    //  * @return Mail\Message
+    //  */
+    // public function toMailMessage()
+    // {
+    //     $message = new Mail\Message();
+    //     $message->setEncoding('UTF-8');
+    //     $message->setSubject($this->getValue("subject"));
 
-        // Set from
-        $from = $this->getAddressListFromString($this->getValue("sent_from"));
-        if ($from) {
-            $message->addFrom($from);
-        }
+    //     // Set from
+    //     $from = $this->getAddressListFromString($this->getValue("sent_from"));
+    //     if ($from) {
+    //         $message->addFrom($from);
+    //     }
 
-        // Set to
-        $to = $this->getAddressListFromString($this->getValue("send_to"));
-        if ($to) {
-            $message->addTo($to);
-        }
+    //     // Set to
+    //     $to = $this->getAddressListFromString($this->getValue("send_to"));
+    //     if ($to) {
+    //         $message->addTo($to);
+    //     }
 
-        // Set cc
-        $cc = $this->getAddressListFromString($this->getValue("cc"));
-        if ($cc) {
-            $message->addCc($cc);
-        }
+    //     // Set cc
+    //     $cc = $this->getAddressListFromString($this->getValue("cc"));
+    //     if ($cc) {
+    //         $message->addCc($cc);
+    //     }
 
-        $bcc = $this->getAddressListFromString($this->getValue("bcc"));
-        if ($bcc) {
-            $message->addBcc($bcc);
-        }
+    //     $bcc = $this->getAddressListFromString($this->getValue("bcc"));
+    //     if ($bcc) {
+    //         $message->addBcc($bcc);
+    //     }
 
-        if ($this->getValue("in_reply_to")) {
-            $message->getHeaders()->addHeaderLine("in-reply-to", $this->getValue("in_reply_to"));
-        }
+    //     if ($this->getValue("in_reply_to")) {
+    //         $message->getHeaders()->addHeaderLine("in-reply-to", $this->getValue("in_reply_to"));
+    //     }
 
-        /*
-         * Setup the body and attachments - mime message
-         */
+    //     /*
+    //      * Setup the body and attachments - mime message
+    //      */
 
-        // HTML part
-        $htmlPart = new Mime\Part($this->getHtmlBody());
-        $htmlPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
-        $htmlPart->setType(Mime\Mime::TYPE_HTML);
-        $htmlPart->setCharset("UTF-8");
+    //     // HTML part
+    //     $htmlPart = new Mime\Part($this->getHtmlBody());
+    //     $htmlPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
+    //     $htmlPart->setType(Mime\Mime::TYPE_HTML);
+    //     $htmlPart->setCharset("UTF-8");
 
-        // Plain text part
-        $textPart = new Mime\Part($this->getPlainBody());
-        $textPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
-        $textPart->setType(Mime\Mime::TYPE_TEXT);
-        $textPart->setCharset("UTF-8");
+    //     // Plain text part
+    //     $textPart = new Mime\Part($this->getPlainBody());
+    //     $textPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
+    //     $textPart->setType(Mime\Mime::TYPE_TEXT);
+    //     $textPart->setCharset("UTF-8");
 
-        // Create a multipart/alternative message for the text and html parts
-        $bodyMessage = new Mime\Message();
-        $bodyMessage->addPart($textPart);
-        $bodyMessage->addPart($htmlPart);
+    //     // Create a multipart/alternative message for the text and html parts
+    //     $bodyMessage = new Mime\Message();
+    //     $bodyMessage->addPart($textPart);
+    //     $bodyMessage->addPart($htmlPart);
 
-        // Create mime message to wrap both the body and any attachments
-        $mimeMessage = new Mime\Message();
+    //     // Create mime message to wrap both the body and any attachments
+    //     $mimeMessage = new Mime\Message();
 
-        // Add text & html alternatives to the mime message wrapper
-        $bodyPart = new Mime\Part($bodyMessage->generateMessage());
-        $bodyPart->setType(Mime\Mime::MULTIPART_ALTERNATIVE);
-        $bodyPart->setBoundary($bodyMessage->getMime()->boundary());
-        $mimeMessage->addPart($bodyPart);
+    //     // Add text & html alternatives to the mime message wrapper
+    //     $bodyPart = new Mime\Part($bodyMessage->generateMessage());
+    //     $bodyPart->setType(Mime\Mime::MULTIPART_ALTERNATIVE);
+    //     $bodyPart->setBoundary($bodyMessage->getMime()->boundary());
+    //     $mimeMessage->addPart($bodyPart);
 
-        // Add attachments
-        $this->addMimeAttachments($mimeMessage);
+    //     // Add attachments
+    //     $this->addMimeAttachments($mimeMessage);
 
-        // Add the message to the mail/Message and return
-        $message->setBody($mimeMessage);
+    //     // Add the message to the mail/Message and return
+    //     $message->setBody($mimeMessage);
 
-        return $message;
-    }
+    //     return $message;
+    // }
 
-    /**
-     * Import entity from a Mail\Message
-     *
-     * This is often used for importing new messages from a backend
-     *
-     * @param Mail\Message $message
-     */
-    public function fromMailMessage(Mail\Message $message)
-    {
-        $this->setValue("subject", $message->getSubject());
-        $this->setValue("sent_from", $this->getAddressStringFromList($message->getFrom()));
-        $this->setValue("send_to", $this->getAddressStringFromList($message->getTo()));
-        $this->setValue("cc", $this->getAddressStringFromList($message->getCc()));
-        $this->setValue("bcc", $this->getAddressStringFromList($message->getBcc()));
-        $this->setValue("reply_to", $this->getAddressStringFromList($message->getReplyTo()));
+    // /**
+    //  * Import entity from a Mail\Message
+    //  *
+    //  * This is often used for importing new messages from a backend
+    //  *
+    //  * @param Mail\Message $message
+    //  */
+    // public function fromMailMessage(Mail\Message $message)
+    // {
+    //     $this->setValue("subject", $message->getSubject());
+    //     $this->setValue("sent_from", $this->getAddressStringFromList($message->getFrom()));
+    //     $this->setValue("send_to", $this->getAddressStringFromList($message->getTo()));
+    //     $this->setValue("cc", $this->getAddressStringFromList($message->getCc()));
+    //     $this->setValue("bcc", $this->getAddressStringFromList($message->getBcc()));
+    //     $this->setValue("reply_to", $this->getAddressStringFromList($message->getReplyTo()));
 
-        $headers = $message->getHeaders();
+    //     $headers = $message->getHeaders();
 
-        // message_id
-        if ($headers->get("message-id")) {
-            $this->setValue("message_id", $headers->get("message-id")->getFieldValue());
-        }
+    //     // message_id
+    //     if ($headers->get("message-id")) {
+    //         $this->setValue("message_id", $headers->get("message-id")->getFieldValue());
+    //     }
 
-        // priority
-        if ($headers->get("priority")) {
-            $this->setValue("priority", $headers->get("priority")->getFieldValue());
-        }
+    //     // priority
+    //     if ($headers->get("priority")) {
+    //         $this->setValue("priority", $headers->get("priority")->getFieldValue());
+    //     }
 
-        // flag_spam
-        if ($headers->get("x-spam-flag")) {
-            if (strtolower(trim($headers->get("x-spam-flag")->getFieldValue())) == 'yes') {
-                $this->setValue("flag_spam", true);
-            }
-        }
+    //     // flag_spam
+    //     if ($headers->get("x-spam-flag")) {
+    //         if (strtolower(trim($headers->get("x-spam-flag")->getFieldValue())) == 'yes') {
+    //             $this->setValue("flag_spam", true);
+    //         }
+    //     }
 
-        // spam_report
-        if ($headers->get("x-spam-report")) {
-            $this->setValue("spam_report", $headers->get("x-spam-report")->getFieldValue());
-        }
+    //     // spam_report
+    //     if ($headers->get("x-spam-report")) {
+    //         $this->setValue("spam_report", $headers->get("x-spam-report")->getFieldValue());
+    //     }
 
-        // content_type
-        if ($headers->get("content-type")) {
-            $this->setValue("content_type", $headers->get("content-type")->getFieldValue());
-        }
+    //     // content_type
+    //     if ($headers->get("content-type")) {
+    //         $this->setValue("content_type", $headers->get("content-type")->getFieldValue());
+    //     }
 
-        // return_path
-        if ($headers->get("return-path")) {
-            $this->setValue("return_path", $headers->get("return-path")->getFieldValue());
-        }
+    //     // return_path
+    //     if ($headers->get("return-path")) {
+    //         $this->setValue("return_path", $headers->get("return-path")->getFieldValue());
+    //     }
 
-        // in_reply_to
-        if ($headers->get("in-reply-to")) {
-            $this->setValue("in_reply_to", $headers->get("in-reply-to")->getFieldValue());
-        }
+    //     // in_reply_to
+    //     if ($headers->get("in-reply-to")) {
+    //         $this->setValue("in_reply_to", $headers->get("in-reply-to")->getFieldValue());
+    //     }
 
-        // Date
-        if ($headers->get("date")) {
-            $this->setValue("message_date", strtotime($headers->get("date")->getFieldValue()));
-        }
+    //     // Date
+    //     if ($headers->get("date")) {
+    //         $this->setValue("message_date", strtotime($headers->get("date")->getFieldValue()));
+    //     }
 
-        // message_size
+    //     // message_size
 
-        // orig_header
-        $this->setValue("orig_header", $headers->toString());
+    //     // orig_header
+    //     $this->setValue("orig_header", $headers->toString());
 
-        // Add attachments and body
-        $body = $message->getBody();
-        if (is_string($body)) {
-            $this->setValue("body", $body);
-            if ($this->getValue("content_type")) {
-                $ctypeParts = explode("/", $this->getValue("content_type"));
-                $bodyType = (isset($ctypeParts[1])) ? $ctypeParts[1] : self::BODY_TYPE_PLAIN;
-                $this->setValue("body_type", $bodyType);
-            } else {
-                $this->setValue("body_type", self::BODY_TYPE_PLAIN);
-            }
-        } else {
-            // Multi-part message
-            $parts = $message->getBody()->getParts();
-            $this->fromMailMessageMultiPart($parts);
-        }
-    }
+    //     // Add attachments and body
+    //     $body = $message->getBody();
+    //     if (is_string($body)) {
+    //         $this->setValue("body", $body);
+    //         if ($this->getValue("content_type")) {
+    //             $ctypeParts = explode("/", $this->getValue("content_type"));
+    //             $bodyType = (isset($ctypeParts[1])) ? $ctypeParts[1] : self::BODY_TYPE_PLAIN;
+    //             $this->setValue("body_type", $bodyType);
+    //         } else {
+    //             $this->setValue("body_type", self::BODY_TYPE_PLAIN);
+    //         }
+    //     } else {
+    //         // Multi-part message
+    //         $parts = $message->getBody()->getParts();
+    //         $this->fromMailMessageMultiPart($parts);
+    //     }
+    // }
 
     /**
      * Get the HTML version of email body
@@ -409,109 +409,109 @@ class EmailMessageEntity extends Entity implements EntityInterface
         return $body;
     }
 
-    /**
-     * Import body and attachments from Mime parts
-     *
-     * @param Mime\Part[] $parts
-     */
-    private function fromMailMessageMultiPart(array $parts)
-    {
-        foreach ($parts as $mimePart) {
-            // Add all attachments if they have a name
-            if ($mimePart->getFileName()) {
-                // This is an attachment - could either be inline or an attachment
-                $user = $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
-                $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), $user, true);
-                $this->fileSystem->writeFile($file, $mimePart->getRawContent(), $user);
-                $this->addMultiValue("attachments", $file->getEntityId(), $file->getName());
-            } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
-                // If multipart/aleternative then this will come after 'plain' and overwrite
-                $this->setValue("body", trim($mimePart->getRawContent()));
-                $this->setValue("body_type", self::BODY_TYPE_HTML);
-            } elseif ($mimePart->getType() == Mime\Mime::TYPE_TEXT) {
-                // Plain text part
-                $this->setValue("body", trim($mimePart->getRawContent()));
-                $this->setValue("body_type", self::BODY_TYPE_PLAIN);
-            } elseif ($mimePart->getType() == Mime\Mime::MULTIPART_ALTERNATIVE) {
-                // Multipart alternative
-                $mimeMessage = Mime\Message::createFromMessage($mimePart->getRawContent(), $mimePart->getBoundary());
-                $altParts = $mimeMessage->getParts();
-                $this->fromMailMessageMultiPart($altParts);
-            }
-        }
-    }
+    // /**
+    //  * Import body and attachments from Mime parts
+    //  *
+    //  * @param Mime\Part[] $parts
+    //  */
+    // private function fromMailMessageMultiPart(array $parts)
+    // {
+    //     foreach ($parts as $mimePart) {
+    //         // Add all attachments if they have a name
+    //         if ($mimePart->getFileName()) {
+    //             // This is an attachment - could either be inline or an attachment
+    //             $user = $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
+    //             $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), $user, true);
+    //             $this->fileSystem->writeFile($file, $mimePart->getRawContent(), $user);
+    //             $this->addMultiValue("attachments", $file->getEntityId(), $file->getName());
+    //         } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
+    //             // If multipart/aleternative then this will come after 'plain' and overwrite
+    //             $this->setValue("body", trim($mimePart->getRawContent()));
+    //             $this->setValue("body_type", self::BODY_TYPE_HTML);
+    //         } elseif ($mimePart->getType() == Mime\Mime::TYPE_TEXT) {
+    //             // Plain text part
+    //             $this->setValue("body", trim($mimePart->getRawContent()));
+    //             $this->setValue("body_type", self::BODY_TYPE_PLAIN);
+    //         } elseif ($mimePart->getType() == Mime\Mime::MULTIPART_ALTERNATIVE) {
+    //             // Multipart alternative
+    //             $mimeMessage = Mime\Message::createFromMessage($mimePart->getRawContent(), $mimePart->getBoundary());
+    //             $altParts = $mimeMessage->getParts();
+    //             $this->fromMailMessageMultiPart($altParts);
+    //         }
+    //     }
+    // }
 
-    /**
-     * Convert an address list to a comma separated string
-     *
-     * @param Mail\AddressList $addressList
-     * @return string Comma separated string of addresses
-     */
-    private function getAddressStringFromList($addressList)
-    {
-        $toArr = [];
-        foreach ($addressList as $emailAddress) {
-            $toArr[] = $emailAddress->toString();
-        }
-        return implode(",", $toArr);
-    }
+    // /**
+    //  * Convert an address list to a comma separated string
+    //  *
+    //  * @param Mail\AddressList $addressList
+    //  * @return string Comma separated string of addresses
+    //  */
+    // private function getAddressStringFromList($addressList)
+    // {
+    //     $toArr = [];
+    //     foreach ($addressList as $emailAddress) {
+    //         $toArr[] = $emailAddress->toString();
+    //     }
+    //     return implode(",", $toArr);
+    // }
 
-    /**
-     * Get an address list from a comma separated list of addresses
-     *
-     * @param string $addresses List of addresses to turn into a list
-     * @return Mail\AddressList
-     */
-    private function getAddressListFromString($addresses)
-    {
-        if (!$addresses) {
-            return null;
-        }
+    // /**
+    //  * Get an address list from a comma separated list of addresses
+    //  *
+    //  * @param string $addresses List of addresses to turn into a list
+    //  * @return Mail\AddressList
+    //  */
+    // private function getAddressListFromString($addresses)
+    // {
+    //     if (!$addresses) {
+    //         return null;
+    //     }
 
-        $addressList = new Mail\AddressList();
+    //     $addressList = new Mail\AddressList();
 
-        $addressParts = preg_split("/[;,]+/", $addresses);
-        foreach ($addressParts as $part) {
-            if ($part) {
-                $addressList->addFromString($part);
-            }
-        }
+    //     $addressParts = preg_split("/[;,]+/", $addresses);
+    //     foreach ($addressParts as $part) {
+    //         if ($part) {
+    //             $addressList->addFromString($part);
+    //         }
+    //     }
 
-        return ($addressList->count()) ? $addressList : null;
-    }
+    //     return ($addressList->count()) ? $addressList : null;
+    // }
 
-    /**
-     * Add all attachments to a mimeMessage as parts (streams)
-     *
-     * @param Mime\Message $mimeMessage
-     */
-    private function addMimeAttachments(Mime\Message $mimeMessage)
-    {
-        // Get the account
-        $account = $this->accountContainer->loadById($this->getAccountId());
-        $user = $account->getAuthenticatedUser();
+    // /**
+    //  * Add all attachments to a mimeMessage as parts (streams)
+    //  *
+    //  * @param Mime\Message $mimeMessage
+    //  */
+    // private function addMimeAttachments(Mime\Message $mimeMessage)
+    // {
+    //     // Get the account
+    //     $account = $this->accountContainer->loadById($this->getAccountId());
+    //     $user = $account->getAuthenticatedUser();
 
-        // Add attachments to the mime message
-        $attachments = $this->getValue("attachments");
-        if (is_array($attachments) && count($attachments)) {
-            foreach ($attachments as $fileId) {
-                $file = $this->fileSystem->openFileById($fileId, $user);
+    //     // Add attachments to the mime message
+    //     $attachments = $this->getValue("attachments");
+    //     if (is_array($attachments) && count($attachments)) {
+    //         foreach ($attachments as $fileId) {
+    //             $file = $this->fileSystem->openFileById($fileId, $user);
 
-                // Get a stream to reduce memory footprint
-                $fileStream = $this->fileSystem->openFileStreamById($fileId, $user);
-                $attachment = new Mime\Part($fileStream);
+    //             // Get a stream to reduce memory footprint
+    //             $fileStream = $this->fileSystem->openFileStreamById($fileId, $user);
+    //             $attachment = new Mime\Part($fileStream);
 
-                // Set meta-data
-                $attachment->setType($file->getMimeType());
-                $attachment->setFileName($file->getName());
-                $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
+    //             // Set meta-data
+    //             $attachment->setType($file->getMimeType());
+    //             $attachment->setFileName($file->getName());
+    //             $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
 
-                // Setting the encoding is recommended for binary data
-                $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
-                $mimeMessage->addPart($attachment);
-            }
-        }
-    }
+    //             // Setting the encoding is recommended for binary data
+    //             $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
+    //             $mimeMessage->addPart($attachment);
+    //         }
+    //     }
+    // }
 
     /**
      * Search email threads to see if this message should be part of an existing thread

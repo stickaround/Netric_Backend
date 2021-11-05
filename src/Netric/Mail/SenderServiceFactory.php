@@ -5,8 +5,6 @@ namespace Netric\Mail;
 use Netric\Config\ConfigFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\Mail\Transport\TransportFactory;
-use Netric\Mail\Transport\BulkTransportFactory;
 use Netric\Log\LogFactory;
 
 /**

@@ -12,7 +12,6 @@ use DateTime;
 use DateInterval;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class SchedulerServiceTest

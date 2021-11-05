@@ -3,7 +3,6 @@
 namespace NetricTest\Mail;
 
 use Aereus\Config\Config;
-use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail\SenderService;
 use Netric\Account\Account;
 use PHPUnit\Framework\TestCase;
@@ -14,19 +13,6 @@ use Netric\Log\LogInterface;
  */
 class SenderServiceTest extends TestCase
 {
-    /**
-     * In-Memory transport for testing
-     *
-     * @var TransportInterface
-     */
-    private $transport = null;
-
-    /**
-     * In-Memory transport for testing bulk messages
-     *
-     * @var TransportInterface
-     */
-    private $bulkTransport = null;
 
     /**
      * Sender service

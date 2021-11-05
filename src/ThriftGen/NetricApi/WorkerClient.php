@@ -16,7 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-class ChatClient implements \NetricApi\ChatIf
+class WorkerClient implements \NetricApi\WorkerIf
 {
     protected $input_ = null;
     protected $output_ = null;
@@ -30,42 +30,42 @@ class ChatClient implements \NetricApi\ChatIf
     }
 
 
-    public function notifyAbsentOfNewMessage($messageId, $accountId)
+    public function processJob($jobName, $jsonPayload)
     {
-        $this->send_notifyAbsentOfNewMessage($messageId, $accountId);
-        $this->recv_notifyAbsentOfNewMessage();
+        $this->send_processJob($jobName, $jsonPayload);
+        return $this->recv_processJob();
     }
 
-    public function send_notifyAbsentOfNewMessage($messageId, $accountId)
+    public function send_processJob($jobName, $jsonPayload)
     {
-        $args = new \NetricApi\Chat_notifyAbsentOfNewMessage_args();
-        $args->messageId = $messageId;
-        $args->accountId = $accountId;
+        $args = new \NetricApi\Worker_processJob_args();
+        $args->jobName = $jobName;
+        $args->jsonPayload = $jsonPayload;
         $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
         if ($bin_accel) {
             thrift_protocol_write_binary(
                 $this->output_,
-                'notifyAbsentOfNewMessage',
+                'processJob',
                 TMessageType::CALL,
                 $args,
                 $this->seqid_,
                 $this->output_->isStrictWrite()
             );
         } else {
-            $this->output_->writeMessageBegin('notifyAbsentOfNewMessage', TMessageType::CALL, $this->seqid_);
+            $this->output_->writeMessageBegin('processJob', TMessageType::CALL, $this->seqid_);
             $args->write($this->output_);
             $this->output_->writeMessageEnd();
             $this->output_->getTransport()->flush();
         }
     }
 
-    public function recv_notifyAbsentOfNewMessage()
+    public function recv_processJob()
     {
         $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
         if ($bin_accel) {
             $result = thrift_protocol_read_binary(
                 $this->input_,
-                '\NetricApi\Chat_notifyAbsentOfNewMessage_result',
+                '\NetricApi\Worker_processJob_result',
                 $this->input_->isStrictRead()
             );
         } else {
@@ -80,10 +80,13 @@ class ChatClient implements \NetricApi\ChatIf
                 $this->input_->readMessageEnd();
                 throw $x;
             }
-            $result = new \NetricApi\Chat_notifyAbsentOfNewMessage_result();
+            $result = new \NetricApi\Worker_processJob_result();
             $result->read($this->input_);
             $this->input_->readMessageEnd();
         }
-        return;
+        if ($result->success !== null) {
+            return $result->success;
+        }
+        throw new \Exception("processJob failed: unknown result");
     }
 }

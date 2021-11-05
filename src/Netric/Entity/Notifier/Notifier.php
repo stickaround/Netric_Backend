@@ -7,6 +7,7 @@ use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\OrderBy;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\Notifier\Sender\PublicUserEmailSender;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\EntityQuery\Index\IndexInterface;
@@ -56,7 +57,7 @@ class Notifier
      *
      * @var SenderService
      */
-    private SenderService $mailSenderService;
+    private PublicUserEmailSender $publicEmailSender;
 
     /**
      * Class constructor and dependency setter
@@ -69,12 +70,12 @@ class Notifier
         EntityLoader $entityLoader,
         IndexInterface $index,
         NotificationPusherClientInterface $notificationPusher,
-        SenderService $mailSenderService
+        PublicUserEmailSender $publicEmailSender
     ) {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $index;
         $this->notificationPusher = $notificationPusher;
-        $this->mailSenderService = $mailSenderService;
+        $this->publicEmailSender = $publicEmailSender;
     }
 
     /**
@@ -340,127 +341,107 @@ class Notifier
     /**
      * Send notification to various channels
      *
+     * If the user is a public user, we send an email, otherwise we use push notifications
+     *
      * @param NotificationEntity $notification Notification to send
      * @param UserEntity $user The user who performed the action causing the notification
      * @return void
      */
     private function sendNotification(NotificationEntity $notification, UserEntity $user): void
     {
-        $this->sendNotificationEmail($notification, $user);
+        // Public users get email notifications, internal users get push (below)
+        if ($user->getValue('type') === UserEntity::TYPE_PUBLIC) {
+            $this->publicEmailSender->sendNotification($notification, $user);
+            //$this->sendPublicNotificationEmail($notification, $user);
+            return;
+        }
+
         $this->sendNotificationPush($notification, $user);
     }
 
-    /**
-     * Email a notification
-     *
-     * @param NotificationEntity $notification Notification to send
-     * @param UserEntity $user The user who performed the action causing the notification
-     */
-    private function sendNotificationEmail(NotificationEntity $notification, UserEntity $user): void
-    {
-        // Make sure the notification has an owner or a creator
-        if (
-            empty($notification->getValue("owner_id")) ||
-            empty($notification->getValue("creator_id"))
-        ) {
-            return;
-        }
+    // /**
+    //  * Email a notification to a public user
+    //  *
+    //  * @param NotificationEntity $notification Notification to send
+    //  * @param UserEntity $user The user who performed the action causing the notification
+    //  */
+    // private function sendPublicNotificationEmail(NotificationEntity $notification, UserEntity $user): void
+    // {
+    //     // Make sure the notification has an owner or a creator
+    //     if (
+    //         empty($notification->getValue("owner_id")) ||
+    //         empty($notification->getValue("creator_id"))
+    //     ) {
+    //         return;
+    //     }
 
-        // Get the user that owns this notice
-        $user = $this->entityLoader->getEntityById(
-            $notification->getValue("owner_id"),
-            $user->getAccountId()
-        );
+    //     // Get the user that owns this notice
+    //     $user = $this->entityLoader->getEntityById(
+    //         $notification->getValue("owner_id"),
+    //         $user->getAccountId()
+    //     );
 
-        // Get the user that triggered this notice
-        $creator = $this->entityLoader->getEntityById(
-            $notification->getValue("creator_id"),
-            $user->getAccountId()
-        );
+    //     // Get the user that triggered this notice
+    //     $creator = $this->entityLoader->getEntityById(
+    //         $notification->getValue("creator_id"),
+    //         $user->getAccountId()
+    //     );
 
-        // Make sure the user has an email
-        if (!$user || !$user->getValue("email")) {
-            return;
-        }
+    //     // Make sure the user has an email
+    //     if (!$user || !$user->getValue("email")) {
+    //         return;
+    //     }
 
-        // Get the referenced entity
-        $objReference = $notification->getValue("obj_reference");
-        $referencedEntity = $this->entityLoader->getEntityById(
-            $objReference,
-            $user->getAccountId()
-        );
-        $def = $referencedEntity->getDefinition();
+    //     // Get the referenced entity
+    //     $objReference = $notification->getValue("obj_reference");
+    //     $referencedEntity = $this->entityLoader->getEntityById(
+    //         $objReference,
+    //         $user->getAccountId()
+    //     );
+    //     $def = $referencedEntity->getDefinition();
 
-        // Set the body
-        $body = $creator->getName() . " - " . $notification->getName('name') . " on ";
-        $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
-        $body .= "---------------------------------------\r\n\r\n";
-        $body .= $def->getTitle() . ": " . $referencedEntity->getName();
+    //     // Set the body
+    //     $body = $creator->getName() . " - " . $notification->getName('name') . " on ";
+    //     $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
+    //     $body .= "---------------------------------------\r\n\r\n";
+    //     $body .= $def->getTitle() . ": " . $referencedEntity->getName();
 
-        // If there is a notification description, then include it in the body
-        $description = $notification->getValue("description");
-        if ($description) {
-            $body .= "\r\n\r\n";
+    //     // If there is a notification description, then include it in the body
+    //     $description = $notification->getValue("description");
+    //     if ($description) {
+    //         $body .= "\r\n\r\n";
 
-            // If the description is already directed to a user, there is no need to add the Details text
-            if (!preg_match('/(directed a comment at you:)/', $description)) {
-                $body .= "Details: ";
-            }
+    //         // If the description is already directed to a user, there is no need to add the Details text
+    //         if (!preg_match('/(directed a comment at you:)/', $description)) {
+    //             $body .= "Details: ";
+    //         }
 
-            $body .= "\r$description";
-        }
+    //         $body .= "\r$description";
+    //     }
 
-        // TODO: Add link to body
-        // $body .= "\r\n\r\nLink: \r";
-        // $body .= $config->application_url . "/browse/" . $referencedEntity->getEntityId();
-        // $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
-        // $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
+    //     // TODO: Add link to body
+    //     // $body .= "\r\n\r\nLink: \r";
+    //     // $body .= $config->application_url . "/browse/" . $referencedEntity->getEntityId();
+    //     // $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
+    //     // $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
 
-        // // Set from
-        // $fromEmail = $config->email['noreply'];
-        $fromEmail = 'comment.' . $referencedEntity->getEntityId() . '@aereus.netric.com';
+    //     // // Set from
+    //     // $fromEmail = $config->email['noreply'];
+    //     $fromEmail = 'comment.' . $referencedEntity->getEntityId() . '@aereus.netric.com';
 
-        // TODO: Handle from
-        // If this is a support, then we should reply from the email address,
-        // otherwise we can use the comment dropbox
+    //     // TODO: Handle from
+    //     // If this is a support, then we should reply from the email address,
+    //     // otherwise we can use the comment dropbox
 
-        $this->mailSenderService->send(
-            $user->getValue("email"),
-            $user->getValue("full_name"),
-            $fromEmail,
-            "Support",
-            $notification->getName('name'),
-            $body
-        );
-
-        // TODO: Add special dropbox that enables users to comment by just replying to an email
-        // if ($config->email['dropbox_catchall']) {
-        //     $fromEmail = $account->getName() . "-com-";
-        //     $fromEmail .= $objReference;
-        //     $fromEmail .= $config->email['dropbox_catchall'];
-        // }
-
-        // try {
-        //     $to = $user->getValue("email");
-        //     $subject = $this->getValue("name");
-
-        //     // Create a new message and send it
-        //     $from = new Address($fromEmail, $creator->getName());
-        //     $message = new Mail\Message();
-        //     $message->addFrom($fromEmail);
-        //     $message->addTo($user->getValue("email"));
-        //     $message->setBody($body);
-        //     $message->setEncoding('UTF-8');
-        //     $message->setSubject($this->getValue("name"));
-        //     $this->mailTransport->send($message);
-        // } catch (\Exception $ex) {
-        //     /*
-        //      * This should never happen, but in case we cannot send the email for
-        //      * reason we should log it as an error and continue working.
-        //      */
-        //     $log->error("NotificationEntity:: Could not send notification: " . $ex->getMessage(), var_export($config, true));
-        // }
-    }
+    //     $this->mailSenderService->send(
+    //         $user->getValue("email"),
+    //         $user->getValue("full_name"),
+    //         $fromEmail,
+    //         "Support",
+    //         $notification->getName('name'),
+    //         $body
+    //     );
+    // }
 
     /**
      * Push a notification to a push channel like chrome html push or apple push notificaiton service

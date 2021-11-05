@@ -16,21 +16,35 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-class Entity_setEntitySeenBy_result
+class Worker_process_result
 {
     static public $isValidate = false;
 
     static public $_TSPEC = array(
+        0 => array(
+            'var' => 'success',
+            'isRequired' => false,
+            'type' => TType::BOOL,
+        ),
     );
 
+    /**
+     * @var bool
+     */
+    public $success = null;
 
-    public function __construct()
+    public function __construct($vals = null)
     {
+        if (is_array($vals)) {
+            if (isset($vals['success'])) {
+                $this->success = $vals['success'];
+            }
+        }
     }
 
     public function getName()
     {
-        return 'Entity_setEntitySeenBy_result';
+        return 'Worker_process_result';
     }
 
 
@@ -47,6 +61,13 @@ class Entity_setEntitySeenBy_result
                 break;
             }
             switch ($fid) {
+                case 0:
+                    if ($ftype == TType::BOOL) {
+                        $xfer += $input->readBool($this->success);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
                 default:
                     $xfer += $input->skip($ftype);
                     break;
@@ -60,7 +81,12 @@ class Entity_setEntitySeenBy_result
     public function write($output)
     {
         $xfer = 0;
-        $xfer += $output->writeStructBegin('Entity_setEntitySeenBy_result');
+        $xfer += $output->writeStructBegin('Worker_process_result');
+        if ($this->success !== null) {
+            $xfer += $output->writeFieldBegin('success', TType::BOOL, 0);
+            $xfer += $output->writeBool($this->success);
+            $xfer += $output->writeFieldEnd();
+        }
         $xfer += $output->writeFieldStop();
         $xfer += $output->writeStructEnd();
         return $xfer;

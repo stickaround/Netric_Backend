@@ -16,17 +16,12 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-/**
- * Entity service
- */
-interface EntityIf
+interface WorkerIf
 {
     /**
-     * Indicate that an entity has been seen by a given user
-     * 
-     * @param string $entityId
-     * @param string $userId
-     * @param string $accountId
+     * @param string $jobName
+     * @param string $jsonPayload
+     * @return bool
      */
-    public function setEntitySeenBy($entityId, $userId, $accountId);
+    public function processJob($jobName, $jsonPayload);
 }

@@ -10,15 +10,12 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
-use Netric\Mail\Transport\InMemory;
 use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\Config\ConfigFactory;
-use NotificationPusherSdk\NotificationPusherClientInterface;
 
 class NotificationTest extends TestCase
 {

@@ -6,10 +6,7 @@
 
 namespace ZPushTest\backend\netric;
 
-use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use Netric\Mail\Transport\InMemory;
-use Netric\Mail\SenderService;
 
 // Add all z-push required files
 require_once("z-push.includes.php");

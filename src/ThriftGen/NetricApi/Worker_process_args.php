@@ -16,18 +16,18 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-class Chat_notifyAbsentOfNewMessage_args
+class Worker_process_args
 {
     static public $isValidate = false;
 
     static public $_TSPEC = array(
         1 => array(
-            'var' => 'messageId',
+            'var' => 'jobName',
             'isRequired' => false,
             'type' => TType::STRING,
         ),
-        3 => array(
-            'var' => 'accountId',
+        2 => array(
+            'var' => 'jobPayload',
             'isRequired' => false,
             'type' => TType::STRING,
         ),
@@ -36,27 +36,27 @@ class Chat_notifyAbsentOfNewMessage_args
     /**
      * @var string
      */
-    public $messageId = null;
+    public $jobName = null;
     /**
      * @var string
      */
-    public $accountId = null;
+    public $jobPayload = null;
 
     public function __construct($vals = null)
     {
         if (is_array($vals)) {
-            if (isset($vals['messageId'])) {
-                $this->messageId = $vals['messageId'];
+            if (isset($vals['jobName'])) {
+                $this->jobName = $vals['jobName'];
             }
-            if (isset($vals['accountId'])) {
-                $this->accountId = $vals['accountId'];
+            if (isset($vals['jobPayload'])) {
+                $this->jobPayload = $vals['jobPayload'];
             }
         }
     }
 
     public function getName()
     {
-        return 'Chat_notifyAbsentOfNewMessage_args';
+        return 'Worker_process_args';
     }
 
 
@@ -75,14 +75,14 @@ class Chat_notifyAbsentOfNewMessage_args
             switch ($fid) {
                 case 1:
                     if ($ftype == TType::STRING) {
-                        $xfer += $input->readString($this->messageId);
+                        $xfer += $input->readString($this->jobName);
                     } else {
                         $xfer += $input->skip($ftype);
                     }
                     break;
-                case 3:
+                case 2:
                     if ($ftype == TType::STRING) {
-                        $xfer += $input->readString($this->accountId);
+                        $xfer += $input->readString($this->jobPayload);
                     } else {
                         $xfer += $input->skip($ftype);
                     }
@@ -100,15 +100,15 @@ class Chat_notifyAbsentOfNewMessage_args
     public function write($output)
     {
         $xfer = 0;
-        $xfer += $output->writeStructBegin('Chat_notifyAbsentOfNewMessage_args');
-        if ($this->messageId !== null) {
-            $xfer += $output->writeFieldBegin('messageId', TType::STRING, 1);
-            $xfer += $output->writeString($this->messageId);
+        $xfer += $output->writeStructBegin('Worker_process_args');
+        if ($this->jobName !== null) {
+            $xfer += $output->writeFieldBegin('jobName', TType::STRING, 1);
+            $xfer += $output->writeString($this->jobName);
             $xfer += $output->writeFieldEnd();
         }
-        if ($this->accountId !== null) {
-            $xfer += $output->writeFieldBegin('accountId', TType::STRING, 3);
-            $xfer += $output->writeString($this->accountId);
+        if ($this->jobPayload !== null) {
+            $xfer += $output->writeFieldBegin('jobPayload', TType::STRING, 2);
+            $xfer += $output->writeString($this->jobPayload);
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();

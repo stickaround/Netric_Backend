@@ -28,5 +28,11 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => ObjectTypes::FILE
         ],
+        // Optional email account that can be used to add to this channel
+        'email_account_id' => [
+            'title' => 'Email Account',
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::EMAIL_ACCOUNT,
+        ],
     ],
 ];

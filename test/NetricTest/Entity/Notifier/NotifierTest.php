@@ -16,10 +16,10 @@ use Netric\Account\Account;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\Notifier\Sender\PublicUserEmailSender;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\Mail\SenderService;
 use NotificationPusherSdk\NotificationPusherClientInterface;
 
 /**
@@ -81,8 +81,8 @@ class NotifierTest extends TestCase
         //$entityLoaderMock = $this->createMock(EntityLoader::class);
         //$indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
-        $mailSenderMock = $this->createMock(SenderService::class);
-        $this->notifier = new Notifier($this->entityLoader, $index, $pusherClientMock, $mailSenderMock);
+        $publicEmailSenderMock = $this->createMock(PublicUserEmailSender::class);
+        $this->notifier = new Notifier($this->entityLoader, $index, $pusherClientMock, $publicEmailSenderMock);
 
 
         // Make sure test user does not exist from previous failed query
@@ -318,7 +318,7 @@ class NotifierTest extends TestCase
         $indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
         $pusherClientMock->expects($this->once())->method('subscribe')->willReturn(true);
-        $mailSenderMock = $this->createMock(SenderService::class);
+        $mailSenderMock = $this->createMock(PublicUserEmailSender::class);
 
         $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock, $mailSenderMock);
         $this->assertTrue($notifier->subscribeToPush(
@@ -337,7 +337,7 @@ class NotifierTest extends TestCase
         $indexMock = $this->createMock(IndexInterface::class);
         $pusherClientMock = $this->createMock(NotificationPusherClientInterface::class);
         $pusherClientMock->expects($this->once())->method('send')->willReturn(true);
-        $mailSenderMock = $this->createMock(SenderService::class);
+        $mailSenderMock = $this->createMock(PublicUserEmailSender::class);
 
         $notifier = new Notifier($entityLoaderMock, $indexMock, $pusherClientMock, $mailSenderMock);
 
