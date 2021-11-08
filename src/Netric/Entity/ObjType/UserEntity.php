@@ -32,13 +32,9 @@ class UserEntity extends Entity implements EntityInterface
      *
      * @const string
      */
-    //const USER_CURRENT = '935b5cb6-831d-11e8-adc0-fa7ae01bbebc';
     const USER_CURRENT = 'current.user';
-    //const USER_ANONYMOUS = '935b5e28-831d-11e8-adc0-fa7ae01bbebc';
     const USER_ANONYMOUS = 'anonymous';
-    //const USER_SYSTEM = '935b5f54-831d-11e8-adc0-fa7ae01bbebc';
     const USER_SYSTEM = 'system';
-    //const USER_WORKFLOW = '935b6076-831d-11e8-adc0-fa7ae01bbebc';
     const USER_WORKFLOW = 'workflow';
 
     /**

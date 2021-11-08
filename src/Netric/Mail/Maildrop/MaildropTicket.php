@@ -223,7 +223,21 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
 
         // Strip <> from the value
         if ($inReplyTo[0] === "<") {
-            return substr($inReplyTo, 1, -1);
+            $innerHeader = substr($inReplyTo, 1, -1);
+            // Make sure we data before and after @
+            $ourterParts = explode('@', $innerHeader);
+            if (count($ourterParts) !== 2) {
+                return '';
+            }
+
+            // Message IDs from netric comments will be [uuid-of-object].[uuid-of-comment]
+            $leftParts = explode('.', $ourterParts[0]);
+            if (count($leftParts) !== 2) {
+                return '';
+            }
+
+            // Return the referenced ticket
+            return $leftParts[0];
         }
 
         // Malformed

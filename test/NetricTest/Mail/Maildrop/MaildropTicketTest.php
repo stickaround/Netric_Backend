@@ -222,6 +222,7 @@ class MaildropTicketTest extends TestCase
         $this->maildropCommentMock->expects($this->once())
             ->method('createEntityFromMessage');
 
+        // The mail.support.inreply file has the 'in-reply-to' header set
         $entityId = $this->maildrop->createEntityFromMessage(
             __DIR__ . '/../_files/mail.support.inreply',
             $this->mockEmailAccount

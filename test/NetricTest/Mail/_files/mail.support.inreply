@@ -4,7 +4,7 @@ Date: Sun, 01 Jan 2000 01:00:00 +0000
 From: Some User <external@netric.com>
 Content-type: multipart/alternative; boundary="normal-multipart"
 Message-ID: <1550482429.277994427.1435679095348.normal@example.com>
-In-Reply-To: <UUID-TEST-TICKET>
+In-Reply-To: <UUID-TEST-TICKET.UUID-TEST-TICKET@example.com>
 MIME-version: 1.0
 
 multipart message

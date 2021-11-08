@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Netric\Entity\Notifier\Sender;
 
+use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\Mail\MailSystemInterface;
 use Netric\Mail\SenderService;
 
@@ -51,33 +53,24 @@ class PublicUserEmailSender implements NotificationSenderInterface
      * Send an email notification to a public user
      *
      * @param NotificationEntity $notification
-     * @param UserEntity $user
+     * @param UserEntity $user The user who performed the action resulting in a notification
      * @return bool True if a notice was sent, otherwise false (not necessarily an error)
      */
     public function sendNotification(NotificationEntity $notification, UserEntity $user): bool
     {
-        // Make sure the notification has an owner or a creator
-        if (
-            empty($notification->getValue("owner_id")) ||
-            empty($notification->getValue("creator_id"))
-        ) {
+        // Make sure the notification has an owner
+        if (empty($notification->getValue("owner_id"))) {
             return false;
         }
 
         // Get the user that owns this notice
-        $user = $this->entityLoader->getEntityById(
+        $targetUser = $this->entityLoader->getEntityById(
             $notification->getValue("owner_id"),
             $user->getAccountId()
         );
 
-        // Get the user that triggered this notice
-        $creator = $this->entityLoader->getEntityById(
-            $notification->getValue("creator_id"),
-            $user->getAccountId()
-        );
-
         // Make sure the user has an email
-        if (!$user || !$user->getValue("email")) {
+        if (!$targetUser || !$targetUser->getValue("email")) {
             return false;
         }
 
@@ -87,40 +80,67 @@ class PublicUserEmailSender implements NotificationSenderInterface
             $objReference,
             $user->getAccountId()
         );
-        $def = $referencedEntity->getDefinition();
 
         // Set the body
-        $body = "";
+        $body = $notification->getValue("description");
 
-        // If there is a notification description, then include it in the body
-        $description = $notification->getValue("description");
-        if ($description) {
-            $body .= "\r\n\r\n";
+        // Set from email to be a dynamic comment dropbox so they can reply
+        // and a new comment will be created.
+        $fromEmail = 'comment.' .
+            $referencedEntity->getEntityId() .
+            '@' .
+            $this->mailSystem->getDefaultDomain($user->getAccountId());
+        $fromName = "Support";
 
-            // If the description is already directed to a user, there is no need to add the Details text
-            if (!preg_match('/(directed a comment at you:)/', $description)) {
-                $body .= "Details: ";
+        // Handle a ticket comment associated with a support channel
+        if ($referencedEntity->getObjType() === ObjectTypes::TICKET) {
+            if ($referencedEntity->getValue('channel_id')) {
+                $channel = $this->entityLoader->getEntityById(
+                    $referencedEntity->getValue('channel_id'),
+                    $user->getAccountId()
+                );
+
+                if ($channel && $channel->getValue('email_account_id')) {
+                    $emailAccount = $this->entityLoader->getEntityById(
+                        $channel->getValue('email_account_id'),
+                        $user->getAccountId()
+                    );
+
+                    if ($emailAccount) {
+                        $fromEmail = $emailAccount->getValue('address');
+                        $fromName = $emailAccount->getValue('name');
+                    }
+                }
             }
-
-            $body .= "\r$description";
         }
 
-        // // Set from
-        $fromEmail = 'comment.' . $referencedEntity->getEntityId() . '@aereus.netric.com';
+        // Set the message ID to include the refreenced entity and notification
+        $headers = [
+            'message-id' => $this->generateMessageId($referencedEntity, $notification)
+        ];
 
-        // TODO: Handle from
-        // If this is a support, then we should reply from the email address,
-        // otherwise we can use the comment dropbox
-
-        $this->mailSender->send(
-            $user->getValue("email"),
-            $user->getValue("full_name"),
+        return $this->mailSender->send(
+            $targetUser->getValue("email"),
+            $targetUser->getValue("full_name"),
             $fromEmail,
-            "Support",
-            $notification->getName('name'),
-            $body
+            $fromName,
+            $notification->getValue('name'),
+            $body,
+            $headers
         );
+    }
 
-        return false;
+    /**
+     * Generate a unique message ID
+     *
+     * @param EntityInterface $refrencedEntity
+     * @param EntityInterface $notification
+     * @return string
+     */
+    private function generateMessageId(EntityInterface $refrencedEntity, EntityInterface $notification): string
+    {
+        $messageId = $refrencedEntity->getEntityId() . '.' . $notification->getEntityId();
+        $messageId .= "@" . $this->mailSystem->getDefaultDomain($refrencedEntity->getAccountId());
+        return $messageId;
     }
 }

@@ -103,6 +103,10 @@ class SenderService
             $mail->Body    = $body;
             // $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
+            if (isset($headers['message-id'])) {
+                $mail->MessageID = '<' . $headers['message-id'] . '>';
+            }
+
             return $mail->send();
         } catch (PHPMailerException $e) {
             $this->log->error(
