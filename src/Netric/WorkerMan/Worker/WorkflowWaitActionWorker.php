@@ -88,6 +88,8 @@ class WorkflowWaitActionWorker implements WorkerInterface
         // Resume workflow actions execution
         $this->workflowService->runChildActions($actionEntity, $entity, $user);
 
+        $this->log->error("WorkflowWaitActionWorker->work: returning true");
+
         // Set result and return it
         return true;
     }
