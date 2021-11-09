@@ -8,6 +8,7 @@ use Netric\WorkerMan\WorkerFactory;
 use GearmanClient;
 use GearmanWorker;
 use GearmanJob;
+use Netric\Log\LogInterface;
 use RuntimeException;
 
 class Gearman implements QueueInterface
@@ -41,17 +42,28 @@ class Gearman implements QueueInterface
     private $server = "localhost";
 
     /**
+     * Optional logger
+     *
+     * @var LogInterface
+     */
+    private LogInterface $log;
+
+    /**
      * Initialize a Gearman job queue
      *
      * @param string $server The gearman server to connect to
      */
-    public function __construct(string $server)
+    public function __construct(string $server, LogInterface $log = null)
     {
         if (empty($server)) {
             throw new RuntimeException('server is a required param');
         }
 
         $this->server = $server;
+
+        if ($log) {
+            $this->log = $log;
+        }
     }
 
     /**
@@ -64,6 +76,10 @@ class Gearman implements QueueInterface
     public function doWorkBackground($workerName, array $jobData)
     {
         $job = $this->getGmClient()->doBackground($workerName, json_encode($jobData));
+
+        if (isset($this->log)) {
+            $this->log->info("Gearman->doWorkBackground: queued $workerName");
+        }
 
         if ($this->getGmClient()->returnCode() != GEARMAN_SUCCESS) {
             throw new RuntimeException(
@@ -170,6 +186,11 @@ class Gearman implements QueueInterface
 
         // Send job to the worker
         $worker = $this->listeners[$gmJob->functionName()];
+
+        if (isset($this->log)) {
+            $this->log->info("Gearman->sendJobToWorker: sent " . $gmJob->functionName());
+        }
+
         return $worker->work($job);
     }
 

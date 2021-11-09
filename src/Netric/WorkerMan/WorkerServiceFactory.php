@@ -10,6 +10,7 @@ namespace Netric\WorkerMan;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
+use Netric\Log\LogFactory;
 use Netric\WorkerMan\Queue\Gearman;
 use Netric\WorkerMan\Queue\InMemory;
 use RuntimeException;
@@ -28,13 +29,14 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get(ConfigFactory::class);
+        $log = $serviceLocator->get(LogFactory::class);
         $workerFactory = new WorkerFactory($serviceLocator);
 
         $queue = null;
 
         switch ($config->workers->queue) {
             case 'gearman':
-                $queue = new Gearman($config->workers->server);
+                $queue = new Gearman($config->workers->server, $log);
                 break;
             case 'memory':
                 $queue = new InMemory($workerFactory);
