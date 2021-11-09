@@ -13,6 +13,9 @@ services:
       RUN_SETUP_UPDATE: 1
     ports:
       - 10001:80
+    logging:
+      options:
+        tag: "netric_svc"
     secrets:
       - auth_private_key
       - entityenc
@@ -41,6 +44,8 @@ services:
       - service_netric
       - default
       - service_core
+    options:
+        tag: "netric_daemon"
     deploy:
       replicas: 1
       placement:
