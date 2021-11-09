@@ -58,6 +58,7 @@ return [
             "title" => "All Channels",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "channels",
+            "browser_view" => "all_channels",
             "objType" => ObjectTypes::TICKET_CHANNEL,
             "icon" => "SearchIcon",
         ]

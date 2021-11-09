@@ -71,7 +71,7 @@ class TicketChannelsInitData implements InitDataInterface
             // This is where we link an existing email account if set
             $emailAccount = null;
             if (
-                $channelData['lookup_email_account_uname'] &&
+                isset($channelData['lookup_email_account_uname']) &&
                 empty($channel->getValue('email_account_id'))
             ) {
                 $emailAccount = $this->entityLoader->getByUniqueName(
