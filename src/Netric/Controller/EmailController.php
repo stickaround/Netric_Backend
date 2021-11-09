@@ -91,7 +91,10 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // Make sure the file was uploaded by PHP (or we're in a unit test with testMode)
         if (!is_uploaded_file($files['message']['tmp_name']) && !$this->testMode) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(['error' => "RAW message missing or failed to upload"]);
+            $response->write([
+                'error' => "RAW message missing or failed to upload: " .
+                    var_export($files['message'], true)
+            ]);
             return $response;
         }
 
