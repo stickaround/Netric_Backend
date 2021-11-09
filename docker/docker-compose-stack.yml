@@ -44,7 +44,8 @@ services:
       - service_netric
       - default
       - service_core
-    options:
+    logging:
+      options:
         tag: "netric_daemon"
     deploy:
       replicas: 1
