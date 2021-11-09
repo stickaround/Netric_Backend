@@ -118,7 +118,7 @@ class Gearman implements QueueInterface
 
         $gmWorker = $this->getGmWorker();
 
-        if ($gmWorker->work()) {
+        if (@$gmWorker->work()) {
             return true;
         }
 
