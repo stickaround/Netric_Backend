@@ -129,7 +129,7 @@ return [
         // on netric_service network in swarm
         'server' => 'gearman',
         // Worker clients run in a separate container and need to make http calls to the service
-        'service_name' => 'http://netricservice'
+        'service_name' => 'netricservice'
     ],
     'billing' => [
         'anet_url' => ANetEnvironment::PRODUCTION,
