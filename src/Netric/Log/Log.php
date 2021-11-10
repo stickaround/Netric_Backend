@@ -135,7 +135,7 @@ class Log implements LogInterface
         }
 
         // Prepare the log message
-        $logMessage = new LogMessage('netric-server', 'Applicaion Log');
+        $logMessage = new LogMessage('netric_svc', 'Applicaion Log');
         $logMessage->setLevelNumber($level);
         $logMessage->setApplicationEnvironment(getenv('APPLICATION_ENV'));
         // This is actually used for daemon vs server - application name

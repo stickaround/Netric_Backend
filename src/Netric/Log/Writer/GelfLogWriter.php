@@ -78,6 +78,8 @@ class GelfLogWriter implements LogWriterInterface
         $message->setAdditional('application_environment', $logMessage->getApplicationEnvironment());
         $message->setAdditional('application_version', $logMessage->getApplicationVersion());
         $message->setAdditional('application_name', $logMessage->getApplicationName());
+        // Used for docker
+        $message->setAdditional('tag', $logMessage->getApplicationName());
         $message->setAdditional('request_route', $logMessage->getRequestPath());
         $message->setAdditional('request_id', $logMessage->getRequestId());
 

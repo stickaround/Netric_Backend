@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Log;
 
 use Netric\Log\LogMessage;
