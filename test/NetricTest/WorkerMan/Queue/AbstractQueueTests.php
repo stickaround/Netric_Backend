@@ -76,22 +76,22 @@ abstract class AbstractQueueTests extends TestCase
         $this->assertEquals(1, count($queue->getWorkers()));
     }
 
-    public function testDispatchJobs()
-    {
-        $queue = $this->getQueue();
+    // public function testDispatchJobs()
+    // {
+    //     $queue = $this->getQueue();
 
-        // This will queue the job
-        $queue->doWorkBackground(TestWorker::class, ["mystring" => "dispatch"]);
+    //     // This will queue the job
+    //     $queue->doWorkBackground(TestWorker::class, ["mystring" => "dispatch"]);
 
-        // Now add a worker which will process the queue
-        $worker = new TestWorker($this->account->getApplication());
-        $queue->addWorker(TestWorker::class, $worker);
+    //     // Now add a worker which will process the queue
+    //     $worker = new TestWorker($this->account->getApplication());
+    //     $queue->addWorker(TestWorker::class, $worker);
 
-        // Dispatch the job and get the result, it should take the first job on the queue and return
-        $this->assertTrue($queue->dispatchJobs());
+    //     // Dispatch the job and get the result, it should take the first job on the queue and return
+    //     $this->assertTrue($queue->dispatchJobs());
 
-        // If the job was not run then this could hang forever waiting for a job
-    }
+    //     // If the job was not run then this could hang forever waiting for a job
+    // }
 
     public function testClearWorkerQueue()
     {

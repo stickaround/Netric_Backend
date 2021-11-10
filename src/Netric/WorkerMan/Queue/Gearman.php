@@ -4,7 +4,6 @@ namespace Netric\WorkerMan\Queue;
 
 use Netric\WorkerMan\WorkerInterface;
 use Netric\WorkerMan\Job;
-use Netric\WorkerMan\WorkerFactory;
 use GearmanClient;
 use GearmanWorker;
 use GearmanJob;

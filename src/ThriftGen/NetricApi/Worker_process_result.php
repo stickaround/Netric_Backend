@@ -26,18 +26,44 @@ class Worker_process_result
             'isRequired' => false,
             'type' => TType::BOOL,
         ),
+        1 => array(
+            'var' => 'error',
+            'isRequired' => false,
+            'type' => TType::STRUCT,
+            'class' => '\NetricApi\ErrorException',
+        ),
+        2 => array(
+            'var' => 'badRequest',
+            'isRequired' => false,
+            'type' => TType::STRUCT,
+            'class' => '\NetricApi\InvalidArgument',
+        ),
     );
 
     /**
      * @var bool
      */
     public $success = null;
+    /**
+     * @var \NetricApi\ErrorException
+     */
+    public $error = null;
+    /**
+     * @var \NetricApi\InvalidArgument
+     */
+    public $badRequest = null;
 
     public function __construct($vals = null)
     {
         if (is_array($vals)) {
             if (isset($vals['success'])) {
                 $this->success = $vals['success'];
+            }
+            if (isset($vals['error'])) {
+                $this->error = $vals['error'];
+            }
+            if (isset($vals['badRequest'])) {
+                $this->badRequest = $vals['badRequest'];
             }
         }
     }
@@ -68,6 +94,22 @@ class Worker_process_result
                         $xfer += $input->skip($ftype);
                     }
                     break;
+                case 1:
+                    if ($ftype == TType::STRUCT) {
+                        $this->error = new \NetricApi\ErrorException();
+                        $xfer += $this->error->read($input);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                case 2:
+                    if ($ftype == TType::STRUCT) {
+                        $this->badRequest = new \NetricApi\InvalidArgument();
+                        $xfer += $this->badRequest->read($input);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
                 default:
                     $xfer += $input->skip($ftype);
                     break;
@@ -85,6 +127,16 @@ class Worker_process_result
         if ($this->success !== null) {
             $xfer += $output->writeFieldBegin('success', TType::BOOL, 0);
             $xfer += $output->writeBool($this->success);
+            $xfer += $output->writeFieldEnd();
+        }
+        if ($this->error !== null) {
+            $xfer += $output->writeFieldBegin('error', TType::STRUCT, 1);
+            $xfer += $this->error->write($output);
+            $xfer += $output->writeFieldEnd();
+        }
+        if ($this->badRequest !== null) {
+            $xfer += $output->writeFieldBegin('badRequest', TType::STRUCT, 2);
+            $xfer += $this->badRequest->write($output);
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();

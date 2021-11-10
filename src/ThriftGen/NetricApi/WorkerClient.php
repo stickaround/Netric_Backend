@@ -30,42 +30,42 @@ class WorkerClient implements \NetricApi\WorkerIf
     }
 
 
-    public function processJob($jobName, $jsonPayload)
+    public function process($workerName, $jsonPayload)
     {
-        $this->send_processJob($jobName, $jsonPayload);
-        return $this->recv_processJob();
+        $this->send_process($workerName, $jsonPayload);
+        return $this->recv_process();
     }
 
-    public function send_processJob($jobName, $jsonPayload)
+    public function send_process($workerName, $jsonPayload)
     {
-        $args = new \NetricApi\Worker_processJob_args();
-        $args->jobName = $jobName;
+        $args = new \NetricApi\Worker_process_args();
+        $args->workerName = $workerName;
         $args->jsonPayload = $jsonPayload;
         $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
         if ($bin_accel) {
             thrift_protocol_write_binary(
                 $this->output_,
-                'processJob',
+                'process',
                 TMessageType::CALL,
                 $args,
                 $this->seqid_,
                 $this->output_->isStrictWrite()
             );
         } else {
-            $this->output_->writeMessageBegin('processJob', TMessageType::CALL, $this->seqid_);
+            $this->output_->writeMessageBegin('process', TMessageType::CALL, $this->seqid_);
             $args->write($this->output_);
             $this->output_->writeMessageEnd();
             $this->output_->getTransport()->flush();
         }
     }
 
-    public function recv_processJob()
+    public function recv_process()
     {
         $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
         if ($bin_accel) {
             $result = thrift_protocol_read_binary(
                 $this->input_,
-                '\NetricApi\Worker_processJob_result',
+                '\NetricApi\Worker_process_result',
                 $this->input_->isStrictRead()
             );
         } else {
@@ -80,13 +80,19 @@ class WorkerClient implements \NetricApi\WorkerIf
                 $this->input_->readMessageEnd();
                 throw $x;
             }
-            $result = new \NetricApi\Worker_processJob_result();
+            $result = new \NetricApi\Worker_process_result();
             $result->read($this->input_);
             $this->input_->readMessageEnd();
         }
         if ($result->success !== null) {
             return $result->success;
         }
-        throw new \Exception("processJob failed: unknown result");
+        if ($result->error !== null) {
+            throw $result->error;
+        }
+        if ($result->badRequest !== null) {
+            throw $result->badRequest;
+        }
+        throw new \Exception("process failed: unknown result");
     }
 }

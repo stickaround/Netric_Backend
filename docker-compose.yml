@@ -35,10 +35,8 @@ services:
       APPLICATION_ENV: development
       APPLICATION_VER: daemon-dev
     depends_on:
-      - memcached
       - gearmand
-      - db1
-      - objectstorage
+      - netric_server
 
   thrift:
     image: dockerhub.aereus.com/thrift:development

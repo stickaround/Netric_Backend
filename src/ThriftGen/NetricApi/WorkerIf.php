@@ -16,12 +16,19 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
+/**
+ * The worker service handles processing queued jobs
+ */
 interface WorkerIf
 {
     /**
-     * @param string $jobName
+     * Process a queued job
+     * 
+     * @param string $workerName
      * @param string $jsonPayload
      * @return bool
+     * @throws \NetricApi\ErrorException
+     * @throws \NetricApi\InvalidArgument
      */
-    public function processJob($jobName, $jsonPayload);
+    public function process($workerName, $jsonPayload);
 }

@@ -65,6 +65,8 @@ return [
     'workers' => [
         'queue' => 'gearman',
         'server' => 'gearmand',
+        // Worker clients run in a separate container and need to make http calls to the service
+        'service_name' => 'netric_server',
     ],
     'billing' => [
         'anet_url' => ANetEnvironment::SANDBOX,

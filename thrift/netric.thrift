@@ -9,6 +9,13 @@ exception InvalidArgument {
 }
 
 /**
+ * Thrown when an error takes place that is not expected
+ */
+exception ErrorException {
+    1: string message
+}
+
+/**
  * Authentication service
  */
 service Authentication
@@ -50,4 +57,15 @@ service Chat
      * Notify any members who were not in a room when a new message is sent
      */
     void notifyAbsentOfNewMessage(1:string messageId, 3:string accountId);
+}
+
+/**
+ * The worker service handles processing queued jobs
+ */
+service Worker
+{
+    /**
+     * Process a queued job
+     */
+    bool process(1:string workerName, 2:string jsonPayload) throws (1:ErrorException error, 2:InvalidArgument badRequest) ;
 }

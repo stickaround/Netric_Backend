@@ -38,7 +38,7 @@ class WorkerServicetest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
-        $workerFactory = $this->createMock(WorkerFactory::class);
+        $workerFactory = new WorkerFactory($sl);
         $queue = new InMemory($workerFactory);
 
         $this->workerService = new WorkerService($queue, $workerFactory);
@@ -46,12 +46,14 @@ class WorkerServicetest extends TestCase
 
     public function testDoWorkBackground()
     {
-        $this->assertEquals("1", $this->workerService->doWorkBackground(TestWorker::class, ["mystring" => "test"]));
+        $this->assertEquals(
+            "1",
+            $this->workerService->doWorkBackground(TestWorker::class, ["mystring" => "test"])
+        );
     }
 
-    // public function testProcessJobQueue()
-    // {
-    //     $this->workerService->doWorkBackground(TestWorker::class, ["mystring" => "test"]);
-    //     $this->assertTrue($this->workerService->processJobQueue());
-    // }
+    public function testProcessJob(): void
+    {
+        $this->assertTrue($this->workerService->processJob(TestWorker::class, ["mystring" => "test"]));
+    }
 }

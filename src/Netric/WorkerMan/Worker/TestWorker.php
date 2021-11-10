@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\WorkerMan\Worker;
 
 use Netric\WorkerMan\Job;
@@ -41,7 +43,7 @@ class TestWorker extends AbstractWorker
         // Reverse the string
         $this->result = strrev($workload['mystring']);
 
-        return $this->result;
+        return true;
     }
 
     /**

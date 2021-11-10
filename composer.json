@@ -44,7 +44,7 @@
     "ext-json": "*",
     "ext-mailparse": "*",
     "firebase/php-jwt": "^5.2",
-    "apache/thrift": "^0.11.0",
+    "apache/thrift": "^0.15",
     "phpmailer/phpmailer": "^6.5"
   },
   "require-dev": {

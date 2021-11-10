@@ -22,12 +22,12 @@ class Worker_process_args
 
     static public $_TSPEC = array(
         1 => array(
-            'var' => 'jobName',
+            'var' => 'workerName',
             'isRequired' => false,
             'type' => TType::STRING,
         ),
         2 => array(
-            'var' => 'jobPayload',
+            'var' => 'jsonPayload',
             'isRequired' => false,
             'type' => TType::STRING,
         ),
@@ -36,20 +36,20 @@ class Worker_process_args
     /**
      * @var string
      */
-    public $jobName = null;
+    public $workerName = null;
     /**
      * @var string
      */
-    public $jobPayload = null;
+    public $jsonPayload = null;
 
     public function __construct($vals = null)
     {
         if (is_array($vals)) {
-            if (isset($vals['jobName'])) {
-                $this->jobName = $vals['jobName'];
+            if (isset($vals['workerName'])) {
+                $this->workerName = $vals['workerName'];
             }
-            if (isset($vals['jobPayload'])) {
-                $this->jobPayload = $vals['jobPayload'];
+            if (isset($vals['jsonPayload'])) {
+                $this->jsonPayload = $vals['jsonPayload'];
             }
         }
     }
@@ -75,14 +75,14 @@ class Worker_process_args
             switch ($fid) {
                 case 1:
                     if ($ftype == TType::STRING) {
-                        $xfer += $input->readString($this->jobName);
+                        $xfer += $input->readString($this->workerName);
                     } else {
                         $xfer += $input->skip($ftype);
                     }
                     break;
                 case 2:
                     if ($ftype == TType::STRING) {
-                        $xfer += $input->readString($this->jobPayload);
+                        $xfer += $input->readString($this->jsonPayload);
                     } else {
                         $xfer += $input->skip($ftype);
                     }
@@ -101,14 +101,14 @@ class Worker_process_args
     {
         $xfer = 0;
         $xfer += $output->writeStructBegin('Worker_process_args');
-        if ($this->jobName !== null) {
-            $xfer += $output->writeFieldBegin('jobName', TType::STRING, 1);
-            $xfer += $output->writeString($this->jobName);
+        if ($this->workerName !== null) {
+            $xfer += $output->writeFieldBegin('workerName', TType::STRING, 1);
+            $xfer += $output->writeString($this->workerName);
             $xfer += $output->writeFieldEnd();
         }
-        if ($this->jobPayload !== null) {
-            $xfer += $output->writeFieldBegin('jobPayload', TType::STRING, 2);
-            $xfer += $output->writeString($this->jobPayload);
+        if ($this->jsonPayload !== null) {
+            $xfer += $output->writeFieldBegin('jsonPayload', TType::STRING, 2);
+            $xfer += $output->writeString($this->jsonPayload);
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();

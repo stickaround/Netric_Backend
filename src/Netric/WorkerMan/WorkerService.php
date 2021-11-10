@@ -2,6 +2,7 @@
 
 namespace Netric\WorkerMan;
 
+use InvalidArgumentException;
 use Netric\WorkerMan\Queue\QueueInterface;
 use Netric\Application\Application;
 use RuntimeException;
@@ -70,6 +71,25 @@ class WorkerService
 
         // Wait for jobs and send them to workers
         return $this->jobQueue->dispatchJobs();
+    }
+
+    /**
+     * Process a single job
+     *
+     * @param string $workerName
+     * @param array $payload
+     * @return bool
+     */
+    public function processJob(string $workerName, array $payload): bool
+    {
+        $worker = $this->workerFactory->getWorkerByName($workerName);
+        if (!$worker) {
+            throw new InvalidArgumentException("Worker $workerName not found");
+        }
+
+        $job = new Job();
+        $job->setWorkload($payload);
+        return $worker->work($job);
     }
 
     /**
