@@ -10,11 +10,13 @@ include(__DIR__ . "/../vendor/autoload.php");
 use Aereus\Config\ConfigLoader;
 use Netric\WorkerMan\Worker\AccountBillingWorker;
 use Netric\WorkerMan\Worker\EntityPostSaveWorker;
+use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
 use Netric\WorkerMan\Worker\NotificationWorker;
 use Netric\WorkerMan\Worker\ScheduleRunnerWorker;
 use Netric\WorkerMan\Worker\TestWorker;
 use Netric\WorkerMan\Worker\WorkflowWaitActionWorker;
 use NetricApi\WorkerClient;
+use Thrift\Exception\TApplicationException;
 use Thrift\Protocol\TBinaryProtocol;
 use Thrift\Transport\TBufferedTransport;
 use Thrift\Transport\THttpClient;
@@ -57,13 +59,21 @@ $listeningFunctions = [
     ScheduleRunnerWorker::class,
     TestWorker::class,
     WorkflowWaitActionWorker::class,
+    EntitySyncSetExportedStaleWorker::class,
 ];
 
 foreach ($listeningFunctions as $functionName) {
     $gmWorker->addFunction($functionName, "processJob");
 }
 
-# Function will be used to process jobs as they come in
+/**
+ * FUnction will be used to process all jobs as they come in
+ * 
+ * @param GearmanJob $job 
+ * @return bool 
+ * @throws TApplicationException 
+ * @throws Exception 
+ */
 function processJob(GearmanJob $job)
 {
     global $protocol;
@@ -72,6 +82,12 @@ function processJob(GearmanJob $job)
     return $client->process($job->functionName(), $job->workload());
 }
 
+/**
+ * Basic function used to see if netric is online
+ *
+ * @param mixed $url 
+ * @return bool 
+ */
 function isServiceAvailable($url)
 {
     // Check, if a valid url is provided
