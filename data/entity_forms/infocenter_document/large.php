@@ -6,6 +6,9 @@
 <row showif="editMode=1">
     <column>
         <field name='is_rootspace'></field>
+        <helptour id="help.entity.form.infocenter_document.is_rootspace" type="inline">
+        Space will flag a document as top-level document and will be displayed in the left navigation as clickable link.
+        </helptour>
     </column>
 </row>
 <row>

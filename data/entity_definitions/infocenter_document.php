@@ -55,7 +55,7 @@ return [
             'subtype' => ObjectTypes::DOCUMENT,
         ],
         'is_rootspace' => [
-            'title' => 'Is Rootspace',
+            'title' => 'Space',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false,

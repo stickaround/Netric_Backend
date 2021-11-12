@@ -9,6 +9,7 @@
 namespace modules\navigation;
 
 use Netric\Account\Module\LeftNavItemTypes;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
     "title" => "Document",
@@ -21,28 +22,35 @@ return [
     "f_system" => true,
     "navigation" => [
         [
-            "title" => "My Notes",
+            "objType" => ObjectTypes::NOTE,
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "title" => "My Notes",
             "route" => "my-notes",
-            "objType" => "note",
             "icon" => "AssignmentIcon",
         ],
         [
+            "objType" => ObjectTypes::DOCUMENT,
             "type" => LeftNavItemTypes::HEADER,
+            "subtype" => LeftNavItemTypes::ENTITY,
             "title" => "Spaces",
-            "route" => "spaces",
+            "route" => "newspace",
+            "icon" => "AddIcon",
+            "helptext" => "Space will flag a document as top-level document and will be displayed in the left navigation as clickable link.",
+            "data" => [
+                "is_rootspace" => true,
+            ],
         ],
         [
+            "objType" => ObjectTypes::DOCUMENT,
             "type" => LeftNavItemTypes::ENTITY_BROWSE_LEFTNAV,
             "route" => "spaces",
             "browser_view" => "spaces",
-            "objType" => "infocenter_document"
         ],
         [
-            "title" => "All Documents",
+            "objType" => ObjectTypes::DOCUMENT,
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "title" => "All Documents",
             "route" => "spaces",
-            "objType" => "infocenter_document",
             "icon" => "SearchIcon",
         ],
     ],
