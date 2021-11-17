@@ -601,10 +601,11 @@ class Entity implements EntityInterface
         // Handle any pre-processing like default values
         $this->onBeforeToArray();
 
+        $nameTitleLabelField = $this->getNameTitleLabelField();
         $data = [
             "obj_type" => $this->objType,
             "entity_id" => $this->getEntityId(),
-            "name" => $this->getName(),
+            $nameTitleLabelField => $this->getName(),
         ];
 
         if ($this->def->getField('image_id')) {
@@ -843,6 +844,35 @@ class Entity implements EntityInterface
         }
 
         return $this->getEntityId();
+    }
+
+    /**
+     * Get the field of this object that it uses to display as its name/title/subject/label
+     * 
+     * @return string
+     */
+    private function getNameTitleLabelField()
+    {
+        if ($this->def->getField("name")) {
+            return "name";
+        }
+        if ($this->def->getField("title")) {
+            return "title";
+        }
+        if ($this->def->getField("subject")) {
+            return "subject";
+        }
+        if ($this->def->getField("full_name")) {
+            return "full_name";
+        }
+        if ($this->def->getField("first_name")) {
+            return "first_name";
+        }
+        if ($this->def->getField("comment")) {
+            return "comment";
+        }
+
+        return "entity_id";
     }
 
     /**

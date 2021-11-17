@@ -136,6 +136,21 @@ class EntityTest extends TestCase
         $data = $cust->toArrayWithNoPermissions();
         $this->assertEquals($cust->getValue("name"), $data["name"]);
         $this->assertEquals(ObjectTypes::CONTACT, $data['obj_type']);
+
+        // This should be blank
+        $this->assertFalse(isset($data['owner_id']));
+        $this->assertFalse(isset($data['last_contacted']));
+
+        // Test IC documents to test the title field
+        $document = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::DOCUMENT, $this->account->getAccountId());
+        $document->setValue("title", "IC_DOCUMENT_TEST");
+        $document->setValue("owner_id", $this->user->getEntityId(), $this->user->getValue("name"));
+        $document->setValue("last_contacted", time());
+
+        $data = $document->toArrayWithNoPermissions();
+        $this->assertEquals($document->getValue("title"), $data["title"]);
+        $this->assertEquals(ObjectTypes::DOCUMENT, $data['obj_type']);
+        
         // This should be blank
         $this->assertFalse(isset($data['owner_id']));
         $this->assertFalse(isset($data['last_contacted']));
