@@ -60,6 +60,7 @@ $listeningFunctions = [
     TestWorker::class,
     WorkflowWaitActionWorker::class,
     EntitySyncSetExportedStaleWorker::class,
+    "CronMinutely"
 ];
 
 foreach ($listeningFunctions as $functionName) {

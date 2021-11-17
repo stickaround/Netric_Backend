@@ -54,4 +54,13 @@ interface AccountContainerInterface
      * @return bool true on success, false on failure
      */
     public function updateAccount(string $accountId, array $accountData);
+
+    /**
+     * Get array of all active account IDs
+     *
+     * This will be uncached and return only the ID and name
+     *
+     *  @return array [['account_id'=>ID, 'name'=>NAME]]
+     */
+    public function getAllActiveAccounts(): array;
 }

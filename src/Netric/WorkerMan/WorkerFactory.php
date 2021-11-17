@@ -36,7 +36,16 @@ class WorkerFactory
      */
     public function getWorkerByName(string $className): ?WorkerInterface
     {
-        $factoryClassName = $className . 'Factory';
+        $fullWorkerName = $className;
+
+        // Handle special CronMinitely jobs that are not namespaced
+        // In the future we might ahve more generic jobs like CronHourly
+        if (false === strpos($className, "\\")) {
+            $fullWorkerName = "Netric\\WorkerMan\\Worker\\" . $className . "Worker";
+        }
+
+        $factoryClassName = $fullWorkerName . 'Factory';
+
         if (class_exists($factoryClassName)) {
             $workerFactory = new $factoryClassName();
             return $workerFactory->create($this->serviceManager);

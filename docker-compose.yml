@@ -76,6 +76,13 @@ services:
     #   PGDATABASE: netric
     # command: "-q Postgres --libpq-table=gearman_queue --verbose DEBUG"
 
+  jobqueue_svc:
+    image: dockerhub.aereus.com/jobqueue_svc:latest
+    environment:
+      GEARMAN_SERVER: gearmand
+    depends_on:
+      - gearmand
+
   db1:
     image: dockerhub.aereus.com/pgsql:latest
     environment:
