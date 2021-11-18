@@ -120,4 +120,30 @@ class WorkersControllerTest extends TestCase
         // // It will automatically release in 1 second, but clean-up anyway
         // $this->account->getApplication()->releaseLock($uniqueLockName);
     }
+
+    public function testPostProcessAction(): void
+    {
+        $workerName = 'Test\Worker';
+        $testData = ['var' => 'val'];
+
+        // Mock processJob
+        $this->workerService
+            ->expects($this->once())
+            ->method('processJob')
+            ->with(
+                $this->equalTo($workerName),
+                $this->equalTo($testData)
+            )->willReturn(true);
+
+        // Set params in the request
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1); // Don't immediately print the results
+        $request->setBody(json_encode(['worker_name' => $workerName, 'payload' => $testData]));
+
+        // Run the process action
+        $response = $this->workersController->postProcessAction($request);
+        $outputBuffer = $response->getOutputBuffer();
+        $this->assertEquals(HttpResponse::STATUS_CODE_OK, $response->getReturnCode());
+        $this->assertTrue($outputBuffer['success']);
+    }
 }

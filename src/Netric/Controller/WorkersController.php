@@ -7,12 +7,15 @@ use Netric\Mvc\AbstractFactoriedController;
 use Netric\Application\Response\ConsoleResponse;
 use Netric\Account\AccountContainerInterface;
 use Netric\Application\Application;
+use Netric\Application\Response\HttpResponse;
 use Netric\Authentication\AuthenticationService;
 use Netric\WorkerMan\WorkerService;
 use Netric\Request\RequestInterface;
 use Netric\Log\LogInterface;
 use Netric\WorkerMan\Worker\ScheduleRunnerWorker;
 use Netric\Request\ConsoleRequest;
+use Netric\Request\HttpRequest;
+use Exception;
 
 /**
  * Controller used for interacting with workers from the command line (or API)
@@ -73,6 +76,50 @@ class WorkersController extends AbstractFactoriedController implements Controlle
     public function setWorkerService(WorkerService $workerService)
     {
         $this->workerService = $workerService;
+    }
+
+    /**
+     * Process inidvidual jobs
+     *
+     * @param HttpRequest $httpRequest
+     * @return HttpResponse
+     */
+    public function postProcessAction(HttpRequest $request): HttpResponse
+    {
+        $response = new HttpResponse($request);
+        $rawBody = $request->getBody();
+
+        if (!$rawBody) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("Request input is not valid");
+            return $response;
+        }
+
+        // Decode the json structure
+        $jobData = json_decode($rawBody, true);
+
+        if (!isset($jobData['worker_name'])) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(["error" => "function_name is a required param."]);
+            return $response;
+        }
+
+        $payload = isset($jobData['payload']) && is_array($jobData['payload']) ? $jobData['payload'] : [];
+
+        // Receive the job and send it to the workerservice
+        try {
+            $success = $this->workerService->processJob($jobData['worker_name'], $payload);
+            $response->write([
+                'worker_name' => $jobData['worker_name'],
+                'success' => $success
+            ]);
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(['success' => false, "error" => $ex->getMessage()]);
+            $this->log->error("WorkersController->postJobAction: Exception: " . $ex->getMessage());
+        }
+
+        return $response;
     }
 
     /**

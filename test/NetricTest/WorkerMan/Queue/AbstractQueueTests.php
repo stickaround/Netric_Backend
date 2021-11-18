@@ -47,23 +47,23 @@ abstract class AbstractQueueTests extends TestCase
      */
     abstract protected function getQueue();
 
-    public function testDoWorkBackground()
-    {
-        $queue = $this->getQueue();
+    // public function testDoWorkBackground()
+    // {
+    //     $queue = $this->getQueue();
 
-        // Add a worker which will process the queue
-        $worker = new TestWorker($this->account->getApplication());
-        $queue->addWorker(TestWorker::class, $worker);
+    //     // Add a worker which will process the queue
+    //     $worker = new TestWorker($this->account->getApplication());
+    //     $queue->addWorker(TestWorker::class, $worker);
 
-        // This will queue the job
-        $queue->doWorkBackground(TestWorker::class, ["mystring" => "test"]);
+    //     // This will queue the job
+    //     $queue->doWorkBackground(TestWorker::class, ["mystring" => "test"]);
 
-        // Dispatch the job
-        $queue->dispatchJobs();
+    //     // Dispatch the job
+    //     $queue->dispatchJobs();
 
-        // Make sure the worker did the work after the fact
-        $this->assertEquals("tset", $worker->getResult());
-    }
+    //     // Make sure the worker did the work after the fact
+    //     $this->assertEquals("tset", $worker->getResult());
+    // }
 
     public function testAddWorker()
     {

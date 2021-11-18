@@ -9,6 +9,7 @@ use Netric\WorkerMan\AbstractWorker;
 use Netric\WorkerMan\SchedulerService;
 use Netric\WorkerMan\WorkerService;
 use DateTime;
+use Exception;
 
 /**
  * This worker is used to test the WorkerMan
@@ -88,14 +89,20 @@ class CronMinutelyWorker extends AbstractWorker
 
         $toDate = new DateTime();
         $this->log->info(
-            "ScheduleRunnerWorker->work: getting to time " .
-                date('c', $toDate->getTimestamp())
+            "CronMinutelyWorker->work: getting to time " .
+                date('c', $toDate->getTimestamp()) .
+                " for " . $accountId
         );
 
-        $scheduledJobs = $this->schedulerService->getScheduledToRun($accountId);
+        $scheduledJobs = [];
+        try {
+            $scheduledJobs = $this->schedulerService->getScheduledToRun($accountId);
+        } catch (Exception $ex) {
+            $this->log->error("CronMinutelyWorker: something went wrong" . $ex->getMessage());
+        }
 
         $this->log->info(
-            "ScheduleRunnerWorker->work: Scheduling " . count($scheduledJobs) . " jobs to run"
+            "CronMinutelyWorker->work: Scheduling " . count($scheduledJobs) . " jobs to run"
         );
 
         foreach ($scheduledJobs as $jobEntity) {
@@ -113,7 +120,7 @@ class CronMinutelyWorker extends AbstractWorker
             );
 
             $this->log->info(
-                "ScheduleRunnerWorker->work: Executed $workerName for " . $jobData['account_id']
+                "CronMinutelyWorker->work: Executed $workerName for " . $jobData['account_id']
             );
         }
     }
