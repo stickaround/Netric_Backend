@@ -9,6 +9,7 @@ include(__DIR__ . "/../vendor/autoload.php");
 
 use Aereus\Config\ConfigLoader;
 use Netric\WorkerMan\Worker\AccountBillingWorker;
+use Netric\WorkerMan\Worker\EntityDefinitionPostSaveWorker;
 use Netric\WorkerMan\Worker\EntityPostSaveWorker;
 use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
 use Netric\WorkerMan\Worker\NotificationWorker;
@@ -60,6 +61,7 @@ $listeningFunctions = [
     TestWorker::class,
     WorkflowWaitActionWorker::class,
     EntitySyncSetExportedStaleWorker::class,
+    EntityDefinitionPostSaveWorker::class,
     "CronMinutely"
 ];
 
