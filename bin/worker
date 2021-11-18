@@ -80,7 +80,12 @@ function processJob(GearmanJob $job)
     global $protocol;
     echo "WORKER: " . $job->functionName() . "\n";
     $client = new WorkerClient($protocol);
-    return $client->process($job->functionName(), $job->workload());
+    try {
+        return $client->process($job->functionName(), $job->workload());
+    } catch (Exception $ex) {
+        echo "Opps. Error: " . $ex->getMessage();
+        return false;
+    }
 }
 
 /**

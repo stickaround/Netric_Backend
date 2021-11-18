@@ -13,11 +13,32 @@ use DateTime;
 /**
  * This worker is used to test the WorkerMan
  */
-class TestWorker extends AbstractWorker
+class CronMinutelyWorker extends AbstractWorker
 {
+    /**
+     * Container used to load acconts
+     *
+     * @var AccountContainerInterface
+     */
     private AccountContainerInterface $accountContainer;
+
+    /**
+     * Service for interacting with workers
+     *
+     * @var WorkerService
+     */
     private WorkerService $workerService;
+
+    /**
+     * Service for scheduling workers
+     *
+     * @var SchedulerService
+     */
     private SchedulerService $schedulerService;
+
+    /**
+     * @var LogInterface
+     */
     private LogInterface $log;
 
     /**
@@ -83,7 +104,7 @@ class TestWorker extends AbstractWorker
             $jobData['account_id'] = $accountId;
 
             // Queue the work to do by the next available worker
-            $idsOfRunJobs[] = $this->workerService->doWorkBackground($workerName, $jobData);
+            $this->workerService->doWorkBackground($workerName, $jobData);
 
             // Flag the job as executed so we do not try to run it again
             $this->schedulerService->setJobAsExecuted(
