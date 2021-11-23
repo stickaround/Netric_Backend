@@ -65,7 +65,7 @@ service Chat
 service Worker
 {
     /**
-     * Process a queued job
+     * Process a background job
      */
     bool process(1:string workerName, 2:string jsonPayload) throws (1:ErrorException error, 2:InvalidArgument badRequest) ;
 }

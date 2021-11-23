@@ -22,7 +22,7 @@ use Thrift\Exception\TApplicationException;
 interface WorkerIf
 {
     /**
-     * Process a queued job
+     * Process a background job
      * 
      * @param string $workerName
      * @param string $jsonPayload
