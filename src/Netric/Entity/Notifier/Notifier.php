@@ -352,7 +352,6 @@ class Notifier
         // Public users get email notifications, internal users get push (below)
         if ($user->getValue('type') === UserEntity::TYPE_PUBLIC) {
             $this->publicEmailSender->sendNotification($notification, $user);
-            //$this->sendPublicNotificationEmail($notification, $user);
             return;
         }
 

@@ -9,6 +9,7 @@ use Netric\Entity\ObjType\NotificationEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Log\LogInterface;
 use Netric\Mail\MailSystemInterface;
 use Netric\Mail\SenderService;
 
@@ -36,17 +37,29 @@ class PublicUserEmailSender implements NotificationSenderInterface
     private MailSystemInterface $mailSystem;
 
     /**
+     * Logger
+     *
+     * @var LogInterface
+     */
+    private LogInterface $log;
+
+    /**
      * Constructor
      *
      * @param EntityLoader $entityLoader
      * @param SenderService $mailSender
      * @param MailSystemInterface $mailSystem
      */
-    public function __construct(EntityLoader $entityLoader, SenderService $mailSender, MailSystemInterface $mailSystem)
-    {
+    public function __construct(
+        EntityLoader $entityLoader,
+        SenderService $mailSender,
+        MailSystemInterface $mailSystem,
+        LogInterface $log = null
+    ) {
         $this->entityLoader = $entityLoader;
         $this->mailSender = $mailSender;
         $this->mailSystem = $mailSystem;
+        $this->log = $log;
     }
 
     /**
@@ -58,6 +71,10 @@ class PublicUserEmailSender implements NotificationSenderInterface
      */
     public function sendNotification(NotificationEntity $notification, UserEntity $user): bool
     {
+        if ($this->log) {
+            $this->log->error("PublicUserEmailSender->sendNotification:starting motification");
+        }
+
         // Make sure the notification has an owner
         if (empty($notification->getValue("owner_id"))) {
             return false;
@@ -119,7 +136,11 @@ class PublicUserEmailSender implements NotificationSenderInterface
             'message-id' => $this->generateMessageId($referencedEntity, $notification)
         ];
 
-        return $this->mailSender->send(
+        if ($this->log) {
+            $this->log->error("PublicUserEmailSender->sendNotification: Sending email motification");
+        }
+
+        $ret = $this->mailSender->send(
             $targetUser->getValue("email"),
             $targetUser->getValue("full_name"),
             $fromEmail,
@@ -128,6 +149,12 @@ class PublicUserEmailSender implements NotificationSenderInterface
             $body,
             $headers
         );
+
+        if ($this->log) {
+            $this->log->error("PublicUserEmailSender->sendNotification: Sending email motification");
+        }
+
+        return $ret;
     }
 
     /**

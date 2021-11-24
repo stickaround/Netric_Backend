@@ -7,6 +7,7 @@ namespace Netric\Entity\Notifier\Sender;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Log\LogFactory;
 use Netric\Mail\MailSystemFactory;
 use Netric\Mail\SenderServiceFactory;
 
@@ -26,6 +27,7 @@ class PublicUserEmailSenderFactory implements ApplicationServiceFactoryInterface
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $mailSender = $serviceManager->get(SenderServiceFactory::class);
         $mailSystem = $serviceManager->get(MailSystemFactory::class);
-        return new PublicUserEmailSender($entityLoader, $mailSender, $mailSystem);
+        $log = $serviceManager->get(LogFactory::class);
+        return new PublicUserEmailSender($entityLoader, $mailSender, $mailSystem, $log);
     }
 }
