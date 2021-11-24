@@ -58,7 +58,7 @@ class SenderService
         $mail = new PHPMailer(true);
 
         $from = isset($headers['from']) ? $headers['from'] : $this->mailConfig->noreply;
-        $this->log->info("SendingSerivce->send: sending email to $toAddress, from $fromAddress");
+        $this->log->info("SenderService->send: sending email to $toAddress, from $fromAddress");
 
         try {
             //Server settings
@@ -118,7 +118,7 @@ class SenderService
             return $mail->send();
         } catch (PHPMailerException $e) {
             $this->log->error(
-                "SendingSerivce->send: Mailer Error: " .
+                "SenderService->send: Mailer Error: " .
                     $mail->ErrorInfo
             );
             return false;

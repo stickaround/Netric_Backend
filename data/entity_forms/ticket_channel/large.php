@@ -13,7 +13,7 @@
             </row>
         </column>
         <column type="sidebar">
-            <field name='members'></field>
+            <members name='Members' field='members' />
         </column>
     </row>
 </form>
