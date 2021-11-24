@@ -77,6 +77,9 @@ class NotificationWorker implements WorkerInterface
             return false;
         }
 
+        // Add log to debug
+        $this->notifier->setLog($this->log);
+
         // Send the notification
         $this->notifier->send(
             $entity,
