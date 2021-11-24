@@ -12,6 +12,7 @@ use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Log\LogInterface;
 use Netric\Mail\SenderService;
 use NotificationPusherSdk\NotificationPusherClientInterface;
 use Ramsey\Uuid\Uuid;
@@ -60,6 +61,13 @@ class Notifier
     private PublicUserEmailSender $publicEmailSender;
 
     /**
+     * Optional initialized log
+     *
+     * @var LogInterface
+     */
+    private LogInterface $log;
+
+    /**
      * Class constructor and dependency setter
      *
      * @param EntityLoader $entityLoader To create, find, and save entities
@@ -79,6 +87,17 @@ class Notifier
     }
 
     /**
+     * Used for debugging
+     *
+     * @param LogInterface $log
+     * @return void
+     */
+    public function setLog(LogInterface $log)
+    {
+        $this->log = $log;
+    }
+
+    /**
      * Send notifications to followers of an entity
      *
      * @param EntityInterface $entity The entity that was just acted on
@@ -90,6 +109,10 @@ class Notifier
     public function send(EntityInterface $entity, string $event, UserEntity $user, string $changedDescription = '')
     {
         $objType = $entity->getDefinition()->getObjType();
+
+        if (isset($this->log)) {
+            $this->log->error("Notifier->send: $objType" . $entity->getEntityId());
+        }
 
         // Array of notification entities we either create or update below
         $notificationIds = [];

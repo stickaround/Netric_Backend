@@ -78,7 +78,12 @@ class NotificationWorker implements WorkerInterface
         }
 
         // Send the notification
-        $this->notifier->send($entity, $workload['event_name'], $user, $workload['changed_description']);
+        $this->notifier->send(
+            $entity,
+            $workload['event_name'],
+            $user,
+            $workload['changed_description']
+        );
 
         // Set result and return it
         $this->result = true;
