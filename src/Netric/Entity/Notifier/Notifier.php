@@ -163,7 +163,7 @@ class Notifier
                         "Notifier->send: Skipping because " .
                             $follower->getName() . " - " .
                             $follower->getValue('type') . " - " .
-                            $entity->getValue('is_public')
+                            var_export($entity->getValue('is_public'), true)
                     );
                 }
                 continue;
