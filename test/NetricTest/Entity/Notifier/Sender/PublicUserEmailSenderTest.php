@@ -14,6 +14,7 @@ use Netric\Entity\Notifier\Sender\PublicUserEmailSender;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Log\LogInterface;
 use Netric\Mail\MailSystemInterface;
 use Netric\Mail\SenderService;
 use PHPUnit\Framework\TestCase;
@@ -44,7 +45,8 @@ class PublicUserEmailSenderTest extends TestCase
         $this->sender = new PublicUserEmailSender(
             $this->mockEntityLoader,
             $this->mockMailSender,
-            $this->mockMailSystem
+            $this->mockMailSystem,
+            $this->createMock(LogInterface::class)
         );
     }
 

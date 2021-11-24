@@ -54,7 +54,7 @@ class PublicUserEmailSender implements NotificationSenderInterface
         EntityLoader $entityLoader,
         SenderService $mailSender,
         MailSystemInterface $mailSystem,
-        LogInterface $log = null
+        LogInterface $log
     ) {
         $this->entityLoader = $entityLoader;
         $this->mailSender = $mailSender;
