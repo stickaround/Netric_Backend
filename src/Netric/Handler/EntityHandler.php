@@ -40,4 +40,20 @@ class EntityHandler implements EntityIf
         $entity->addMultiValue('seen_by', $userId, $user->getName());
         $this->entityLoader->save($entity, $user);
     }
+
+    /**
+     * Update the user's last activity
+     *
+     * @param string $userId The id of the user we are working with
+     * @param string $accountId The account id of the user
+     * @param int $timestamp The last activity of the user
+     * @return void
+     */
+    public function updateUserLastActive($userId, $accountId, $timestamp): void
+    {
+        // Get user entity and update the last activity
+        $user = $this->entityLoader->getEntityById($userId, $accountId);
+        $user->setValue("last_active", $timestamp);
+        $this->entityLoader->save($user, $user);
+    }
 }
