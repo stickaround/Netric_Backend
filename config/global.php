@@ -44,6 +44,8 @@ return [
         'mode' => 'smtp',
         // Service name for smtp server
         'server' => "smtp_netric",
+        'username' => 'outbout@aereus.com',
+        'password' => '5Y2mgv4f5G2ExeRP',
         'dropbox' => "incoming@sys.netric.com",
         'dropbox_catchall' => "@sys.netric.com",
         'noreply' => "no-reply@netric.com",

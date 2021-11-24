@@ -73,9 +73,17 @@ class SenderService
             // @see https://netcorecloud.com/tutorials/phpmailer-smtp-error-could-not-connect-to-smtp-host/
             $mail->Host = gethostbyname($this->mailConfig->server);
 
-            // Disable SMTP authentication
-            $mail->SMTPAuth   = false;
-            $mail->SMTPAutoTLS = false;
+            // Set SMTP authentication
+            if ($this->mailConfig->username && $this->mailConfig->password) {
+                $mail->SMTPAuth = true;
+                $mail->SMTPAutoTLS = true;
+                $mail->Username = $this->mailConfig->username;
+                $mail->Password = $this->mailConfig->password;
+            } else {
+                $mail->SMTPAuth = false;
+                $mail->SMTPAutoTLS = false;
+            }
+
             // $mail->Username   = 'user@example.com';
             // $mail->Password   = 'secret';
             // Enable implicit TLS encryption

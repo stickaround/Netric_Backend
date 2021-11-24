@@ -19,6 +19,8 @@ return [
         // Do not actually send any email in development mode
         'supress' => false,
         'server' => 'smtp_netric',
+        'username' => 'test@example.com',
+        'password' => 'password',
         'backend_host' => 'mail',
     ],
     // Stats service
