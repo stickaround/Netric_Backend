@@ -110,10 +110,6 @@ class Notifier
     {
         $objType = $entity->getDefinition()->getObjType();
 
-        if (isset($this->log)) {
-            $this->log->error("Notifier->send: $objType" . $entity->getEntityId());
-        }
-
         // Array of notification entities we either create or update below
         $notificationIds = [];
 
@@ -220,6 +216,10 @@ class Notifier
             $notification->setValue("description", $description);
             $notification->setValue("f_seen", false);
             $notificationIds[] = $this->entityLoader->save($notification, $user);
+
+            if (isset($this->log)) {
+                $this->log->error("Notifier->send: to " . $user->getName());
+            }
 
             $this->sendNotification($notification, $user);
         }
