@@ -30,6 +30,11 @@ services:
         delay: 1s
         order: start-first
 
+  jobqueue_svc:
+    image: dockerhub.aereus.com/jobqueue_svc:v9
+    environment:
+      GEARMAN_SERVER: gearman
+
   netric_daemon:
     image: dockerhub.aereus.com/netric:${APPLICATION_VER}
     entrypoint: /start-daemon.sh

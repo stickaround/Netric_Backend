@@ -77,7 +77,7 @@ services:
     # command: "-q Postgres --libpq-table=gearman_queue --verbose DEBUG"
 
   jobqueue_svc:
-    image: dockerhub.aereus.com/jobqueue_svc:latest
+    image: dockerhub.aereus.com/jobqueue_svc:v9
     environment:
       GEARMAN_SERVER: gearmand
     depends_on:
