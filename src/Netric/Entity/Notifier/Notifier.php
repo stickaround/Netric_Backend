@@ -158,6 +158,14 @@ class Notifier
                     $entity->getValue('is_public') !== true)
             ) {
                 // Skip
+                if (isset($this->log)) {
+                    $this->log->error(
+                        "Notifier->send: Skipping because " .
+                            $follower->getName() . " - " .
+                            $follower->getValue('type') . " - " .
+                            $entity->getValue('is_public')
+                    );
+                }
                 continue;
             }
 
