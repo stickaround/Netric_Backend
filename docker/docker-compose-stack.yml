@@ -34,7 +34,7 @@ services:
     image: dockerhub.aereus.com/jobqueue_svc:v9
     environment:
       GEARMAN_SERVER: gearman
-     networks:
+    networks:
       - service_netric
       - default
       - service_core
