@@ -142,11 +142,6 @@ class PublicUserEmailSender implements NotificationSenderInterface
             $headers
         );
 
-        if ($this->log) {
-            $this->log->error("PublicUserEmailSender->sendNotification: Sent email motification to " .
-                $targetUser->getValue("email"));
-        }
-
         return $ret;
     }
 

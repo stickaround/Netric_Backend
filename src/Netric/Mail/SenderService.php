@@ -74,6 +74,10 @@ class SenderService
             $mail->Host = gethostbyname($this->mailConfig->server);
 
             // Set SMTP authentication
+            $this->log->error(
+                "SenderService->send: Credentials " .
+                    $this->mailConfig->username
+            );
             if ($this->mailConfig->username && $this->mailConfig->password) {
                 $mail->SMTPAuth = true;
                 $mail->SMTPAutoTLS = true;
