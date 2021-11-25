@@ -174,14 +174,6 @@ class Notifier
             // has already been seen by the user we are about to send the notification to
             if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
                 if (in_array($followerId, $entity->getValue('seen_by'))) {
-                    if (isset($this->log)) {
-                        $this->log->error(
-                            "Notifier->send: seen skipping " .
-                                $follower->getValue('uname') . " - " .
-                                $follower->getValue('type') . " - " .
-                                $follower->getValue('email')
-                        );
-                    }
 
                     // Skip because the user has already seen the entity
                     continue;
@@ -237,14 +229,23 @@ class Notifier
 
             if (isset($this->log)) {
                 $this->log->error(
-                    "Notifier->send: to " .
-                        $user->getValue('uname')
+                    "Notifier->send: before " .
+                        $follower->getValue('uname')
                         . ' - ' .
-                        $user->getValue('email')
+                        $follower->getValue('email')
                 );
             }
 
             $this->sendNotification($notification, $user);
+
+            if (isset($this->log)) {
+                $this->log->error(
+                    "Notifier->send: after " .
+                        $follower->getValue('uname')
+                        . ' - ' .
+                        $follower->getValue('email')
+                );
+            }
         }
 
         return $notificationIds;
