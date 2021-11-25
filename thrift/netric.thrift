@@ -46,6 +46,11 @@ service Entity
      * Indicate that an entity has been seen by a given user
      */
     void setEntitySeenBy(1:string entityId, 2:string userId, 3:string accountId);
+
+    /**
+     * Update the user last active
+     */
+    void updateUserLastActive(1:string userId, 2:string accountId, 3:string timestamp)
 }
 
 /**

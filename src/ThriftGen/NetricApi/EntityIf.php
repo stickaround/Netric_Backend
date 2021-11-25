@@ -29,4 +29,12 @@ interface EntityIf
      * @param string $accountId
      */
     public function setEntitySeenBy($entityId, $userId, $accountId);
+    /**
+     * Update the user last active
+     * 
+     * @param string $userId
+     * @param string $accountId
+     * @param string $timestamp
+     */
+    public function updateUserLastActive($userId, $accountId, $timestamp);
 }

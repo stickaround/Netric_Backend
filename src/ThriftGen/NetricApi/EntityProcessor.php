@@ -79,4 +79,37 @@ class EntityProcessor
             $output->getTransport()->flush();
         }
     }
+    protected function process_updateUserLastActive($seqid, $input, $output)
+    {
+        $bin_accel = ($input instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary_after_message_begin');
+        if ($bin_accel) {
+            $args = thrift_protocol_read_binary_after_message_begin(
+                $input,
+                '\NetricApi\Entity_updateUserLastActive_args',
+                $input->isStrictRead()
+            );
+        } else {
+            $args = new \NetricApi\Entity_updateUserLastActive_args();
+            $args->read($input);
+        }
+        $input->readMessageEnd();
+        $result = new \NetricApi\Entity_updateUserLastActive_result();
+        $this->handler_->updateUserLastActive($args->userId, $args->accountId, $args->timestamp);
+        $bin_accel = ($output instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+        if ($bin_accel) {
+            thrift_protocol_write_binary(
+                $output,
+                'updateUserLastActive',
+                TMessageType::REPLY,
+                $result,
+                $seqid,
+                $output->isStrictWrite()
+            );
+        } else {
+            $output->writeMessageBegin('updateUserLastActive', TMessageType::REPLY, $seqid);
+            $result->write($output);
+            $output->writeMessageEnd();
+            $output->getTransport()->flush();
+        }
+    }
 }

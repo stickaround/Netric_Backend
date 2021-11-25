@@ -16,7 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-class Entity_setEntitySeenBy_result
+class Entity_updateUserLastActive_result
 {
     static public $isValidate = false;
 
@@ -30,7 +30,7 @@ class Entity_setEntitySeenBy_result
 
     public function getName()
     {
-        return 'Entity_setEntitySeenBy_result';
+        return 'Entity_updateUserLastActive_result';
     }
 
 
@@ -60,7 +60,7 @@ class Entity_setEntitySeenBy_result
     public function write($output)
     {
         $xfer = 0;
-        $xfer += $output->writeStructBegin('Entity_setEntitySeenBy_result');
+        $xfer += $output->writeStructBegin('Entity_updateUserLastActive_result');
         $xfer += $output->writeFieldStop();
         $xfer += $output->writeStructEnd();
         return $xfer;
