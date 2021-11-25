@@ -80,7 +80,7 @@ class SenderService
             );
             if ($this->mailConfig->username && $this->mailConfig->password) {
                 $mail->SMTPAuth = true;
-                $mail->SMTPAutoTLS = true;
+                //$mail->SMTPAutoTLS = true;
                 $mail->Username = $this->mailConfig->username;
                 $mail->Password = $this->mailConfig->password;
             } else {
