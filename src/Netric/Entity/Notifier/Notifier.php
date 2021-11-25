@@ -226,7 +226,7 @@ class Notifier
             $notificationIds[] = $this->entityLoader->save($notification, $user);
 
             if (isset($this->log)) {
-                $this->log->error("Notifier->send: to " . $user->getName());
+                $this->log->error("Notifier->send: to " . $user->getValue('uname') . ' - ' . $user->getValue('email'));
             }
 
             $this->sendNotification($notification, $user);
