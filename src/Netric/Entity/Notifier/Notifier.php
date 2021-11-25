@@ -161,15 +161,6 @@ class Notifier
                 continue;
             }
 
-            if (isset($this->log)) {
-                $this->log->error(
-                    "Notifier->send: queued up " .
-                        $follower->getValue('uname') . " - " .
-                        $follower->getValue('type') . " - " .
-                        $follower->getValue('email')
-                );
-            }
-
             // If the verb is create or sent, then check to see if the entity
             // has already been seen by the user we are about to send the notification to
             if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
@@ -227,25 +218,7 @@ class Notifier
             $notification->setValue("f_seen", false);
             $notificationIds[] = $this->entityLoader->save($notification, $user);
 
-            if (isset($this->log)) {
-                $this->log->error(
-                    "Notifier->send: before " .
-                        $follower->getValue('uname')
-                        . ' - ' .
-                        $follower->getValue('email')
-                );
-            }
-
-            $this->sendNotification($notification, $user);
-
-            if (isset($this->log)) {
-                $this->log->error(
-                    "Notifier->send: after " .
-                        $follower->getValue('uname')
-                        . ' - ' .
-                        $follower->getValue('email')
-                );
-            }
+            $this->sendNotification($notification, $user, $follower);
         }
 
         return $notificationIds;
@@ -392,12 +365,13 @@ class Notifier
      *
      * @param NotificationEntity $notification Notification to send
      * @param UserEntity $user The user who performed the action causing the notification
+     * @param EntityInterface $followerEntity The follower we are sending the notification to
      * @return void
      */
-    private function sendNotification(NotificationEntity $notification, UserEntity $user): void
+    private function sendNotification(NotificationEntity $notification, UserEntity $user, EntityInterface $followerEntity): void
     {
         // Public users get email notifications, internal users get push (below)
-        if ($user->getValue('type') === UserEntity::TYPE_PUBLIC) {
+        if ($followerEntity->getValue('type') === UserEntity::TYPE_PUBLIC) {
             $this->publicEmailSender->sendNotification($notification, $user);
             return;
         }
