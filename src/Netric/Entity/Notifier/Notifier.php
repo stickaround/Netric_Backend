@@ -158,14 +158,6 @@ class Notifier
                     $entity->getValue('is_public') !== true)
             ) {
                 // Skip
-                if (isset($this->log)) {
-                    $this->log->error(
-                        "Notifier->send: Skipping because " .
-                            $follower->getName() . " - " .
-                            $follower->getValue('type') . " - " .
-                            var_export($entity->getValue('is_public'), true)
-                    );
-                }
                 continue;
             }
 
@@ -182,6 +174,15 @@ class Notifier
             // has already been seen by the user we are about to send the notification to
             if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
                 if (in_array($followerId, $entity->getValue('seen_by'))) {
+                    if (isset($this->log)) {
+                        $this->log->error(
+                            "Notifier->send: seen skipping " .
+                                $follower->getValue('uname') . " - " .
+                                $follower->getValue('type') . " - " .
+                                $follower->getValue('email')
+                        );
+                    }
+
                     // Skip because the user has already seen the entity
                     continue;
                 }
@@ -235,7 +236,12 @@ class Notifier
             $notificationIds[] = $this->entityLoader->save($notification, $user);
 
             if (isset($this->log)) {
-                $this->log->error("Notifier->send: to " . $user->getValue('uname') . ' - ' . $user->getValue('email'));
+                $this->log->error(
+                    "Notifier->send: to " .
+                        $user->getValue('uname')
+                        . ' - ' .
+                        $user->getValue('email')
+                );
             }
 
             $this->sendNotification($notification, $user);
