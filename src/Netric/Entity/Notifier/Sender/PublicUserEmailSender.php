@@ -71,10 +71,6 @@ class PublicUserEmailSender implements NotificationSenderInterface
      */
     public function sendNotification(NotificationEntity $notification, UserEntity $user): bool
     {
-        if ($this->log) {
-            $this->log->error("PublicUserEmailSender->sendNotification:starting motification");
-        }
-
         // Make sure the notification has an owner
         if (empty($notification->getValue("owner_id"))) {
             return false;
@@ -136,10 +132,6 @@ class PublicUserEmailSender implements NotificationSenderInterface
             'message-id' => $this->generateMessageId($referencedEntity, $notification)
         ];
 
-        if ($this->log) {
-            $this->log->error("PublicUserEmailSender->sendNotification: Sending email motification");
-        }
-
         $ret = $this->mailSender->send(
             $targetUser->getValue("email"),
             $targetUser->getValue("full_name"),
@@ -151,7 +143,8 @@ class PublicUserEmailSender implements NotificationSenderInterface
         );
 
         if ($this->log) {
-            $this->log->error("PublicUserEmailSender->sendNotification: Sending email motification");
+            $this->log->error("PublicUserEmailSender->sendNotification: Sent email motification to " .
+                $targetUser->getValue("email"));
         }
 
         return $ret;
