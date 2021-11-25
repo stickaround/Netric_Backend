@@ -169,6 +169,15 @@ class Notifier
                 continue;
             }
 
+            if (isset($this->log)) {
+                $this->log->error(
+                    "Notifier->send: queued up " .
+                        $follower->getValue('uname') . " - " .
+                        $follower->getValue('type') . " - " .
+                        $follower->getValue('email')
+                );
+            }
+
             // If the verb is create or sent, then check to see if the entity
             // has already been seen by the user we are about to send the notification to
             if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
