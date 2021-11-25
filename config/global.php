@@ -49,8 +49,6 @@ return [
         'dropbox' => "incoming@sys.netric.com",
         'dropbox_catchall' => "@sys.netric.com",
         'noreply' => "no-reply@netric.com",
-        'username' => "",
-        'password' => "",
         'port' => 25,
         // 'server' => "in-v3.mailjet.com",
         // 'dropbox' => "incoming@sys.netric.com",
