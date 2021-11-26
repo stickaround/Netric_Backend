@@ -72,20 +72,15 @@ class SenderService
             // We wrap this in gethostbyname because of a bug with IPV6 and php
             // @see https://netcorecloud.com/tutorials/phpmailer-smtp-error-could-not-connect-to-smtp-host/
             $mail->Host = gethostbyname($this->mailConfig->server);
+            $mail->SMTPAuth = false;
+            $mail->SMTPAutoTLS = false;
 
             // Set SMTP authentication
-            $this->log->error(
-                "SenderService->send: Credentials " .
-                    $this->mailConfig->username
-            );
             if ($this->mailConfig->username && $this->mailConfig->password) {
                 $mail->SMTPAuth = true;
-                //$mail->SMTPAutoTLS = true;
+                $mail->SMTPAutoTLS = false;
                 $mail->Username = $this->mailConfig->username;
                 $mail->Password = $this->mailConfig->password;
-            } else {
-                $mail->SMTPAuth = false;
-                $mail->SMTPAutoTLS = false;
             }
 
             // $mail->Username   = 'user@example.com';
