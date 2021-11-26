@@ -78,13 +78,10 @@ class SenderService
             // Set SMTP authentication
             if ($this->mailConfig->username && $this->mailConfig->password) {
                 $mail->SMTPAuth = true;
-                $mail->SMTPAutoTLS = false;
                 $mail->Username = $this->mailConfig->username;
                 $mail->Password = $this->mailConfig->password;
             }
 
-            // $mail->Username   = 'user@example.com';
-            // $mail->Password   = 'secret';
             // Enable implicit TLS encryption
             // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             // TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
