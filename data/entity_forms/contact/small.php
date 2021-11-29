@@ -1,4 +1,4 @@
-<column showif='id=null'>
+<column showif='entity_id=null'>
     <field name='type_id'></field>
 </column>
 <column showif='type_id=1'>
