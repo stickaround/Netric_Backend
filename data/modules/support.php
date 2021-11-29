@@ -43,6 +43,13 @@ return [
             "icon" => "DoneAllIcon",
         ],
         [
+            "title" => "Contacts",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "all-contacts",
+            "objType" => ObjectTypes::CONTACT,
+            "icon" => "ViewListIcon"
+        ],
+        [
             "type" => LeftNavItemTypes::HEADER,
             "title" => "Channels",
             "route" => "channels"

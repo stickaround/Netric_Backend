@@ -11,9 +11,9 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    'default' => [
+    'all-contacts' => [
         'obj_type' => ObjectTypes::CONTACT,
-        'name' => 'Default View',
+        'name' => 'All Contacts',
         'description' => 'Default System View',
         'default' => true,
         'order_by' => [
