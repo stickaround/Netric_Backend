@@ -1,6 +1,6 @@
 <tabs>
     <tab name='General'>
-        <row showif='id=null'>
+        <row showif='entity_id=null'>
             <column>
                 <field name='type_id'></field>
             </column>

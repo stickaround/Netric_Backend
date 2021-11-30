@@ -2,7 +2,7 @@
     <column>
         <tabs>
             <tab name='General'>
-                <row showif='id=null'>
+                <row showif='entity_id=null'>
                     <column>
                         <field name='type_id'></field>
                     </column>
@@ -47,10 +47,6 @@
 
             <tab name='Task'>
                 <objectsref obj_type='task' ref_field='customer_id'></objectsref>
-            </tab>
-
-            <tab name='Events'>
-                <objectsref obj_type='calendar_event' ref_field='customer_id'></objectsref>
             </tab>
 
             <tab name='Tickets'>
