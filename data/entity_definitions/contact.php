@@ -45,7 +45,7 @@ return [
             'readonly' => false
         ],
         'company' => [
-            'title' => 'Company',
+            'title' => 'Company Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
@@ -63,19 +63,19 @@ return [
             'readonly' => false
         ],
         'email' => [
-            'title' => 'Email Home',
+            'title' => 'Email',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'email',
             'readonly' => false
         ],
         'email2' => [
-            'title' => 'Email Work',
+            'title' => 'Email 2',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'email',
             'readonly' => false
         ],
         'email3' => [
-            'title' => 'Email Other',
+            'title' => 'Email 3',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'email',
             'readonly' => false
@@ -105,31 +105,31 @@ return [
             'readonly' => false
         ],
         'street' => [
-            'title' => 'Home Street',
+            'title' => 'Street',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => false
         ],
         'street2' => [
-            'title' => 'Home Street 2',
+            'title' => 'Street 2',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => false
         ],
         'city' => [
-            'title' => 'Home City',
+            'title' => 'City',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => false
         ],
         'state' => [
-            'title' => 'Home State',
+            'title' => 'State',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
             'readonly' => false
         ],
         'zip' => [
-            'title' => 'Home Zip',
+            'title' => 'Zip/Postal',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'zipcode',
             'readonly' => false
@@ -138,42 +138,6 @@ return [
             'title' => 'Fax Number',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
-            'readonly' => false
-        ],
-        'phone_pager' => [
-            'title' => 'Pager',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '64',
-            'readonly' => false
-        ],
-        'business_street' => [
-            'title' => 'Business Street',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '128',
-            'readonly' => false
-        ],
-        'business_street2' => [
-            'title' => 'Business Street 2',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '128',
-            'readonly' => false
-        ],
-        'business_city' => [
-            'title' => 'Business City',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '128',
-            'readonly' => false
-        ],
-        'business_state' => [
-            'title' => 'Business State',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '64',
-            'readonly' => false
-        ],
-        'business_zip' => [
-            'title' => 'Business Zip',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => 'zipcode',
             'readonly' => false
         ],
         'shipping_street' => [
@@ -200,6 +164,12 @@ return [
             'subtype' => '64',
             'readonly' => false
         ],
+        'shipping_zip' => [
+            'title' => 'Shipping Zip',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => 'zipcode',
+            'readonly' => false
+        ],
         // Used for type=organization only
         'billing_first_name' => [
             'title' => 'First Name',
@@ -212,12 +182,6 @@ return [
             'title' => 'Last Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
-        ],
-        'shipping_zip' => [
-            'title' => 'Shipping Zip',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => 'zipcode',
             'readonly' => false
         ],
         'billing_street' => [
@@ -286,43 +250,37 @@ return [
             'subtype' => '256',
             'readonly' => false
         ],
-        'email_spouse' => [
-            'title' => 'Email Spouse',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => 'email',
-            'readonly' => false
-        ],
         'notes' => [
             'title' => 'Notes',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => false
         ],
-        'f_nocall' => [
+        'is_nocall' => [
             'title' => 'Do Not Call',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
         ],
-        'f_noemailspam' => [
+        'is_noemailspam' => [
             'title' => 'No Bulk Email',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
         ],
-        'f_nocontact' => [
+        'is_nocontact' => [
             'title' => 'Do Not Contact',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
         ],
-        'f_emailverified' => [
+        'is_emailverified' => [
             'title' => 'Email Verified',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
         ],
-        'f_private' => [
+        'is_private' => [
             'title' => 'Personal Contact',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
@@ -386,29 +344,6 @@ return [
                 ]
             ],
         ],
-        'address_default' => [
-            'title' => 'Default Address',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '128',
-            'readonly' => false,
-            'optional_values' => [
-                "home" => "Home", "business" => "Business"
-            ],
-        ],
-        'time_entered' => [
-            'title' => 'Time Entered',
-            'type' => Field::TYPE_TIMESTAMP,
-            'subtype' => '',
-            'readonly' => true,
-            'default' => ["value" => "now", "on" => "create"]
-        ],
-        'time_changed' => [
-            'title' => 'Time Changed',
-            'type' => Field::TYPE_TIMESTAMP,
-            'subtype' => '',
-            'readonly' => true,
-            'default' => ["value" => "now", "on" => "update"]
-        ],
         'groups' => [
             'title' => 'Groups',
             'type' => Field::TYPE_GROUPING_MULTI,
@@ -426,8 +361,7 @@ return [
         'image_id' => [
             'title' => 'Image',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'file',
-            'fkey_table' => ["key" => "id", "title" => "file_title"]
+            'subtype' => 'file'
         ],
     ],
 ];
