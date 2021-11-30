@@ -4,8 +4,11 @@ namespace Netric\Entity\ObjType;
 
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityDefinition\EntityDefinition;
-
+use Netric\ServiceManager\ServiceLocatorInterface;
 /**
  * Task represents a single task entity
  */
@@ -36,13 +39,40 @@ class TaskEntity extends Entity implements EntityInterface
     const TYPE_DEFECT = 'Defect';
 
     /**
+     * Grouping loader used to get user groups
+     *
+     * @var GroupingLoader
+     */
+    private $groupingLoader = null;
+
+    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
+     * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
      */
-    public function __construct(EntityDefinition $def)
-    {
+    public function __construct(
+        EntityDefinition $def,
+        GroupingLoader $groupingLoader
+    ) {
+        $this->groupingLoader = $groupingLoader;
         parent::__construct($def);
+    }
+
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
+    {
+        // If the password was updated for this user then encrypt it
+        if ($this->fieldValueChanged("is_closed") && $this->getValue("is_closed") && $this->getValue("status_id") === '') {
+            $statusGroups = $this->groupingLoader->get(ObjectTypes::TASK . '/status_id', $this->getAccountId());
+            $completedId = $statusGroups->getByName(self::STATUS_COMPLETED)->groupId;
+            $this->setValue("status_id", $completedId);
+        }
     }
 
     /**

@@ -13,6 +13,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new task entity
@@ -26,8 +27,10 @@ class TaskFactory implements EntityFactoryInterface
      * @param EntityDefinition $def The definition of this type of object
      * @return EntityInterface TaskEntity
      */
+    
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        return new TaskEntity($def);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        return new TaskEntity($def, $groupingLoader);
     }
 }
