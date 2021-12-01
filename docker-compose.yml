@@ -123,8 +123,6 @@ services:
   smtp4dev:
     image: rnwood/smtp4dev:v3
     restart: always
-    ports:
-      - '5000:80'
 
   pgsql:
     image: postgres

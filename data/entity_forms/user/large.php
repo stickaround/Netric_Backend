@@ -1,11 +1,8 @@
 <row>
     <column type="half">
         <row>
-            <column type="half">
-                <field name='image_id' hidelabel='true' profile_image='t'></field>
-            </column>
             <column>
-                <header field='full_name' />
+                <header image_field='image_id' />
             </column>
         </row>
         <row showif="editMode=false">

@@ -59,18 +59,18 @@
         </tabs>
     </column>
     <column type="sidebar">
-        <header>Attendees</header>
-        <row>
-            <column>
-                <members name='Members' field='attendees'></members>
-            </column>
-        </row>
-        <header>References</header>
-        <row>
-            <column>
-                <field name='customer_id' hidelabel='f'></field>
-                <field name='contact_id' hidelabel='f'></field>
-            </column>
-        </row>
+        <fieldset name='Attendees'>
+            <row>
+                <column>
+                    <members name='Members' field='attendees'></members>
+                </column>
+            </row>
+            <row>
+                <column>
+                    <field name='customer_id' hidelabel='f'></field>
+                    <field name='contact_id' hidelabel='f'></field>
+                </column>
+            </row>
+        </fieldset>
     </column>
 </row>

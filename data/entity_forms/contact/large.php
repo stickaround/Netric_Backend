@@ -1,6 +1,11 @@
 <form>
     <row>
         <column>
+            <header image_field='image_id' />
+        </column>
+    </row>
+    <row>
+        <column>
             <row showif='entity_id=null'>
                 <column>
                     <field name='type_id'></field>
@@ -68,19 +73,20 @@
             </row>
             <row>
                 <column>
-                    <header>Contact</header>
-                    <field label='Mobile' name='phone_cell'></field>
-                    <field label='Home' name='phone_home'></field>
-                    <field label='Work' name='phone_work'></field>
-                    <field label='Ext' name='phone_ext'></field>
-                    <field name='phone_fax'></field>
-                    <field name='phone_pager'></field>
-                    <field label='Home' name='email'></field>
-                    <field label='Work' name='email2'></field>
-                    <field label='Other' name='email3'></field>
-                    <field label='Spouse' name='email_spouse'></field>
-                    <field name='website'></field>
-                    <field name='facebook'></field>
+                    <fieldset name='Contact'>
+                        <field label='Mobile' name='phone_cell'></field>
+                        <field label='Home' name='phone_home'></field>
+                        <field label='Work' name='phone_work'></field>
+                        <field label='Ext' name='phone_ext'></field>
+                        <field name='phone_fax'></field>
+                        <field name='phone_pager'></field>
+                        <field label='Home' name='email'></field>
+                        <field label='Work' name='email2'></field>
+                        <field label='Other' name='email3'></field>
+                        <field label='Spouse' name='email_spouse'></field>
+                        <field name='website'></field>
+                        <field name='facebook'></field>
+                    </fieldset>
                 </column>
             </row>
             <row>
@@ -93,47 +99,52 @@
                     <field name='is_nocontact'></field>
                 </column>
             </row>
-            <header>Address</header>
             <row>
                 <column>
-                    <field label='Street' name='street'></field>
-                    <field label='Street 2' name='street2'></field>
-                    <field label='Zip' name='zip'></field>
-                    <field label='City' name='city'></field>
-                    <field label='State' name='state'></field>
+                    <fieldset name='Address'>
+                        <field label='Street' name='street'></field>
+                        <field label='Street 2' name='street2'></field>
+                        <field label='Zip' name='zip'></field>
+                        <field label='City' name='city'></field>
+                        <field label='State' name='state'></field>
+                    </fieldset>
                 </column>
             </row>
-            <header>Billing Address</header>
             <row>
                 <column>
-                    <field name='billing_street'></field>
-                    <field name='billing_street2'></field>
-                    <field name='billing_zip'></field>
-                    <field name='billing_city'></field>
-                    <field name='billing_state'></field>
+                    <fieldset name='Billing Address'>
+                        <field name='billing_street'></field>
+                        <field name='billing_street2'></field>
+                        <field name='billing_zip'></field>
+                        <field name='billing_city'></field>
+                        <field name='billing_state'></field>
+                    </fieldset>
                 </column>
             </row>
-            <header>Shipping Address</header>
             <row>
                 <column>
-                    <field name='shipping_street'></field>
-                    <field name='shipping_street2'></field>
-                    <field name='shipping_zip'></field>
-                    <field name='shipping_city'></field>
-                    <field name='shipping_state'></field>
+                    <fieldset name='Shipping Address'>
+                        <field name='shipping_street'></field>
+                        <field name='shipping_street2'></field>
+                        <field name='shipping_zip'></field>
+                        <field name='shipping_city'></field>
+                        <field name='shipping_state'></field>
+                    </fieldset>
                 </column>
             </row>
-            <header>Groups</header>
             <row>
-                <field name='groups' hidelabel='true'></field>
+                <fieldset name='Groups'>
+                    <field name='groups' hidelabel='true'></field>
+                </fieldset>
             </row>
             <row>
                 <column>
-                    <header>Important Dates</header>
-                    <field name='birthday'></field>
-                    <field name='birthday_spouse'></field>
-                    <field name='anniversary'></field>
-                    <field name='last_contacted'></field>
+                    <fieldset name='Important Dates'>
+                        <field name='birthday'></field>
+                        <field name='birthday_spouse'></field>
+                        <field name='anniversary'></field>
+                        <field name='last_contacted'></field>
+                    </fieldset>
                 </column>
             </row>
 

@@ -47,9 +47,10 @@
         </row>
     </column>
     <column type="sidebar">
-        <header>Activity</header>
         <row>
-            <field name='activity'></field>
+            <fieldset name='Activity'>
+                <field name='activity'></field>
+            </fieldset>
         </row>
     </column>
 </row>
