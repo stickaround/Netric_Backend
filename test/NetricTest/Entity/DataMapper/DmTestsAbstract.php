@@ -92,7 +92,7 @@ abstract class DmTestsAbstract extends TestCase
         // text
         $customer->setValue("name", "Entity_DataMapperTests");
         // bool
-        $customer->setValue("f_nocall", true);
+        $customer->setValue("is_nocall", true);
         // object
         $customer->setValue("owner_id", $this->user->getEntityId(), $this->user->getName());
         // object_multi
@@ -149,7 +149,7 @@ abstract class DmTestsAbstract extends TestCase
         $ent = $dm->getEntityById($cid, $this->account->getAccountId());
         $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
-        $this->assertTrue($ent->getValue("f_nocall"));
+        $this->assertTrue($ent->getValue("is_nocall"));
         $this->assertEquals($ent->getValue("owner_id"), $this->user->getEntityId());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
         $this->assertEquals($ent->getValue("status_id"), $statGrp->getGroupId());
@@ -225,7 +225,7 @@ abstract class DmTestsAbstract extends TestCase
         $ent = $dm->getEntityById($cid, $this->account->getAccountId());
         $this->assertEquals($ent->getEntityId(), $cid);
         $this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
-        $this->assertTrue($ent->getValue("f_nocall"));
+        $this->assertTrue($ent->getValue("is_nocall"));
         $this->assertEquals($ent->getValue("owner_id"), $this->user->getEntityId());
         $this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
         $this->assertEquals($ent->getValue("status_id"), $statGrp->getGroupId());

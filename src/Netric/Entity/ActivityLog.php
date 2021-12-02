@@ -120,7 +120,7 @@ class ActivityLog
         $actEntity->setValue("verb", $verb);
 
         // If the object we acted on is private, then mark this activity as private
-        $actEntity->setValue("f_private", $objDef->isPrivate);
+        $actEntity->setValue("is_private", $objDef->isPrivate);
 
         // In most cases we reference the object being acted on
         $actEntity->setValue("obj_reference", $object->getEntityId());

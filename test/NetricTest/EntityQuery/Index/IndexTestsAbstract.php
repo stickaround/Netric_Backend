@@ -108,7 +108,7 @@ abstract class IndexTestsAbstract extends TestCase
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $customer = $loader->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $customer->setValue("name", $uniName);
-        $customer->setValue("f_nocall", true);
+        $customer->setValue("is_nocall", true);
         $customer->setValue("type_id", $typeId);
         $customer->setValue("last_contacted", time());
         $customer->setValue("status_id", $statusG['group_id'], $statusG['name']);
@@ -854,7 +854,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Query collection for boolean
         $query = new EntityQuery($testEnt->getObjType(), $this->account->getAccountId());
-        $query->where('f_nocall')->equals(true);
+        $query->where('is_nocall')->equals(true);
         $res = $index->executeQuery($query);
         $this->assertTrue($res->getTotalNum() >= 1);
         // Look for the entity above
@@ -2033,7 +2033,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Query collection for boolean
         $query = new EntityQuery($testEnt->getObjType(), $this->account->getAccountId());
-        $query->where('f_nocall')->equals(true);
+        $query->where('is_nocall')->equals(true);
         $res = $index->executeQuery($query);
         $this->assertTrue($res->getTotalNum() >= 1);
         // Look for the entity above

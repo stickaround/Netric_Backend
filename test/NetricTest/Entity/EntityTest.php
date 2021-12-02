@@ -104,7 +104,7 @@ class EntityTest extends TestCase
         $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT, $this->account->getAccountId());
         $cust->setValue("name", "Entity_DataMapperTests");
         // bool
-        $cust->setValue("f_nocall", true);
+        $cust->setValue("is_nocall", true);
         // object
         $cust->setValue("owner_id", $this->user->getEntityId(), $this->user->getValue("name"));
         // object_multi
@@ -118,7 +118,7 @@ class EntityTest extends TestCase
         $this->assertEquals($cust->getValue("last_contacted"), strtotime($data["last_contacted"]));
         $this->assertEquals($cust->getValue("owner_id"), $data["owner_id"]);
         $this->assertEquals($cust->getValueName("owner_id"), $data["owner_id_fval"][$data["owner_id"]]);
-        $this->assertEquals($cust->getValue("f_nocall"), $data["f_nocall"]);
+        $this->assertEquals($cust->getValue("is_nocall"), $data["is_nocall"]);
     }
 
     /**
@@ -150,7 +150,7 @@ class EntityTest extends TestCase
         $data = $document->toArrayWithNoPermissions();
         $this->assertEquals($document->getValue("title"), $data["title"]);
         $this->assertEquals(ObjectTypes::DOCUMENT, $data['obj_type']);
-        
+
         // This should be blank
         $this->assertFalse(isset($data['owner_id']));
         $this->assertFalse(isset($data['last_contacted']));
@@ -164,7 +164,7 @@ class EntityTest extends TestCase
         $data = [
             "name" => "testFromArray",
             "last_contacted" => time(),
-            "f_nocall" => true,
+            "is_nocall" => true,
             "company" => "test company",
             "owner_id" => $this->user->getEntityId(),
             "owner_id_fval" => [
@@ -181,7 +181,7 @@ class EntityTest extends TestCase
         $this->assertEquals($cust->getValue("last_contacted"), $data["last_contacted"]);
         $this->assertEquals($cust->getValue("owner_id"), $data["owner_id"]);
         $this->assertEquals($cust->getValueName("owner_id"), $data["owner_id_fval"][$data["owner_id"]]);
-        $this->assertEquals($cust->getValue("f_nocall"), $data["f_nocall"]);
+        $this->assertEquals($cust->getValue("is_nocall"), $data["is_nocall"]);
         $this->assertEquals($cust->getValue("company"), $data["company"]);
 
         // Let's save $cust entity and try using ::fromArray() with an existing entity
@@ -277,7 +277,7 @@ class EntityTest extends TestCase
         $cust->setValue("name", "Entity_DataMapperTests");
 
         // bool
-        $cust->setValue("f_nocall", true);
+        $cust->setValue("is_nocall", true);
 
         // object
         $cust->setValue("owner_id", $this->user->getEntityId(), $this->user->getValue("name"));
@@ -297,7 +297,7 @@ class EntityTest extends TestCase
 
         $this->assertEmpty($cloned->getEntityId());
         $this->assertEquals($cust->getValue("name"), $cloned->getValue("name"));
-        $this->assertEquals($cust->getValue("f_nocall"), $cloned->getValue("f_nocall"));
+        $this->assertEquals($cust->getValue("is_nocall"), $cloned->getValue("is_nocall"));
         $this->assertEquals($cust->getValue("owner_id"), $cloned->getValue("owner_id"));
         $this->assertEquals($cust->getValueName("owner_id"), $cloned->getValueName("owner_id"));
         $this->assertEquals($cust->getValue("last_contacted"), $cloned->getValue("last_contacted"));
@@ -573,7 +573,7 @@ class EntityTest extends TestCase
         $data = [
             "name" => "testGetChangeLogDescription",
             "last_contacted" => time(),
-            "f_nocall" => true,
+            "is_nocall" => true,
             "company" => "test company",
             "owner_id" => $this->user->getEntityId(),
             "owner_id_fval" => [
