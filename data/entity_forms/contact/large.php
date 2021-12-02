@@ -6,7 +6,7 @@
     </row>
     <row>
         <column>
-            <row showif='entity_id=null'>
+            <row showif='type_id=null'>
                 <column>
                     <field name='type_id'></field>
                 </column>
