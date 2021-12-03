@@ -11,11 +11,31 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
 return [
+    'default' => [
+        'obj_type' => ObjectTypes::TICKET,
+        'name' => 'All Tickets',
+        'description' => 'All tickets',
+        'default' => true,
+        'conditions' => [],
+        'filter_key' => 'channel_id',
+        'group_first_order_by' => true,
+        'order_by' => [
+            'status_id' => [
+                'field_name' => 'status_id',
+                'direction' => 'desc',
+            ],
+            'date' => [
+                'field_name' => 'ts_updated',
+                'direction' => 'asc',
+            ],
+        ],
+        'table_columns' => ['name', 'channel_id', 'status_id', 'souce_id']
+    ],
     'my_tickets' => [
         'obj_type' => ObjectTypes::TICKET,
         'name' => 'My Tickets',
         'description' => 'Open tickets assigned to me',
-        'default' => true,
+        'default' => false,
         'conditions' => [
             'user' => [
                 'blogic' => Where::COMBINED_BY_AND,
@@ -48,7 +68,7 @@ return [
         'obj_type' => ObjectTypes::TICKET,
         'name' => 'All Tickets',
         'description' => 'All tickets',
-        'default' => true,
+        'default' => false,
         'conditions' => [],
         'filter_key' => 'channel_id',
         'group_first_order_by' => true,

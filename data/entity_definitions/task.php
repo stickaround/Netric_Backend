@@ -111,11 +111,6 @@ return [
         'contact_id' => [
             'title' => 'Contact',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'contact_personal'
-        ],
-        'customer_id' => [
-            'title' => 'Contact',
-            'type' => Field::TYPE_OBJECT,
             'subtype' => ObjectTypes::CONTACT,
         ],
         'recur_id' => [

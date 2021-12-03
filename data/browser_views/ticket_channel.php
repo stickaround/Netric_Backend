@@ -11,11 +11,24 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
 return [
+    'default' => [
+        'obj_type' => ObjectTypes::TICKET_CHANNEL,
+        'name' => 'All Channels',
+        'description' => 'Browse all support channels',
+        'default' => true,
+        'order_by' => [
+            'updated' => [
+                'field_name' => 'ts_updated',
+                'direction' => 'desc',
+            ],
+        ],
+        'table_columns' => ['name']
+    ],
     'my_channels' => [
         'obj_type' => ObjectTypes::TICKET_CHANNEL,
         'name' => 'My Channels',
         'description' => 'Channels where I am a member',
-        'default' => true,
+        'default' => false,
         'conditions' => [
             'members' => [
                 'blogic' => Where::COMBINED_BY_AND,

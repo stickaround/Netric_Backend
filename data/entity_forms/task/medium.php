@@ -22,7 +22,7 @@
                     <field name='story_id' ref_field='project_id' ref_this='project' ref_required='t' tooltip='User stories are used in Agile Project Managment to track potential work to be done and tasks are used to assign the work to users.'></field>
                 </column>
                 <column>
-                    <field name='customer_id'></field>
+                    <field name='contact_id'></field>
                     <field name='cost_estimated' tooltip='Use this to track your effeciency. Enter the amount of time you estimate this task to take in hours. Use decimals to divide smaller intervals. For instance ".5" would be 30 minutes or 1/2 hour.'></field>
                     <field name='cost_actual' tooltip='This is automatically calculated as you work on the task. After saving changes, click "Log Time Spent" in the toolbar for this task to record how much actual time you spent on the task.'></field>
                     <field name='date_completed'></field>

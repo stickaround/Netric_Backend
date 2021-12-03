@@ -60,7 +60,7 @@
             <row>
                 <column>
                     <field name='owner_id' tooltip='When creating a new task, this is by default assigned to you. However, you can assign new or existing tasks to someone else simply by changing the user. They will receive a notification when you first assign it to them, and you will be notified when the task is completed.'></field>
-                    <field name='customer_id'></field>
+                    <field name='contact_id'></field>
                     <field name='creator_id'></field>
                 </column>
             </row>

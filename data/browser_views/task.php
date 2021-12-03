@@ -11,6 +11,25 @@ use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityQuery\Where;
 
 return [
+    'default' => [
+        'obj_type' => 'task',
+        'name' => 'All Tasks',
+        'description' => 'All Tasks',
+        'default' => false,
+        'order_by' => [
+            'ts_entered' => [
+                'field_name' => 'ts_entered',
+                'direction' => 'desc',
+            ],
+            'deadline' => [
+                'field_name' => 'deadline',
+                'direction' => 'asc'
+            ],
+        ],
+        'table_columns' => [
+            'name', 'project', 'status_id', 'deadline', 'owner_id'
+        ]
+    ],
     'my_tasks' => [
         'obj_type' => 'task',
         'name' => 'My Incomplete Tasks',

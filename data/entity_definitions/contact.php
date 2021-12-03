@@ -309,7 +309,11 @@ return [
             'title' => 'Type',
             'type' => Field::TYPE_INTEGER,
             'subtype' => '',
-            'optional_values' => ["2" => "Organization", "1" => "Person"]
+            'optional_values' => ["2" => "Organization", "1" => "Person"],
+            'default' => [
+                "value" => 1,
+                "on" => "null",
+            ],
         ],
         'status_id' => [
             'title' => 'Status',
