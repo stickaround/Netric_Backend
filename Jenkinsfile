@@ -35,7 +35,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh 'docker system prune --volumes'
+                    sh 'docker system prune -af --volumes'
                     sh 'env'
                     checkout scm
 
