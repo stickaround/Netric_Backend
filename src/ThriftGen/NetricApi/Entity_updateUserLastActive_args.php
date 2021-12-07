@@ -34,7 +34,7 @@ class Entity_updateUserLastActive_args
         3 => array(
             'var' => 'timestamp',
             'isRequired' => false,
-            'type' => TType::I16,
+            'type' => TType::STRING,
         ),
     );
 
@@ -47,7 +47,7 @@ class Entity_updateUserLastActive_args
      */
     public $accountId = null;
     /**
-     * @var int
+     * @var string
      */
     public $timestamp = null;
 
@@ -100,8 +100,8 @@ class Entity_updateUserLastActive_args
                     }
                     break;
                 case 3:
-                    if ($ftype == TType::I16) {
-                        $xfer += $input->readI16($this->timestamp);
+                    if ($ftype == TType::STRING) {
+                        $xfer += $input->readString($this->timestamp);
                     } else {
                         $xfer += $input->skip($ftype);
                     }
@@ -131,8 +131,8 @@ class Entity_updateUserLastActive_args
             $xfer += $output->writeFieldEnd();
         }
         if ($this->timestamp !== null) {
-            $xfer += $output->writeFieldBegin('timestamp', TType::I16, 3);
-            $xfer += $output->writeI16($this->timestamp);
+            $xfer += $output->writeFieldBegin('timestamp', TType::STRING, 3);
+            $xfer += $output->writeString($this->timestamp);
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();

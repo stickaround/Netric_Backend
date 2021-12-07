@@ -50,7 +50,7 @@ service Entity
     /**
      * Update the user last active
      */
-    void updateUserLastActive(1:string userId, 2:string accountId, 3:i16 timestamp);
+    void updateUserLastActive(1:string userId, 2:string accountId, 3:string timestamp);
 }
 
 /**

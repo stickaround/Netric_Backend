@@ -34,7 +34,7 @@ interface EntityIf
      * 
      * @param string $userId
      * @param string $accountId
-     * @param int $timestamp
+     * @param string $timestamp
      */
     public function updateUserLastActive($userId, $accountId, $timestamp);
 }
