@@ -97,7 +97,7 @@ class EntityPostSaveWorker extends AbstractWorker
                     'entity_id' => $entity->getEntityId(),
                     'user_id' => $user->getEntityid(),
                     'event_name' => 'sent',
-                    'changed_description' => 'Did something'
+                    'changed_description' => $workload['changed_description']
                 ]
             );
 
