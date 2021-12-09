@@ -96,14 +96,10 @@ class EntityPostSaveWorker extends AbstractWorker
                     'account_id' => $account->getAccountId(),
                     'entity_id' => $entity->getEntityId(),
                     'user_id' => $user->getEntityid(),
-                    'event_name' => 'sent',
-                    'changed_description' => 'Did something'
+                    'event_name' => $workload['event_name'],
+                    'changed_description' => $workload['changed_description']
                 ]
             );
-
-            // Run in a separate worker now
-            // $notifierService = $serviceManager->get(NotifierFactory::class);
-            // $notifierService->send($entity, $workload['event_name'], $user, $workload['changed_description']);
         }
 
         // Log the activity

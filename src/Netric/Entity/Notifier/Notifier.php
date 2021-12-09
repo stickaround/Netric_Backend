@@ -114,10 +114,12 @@ class Notifier
         $notificationIds = [];
 
         // We never want to send notifications about notifications or activities
+        // Or changes to users (since they change themselves all the time)
         // Or notifications from anonmymous or system users
         if (
             $objType == ObjectTypes::NOTIFICATION ||
             $objType == ObjectTypes::ACTIVITY ||
+            $objType == ObjectTypes::USER ||
             $user->isSystem() ||
             $user->isAnonymous()
         ) {
