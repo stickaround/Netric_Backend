@@ -59,19 +59,17 @@ class GroupingsInitData implements InitDataInterface
                 // }
 
                 // Loop through each group and add
-                foreach ($groupsData as $groupData) {
+                foreach ($groupsData as $inxd => $groupData) {
                     if (!$groupings->getByName($groupData['name'])) {
                         $group = new Group();
 
                         // Required data
                         $group->name = $groupData['name'];
 
-                        if (isset($groupData['color'])) {
-                            $group->color = $groupData['color'];
-                        }
-
                         if (isset($groupData['sort_oder'])) {
                             $group->sortOrder = $groupData['sort_oder'];
+                        } else {
+                            $group->sortOrder = $inxd;
                         }
 
                         $groupings->add($group);

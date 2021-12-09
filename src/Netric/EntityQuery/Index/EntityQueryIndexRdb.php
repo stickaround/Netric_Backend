@@ -11,7 +11,6 @@ use Netric\EntityQuery\Aggregation;
 use Netric\Account\Account;
 use Netric\Entity\Entity;
 use Netric\EntityQuery\Aggregation\AggregationInterface;
-use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityValueSanitizer;
@@ -208,16 +207,38 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         // Get order by from $query and setup the sort order
         $sortOrder = [];
+        $sortedGroupingFields = [];
         if (count($query->getOrderBy())) {
             $orderBy = $query->getOrderBy();
 
             foreach ($orderBy as $sort) {
-                $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
+                // Check if this is a grouping field
+                $sortedField =  $entityDefinition->getField($sort->fieldName);
+                if ($sortedField->type == Field::TYPE_GROUPING) {
+                    $sortedGroupingFields[] = $sort->fieldName;
+                    $sortOrder[] = "grp_srt_{$sort->fieldName} $sort->direction";
+                } else {
+                    $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
+                }
             }
         }
 
+        // Of course, we select from the entity table
+        $from = $objectTable;
+
+        // We perform an outer join on any grouping fields that we are trying to sort by
+        foreach ($sortedGroupingFields as $groupingFieldName) {
+            $from .= " LEFT OUTER JOIN entity_group as grptbl_$groupingFieldName ";
+            $from .= " ON CAST(nullif(entity.field_data->>'$groupingFieldName', '') as uuid)=entity_group.group_id";
+        }
+
+        $select = $objectTable . ".*";
+        foreach ($sortedGroupingFields as $groupingFieldName) {
+            $select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
+        }
+
         // Start constructing query
-        $sql = "SELECT * FROM $objectTable";
+        $sql = "SELECT $select FROM $from";
 
         // Set the query condition string if it is available
         if (!empty($conditionString)) {

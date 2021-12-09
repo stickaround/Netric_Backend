@@ -9,7 +9,6 @@ namespace Netric\EntityQuery\Index;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Plugin\PluginInterface;
@@ -20,7 +19,6 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityValueSanitizer;
-use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Ramsey\Uuid\Uuid;
 
