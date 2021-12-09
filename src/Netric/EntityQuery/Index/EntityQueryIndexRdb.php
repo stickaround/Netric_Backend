@@ -143,9 +143,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             );
         }
 
-        // Get table to query
-        $objectTable = self::ENTITY_TABLE;
-
         // Start building the condition string
         $conditionString = "";
         $queryConditions = $this->entityValueSanitizer->sanitizeQuery($query);
@@ -200,10 +197,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Add entity type
-        $conditionString .= "entity_definition_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
+        $conditionString .= self::ENTITY_TABLE . ".entity_definition_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
 
         // Add account
-        $conditionString .= "account_id='$accountId'";
+        $conditionString .= self::ENTITY_TABLE . ".account_id='$accountId'";
 
         // Get order by from $query and setup the sort order
         $sortOrder = [];
@@ -224,7 +221,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Of course, we select from the entity table
-        $from = $objectTable;
+        $from = self::ENTITY_TABLE;
 
         // We perform an outer join on any grouping fields that we are trying to sort by
         foreach ($sortedGroupingFields as $groupingFieldName) {
@@ -233,7 +230,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $from .= "=grptbl_$groupingFieldName.group_id";
         }
 
-        $select = $objectTable . ".*";
+        $select = self::ENTITY_TABLE . ".*";
         foreach ($sortedGroupingFields as $groupingFieldName) {
             $select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
         }
@@ -292,11 +289,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // Get the account id from the entity definition
         $accountId = $entityDefinition->getAccountId();
 
-        // Get table to query
-        $objectTable = self::ENTITY_TABLE;
-
         // Create the sql string to get the total num
-        $sql = "SELECT count(*) as total_num FROM $objectTable";
+        $sql = "SELECT count(*) as total_num FROM " . self::ENTITY_TABLE;
 
         // Set the query condition string here if it is available
         if (!empty($conditionString)) {
