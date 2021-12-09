@@ -229,7 +229,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // We perform an outer join on any grouping fields that we are trying to sort by
         foreach ($sortedGroupingFields as $groupingFieldName) {
             $from .= " LEFT OUTER JOIN entity_group as grptbl_$groupingFieldName ";
-            $from .= " ON CAST(nullif(entity.field_data->>'$groupingFieldName', '') as uuid)=entity_group.group_id";
+            $from .= " ON CAST(nullif(entity.field_data->>'$groupingFieldName', '') as uuid)";
+            $from .= "=grptbl_$groupingFieldName.group_id";
         }
 
         $select = $objectTable . ".*";
