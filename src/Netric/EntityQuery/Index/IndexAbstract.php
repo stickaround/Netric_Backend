@@ -20,6 +20,7 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityValueSanitizer;
 use Netric\Db\Relational\RelationalDbContainer;
+use Netric\EntityGroupings\GroupingLoader;
 use Ramsey\Uuid\Uuid;
 
 abstract class IndexAbstract
@@ -75,6 +76,7 @@ abstract class IndexAbstract
         EntityDefinitionLoader $entityDefinitionLoader,
         EntityLoader $entityLoader,
         EntityValueSanitizer $entityValueSanitizer,
+        GroupingLoader $groupingLoader,
         ServiceLocatorInterface $serviceManagerForPlugin
     ) {
         $this->entityFactory = $entityFactory;
@@ -83,7 +85,7 @@ abstract class IndexAbstract
         $this->serviceManagerForPlugin = $serviceManagerForPlugin;
 
         // Setup the entity query index
-        $this->setUp($dbContainer, $entityValueSanitizer);
+        $this->setUp($dbContainer, $entityValueSanitizer, $groupingLoader);
     }
 
     /**

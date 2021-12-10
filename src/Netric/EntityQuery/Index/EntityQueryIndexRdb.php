@@ -14,6 +14,7 @@ use Netric\EntityQuery\Aggregation\AggregationInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityValueSanitizer;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Relational Database implementation of indexer for querying objects
@@ -40,15 +41,24 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     private $entityValueSanitizer = null;
 
     /**
+     * Get groupings
+     * 
+     * @var GroupingLoader
+     */
+    private GroupingLoader $groupingLoader;
+
+    /**
      * Setup this index
      *
      * @param RelationalDbContainer $databaseContainer Used to get active database connection for the right account
      * @param EntityValueSanitizer $entityValueSanitizer Handles the sanitizing of condition values in the query
+     * @param GroupingLoader $groupingLoader Get groupings for sort and index updates
      */
-    protected function setUp(RelationalDbContainer $dbContainer, EntityValueSanitizer $entityValueSanitizer)
+    protected function setUp(RelationalDbContainer $dbContainer, EntityValueSanitizer $entityValueSanitizer, GroupingLoader $groupingLoader)
     {
         $this->databaseContainer = $dbContainer;
         $this->entityValueSanitizer = $entityValueSanitizer;
+        $this->groupingLoader = $groupingLoader;
     }
 
     /**
@@ -147,7 +157,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $conditionString = "";
         $queryConditions = $this->entityValueSanitizer->sanitizeQuery($query);
 
-
         // Loop thru the query conditions and check for special fields
         foreach ($queryConditions as $condition) {
             $whereString = $this->buildConditionStringAndSetParams($entityDefinition, $condition);
@@ -211,13 +220,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
             foreach ($orderBy as $sort) {
                 // Check if this is a grouping field
-                // $sortedField = $entityDefinition->getField($sort->fieldName);
-                // if ($sortedField->type == Field::TYPE_GROUPING) {
-                //     $sortedGroupingFields[] = $sort->fieldName;
-                //     $sortOrder[] = "grp_srt_{$sort->fieldName} $sort->direction";
-                // } else {
-                $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
-                //}
+                $sortedField = $entityDefinition->getField($sort->fieldName);
+                if ($sortedField->type == Field::TYPE_GROUPING) {
+                    $sortedGroupingFields[] = $sort->fieldName;
+                    $sortOrder[] = "grp_srt_{$sort->fieldName} $sort->direction";
+                } else {
+                    $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
+                }
             }
         }
 
@@ -232,9 +241,20 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // }
 
         $select = self::ENTITY_TABLE . ".*";
-        // foreach ($sortedGroupingFields as $groupingFieldName) {
-        //     $select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
-        // }
+        foreach ($sortedGroupingFields as $groupingFieldName) {
+            //$select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
+            $groupings = $this->groupingLoader->get(
+                $query->getObjType() . '/' . $groupingFieldName,
+                $query->getAccountId()
+            );
+            $groups = $groupings->getAll();
+            $select .= ", CASE";
+            foreach ($groups as $group) {
+                $select .= "  WHEN (field_data->>'$groupingFieldName' = {$group->groupId}) THEN '{$group->sortOrder}'";
+            }
+            $select .= " ELSE null";
+            $select .= "END as grp_srt_$groupingFieldName";
+        }
 
         // Start constructing query
         $sql = "SELECT $select FROM $from";

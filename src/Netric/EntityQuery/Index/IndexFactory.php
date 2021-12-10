@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Service factory for the EntityQuery Index
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\EntityQuery\Index;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
@@ -14,6 +16,8 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\EntityValueSanitizerFactory;
+use Netric\EntityGroupings\GroupingLoader;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a EntityQuery Index service
@@ -33,6 +37,7 @@ class IndexFactory implements ApplicationServiceFactoryInterface
         $entityDefinitionLoader = $serviceLocator->get(EntityDefinitionLoaderFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $entityValueSanitizer = $serviceLocator->get(EntityValueSanitizerFactory::class);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
 
         return new EntityQueryIndexRdb(
             $relationalDbCon,
@@ -40,6 +45,7 @@ class IndexFactory implements ApplicationServiceFactoryInterface
             $entityDefinitionLoader,
             $entityLoader,
             $entityValueSanitizer,
+            $groupingLoader,
             $serviceLocator
         );
     }
