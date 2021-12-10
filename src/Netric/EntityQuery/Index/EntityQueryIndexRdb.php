@@ -220,41 +220,34 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
             foreach ($orderBy as $sort) {
                 // Check if this is a grouping field
-                // $sortedField = $entityDefinition->getField($sort->fieldName);
-                // if ($sortedField->type == Field::TYPE_GROUPING) {
-                //     $sortedGroupingFields[] = $sort->fieldName;
-                //     $sortOrder[] = "grp_srt_{$sort->fieldName} $sort->direction";
-                // } else {
-                $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
-                // }
+                $sortedField = $entityDefinition->getField($sort->fieldName);
+                if ($sortedField->type == Field::TYPE_GROUPING) {
+                    $sortedGroupingFields[] = $sort->fieldName;
+                    $sortOrder[] = "grp_srt_{$sort->fieldName} $sort->direction";
+                } else {
+                    $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
+                }
             }
         }
 
         // Of course, we select from the entity table
         $from = self::ENTITY_TABLE;
 
-        // We perform an outer join on any grouping fields that we are trying to sort by
-        // foreach ($sortedGroupingFields as $groupingFieldName) {
-        //     $from .= " LEFT OUTER JOIN entity_group as grptbl_$groupingFieldName ";
-        //     $from .= " ON CAST(nullif(entity.field_data->>'$groupingFieldName', '') as uuid)";
-        //     $from .= "=grptbl_$groupingFieldName.group_id";
-        // }
-
         $select = self::ENTITY_TABLE . ".*";
-        // foreach ($sortedGroupingFields as $groupingFieldName) {
-        //     //$select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
-        //     $groupings = $this->groupingLoader->get(
-        //         $query->getObjType() . '/' . $groupingFieldName,
-        //         $query->getAccountId()
-        //     );
-        //     $groups = $groupings->getAll();
-        //     $select .= ", CASE";
-        //     foreach ($groups as $group) {
-        //         $select .= "  WHEN (field_data->>'$groupingFieldName' = '{$group->groupId}') THEN '{$group->sortOrder}'";
-        //     }
-        //     $select .= " ELSE '0'";
-        //     $select .= "END as grp_srt_$groupingFieldName";
-        // }
+        foreach ($sortedGroupingFields as $groupingFieldName) {
+            //$select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
+            $groupings = $this->groupingLoader->get(
+                $query->getObjType() . '/' . $groupingFieldName,
+                $query->getAccountId()
+            );
+            $groups = $groupings->getAll();
+            $select .= ", CASE";
+            foreach ($groups as $group) {
+                $select .= "  WHEN (field_data->>'$groupingFieldName' = '{$group->groupId}') THEN '{$group->sortOrder}'";
+            }
+            $select .= " ELSE '0'";
+            $select .= "END as grp_srt_$groupingFieldName";
+        }
 
         // Start constructing query
         $sql = "SELECT $select FROM $from";
