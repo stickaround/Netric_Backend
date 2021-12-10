@@ -143,6 +143,12 @@ class EntityClient implements \NetricApi\EntityIf
             $result->read($this->input_);
             $this->input_->readMessageEnd();
         }
+        if ($result->error !== null) {
+            throw $result->error;
+        }
+        if ($result->badRequest !== null) {
+            throw $result->badRequest;
+        }
         return;
     }
 }

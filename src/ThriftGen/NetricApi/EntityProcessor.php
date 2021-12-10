@@ -94,7 +94,13 @@ class EntityProcessor
         }
         $input->readMessageEnd();
         $result = new \NetricApi\Entity_updateUserLastActive_result();
-        $this->handler_->updateUserLastActive($args->userId, $args->accountId, $args->timestamp);
+        try {
+            $this->handler_->updateUserLastActive($args->userId, $args->accountId, $args->timestamp);
+        } catch (\NetricApi\ErrorException $error) {
+            $result->error = $error;
+                } catch (\NetricApi\InvalidArgument $badRequest) {
+            $result->badRequest = $badRequest;
+        }
         $bin_accel = ($output instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
         if ($bin_accel) {
             thrift_protocol_write_binary(

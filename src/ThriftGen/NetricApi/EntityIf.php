@@ -35,6 +35,8 @@ interface EntityIf
      * @param string $userId
      * @param string $accountId
      * @param string $timestamp
+     * @throws \NetricApi\ErrorException
+     * @throws \NetricApi\InvalidArgument
      */
     public function updateUserLastActive($userId, $accountId, $timestamp);
 }

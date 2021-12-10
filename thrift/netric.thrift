@@ -50,7 +50,8 @@ service Entity
     /**
      * Update the user last active
      */
-    void updateUserLastActive(1:string userId, 2:string accountId, 3:string timestamp);
+    void updateUserLastActive(1:string userId, 2:string accountId, 3:string timestamp)
+        throws (1:ErrorException error, 2:InvalidArgument badRequest);
 }
 
 /**
@@ -72,5 +73,6 @@ service Worker
     /**
      * Process a background job
      */
-    bool process(1:string workerName, 2:string jsonPayload) throws (1:ErrorException error, 2:InvalidArgument badRequest) ;
+    bool process(1:string workerName, 2:string jsonPayload) 
+        throws (1:ErrorException error, 2:InvalidArgument badRequest) ;
 }

@@ -6,6 +6,7 @@ namespace Netric\Handler;
 
 use Netric\Entity\EntityLoader;
 use NetricApi\EntityIf;
+use NetricApi\InvalidArgument;
 
 class EntityHandler implements EntityIf
 {
@@ -51,6 +52,11 @@ class EntityHandler implements EntityIf
      */
     public function updateUserLastActive($userId, $accountId, $timestamp): void
     {
+        // Handle empty params
+        if (empty($userId) || empty($accountId) || empty($timestamp)) {
+            throw new InvalidArgument("Cannot be null: ($userId, $accountId, $timestamp)");
+        }
+
         // Get user entity and update the last activity
         $user = $this->entityLoader->getEntityById($userId, $accountId);
         $user->setValue("last_active", $timestamp);
