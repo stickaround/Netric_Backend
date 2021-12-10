@@ -252,7 +252,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             foreach ($groups as $group) {
                 $select .= "  WHEN (field_data->>'$groupingFieldName' = '{$group->groupId}') THEN '{$group->sortOrder}'";
             }
-            $select .= " ELSE null";
+            $select .= " ELSE '0'";
             $select .= "END as grp_srt_$groupingFieldName";
         }
 
