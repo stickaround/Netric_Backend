@@ -91,13 +91,6 @@ abstract class DmTestsAbstract extends TestCase
         // Test fkey_multi
         $field = $entDef->getField("groups");
         $this->assertInstanceOf(Field::class, $field);
-
-        // Test object reference with autocreate
-        $field = $entDef->getField("folder_id");
-        $this->assertEquals("object", $field->type);
-        $this->assertEquals("folder", $field->subtype);
-        $this->assertEquals('/System/Customer Files', $field->autocreatebase);
-        $this->assertEquals('id', $field->autocreatename);
     }
 
     /**

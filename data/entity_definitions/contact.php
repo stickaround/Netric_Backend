@@ -353,15 +353,6 @@ return [
             'type' => Field::TYPE_GROUPING_MULTI,
             'subtype' => 'object_groupings',
         ],
-        'folder_id' => [
-            'title' => 'Files',
-            'type' => Field::TYPE_OBJECT,
-            'subtype' => 'folder',
-            'autocreate' => true, // Create foreign object automatically
-            'autocreatebase' => '/System/Customer Files', // Where to create (for folders, the path with no trail slash]
-            'autocreatename' => 'id', // the field to pull the new object name from
-            'fkey_table' => ["key" => "id", "title" => "name"]
-        ],
         'image_id' => [
             'title' => 'Image',
             'type' => Field::TYPE_OBJECT,

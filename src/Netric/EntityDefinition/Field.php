@@ -113,27 +113,6 @@ class Field implements \ArrayAccess
     public $optionalValues = null;
 
     /**
-     * Sometimes we need to automatically create foreign reference
-     *
-     * @var bool
-     */
-    public $autocreate = false;
-
-    /**
-     * If autocreate then the base is used to define where to put the new referenced object
-     *
-     * @var string
-     */
-    public $autocreatebase = "";
-
-    /**
-     * If autocreate then which field should we use for the name of the new object
-     *
-     * @var string
-     */
-    public $autocreatename = "";
-
-    /**
      * Flag that will indicate that this field needs to be in an indexed column
      *
      * @var boolean
@@ -204,18 +183,6 @@ class Field implements \ArrayAccess
             $this->unique = ($data["unique"] === true || (string) $data["unique"] == "true" || (string) $data["unique"] == "t") ? true : false;
         }
 
-        if (isset($data["autocreate"])) {
-            $this->autocreate = $data["autocreate"];
-        }
-
-        if (isset($data["autocreatename"])) {
-            $this->autocreatename = $data["autocreatename"];
-        }
-
-        if (isset($data["autocreatebase"])) {
-            $this->autocreatebase = $data["autocreatebase"];
-        }
-
         if (isset($data["use_when"])) {
             $this->setUseWhen($data["use_when"]);
         }
@@ -276,9 +243,6 @@ class Field implements \ArrayAccess
             "use_when" => $this->useWhen,
             "default" => $this->default,
             "optional_values" => $this->optionalValues,
-            "autocreate" => $this->autocreate,
-            "autocreatename" => $this->autocreatename,
-            "autocreatebase" => $this->autocreatebase,
             "must_be_indexed" => $this->mustBeIndexed
         ];
     }

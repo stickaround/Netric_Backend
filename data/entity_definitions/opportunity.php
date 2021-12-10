@@ -125,14 +125,5 @@ return array(
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
         ),
-        'folder_id' => array(
-            'title' => 'Files',
-            'type' => Field::TYPE_OBJECT,
-            'subtype' => 'folder',
-            'autocreate' => true, // Create foreign object automatically
-            'autocreatebase' => '/System/Customer Files/Opportunities', // Where to create
-            'autocreatename' => 'id', // the field to pull the new object name from
-            'fkey_table' => array("key" => "id", "title" => "name")
-        ),
     ),
 );

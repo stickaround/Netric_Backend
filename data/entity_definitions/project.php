@@ -74,14 +74,6 @@ return [
             'subtype' => ObjectTypes::USER,
             'default' => ["value" => UserEntity::USER_CURRENT, "on" => "create"]
         ],
-        'folder_id' => [
-            'type' => Field::TYPE_OBJECT,
-            'subtype' => ObjectTypes::FOLDER,
-            'autocreate' => true, // Create foreign object automatically
-            'autocreatebase' => '/System/Project Files', // Where to create (for folders, the path with no trail slash)
-            'autocreatename' => 'id', // the field to pull the new object name from
-            'fkey_table' => ["key" => "id", "title" => "name"]
-        ],
         'image_id' => [
             'title' => 'Image',
             'type' => Field::TYPE_OBJECT,
