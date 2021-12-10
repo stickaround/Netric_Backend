@@ -147,8 +147,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $conditionString = "";
         $queryConditions = $this->entityValueSanitizer->sanitizeQuery($query);
 
-        // Flag to indicate if we need to close an opening ( in a query
-        $parenShouldBeClosed = false;
 
         // Loop thru the query conditions and check for special fields
         foreach ($queryConditions as $condition) {
@@ -163,7 +161,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     } elseif (empty($conditionString)) {
                         $conditionString .= " ( ";
                     }
-                    $parenShouldBeClosed = true;
                 } elseif ($condition->bLogic == Where::COMBINED_BY_OR) {
                     $conditionString .= ($conditionString) ? " OR " : " (";
                 }
@@ -197,10 +194,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Add entity type
-        $conditionString .= self::ENTITY_TABLE . ".entity_definition_id='" . $entityDefinition->getEntityDefinitionId() . "' AND ";
+        $conditionString .= self::ENTITY_TABLE .
+            ".entity_definition_id='" .
+            $entityDefinition->getEntityDefinitionId() . "'";
 
         // Add account
-        $conditionString .= self::ENTITY_TABLE . ".account_id='$accountId'";
+        $conditionString .= " AND "  .
+            self::ENTITY_TABLE .
+            ".account_id='$accountId'";
 
         // Get order by from $query and setup the sort order
         $sortOrder = [];
@@ -210,13 +211,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
             foreach ($orderBy as $sort) {
                 // Check if this is a grouping field
-                $sortedField =  $entityDefinition->getField($sort->fieldName);
-                if ($sortedField->type == Field::TYPE_GROUPING) {
-                    $sortedGroupingFields[] = $sort->fieldName;
-                    $sortOrder[] = "grp_srt_{$sort->fieldName} $sort->direction";
-                } else {
-                    $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
-                }
+                // $sortedField = $entityDefinition->getField($sort->fieldName);
+                // if ($sortedField->type == Field::TYPE_GROUPING) {
+                //     $sortedGroupingFields[] = $sort->fieldName;
+                //     $sortOrder[] = "grp_srt_{$sort->fieldName} $sort->direction";
+                // } else {
+                $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
+                //}
             }
         }
 
@@ -224,16 +225,16 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $from = self::ENTITY_TABLE;
 
         // We perform an outer join on any grouping fields that we are trying to sort by
-        foreach ($sortedGroupingFields as $groupingFieldName) {
-            $from .= " LEFT OUTER JOIN entity_group as grptbl_$groupingFieldName ";
-            $from .= " ON CAST(nullif(entity.field_data->>'$groupingFieldName', '') as uuid)";
-            $from .= "=grptbl_$groupingFieldName.group_id";
-        }
+        // foreach ($sortedGroupingFields as $groupingFieldName) {
+        //     $from .= " LEFT OUTER JOIN entity_group as grptbl_$groupingFieldName ";
+        //     $from .= " ON CAST(nullif(entity.field_data->>'$groupingFieldName', '') as uuid)";
+        //     $from .= "=grptbl_$groupingFieldName.group_id";
+        // }
 
         $select = self::ENTITY_TABLE . ".*";
-        foreach ($sortedGroupingFields as $groupingFieldName) {
-            $select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
-        }
+        // foreach ($sortedGroupingFields as $groupingFieldName) {
+        //     $select .= ", grptbl_$groupingFieldName.sort_order as grp_srt_$groupingFieldName";
+        // }
 
         // Start constructing query
         $sql = "SELECT $select FROM $from";
