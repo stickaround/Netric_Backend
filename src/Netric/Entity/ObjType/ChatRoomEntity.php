@@ -60,6 +60,7 @@ class ChatRoomEntity extends Entity implements EntityInterface
 
         // Make sure all members have view and edit access to the room
         $dacl = new Dacl();
+        $this->addMultiValue('members', $user->getEntityId(), $user->getName());
         $members = $this->getValue('members');
         $membersName = [];
         foreach ($members as $userId) {

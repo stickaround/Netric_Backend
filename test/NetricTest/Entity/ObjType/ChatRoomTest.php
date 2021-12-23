@@ -67,5 +67,8 @@ class ChatRoomTest extends TestCase
         $testUser = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER, $this->account->getAccountId());
         $testUser->setValue('entity_id', $secondUserId);
         $this->assertTrue($dacl->isAllowed($testUser, Dacl::PERM_VIEW));
+
+        // Owner of the chat room should also in the members
+        $this->assertEquals($chatRoom->getValue("members")[1], $this->user->getEntityId());
     }
 }
