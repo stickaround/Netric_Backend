@@ -13,6 +13,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ActivityLogFactory;
+use Netric\Entity\EntityEvents;
 use NetricTest\Bootstrap;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
@@ -69,12 +70,11 @@ class ActivityLogTest extends TestCase
         $this->entityLoader->save($customerEntity, $this->account->getAuthenticatedUser());
 
         // Log the activity
-        $act = $this->activityLog->log($this->user, ActivityEntity::VERB_CREATED, $customerEntity);
+        $act = $this->activityLog->log($this->user, EntityEvents::EVENT_CREATE, $customerEntity);
         $openedAct = $this->entityLoader->getEntityById($act->getEntityId(), $this->account->getAccountId());
 
         // Test activity
         $this->assertNotNull($openedAct);
-        $this->assertNotEmpty($openedAct->getValueName("type_id"));
         $this->assertNotEmpty($openedAct->getValueName("subject"));
 
         // Cleanup

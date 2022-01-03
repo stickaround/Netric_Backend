@@ -2,6 +2,7 @@
 
 namespace Netric\Entity\Notifier;
 
+use Netric\Entity\EntityEvents;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\EntityQuery;
@@ -101,7 +102,7 @@ class Notifier
      * Send notifications to followers of an entity
      *
      * @param EntityInterface $entity The entity that was just acted on
-     * @param string $event The event that is triggering from ActivityEntity::VERB_*
+     * @param string $event The event that is triggering from EntityEvents::EVENT_*
      * @param UserEntity $user The user performing the event
      * @param string $changedDescription The description of the change that took place
      * @return int[] List of notification entities created or updated
@@ -165,9 +166,8 @@ class Notifier
 
             // If the verb is create or sent, then check to see if the entity
             // has already been seen by the user we are about to send the notification to
-            if ($event === ActivityEntity::VERB_SENT || $event === ActivityEntity::VERB_CREATED) {
+            if ($event === EntityEvents::EVENT_CREATE) {
                 if (in_array($followerId, $entity->getValue('seen_by'))) {
-
                     // Skip because the user has already seen the entity
                     continue;
                 }
@@ -301,10 +301,8 @@ class Notifier
     private function getNameFromEventVerb($event, $objTypeTitle)
     {
         switch ($event) {
-            case ActivityEntity::VERB_CREATED:
+            case EntityEvents::EVENT_CREATE:
                 return "Added " . $objTypeTitle;
-            case ActivityEntity::VERB_SENT:
-                return "Sent " . $objTypeTitle;
             default:
                 return ucfirst($event) . "d " . $objTypeTitle;
         }

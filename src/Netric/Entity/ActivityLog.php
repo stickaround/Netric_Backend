@@ -2,17 +2,13 @@
 
 namespace Netric\Entity;
 
-use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\ActivityEntity;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityGroupings;
-use Netric\EntityGroupings\Group;
+use Netric\EntityDefinition\Field;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Log\LogInterface;
 use Netric\EntityDefinition\ObjectTypes;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Class for managing an entity activity log
@@ -67,7 +63,7 @@ class ActivityLog
      *  object (what the verb was performed on), notes
      *
      * @param UserEntity $user The entity performing the action - usually a user
-     * @param string $verb The action performed from ActivityEntity::VERB_*
+     * @param string $verb The action performed from EntityEvents::EVENT_*
      * @param EntityInterface $object The entity being acted on
      * @return EntityInterface|null The created activity or null on failure
      */
@@ -77,7 +73,8 @@ class ActivityLog
         $objType = $objDef->getObjType();
 
         // We don't add activities of activities - that could create an endless loop
-        if ($objType == ObjectTypes::ACTIVITY) {
+        // We also don't really want notifications causing activity log entries either
+        if ($objType == ObjectTypes::ACTIVITY || $objType == ObjectTypes::NOTIFICATION) {
             return null;
         }
 
@@ -86,31 +83,37 @@ class ActivityLog
          * Since activities are entities also, we use the name of the
          * object acted on as the name of the activity.
          */
-        $name = "";
+        $referencedName = $object->getName();
         $objReference = $object->getValue("obj_reference");
 
         // If we created a comment, then get the name from the object commented on
-        if (($objType == ObjectTypes::COMMENT) && $objReference) {
+        if (($objType === ObjectTypes::COMMENT) && $objReference) {
             // Get the referenced entity
             $entityReferenced = $this->entityLoader->getEntityById($objReference, $user->getAccountId());
 
             if ($entityReferenced) {
                 // Only if the entity exists
-                $name = $entityReferenced->getName();
+                $referencedName = $entityReferenced->getName();
+                // Update the obj_reference for the activity to be the object commented on
+                $objReference = $entityReferenced->getValue('obj_reference');
             }
         }
 
-        // Default to the name of the object acted on
-        if (!$name) {
-            $name = $object->getName();
-        }
+        // Set the name
+        $name = $user->getName();
+
+        // Add the verb description
+        $name .= " " . $this->getVerbDescription($verb, $object);
+
+        // Add the referenced name
+        $name .= " " . $referencedName;
 
         // Get notes from the entity
         $notes = "";
-        if ($verb == ActivityEntity::VERB_UPDATED) {
+        if ($verb == EntityEvents::EVENT_CREATE) {
             $notes = $object->getChangeLogDescription();
         }
-        if ($verb == ActivityEntity::VERB_CREATED) {
+        if ($verb == EntityEvents::EVENT_UPDATE) {
             $notes = $object->getDescription();
         }
 
@@ -119,10 +122,10 @@ class ActivityLog
         $actEntity->setValue("notes", $notes);
         $actEntity->setValue("verb", $verb);
 
-        // If the object we acted on is private, then mark this activity as private
-        $actEntity->setValue("is_private", $objDef->isPrivate);
+        // If the entity we acted on is private, then mark this activity as private
+        $actEntity->setValue("is_private", $objDef->isPrivate());
 
-        // In most cases we reference the object being acted on
+        // The entity that is the object of this action
         $actEntity->setValue("obj_reference", $object->getEntityId());
 
         /*
@@ -134,12 +137,7 @@ class ActivityLog
             $actEntity->setValue("obj_reference", $object->getValue("obj_reference"));
         }
 
-        // Get the type of activity which is just a grouping entiry for the objType
-        $group = $this->getActivityTypeGroup($objDef);
-
-        $actEntity->setValue("type_id", $group->getGroupId(), $group->name);
-
-        // Log which entity performed the action
+        // Log the current user as the actor/subject of the verb
         $actEntity->setValue("subject", $user->getEntityId(), $user->getName());
 
         // Add referenced entity to activity associations
@@ -164,7 +162,7 @@ class ActivityLog
         $fields = $objDef->getFields();
         foreach ($fields as $field) {
             $objReference = $object->getValue($field->name);
-            if ($field->type == FIELD::TYPE_OBJECT && $objReference) {
+            if ($field->type == Field::TYPE_OBJECT && $objReference) {
                 $referencedEntity = $this->entityLoader->getEntityById($objReference, $user->getAccountId());
 
                 if ($referencedEntity) {
@@ -206,32 +204,37 @@ class ActivityLog
     }
 
     /**
-     * Get the activity grouping id for a given objType
+     * Create a human readable description of the verb/action performed
      *
-     * @param EntityDefinition $objDef The type of object to get the grouping type for
-     * @param bool $createIfMissing If true then create a grouping if missing
-     * @return Group
+     * @param string $verb
+     * @param EntityInterface $object
+     * @return string
      */
-    private function getActivityTypeGroup(EntityDefinition $objDef, $createIfMissing = true)
+    private function getVerbDescription(string $verb, EntityInterface $object): string
     {
-        $groupings = $this->groupingLoader->get(ObjectTypes::ACTIVITY . "/type_id", $objDef->getAccountId());
+        $typeName = strtolower($object->getDefinition()->getTitle());
 
-        $existing = $groupings->getByName($objDef->title);
-        if ($existing) {
-            return $existing;
+        // If this is a new comment then return 'commented on' instead of 'created'
+        if (
+            $verb === EntityEvents::EVENT_CREATE &&
+            $object->getDefinition()->getObjType() == ObjectTypes::COMMENT
+        ) {
+            return 'commented on ' . $typeName;
         }
 
-        if (!$createIfMissing) {
-            return null;
+        if ($verb === EntityEvents::EVENT_CREATE) {
+            return 'created ' . $typeName;
         }
 
-        // This is a new type grouping, add it
-        $group = new Group();
-        $group->name = $objDef->title;
-        $groupings->add($group);
-        $this->groupingLoader->save($groupings);
+        if ($verb === EntityEvents::EVENT_UPDATE) {
+            return 'updated ' . $typeName;
+        }
 
-        // Return the newly created group id
-        return $group;
+        if ($verb === EntityEvents::EVENT_DELETE) {
+            return 'deleted ' . $typeName;
+        }
+
+        // Default to just returning the verb
+        return $verb . ' ' . $typeName;
     }
 }

@@ -97,12 +97,6 @@ return [
             ["name" => "Published"],
         ],
     ],
-    'activity' => [
-        'type_id' => [
-            ["name" => "Phone Call"],
-            ["name" => "Status Update"],
-        ],
-    ],
     'phone_call' => [
         'purpose_id' => [
             ["name" => "Prospecting"],

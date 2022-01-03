@@ -498,7 +498,7 @@ class Entity implements EntityInterface
                     $this->addMultiValue($fname, $mval, $valName);
                 }
             } else {
-                if (($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI)) {
+                if (($field->type == Field::TYPE_OBJECT_MULTI || $field->type == Field::TYPE_GROUPING_MULTI)) {
                     $this->clearMultiValues($fname);
                 }
 
@@ -884,7 +884,7 @@ class Entity implements EntityInterface
     {
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
-            if ($field->type == FIELD::TYPE_TEXT && $this->getValue($field->name)) {
+            if ($field->type == Field::TYPE_TEXT && $this->getValue($field->name)) {
                 if (
                     $field->name == "description"
                     || $field->name == "notes"
@@ -933,15 +933,15 @@ class Entity implements EntityInterface
             $field = $this->def->getField($fname);
 
             // Skip multi key arrays
-            if ($field == null || $field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
+            if ($field == null || $field->type == Field::TYPE_OBJECT_MULTI || $field->type == Field::TYPE_GROUPING_MULTI) {
                 continue;
             }
 
-            if ($field->type == FIELD::TYPE_GROUPING || $field->type == FIELD::TYPE_OBJECT) {
+            if ($field->type == Field::TYPE_GROUPING || $field->type == Field::TYPE_OBJECT) {
                 $newVal = $this->getValueName($fname);
             }
 
-            if ($field->type == FIELD::TYPE_BOOL) {
+            if ($field->type == Field::TYPE_BOOL) {
                 if ($oldVal == 't') {
                     $oldVal = "Yes";
                 }
@@ -1003,7 +1003,7 @@ class Entity implements EntityInterface
 
             // If the default was different, then set it
             if (!empty($new) && $new != $val) {
-                if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
+                if ($field->type == Field::TYPE_OBJECT_MULTI || $field->type == Field::TYPE_GROUPING_MULTI) {
                     $this->addMultiValue($fname, $new);
                 } else {
                     // Set value
@@ -1063,13 +1063,13 @@ class Entity implements EntityInterface
     {
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
-            if (($field->type == FIELD::TYPE_OBJECT || $field->type === FIELD::TYPE_OBJECT_MULTI) &&
+            if (($field->type == Field::TYPE_OBJECT || $field->type === Field::TYPE_OBJECT_MULTI) &&
                 $field->subtype === ObjectTypes::FILE
             ) {
                 // Only process if the value has changed since last time
                 if ($this->fieldValueChanged($field->name)) {
                     // Make a files array - if it's an object than an array of one
-                    $files = ($field->type == FIELD::TYPE_OBJECT) ?
+                    $files = ($field->type == Field::TYPE_OBJECT) ?
                         [$this->getValue($field->name)] :
                         $this->getValue($field->name);
 
@@ -1163,7 +1163,7 @@ class Entity implements EntityInterface
             $valueName = $this->getValueName($field->name, $value);
 
             switch ($field->type) {
-                case FIELD::TYPE_TEXT:
+                case Field::TYPE_TEXT:
                     // Check if any text fields are tagging users
                     $tagged = self::getTaggedObjRef($value);
                     foreach ($tagged as $objRef) {
@@ -1176,7 +1176,7 @@ class Entity implements EntityInterface
                     }
                     break;
 
-                case FIELD::TYPE_OBJECT:
+                case Field::TYPE_OBJECT:
                     // Make sure we have associations added for any object reference
                     if ($value) {
                         if ($field->subtype == ObjectTypes::USER) {
@@ -1184,7 +1184,7 @@ class Entity implements EntityInterface
                         }
                     }
                     break;
-                case FIELD::TYPE_OBJECT_MULTI:
+                case Field::TYPE_OBJECT_MULTI:
                     // Check if any fields are referencing users
                     if ($field->subtype == ObjectTypes::USER) {
                         if (is_array($value)) {

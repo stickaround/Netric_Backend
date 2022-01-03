@@ -21,6 +21,7 @@ use Netric\DataMapperAbstract;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Ramsey\Uuid\Uuid;
 use Netric\Entity\EntityAggregatorFactory;
+use Netric\Entity\EntityEvents;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\PubSub\PubSubInterface;
@@ -294,7 +295,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $entity->setValue('commit_id', $commitId);
 
         // Set defaults including ts_updated
-        $event = ($revision > 1) ? "update" : "create";
+        $event = ($revision > 1) ? EntityEvents::EVENT_UPDATE : EntityEvents::EVENT_CREATE;
         $entity->setFieldsDefault($event, $user);
 
         // Create a unique name or human-readable number - UUIDs are hard to remember
@@ -361,7 +362,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             'netric/' . $entity->getAccountId() . '/entity_change',
             [
                 'action' => $event,
-                'before' => ($event === 'update') ? $this->getDataBeforeChanges($entity) : [],
+                'before' => ($event === EntityEvents::EVENT_UPDATE) ? $this->getDataBeforeChanges($entity) : [],
                 'after' => $entity->toArray()
             ]
         );
@@ -604,7 +605,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $this->pubSub->publish(
             'netric/' . $entity->getAccountId() . '/entity_change',
             [
-                'action' => 'delete',
+                'action' => EntityEvents::EVENT_DELETE,
                 'before' => $entity->toArray(),
                 'after' => [] // no more
             ]

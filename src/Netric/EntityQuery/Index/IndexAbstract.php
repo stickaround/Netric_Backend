@@ -13,7 +13,6 @@ use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\Entity\Entity;
-use Netric\Account\Account;
 use Netric\Entity\EntityFactory;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinitionLoader;
@@ -21,7 +20,6 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityValueSanitizer;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\EntityGroupings\GroupingLoader;
-use Ramsey\Uuid\Uuid;
 
 abstract class IndexAbstract
 {
@@ -211,7 +209,7 @@ abstract class IndexAbstract
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($ent->getValue($field->name) && $field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
+            if ($ent->getValue($field->name) && $field->type == Field::TYPE_OBJECT && $field->subtype == $objType) {
                 $children = $this->getHeiarchyUpObj($field->subtype, $ent->getValue($field->name), $accountId);
                 if (count($children)) {
                     $ret = array_merge($ret, $children);
@@ -245,7 +243,7 @@ abstract class IndexAbstract
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
+            if ($field->type == Field::TYPE_OBJECT && $field->subtype == $objType) {
                 $query = new EntityQuery($field->subtype, $accountId);
                 $query->where($ent->getDefinition()->parentField)->equals($ent->getEntityId());
                 $res = $this->executeQuery($query);

@@ -8,6 +8,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
 
@@ -70,7 +71,7 @@ class CommentEntity extends Entity implements EntityInterface
             if ($entityCommentedOn->getObjType() != ObjectTypes::STATUS_UPDATE && !$this->getEntityId()) {
                 $fields = $entityCommentedOn->getDefinition()->getFields();
                 foreach ($fields as $field) {
-                    if ($field->type == FIELD::TYPE_OBJECT && ($field->subtype || $field->name === "obj_reference")) {
+                    if ($field->type == Field::TYPE_OBJECT && ($field->subtype || $field->name === "obj_reference")) {
                         $val = $entityCommentedOn->getValue($field->name);
                         if (Uuid::isValid($val)) {
                             $this->addMultiValue("associations", $val);

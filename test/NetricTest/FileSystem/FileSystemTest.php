@@ -124,8 +124,14 @@ class FileSystemTest extends TestCase
         $rootFolder = $this->fileSystem->getRootFolder($this->account->getSystemUser());
 
         // Cleanup first
-        if ($this->fileSystem->openFolder("/testOpenSub", $this->account->getAuthenticatedUser())) {
-            $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testOpenSub"), $this->account->getAuthenticatedUser());
+        if ($this->fileSystem->openFolder(
+            "/testOpenSub",
+            $this->account->getAuthenticatedUser()
+        )) {
+            $this->fileSystem->deleteFolder(
+                $this->fileSystem->openFolder("/testOpenSub"),
+                $this->account->getAuthenticatedUser()
+            );
         }
 
         // Create /testOpenSub

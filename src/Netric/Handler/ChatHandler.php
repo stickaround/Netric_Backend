@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\Handler;
 
+use Netric\Entity\EntityEvents;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\Notifier\Notifier;
 use Netric\Entity\ObjType\ActivityEntity;
@@ -66,7 +67,7 @@ class ChatHandler implements ChatIf
                 $user = $this->entityLoader->getEntityById($userId, $accountId);
                 $this->notifier->send(
                     $chatRoom,
-                    ActivityEntity::VERB_SENT,
+                    EntityEvents::EVENT_CREATE,
                     $user,
                     $chatMessage->getValue('body')
                 );

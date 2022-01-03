@@ -7,6 +7,7 @@ namespace NetricTest\Handler;
 use Netric\Account\AccountContainer;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\Entity;
+use Netric\Entity\EntityEvents;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\Notifier\Notifier;
 use Netric\Entity\ObjType\ActivityEntity;
@@ -104,7 +105,7 @@ class ChatHandlerTest extends TestCase
         // Mock notifier send
         $this->mockNotifier->expects($this->once())->method('send')->with(
             $this->equalTo($room),
-            $this->equalTo(ActivityEntity::VERB_SENT),
+            $this->equalTo(EntityEvents::EVENT_CREATE),
             $this->equalTo($userTwo),
             $this->equalTo($message->getValue('body')),
         );

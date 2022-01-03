@@ -4,19 +4,16 @@ namespace Netric\EntityGroupings\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
-use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\EntitySync\Commit\CommitManager;
 use Netric\EntitySync\EntitySync;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\EntityDefinition\EntityDefinitionLoader;
-use Netric\Db\Relational\RelationalDbContainerInterface;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
 use Netric\WorkerMan\WorkerService;
 use Ramsey\Uuid\Uuid;
-use DateTime;
 
 /**
  * Load and save entity groupings with a relational database
@@ -247,7 +244,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             return false;
         }
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
+        if ($field->type != Field::TYPE_GROUPING && $field->type != Field::TYPE_GROUPING_MULTI) {
             return false;
         }
 

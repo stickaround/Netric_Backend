@@ -90,7 +90,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $fields = $def->getFields();
         $fieldTextValues = [];
         foreach ($fields as $field) {
-            if ($field->type != FIELD::TYPE_GROUPING_MULTI && $field->type != FIELD::TYPE_OBJECT_MULTI) {
+            if ($field->type != Field::TYPE_GROUPING_MULTI && $field->type != Field::TYPE_OBJECT_MULTI) {
                 $fieldTextValues[] = strtolower(strip_tags($entity->getValue($field->name)));
             }
         }
@@ -193,7 +193,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $conditionString .= " AND ";
             }
 
-            $castType = $this->castType(FIELD::TYPE_BOOL);
+            $castType = $this->castType(Field::TYPE_BOOL);
             $conditionString .= "(f_deleted is not true)";
         }
 
@@ -340,7 +340,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
             // Decode multival fields into arrays of values
             foreach ($ofields as $fname => $fdef) {
-                if ($fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI) {
+                if ($fdef->type == Field::TYPE_GROUPING_MULTI || $fdef->type == Field::TYPE_OBJECT_MULTI) {
                     if (isset($entityData[$fname])) {
                         $dec = $entityData[$fname];
                         if ($dec !== false) {
@@ -350,8 +350,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
 
                 if (
-                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
-                    || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
+                    $fdef->type == Field::TYPE_GROUPING || $fdef->type == Field::TYPE_OBJECT
+                    || $fdef->type == Field::TYPE_GROUPING_MULTI || $fdef->type == Field::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
                         $dec = $entityData[$fname . "_fval"];
@@ -412,15 +412,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case Where::OPERATOR_GREATER_THAN:
                 switch ($field->type) {
-                    case FIELD::TYPE_OBJECT_MULTI:
-                    case FIELD::TYPE_OBJECT:
-                    case FIELD::TYPE_GROUPING_MULTI:
-                    case FIELD::TYPE_TEXT:
+                    case Field::TYPE_OBJECT_MULTI:
+                    case Field::TYPE_OBJECT:
+                    case Field::TYPE_GROUPING_MULTI:
+                    case Field::TYPE_TEXT:
                         break;
                     default:
-                        if ($field->type == FIELD::TYPE_TIMESTAMP) {
+                        if ($field->type == Field::TYPE_TIMESTAMP) {
                             $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                        } elseif ($field->type == FIELD::TYPE_DATE) {
+                        } elseif ($field->type == Field::TYPE_DATE) {
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
@@ -430,15 +430,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case Where::OPERATOR_LESS_THAN:
                 switch ($field->type) {
-                    case FIELD::TYPE_OBJECT_MULTI:
-                    case FIELD::TYPE_OBJECT:
-                    case FIELD::TYPE_GROUPING_MULTI:
-                    case FIELD::TYPE_TEXT:
+                    case Field::TYPE_OBJECT_MULTI:
+                    case Field::TYPE_OBJECT:
+                    case Field::TYPE_GROUPING_MULTI:
+                    case Field::TYPE_TEXT:
                         break;
                     default:
-                        if ($field->type == FIELD::TYPE_TIMESTAMP) {
+                        if ($field->type == Field::TYPE_TIMESTAMP) {
                             $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                        } elseif ($field->type == FIELD::TYPE_DATE) {
+                        } elseif ($field->type == Field::TYPE_DATE) {
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
@@ -448,11 +448,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case Where::OPERATOR_GREATER_THAN_OR_EQUAL_TO:
                 switch ($field->type) {
-                    case FIELD::TYPE_OBJECT_MULTI:
-                    case FIELD::TYPE_GROUPING_MULTI:
-                    case FIELD::TYPE_TEXT:
+                    case Field::TYPE_OBJECT_MULTI:
+                    case Field::TYPE_GROUPING_MULTI:
+                    case Field::TYPE_TEXT:
                         break;
-                    case FIELD::TYPE_OBJECT:
+                    case Field::TYPE_OBJECT:
                         if ($field->subtype) {
                             $children = $this->getHeiarchyDownObj($field->subtype, $value, $accountId);
 
@@ -465,9 +465,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         }
                         break;
                     default:
-                        if ($field->type == FIELD::TYPE_TIMESTAMP) {
+                        if ($field->type == Field::TYPE_TIMESTAMP) {
                             $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                        } elseif ($field->type == FIELD::TYPE_DATE) {
+                        } elseif ($field->type == Field::TYPE_DATE) {
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
@@ -477,11 +477,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case Where::OPERATOR_LESS_THAN_OR_EQUAL_TO:
                 switch ($field->type) {
-                    case FIELD::TYPE_OBJECT_MULTI:
-                    case FIELD::TYPE_GROUPING_MULTI:
-                    case FIELD::TYPE_TEXT:
+                    case Field::TYPE_OBJECT_MULTI:
+                    case Field::TYPE_GROUPING_MULTI:
+                    case Field::TYPE_TEXT:
                         break;
-                    case FIELD::TYPE_OBJECT:
+                    case Field::TYPE_OBJECT:
                         if (
                             !empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
@@ -509,9 +509,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         }
                         break;
                     default:
-                        if ($field->type == FIELD::TYPE_TIMESTAMP) {
+                        if ($field->type == Field::TYPE_TIMESTAMP) {
                             $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                        } elseif ($field->type == FIELD::TYPE_DATE) {
+                        } elseif ($field->type == Field::TYPE_DATE) {
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
@@ -521,12 +521,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case Where::OPERATOR_BEGINS:
             case Where::OPERATOR_BEGINS_WITH:
-                if ($field->type == FIELD::TYPE_TEXT) {
+                if ($field->type == Field::TYPE_TEXT) {
                     $conditionString = "lower(field_data->>'$fieldName') LIKE '" . strtolower("$value%") . "'";
                 }
                 break;
             case Where::OPERATOR_CONTAINS:
-                if ($field->type == FIELD::TYPE_TEXT) {
+                if ($field->type == Field::TYPE_TEXT) {
                     $conditionString = "lower(field_data->>'$fieldName') LIKE '" . strtolower("%$value%") . "'";
                 }
                 break;
@@ -535,8 +535,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // If we are dealing with date operators
         if (empty($conditionString)) {
             switch ($field->type) {
-                case FIELD::TYPE_TIMESTAMP:
-                case FIELD::TYPE_DATE:
+                case Field::TYPE_TIMESTAMP:
+                case Field::TYPE_DATE:
                     $conditionString = $this->buildConditionWithDateOperators($condition, $castType);
                     break;
                 default:
@@ -617,7 +617,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($field->type) {
-            case FIELD::TYPE_OBJECT:
+            case Field::TYPE_OBJECT:
                 if ($value) {
                     // New jsonb-based query condition
                     $conditionString = "field_data->>'$fieldName' = '$value'";
@@ -626,10 +626,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $conditionString = "(field_data->>'$fieldName') IS NULL OR field_data->>'$fieldName' = ''";
                 }
                 break;
-            case FIELD::TYPE_OBJECT_MULTI:
+            case Field::TYPE_OBJECT_MULTI:
                 $conditionString = $this->buildObjectMultiQueryCondition($entityDefinition, $field, $condition);
                 break;
-            case FIELD::TYPE_GROUPING_MULTI:
+            case Field::TYPE_GROUPING_MULTI:
                 // Make sure that the grouping value is provided
                 if ($value) {
                     $conditionString = "field_data->'{$fieldName}' @> jsonb_build_array('$value')";
@@ -637,24 +637,24 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $conditionString = "(field_data->'$fieldName' = 'null'::jsonb OR field_data->'$fieldName' = '[]'::jsonb)";
                 }
                 break;
-            case FIELD::TYPE_GROUPING:
+            case Field::TYPE_GROUPING:
                 $conditionString = $this->buildGroupingQueryCondition($entityDefinition, $field, $condition);
                 break;
-            case FIELD::TYPE_TEXT:
+            case Field::TYPE_TEXT:
                 if (empty($value)) {
                     $conditionString = "(field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = '')";
                 } else {
                     $conditionString = "lower(field_data->>'$fieldName') = '" . strtolower($value) . "'";
                 }
                 break;
-            case FIELD::TYPE_BOOL:
+            case Field::TYPE_BOOL:
                 $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = $value";
                 break;
-            case FIELD::TYPE_DATE:
-            case FIELD::TYPE_TIMESTAMP:
-                if ($field->type == FIELD::TYPE_TIMESTAMP) {
+            case Field::TYPE_DATE:
+            case Field::TYPE_TIMESTAMP:
+                if ($field->type == Field::TYPE_TIMESTAMP) {
                     $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                } elseif ($field->type == FIELD::TYPE_DATE) {
+                } elseif ($field->type == Field::TYPE_DATE) {
                     $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                 }
             default:
@@ -685,7 +685,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($field->type) {
-            case FIELD::TYPE_OBJECT:
+            case Field::TYPE_OBJECT:
                 if ($field->subtype) {
                     if (empty($value)) {
                         $conditionString = "field_data->>'$fieldName' IS NOT NULL";
@@ -715,7 +715,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
 
-            case FIELD::TYPE_OBJECT_MULTI:
+            case Field::TYPE_OBJECT_MULTI:
                 $conditionString = $this->buildObjectMultiQueryCondition($entityDefinition, $field, $condition);
                 break;
             case 'object_dereference':
@@ -736,7 +736,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }*/
                 break;
-            case FIELD::TYPE_GROUPING_MULTI:
+            case Field::TYPE_GROUPING_MULTI:
                 // Make sure that the grouping value is provided
                 if ($value) {
                     $conditionString = "entity_id NOT IN (SELECT entity_id FROM $objectTable WHERE field_data->'{$fieldName}' @> jsonb_build_array('$value'))";
@@ -744,24 +744,24 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $conditionString = "(field_data->'$fieldName' != 'null'::jsonb OR field_data->'$fieldName' != '[]'::jsonb)";
                 }
                 break;
-            case FIELD::TYPE_GROUPING:
+            case Field::TYPE_GROUPING:
                 $conditionString = $this->buildGroupingQueryCondition($entityDefinition, $field, $condition);
                 break;
-            case FIELD::TYPE_TEXT:
+            case Field::TYPE_TEXT:
                 if (empty($value)) {
                     $conditionString = "(field_data->>'$fieldName' != '' AND field_data->>'$fieldName' IS NOT NULL)";
                 } else {
                     $conditionString = "lower(field_data->>'$fieldName') != '" . strtolower($value) . "'";
                 }
                 break;
-            case FIELD::TYPE_BOOL:
+            case Field::TYPE_BOOL:
                 $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType != $value";
                 break;
-            case FIELD::TYPE_DATE:
-            case FIELD::TYPE_TIMESTAMP:
-                if ($field->type == FIELD::TYPE_TIMESTAMP) {
+            case Field::TYPE_DATE:
+            case Field::TYPE_TIMESTAMP:
+                if ($field->type == Field::TYPE_TIMESTAMP) {
                     $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                } elseif ($field->type == FIELD::TYPE_DATE) {
+                } elseif ($field->type == Field::TYPE_DATE) {
                     $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                 }
                 // Format the string then fall through to default
@@ -938,17 +938,17 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     private function castType($fieldType)
     {
         switch ($fieldType) {
-            case FIELD::TYPE_TIMESTAMP:
+            case Field::TYPE_TIMESTAMP:
                 return "::timestamp with time zone";
                 break;
-            case FIELD::TYPE_DATE:
+            case Field::TYPE_DATE:
                 return "::date";
                 break;
-            case FIELD::TYPE_BOOL:
+            case Field::TYPE_BOOL:
                 return "::boolean";
                 break;
-            case FIELD::TYPE_INTEGER:
-            case FIELD::TYPE_NUMBER:
+            case Field::TYPE_INTEGER:
+            case Field::TYPE_NUMBER:
                 return "::integer";
                 break;
             default:

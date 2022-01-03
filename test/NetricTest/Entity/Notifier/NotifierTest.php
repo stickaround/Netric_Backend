@@ -13,6 +13,7 @@ use Netric\Entity\Notifier\Notifier;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Account\Account;
+use Netric\Entity\EntityEvents;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
@@ -134,7 +135,7 @@ class NotifierTest extends TestCase
         // Now re-create notifications
         $notificationIds = $this->notifier->send(
             $task,
-            ActivityEntity::VERB_CREATED,
+            EntityEvents::EVENT_CREATE,
             $this->account->getAuthenticatedUser()
         );
 
@@ -157,7 +158,7 @@ class NotifierTest extends TestCase
          */
         $newNotificationIds = $this->notifier->send(
             $task,
-            ActivityEntity::VERB_CREATED,
+            EntityEvents::EVENT_CREATE,
             $this->account->getAuthenticatedUser()
         );
         $this->assertEquals($notificationIds, $newNotificationIds);
@@ -193,7 +194,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $comment;
 
         // Now re-create notifications
-        $notificationIds = $this->notifier->send($comment, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
+        $notificationIds = $this->notifier->send($comment, EntityEvents::EVENT_CREATE, $this->account->getAuthenticatedUser());
 
         // Exactly two notification should have been created for the test user. One if for creating the comment, second is for updating the task.
         $this->assertEquals(2, count($notificationIds));
@@ -247,7 +248,7 @@ class NotifierTest extends TestCase
         $this->testEntities[] = $comment;
 
         // Now re-create notifications
-        $notificationIds = $this->notifier->send($comment, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
+        $notificationIds = $this->notifier->send($comment, EntityEvents::EVENT_CREATE, $this->account->getAuthenticatedUser());
 
         /**
          * Exactly three notification should have been created for the test user.
@@ -285,7 +286,7 @@ class NotifierTest extends TestCase
         $task->setValue("name", "updated task name");
 
         // Now re-create notifications
-        $this->notifier->send($task, ActivityEntity::VERB_CREATED, $this->account->getAuthenticatedUser());
+        $this->notifier->send($task, EntityEvents::EVENT_CREATE, $this->account->getAuthenticatedUser());
 
         // Query to make sure we have an unseen notification for the test user
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
