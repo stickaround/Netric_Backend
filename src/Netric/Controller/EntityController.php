@@ -281,6 +281,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
             $entityData['applied_name'] = $entity->getName();
+            $entityData['applied_icon'] = $entity->getIconName();
             $entityData['applied_description'] = $entity->getDescription();
         } else {
             $entityData = $entity->toArrayWithNoPermissions();
@@ -389,6 +390,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
             $entityData['applied_name'] = $entity->getName();
+            $entityData['applied_icon'] = $entity->getIconName();
             $entityData['applied_description'] = $entity->getDescription();
         } else {
             $entityData = $entity->toArrayWithNoPermissions();
@@ -599,6 +601,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $defDacl = $this->daclLoader->getForEntityDefinition($def);
         $ret['applied_dacl'] = $defDacl->toArray();
         $ret['applied_name'] = $user->getName();
+        $ret['applied_icon'] = $user->getIconName();
         $ret['applied_description'] = $user->getDescription();
         return $ret;
     }

@@ -150,6 +150,7 @@ class EntityQueryControllerTest extends TestCase
                 array_merge($taskEntityData, [
                     'applied_dacl' => $daclDetails,
                     'applied_name' => $taskEntityData['name'],
+                    'applied_icon' => '',
                     'applied_description' => '',
                     'currentuser_permissions' => $daclPermissions
                 ])

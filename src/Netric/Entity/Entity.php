@@ -847,6 +847,19 @@ class Entity implements EntityInterface
     }
 
     /**
+     * Get Icon name of this object based on common name icon
+     *
+     * @return string The Icon name of this object
+     */
+    public function getIconName(): string
+    {
+        if ($this->def->getField("icon")) {
+            return $this->getValue("icon");
+        }
+        return '';
+    }
+
+    /**
      * Get the field of this object that it uses to display as its name/title/subject/label
      * 
      * @return string
@@ -874,6 +887,7 @@ class Entity implements EntityInterface
 
         return "entity_id";
     }
+    
 
     /**
      * Try and get a textual description of this entity typically found in fileds named "notes" or "description"

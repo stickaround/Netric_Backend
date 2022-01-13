@@ -135,6 +135,7 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for testing',
             'applied_name' => 'Test Task',
+            'applied_icon' => '',
             'applied_description' => '',
             'applied_dacl' => [
                 'entries' => [],
@@ -154,6 +155,7 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for testing',
             'applied_name' => 'Test Task',
+            'applied_icon' => '',
             'applied_description' => '',
             'applied_dacl' => [
                 'entries' => [],
@@ -309,6 +311,7 @@ class EntityControllerTest extends TestCase
             'default_view' => $browserViewDetails,
             'applied_dacl' => $daclDetails,
             'applied_name' => null,
+            'applied_icon' => '',
             'applied_description' => '',
         ], $response->getOutputBuffer());
     }
@@ -428,6 +431,7 @@ class EntityControllerTest extends TestCase
             'default_view' => $browserViewDetails,
             'applied_dacl' => $daclDetails,
             'applied_name' => null,
+            'applied_icon' => '',
             'applied_description' => '',
         ];
         $this->assertEquals([
@@ -533,6 +537,7 @@ class EntityControllerTest extends TestCase
             'default_view' => $browserViewDetails,
             'applied_dacl' => $daclDetails,
             'applied_name' => null,
+            'applied_icon' => '',
             'applied_description' => '',
         ], $response->getOutputBuffer());
     }
@@ -715,6 +720,7 @@ class EntityControllerTest extends TestCase
             'description' => 'Task for saving',
             'applied_dacl' => $daclDetails,
             'applied_name' => 'Test Task',
+            'applied_icon' => '',
             'applied_description' => '',
             'currentuser_permissions' => $daclPermissions
         ], $response->getOutputBuffer());
@@ -791,6 +797,7 @@ class EntityControllerTest extends TestCase
             'description' => 'Task for saving',
             'applied_dacl' => $daclDetails,
             'applied_name' => 'Test Task',
+            'applied_icon' => '',
             'applied_description' => '',
             'currentuser_permissions' => $daclPermissions
         ], $response->getOutputBuffer());

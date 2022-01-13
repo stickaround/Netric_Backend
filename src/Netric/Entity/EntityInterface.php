@@ -207,6 +207,13 @@ interface EntityInterface
     public function getDescription(): string;
 
     /**
+     * Try and get a textual icon name of this entity
+     *
+     * @return string The icon name of this object
+     */
+    public function getIconName(): string;
+
+    /**
      * Get a textual representation of what changed
      */
     public function getChangeLogDescription(): string;
