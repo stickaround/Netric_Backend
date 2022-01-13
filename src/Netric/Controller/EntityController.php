@@ -280,13 +280,16 @@ class EntityController extends AbstractFactoriedController implements Controller
         if ($currentUserPermissions['view']) {
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
+            $entityData['applied_name'] = $entity->getName();
+            $entityData['applied_description'] = $entity->getDescription();
         } else {
             $entityData = $entity->toArrayWithNoPermissions();
         }
 
         // Add applied properties - not field values but processed
         $entityData['currentuser_permissions'] = $currentUserPermissions;
-
+        $entityData['applied_name'] = $entity->getName();
+        $entityData['applied_description'] = $entity->getDescription();
         $response->write($entityData);
         return $response;
     }
@@ -385,6 +388,8 @@ class EntityController extends AbstractFactoriedController implements Controller
         if ($currentUserPermissions['view']) {
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
+            $entityData['applied_name'] = $entity->getName();
+            $entityData['applied_description'] = $entity->getDescription();
         } else {
             $entityData = $entity->toArrayWithNoPermissions();
         }
@@ -593,7 +598,8 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Add the currently applied DACL for this entity definition
         $defDacl = $this->daclLoader->getForEntityDefinition($def);
         $ret['applied_dacl'] = $defDacl->toArray();
-
+        $ret['applied_name'] = $user->getName();
+        $ret['applied_description'] = $user->getDescription();
         return $ret;
     }
 

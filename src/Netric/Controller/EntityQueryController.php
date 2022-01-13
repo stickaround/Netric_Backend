@@ -150,6 +150,8 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
             if ($currentUserPermissions["view"]) {
                 $entityData = $ent->toArray();
                 $entityData["applied_dacl"] = $dacl->toArray();
+                $entityData['applied_name'] = $ent->getName();
+                $entityData['applied_description'] = $ent->getDescription();
             } else {
                 $entityData = $ent->toArrayWithNoPermissions();
             }

@@ -134,6 +134,8 @@ class EntityControllerTest extends TestCase
             'entity_id' => $taskEntityId,
             'name' => 'Test Task',
             'description' => 'Task for testing',
+            'applied_name' => 'Test Task',
+            'applied_description' => '',
             'applied_dacl' => [
                 'entries' => [],
                 'name' => 'task_dacl'
@@ -151,6 +153,8 @@ class EntityControllerTest extends TestCase
             'entity_id' => $taskEntityId,
             'name' => 'Test Task',
             'description' => 'Task for testing',
+            'applied_name' => 'Test Task',
+            'applied_description' => '',
             'applied_dacl' => [
                 'entries' => [],
                 'name' => 'task_dacl'
@@ -203,6 +207,8 @@ class EntityControllerTest extends TestCase
             'obj_type' => ObjectTypes::TASK,
             'entity_id' => $taskEntityId,
             'name' => 'Test Task',
+            'applied_name' => 'Test Task',
+            'applied_description' => '',
             'currentuser_permissions' => $daclPermissions
         ], $response->getOutputBuffer());
     }
@@ -301,7 +307,9 @@ class EntityControllerTest extends TestCase
             'forms' => $formDetails,
             'views' => [],
             'default_view' => $browserViewDetails,
-            'applied_dacl' => $daclDetails
+            'applied_dacl' => $daclDetails,
+            'applied_name' => null,
+            'applied_description' => '',
         ], $response->getOutputBuffer());
     }
 
@@ -418,7 +426,9 @@ class EntityControllerTest extends TestCase
             'forms' => $formDetails,
             'views' => [],
             'default_view' => $browserViewDetails,
-            'applied_dacl' => $daclDetails
+            'applied_dacl' => $daclDetails,
+            'applied_name' => null,
+            'applied_description' => '',
         ];
         $this->assertEquals([
             array_merge($taskDefDetails, $definitionDetails),
@@ -521,7 +531,9 @@ class EntityControllerTest extends TestCase
             'forms' => $formDetails,
             'views' => [],
             'default_view' => $browserViewDetails,
-            'applied_dacl' => $daclDetails
+            'applied_dacl' => $daclDetails,
+            'applied_name' => null,
+            'applied_description' => '',
         ], $response->getOutputBuffer());
     }
 
@@ -702,6 +714,8 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for saving',
             'applied_dacl' => $daclDetails,
+            'applied_name' => 'Test Task',
+            'applied_description' => '',
             'currentuser_permissions' => $daclPermissions
         ], $response->getOutputBuffer());
     }
@@ -776,6 +790,8 @@ class EntityControllerTest extends TestCase
             'name' => 'Test Task',
             'description' => 'Task for saving',
             'applied_dacl' => $daclDetails,
+            'applied_name' => 'Test Task',
+            'applied_description' => '',
             'currentuser_permissions' => $daclPermissions
         ], $response->getOutputBuffer());
     }
