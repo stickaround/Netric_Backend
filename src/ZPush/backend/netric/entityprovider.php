@@ -703,7 +703,7 @@ class EntityProvider
         //$contact->categories = $row['categories'];
         $contact->companyname = $contactEntity->getValue('company');
         $contact->homecity = $contactEntity->getValue('city');
-        $contact->homepostalcode = $contactEntity->getValue('zip');
+        $contact->homepostalcode = $contactEntity->getValue('postal_code');
         $contact->homestate = $contactEntity->getValue('state');
         $contact->homestreet = $contactEntity->getValue('street');
         $contact->homefaxnumber = $contactEntity->getValue('fax');
@@ -1172,7 +1172,7 @@ class EntityProvider
         $entity->setValue('street', $syncContact->homestreet);
         $entity->setValue('city', $syncContact->homecity);
         $entity->setValue('state', $syncContact->homestate);
-        $entity->setValue('zip', $syncContact->homepostalcode);
+        $entity->setValue('postal_code', $syncContact->homepostalcode);
         $entity->setValue('company', $syncContact->companyname);
         $entity->setValue('job_title', $syncContact->jobtitle);
         $entity->setValue('website', $syncContact->webpage);

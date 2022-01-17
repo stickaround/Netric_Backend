@@ -1,27 +1,28 @@
 <?php
+
 /***********************************************
-* File      :   carddav.php
-* Project   :   Z-Push
-* Descr     :   This backend is for carddav servers.
-*
-* Created   :   16.03.2013
-*
-* Copyright 2013 - 2016 Francisco Miguel Biete
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License, version 3,
-* as published by the Free Software Foundation.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-* Consult LICENSE file for details
-************************************************/
+ * File      :   carddav.php
+ * Project   :   Z-Push
+ * Descr     :   This backend is for carddav servers.
+ *
+ * Created   :   16.03.2013
+ *
+ * Copyright 2013 - 2016 Francisco Miguel Biete
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License, version 3,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Consult LICENSE file for details
+ ************************************************/
 
 // config file
 require_once("backend/carddav/config.php");
@@ -807,7 +808,7 @@ class BackendCardDAV extends BackendDiff implements ISearchProvider
             $querycnt = $xml_vcards->count();
             //do not return more results as requested in range
             $querylimit = (($rangeend + 1) < $querycnt) ? ($rangeend + 1) : $querycnt == 0 ? 1 : $querycnt;
-            $items['range'] = $rangestart.'-'.($querylimit - 1);
+            $items['range'] = $rangestart . '-' . ($querylimit - 1);
             $items['searchtotal'] = $querycnt;
 
             ZLog::Write(LOGLEVEL_DEBUG, sprintf("BackendCardDAV->GetGALSearchResults : %s entries found, returning %s to %s", $querycnt, $rangestart, $querylimit));
@@ -887,12 +888,12 @@ class BackendCardDAV extends BackendDiff implements ISearchProvider
     }
 
     /**
-    * Terminates a search for a given PID
-    *
-    * @param int $pid
-    *
-    * @return boolean
-    */
+     * Terminates a search for a given PID
+     *
+     * @param int $pid
+     *
+     * @return boolean
+     */
     public function TerminateSearch($pid)
     {
         return true;
@@ -947,7 +948,7 @@ class BackendCardDAV extends BackendDiff implements ISearchProvider
      */
     private function unescape($data)
     {
-        $data = str_replace(['\\\\', '\\;', '\\,', '\\n','\\N'], ['\\', ';', ',', "\n", "\n"], $data);
+        $data = str_replace(['\\\\', '\\;', '\\,', '\\n', '\\N'], ['\\', ';', ',', "\n", "\n"], $data);
         return $data;
     }
 
@@ -963,7 +964,8 @@ class BackendCardDAV extends BackendDiff implements ISearchProvider
     {
         ZLog::Write(LOGLEVEL_WBXML, sprintf("BackendCardDAV->ParseFromVCard : vCard\n%s\n", $data));
 
-        $types = ['dom' => 'type', 'intl' => 'type', 'postal' => 'type', 'parcel' => 'type', 'home' => 'type', 'work' => 'type',
+        $types = [
+            'dom' => 'type', 'intl' => 'type', 'postal' => 'type', 'parcel' => 'type', 'home' => 'type', 'work' => 'type',
             'pref' => 'type', 'voice' => 'type', 'fax' => 'type', 'msg' => 'type', 'cell' => 'type', 'pager' => 'type',
             'bbs' => 'type', 'modem' => 'type', 'car' => 'type', 'isdn' => 'type', 'video' => 'type',
             'aol' => 'type', 'applelink' => 'type', 'attmail' => 'type', 'cis' => 'type', 'eworld' => 'type',
@@ -1042,7 +1044,7 @@ class BackendCardDAV extends BackendDiff implements ISearchProvider
             //
             switch ($type) {
                 case 'categories':
-                //case 'nickname':
+                    //case 'nickname':
                     $val = preg_split('/(\s)*(\\\)?\,(\s)*/i', $value);
                     break;
                 default:
@@ -1133,23 +1135,23 @@ class BackendCardDAV extends BackendDiff implements ISearchProvider
                     $a = 'other';
                 }
                 if (!empty($adr['val'][2])) {
-                    $b = $a.'street';
+                    $b = $a . 'street';
                     $message->$b = $adr['val'][2];
                 }
                 if (!empty($adr['val'][3])) {
-                    $b = $a.'city';
+                    $b = $a . 'city';
                     $message->$b = $adr['val'][3];
                 }
                 if (!empty($adr['val'][4])) {
-                    $b = $a.'state';
+                    $b = $a . 'state';
                     $message->$b = $adr['val'][4];
                 }
                 if (!empty($adr['val'][5])) {
-                    $b = $a.'postalcode';
+                    $b = $a . 'postalcode';
                     $message->$b = $adr['val'][5];
                 }
                 if (!empty($adr['val'][6])) {
-                    $b = $a.'country';
+                    $b = $a . 'country';
                     $message->$b = $adr['val'][6];
                 }
             }
@@ -1286,19 +1288,19 @@ class BackendCardDAV extends BackendDiff implements ISearchProvider
             // Remove trailing ;
             $val = substr($val, 0, -1);
             if (strlen($val) > 50) {
-                $data .= $v.":\n\t".substr(chunk_split($val, 50, "\n\t"), 0, -1);
+                $data .= $v . ":\n\t" . substr(chunk_split($val, 50, "\n\t"), 0, -1);
             } else {
-                $data .= $v.':'.$val."\n";
+                $data .= $v . ':' . $val . "\n";
             }
         }
         if (!empty($message->categories)) {
-            $data .= 'CATEGORIES:'.implode(',', $message->categories)."\n";
+            $data .= 'CATEGORIES:' . implode(',', $message->categories) . "\n";
         }
         if (!empty($message->picture)) {
-            $data .= 'PHOTO;ENCODING=BASE64;TYPE=JPEG:'."\n\t".substr(chunk_split($message->picture, 50, "\n\t"), 0, -1);
+            $data .= 'PHOTO;ENCODING=BASE64;TYPE=JPEG:' . "\n\t" . substr(chunk_split($message->picture, 50, "\n\t"), 0, -1);
         }
         if (isset($message->birthday)) {
-            $data .= 'BDAY:'.date('Y-m-d', $message->birthday)."\n";
+            $data .= 'BDAY:' . date('Y-m-d', $message->birthday) . "\n";
         }
         $data .= "END:VCARD";
 

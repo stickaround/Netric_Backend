@@ -111,8 +111,8 @@ class AuthDotNetGatewayTest extends TestCase
         $customer->setValue('company', 'Souveniropolis');
         $customer->setValue('billing_street', '14 Main Street');
         $customer->setValue('billing_city', 'Pecan Springs');
-        $customer->setValue('billing_state', 'TX');
-        $customer->setValue('billing_zip', '44628');
+        $customer->setValue('billing_district', 'TX');
+        $customer->setValue('billing_postal_code', '44628');
         $customer->setValue('email', 'test@netric.com');
         return $customer;
     }
@@ -163,7 +163,7 @@ class AuthDotNetGatewayTest extends TestCase
     {
         // Create a customer and change the zipcode
         $customer = $this->getTestCustomer();
-        $customer->setValue('billing_zip', '44629');
+        $customer->setValue('billing_postal_code', '44629');
 
         $bankAccount = new BankAccount();
         $bankAccount->setAccountType('checking');

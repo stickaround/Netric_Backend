@@ -29,7 +29,7 @@
                     <field ref_field='type_id' ref_value='1' name='primary_contact'></field>
                 </column>
             </row>
-            <row showif="editmode=true">
+            <row>
                 <column>
                     <field name='notes' multiline='true'></field>
                 </column>
@@ -40,7 +40,7 @@
                     <activity />
                 </tab>
 
-                <tab name='Task'>
+                <tab name='Tasks'>
                     <objectsref obj_type='task' ref_field='contact_id'></objectsref>
                 </tab>
 
@@ -58,13 +58,6 @@
             </tabs>
         </column>
         <column type="sidebar">
-            <row>
-                <column>
-                    <text field='job_title' />
-                    <text showif='primary_account=*'> at</text>
-                    <text field='primary_account' />
-                </column>
-            </row>
             <row>
                 <column>
                     <fieldset name='Contact'>
@@ -85,12 +78,21 @@
             </row>
             <row>
                 <column>
-                    <field name='status_id'></field>
-                    <field name='stage_id'></field>
-                    <field name='owner_id'></field>
-                    <field name='is_nocall'></field>
-                    <field name='is_noemailspam'></field>
-                    <field name='is_nocontact'></field>
+                    <fieldset name='Details'>
+                        <field name='status_id'></field>
+                        <field name='stage_id'></field>
+                        <field name='owner_id'></field>
+                        <field name='is_nocall'></field>
+                        <field name='is_noemailspam'></field>
+                        <field name='is_nocontact'></field>
+                    </fieldset>
+                </column>
+            </row>
+            <row>
+                <column>
+                    <fieldset name='Groups'>
+                        <field name='groups' hidelabel='true'></field>
+                    </fieldset>
                 </column>
             </row>
             <row>
@@ -98,9 +100,9 @@
                     <fieldset name='Address'>
                         <field label='Street' name='street'></field>
                         <field label='Street 2' name='street2'></field>
-                        <field label='Zip' name='zip'></field>
+                        <field label='Zip' name='postal_Code'></field>
                         <field label='City' name='city'></field>
-                        <field label='State' name='state'></field>
+                        <field label='State' name='district'></field>
                     </fieldset>
                 </column>
             </row>
@@ -109,27 +111,11 @@
                     <fieldset name='Billing Address'>
                         <field name='billing_street'></field>
                         <field name='billing_street2'></field>
-                        <field name='billing_zip'></field>
+                        <field name='billing_postal_code'></field>
                         <field name='billing_city'></field>
-                        <field name='billing_state'></field>
+                        <field name='billing_district'></field>
                     </fieldset>
                 </column>
-            </row>
-            <row>
-                <column>
-                    <fieldset name='Shipping Address'>
-                        <field name='shipping_street'></field>
-                        <field name='shipping_street2'></field>
-                        <field name='shipping_zip'></field>
-                        <field name='shipping_city'></field>
-                        <field name='shipping_state'></field>
-                    </fieldset>
-                </column>
-            </row>
-            <row>
-                <fieldset name='Groups'>
-                    <field name='groups' hidelabel='true'></field>
-                </fieldset>
             </row>
             <row>
                 <column>

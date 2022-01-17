@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'lead'
  */
@@ -28,7 +29,7 @@ return array(
                 'direction' => 'desc',
             ),
         ),
-        'table_columns' => array('first_name', 'last_name', 'email', 'phone', 'city', 'state', 'status_id', 'rating_id', 'ts_entered')
+        'table_columns' => array('first_name', 'last_name', 'email', 'phone', 'city', 'district', 'status_id', 'rating_id', 'ts_entered')
     ),
 
     'all_leads' => array(
@@ -50,6 +51,6 @@ return array(
                 'direction' => 'desc',
             ),
         ),
-        'table_columns' => array('first_name', 'last_name', 'email', 'phone', 'city', 'state', 'status_id', 'rating_id', 'ts_entered')
+        'table_columns' => array('first_name', 'last_name', 'email', 'phone', 'city', 'district', 'status_id', 'rating_id', 'ts_entered')
     ),
 );

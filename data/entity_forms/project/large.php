@@ -44,7 +44,6 @@
             <row>
                 <column>
                     <fieldset name='Details'>
-                        <field name='image_id' profile_image='t'></field>
                         <field name='priority'></field>
                         <field name='parent' tooltip='A project can be a child of much larger projects which allows for smaller teams working on massive projects. <br/>This is not a commonly used feature, few projects are of that scale; but if you find a project has too much noise from all the people <br/>and activity it might be helpful to split out subprojects and make smaller teams.'></field>
                         <field name='owner_id' tooltip='Each project must have one responisble owner even though many members may be working on the project.'></field>

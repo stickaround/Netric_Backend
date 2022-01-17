@@ -88,13 +88,13 @@ return [
             'subtype' => '128',
             'readonly' => false
         ],
-        'state' => [
+        'district' => [
             'title' => 'State',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
             'readonly' => false
         ],
-        'zip' => [
+        'postal_code' => [
             'title' => 'Zip',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'zipcode',

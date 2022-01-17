@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'contact_personal'
  */
@@ -32,6 +33,6 @@ return array(
                 'direction' => 'asc',
             ),
         ),
-        'table_columns' => array('name', 'phone_cell', 'phone_home', 'phone_work', 'email_default', 'city', 'state')
+        'table_columns' => array('name', 'phone_cell', 'phone_home', 'phone_work', 'email_default', 'city', 'district')
     ),
 );

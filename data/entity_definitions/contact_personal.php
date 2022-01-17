@@ -123,13 +123,13 @@ return array(
             'subtype' => '128',
             'readonly' => false
         ),
-        'state' => array(
+        'district' => array(
             'title' => 'Home State',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
             'readonly' => false
         ),
-        'zip' => array(
+        'postal_code' => array(
             'title' => 'Home Zip',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'zipcode',

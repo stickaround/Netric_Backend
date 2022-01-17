@@ -637,12 +637,12 @@ class AuthDotNetGateway implements PaymentGatewayInterface
             $billTo->setCity($customer->getValue('billing_city'));
         }
 
-        if ($customer->getValue('billing_state')) {
-            $billTo->setState($customer->getValue('billing_state'));
+        if ($customer->getValue('billing_district')) {
+            $billTo->setState($customer->getValue('billing_district'));
         }
 
-        if ($customer->getValue('billing_zip')) {
-            $billTo->setZip($customer->getValue('billing_zip'));
+        if ($customer->getValue('billing_postal_code')) {
+            $billTo->setZip($customer->getValue('billing_postal_code'));
         };
         $billTo->setCountry("USA");
         // $billTo->setPhoneNumber("888-888-8888");

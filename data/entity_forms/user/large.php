@@ -10,7 +10,7 @@
                 <fieldset name='User Info'>
                     <field name='job_title' />
                     <field name='city' />
-                    <field name='state' />
+                    <field name='district' />
                 </fieldset>
             </column>
         </row>
@@ -61,7 +61,7 @@
                 <field name='city' />
             </column>
             <column>
-                <field name='state' />
+                <field name='district' />
             </column>
         </row>
         <row>

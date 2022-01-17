@@ -13,7 +13,7 @@
         <field name='city' />
     </column>
     <column>
-        <field name='state' />
+        <field name='district' />
     </column>
 </row>
 

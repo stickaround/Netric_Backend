@@ -9,6 +9,7 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\ServiceManager\ServiceLocatorInterface;
+
 /**
  * Task represents a single task entity
  */
@@ -83,7 +84,7 @@ class TaskEntity extends Entity implements EntityInterface
      *
      * @return string The base name of the icon for this object if it exists
      */
-    public function getIconName()
+    public function getIconName(): string
     {
         $closed = $this->getValue('is_closed');
 

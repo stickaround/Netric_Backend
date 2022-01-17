@@ -23,7 +23,7 @@ return [
             ],
         ],
         'table_columns' => [
-            'name', 'email', 'stage_id', 'status_id', 'owner_id', 'city', 'state'
+            'name', 'email', 'stage_id', 'status_id', 'owner_id', 'city', 'district'
         ]
     ],
 
@@ -47,7 +47,7 @@ return [
             ],
         ],
         'table_columns' => [
-            'name', 'email', 'stage_id', 'status_id', 'owner_id', 'city', 'state'
+            'name', 'email', 'stage_id', 'status_id', 'owner_id', 'city', 'district'
         ]
     ],
 ];

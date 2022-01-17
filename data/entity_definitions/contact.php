@@ -104,16 +104,22 @@ return [
             'subtype' => '32',
             'readonly' => false
         ],
+        'phone_fax' => [
+            'title' => 'Fax Number',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '64',
+            'readonly' => false
+        ],
         'street' => [
             'title' => 'Street',
             'type' => Field::TYPE_TEXT,
-            'subtype' => '128',
+            'subtype' => '256',
             'readonly' => false
         ],
         'street2' => [
             'title' => 'Street 2',
             'type' => Field::TYPE_TEXT,
-            'subtype' => '128',
+            'subtype' => '256',
             'readonly' => false
         ],
         'city' => [
@@ -122,68 +128,21 @@ return [
             'subtype' => '128',
             'readonly' => false
         ],
-        'state' => [
+        'district' => [
             'title' => 'State',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '64',
-            'readonly' => false
-        ],
-        'zip' => [
-            'title' => 'Zip/Postal',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => 'zipcode',
-            'readonly' => false
-        ],
-        'phone_fax' => [
-            'title' => 'Fax Number',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '64',
-            'readonly' => false
-        ],
-        'shipping_street' => [
-            'title' => 'Shipping Street',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '256',
-            'readonly' => false
-        ],
-        'shipping_street2' => [
-            'title' => 'Shipping Street 2',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '256',
-            'readonly' => false
-        ],
-        'shipping_city' => [
-            'title' => 'Shipping City',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => false
         ],
-        'shipping_state' => [
-            'title' => 'Shipping State',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '64',
-            'readonly' => false
-        ],
-        'shipping_zip' => [
-            'title' => 'Shipping Zip',
+        'postal_code' => [
+            'title' => 'Zip',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'zipcode',
             'readonly' => false
         ],
-        // Used for type=organization only
-        'billing_first_name' => [
-            'title' => 'First Name',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '256',
-            'readonly' => false
-        ],
-        // Used for type=organization only
-        'billing_last_name' => [
-            'title' => 'Last Name',
-            'type' => Field::TYPE_TEXT,
-            'subtype' => '256',
-            'readonly' => false
-        ],
+        // Right now we create this default billing address so that
+        // new payment profiles have a default to work with. For simplicity,
+        // we might remove this and just edit the payment profile address directly.
         'billing_street' => [
             'title' => 'Billing Street',
             'type' => Field::TYPE_TEXT,
@@ -202,13 +161,13 @@ return [
             'subtype' => '128',
             'readonly' => false
         ],
-        'billing_state' => [
+        'billing_district' => [
             'title' => 'Billing State',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
             'readonly' => false
         ],
-        'billing_zip' => [
+        'billing_postal_code' => [
             'title' => 'Billing Zip',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'zipcode',

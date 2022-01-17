@@ -179,8 +179,8 @@ class EntitySearchProvider implements ISearchProvider
                 $item[SYNC_GAL_TITLE] = $user->getValue('job_title');
             }
 
-            if ($user->getValue('city') || $user->getValue('state')) {
-                $item[SYNC_GAL_OFFICE] = $user->getValue('city') . " " . $user->getValue('state');
+            if ($user->getValue('city') || $user->getValue('district')) {
+                $item[SYNC_GAL_OFFICE] = $user->getValue('city') . " " . $user->getValue('district');
             }
 
 

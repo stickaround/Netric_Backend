@@ -37,12 +37,12 @@
                 <row>
                     <column>
                         <field name='street'></field>
-                        <field name='zip'></field>
+                        <field name='postal_code'></field>
                         <field name='city'></field>
                     </column>
                     <column>
                         <field name='street2'></field>
-                        <field name='state'></field>
+                        <field name='district'></field>
                         <field name='country'></field>
                     </column>
                 </row>
