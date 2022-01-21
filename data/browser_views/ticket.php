@@ -22,7 +22,7 @@ return [
         'order_by' => [
             'status_id' => [
                 'field_name' => 'status_id',
-                'direction' => 'desc',
+                'direction' => 'asc',
             ],
             'date' => [
                 'field_name' => 'ts_updated',
@@ -55,7 +55,7 @@ return [
         'order_by' => [
             'status_id' => [
                 'field_name' => 'status_id',
-                'direction' => 'desc',
+                'direction' => 'asc',
             ],
             'date' => [
                 'field_name' => 'ts_updated',
@@ -75,7 +75,7 @@ return [
         'order_by' => [
             'status_id' => [
                 'field_name' => 'status_id',
-                'direction' => 'desc',
+                'direction' => 'asc',
             ],
             'date' => [
                 'field_name' => 'ts_updated',
