@@ -64,6 +64,28 @@ return [
         ],
         'table_columns' => ['name', 'channel_id', 'status_id', 'souce_id']
     ],
+    'unseen_tickets' => [
+        'obj_type' => ObjectTypes::TICKET,
+        'name' => 'New/Unseen Tickets',
+        'description' => 'Open tickets assigned to me',
+        'default' => false,
+        'conditions' => [
+            'f_seen' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'f_seen',
+                'operator' => Where::OPERATOR_EQUAL_TO,
+                'value' => false,
+            ],
+        ],
+        'filter_key' => 'channel_id',
+        'order_by' => [
+            'date' => [
+                'field_name' => 'ts_updated',
+                'direction' => 'asc',
+            ],
+        ],
+        'table_columns' => ['name', 'channel_id', 'status_id', 'souce_id']
+    ],
     'all_tickets' => [
         'obj_type' => ObjectTypes::TICKET,
         'name' => 'All Tickets',

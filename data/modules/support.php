@@ -12,7 +12,7 @@ use Netric\Account\Module\LeftNavItemTypes;
 return [
     "title" => "Support",
     "icon" => "WorkIcon",
-    "default_route" => "my-tickets",
+    "default_route" => "inbox",
     "name" => "support",
     "short_title" => 'Support',
     "scope" => 'system',
@@ -25,6 +25,14 @@ return [
             "route" => "newticket",
             "icon" => "AddBoxIcon",
             "objType" => ObjectTypes::TICKET,
+        ],
+        [
+            "title" => "Inbox",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "browser_view" => "unseen_tickets",
+            "objType" => ObjectTypes::TICKET,
+            "route" => "inbox",
+            "icon" => "InboxIcon",
         ],
         [
             "title" => "My Tickets",
