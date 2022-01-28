@@ -76,7 +76,7 @@ class PublicUserEmailSender implements NotificationSenderInterface
             return false;
         }
 
-        // Get the user that owns this notice
+        // Get the user that this notice belongs to
         $targetUser = $this->entityLoader->getEntityById(
             $notification->getValue("owner_id"),
             $user->getAccountId()

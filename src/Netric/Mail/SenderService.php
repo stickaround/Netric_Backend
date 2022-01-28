@@ -57,7 +57,7 @@ class SenderService
         //Create an instance; passing `true` enables exceptions
         $mail = new PHPMailer(true);
 
-        $from = isset($headers['from']) ? $headers['from'] : $this->mailConfig->noreply;
+        $from = isset($fromAddress) ? $fromAddress : $this->mailConfig->noreply;
         $this->log->info("SenderService->send: sending email to $toAddress, from $fromAddress");
 
         try {
