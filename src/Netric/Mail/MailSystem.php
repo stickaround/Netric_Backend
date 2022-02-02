@@ -119,11 +119,10 @@ class MailSystem implements MailSystemInterface
      * Get all domains for an account
      *
      * @param string $accountId The account id that we are currently working on
-     * @param bool $activeOnly Flag that will determine if we are going to get the active domains
      * @return array
      */
-    public function getDomainsByAccount(string $accountId, bool $activeOnly): array
+    public function getDomainsByAccount(string $accountId): array
     {
-        return $this->mailDataMapper->getDomains($accountId, $activeOnly);
+        return $this->mailDataMapper->getDomains($accountId);
     }
 }

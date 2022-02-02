@@ -55,10 +55,9 @@ class EmailAccountEntity extends Entity implements EntityInterface
             $this->setValue("password", $blockCipher->encrypt($this->getValue("password")));
         }
 
-        // If dealing with dropbox type, make sure that there is no duplicate before saving
-        if ($this->getValue("type") == EmailAccountEntity::TYPE_DROPBOX) {
-            $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT, $user->getAccountId(), $user->getEntityId());
-            $query->where('type')->equals(EmailAccountEntity::TYPE_DROPBOX);
+        // If address is changed, then we need to make sure that there is no duplicate address
+        if ($this->fieldValueChanged("address")) {
+            $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT, $user->getAccountId(), $user->getEntityId());            
             $query->where('address')->equals($this->getValue("address"));
             $query->where('entity_id')->doesNotEqual($this->getEntityId());
 

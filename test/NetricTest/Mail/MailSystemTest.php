@@ -76,7 +76,7 @@ class MailSystemTest extends TestCase
 
     public function testGetDomainsByAccount()
     {
-        $this->mockDataMapper->method('getDomains')->with(self::TEST_ACCOUNT_ID, true)
+        $this->mockDataMapper->method('getDomains')->with(self::TEST_ACCOUNT_ID)
             ->will($this->returnValue([
                 "test.com",
                 "local.com",
@@ -84,7 +84,7 @@ class MailSystemTest extends TestCase
             ]));
 
         $this->assertEquals(
-            $this->mailSystem->getDomainsByAccount(self::TEST_ACCOUNT_ID, true),
+            $this->mailSystem->getDomainsByAccount(self::TEST_ACCOUNT_ID),
             [
                 "test.com",
                 "local.com",

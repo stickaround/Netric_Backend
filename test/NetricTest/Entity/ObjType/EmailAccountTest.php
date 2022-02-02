@@ -99,13 +99,13 @@ class EmailAccountEntityTest extends TestCase
         $this->assertEquals($encrypted, $entity->getValue("password"));
     }
 
-    public function testOnBeforeSaveUniqueAddressEmailAccountDropbox()
+    public function testOnBeforeSaveUniqueAddressEmailAccount()
     {
         // Create an email account so we have an entity to check later
         $entity = $this->entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
         $entity->setValue("name", "support");
         $entity->setValue("address", "support@test.com");
-        $entity->setValue("type", EmailAccountEntity::TYPE_DROPBOX);
+        $entity->setValue("type", EmailAccountEntity::TYPE_IMAP);
         $this->entityLoader->save($entity, $this->account->getSystemUser());        
         $this->testEntities[] = $entity;
         

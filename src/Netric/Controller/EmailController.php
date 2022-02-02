@@ -159,18 +159,24 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     public function getGetDomainsByAccountAction(HttpRequest $request): HttpResponse
     {
         $response = new HttpResponse($request);
-        $activeOnly = $request->getParam('active_only');
 
-        try {
-            $domains = [];
+        try {            
             $currentAccount = $this->getAuthenticatedAccount();
-
-            // Make sure that we have an authenticated account
-            if ($currentAccount) {
-                // Get all domains for the authenticated account
-                $accountId = $currentAccount->getAccountId();
-                $domains = $this->mailSystem->getDomainsByAccount($accountId, $activeOnly);
+            if (!$currentAccount) {
+                $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                $response->write(["error" => "Account authentication error."]);
+                return $response;
             }
+            
+            $accountId = $currentAccount->getAccountId();
+            if (!$accountId) {
+                $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                $response->write(["error" => "Account authentication error."]);
+                return $response;
+            }
+
+            // Get all domains for the authenticated account
+            $domains = $this->mailSystem->getDomainsByAccount($accountId);
 
             if (!$domains) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);

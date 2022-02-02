@@ -19,10 +19,9 @@ interface MailDataMapperInterface
      * Get all domains for an account
      *
      * @param string $accountId The account id that we are currently working on
-     * @param bool $activeOnly Flag that will determine if we are going to get the active domains
      * @return string[]
      */
-    public function getDomains(string $accountId, bool $activeOnly = false): array;
+    public function getDomains(string $accountId): array;
 
     /**
      * Delete a domain, wildcard alias, and incoming mailbox
