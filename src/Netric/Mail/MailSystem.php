@@ -114,4 +114,16 @@ class MailSystem implements MailSystemInterface
     {
         return $this->mailDataMapper->addIncomingDomain($accountId, $domain);
     }
+
+    /**
+     * Get all domains for an account
+     *
+     * @param string $accountId The account id that we are currently working on
+     * @param bool $activeOnly Flag that will determine if we are going to get the active domains
+     * @return array
+     */
+    public function getDomainsByAccount(string $accountId, bool $activeOnly): array
+    {
+        return $this->mailDataMapper->getDomains($accountId, $activeOnly);
+    }
 }

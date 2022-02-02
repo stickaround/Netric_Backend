@@ -6,6 +6,11 @@
     </row>
     <row>
         <column>
+            <maildrop name='email_account_id' create_type="ticket" ref_field='channel_id'></field>
+        </column>
+    </row>
+    <row>
+        <column>
             <row>
                 <column>
                     <objectsref obj_type='ticket' ref_field='channel_id' view_id='all_tickets' />

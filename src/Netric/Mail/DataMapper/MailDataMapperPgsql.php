@@ -127,17 +127,22 @@ class MailDataMapperPgsql implements MailDataMapperInterface
     /**
      * Get all domains for an account
      *
-     * @param string $accountId
+     * @param string $accountId The account id that we are currently working on
+     * @param bool $activeOnly Flag that will determine if we are going to get the active domains
      * @return string[]
      */
-    public function getDomains(string $accountId): array
+    public function getDomains(string $accountId, bool $activeOnly = false): array
     {
         $database = $this->rdbContainer->getDbHandleForAccountId($accountId);
 
-        $result = $database->query(
-            "SELECT domain FROM email_domain WHERE account_id=:account_id",
-            ['account_id' => $accountId]
-        );
+        $queryString = "SELECT domain FROM email_domain WHERE account_id=:account_id";
+        
+        // Append the is_active=true if we are going to get the active domains
+        if ($activeOnly) {
+            $queryString .= " AND is_active=true";
+        }
+
+        $result = $database->query($queryString, ['account_id' => $accountId]);
         if ($result->rowCount() == 0) {
             return [];
         }
@@ -159,7 +164,7 @@ class MailDataMapperPgsql implements MailDataMapperInterface
      * @param RelationalDbInterface $database
      * @return string UUID of the account that owns it, otherwise an empty string
      */
-    private function getAccountForDomain(string $domain, RelationalDbInterface $database): string
+    private function getGetAccountForDomain(string $domain, RelationalDbInterface $database): string
     {
         // First check to see if this domain exists
         $result = $database->query(

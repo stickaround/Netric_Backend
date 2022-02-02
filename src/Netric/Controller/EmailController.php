@@ -4,11 +4,13 @@ namespace Netric\Controller;
 
 use Netric\Account\Account;
 use Netric\Account\AccountContainerInterface;
+use Netric\Authentication\AuthenticationService;
 use Netric\Log\LogInterface;
 use Netric\Mvc\ControllerInterface;
 use Netric\Application\Response\HttpResponse;
 use Netric\Request\HttpRequest;
 use Netric\Mail\DeliveryService;
+use Netric\Mail\MailSystem;
 use Netric\Mvc\AbstractFactoriedController;
 use RuntimeException;
 
@@ -28,6 +30,16 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     private LogInterface $log;
 
     /**
+     * Service used to get the current user/account
+     */
+    private AuthenticationService $authService;
+
+    /**
+     * Interact with the global netric mailsystem and will be used to get the email domains
+     */
+    private MailSystem $mailSystem;
+
+    /**
      * If in test mode, we don't do file upload validation
      *
      * @var bool
@@ -43,11 +55,31 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     public function __construct(
         DeliveryService $deliveryService,
         LogInterface $log,
-        AccountContainerInterface $accountContainer
+        AccountContainerInterface $accountContainer,
+        AuthenticationService $authService,
+        MailSystem $mailSystem,
+        
     ) {
         $this->deliveryService = $deliveryService;
         $this->log = $log;
         $this->accountContainer = $accountContainer;
+        $this->mailSystem = $mailSystem;
+        $this->authService = $authService;
+    }
+
+    /**
+     * Get the currently authenticated account
+     *
+     * @return Account
+     */
+    private function getAuthenticatedAccount()
+    {
+        $authIdentity = $this->authService->getIdentity();
+        if (!$authIdentity) {
+            return null;
+        }
+
+        return $this->accountContainer->loadById($authIdentity->getAccountId());
     }
 
     /**
@@ -115,6 +147,42 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(['error' => $exception->getMessage()]);
             return $response;
+        }
+    }
+
+    /**
+     * Get all domains for an account
+     *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
+     */
+    public function getGetDomainsByAccountAction(HttpRequest $request): HttpResponse
+    {
+        $response = new HttpResponse($request);
+        $activeOnly = $request->getParam('active_only');
+
+        try {
+            $domains = [];
+            $currentAccount = $this->getAuthenticatedAccount();
+
+            // Make sure that we have an authenticated account
+            if ($currentAccount) {
+                // Get all domains for the authenticated account
+                $accountId = $currentAccount->getAccountId();
+                $domains = $this->mailSystem->getDomainsByAccount($accountId, $activeOnly);
+            }
+
+            if (!$domains) {
+                $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+                $response->write(["error" => "Error wile trying to get all the domains for account: $accountId"]);
+                return $response;
+            }
+
+            $response->write($domains);
+            return $response;
+        } catch (Exception $ex) {
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => $ex->getMessage()]);
         }
     }
 }

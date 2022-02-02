@@ -33,6 +33,13 @@ class EmailAccountEntityTest extends TestCase
      */
     private $user = null;
 
+    /**
+     * List of test entities to cleanup
+     *
+     * @var EntityInterface[]
+     */
+    private $testEntities = [];
+
 
     /**
      * Setup each test
@@ -41,6 +48,19 @@ class EmailAccountEntityTest extends TestCase
     {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(null, UserEntity::USER_SYSTEM);
+        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+    }
+
+    /**
+     * Cleanup after each test
+     */
+    protected function tearDown(): void
+    {
+        // Make sure any test entities created are deleted
+        foreach ($this->testEntities as $entity) {
+            // Second param is a 'hard' delete which actually purges the data
+            $this->entityLoader->delete($entity, $this->account->getAuthenticatedUser());
+        }
     }
 
     /**
@@ -48,13 +68,13 @@ class EmailAccountEntityTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
+        $entity = $this->entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
         $this->assertInstanceOf(EmailAccountEntity::class, $entity);
     }
 
     public function testOnBeforeSavePasswordEncrypt()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
+        $entity = $this->entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
         $entity->setValue("address", "test@test.com");
         $entity->setValue("password", "test");
 
@@ -77,5 +97,27 @@ class EmailAccountEntityTest extends TestCase
         $entity->onBeforeSave($serviceManager, $this->user);
         $encrypted = $blockCypher->encrypt("test");
         $this->assertEquals($encrypted, $entity->getValue("password"));
+    }
+
+    public function testOnBeforeSaveUniqueAddressEmailAccountDropbox()
+    {
+        // Create an email account so we have an entity to check later
+        $entity = $this->entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
+        $entity->setValue("name", "support");
+        $entity->setValue("address", "support@test.com");
+        $entity->setValue("type", EmailAccountEntity::TYPE_DROPBOX);
+        $this->entityLoader->save($entity, $this->account->getSystemUser());        
+        $this->testEntities[] = $entity;
+        
+        $duplicateEntity = $this->entityLoader->create(ObjectTypes::EMAIL_ACCOUNT, $this->account->getAccountId());
+        $duplicateEntity->setValue("name", "support");
+        $duplicateEntity->setValue("address", "support@test.com");
+        $duplicateEntity->setValue("type", EmailAccountEntity::TYPE_DROPBOX);
+                
+        $this->expectException(\RuntimeException::class);
+
+        // Simulate onBeforeSave
+        $serviceManager = $this->account->getServiceManager();
+        $duplicateEntity->onBeforeSave($serviceManager, $this->user);
     }
 }

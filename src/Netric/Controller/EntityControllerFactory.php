@@ -44,7 +44,7 @@ class EntityControllerFactory implements ControllerFactoryInterface
             $groupingLoader,
             $browserViewService,
             $forms,
-            $daclLoader,
+            $daclLoader
         );
     }
 }

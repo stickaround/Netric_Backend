@@ -73,4 +73,23 @@ class MailSystemTest extends TestCase
             $this->mailSystem->getAccountIdFromDomain('doesnotexist.test.com')
         );
     }
+
+    public function testGetDomainsByAccount()
+    {
+        $this->mockDataMapper->method('getDomains')->with(self::TEST_ACCOUNT_ID, true)
+            ->will($this->returnValue([
+                "test.com",
+                "local.com",
+                "netric.com"
+            ]));
+
+        $this->assertEquals(
+            $this->mailSystem->getDomainsByAccount(self::TEST_ACCOUNT_ID, true),
+            [
+                "test.com",
+                "local.com",
+                "netric.com"
+            ]
+        );
+    }
 }
