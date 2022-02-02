@@ -831,7 +831,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $uname = str_replace("@", "_at_", $uname);
         $uname = preg_replace('/[^A-Za-z0-9._-]/', '', $uname);
 
-        // If the unique name already exists, then append with id or a random number
+        // If the unique name already exists, then append with id to assure uniqueness
         if (!$this->verifyUniqueName($entity, $uname)) {
             $uname .= "-";
             $uname .= $this->generateUnameId($entity->getAccountId());

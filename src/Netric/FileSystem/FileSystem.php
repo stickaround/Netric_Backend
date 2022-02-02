@@ -226,7 +226,7 @@ class FileSystem implements Error\ErrorAwareInterface
     public function openFolder(string $path, UserEntity $user, bool $createIfMissing = false)
     {
         // Create system paths no matter what
-        if (!$createIfMissing && ($path == "%tmp%" || $path == "%userdir%" || $path == "%home%")) {
+        if (!$createIfMissing && ($path == "%tmp%")) {
             $createIfMissing = true;
         }
 
@@ -491,7 +491,7 @@ class FileSystem implements Error\ErrorAwareInterface
     private function splitPathToFolderArray(string $path, UserEntity $user, bool $createIfMissing = false)
     {
         /*
-         * Translate any variables in path like %tmp% and %userdir% to actual path
+         * Translate any variables in path like %tmp% to actual path
          */
         $path = $this->substituteVariables($path, $user);
 
@@ -551,10 +551,6 @@ class FileSystem implements Error\ErrorAwareInterface
 
         $retval = str_replace("%tmp%", self::PATH_TEMP, $retval);
 
-        // Get a user's home directory
-        $retval = str_replace("%userdir%", "/System/Users/" . $user->getEntityId(), $retval);
-        $retval = str_replace("%home%", "/System/Users/" . $user->getEntityId(), $retval);
-
         // Get email attechments directory for a user
         $retval = str_replace(
             "%emailattachments%",
@@ -564,17 +560,6 @@ class FileSystem implements Error\ErrorAwareInterface
 
         // Replace any empty directories
         $retval = str_replace("//", "/", $retval);
-
-        // TODO: Now kill all unallowed chars?
-        /*
-        $retval = str_replace("%", "", $retval);
-        $retval = str_replace("?", "", $retval);
-        $retval = str_replace(":", "", $retval);
-        $retval = str_replace("\\", "", $retval);
-        $retval = str_replace(">", "", $retval);
-        $retval = str_replace("<", "", $retval);
-        $retval = str_replace("|", "", $retval);
-         */
 
         return $retval;
     }

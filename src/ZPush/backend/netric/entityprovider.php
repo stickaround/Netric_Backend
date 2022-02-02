@@ -1186,13 +1186,14 @@ class EntityProvider
         $entity->setValue('business_zip', $syncContact->businesspostalcode);
         if (isset($syncContact->picture)) {
             /*
+                // TODO: this should just be moved to entity attachments
                $picbinary = base64_decode($contact->picture);
             $picsize = strlen($picbinary);
 
             if ($picsize)
             {
                 $antfs = new CAntFs($this->dbh, $this->user);
-                $fldr = $antfs->openFolder("%userdir%/Contact Files/$id", true);
+                $fldr = $antfs->openFolder("root/Contact Files/$id", true);
                 $file = $fldr->createFile("profilepic.jpg");
                 $size = $file->write($picbinary);
                 if ($file->getEntityId())
