@@ -13,7 +13,7 @@
             </row>
         </column>
         <column type="sidebar">
-            <maildrop name='email_account_id' create_type="ticket" ref_field='channel_id'></field>
+            <maildrop name='email_account_id' create_type="ticket"></field>
             <members name='Members' field='members' />
         </column>
     </row>
