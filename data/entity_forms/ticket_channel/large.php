@@ -3,12 +3,7 @@
         <column>
             <field name='name' hidelabel="true" class='headline'></field>
         </column>
-    </row>
-    <row>
-        <column>
-            <maildrop name='email_account_id' create_type="ticket" ref_field='channel_id'></field>
-        </column>
-    </row>
+    </row>    
     <row>
         <column>
             <row>
@@ -18,6 +13,7 @@
             </row>
         </column>
         <column type="sidebar">
+            <maildrop name='email_account_id' create_type="ticket" ref_field='channel_id'></field>
             <members name='Members' field='members' />
         </column>
     </row>
