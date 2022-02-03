@@ -15,6 +15,7 @@ use Netric\Mail\DeliveryService;
 use Netric\Request\HttpRequest;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Netric\Mail\MailSystem;
 
 /**
  * Test calling the email controller
@@ -29,6 +30,7 @@ class EmailControllerTest extends TestCase
     private LogInterface $mockLog;
     private SenderService $mockSenderService;
     private DeliveryService $mockDeliveryService;
+    private MailSystem $mockMailSystem;
 
     /**
      * Initialized controller with mock dependencies
@@ -43,6 +45,7 @@ class EmailControllerTest extends TestCase
         $this->mockLog = $this->createMock(LogInterface::class);
 
         $this->mockDeliveryService = $this->createMock(DeliveryService::class);
+        $this->mockMailSystem = $this->createMock(MailSystem::class);
 
         // Provide identity for mock auth service
         $this->mockAuthService = $this->createMock(AuthenticationService::class);
@@ -58,7 +61,9 @@ class EmailControllerTest extends TestCase
         $this->emailController = new EmailController(
             $this->mockDeliveryService,
             $this->mockLog,
-            $accountContainer
+            $accountContainer,
+            $this->mockAuthService,
+            $this->mockMailSystem
         );
         $this->emailController->testMode = true;
     }
@@ -111,7 +116,13 @@ class EmailControllerTest extends TestCase
         $accountContainer->method('loadById')->willReturn($mockAccount);
 
         // Create the controller with mocks
-        $controller = new EmailController($deliveryService, $log, $accountContainer);
+        $controller = new EmailController(
+            $deliveryService,
+            $log,
+            $accountContainer,
+            $this->mockAuthService,
+            $this->mockMailSystem
+        );
 
         // Create a request that is missing 'message' and 'recipient'
         $request = new HttpRequest();
