@@ -108,7 +108,7 @@ class EntityLoader
 
         // First check to see if the object is cached
         $data = $this->getCached($entityId);
-        if ($data && isset($data['obj_type'])) {
+        if (!empty($data) && isset($data['obj_type'])) {
             $entity = $this->create($data['obj_type'], $accountId);
             $entity->fromArray($data);
             if ($entity->getEntityId()) {

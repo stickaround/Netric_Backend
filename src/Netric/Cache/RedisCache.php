@@ -44,12 +44,12 @@ class RedisCache implements CacheInterface, PubSubInterface
     public function set($key, $value, $expires = 0)
     {
         $encodedValue = serialize($value);
-        $ret = $this->redis->set($key, $encodedValue);
 
-        if ($expires) {
-            $this->redis->setEx($key, $expires, $encodedValue);
+        if ($expires > 0) {
+            return $this->redis->setEx($key, $expires, $encodedValue);
         }
-        return $ret;
+
+        return $this->redis->set($key, $encodedValue);
     }
 
     /**

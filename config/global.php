@@ -75,7 +75,7 @@ return [
     'stats' => [
         'enabled' => true,
         'engine' => "STATSD",
-        'host' => "10.4.27.82",
+        'host' => "pvt-statsd.aereus.com",
         'port' => "8125",
         'prefix' => "netric.production",
     ],
