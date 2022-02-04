@@ -649,4 +649,21 @@ class EntityTest extends TestCase
         // If seen should be false
         $this->assertFalse($task->getValue("f_seen"));
     }
+
+    /**
+     * Test getting the applied name
+     */
+    public function testGetAppliedName()
+    {
+        $data = [
+            "name" => "testAppliedName",
+            "title" => "ForTask"
+        ];
+
+        // Load data into entity
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $task->fromArray($data);
+
+        $this->assertEquals($task->getAppliedName($this->user), $data["name"]);
+    }
 }

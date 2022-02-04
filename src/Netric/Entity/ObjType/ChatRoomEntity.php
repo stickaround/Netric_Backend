@@ -84,4 +84,29 @@ class ChatRoomEntity extends Entity implements EntityInterface
         // Save custom permissions
         $this->setValue('dacl', json_encode($dacl->toArray()));
     }
+
+    /**
+     * Callback function used for derrived subclasses
+     * 
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onGetAppliedName(UserEntity $user)
+    {
+        // If this is a room channel and subject is set, then just return the subject
+        if ($this->getValue('scope') === self::ROOM_CHANNEL && !empty($this->getValue('subject'))) {
+            return $this->getValue('subject');
+        }
+
+        $members = $this->getValue('members');
+        $membersName = [];
+        foreach ($members as $userId) {
+            if ($userId != $user->getEntityId()) {
+                $membersName[] = $this->getValueName('members', $userId);
+            }
+        }
+
+        $appliedName = implode(", ", $membersName);
+
+        return $appliedName ? $appliedName : "<Empty Room>";
+    }
 }

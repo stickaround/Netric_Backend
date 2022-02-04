@@ -120,6 +120,20 @@ interface EntityInterface
     public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user);
 
     /**
+     * Function that will get the human readable name for this entity
+     * 
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function getAppliedName(UserEntity $user);
+
+    /**
+     * Callback function used for derrived subclasses
+     * 
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onGetAppliedName(UserEntity $user);
+
+    /**
      * Callback function used for derrived subclasses
      *
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies

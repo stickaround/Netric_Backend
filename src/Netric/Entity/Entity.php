@@ -842,8 +842,35 @@ class Entity implements EntityInterface
         if ($this->def->getField("comment")) {
             return $this->getValue("comment");
         }
-
+        
         return $this->getEntityId();
+    }
+
+    /**
+     * Function that will get the human readable name for this entity
+     * 
+     * @param UserEntity $user The user that is acting on this entity
+     * @return string The applied name set for this entity
+     */
+    public function getAppliedName(UserEntity $user)
+    {
+        $appliedName = $this->onGetAppliedName($user);
+
+        // If applied name is empty, then fall back in using the ::getName()
+        if (empty($appliedName)) {
+            $appliedName = $this->getName();
+        }
+
+        return $appliedName;
+    }
+
+    /**
+     * Call derived extensions
+     * 
+     * @param UserEntity $user The user that is acting on this entity
+     */
+    public function onGetAppliedName(UserEntity $user)
+    {
     }
 
     /**
