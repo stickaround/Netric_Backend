@@ -20,6 +20,7 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityValueSanitizer;
 use Netric\Db\Relational\RelationalDbContainer;
 use Netric\EntityGroupings\GroupingLoader;
+use Netric\Stats\StatsPublisher;
 
 abstract class IndexAbstract
 {
@@ -120,6 +121,11 @@ abstract class IndexAbstract
      */
     public function executeQuery(EntityQuery $query, Results $results = null)
     {
+        StatsPublisher::increment('entity.query.execute');
+
+        // Time
+        $timeStart = microtime(true);
+
         // Trigger any plugins for before the query completed
         $this->beforeExecuteQuery($query);
 
@@ -128,6 +134,10 @@ abstract class IndexAbstract
 
         // Trigger any plugins after the query completed
         $this->afterExecuteQuery($query);
+
+        // Record the time in microseconds
+        $timeDifference =  microtime(true) - $timeStart;
+        StatsPublisher::timing('entity.query.timing', $timeDifference);
 
         return $ret;
     }
