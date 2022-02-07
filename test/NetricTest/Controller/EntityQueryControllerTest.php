@@ -104,7 +104,17 @@ class EntityQueryControllerTest extends TestCase
         $mockTaskEntity = $this->createMock(TaskEntity::class);
         $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
-        $mockTaskEntity->method('toArray')->willReturn($taskEntityData);
+        $mockTaskEntity->method('toArrayWithApplied')->willReturn(
+            [
+                'obj_type' => 'task',
+                'entity_id' => $taskEntityId,
+                'name' => 'Test Task',
+                'description' => 'Task for testing',
+                'applied_name' => $taskEntityData['name'],
+                'applied_icon' => '',
+                'applied_description' => '',
+            ]
+        );
 
         // Create test dacl permission for this task
         $mockDacl = $this->createMock(Dacl::class);

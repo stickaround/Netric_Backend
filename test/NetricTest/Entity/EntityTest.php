@@ -18,6 +18,7 @@ use Ramsey\Uuid\Uuid;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Where;
+use Netric\Entity\ObjType\ChatRoomEntity;
 
 class EntityTest extends TestCase
 {
@@ -665,5 +666,43 @@ class EntityTest extends TestCase
         $task->fromArray($data);
 
         $this->assertEquals($task->getName($this->user), $data["name"]);
+    }
+
+    /**
+     * Test getting the entity data with applied values
+     */
+    public function testToArrayWithApplied()
+    {
+        // Create entity data with fields that will be computed as applied values (applied_name, applied_description, applied_icon)
+        $data = [
+            "name" => "testAppliedNameTask",
+            "objType" => ObjectTypes::TASK,            
+            "notes" => "testAppliedDescriptionTask"
+        ];
+
+        // Load data into entity
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
+        $task->fromArray($data);
+
+        $taskEntityDataApplied = $task->toArrayWithApplied($this->user);
+        $this->assertEquals($taskEntityDataApplied["applied_name"], $data["name"]);
+        $this->assertEquals($taskEntityDataApplied["applied_icon"], "task");
+        $this->assertEquals($taskEntityDataApplied["applied_description"], $data["notes"]);
+
+        // Test the toArrayWithApplied on direct message.
+        $dataDirectMessage = [
+            "name" => "testAppliedName",
+            "subject" => "Room Direct",
+            "scope" => ChatRoomEntity::ROOM_DIRECT,
+            "members" => []
+        ];
+        $entityDirectMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CHAT_ROOM, $this->account->getAccountId());
+        $entityDirectMessage->fromArray($dataDirectMessage);
+        $entityDirectMessage->addMultiValue("members", $this->user->getEntityId(), $this->user->getName());
+        $entityDirectMessage->addMultiValue("members", "member-00", "Member 00");
+        
+
+        $directEntityDataApplied = $entityDirectMessage->toArrayWithApplied($this->user);
+        $this->assertEquals($directEntityDataApplied["applied_name"], "Member 00");        
     }
 }

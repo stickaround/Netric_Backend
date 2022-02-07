@@ -148,11 +148,8 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
 
             // Export the entity to array if the current user has access to view this entity
             if ($currentUserPermissions["view"]) {
-                $entityData = $ent->toArray();
-                $entityData["applied_dacl"] = $dacl->toArray();
-                $entityData['applied_name'] = $ent->getName($currentUser);
-                $entityData['applied_icon'] = $ent->getIconName();
-                $entityData['applied_description'] = $ent->getDescription();
+                $entityData = $ent->toArrayWithApplied($currentUser);
+                $entityData["applied_dacl"] = $dacl->toArray();                
             } else {
                 $entityData = $ent->toArrayWithNoPermissions();
             }

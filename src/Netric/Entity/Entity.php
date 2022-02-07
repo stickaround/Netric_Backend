@@ -592,6 +592,21 @@ class Entity implements EntityInterface
     }
 
     /**
+     * Get all values with applied_name in it and return them as an array
+     *
+     * @return array Associative array of all fields in array(field_name=>value with applied_name=>value) format
+     */
+    public function toArrayWithApplied(UserEntity $user)
+    {
+        $entityData = $this->toArray();
+        $entityData['applied_name'] = $this->getName($user);
+        $entityData['applied_icon'] = $this->getIconName();
+        $entityData['applied_description'] = $this->getDescription();
+
+        return $entityData;
+    }
+
+    /**
      * Special function used to get data visible to users who have no view permission
      *
      * @return array Associative array of select fields in array(field_name=>value) format
