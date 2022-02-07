@@ -818,12 +818,17 @@ class Entity implements EntityInterface
     }
 
     /**
-     * Get name of this object based on common name fields
+     * Get human readable name of this object based on common name fields
      *
+     * @param UserEntity $user Optional. The user that is acting on this entity
      * @return string The name/label of this object
      */
-    public function getName()
+    public function getName(UserEntity $user = null)
     {
+        // If $user is defined, then check there is custom name generated for this entity
+        if ($user && $this->onGetName($user)) {
+            return $this->onGetName($user);
+        }
         if ($this->def->getField("name")) {
             return $this->getValue("name");
         }
@@ -847,29 +852,12 @@ class Entity implements EntityInterface
     }
 
     /**
-     * Function that will get the human readable name for this entity
-     * 
-     * @param UserEntity $user The user that is acting on this entity
-     * @return string The applied name set for this entity
-     */
-    public function getAppliedName(UserEntity $user)
-    {
-        $appliedName = $this->onGetAppliedName($user);
-
-        // If applied name is empty, then fall back in using the ::getName()
-        if (empty($appliedName)) {
-            $appliedName = $this->getName();
-        }
-
-        return $appliedName;
-    }
-
-    /**
      * Call derived extensions
      * 
+     * @param UserEntity $user Optional. The user that is acting on this entity
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onGetAppliedName(UserEntity $user)
+    public function onGetName(UserEntity $user = null)
     {
     }
 

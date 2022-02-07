@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Activity entity extension
+ * ChatRoom entity extension
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -86,11 +86,11 @@ class ChatRoomEntity extends Entity implements EntityInterface
     }
 
     /**
-     * Callback function used for derrived subclasses
+     * Get human readable name for chat room entity
      * 
      * @param UserEntity $user The user that is acting on this entity
      */
-    public function onGetAppliedName(UserEntity $user)
+    public function onGetName(UserEntity $user = null)
     {
         // If this is a room channel and subject is set, then just return the subject
         if ($this->getValue('scope') === self::ROOM_CHANNEL && !empty($this->getValue('subject'))) {

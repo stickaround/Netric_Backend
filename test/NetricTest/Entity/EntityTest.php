@@ -653,7 +653,7 @@ class EntityTest extends TestCase
     /**
      * Test getting the applied name
      */
-    public function testGetAppliedName()
+    public function testGetName()
     {
         $data = [
             "name" => "testAppliedName",
@@ -664,6 +664,6 @@ class EntityTest extends TestCase
         $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK, $this->account->getAccountId());
         $task->fromArray($data);
 
-        $this->assertEquals($task->getAppliedName($this->user), $data["name"]);
+        $this->assertEquals($task->getName($this->user), $data["name"]);
     }
 }

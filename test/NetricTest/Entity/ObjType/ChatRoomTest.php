@@ -75,7 +75,7 @@ class ChatRoomTest extends TestCase
     /**
      * Test getting the applied name for chat room entity
      */
-    public function testOnGetAppliedName()
+    public function testOnGetName()
     {
         $dataChannelRoom = [
             "name" => "testAppliedName",
@@ -89,13 +89,13 @@ class ChatRoomTest extends TestCase
         $entityChannelRoom->fromArray($dataChannelRoom);
         $entityChannelRoom->addMultiValue("members", $this->user->getEntityId(), $this->user->getName());
 
-        $this->assertEquals($entityChannelRoom->getAppliedName($this->user), $dataChannelRoom["subject"]);
+        $this->assertEquals($entityChannelRoom->getName($this->user), $dataChannelRoom["subject"]);
 
         // Now add members in the channel room and set the subject to empty string
         $entityChannelRoom->setValue("subject", "");        
         $entityChannelRoom->addMultiValue("members", "member-01", "Member 01");
         $entityChannelRoom->addMultiValue("members", "member-02", "Member 02");
-        $this->assertEquals($entityChannelRoom->getAppliedName($this->user), "Member 01, Member 02");
+        $this->assertEquals($entityChannelRoom->getName($this->user), "Member 01, Member 02");
 
         // Now let's test the direct message
         $dataDirectMessage = [
@@ -108,10 +108,10 @@ class ChatRoomTest extends TestCase
         $entityDirectMessage->fromArray($dataDirectMessage);
         $entityDirectMessage->addMultiValue("members", $this->user->getEntityId(), $this->user->getName());
 
-        $this->assertEquals($entityDirectMessage->getAppliedName($this->user), "<Empty Room>");
+        $this->assertEquals($entityDirectMessage->getName($this->user), "<Empty Room>");
 
         // Now add other members in the direct message
         $entityDirectMessage->addMultiValue("members", "member-00", "Member 00");
-        $this->assertEquals($entityDirectMessage->getAppliedName($this->user), "Member 00");
+        $this->assertEquals($entityDirectMessage->getName($this->user), "Member 00");
     }
 }

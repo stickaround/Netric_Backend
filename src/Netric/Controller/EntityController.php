@@ -280,7 +280,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         if ($currentUserPermissions['view']) {
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
-            $entityData['applied_name'] = $entity->getAppliedName($user);
+            $entityData['applied_name'] = $entity->getName($user);
             $entityData['applied_icon'] = $entity->getIconName();
             $entityData['applied_description'] = $entity->getDescription();
         } else {
@@ -289,7 +289,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Add applied properties - not field values but processed
         $entityData['currentuser_permissions'] = $currentUserPermissions;
-        $entityData['applied_name'] = $entity->getAppliedName($user);
+        $entityData['applied_name'] = $entity->getName($user);
         $entityData['applied_description'] = $entity->getDescription();
         $response->write($entityData);
         return $response;
@@ -390,7 +390,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         if ($currentUserPermissions['view']) {
             $entityData = $entity->toArray();
             $entityData["applied_dacl"] = $dacl->toArray();
-            $entityData['applied_name'] = $entity->getAppliedName($currentUser);
+            $entityData['applied_name'] = $entity->getName($currentUser);
             $entityData['applied_icon'] = $entity->getIconName();
             $entityData['applied_description'] = $entity->getDescription();
         } else {
@@ -601,7 +601,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Add the currently applied DACL for this entity definition
         $defDacl = $this->daclLoader->getForEntityDefinition($def);
         $ret['applied_dacl'] = $defDacl->toArray();
-        $ret['applied_name'] = $user->getAppliedName($user);
+        $ret['applied_name'] = $user->getName($user);
         $ret['applied_icon'] = $user->getIconName();
         $ret['applied_description'] = $user->getDescription();
         return $ret;
