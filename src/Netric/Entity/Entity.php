@@ -825,7 +825,7 @@ class Entity implements EntityInterface
      */
     public function getName(UserEntity $user = null)
     {
-        // If $user is defined, then check there is custom name generated for this entity
+        // If $user is defined, then check if there is a custom name generated for this entity
         if ($user && $this->onGetName($user)) {
             return $this->onGetName($user);
         }

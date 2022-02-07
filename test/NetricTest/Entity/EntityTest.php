@@ -651,7 +651,7 @@ class EntityTest extends TestCase
     }
 
     /**
-     * Test getting the applied name
+     * Test getting the human readable name of an entity
      */
     public function testGetName()
     {

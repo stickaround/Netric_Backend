@@ -172,8 +172,8 @@ interface EntityInterface
 
     /**
      * Get name of this object based on common name fields
+     * 
      * @param UserEntity $user Optional. The user that is acting on this entity
-     *
      * @return string The name/label of this object
      */
     public function getName(UserEntity $user = null);
@@ -182,7 +182,7 @@ interface EntityInterface
      * Callback function used for derrived subclasses
      * 
      * @param UserEntity $user Optional. The user that is acting on this entity
-     * @param UserEntity $user The user that is acting on this entity
+     * @return string The name/label of this object
      */
     public function onGetName(UserEntity $user = null);
 

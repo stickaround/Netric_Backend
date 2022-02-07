@@ -73,7 +73,7 @@ class ChatRoomTest extends TestCase
     }
 
     /**
-     * Test getting the applied name for chat room entity
+     * Test getting the human readable name for chat room entity
      */
     public function testOnGetName()
     {
