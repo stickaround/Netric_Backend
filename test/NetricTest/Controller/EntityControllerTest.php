@@ -691,11 +691,14 @@ class EntityControllerTest extends TestCase
         $mockTaskEntity = $this->createMock(TaskEntity::class);
         $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getDefinition')->willReturn($mockDefinition);
-        $mockTaskEntity->method('toArray')->willReturn([
+        $mockTaskEntity->method('toArrayWithApplied')->willReturn([
             'obj_type' => 'task',
             'entity_id' => $savedTaskEntityId,
             'name' => 'Test Task',
-            'description' => 'Task for saving'
+            'description' => 'Task for saving',
+            'applied_name' => 'Test Task',
+            'applied_icon' => '',
+            'applied_description' => ''
         ]);
 
         // Mock the entity loader service which is used to create a new entity and can save it
@@ -766,11 +769,14 @@ class EntityControllerTest extends TestCase
         $mockTaskEntity = $this->createMock(TaskEntity::class);
         $mockTaskEntity->method('getName')->willReturn('Test Task');
         $mockTaskEntity->method('getDefinition')->willReturn($mockDefinition);
-        $mockTaskEntity->method('toArray')->willReturn([
+        $mockTaskEntity->method('toArrayWithApplied')->willReturn([
             'obj_type' => 'task',
             'entity_id' => $existingEntityId,
             'name' => 'Test Task',
-            'description' => 'Task for saving'
+            'description' => 'Task for saving',
+            'applied_name' => 'Test Task',
+            'applied_icon' => '',
+            'applied_description' => ''
         ]);
 
         // Mock the entity loader service which is used to load the existing task by guid and can save it
