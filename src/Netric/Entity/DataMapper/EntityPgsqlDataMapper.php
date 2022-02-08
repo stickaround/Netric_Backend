@@ -223,7 +223,7 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         }
 
         // Convert to cols=>vals array
-        $data = $this->getDataToInsertFromEntity($entity, $accountId);
+        $data = $this->getColumnDataFromEntity($entity, $accountId);
 
         // Set typei_id to correctly build the sql statement based on custom table definitions
         $data["entity_definition_id"] = $def->getEntityDefinitionId();
@@ -268,22 +268,40 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
     /**
      * Convert fields to column names for saving table and escape for insertion/updates
      *
+     * Most of the entity data is put into a jsonb field, so this is basically for
+     * special indexed fields like entity_id, and uname that need to exist outside
+     * of the jsonb for performance and reference reasons.
+     *
      * @param EntityInterface $entity The entity we are saving
      * @param string $accountId
      * @return array("col_name"=>"value")
      */
-    private function getDataToInsertFromEntity(EntityInterface $entity, string $accountId)
+    private function getColumnDataFromEntity(EntityInterface $entity, string $accountId)
     {
         $ret = [];
         $all_fields = $entity->getDefinition()->getFields();
+        // These are the actual columns to enter entity data into
+        // from /data/db/*.sql definitions/updates
+        $realColumns = [
+            'entity_id',
+            'account_id',
+            'entity_number',
+            'uname',
+            'ts_entered',
+            'ts_updated',
+            'f_deleted',
+            'commit_id',
+            'sort_order',
+        ];
 
         foreach ($all_fields as $fname => $fdef) {
             /*
              * Check if the field name does exists in the object table
              * Most of the entity data are already stored in field_data column
-             * So there is no need to build a data array for entity values
+             * So there is no need to build a data array for entity values that
+             * don't need to be stored separately from the jsonb field_data
              */
-            if (!$this->getDatabase($accountId)->columnExists(self::ENTITY_TABLE, $fname)) {
+            if (!in_array($fname, $realColumns, true)) {
                 continue;
             }
 
