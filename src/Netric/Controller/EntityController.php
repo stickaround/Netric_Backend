@@ -277,17 +277,18 @@ class EntityController extends AbstractFactoriedController implements Controller
         }
 
         // Export the entity to array if the current user has access to view this entity
+        $entityDataApplied = $entity->toArrayWithApplied($user);
         if ($currentUserPermissions['view']) {
-            $entityData = $entity->toArrayWithApplied($user);
+            $entityData = $entityDataApplied;
             $entityData["applied_dacl"] = $dacl->toArray();            
         } else {
             $entityData = $entity->toArrayWithNoPermissions();
         }
 
-        // Add applied properties - not field values but processed
+        // Add applied properties - not field values but processed        
         $entityData['currentuser_permissions'] = $currentUserPermissions;
-        $entityData['applied_name'] = $entity->getName($user);
-        $entityData['applied_description'] = $entity->getDescription();
+        $entityData['applied_name'] = $entityDataApplied['applied_name'];
+        $entityData['applied_description'] = $entityDataApplied['applied_description'];
         $response->write($entityData);
         return $response;
     }

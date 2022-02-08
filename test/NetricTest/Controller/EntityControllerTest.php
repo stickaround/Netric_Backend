@@ -189,6 +189,13 @@ class EntityControllerTest extends TestCase
             'entity_id' => $taskEntityId,
             'name' => 'Test Task',
         ]);
+        $mockTaskEntity->method('toArrayWithApplied')->willReturn([
+            'obj_type' => ObjectTypes::TASK,
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'applied_name' => 'Test Task',
+            'applied_description' => '',
+        ]);
 
         // Mock the entity loader service which is used to load the task by guid
         $this->mockEntityLoader->method('getEntityById')->willReturn($mockTaskEntity);
