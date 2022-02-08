@@ -23,6 +23,7 @@ use Netric\Permissions\Dacl;
 use Netric\Permissions\DaclLoader;
 use Ramsey\Uuid\Uuid;
 use Exception;
+use Netric\Stats\StatsPublisher;
 
 /**
  * Controller for interacting with entities
@@ -161,6 +162,9 @@ class EntityController extends AbstractFactoriedController implements Controller
                 return $response;
             }
 
+            // Log stats
+            StatsPublisher::increment("controller.entity.getdefinition");
+
             $response->write($this->fillDefinitionArray($def));
             return $response;
         } catch (Exception $ex) {
@@ -280,12 +284,15 @@ class EntityController extends AbstractFactoriedController implements Controller
         $entityDataApplied = $entity->toArrayWithApplied($user);
         if ($currentUserPermissions['view']) {
             $entityData = $entityDataApplied;
-            $entityData["applied_dacl"] = $dacl->toArray();            
+            $entityData["applied_dacl"] = $dacl->toArray();
         } else {
             $entityData = $entity->toArrayWithNoPermissions();
         }
 
-        // Add applied properties - not field values but processed        
+        // Log stats
+        StatsPublisher::increment("controller.entity.get");
+
+        // Add applied properties - not field values but processed 
         $entityData['currentuser_permissions'] = $currentUserPermissions;
         $entityData['applied_name'] = $entityDataApplied['applied_name'];
         $entityData['applied_description'] = $entityDataApplied['applied_description'];
@@ -368,6 +375,9 @@ class EntityController extends AbstractFactoriedController implements Controller
                 $response->write(["error" => "Error saving entity."]);
                 return $response;
             }
+
+            // Log stats
+            StatsPublisher::increment("controller.entity.save");
         } catch (\RuntimeException $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "Error saving: " . $ex->getMessage()]);
@@ -387,7 +397,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         // Export the entity to array if the current user has access to view this entity
         if ($currentUserPermissions['view']) {
             $entityData = $entity->toArrayWithApplied($currentUser);
-            $entityData["applied_dacl"] = $dacl->toArray();            
+            $entityData["applied_dacl"] = $dacl->toArray();
         } else {
             $entityData = $entity->toArrayWithNoPermissions();
         }
@@ -473,6 +483,9 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write(["error" => $ex->getMessage()]);
             return $response;
         }
+
+        // Log stats
+        StatsPublisher::increment("controller.entity.remove");
 
         // Return what was deleted
         $response->write($ret);

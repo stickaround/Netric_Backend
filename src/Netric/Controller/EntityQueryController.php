@@ -2,10 +2,8 @@
 
 namespace Netric\Controller;
 
-use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
-use Netric\Account\AccountContainerFactory;
 use Netric\Account\AccountContainerInterface;
 use Netric\Application\Response\HttpResponse;
 use Netric\Request\HttpRequest;
@@ -13,6 +11,7 @@ use Netric\Authentication\AuthenticationService;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Permissions\DaclLoader;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\Stats\StatsPublisher;
 
 /**
  * This is just a simple test controller
@@ -149,7 +148,7 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
             // Export the entity to array if the current user has access to view this entity
             if ($currentUserPermissions["view"]) {
                 $entityData = $ent->toArrayWithApplied($currentUser);
-                $entityData["applied_dacl"] = $dacl->toArray();                
+                $entityData["applied_dacl"] = $dacl->toArray();
             } else {
                 $entityData = $ent->toArrayWithNoPermissions();
             }
@@ -160,6 +159,9 @@ class EntityQueryController extends AbstractFactoriedController implements Contr
             // Print full details
             $entities[] = $entityData;
         }
+
+        // Log stats
+        StatsPublisher::increment("controller.entityquery.execute");
 
         $ret["entities"] = $entities;
         $response->write($ret);
