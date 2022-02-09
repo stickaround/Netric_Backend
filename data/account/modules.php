@@ -5,5 +5,6 @@ return [
     'knowledge',
     'message',
     'support',
-    'settings'
+    'sell',
+    'settings',
 ];

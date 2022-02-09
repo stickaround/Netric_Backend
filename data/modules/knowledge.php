@@ -27,6 +27,7 @@ return [
             "title" => "My Notes",
             "route" => "my-notes",
             "icon" => "AssignmentIcon",
+            "browseby" => "groups",
         ],
         [
             "objType" => ObjectTypes::DOCUMENT,
