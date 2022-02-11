@@ -12,9 +12,9 @@ use Netric\EntityDefinition\ObjectTypes;
 return [
     "title" => "Sell",
     "icon" => "ContactsIcon",
-    "default_route" => "all-customers",
+    "default_route" => "contacts",
     "name" => "sell",
-    "short_title" => 'sell',
+    "short_title" => 'Sell',
     "scope" => 'system',
     "sort_order" => 6,
     "f_system" => true,
