@@ -40,7 +40,7 @@ return [
         [
             "title" => "My Tasks",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
-            "browser_view" => "my_task",
+            "browser_view" => "my_tasks",
             "route" => "my-task",
             "objType" => ObjectTypes::TASK,
             "icon" => "CheckIcon",
@@ -64,7 +64,7 @@ return [
         [
             "title" => "Task Board",
             "type" => LeftNavItemTypes::TASK_BOARD,
-            "browser_view" => "my_task",
+            "browser_view" => "my_tasks",
             "route" => "board-view",
             "objType" => ObjectTypes::TASK,
             "icon" => "ViewColumnIcon",
