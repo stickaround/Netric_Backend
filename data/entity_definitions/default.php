@@ -183,5 +183,12 @@ return [
             "value" => "now",
             "on" => "null"
         ],
-    ]
+    ],
+    'num_reactions' => [
+        'title' => 'Num Reactions',
+        'type' => Field::TYPE_NUMBER,
+        'subtype' => Field::TYPE_INTEGER,
+        'readonly' => true,
+        'system' => true,
+    ],
 ];

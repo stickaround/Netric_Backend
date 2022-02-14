@@ -84,22 +84,43 @@ class UserReactionEntity extends Entity implements EntityInterface
         $groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
         $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
 
-        $chatMessageEntity = $this->entityLoader->getEntityById($this->getValue("obj_reference"), $user->getAccountId());
-        $chatRoomEntity = $this->entityLoader->getEntityById($chatMessageEntity->getValue("chat_room"), $user->getAccountId());
+        $objReference = $this->getValue("obj_reference");
+        $entityReactedOn = $this->entityLoader->getEntityById($objReference, $user->getAccountId());
 
-        // Make sure all members have view access to the user reaction
-        $dacl = new Dacl();
-        $members = $chatRoomEntity->getValue('members');
-        $membersName = [];
-        foreach ($members as $userId) {
-            $dacl->allowUser($userId, Dacl::PERM_VIEW);
+        // Set reaction associations to all directly associated objects if new
+        if ($entityReactedOn) {
+            // Update the num_reactions field of the entity we are reacting on
+            // Only if the comment is new and/or just deleted 
+            if ($this->getValue('revision') <= 1 || ($this->isArchived() && $this->fieldValueChanged('f_deleted'))) {
+                // Determine if we should increment or decrement
+                $added = ($this->isArchived()) ? false : true;
+                $entityReactedOn->setHasReaction($added);
+            }
+
+            // Add object references to the list of associations
+            $this->addMultiValue("associations", $entityReactedOn->getEntityId(), $entityReactedOn->getName());
+
+            // Make sure followers of this entity reacted on are synchronized with the entity
+            $this->syncFollowers($entityReactedOn);
+
+            // Save the entity we are reacting on if there were changes
+            if ($entityReactedOn->isDirty()) {
+                $this->entityLoader->save($entityReactedOn, $user);
+            }
+
+            // Make sure all members have view access to the user reaction
+            $dacl = new Dacl();
+            $members = $entityReactedOn->getValue('followers');
+            $membersName = [];
+            foreach ($members as $userId) {
+                $dacl->allowUser($userId, Dacl::PERM_VIEW);
+            }
+
+            // Make sure the owner has full control
+            $dacl->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
+
+            // Save custom permissions
+            $this->setValue('dacl', json_encode($dacl->toArray()));
         }
-
-        // Make sure the owner has full control
-        $dacl->allowGroup($groupCreator->getGroupId(), Dacl::PERM_FULL);
-
-
-        // Save custom permissions
-        $this->setValue('dacl', json_encode($dacl->toArray()));
     }
 }

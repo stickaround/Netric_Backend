@@ -16,6 +16,8 @@ class ObjectTypes
     const CALENDAR = 'calendar';
     const CALENDAR_EVENT = 'calendar_event';
     const CALENDAR_EVENT_PROPOSAL = 'calendar_event_proposal';
+    const CHAT_ROOM = 'chat_room';
+    const CHAT_MESSAGE = 'chat_message';
     const COMMENT = 'comment';
     const CONTACT = 'contact';
     const CONTACT_PERSONAL = 'contact_personal';
@@ -30,16 +32,12 @@ class ObjectTypes
     const EMAIL_MESSAGE = 'email_message';
     const EMAIL_MESSAGE_ATTACHMENT = 'email_message_attachment';
     const EMAIL_THREAD = 'email_thread';
-    const CHAT_ROOM = 'chat_room';
-    const CHAT_MESSAGE = 'chat_message';
     const FILE = 'file';
     const FOLDER = 'folder';
     const HTML_TEMPLATE = 'html_template';
     const HTML_SNIPPET = 'cms_snippet';
     const INVOICE = 'invoice';
     const INVOICE_TEMPLATE = 'invoice_template';
-    const TICKET = 'ticket';
-    const TICKET_CHANNEL = 'ticket_channel';
     const LEAD = 'lead';
     const LOG = 'log';
     const MARKETING_CAMPAIGN = 'marketing_campaign';
@@ -63,6 +61,8 @@ class ObjectTypes
     const STATUS_UPDATE = 'status_update';
     const SITE = 'cms_site';
     const TASK = 'task';
+    const TICKET = 'ticket';
+    const TICKET_CHANNEL = 'ticket_channel';
     const TIME = 'time';
     const USER = 'user';
     const USER_TEAM = 'user_team';

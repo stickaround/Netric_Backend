@@ -862,6 +862,10 @@ class Entity implements EntityInterface
         if ($this->def->getField("comment")) {
             return $this->getValue("comment");
         }
+        if ($this->def->getField("body")) {
+            // This is for chat messages, since they only have body field
+            return $this->getValue("body");
+        }
         
         return $this->getEntityId();
     }
@@ -1190,6 +1194,30 @@ class Entity implements EntityInterface
         }
 
         $this->setValue("num_comments", $cur);
+    }
+
+    /**
+     * Increment the reaction counter for this entity
+     *
+     * @param bool $added If true increment, if false then decrement for deleted reaction
+     * @param int $numReactions Optional manual override to set total number of reactions
+     * @return bool true on success false on failure
+     */
+    public function setHasReaction($added = true, $numReactions = null)
+    {
+        $cur = $numReactions;
+
+        // We used to store a flag in cache, but now we put reaction counts in the actual object
+        if ($numReactions == null) {
+            $cur = ($this->getValue('num_reactions')) ? (int) $this->getValue('num_reactions') : 0;
+            if ($added) {
+                $cur++;
+            } elseif ($cur > 0) {
+                $cur--;
+            }
+        }
+
+        $this->setValue("num_reactions", $cur);
     }
 
     /**
