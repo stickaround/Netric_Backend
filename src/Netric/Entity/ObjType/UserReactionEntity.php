@@ -90,7 +90,7 @@ class UserReactionEntity extends Entity implements EntityInterface
         // Set reaction associations to all directly associated objects if new
         if ($entityReactedOn) {
             // Update the num_reactions field of the entity we are reacting on
-            // Only if the comment is new and/or just deleted 
+            // Only if the reaction is new and/or just deleted 
             if ($this->getValue('revision') <= 1 || ($this->isArchived() && $this->fieldValueChanged('f_deleted'))) {
                 // Determine if we should increment or decrement
                 $added = ($this->isArchived()) ? false : true;
