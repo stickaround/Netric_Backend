@@ -14,7 +14,7 @@ return array(
         'default' => true,
         'order_by' => array(
             'order' => array(
-                'field_name' => 'id',
+                'field_name' => 'entity_id',
                 'direction' => 'asc',
             ),
         ),
