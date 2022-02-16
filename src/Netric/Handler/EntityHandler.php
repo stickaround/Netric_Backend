@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netric\Handler;
 
 use Netric\Entity\EntityLoader;
+use Netric\Stats\StatsPublisher;
 use NetricApi\EntityIf;
 use NetricApi\InvalidArgument;
 
@@ -40,6 +41,7 @@ class EntityHandler implements EntityIf
         $user = $this->entityLoader->getEntityById($userId, $accountId);
         $entity->addMultiValue('seen_by', $userId, $user->getName());
         $this->entityLoader->save($entity, $user);
+        StatsPublisher::increment("handler.entity,setEntitySeenBy");
     }
 
     /**
@@ -61,5 +63,6 @@ class EntityHandler implements EntityIf
         $user = $this->entityLoader->getEntityById($userId, $accountId);
         $user->setValue("last_active", $timestamp);
         $this->entityLoader->save($user, $user);
+        StatsPublisher::increment("handler.entity,updateUserLastActive");
     }
 }
