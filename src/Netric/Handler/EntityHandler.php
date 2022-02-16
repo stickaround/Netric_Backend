@@ -41,7 +41,9 @@ class EntityHandler implements EntityIf
         $user = $this->entityLoader->getEntityById($userId, $accountId);
         $entity->addMultiValue('seen_by', $userId, $user->getName());
         $this->entityLoader->save($entity, $user);
-        StatsPublisher::increment("handler.entity,setEntitySeenBy");
+
+        // Log stats so we can track how many times this is called
+        StatsPublisher::increment("handler.entity,function=setEntitySeenBy");
     }
 
     /**
@@ -63,6 +65,8 @@ class EntityHandler implements EntityIf
         $user = $this->entityLoader->getEntityById($userId, $accountId);
         $user->setValue("last_active", $timestamp);
         $this->entityLoader->save($user, $user);
-        StatsPublisher::increment("handler.entity,updateUserLastActive");
+
+        // Log stats so we can track how many times this is called
+        StatsPublisher::increment("handler.entity,function=updateUserLastActive");
     }
 }
