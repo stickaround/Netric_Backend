@@ -43,7 +43,7 @@ class EntityHandler implements EntityIf
         $this->entityLoader->save($entity, $user);
 
         // Log stats so we can track how many times this is called
-        StatsPublisher::increment("handler.entity,function=setEntitySeenBy");
+        StatsPublisher::increment("thrift,handler=entity,function=setEntitySeenBy");
     }
 
     /**
@@ -67,6 +67,6 @@ class EntityHandler implements EntityIf
         $this->entityLoader->save($user, $user);
 
         // Log stats so we can track how many times this is called
-        StatsPublisher::increment("handler.entity,function=updateUserLastActive");
+        StatsPublisher::increment("thrift,handler=entity,function=setEntitySeenBy");
     }
 }
