@@ -25,6 +25,7 @@ use Netric\Entity\EntityEvents;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\PubSub\PubSubInterface;
+use Netric\Stats\StatsPublisher;
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Worker\EntityPostSaveWorker;
 use Netric\WorkerMan\Worker\EntitySyncSetExportedStaleWorker;
@@ -390,6 +391,9 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             ]);
         }
 
+        // Publish write stats for monitoring
+        StatsPublisher::increment("entity.datamapper,function=save");
+
         return $ret;
     }
 
@@ -426,6 +430,9 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
 
         // Reset dirty flag and changelog since we just loaded
         $entity->resetIsDirty();
+
+        // Publish read stats for monitoring
+        StatsPublisher::increment("entity.datamapper,function=getEntityById");
 
         return $entity;
     }
@@ -498,6 +505,9 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             ['uname' => $uname]
         );
         $matches = $this->getIdsFromFieldValues($objType, $filterValues, $accountId);
+
+        // Publish read stats for monitoring
+        StatsPublisher::increment("entity.datamapper,function=getByUniqueName");
 
         // Return the first match
         if (!empty($matches[0])) {
