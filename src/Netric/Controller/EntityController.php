@@ -146,6 +146,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
+        StatsPublisher::increment("rest,controller=entity,function=getGetDefinitionAction");
+
         try {
             $def = null;
             $currentAccount = $this->getAuthenticatedAccount();
@@ -161,9 +163,6 @@ class EntityController extends AbstractFactoriedController implements Controller
                 $response->write(["error" => "$objType could not be loaded."]);
                 return $response;
             }
-
-            // Log stats
-            StatsPublisher::increment("controller.entity.getdefinition");
 
             $response->write($this->fillDefinitionArray($def));
             return $response;
@@ -239,6 +238,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             }
         }
 
+        StatsPublisher::increment("rest,controller=entity,function=getGetAction");
+
         // Get the entity utilizing whatever params were passed in
         $entity = null;
         if ($entityId && Uuid::isValid($entityId)) {
@@ -289,9 +290,6 @@ class EntityController extends AbstractFactoriedController implements Controller
             $entityData = $entity->toArrayWithNoPermissions();
         }
 
-        // Log stats
-        StatsPublisher::increment("controller.entity.get");
-
         // Add applied properties - not field values but processed 
         $entityData['currentuser_permissions'] = $currentUserPermissions;
         $entityData['applied_name'] = $entityDataApplied['applied_name'];
@@ -316,6 +314,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write("Request input is not valid");
             return $response;
         }
+
+        StatsPublisher::increment("rest,controller=entity,function=postSaveAction");
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
@@ -375,9 +375,6 @@ class EntityController extends AbstractFactoriedController implements Controller
                 $response->write(["error" => "Error saving entity."]);
                 return $response;
             }
-
-            // Log stats
-            StatsPublisher::increment("controller.entity.save");
         } catch (\RuntimeException $ex) {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "Error saving: " . $ex->getMessage()]);
@@ -437,6 +434,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
+        StatsPublisher::increment("rest,controller=entity,function=postRemoveAction");
+
         // Decode the json structure
         $objData = json_decode($rawBody, true);
         if (!isset($objData['entity_id'])) {
@@ -484,9 +483,6 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
-        // Log stats
-        StatsPublisher::increment("controller.entity.remove");
-
         // Return what was deleted
         $response->write($ret);
         return $response;
@@ -511,6 +507,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write(["error" => "obj_type & field_name are required params."]);
             return $response;
         }
+
+        StatsPublisher::increment("rest,controller=entity,function=getGetGroupingsAction");
 
         // Get the groupings for this $objType and $fieldName
         try {
@@ -552,6 +550,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write(["error" => "Account authentication error."]);
             return $response;
         }
+
+        StatsPublisher::increment("rest,controller=entity,function=getAllDefinitionsAction");
 
         // Load all the entity definitions
         $definitions = $this->entityDefinitionLoader->getAll($currentAccount->getAccountId());
@@ -685,6 +685,8 @@ class EntityController extends AbstractFactoriedController implements Controller
         $rawBody = $request->getBody();
         $response = new HttpResponse($request);
 
+        StatsPublisher::increment("rest,controller=entity,function=postUpdateEntityDefAction");
+
         if (!$rawBody) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write("Request input is not valid");
@@ -757,6 +759,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
+        StatsPublisher::increment("rest,controller=entity,function=postDeleteEntityDefAction");
+
         // Decode the json structure
         $objData = json_decode($rawBody, true);
         if (!isset($objData['obj_type'])) {
@@ -812,6 +816,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write("Request input is not valid");
             return $response;
         }
+
+        StatsPublisher::increment("rest,controller=entity,function=postMassEditAction");
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);

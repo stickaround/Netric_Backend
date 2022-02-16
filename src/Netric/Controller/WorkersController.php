@@ -16,6 +16,7 @@ use Netric\WorkerMan\Worker\ScheduleRunnerWorker;
 use Netric\Request\ConsoleRequest;
 use Netric\Request\HttpRequest;
 use Exception;
+use Netric\Stats\StatsPublisher;
 
 /**
  * Controller used for interacting with workers from the command line (or API)
@@ -88,6 +89,8 @@ class WorkersController extends AbstractFactoriedController implements Controlle
     {
         $response = new HttpResponse($request);
         $rawBody = $request->getBody();
+
+        StatsPublisher::increment("rest,controller=workers,function=postProcessAction");
 
         if (!$rawBody) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
