@@ -392,7 +392,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         }
 
         // Publish write stats for monitoring
-        StatsPublisher::increment("entity.datamapper,function=save");
+        StatsPublisher::increment("entity.datamapper,function=save,obj_type=" . $def->getObjType());
 
         return $ret;
     }
