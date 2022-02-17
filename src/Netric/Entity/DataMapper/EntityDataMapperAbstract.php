@@ -307,7 +307,7 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
 
         // Update foreign key names
         // This is no longer a function of the DataMapper
-        //$this->updateForeignKeyNames($entity, $user);
+        $this->updateForeignKeyNames($entity, $user);
 
         /*
          * If the entity has a new recurrence pattern, then we need to get the next recurring id
@@ -641,18 +641,10 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     }
 
     /**
-     * @deprecated Update foreign key name cache
-     *
-     * This will no longer be a function of the datamapper.
-     * If we want to cache names, it can utilize a newer process to get
-     * all referenced names, or we just do it live in the entityLoader
-     * since we can cache it there much more easily.
+     * Update foreign key name cache
      *
      * All foreign key (fkey, fkey_multi, object, object_multi) fields
-     * cache the name of the foreign key for faster performance. The risk
-     * with this is that the cache gets out of date if a referenced object
-     * is updated. This function makes sure that all names for foreign references
-     * are refreshed any time the entity is saved.
+     * cache the name of the foreign key for faster performance.
      *
      * @param EntityInterface $entity The entity to update
      * @param UserEntity $user Current user
@@ -676,6 +668,14 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
 
             // Skip over null/empty fields
             if (!$value) {
+                continue;
+            }
+
+            // For now, skip over previously set names
+            // because the load was pretty bad with running all
+            // these queries every time
+            $valueName = $entity->getValueName($field->name, $value);
+            if (!empty($valueName)) {
                 continue;
             }
 
