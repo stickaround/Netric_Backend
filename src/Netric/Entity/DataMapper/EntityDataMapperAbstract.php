@@ -306,7 +306,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $this->setGlobalId($entity);
 
         // Update foreign key names
-        $this->updateForeignKeyNames($entity, $user);
+        // This is no longer a function of the DataMapper
+        //$this->updateForeignKeyNames($entity, $user);
 
         /*
          * If the entity has a new recurrence pattern, then we need to get the next recurring id
@@ -640,7 +641,12 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     }
 
     /**
-     * Update foreign key name cache
+     * @deprecated Update foreign key name cache
+     *
+     * This will no longer be a function of the datamapper.
+     * If we want to cache names, it can utilize a newer process to get
+     * all referenced names, or we just do it live in the entityLoader
+     * since we can cache it there much more easily.
      *
      * All foreign key (fkey, fkey_multi, object, object_multi) fields
      * cache the name of the foreign key for faster performance. The risk
@@ -658,16 +664,9 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         if ($entity->getDefinition()->isPrivate()) {
             // Make sure that the owner_id was set
             if ($entity->getValue("owner_id")) {
-                $userEntity = $this->getEntityById($entity->getValue("owner_id"), $user->getAccountId());
+                $userGuidPath = "/" . $entity->getValue("owner_id");
             } elseif ($entity->getValue("creator_id")) {
-                $userEntity = $this->getEntityById($entity->getValue("creator_id"), $user->getAccountId());
-            }
-
-            if ($userEntity) {
-                $userGuidPath = "/" . $userEntity->getEntityId();
-            } else {
-                // If we do not find the owner_id, then let's use the current user id.
-                $userGuidPath = "/" . $user->getEntityId();
+                $userGuidPath = "/" . $entity->getValue("creator_id");
             }
         }
 
