@@ -20,6 +20,7 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Account\AccountContainerInterface;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Email entity extension
@@ -75,6 +76,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader Loader to get/save entities
+     * @param GroupingLoader $groupingLoader Grouping loader
      * @param IndexInterface $entityIndex Index to query entities
      * @param FileSystem $fileSystem Used for working with netric files
      * @param AccountContainerInterface $accountContainer Container used to load accounts
@@ -82,16 +84,16 @@ class EmailMessageEntity extends Entity implements EntityInterface
     public function __construct(
         EntityDefinition $def,
         EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader,
         IndexInterface $entityIndex,
         FileSystem $fileSystem,
         AccountContainerInterface $accountContainer
     ) {
-        $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
         $this->accountContainer = $accountContainer;
 
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader, $groupingLoader);
     }
 
     /**
@@ -128,7 +130,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     public function onAfterSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         if ($this->isArchived()) {
-            $thread = $this->entityLoader->getEntityById(
+            $thread = $this->getEntityLoader()->getEntityById(
                 $this->getValue("thread"),
                 $user->getAccountId()
             );
@@ -138,12 +140,12 @@ class EmailMessageEntity extends Entity implements EntityInterface
                 // If this is the last message, then delete the thread
                 if (intval($thread->getValue("num_messages")) === 1) {
                     $thread->setValue("num_messages", 0);
-                    $this->entityLoader->delete($thread, $user);
+                    $this->getEntityLoader()->delete($thread, $user);
                 } else {
                     // Otherwise reduce the number of messages
                     $numMessages = $thread->getValue("num_messages");
                     $thread->setValue("num_messages", --$numMessages);
-                    $this->entityLoader->save($thread, $user);
+                    $this->getEntityLoader()->save($thread, $user);
                 }
             }
         }
@@ -174,7 +176,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function onAfterDeleteHard(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
-        $thread = $this->entityLoader->getEntityById(
+        $thread = $this->getEntityLoader()->getEntityById(
             $this->getValue("thread"),
             $user->getAccountId()
         );
@@ -184,7 +186,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
          * We need to perform the deleting of thread right after we deleted the message, to avoid infinite loop
          */
         if ($thread && intval($thread->getValue("num_messages")) === 1) {
-            $this->entityLoader->delete($thread, $user);
+            $this->getEntityLoader()->delete($thread, $user);
         }
     }
 
@@ -420,7 +422,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     //         // Add all attachments if they have a name
     //         if ($mimePart->getFileName()) {
     //             // This is an attachment - could either be inline or an attachment
-    //             $user = $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
+    //             $user = $this->getEntityLoader()->getEntityById($this->getOwnerId(), $this->getAccountId());
     //             $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), $user, true);
     //             $this->fileSystem->writeFile($file, $mimePart->getRawContent(), $user);
     //             $this->addMultiValue("attachments", $file->getEntityId(), $file->getName());
@@ -535,7 +537,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
             $results = $this->entityIndex->executeQuery($query);
             if ($results->getNum()) {
                 $emailMessage = $results->getEntity(0);
-                $thread = $this->entityLoader->getEntityById($emailMessage->getValue("thread"), $this->getAccountId());
+                $thread = $this->getEntityLoader()->getEntityById($emailMessage->getValue("thread"), $this->getAccountId());
             }
         }
 
@@ -561,7 +563,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
 
         // If we could not find a thread that already exists, then create a new one
         if (!$thread) {
-            $thread = $this->entityLoader->create(ObjectTypes::EMAIL_THREAD, $this->getAccountId());
+            $thread = $this->getEntityLoader()->create(ObjectTypes::EMAIL_THREAD, $this->getAccountId());
             $thread->setValue("owner_id", $this->getValue("owner_id"));
             $thread->setValue("num_messages", 0);
         }
@@ -617,7 +619,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
 
         // If a thread was not passed, the load it from value
         if (!$thread) {
-            $thread = $this->entityLoader->getEntityById($this->getValue("thread"), $this->getAccountId());
+            $thread = $this->getEntityLoader()->getEntityById($this->getValue("thread"), $this->getAccountId());
         }
 
         /*
@@ -650,10 +652,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
             }
         }
 
-        $threadUser = $this->entityLoader->getEntityById($thread->getValue('owner_id'), $this->getAccountId());
+        $threadUser = $this->getEntityLoader()->getEntityById($thread->getValue('owner_id'), $this->getAccountId());
 
         // Save the changes
-        if (!$this->entityLoader->save($thread, $threadUser)) {
+        if (!$this->getEntityLoader()->save($thread, $threadUser)) {
             throw new RuntimeException("Failed saving thread!");
         }
     }

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Project entity type
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
+
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
@@ -13,7 +15,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new project entity
@@ -31,6 +33,7 @@ class ProjectFactory implements EntityFactoryInterface
     {
         $entityIndex = $serviceLocator->get(IndexFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new ProjectEntity($def, $entityLoader, $entityIndex);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        return new ProjectEntity($def, $entityLoader, $groupingLoader, $entityIndex);
     }
 }

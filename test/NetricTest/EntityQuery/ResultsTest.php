@@ -5,8 +5,10 @@ namespace NetricTest\EntityQuery;
 use Netric;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\Entity;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\EntityQuery;
 use NetricTest\Bootstrap;
@@ -39,8 +41,16 @@ class ResultsTest extends TestCase
 
         // Simulate results and add entities
         $results = new Results($query);
-        $results->addEntity(new Entity($testDefinition));
-        $results->addEntity(new Entity($testDefinition));
+        $results->addEntity(new Entity(
+            $testDefinition,
+            $this->createMock(EntityLoader::class),
+            $this->createMock(GroupingLoader::class)
+        ));
+        $results->addEntity(new Entity(
+            $testDefinition,
+            $this->createMock(EntityLoader::class),
+            $this->createMock(GroupingLoader::class)
+        ));
         $results->setTotalNum(5);
 
         // Should push us to the second page

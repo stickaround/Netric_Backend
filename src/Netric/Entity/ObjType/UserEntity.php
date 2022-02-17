@@ -66,23 +66,9 @@ class UserEntity extends Entity implements EntityInterface
     const TYPE_META = 'meta';
 
     /**
-     * Grouping loader used to get user groups
-     *
-     * @var GroupingLoader
-     */
-    private $groupingLoader = null;
-
-    /**
      * Container used to load accounts
      */
     private AccountContainerInterface $accountContainer;
-
-    /**
-     * Loader used to get/create/save entities
-     *
-     * @var EntityLoader
-     */
-    private EntityLoader $entityLoader;
 
     /**
      * Class constructor
@@ -98,11 +84,9 @@ class UserEntity extends Entity implements EntityInterface
         GroupingLoader $groupingLoader,
         AccountContainerInterface $accountContainer
     ) {
-        $this->entityLoader = $entityLoader;
-        $this->groupingLoader = $groupingLoader;
         $this->accountContainer = $accountContainer;
 
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader, $groupingLoader);
     }
 
     /**
@@ -184,7 +168,7 @@ class UserEntity extends Entity implements EntityInterface
     public function onBeforeToArray(): void
     {
         // Make sure default groups are set correctly
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
+        $userGroups = $this->getGroupingLoader()->get(ObjectTypes::USER . '/groups', $this->getAccountId());
 
         // Add to internal users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
@@ -245,7 +229,7 @@ class UserEntity extends Entity implements EntityInterface
             $groups = [];
         }
 
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
+        $userGroups = $this->getGroupingLoader()->get(ObjectTypes::USER . '/groups', $this->getAccountId());
 
         // Add to authenticated users group if we have determined this is a valid user
         $groupUser = $userGroups->getByName(self::GROUP_USERS);
@@ -289,7 +273,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function setIsAdmin($isAdmin = true)
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
+        $userGroups = $this->getGroupingLoader()->get(ObjectTypes::USER . '/groups', $this->getAccountId());
         $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         if ($isAdmin) {
             $this->addMultiValue("groups", $adminGroup->getGroupId(), "Administrators");
@@ -305,7 +289,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isAdmin()
     {
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $this->getAccountId());
+        $userGroups = $this->getGroupingLoader()->get(ObjectTypes::USER . '/groups', $this->getAccountId());
         $adminGroup = $userGroups->getByName(self::GROUP_ADMINISTRATORS);
         $groups = $this->getGroups();
         foreach ($groups as $group) {
@@ -376,11 +360,11 @@ class UserEntity extends Entity implements EntityInterface
     private function createAndSetContact(UserEntity $savingUser): void
     {
         // Later we might want to check contacts for a match with email before recreating.
-        $contact = $this->entityLoader->create(ObjectTypes::CONTACT, $savingUser->getAccountId());
+        $contact = $this->getEntityLoader()->create(ObjectTypes::CONTACT, $savingUser->getAccountId());
         $contact->setValue('first_name', $this->getFirstName());
         $contact->setValue('last_name', $this->getLastName());
         $contact->setValue('email', $this->getValue('email'));
-        $contactId = $this->entityLoader->save($contact, $savingUser);
+        $contactId = $this->getEntityLoader()->save($contact, $savingUser);
         $this->setValue('contact_id', $contactId, $contact->getName());
     }
 

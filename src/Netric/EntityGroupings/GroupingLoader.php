@@ -16,6 +16,11 @@ use Netric\EntityDefinition\EntityDefinition;
 class GroupingLoader
 {
     /**
+     * The maximum number of groupings to keep loaded in memory
+     */
+    const MAX_LOADED = 1000;
+
+    /**
      * The current data mapper we are using for this object
      *
      * @var EntityGroupingDataMapperInterface
@@ -103,8 +108,10 @@ class GroupingLoader
         $groupings = $this->dataMapper->getGroupingsByPath($path, $accountId);
         $groupings->setDataMapper($this->dataMapper);
 
-        // Cache the loaded definition for future requests
-        $this->loadedGroupings[$path] = $groupings;
+        // Cache the loaded definition for future requests (if the number cached is reasonable)
+        if (count($this->loadedGroupings) < self::MAX_LOADED) {
+            $this->loadedGroupings[$path] = $groupings;
+        }
 
         return $groupings;
     }

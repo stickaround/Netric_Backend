@@ -241,4 +241,13 @@ interface EntityInterface
      * @return null if not found, mixed old value if set
      */
     public function getPreviousValue($checkfield);
+
+    /**
+     * Load the name for a referenced ID - both grouping and entity
+     *
+     * @param string $fieldName
+     * @param string $groupOrEntityId
+     * @return string
+     */
+    public function getNameForReferencedId(string $fieldName, string $groupOrEntityId): string;
 }

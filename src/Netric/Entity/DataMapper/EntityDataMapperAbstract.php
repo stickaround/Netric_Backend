@@ -671,89 +671,41 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 continue;
             }
 
-            // For now, skip over previously set names
-            // because the load was pretty bad with running all
-            // these queries every time
-            $valueName = $entity->getValueName($field->name, $value);
-            if (!empty($valueName)) {
-                continue;
-            }
-
             switch ($field->type) {
+                case Field::TYPE_GROUPING:
                 case Field::TYPE_OBJECT:
                     // If we are dealing with null or empty id, then there is no need to update this foreign key
-                    if (!$value || !Uuid::isValid($value)) {
+                    if (!Uuid::isValid($value)) {
                         continue 2;
                     }
 
-                    // Get the referenced entity
-                    $referencedEntity = $this->getEntityById($value, $user->getAccountId());
-
-                    // If we haven't found the referenced entity, chances are it was already removed, so we need to clear the value
-                    if (!$referencedEntity) {
-                        $entity->setValue($field->name, null);
-                        continue 2;
-                    }
+                    $name = $entity->getNameForReferencedId($field->name, $value);
 
                     // Since we have found the referenced entity, then add it in the entity
-                    $entity->setValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
-                    break;
-
-                case Field::TYPE_OBJECT_MULTI:
-                    if (is_array($value)) {
-                        foreach ($value as $id) {
-                            // If we are dealing with null or empty id, then there is no need to update this foreign key
-                            if (!$id || !Uuid::isValid($id)) {
-                                continue;
-                            }
-
-                            // Get the referenced entity
-                            $referencedEntity = $this->getEntityById($id, $user->getAccountId());
-
-                            // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
-                            if (!$referencedEntity) {
-                                $entity->removeMultiValue($field->name, $id);
-                                continue;
-                            }
-
-                            // Since we have found the referenced entity, then add it in the entity
-                            $entity->addMultiValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
-                        }
-                    }
-
-                    break;
-
-                case Field::TYPE_GROUPING:
-                    if ($value) {
-                        $objType = $entity->getDefinition()->getObjType();
-                        $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
-
-                        // Clear the value in preparation for an update - or to remove it if group was deleted
-                        $group = $grouping->getByGuidOrGroupId($value);
-
-                        if ($group) {
-                            // If the group exists then update the name
-                            $entity->setValue($field->name, $value, $group->name);
-                        }
-                    }
+                    $entity->setValue($field->name, $value, $name);
                     break;
 
                 case Field::TYPE_GROUPING_MULTI:
-                    $objType = $entity->getDefinition()->getObjType();
-                    $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
+                case Field::TYPE_OBJECT_MULTI:
+                    $value = (is_array($value)) ? array_filter($value) : [$value];
+                    foreach ($value as $id) {
+                        // If we are dealing with null or empty id, then there is no need to update this foreign key
+                        if (!$id || !Uuid::isValid($id)) {
+                            continue;
+                        }
 
-                    if (is_array($value)) {
-                        foreach ($value as $id) {
-                            if (!$id) {
-                                continue;
-                            }
+                        $name = $entity->getNameForReferencedId($field->name, $id);
 
-                            // Clear the value in preparation for an update - or to remove it if group was deleted
-                            $entity->removeMultiValue($field->name, $id);
-                            $group = $grouping->getByGuidOrGroupId($id);
-                            if ($group) {
-                                $entity->addMultiValue($field->name, $group->getGroupId(), $group->name);
-                            }
+                        // // If we havent found the referenced entity, chances are it was already removed,
+                        // // so we need to clear the value
+                        // if (!$name) {
+                        //     $entity->removeMultiValue($field->name, $id);
+                        //     continue;
+                        // }
+
+                        // Since we have found the referenced entity, then add it in the entity
+                        if ($name) {
+                            $entity->addMultiValue($field->name, $id, $name);
                         }
                     }
 
@@ -761,6 +713,119 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             }
         }
     }
+    // Old version
+    // private function updateForeignKeyNames(EntityInterface $entity, UserEntity $user)
+    // {
+    //     // Make sure that private groupings always have user_guid set
+    //     $userGuidPath = "";
+    //     if ($entity->getDefinition()->isPrivate()) {
+    //         // Make sure that the owner_id was set
+    //         if ($entity->getValue("owner_id")) {
+    //             $userGuidPath = "/" . $entity->getValue("owner_id");
+    //         } elseif ($entity->getValue("creator_id")) {
+    //             $userGuidPath = "/" . $entity->getValue("creator_id");
+    //         }
+    //     }
+
+    //     $fields = $entity->getDefinition()->getFields();
+    //     foreach ($fields as $field) {
+    //         $value = $entity->getValue($field->name);
+
+    //         // Skip over null/empty fields
+    //         if (!$value) {
+    //             continue;
+    //         }
+
+    //         // For now, skip over previously set names
+    //         // because the load was pretty bad with running all
+    //         // these queries every time
+    //         $valueName = $entity->getValueName($field->name, $value);
+    //         if (!empty($valueName)) {
+    //             continue;
+    //         }
+
+    //         switch ($field->type) {
+    //             case Field::TYPE_OBJECT:
+    //                 // If we are dealing with null or empty id, then there is no need to update this foreign key
+    //                 if (!$value || !Uuid::isValid($value)) {
+    //                     continue 2;
+    //                 }
+
+    //                 // Get the referenced entity
+    //                 $referencedEntity = $this->getEntityById($value, $user->getAccountId());
+
+    //                 // If we haven't found the referenced entity, chances are it was already removed, so we need to clear the value
+    //                 if (!$referencedEntity) {
+    //                     $entity->setValue($field->name, null);
+    //                     continue 2;
+    //                 }
+
+    //                 // Since we have found the referenced entity, then add it in the entity
+    //                 $entity->setValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
+    //                 break;
+
+    //             case Field::TYPE_OBJECT_MULTI:
+    //                 if (is_array($value)) {
+    //                     foreach ($value as $id) {
+    //                         // If we are dealing with null or empty id, then there is no need to update this foreign key
+    //                         if (!$id || !Uuid::isValid($id)) {
+    //                             continue;
+    //                         }
+
+    //                         // Get the referenced entity
+    //                         $referencedEntity = $this->getEntityById($id, $user->getAccountId());
+
+    //                         // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
+    //                         if (!$referencedEntity) {
+    //                             $entity->removeMultiValue($field->name, $id);
+    //                             continue;
+    //                         }
+
+    //                         // Since we have found the referenced entity, then add it in the entity
+    //                         $entity->addMultiValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
+    //                     }
+    //                 }
+
+    //                 break;
+
+    //             case Field::TYPE_GROUPING:
+    //                 if ($value) {
+    //                     $objType = $entity->getDefinition()->getObjType();
+    //                     $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
+
+    //                     // Clear the value in preparation for an update - or to remove it if group was deleted
+    //                     $group = $grouping->getByGuidOrGroupId($value);
+
+    //                     if ($group) {
+    //                         // If the group exists then update the name
+    //                         $entity->setValue($field->name, $value, $group->name);
+    //                     }
+    //                 }
+    //                 break;
+
+    //             case Field::TYPE_GROUPING_MULTI:
+    //                 $objType = $entity->getDefinition()->getObjType();
+    //                 $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
+
+    //                 if (is_array($value)) {
+    //                     foreach ($value as $id) {
+    //                         if (!$id) {
+    //                             continue;
+    //                         }
+
+    //                         // Clear the value in preparation for an update - or to remove it if group was deleted
+    //                         $entity->removeMultiValue($field->name, $id);
+    //                         $group = $grouping->getByGuidOrGroupId($id);
+    //                         if ($group) {
+    //                             $entity->addMultiValue($field->name, $group->getGroupId(), $group->name);
+    //                         }
+    //                     }
+    //                 }
+
+    //                 break;
+    //         }
+    //     }
+    // }
 
     /**
      * When saving an entity create a unqiue name if not already set

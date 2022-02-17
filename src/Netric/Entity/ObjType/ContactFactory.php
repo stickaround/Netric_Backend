@@ -4,7 +4,9 @@ namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new customer entity
@@ -20,6 +22,8 @@ class Contactfactory implements EntityFactoryInterface
      */
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        return new ContactEntity($def);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        return new ContactEntity($def, $entityLoader, $groupingLoader);
     }
 }

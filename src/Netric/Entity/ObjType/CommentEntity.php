@@ -6,8 +6,6 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Entity\EntityLoader;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\ObjectTypes;
 use Ramsey\Uuid\Uuid;
@@ -18,25 +16,6 @@ use Ramsey\Uuid\Uuid;
 class CommentEntity extends Entity implements EntityInterface
 {
     /**
-     * The loader for a specific entity
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     * @param EntityLoader $entityLoader The loader for a specific entity
-     */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
-    {
-        $this->entityLoader = $entityLoader;
-        parent::__construct($def);
-    }
-
-    /**
      * Callback function used for derrived subclasses
      *
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
@@ -45,7 +24,7 @@ class CommentEntity extends Entity implements EntityInterface
     public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
         $objReference = $this->getValue('obj_reference');
-        $entityCommentedOn = $this->entityLoader->getEntityById(
+        $entityCommentedOn = $this->getEntityLoader()->getEntityById(
             $objReference,
             $user->getAccountId()
         );
@@ -85,7 +64,7 @@ class CommentEntity extends Entity implements EntityInterface
 
             // Save the entity we are commenting on if there were changes
             if ($entityCommentedOn->isDirty()) {
-                $this->entityLoader->save($entityCommentedOn, $user);
+                $this->getEntityLoader()->save($entityCommentedOn, $user);
             }
 
             // Set who this was sent by if not already set

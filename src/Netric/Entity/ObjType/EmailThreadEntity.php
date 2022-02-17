@@ -16,19 +16,13 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Email thread extension
  */
 class EmailThreadEntity extends Entity implements EntityInterface
 {
-    /**
-     * Loader used to get email threads and attachments
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
     /**
      * Entity query index for finding threads
      *
@@ -46,12 +40,12 @@ class EmailThreadEntity extends Entity implements EntityInterface
     public function __construct(
         EntityDefinition $def,
         EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader,
         IndexInterface $entityIndex
     ) {
-        $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
 
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader, $groupingLoader);
     }
 
     /**
@@ -147,9 +141,9 @@ class EmailThreadEntity extends Entity implements EntityInterface
         for ($i = 0; $i < $num; $i++) {
             $emailMessage = $results->getEntity($i);
             if ($hard) {
-                $this->entityLoader->delete($emailMessage, $user);
+                $this->getEntityLoader()->delete($emailMessage, $user);
             } else {
-                $this->entityLoader->archive($emailMessage, $user);
+                $this->getEntityLoader()->archive($emailMessage, $user);
             }
         }
 
@@ -162,7 +156,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
             $num = $results->getTotalNum();
             for ($i = 0; $i < $num; $i++) {
                 $emailMessage = $results->getEntity($i);
-                $this->entityLoader->delete($emailMessage, $user);
+                $this->getEntityLoader()->delete($emailMessage, $user);
             }
         }
     }
@@ -184,11 +178,11 @@ class EmailThreadEntity extends Entity implements EntityInterface
         for ($i = 0; $i < $num; $i++) {
             $emailMessage = $results->getEntity($i);
             $emailMessage->setValue("f_deleted", false);
-            $messageUser = $this->entityLoader->getEntityById(
+            $messageUser = $this->getEntityLoader()->getEntityById(
                 $emailMessage->getValue('owner_id'),
                 $this->getAccountId()
             );
-            $this->entityLoader->save($emailMessage, $messageUser);
+            $this->getEntityLoader()->save($emailMessage, $messageUser);
         }
     }
 }

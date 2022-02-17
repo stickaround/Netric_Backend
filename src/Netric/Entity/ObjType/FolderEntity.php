@@ -18,19 +18,13 @@ use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Folder for entity
  */
 class FolderEntity extends Entity implements EntityInterface
 {
-    /**
-     * Entity loader for getting files and folders by id
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
     /**
      * Index to query entities
      *
@@ -43,12 +37,15 @@ class FolderEntity extends Entity implements EntityInterface
      * @param EntityLoader $entityLoader The loader for a specific entity
      * @param IndexInterface $entityQueryIndex Index to find entities
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader, IndexInterface $entityQueryIndex)
-    {
-        $this->entityLoader = $entityLoader;
+    public function __construct(
+        EntityDefinition $def,
+        EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader,
+        IndexInterface $entityQueryIndex
+    ) {
         $this->entityIndex = $entityQueryIndex;
 
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader, $groupingLoader);
     }
 
     /**
@@ -113,7 +110,7 @@ class FolderEntity extends Entity implements EntityInterface
             return "/";
         }
 
-        $parentFolder = $this->entityLoader->getEntityById(
+        $parentFolder = $this->getEntityLoader()->getEntityById(
             $this->getValue("parent_id"),
             $this->getOwner()->getAccountId()
         );
@@ -166,6 +163,6 @@ class FolderEntity extends Entity implements EntityInterface
 
     private function getOwner(): ?UserEntity
     {
-        return $this->entityLoader->getEntityById($this->getOwnerId(), $this->getAccountId());
+        return $this->getEntityLoader()->getEntityById($this->getOwnerId(), $this->getAccountId());
     }
 }

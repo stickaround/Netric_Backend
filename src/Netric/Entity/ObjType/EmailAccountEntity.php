@@ -16,7 +16,6 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Index\IndexFactory;
 
@@ -29,16 +28,6 @@ class EmailAccountEntity extends Entity implements EntityInterface
     const TYPE_REPLY = 'none';
     const TYPE_IMAP = 'imap';
     const TYPE_POP3 = 'pop3';
-
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public function __construct(EntityDefinition $def)
-    {
-        parent::__construct($def);
-    }
 
     /**
      * Callback function used for derrived subclasses
@@ -57,13 +46,13 @@ class EmailAccountEntity extends Entity implements EntityInterface
 
         // If address is changed, then we need to make sure that there is no duplicate address
         if ($this->fieldValueChanged("address")) {
-            $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT, $user->getAccountId(), $user->getEntityId());            
+            $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT, $user->getAccountId(), $user->getEntityId());
             $query->where('address')->equals($this->getValue("address"));
             $query->where('entity_id')->doesNotEqual($this->getEntityId());
 
             $index = $serviceLocator->get(IndexFactory::class);
             $res = $index->executeQuery($query);
-            
+
             // If duplicate is found, throw an exception
             if ($res->getTotalNum() >= 1) {
                 throw new \RuntimeException("Email account address already exists.");

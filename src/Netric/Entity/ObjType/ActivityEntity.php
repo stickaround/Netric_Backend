@@ -13,23 +13,12 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Activty entity used for logging activity logs
  */
 class ActivityEntity extends Entity implements EntityInterface
 {
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public function __construct(EntityDefinition $entityDefinition)
-    {
-        parent::__construct($entityDefinition);
-    }
-
     /**
      * Callback function used for derrived subclasses
      *

@@ -10,7 +10,9 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new WorkflowAction entity
@@ -26,6 +28,8 @@ class WorkflowActionFactory implements EntityFactoryInterface
      */
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        return new WorkflowActionEntity($def);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        return new WorkflowActionEntity($def, $entityLoader, $groupingLoader);
     }
 }

@@ -14,6 +14,7 @@ use Netric\Permissions\DaclLoaderFactory;
 use Ramsey\Uuid\Uuid;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -70,15 +71,35 @@ class Entity implements EntityInterface
     private $isRecurrenceException = false;
 
     /**
+     * Grouping loader used to get groupings data
+     *
+     * @var GroupingLoader
+     */
+    private GroupingLoader $groupingLoader;
+
+    /**
+     * Entity loader used to get referenced entities
+     *
+     * @var EntityLoader
+     */
+    private EntityLoader $entityLoader;
+
+    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader Loader used to get entity followers and entity owner details
+     * @param GroupingLoader $groupingLoader Loader used to get entity group information
      */
-    public function __construct(EntityDefinition $def)
-    {
+    public function __construct(
+        EntityDefinition $def,
+        EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader
+    ) {
         $this->def = $def;
         $this->objType = $def->getObjType();
+        $this->entityLoader = $entityLoader;
+        $this->groupingLoader = $groupingLoader;
     }
 
     /**
@@ -432,8 +453,8 @@ class Entity implements EntityInterface
 
             $newval = $value;
 
-            if ($this->getValueNames($strName)) {
-                $newval = $this->getValueNames($strName);
+            if ($this->getValueNames($strName, $value)) {
+                $newval = $this->getValueNames($strName, $value);
             }
 
             $this->changelog[$strName] = [
@@ -866,7 +887,7 @@ class Entity implements EntityInterface
             // This is for chat messages, since they only have body field
             return $this->getValue("body");
         }
-        
+
         return $this->getEntityId();
     }
 
@@ -921,7 +942,7 @@ class Entity implements EntityInterface
 
         return "entity_id";
     }
-    
+
 
     /**
      * Try and get a textual description of this entity typically found in fileds named "notes" or "description"
@@ -1309,5 +1330,63 @@ class Entity implements EntityInterface
                 $otherEntity->addMultiValue("followers", $guid, $userName);
             }
         }
+    }
+
+    /**
+     * Allow derrived classes to get the entity loader dependency
+     *
+     * @return EntityLoader
+     */
+    protected function getEntityLoader(): EntityLoader
+    {
+        return $this->entityLoader;
+    }
+
+    /**
+     * Allow derrived classes to get the grouping loader dependency
+     *
+     * @return GroupingLoader
+     */
+    protected function getGroupingLoader(): GroupingLoader
+    {
+        return $this->groupingLoader;
+    }
+
+    /**
+     * Load the name for a referenced ID - both grouping and entity
+     *
+     * @param string $fieldName
+     * @param string $groupOrEntityId
+     * @return string
+     */
+    public function getNameForReferencedId(string $fieldName, string $groupOrEntityId): string
+    {
+        $field = $this->getDefinition()->getField($fieldName);
+
+        if ($field->type === Field::TYPE_GROUPING || $field->type === Field::TYPE_GROUPING_MULTI) {
+            $groupings = $this->getGroupingLoader()->get(
+                $this->getDefinition()->getObjType() . '/' . $fieldName,
+                $this->getAccountId()
+            );
+
+            $group = $groupings->getByGuid($groupOrEntityId);
+            if ($group) {
+                return $group->getName();
+            }
+        }
+
+        if ($field->type === Field::TYPE_OBJECT || $field->type === Field::TYPE_OBJECT_MULTI) {
+            if ($groupOrEntityId === $this->getEntityId()) {
+                return $this->getName();
+            }
+
+            $refEntity = $this->getEntityLoader()->getEntityById($groupOrEntityId, $this->getAccountId());
+            if ($refEntity && $refEntity->getName()) {
+                return $refEntity->getName();
+            }
+        }
+
+        // Name not found
+        return "";
     }
 }

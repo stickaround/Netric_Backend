@@ -12,6 +12,7 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 
@@ -27,10 +28,15 @@ class TaskFactory implements EntityFactoryInterface
      * @param EntityDefinition $def The definition of this type of object
      * @return EntityInterface TaskEntity
      */
-    
+
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
         $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
-        return new TaskEntity($def, $groupingLoader);
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        return new TaskEntity(
+            $def,
+            $entityLoader,
+            $groupingLoader
+        );
     }
 }

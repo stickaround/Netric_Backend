@@ -12,13 +12,4 @@ use Netric\EntityDefinition\EntityDefinition;
  */
 class PaymentProfileEntity extends Entity implements EntityInterface
 {
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public function __construct(EntityDefinition $def)
-    {
-        parent::__construct($def);
-    }
 }

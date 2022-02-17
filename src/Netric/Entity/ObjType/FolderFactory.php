@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Folder entity type
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
@@ -12,7 +14,7 @@ use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**
@@ -30,8 +32,9 @@ class FolderFactory implements EntityFactoryInterface
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
         $entityloader = $serviceLocator->get(EntityLoaderFactory::class);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         $entityIndex = $serviceLocator->get(IndexFactory::class);
 
-        return new FolderEntity($def, $entityloader, $entityIndex);
+        return new FolderEntity($def, $entityloader, $groupingLoader, $entityIndex);
     }
 }

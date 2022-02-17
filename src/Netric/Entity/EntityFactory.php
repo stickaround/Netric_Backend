@@ -7,6 +7,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Create a new EntityFactory service
@@ -51,7 +52,9 @@ class EntityFactory
             }
         }
 
+        // TODO: if !$def then throw an exception
         $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType, $accountId);
+
         $className = "\\Netric\\Entity\\ObjType\\" . $className . "Factory";
 
         // Use factory if it exists
@@ -61,9 +64,9 @@ class EntityFactory
             return $entity;
         }
 
-
-        // TODO: if !$def then throw an exception
-        $entity = new Entity($def);
+        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
+        $groupingLoader = $this->serviceManager->get(GroupingLoader::class);
+        $entity = new Entity($def, $entityLoader, $groupingLoader);
         $entity->setvalue('account_id', $accountId);
         return $entity;
     }

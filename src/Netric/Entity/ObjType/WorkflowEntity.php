@@ -30,14 +30,4 @@ class WorkflowEntity extends Entity implements EntityInterface
     const TIME_UNIT_WEEK = 4;
     const TIME_UNIT_MONTH = 5;
     const TIME_UNIT_YEAR = 6;
-
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public function __construct(EntityDefinition $def)
-    {
-        parent::__construct($def);
-    }
 }

@@ -12,8 +12,8 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new comment entity
@@ -30,6 +30,7 @@ class CommentFactory implements EntityFactoryInterface
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new CommentEntity($def, $entityLoader);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        return new CommentEntity($def, $entityLoader, $groupingLoader);
     }
 }

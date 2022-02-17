@@ -40,27 +40,6 @@ class TaskEntity extends Entity implements EntityInterface
     const TYPE_DEFECT = 'Defect';
 
     /**
-     * Grouping loader used to get user groups
-     *
-     * @var GroupingLoader
-     */
-    private $groupingLoader = null;
-
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
-     */
-    public function __construct(
-        EntityDefinition $def,
-        GroupingLoader $groupingLoader
-    ) {
-        $this->groupingLoader = $groupingLoader;
-        parent::__construct($def);
-    }
-
-    /**
      * Callback function used for derrived subclasses
      *
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
@@ -70,7 +49,7 @@ class TaskEntity extends Entity implements EntityInterface
     {
         // If the password was updated for this user then encrypt it
         if ($this->fieldValueChanged("is_closed") && $this->getValue("is_closed") && $this->getValue("status_id") === '') {
-            $statusGroups = $this->groupingLoader->get(ObjectTypes::TASK . '/status_id', $this->getAccountId());
+            $statusGroups = $this->getGroupingLoader()->get(ObjectTypes::TASK . '/status_id', $this->getAccountId());
             // Check for status completed groud id if empty
             if ($statusGroups->getByName(self::STATUS_COMPLETED)->groupId) {
                 $completedId = $statusGroups->getByName(self::STATUS_COMPLETED)->groupId;

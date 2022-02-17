@@ -34,14 +34,4 @@ class TicketEntity extends Entity implements EntityInterface
     const SOURCE_EMAIL = 'Email';
     // TODO: Soon we'll be adding
     // sms, facebook, twitter, website
-
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public function __construct(EntityDefinition $def)
-    {
-        parent::__construct($def);
-    }
 }

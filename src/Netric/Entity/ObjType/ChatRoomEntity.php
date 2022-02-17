@@ -32,16 +32,6 @@ class ChatRoomEntity extends Entity implements EntityInterface
     const ROOM_DIRECT = 'direct';
 
     /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public function __construct(EntityDefinition $def)
-    {
-        parent::__construct($def);
-    }
-
-    /**
      * Callback function used for derrived subclasses
      *
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
@@ -64,7 +54,7 @@ class ChatRoomEntity extends Entity implements EntityInterface
         $members = $this->getValue('members');
         $membersName = [];
         foreach ($members as $userId) {
-            $dacl->allowUser($userId, Dacl::PERM_VIEW);            
+            $dacl->allowUser($userId, Dacl::PERM_VIEW);
             $membersName[] = $this->getValueName('members', $userId);
         }
 

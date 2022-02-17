@@ -6,6 +6,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new activity entity
@@ -22,6 +23,7 @@ class ActivityFactory implements EntityFactoryInterface
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        return new ActivityEntity($def, $entityLoader);
+        $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
+        return new ActivityEntity($def, $entityLoader, $groupingLoader);
     }
 }

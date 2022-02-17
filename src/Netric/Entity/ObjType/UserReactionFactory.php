@@ -15,7 +15,6 @@ use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
-use Netric\Account\AccountContainerFactory;
 
 /**
  * Create a new default object type entity
@@ -33,7 +32,6 @@ class UserReactionFactory implements EntityFactoryInterface
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
-        $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
-        return new UserReactionEntity($def, $entityLoader, $groupingLoader, $accountContainer);
+        return new UserReactionEntity($def, $entityLoader, $groupingLoader);
     }
 }

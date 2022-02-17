@@ -11,7 +11,9 @@ namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityFactoryInterface;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\GroupingLoaderFactory;
 
 /**
  * Create a new activity entity
@@ -27,6 +29,10 @@ class EmailAccountFactory implements EntityFactoryInterface
      */
     public static function create(ServiceLocatorInterface $serviceLocator, EntityDefinition $def)
     {
-        return new EmailAccountEntity($def);
+        return new EmailAccountEntity(
+            $def,
+            $serviceLocator->get(EntityLoaderFactory::class),
+            $serviceLocator->get(GroupingLoaderFactory::class)
+        );
     }
 }

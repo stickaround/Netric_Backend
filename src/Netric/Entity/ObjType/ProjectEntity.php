@@ -16,6 +16,7 @@ use Netric\EntityQuery\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Project represents a single project entity
@@ -30,25 +31,22 @@ class ProjectEntity extends Entity implements EntityInterface
     private $indexInterface = null;
 
     /**
-     * The loader for a specific entity
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
-    /**
      * Class constructor
      *
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader The loader for a specific entity
+     * @param GroupingLoader $groupingLoader Loader to get groupings
      * @param IndexInterface $index IndexInterface for running queries against
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader, IndexInterface $indexInterface)
-    {
-        $this->entityLoader = $entityLoader;
+    public function __construct(
+        EntityDefinition $def,
+        EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader,
+        IndexInterface $indexInterface
+    ) {
         $this->indexInterface = $indexInterface;
 
-        parent::__construct($def);
+        parent::__construct($def, $entityLoader, $groupingLoader);
     }
 
     /**
@@ -77,9 +75,9 @@ class ProjectEntity extends Entity implements EntityInterface
 
         // Get the owner of the project
         if ($this->getValue('owner_id')) {
-            $userProjectOwner = $this->entityLoader->getEntityById($this->getValue('owner_id'), $this->getAccountId());
+            $userProjectOwner = $this->getEntityLoader()->getEntityById($this->getValue('owner_id'), $this->getAccountId());
         } elseif ($this->getValue('creator_id')) {
-            $userProjectOwner = $this->entityLoader->getEntityById($this->getValue('creator_id'), $this->getAccountId());
+            $userProjectOwner = $this->getEntityLoader()->getEntityById($this->getValue('creator_id'), $this->getAccountId());
         }
 
         // Loop through each task of this project entity
@@ -87,7 +85,7 @@ class ProjectEntity extends Entity implements EntityInterface
             $task = $res->getEntity($i);
 
             // Create a new task to be cloned
-            $toTask = $this->entityLoader->create(ObjectTypes::TASK, $this->getAccountId());
+            $toTask = $this->getEntityLoader()->create(ObjectTypes::TASK, $this->getAccountId());
 
             $task->cloneTo($toTask);
 
@@ -95,7 +93,7 @@ class ProjectEntity extends Entity implements EntityInterface
             $toTask->setValue("project", $toEntity->getEntityId());
 
             // Save the task
-            $this->entityLoader->save($toTask, $userProjectOwner);
+            $this->getEntityLoader()->save($toTask, $userProjectOwner);
         }
     }
 }

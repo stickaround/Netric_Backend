@@ -15,6 +15,11 @@ use Netric\EntityDefinition\EntityDefinition;
 class EntityLoader
 {
     /**
+     * The maximum number of entities to keep loaded in memory
+     */
+    const MAX_LOADED = 1000;
+
+    /**
      * Cached entities
      *
      * @var EntityInterface[]
@@ -131,7 +136,12 @@ class EntityLoader
         // Load from datamapper
         $entity = $this->dataMapper->getEntityById($entityId, $accountId);
         if ($entity) {
-            $this->loadedEntities[$entityId] = $entity;
+            // Keep the first MAX_LOADED in local memory since it is the fastest
+            if (count($this->loadedEntities) < self::MAX_LOADED) {
+                $this->loadedEntities[$entityId] = $entity;
+            }
+
+            // Use network cache layer
             $this->cache->set(
                 "entity/" . $entityId,
                 $entity->toArray()

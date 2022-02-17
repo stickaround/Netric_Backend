@@ -14,8 +14,6 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Entity\EntityLoader;
-use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Folder for entity
@@ -28,16 +26,6 @@ class FileEntity extends Entity implements EntityInterface
      * @var resource
      */
     private $fileHandle = null;
-
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public function __construct(EntityDefinition $def)
-    {
-        parent::__construct($def);
-    }
 
     /**
      * Clean-up file handle if not closed

@@ -29,46 +29,6 @@ use Netric\Permissions\Dacl;
 class UserReactionEntity extends Entity implements EntityInterface
 {
     /**
-     * The loader for a specific entity
-     *
-     * @var EntityLoader
-     */
-    private $entityLoader = null;
-
-    /**
-     * Grouping loader used to get user groups
-     *
-     * @var GroupingLoader
-     */
-    private $groupingLoader = null;
-
-    /**
-     * Container used to load accounts
-     */
-    private AccountContainerInterface $accountContainer;
-
-    /**
-     * Class constructor
-     *
-     * @param EntityDefinition $def The definition of this type of object
-     * @param EntityLoader $entityLoader The loader for a specific entity
-     * @param GroupingLoader $groupingLoader Handles the loading and saving of groupings
-     * @param AccountContainerInterface $accountContainer Container used to load accounts
-     */
-    public function __construct(
-        EntityDefinition $def,
-        EntityLoader $entityLoader,
-        GroupingLoader $groupingLoader,
-        AccountContainerInterface $accountContainer
-    ) {
-        $this->entityLoader = $entityLoader;
-        $this->groupingLoader = $groupingLoader;
-        $this->accountContainer = $accountContainer;
-
-        parent::__construct($def);
-    }
-
-    /**
      * Callback function used for derrived subclasses
      *
      * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
@@ -80,12 +40,12 @@ class UserReactionEntity extends Entity implements EntityInterface
             return;
         }
 
-        $userGroups = $this->groupingLoader->get(ObjectTypes::USER . '/groups', $user->getAccountId());
+        $userGroups = $this->getGroupingLoader()->get(ObjectTypes::USER . '/groups', $user->getAccountId());
         $groupAdmin = $userGroups->getByName(UserEntity::GROUP_ADMINISTRATORS);
         $groupCreator = $userGroups->getByName(UserEntity::GROUP_CREATOROWNER);
 
         $objReference = $this->getValue("obj_reference");
-        $entityReactedOn = $this->entityLoader->getEntityById($objReference, $user->getAccountId());
+        $entityReactedOn = $this->getEntityLoader()->getEntityById($objReference, $user->getAccountId());
 
         // Set reaction associations to all directly associated objects if new
         if ($entityReactedOn) {
@@ -105,7 +65,7 @@ class UserReactionEntity extends Entity implements EntityInterface
 
             // Save the entity we are reacting on if there were changes
             if ($entityReactedOn->isDirty()) {
-                $this->entityLoader->save($entityReactedOn, $user);
+                $this->getEntityLoader()->save($entityReactedOn, $user);
             }
 
             // Make sure all members have view access to the user reaction
