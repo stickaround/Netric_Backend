@@ -7,8 +7,8 @@ namespace Netric\Workflow\ActionExecutor;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\WorkflowActionEntity;
-use Netric\WorkerMan\SchedulerServiceFactory;
 use Netric\Config\ConfigFactory;
+use Netric\WorkerMan\WorkerServiceFactory;
 
 /**
  * Create a new WaitConditionAction
@@ -29,13 +29,13 @@ class WaitConditionActionExecutorFactory
         // Setup dependencies
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $config = $serviceLocator->get(ConfigFactory::class);
-        $jobScheduler = $serviceLocator->get(SchedulerServiceFactory::class);
+        $workerService = $serviceLocator->get(WorkerServiceFactory::class);
 
         return new WaitConditionActionExecutor(
             $entityLoader,
             $actionEntity,
             $config->application_url,
-            $jobScheduler
+            $workerService
         );
     }
 }

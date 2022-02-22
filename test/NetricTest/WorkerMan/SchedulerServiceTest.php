@@ -71,24 +71,6 @@ class SchedulerServiceTest extends TestCase
     }
 
     /**
-     * Test adding a new scheduled job to the queue
-     */
-    public function testScheduleAtTime()
-    {
-        // Add the job to the queue
-        $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime(
-            Bootstrap::getAccount()->getAuthenticatedUser(),
-            'Test',
-            $now,
-            ['myvar' => 'testval']
-        );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
-
-        $this->assertNotNull($id);
-    }
-
-    /**
      * Test adding a job that is recurring
      */
     public function testScheduleAtInterval()
@@ -105,33 +87,6 @@ class SchedulerServiceTest extends TestCase
         $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
 
         $this->assertNotNull($id);
-    }
-
-    /**
-     * Test getting all scheduled jobs
-     */
-    public function testGetScheduledToRun()
-    {
-        // Create a scheduled job to run now
-        $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime(
-            Bootstrap::getAccount()->getAuthenticatedUser(),
-            'Test',
-            $now,
-            ['myvar' => 'testval']
-        );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
-
-        $jobs = $this->scheduler->getScheduledToRun(Bootstrap::getAccount()->getAccountId());
-
-        $jobFound = false;
-        foreach ($jobs as $job) {
-            if ($job->getEntityId() == $id) {
-                $jobFound = true;
-                break;
-            }
-        }
-        $this->assertTrue($jobFound);
     }
 
     /**
@@ -161,30 +116,5 @@ class SchedulerServiceTest extends TestCase
 
         // Assert that we found at least three jobs
         $this->assertGreaterThanOrEqual(3, count($jobs));
-    }
-
-    /**
-     * Make sure we can set a job (and associated recurrence) as executed
-     */
-    public function testSetJobAsExecuted()
-    {
-        $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime(
-            Bootstrap::getAccount()->getAuthenticatedUser(),
-            'Test',
-            $now,
-            ['myvar' => 'testval']
-        );
-        $jobEntity = $this->entityLoader->getEntityById($id, Bootstrap::getAccount()->getAccountId());
-        $this->tempEntitiesToDelete[] = $jobEntity;
-
-        // Set a scheduled job as completed
-        $this->scheduler->setJobAsExecuted(
-            $jobEntity,
-            Bootstrap::getAccount()->getAuthenticatedUser()
-        );
-
-        // Make sure the the execute time of the scheduled job was set
-        $this->assertNotNull($jobEntity->getValue("ts_executed"));
     }
 }

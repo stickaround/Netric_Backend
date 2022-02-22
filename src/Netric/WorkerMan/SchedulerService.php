@@ -43,23 +43,23 @@ class SchedulerService
         $this->entityLoader = $entityLoader;
     }
 
-    /**
-     * Schedule a job to run at a specific date and time
-     *
-     * @param UserEntity $user The user to schedule the job under
-     * @param string $workerName The unique name of the worker to schedule
-     * @param DateTime $execute Specific time to execute in the future
-     * @param array $data Data to pass to the job when run
-     * @return string Scheduled job ID
-     */
-    public function scheduleAtTime(UserEntity $user, string $workerName, DateTime $execute, array $data = []): string
-    {
-        $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB, $user->getAccountId());
-        $scheduledJob->setValue('worker_name', $workerName);
-        $scheduledJob->setValue('ts_scheduled', $execute->getTimestamp());
-        $scheduledJob->setValue('job_data', json_encode($data));
-        return $this->entityLoader->save($scheduledJob, $user);
-    }
+    // /**
+    //  * Schedule a job to run at a specific date and time
+    //  *
+    //  * @param UserEntity $user The user to schedule the job under
+    //  * @param string $workerName The unique name of the worker to schedule
+    //  * @param DateTime $execute Specific time to execute in the future
+    //  * @param array $data Data to pass to the job when run
+    //  * @return string Scheduled job ID
+    //  */
+    // public function scheduleAtTime(UserEntity $user, string $workerName, DateTime $execute, array $data = []): string
+    // {
+    //     $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB, $user->getAccountId());
+    //     $scheduledJob->setValue('worker_name', $workerName);
+    //     $scheduledJob->setValue('ts_scheduled', $execute->getTimestamp());
+    //     $scheduledJob->setValue('job_data', json_encode($data));
+    //     return $this->entityLoader->save($scheduledJob, $user);
+    // }
 
     /**
      * Schedule a job to run at a specific interval

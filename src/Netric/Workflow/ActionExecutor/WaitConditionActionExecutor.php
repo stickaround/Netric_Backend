@@ -8,7 +8,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\WorkflowActionEntity;
-use Netric\WorkerMan\SchedulerService;
+use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Worker\WorkflowWaitActionWorker;
 use Netric\Workflow\WorkflowScheudleTimes;
 use DateTime;
@@ -26,9 +26,9 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
     /**
      * Scheudler serivice to queue jobs into the future
      *
-     * @var SchedulerService
+     * @var WorkerService
      */
-    private SchedulerService $scheduler;
+    private WorkerService $worker;
 
     /**
      * This must be called by all derived classes
@@ -41,9 +41,9 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
         EntityLoader $entityLoader,
         WorkflowActionEntity $actionEntity,
         string $applicationUrl,
-        SchedulerService $schedulerService
+        WorkerService $workerService
     ) {
-        $this->scheduler = $schedulerService;
+        $this->worker = $workerService;
 
         // Should always call the parent constructor for base dependencies
         parent::__construct($entityLoader, $actionEntity, $applicationUrl);
@@ -89,17 +89,25 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
          * just schedule everything in the future relative to 'now'
          */
         $executeTime = $this->getExecuteDate($whenUnit, $whenInterval);
+        $today = new DateTime();
+        $numSecondsBetween = $executeTime->getTimestamp() - $today->getTimestamp();
 
         // Schedule the action for later - to see how execution continues
         // please review the WorkflowWaitActionWorker. It essentially
         // resumes execution of the workflow through the WorkflowService
         // beginning at this action.
-        $this->scheduler->scheduleAtTime(
-            $user,
+
+        $this->worker->doWorkDelayed(
             WorkflowWaitActionWorker::class,
-            $executeTime,
-            $payload
+            $payload,
+            $numSecondsBetween
         );
+        // $this->worker->doWorkDelayed(
+        //     $user,
+        //     WorkflowWaitActionWorker::class,
+        //     $executeTime,
+        //     $payload
+        // );
 
         // Return false to stop processing children (for now)
         // The WorfkowWaitActionWorker will continue processing any children

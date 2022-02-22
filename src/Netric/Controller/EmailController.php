@@ -58,7 +58,6 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         AccountContainerInterface $accountContainer,
         AuthenticationService $authService,
         MailSystem $mailSystem,
-        
     ) {
         $this->deliveryService = $deliveryService;
         $this->log = $log;
@@ -160,14 +159,14 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     {
         $response = new HttpResponse($request);
 
-        try {            
+        try {
             $currentAccount = $this->getAuthenticatedAccount();
             if (!$currentAccount) {
                 $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
                 $response->write(["error" => "Account authentication error."]);
                 return $response;
             }
-            
+
             $accountId = $currentAccount->getAccountId();
             if (!$accountId) {
                 $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);

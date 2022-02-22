@@ -32,10 +32,7 @@ class DependenciesFactory implements ApplicationServiceFactoryInterface
         );
 
         // Add the jobqueue since we need it to run background jobs
-        $clientFactory = new JobQueueApiFactory();
-        $apiClient = $clientFactory->createJobQueueClient(gethostbyname($config->workers->server));
-        $log = $serviceLocator->get(LogFactory::class);
-        $dependencies[] = new JobQueueDependencyCheck($apiClient, $log);
+        $dependencies[] = new JobQueueDependencyCheck($config->workers->server);
 
         return $dependencies;
     }

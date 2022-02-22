@@ -13,6 +13,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
 use Netric\Workflow\ActionExecutor\WaitConditionActionExecutor;
 use Netric\WorkerMan\SchedulerService;
+use Netric\WorkerMan\WorkerService;
 use Netric\Workflow\WorkflowScheudleTimes;
 
 /**
@@ -39,12 +40,12 @@ class WaitConditionActionExecutorTest extends TestCase
     {
         $this->mockActionEntity = $this->createMock(WorkflowActionEntity::class);
         $this->mockEntityLoader = $this->createMock(EntityLoader::class);
-        $this->mockScheduler = $this->createMock(SchedulerService::class);
+        $this->mockWorkerService = $this->createMock(WorkerService::class);
         $this->executor = new WaitConditionActionExecutor(
             $this->mockEntityLoader,
             $this->mockActionEntity,
             'http://mockhost',
-            $this->mockScheduler
+            $this->mockWorkerService
         );
     }
 
@@ -72,8 +73,8 @@ class WaitConditionActionExecutorTest extends TestCase
         $user->method('getAccountId')->willReturn('UUID-ACCOUNT-ID');
         $user->method('getEntityId')->willReturn('UUID-USER-ID');
 
-        // Make sure we called scheudleAtTime
-        $this->mockScheduler->expects($this->once())->method('scheduleAtTime');
+        // Make sure we called doWorkDelayed
+        $this->mockWorkerService->expects($this->once())->method('doWorkDelayed');
 
         // Execution should return false which pauses the workflow
         $this->assertFalse($this->executor->execute($testEntity, $user));

@@ -215,8 +215,7 @@ class ActivityLog
         $typeName = strtolower($object->getDefinition()->getTitle());
 
         // If this is a new comment then return 'commented on' instead of 'created'
-        if (
-            $verb === EntityEvents::EVENT_CREATE &&
+        if ($verb === EntityEvents::EVENT_CREATE &&
             $object->getDefinition()->getObjType() == ObjectTypes::COMMENT
         ) {
             return 'commented on ' . $typeName;

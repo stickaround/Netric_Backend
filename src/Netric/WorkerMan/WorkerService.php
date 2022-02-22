@@ -3,6 +3,7 @@
 namespace Netric\WorkerMan;
 
 use InvalidArgumentException;
+use JobQueueApiFactory\JobQueueApiFactory;
 use Netric\WorkerMan\Queue\QueueInterface;
 use Netric\Application\Application;
 use RuntimeException;
@@ -32,6 +33,11 @@ class WorkerService
     private WorkerFactory $workerFactory;
 
     /**
+     * Host name of the server
+     */
+    private string $jobQueueServer = "";
+
+    /**
      * Setup the WorkerService
      *
      * @param Application $application Instance of current running netric application
@@ -39,10 +45,12 @@ class WorkerService
      */
     public function __construct(
         QueueInterface $queue,
-        WorkerFactory $workerFactory
+        WorkerFactory $workerFactory,
+        string $jobQueueServer
     ) {
         $this->jobQueue = $queue;
         $this->workerFactory = $workerFactory;
+        $this->jobQueueServer = $jobQueueServer;
     }
 
     /**
@@ -55,6 +63,20 @@ class WorkerService
     public function doWorkBackground($workerName, array $jobData)
     {
         return $this->jobQueue->doWorkBackground($workerName, $jobData);
+    }
+
+    /**
+     * Queue a job to be run in x number of seconds
+     *
+     * @parma string $workerName The name fo the worker to run
+     * @param array $jobData The payload to send to the worker
+     * @param int $delayedSecond The number of seconds the job will be delayed before running
+     */
+    public function doWorkDelayed(string $workerName, array $jobData, int $delayedSeconds): void
+    {
+        $factory = new JobQueueApiFactory();
+        $client = $factory->createJobQueueClient($this->jobQueueServer);
+        $client->runDelayed($workerName, json_encode($jobData), $delayedSeconds);
     }
 
     /**

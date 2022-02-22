@@ -2,6 +2,7 @@
 
 namespace NetricTest\WorkerMan;
 
+use Netric\Config\ConfigFactory;
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Queue\InMemory;
 use PHPUnit\Framework\TestCase;
@@ -38,10 +39,15 @@ class WorkerServicetest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
+        $config = $sl->get(ConfigFactory::class);
         $workerFactory = new WorkerFactory($sl);
         $queue = new InMemory($workerFactory);
 
-        $this->workerService = new WorkerService($queue, $workerFactory);
+        $this->workerService = new WorkerService(
+            $queue,
+            $workerFactory,
+            $config->workers->server
+        );
     }
 
     public function testDoWorkBackground()

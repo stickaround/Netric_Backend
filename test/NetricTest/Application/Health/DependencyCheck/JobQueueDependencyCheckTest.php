@@ -4,9 +4,7 @@ namespace NetricTest\Application\Health\DependencyCheck;
 
 use JobQueueApiFactory\JobQueueApiFactory;
 use Netric\Application\Health\DependencyCheck\JobQueueDependencyCheck;
-use Netric\Application\Health\DependencyCheck\PgsqlDependencyCheck;
 use Netric\Config\ConfigFactory;
-use Netric\Log\LogFactory;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 
@@ -31,8 +29,7 @@ class JobQueueDependencyCheckTest extends TestCase
         $client = $clientFactory->createJobQueueClient($config->workers->server);
 
         $dependency = new JobQueueDependencyCheck(
-            $client,
-            $serviceLocator->get(LogFactory::class)
+            $config->workers->server
         );
         $this->assertTrue($dependency->isAvailable());
     }

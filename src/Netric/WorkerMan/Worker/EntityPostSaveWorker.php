@@ -15,6 +15,7 @@ use Netric\WorkerMan\AbstractWorker;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogFactory;
 use Netric\WorkerMan\SchedulerServiceFactory;
+use Netric\WorkerMan\WorkerServiceFactory;
 use Netric\Workflow\WorkflowServiceFactory;
 use RuntimeException;
 
@@ -85,21 +86,33 @@ class EntityPostSaveWorker extends AbstractWorker
         if (!empty($workload['changed_description']) && $user) {
             // Send in 3 seconds to give the UI time to register if the entity is alraedy seen
             // before spamming them with notifications
-            $executeAt = new DateTime();
-            $executeAt->add(new DateInterval('PT3S')); // +3 seconds
-            $schedulerSerivce = $serviceManager->get(SchedulerServiceFactory::class);
-            $schedulerSerivce->scheduleAtTime(
-                $user,
+            $workerService = $serviceManager->get(WorkerServiceFactory::class);
+            $workerService->doWorkDelayed(
                 NotificationWorker::class,
-                $executeAt,
                 [
                     'account_id' => $account->getAccountId(),
                     'entity_id' => $entity->getEntityId(),
                     'user_id' => $user->getEntityid(),
                     'event_name' => $workload['event_name'],
                     'changed_description' => $workload['changed_description']
-                ]
+                ],
+                3 // Delay for 3 seconds
             );
+            // $executeAt = new DateTime();
+            // $executeAt->add(new DateInterval('PT3S')); // +3 seconds
+            // $schedulerSerivce = $serviceManager->get(SchedulerServiceFactory::class);
+            // $schedulerSerivce->scheduleAtTime(
+            //     $user,
+            //     NotificationWorker::class,
+            //     $executeAt,
+            //     [
+            //         'account_id' => $account->getAccountId(),
+            //         'entity_id' => $entity->getEntityId(),
+            //         'user_id' => $user->getEntityid(),
+            //         'event_name' => $workload['event_name'],
+            //         'changed_description' => $workload['changed_description']
+            //     ]
+            // );
         }
 
         // Log the activity

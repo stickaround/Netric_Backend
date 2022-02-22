@@ -2,8 +2,7 @@
 
 namespace Netric\Application\Health\DependencyCheck;
 
-use JobQueueApi\JobClient;
-use Netric\Log\LogInterface;
+use JobQueueApiFactory\JobQueueApiFactory;
 
 /**
  * Make sure we can connect to the jobqueue service
@@ -11,24 +10,18 @@ use Netric\Log\LogInterface;
 class JobQueueDependencyCheck implements DependencyCheckInterface
 {
     /**
-     * The jobqueue api client
+     * Server or host of jobqueue
      */
-    private JobClient $client;
-
-    /**
-     * Logger used to debug depdency problems
-     */
-    private LogInterface $log;
+    private string $server = "";
 
     /**
      * Constructor
      *
-     * @param JobClient $client
+     * @param string $server SErver or host name
      */
-    public function __construct(JobClient $jobClient, LogInterface $log)
+    public function __construct(string $server)
     {
-        $this->client = $jobClient;
-        $this->log = $log;
+        $this->server = $server;
     }
 
     /**
@@ -38,16 +31,16 @@ class JobQueueDependencyCheck implements DependencyCheckInterface
      */
     public function isAvailable(): bool
     {
+        $clientFactory = new JobQueueApiFactory();
+        $apiClient = $clientFactory->createJobQueueClient(gethostbyname($this->server));
         try {
-            if ($this->client->ping()) {
+            if ($apiClient->ping()) {
                 return true;
             }
         } catch (\Exception $exception) {
-            $this->log->warning("JobQueueDependencyCheck: Connection failed: " . $exception->getMessage());
             return false;
         }
 
-        $this->log->warning("JobQueueDependencyCheck: Unable to ping");
         return false;
     }
 

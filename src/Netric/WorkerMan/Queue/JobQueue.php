@@ -7,6 +7,7 @@ namespace Netric\WorkerMan\Queue;
 use Netric\WorkerMan\WorkerFactory;
 use Netric\WorkerMan\WorkerInterface;
 use JobQueueApi\JobClient;
+use JobQueueApiFactory\JobQueueApiFactory;
 
 /**
  * New queue that uses the aereus jobqueue service
@@ -26,14 +27,18 @@ class JobQueue implements QueueInterface
     private JobClient $jobQueue;
 
     /**
+     * Host of the server to connect to
+     */
+    private string $server = "";
+
+    /**
      * Class constructor
      *
      * @param WorkerFactory $workerFactory
      */
-    public function __construct(WorkerFactory $workerFactory, JobClient $jobQueue)
+    public function __construct(string $server)
     {
-        $this->workerFactory = $workerFactory;
-        $this->jobQueue = $jobQueue;
+        $this->server = $server;
     }
 
     /**
@@ -48,7 +53,9 @@ class JobQueue implements QueueInterface
      */
     public function doWorkBackground($workerName, array $jobData)
     {
-        $success = $this->jobQueue->run($workerName, json_encode($jobData));
+        $factory = new JobQueueApiFactory();
+        $client = $factory->createJobQueueClient(gethostbyname($this->server));
+        $success = $client->run($workerName, json_encode($jobData));
         return ($success) ? "1" : "0";
     }
 

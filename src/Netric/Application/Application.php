@@ -250,8 +250,7 @@ class Application
 
             // Try loading the process and handler classes
             // Handler is created in Netric, the Processor is auto-generated
-            if (
-                !class_exists($handlerClass) ||
+            if (!class_exists($handlerClass) ||
                 !class_exists($processorClass)
             ) {
                 header("HTTP/1.1 404 ${handlerName} not found");

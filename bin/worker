@@ -79,15 +79,35 @@ foreach ($listeningFunctions as $functionName) {
  */
 function processJob(GearmanJob $job)
 {
-    global $protocol;
+    global $protocol, $config;
     echo "WORKER: " . $job->functionName() . "\n";
-    $client = new WorkerClient($protocol);
-    try {
-        return $client->process($job->functionName(), $job->workload());
-    } catch (Exception $ex) {
-        echo "Opps. Error: " . $ex->getMessage();
+
+    $postData = json_encode([
+        'worker_name' => $job->functionName(),
+        'payload' => $job->workload(),
+    ]);
+    $ch = curl_init(gethostbyname($config->workers->service_name) . "/api/v2/workers/process");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    $result = curl_exec($ch);
+    curl_close($ch);
+
+    if (curl_errno($ch)) {
+        $info = curl_getinfo($ch);
+        echo "Opps. Error: " . var_export($result, true);
         return false;
     }
+
+    return true;
+    // $client = new WorkerClient($protocol);
+    // try {
+    //     return $client->process($job->functionName(), $job->workload());
+    // } catch (Exception $ex) {
+    //     echo "Opps. Error: " . $ex->getMessage();
+    //     return false;
+    // }
 }
 
 /**

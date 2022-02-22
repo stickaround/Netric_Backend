@@ -58,6 +58,7 @@ services:
     environment:
       NODE_ENV: devdependency
       APPLICATION_ENV: devdependency
+    restart: always
 
   memcached:
     image: memcached

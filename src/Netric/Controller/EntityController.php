@@ -290,7 +290,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $entityData = $entity->toArrayWithNoPermissions();
         }
 
-        // Add applied properties - not field values but processed 
+        // Add applied properties - not field values but processed
         $entityData['currentuser_permissions'] = $currentUserPermissions;
         $entityData['applied_name'] = $entityDataApplied['applied_name'];
         $entityData['applied_description'] = $entityDataApplied['applied_description'];
@@ -639,8 +639,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if (
-                        $field->subtype // Make sure that this field has a subtype
+                    if ($field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data

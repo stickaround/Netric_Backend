@@ -107,7 +107,13 @@ class WorkersController extends AbstractFactoriedController implements Controlle
             return $response;
         }
 
-        $payload = isset($jobData['payload']) && is_array($jobData['payload']) ? $jobData['payload'] : [];
+        $payload = [];
+
+        if (isset($jobData['payload']) && is_array($jobData['payload'])) {
+            $payload = $jobData['payload'];
+        } elseif (isset($jobData['payload']) && is_string($jobData['payload'])) {
+            $payload = json_decode($jobData['payload'], true);
+        }
 
         // Receive the job and send it to the workerservice
         try {

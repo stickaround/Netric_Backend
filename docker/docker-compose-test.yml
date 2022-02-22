@@ -12,21 +12,20 @@ services:
       - "../.reports:/var/www/html/.reports"
     depends_on:
       - memcached
-      - gearmand
       - db1
       - objectstorage
       - smtp4dev
+      - jobqueue_svc
+      - gearmand
     entrypoint: 'bash -c "/netric-setup.sh && vendor/bin/phpunit --no-coverage > /dev/stdout"' 
     logging:
       driver: "json-file"
+  
   memcached:
     image: memcached
+
   redis:
     image: redis:6
-  gearmand:
-    image: kendu/gearman
-    depends_on:
-      - memcached
 
   db1:
     image: "dockerhub.aereus.com/pgsql:latest"
@@ -77,3 +76,26 @@ services:
       POSTGRES_USER: notpush
       POSTGRES_PASSWORD: password
       POSTGRES_DB: notificationpusher
+
+  # Setup the jobqueue and DB
+  jobqueue_svc:
+    image: dockerhub.aereus.com/jobqueue_svc:latest
+    environment:
+      GEARMAN_SERVER: gearmand
+      DB_SERVER: jobqueue_pgsql
+      DB_USER: jobqueue
+      DB_PASSWORD: password
+      DB_WAIT: 30
+    depends_on:
+      - gearmand
+      - jobqueue_pgsql
+
+  jobqueue_pgsql:
+    image: postgres
+    environment:
+      POSTGRES_USER: jobqueue
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: jobqueue
+  
+  gearmand:
+    image: kendu/gearman

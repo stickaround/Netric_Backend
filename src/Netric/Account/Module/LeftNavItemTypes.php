@@ -4,10 +4,10 @@ namespace Netric\Account\Module;
 
 /**
  * Define all left nav item types
- * 
+ *
  * NOTE 1: The textual name MUST be in UpperCase format to match
  * the component name in the client. Do not use camelCase, snake_case, or hyphen-case
- * 
+ *
  * NOTE 2: All module-specific types should be
  * prefixed with the name. For exmaple, SETTINGS_ACCOUNT_BILLING
  * would be used for the 'ACCOUNT_BILLING' item of the 'Settings' module
