@@ -194,7 +194,7 @@ class PermissionController extends AbstractFactoriedController implements Contro
             return $response;
         }
 
-        // Retrieve the entity by id amd return the result
+        // Retrieve the entity by id and return the result
         if (!empty($objData['entity_id'])) {
             $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
             $dacl = $this->daclLoader->getForEntity($entity, $currentAccount->getAuthenticatedUser());
@@ -203,7 +203,31 @@ class PermissionController extends AbstractFactoriedController implements Contro
 
             try {
                 $this->entityLoader->save($entity, $currentAccount->getAuthenticatedUser());
-                $response->write($dacl->toArray());
+
+                // After saving, prepare the dacl data and set the user_names and group_names
+                $retData = $dacl->toArray();
+                $retData["user_names"] = [];
+                $retData["group_names"] = [];
+
+                // Get the user details
+                $users = $dacl->getUsers();
+                foreach ($users as $userId) {
+                    $userEntity = $this->entityLoader->getEntityById($userId, $currentAccount->getAccountId());
+
+                    if ($userEntity) {
+                        $retData["user_names"][$userId] = $userEntity->getName();
+                    }
+                }
+
+                $userGroups = $this->groupingLoader->get(ObjectTypes::USER . "/groups", $currentAccount->getAccountId());
+                $groups = $userGroups->toArray();
+
+                // Get the group details
+                foreach ($groups as $groupDetails) {
+                    $retData["group_names"][$groupDetails["group_id"]] = $groupDetails["name"];
+                }
+
+                $response->write($retData);
                 return $response;
             } catch (RuntimeException $ex) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
