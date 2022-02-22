@@ -6,6 +6,7 @@ use JobQueueApiFactory\JobQueueApiFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Create a service that returns a handle to an application (not account) database
@@ -32,8 +33,9 @@ class DependenciesFactory implements ApplicationServiceFactoryInterface
 
         // Add the jobqueue since we need it to run background jobs
         $clientFactory = new JobQueueApiFactory();
-        $apiClient = $clientFactory->createJobQueueClient($config->workers->server)
-        $dependencies[] = new JobQueueDependencyCheck($apiClient);
+        $apiClient = $clientFactory->createJobQueueClient(gethostbyname($config->workers->server));
+        $log = $serviceLocator->get(LogFactory::class);
+        $dependencies[] = new JobQueueDependencyCheck($apiClient, $log);
 
         return $dependencies;
     }

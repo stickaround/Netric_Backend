@@ -53,8 +53,9 @@ return [
         // executes the 'background' jobs immediately
         'queue' => 'memory',
         // We leave this for unit tests since we test gearman
-        'server' => 'gearmand',
+        'server' => 'jobqueue_svc',
         // Worker clients run in a separate container and need to make http calls to the service
+        'worker_gearman' => "gearmand",
         'service_name' => 'netric_server',
     ],
     'notifications' => [

@@ -17,11 +17,11 @@ services:
       - .:/var/www/html/
     depends_on:
       - memcached
-      - gearmand
       - db1
       - objectstorage
       - smtp4dev
-      - jobqueue
+      - jobqueue_svc
+      - gearmand
     entrypoint: 'bash -c "rm -f composer.lock && composer install && /start.sh"'
 
   netric_daemon:
@@ -53,25 +53,25 @@ services:
     image: dockerhub.aereus.com/api_netric_com
     ports:
       - "80:3001"
-    depends_on: 
+    depends_on:
       - redis
-    environment: 
+    environment:
       NODE_ENV: devdependency
       APPLICATION_ENV: devdependency
-        
+
   memcached:
     image: memcached
 
   redis:
     image: redis:6
-    ports: 
+    ports:
       - "6379:6379"
 
   gearmand:
     image: kendu/gearman
 
   # Setup the jobqueue and DB
-  jobqueue:
+  jobqueue_svc:
     image: dockerhub.aereus.com/jobqueue_svc:latest
     environment:
       GEARMAN_SERVER: gearmand
@@ -107,7 +107,7 @@ services:
         "-c",
         "fsync=off",
         "-c",
-        "full_page_writes=off",
+        "full_page_writes=off"
       ]
     ports:
       - "5432:5432"

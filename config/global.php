@@ -125,9 +125,9 @@ return [
     ],
     // Background worker settings
     'workers' => [
-        'queue' => 'gearman',
+        'queue' => 'jobqueue',
         // on netric_service network in swarm
-        'server' => 'gearman',
+        'server' => 'jobqueue_svc',
         // Worker clients run in a separate container and need to make http calls to the service
         'worker_gearman' => "gearman",
         'service_name' => 'netricservice'

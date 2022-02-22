@@ -17,6 +17,6 @@ class GearmanTest extends AbstractQueueTests
     protected function getQueue()
     {
         $config = $this->account->getServiceManager()->get(ConfigFactory::class);
-        return new Gearman($config->workers->server);
+        return new Gearman($config->workers->worker_gearman);
     }
 }
