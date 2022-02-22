@@ -65,9 +65,10 @@ return [
     ],
     // Background worker settings
     'workers' => [
-        'queue' => 'gearman',
-        'server' => 'gearmand',
+        'queue' => 'jobqueue',
+        'server' => 'jobqueue',
         // Worker clients run in a separate container and need to make http calls to the service
+        'worker_gearman' => "gearman",
         'service_name' => 'netric_server',
     ],
     'billing' => [

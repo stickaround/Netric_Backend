@@ -21,6 +21,7 @@ services:
       - db1
       - objectstorage
       - smtp4dev
+      - jobqueue
     entrypoint: 'bash -c "rm -f composer.lock && composer install && /start.sh"'
 
   netric_daemon:
@@ -68,20 +69,26 @@ services:
 
   gearmand:
     image: kendu/gearman
-    # environment:
-    #   PGHOST: db1
-    #   PGPORT: 5432
-    #   PGUSER: vagrant
-    #   PGPASSWORD: vagrant
-    #   PGDATABASE: netric
-    # command: "-q Postgres --libpq-table=gearman_queue --verbose DEBUG"
 
-  jobqueue_svc:
-    image: dockerhub.aereus.com/jobqueue_svc:v9
+  # Setup the jobqueue and DB
+  jobqueue:
+    image: dockerhub.aereus.com/jobqueue_svc:latest
     environment:
       GEARMAN_SERVER: gearmand
+      DB_SERVER: jobqueue_pgsql
+      DB_USER: jobqueue
+      DB_PASSWORD: password
+      DB_WAIT: 30
     depends_on:
       - gearmand
+      - jobqueue_pgsql
+
+  jobqueue_pgsql:
+    image: postgres
+    environment:
+      POSTGRES_USER: jobqueue
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: jobqueue
 
   db1:
     image: dockerhub.aereus.com/pgsql:latest

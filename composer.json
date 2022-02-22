@@ -36,6 +36,7 @@
     "aereus/lib": "dev-master",
     "aereus/objectstorage-sdk": "dev-master",
     "aereus/notificationpusher-sdk": "dev-master",
+    "aereus/jobqueue-svc-api": "dev-master",
     "zendframework/zend-console": "~2.5",
     "php-mime-mail-parser/php-mime-mail-parser": "^7.0",
     "authorizenet/authorizenet": "2.0.2",

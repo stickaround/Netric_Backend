@@ -50,7 +50,7 @@ $protocol = new TBinaryProtocol($transport);
 
 // Setup gearman
 $gmWorker = new GearmanWorker();
-$gmWorker->addServer($config->workers->server, 4730);
+$gmWorker->addServer($config->workers->worker_gearman, 4730);
 
 // Worker functions we are interested in
 $listeningFunctions = [

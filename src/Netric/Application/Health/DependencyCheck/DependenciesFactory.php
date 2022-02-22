@@ -2,6 +2,7 @@
 
 namespace Netric\Application\Health\DependencyCheck;
 
+use JobQueueApiFactory\JobQueueApiFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\ConfigFactory;
@@ -28,6 +29,11 @@ class DependenciesFactory implements ApplicationServiceFactoryInterface
             $config->db->user,
             $config->db->password
         );
+
+        // Add the jobqueue since we need it to run background jobs
+        $clientFactory = new JobQueueApiFactory();
+        $apiClient = $clientFactory->createJobQueueClient($config->workers->server)
+        $dependencies[] = new JobQueueDependencyCheck($apiClient);
 
         return $dependencies;
     }

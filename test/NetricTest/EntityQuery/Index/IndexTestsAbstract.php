@@ -13,7 +13,6 @@ namespace NetricTest\EntityQuery\Index;
 use Netric;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery\EntityQuery;
-use Netric\EntityQuery\Where;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
@@ -24,11 +23,9 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
-use Netric\Entity\Entity;
 use Netric\Entity\EntityValueSanitizerFactory;
 use Netric\EntityQuery\Index\IndexAbstract;
 use Netric\EntityQuery\Aggregation\Min;
-use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
@@ -647,12 +644,11 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Test null
         // -------------------------------------------------
-        $testEnt->setValue("type_id", null);        
+        $testEnt->setValue("type_id", null);
         $this->account->getServiceManager()->get(EntityDataMapperFactory::class)->save(
             $testEnt,
             $this->account->getSystemUser()
-        );        
-        ;
+        );;
 
         // After saving a contact with type_id = null, it will default to type_id value 1
         $this->assertEquals($testEnt->getValue("type_id"), 1);

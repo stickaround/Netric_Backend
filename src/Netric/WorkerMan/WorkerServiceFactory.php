@@ -13,6 +13,8 @@ use Netric\Config\ConfigFactory;
 use Netric\Log\LogFactory;
 use Netric\WorkerMan\Queue\Gearman;
 use Netric\WorkerMan\Queue\InMemory;
+use Netric\WorkerMan\Queue\JobQueue;
+use JobQueueApiFactory\JobQueueApiFactory as JobQueueApiFactoryJobQueueApiFactory;
 use RuntimeException;
 
 /**
@@ -40,6 +42,11 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
                 break;
             case 'memory':
                 $queue = new InMemory($workerFactory);
+                break;
+            case 'jobqueue':
+                $apiFactory = new JobQueueApiFactoryJobQueueApiFactory();
+                $client = $apiFactory->createJobQueueClient($config->workers->server);
+                $queue = new JobQueue($workerFactory, $client);
                 break;
             default:
                 throw new RuntimeException("Worker queue not supported: " . $config->workers->queue);
