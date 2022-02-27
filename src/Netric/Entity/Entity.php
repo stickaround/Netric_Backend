@@ -267,6 +267,11 @@ class Entity implements EntityInterface
             }
         }
 
+        // Check if this field update changed uname
+        if (!empty($this->getDefinition()->unameSettings)) {
+            $this->updateUnameIfNeeded($strName);
+        }
+
         // Log changes
         $this->logFieldChanges($strName, $value, $oldval, $oldvalName);
     }
@@ -1388,5 +1393,57 @@ class Entity implements EntityInterface
 
         // Name not found
         return "";
+    }
+
+    /**
+     * Unames are auto-generated often from settings of field names
+     *
+     * @param string $fieldName
+     * @return void
+     */
+    private function updateUnameIfNeeded(string $fieldName): void
+    {
+        $unameSettings = $this->getDefinition()->unameSettings;
+
+        // If there are no settings than uname will just be an auto-generated field
+        if (empty($unameSettings)) {
+            return;
+        }
+
+        $unameFields = explode(":", $unameSettings);
+
+        // If the $feidlName is not in the uname settings array, do nothing
+        $fieldIndex = array_search($fieldName, $unameFields);
+        if ($fieldIndex === false) {
+            return;
+        }
+
+        $unameValues = explode(':', $this->getValue('uname'));
+
+
+        // Now escape the uname field to a uri friendly name
+        // since we use this for URLs and usernames in many cases
+        $fieldValue = $this->getValue($fieldName);
+        $fieldValue = strtolower($fieldValue);
+        $fieldValue = str_replace(" ", "-", $fieldValue);
+        $fieldValue = str_replace("&", "_and_", $fieldValue);
+        $fieldValue = str_replace("@", "_at_", $fieldValue);
+        $fieldValue = preg_replace('/[^A-Za-z0-9:._-]/', '', $fieldValue);
+        $unameValues[$fieldIndex] = $fieldValue;
+
+        // Make sure each part of the namespaced field is initialized
+        // so empty values show up like "::end" but never "::" if all empty
+        $unameToSet = [];
+        $isUnameEmpty = true;
+        for ($i = 0; $i < count($unameFields); $i++) {
+            $unameToSet[$i] = isset($unameValues[$i]) ? $unameValues[$i] : "";
+            if ($unameToSet[$i] != "") {
+                $isUnameEmpty = false;
+            }
+        }
+
+        if ($isUnameEmpty === false) {
+            $this->setValue("uname", implode(":", $unameToSet));
+        }
     }
 }

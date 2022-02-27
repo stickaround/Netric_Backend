@@ -231,13 +231,6 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
-        $conditions = [];
-        if ($unameConditions) {
-            foreach ($unameConditions as $idx => $value) {
-                $conditions[$idx] = $value;
-            }
-        }
-
         StatsPublisher::increment("rest,controller=entity,function=getGetAction");
 
         // Get the entity utilizing whatever params were passed in
@@ -250,8 +243,7 @@ class EntityController extends AbstractFactoriedController implements Controller
             $entity = $this->entityLoader->getByUniqueName(
                 $objType,
                 $uname,
-                $currentAccount->getAccountId(),
-                $conditions
+                $currentAccount->getAccountId()
             );
         } else {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
@@ -639,7 +631,8 @@ class EntityController extends AbstractFactoriedController implements Controller
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if ($field->subtype // Make sure that this field has a subtype
+                    if (
+                        $field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data

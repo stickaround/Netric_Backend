@@ -179,7 +179,7 @@ class Results
     public function addEntity(EntityInterface $entity)
     {
         // Stat a cache list hit
-        StatsPublisher::increment("entity.cache.queryres");
+        //StatsPublisher::increment("entity.cache.queryres");
         $this->entities[] = $entity;
     }
 
@@ -199,7 +199,8 @@ class Results
      */
     public function getEntity(int $offset = 0)
     {
-        if ($offset >= ($this->getOffset() + $this->query->getLimit()) ||
+        if (
+            $offset >= ($this->getOffset() + $this->query->getLimit()) ||
             $offset < $this->getOffset()
         ) {
             // Get total number of pages

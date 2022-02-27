@@ -9,7 +9,6 @@ use Netric\Request\ConsoleRequest;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\Mvc\Exception\NotAuthorizedForRouteException;
 
 /**
  * Test querying ElasticSearch server

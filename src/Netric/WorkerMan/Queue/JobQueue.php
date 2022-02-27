@@ -60,6 +60,24 @@ class JobQueue implements QueueInterface
     }
 
     /**
+     * Add a job to the queue and run it after delayed number of seconds
+     *
+     * With other queues it puts it in the background, but for in-memory
+     * doWork and doWorkBackground are essentially the same thing.
+     *
+     * @param string $workerName The name of the worker to run
+     * @param array $jobData Data to be passed to the job
+     * @return string A unique id/handle to the queued job
+     */
+    public function doWorkBackgroundDelayed(string $workerName, array $jobData, int $delayInSeconds)
+    {
+        $factory = new JobQueueApiFactory();
+        $client = $factory->createJobQueueClient(gethostbyname($this->server));
+        $success = $client->runDelayed($workerName, json_encode($jobData), $delayInSeconds);
+        return ($success) ? "1" : "0";
+    }
+
+    /**
      * Add an available worker to the queue
      *
      * @param string $workerName The name of the worker to run

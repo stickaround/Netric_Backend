@@ -38,8 +38,7 @@ interface EntityDataMapperInterface
     public function getByUniqueName(
         string $objType,
         string $uniqueNamePath,
-        string $accountId,
-        array $namespaceFieldValues = []
+        string $accountId
     ): ?EntityInterface;
 
     /**

@@ -74,9 +74,10 @@ class WorkerService
      */
     public function doWorkDelayed(string $workerName, array $jobData, int $delayedSeconds): void
     {
-        $factory = new JobQueueApiFactory();
-        $client = $factory->createJobQueueClient($this->jobQueueServer);
-        $client->runDelayed($workerName, json_encode($jobData), $delayedSeconds);
+        // $factory = new JobQueueApiFactory();
+        // $client = $factory->createJobQueueClient($this->jobQueueServer);
+        // $client->runDelayed($workerName, json_encode($jobData), $delayedSeconds);
+        $this->jobQueue->doWorkBackgroundDelayed($workerName, $jobData, $delayedSeconds);
     }
 
     /**

@@ -24,6 +24,16 @@ interface QueueInterface
     public function doWorkBackground($workerName, array $jobData);
 
     /**
+     * Do a job in x number of seconds
+     *
+     * @param string $workerName
+     * @param array $jobData
+     * @param int $delayInSeconds
+     * @return void
+     */
+    public function doWorkBackgroundDelayed(string $workerName, array $jobData, int $delayInSeconds);
+
+    /**
      * Add an available worker to the queue
      *
      * @param string $workerName The name of the worker to run

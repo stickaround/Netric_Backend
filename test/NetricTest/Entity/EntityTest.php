@@ -676,7 +676,7 @@ class EntityTest extends TestCase
         // Create entity data with fields that will be computed as applied values (applied_name, applied_description, applied_icon)
         $data = [
             "name" => "testAppliedNameTask",
-            "objType" => ObjectTypes::TASK,            
+            "objType" => ObjectTypes::TASK,
             "notes" => "testAppliedDescriptionTask"
         ];
 
@@ -696,13 +696,67 @@ class EntityTest extends TestCase
             "scope" => ChatRoomEntity::ROOM_DIRECT,
             "members" => []
         ];
-        $entityDirectMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CHAT_ROOM, $this->account->getAccountId());
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityDirectMessage = $entityLoader->create(ObjectTypes::CHAT_ROOM, $this->account->getAccountId());
         $entityDirectMessage->fromArray($dataDirectMessage);
         $entityDirectMessage->addMultiValue("members", $this->user->getEntityId(), $this->user->getName());
         $entityDirectMessage->addMultiValue("members", "member-00", "Member 00");
-        
+
 
         $directEntityDataApplied = $entityDirectMessage->toArrayWithApplied($this->user);
-        $this->assertEquals($directEntityDataApplied["applied_name"], "Member 00");        
+        $this->assertEquals($directEntityDataApplied["applied_name"], "Member 00");
+    }
+
+    /**
+     * Test that entities generate simple unique names
+     *
+     * @return void
+     */
+    public function testGenerateUniqueName(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $testUser = $entityLoader->create(ObjectTypes::USER, $this->account->getAccountId());
+
+        // The user entity definition has unameSettings=name, so the uname
+        // should be automatically generated from the name of the user
+        $testUser->setValue('name', 'testuser1');
+        $this->assertEquals('testuser1', $testUser->getValue("uname"));
+
+        // Make sure if we change, the uname changes
+        $testUser->setValue('name', 'testuser2');
+        $this->assertEquals('testuser2', $testUser->getValue("uname"));
+    }
+
+    /**
+     * Test that the entity will update namespaced unique names
+     *
+     * @return void
+     */
+    public function testGenerateUniqueNameNamespaced(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // The page entity definition has unameSettings=site_id:parent_id:name, so the uname
+        // can be unique for a site and subpage
+        $page = $entityLoader->create(ObjectTypes::PAGE, $this->account->getAccountId());
+
+        $mockSiteId = Uuid::uuid4();
+        $mockParentId = Uuid::uuid4();
+
+        // Setting unrelated field does not change uname
+        $page->setValue('data', 'Test Body');
+        $this->assertEmpty($page->getValue('uname'));
+
+        // No site_id, or parent_id
+        $page->setValue('name', 'page1');
+        $this->assertEquals('::page1', $page->getValue("uname"));
+
+        // Site but no parent (should be empy)
+        $page->setValue('site_id', $mockSiteId);
+        $this->assertEquals($mockSiteId . '::page1', $page->getValue("uname"));
+
+        // Site and parent id in the namespace
+        $page->setValue('parent_id', $mockParentId);
+        $this->assertEquals($mockSiteId . ':' . $mockParentId . ':page1', $page->getValue("uname"));
     }
 }

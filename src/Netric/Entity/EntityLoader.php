@@ -160,19 +160,18 @@ class EntityLoader
      *
      * Unique names can be namespaced, and we can reference entities with a full
      * path since the namespace can be a parentField. For example, the 'page' entity
-     * type has a unique name namespace of parentId so we could path /page1/page2/page1
-     * and the third page1 is a different entity than the first.
+     * type has a unique name namespace of parentId so we could path
+     * uuid-page:uname
      *
      * @param string $objType The entity to populate if we find the data
      * @param string $uniqueNamePath The path to the entity
      * @param string $accountId The current accountId
-     * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
      * @return EntityInterface $entity if found or null if not found
      */
-    public function getByUniqueName(string $objType, string $uniqueNamePath, string $accountId, array $namespaceFieldValues = [])
+    public function getByUniqueName(string $objType, string $uniqueNamePath, string $accountId)
     {
         // TODO: We should definitely handle caching here since this function can be expensive
-        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $accountId, $namespaceFieldValues);
+        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $accountId);
     }
 
     /**

@@ -455,100 +455,88 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
     public function getByUniqueName(
         string $objType,
         string $uniqueNamePath,
-        string $accountId,
-        array $namespaceFieldValues = []
+        string $accountId
     ): ?EntityInterface {
-        $def = $this->entityDefLoader->get($objType, $accountId);
-
-        // Sanitize in case the user passed in bad paths like '/my//path'
-        $uniqueNamePath = str_replace("//", "/", $uniqueNamePath);
-
-        // Remove a trailing '/'
-        if ($uniqueNamePath[strlen($uniqueNamePath) - 1] === '/') {
-            $uniqueNamePath = substr($uniqueNamePath, 0, -1);
-        }
-
-        // Remove a root '/'
-        if ($uniqueNamePath[0] === '/') {
-            $uniqueNamePath = substr($uniqueNamePath, 1);
-        }
-
-        // Now split the full sanitized path into segments
-        $segments = explode("/", $uniqueNamePath);
-
-        // Pop the uname of the current level off the path
-        $uname = array_pop($segments);
-
-        // Check if this object has a parent field and there are more unames upstream in the path
-        $parentFieldCondition = [];
-        if ($def->parentField && count($segments) >= 1) {
-            $parentField = $def->getField($def->parentField);
-            if ($parentField->type === "object" && !empty($parentField->subtype)) {
-                $parentEntity = $this->getByUniqueName(
-                    $parentField->subtype,
-                    implode('/', $segments),
-                    $accountId,
-                    $namespaceFieldValues
-                );
-
-                // If we can't find the parent then the path does not exist
-                if (!$parentEntity) {
-                    return null;
-                }
-
-                $parentFieldCondition[$def->parentField] = $parentEntity->getEntityId();
-            }
-        }
-
-        $filterValues = array_merge(
-            $namespaceFieldValues,
-            $parentFieldCondition,
-            ['uname' => $uname]
-        );
-        $matches = $this->getIdsFromFieldValues($objType, $filterValues, $accountId);
-
         // Publish read stats for monitoring
         StatsPublisher::increment("entity.datamapper,function=getByUniqueName");
 
-        // Return the first match
-        if (!empty($matches[0])) {
-            $entity = $this->getEntityById($matches[0], $accountId);
-            return $entity;
+        // $def = $this->entityDefLoader->get($objType, $accountId);
+
+        // // Sanitize in case the user passed in bad paths like '/my//path'
+        // $uniqueNamePath = str_replace("//", "/", $uniqueNamePath);
+
+        // // Remove a trailing '/'
+        // if ($uniqueNamePath[strlen($uniqueNamePath) - 1] === '/') {
+        //     $uniqueNamePath = substr($uniqueNamePath, 0, -1);
+        // }
+
+        // // Remove a root '/'
+        // if ($uniqueNamePath[0] === '/') {
+        //     $uniqueNamePath = substr($uniqueNamePath, 1);
+        // }
+
+        // // Now split the full sanitized path into segments
+        // $segments = explode("/", $uniqueNamePath);
+
+        // // Pop the uname of the current level off the path
+        // $uname = array_pop($segments);
+
+        // $filterValues = array_merge(
+        //     $namespaceFieldValues,
+        //     ['uname' => $uname]
+        // );
+        // $matches = $this->getIdsFromFieldValues($objType, $filterValues, $accountId);
+
+        // // Return the first match
+        // if (!empty($matches[0])) {
+        //     $entity = $this->getEntityById($matches[0], $accountId);
+        //     return $entity;
+        // }
+
+        // Search objects to see if the uname exists
+        $query = new EntityQuery($objType, $accountId);
+        $query->where('uname')->equals($uniqueNamePath);
+
+        // Query for matching IDs
+        $this->entityIndex = $this->serviceManager->get(IndexFactory::class);
+        $result = $this->entityIndex->executeQuery($query);
+        if ($result->getTotalNum() > 0) {
+            return $result->getEntity(0);
         }
 
         // Could not find a unique match
         return null;
     }
 
-    /**
-     * Look for IDs based on field values
-     *
-     * @param string $objType The type of entity we are querying
-     * @param array $conditionValues Array of field values to query for
-     * @param string $accountId Current account ID
-     * @return string[] Array of IDs that match the field values
-     */
-    private function getIdsFromFieldValues($objType, array $conditionValues, string $accountId)
-    {
-        $entityIds = [];
+    // /**
+    //  * Look for IDs based on field values
+    //  *
+    //  * @param string $objType The type of entity we are querying
+    //  * @param array $conditionValues Array of field values to query for
+    //  * @param string $accountId Current account ID
+    //  * @return string[] Array of IDs that match the field values
+    //  */
+    // private function getIdsFromFieldValues($objType, array $conditionValues, string $accountId)
+    // {
+    //     $entityIds = [];
 
-        // Search objects to see if the uname exists
-        $query = new EntityQuery($objType, $accountId);
+    //     // Search objects to see if the uname exists
+    //     $query = new EntityQuery($objType, $accountId);
 
-        foreach ($conditionValues as $fieldName => $fieldCondValue) {
-            $query->andWhere($fieldName)->equals($fieldCondValue);
-        }
+    //     foreach ($conditionValues as $fieldName => $fieldCondValue) {
+    //         $query->andWhere($fieldName)->equals($fieldCondValue);
+    //     }
 
-        // Query for matching IDs
-        $this->entityIndex = $this->serviceManager->get(IndexFactory::class);
-        $result = $this->entityIndex->executeQuery($query);
-        for ($i = 0; $i < $result->getTotalNum(); $i++) {
-            $entity = $result->getEntity($i);
-            $entityIds[] = $entity->getEntityId();
-        }
+    //     // Query for matching IDs
+    //     $this->entityIndex = $this->serviceManager->get(IndexFactory::class);
+    //     $result = $this->entityIndex->executeQuery($query);
+    //     for ($i = 0; $i < $result->getTotalNum(); $i++) {
+    //         $entity = $result->getEntity($i);
+    //         $entityIds[] = $entity->getEntityId();
+    //     }
 
-        return $entityIds;
-    }
+    //     return $entityIds;
+    // }
 
     /**
      * Delete an entity
@@ -713,119 +701,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
             }
         }
     }
-    // Old version
-    // private function updateForeignKeyNames(EntityInterface $entity, UserEntity $user)
-    // {
-    //     // Make sure that private groupings always have user_guid set
-    //     $userGuidPath = "";
-    //     if ($entity->getDefinition()->isPrivate()) {
-    //         // Make sure that the owner_id was set
-    //         if ($entity->getValue("owner_id")) {
-    //             $userGuidPath = "/" . $entity->getValue("owner_id");
-    //         } elseif ($entity->getValue("creator_id")) {
-    //             $userGuidPath = "/" . $entity->getValue("creator_id");
-    //         }
-    //     }
-
-    //     $fields = $entity->getDefinition()->getFields();
-    //     foreach ($fields as $field) {
-    //         $value = $entity->getValue($field->name);
-
-    //         // Skip over null/empty fields
-    //         if (!$value) {
-    //             continue;
-    //         }
-
-    //         // For now, skip over previously set names
-    //         // because the load was pretty bad with running all
-    //         // these queries every time
-    //         $valueName = $entity->getValueName($field->name, $value);
-    //         if (!empty($valueName)) {
-    //             continue;
-    //         }
-
-    //         switch ($field->type) {
-    //             case Field::TYPE_OBJECT:
-    //                 // If we are dealing with null or empty id, then there is no need to update this foreign key
-    //                 if (!$value || !Uuid::isValid($value)) {
-    //                     continue 2;
-    //                 }
-
-    //                 // Get the referenced entity
-    //                 $referencedEntity = $this->getEntityById($value, $user->getAccountId());
-
-    //                 // If we haven't found the referenced entity, chances are it was already removed, so we need to clear the value
-    //                 if (!$referencedEntity) {
-    //                     $entity->setValue($field->name, null);
-    //                     continue 2;
-    //                 }
-
-    //                 // Since we have found the referenced entity, then add it in the entity
-    //                 $entity->setValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
-    //                 break;
-
-    //             case Field::TYPE_OBJECT_MULTI:
-    //                 if (is_array($value)) {
-    //                     foreach ($value as $id) {
-    //                         // If we are dealing with null or empty id, then there is no need to update this foreign key
-    //                         if (!$id || !Uuid::isValid($id)) {
-    //                             continue;
-    //                         }
-
-    //                         // Get the referenced entity
-    //                         $referencedEntity = $this->getEntityById($id, $user->getAccountId());
-
-    //                         // If we havent found the referenced entity, chances are it was already removed, so we need to clear the value
-    //                         if (!$referencedEntity) {
-    //                             $entity->removeMultiValue($field->name, $id);
-    //                             continue;
-    //                         }
-
-    //                         // Since we have found the referenced entity, then add it in the entity
-    //                         $entity->addMultiValue($field->name, $referencedEntity->getEntityId(), $referencedEntity->getName());
-    //                     }
-    //                 }
-
-    //                 break;
-
-    //             case Field::TYPE_GROUPING:
-    //                 if ($value) {
-    //                     $objType = $entity->getDefinition()->getObjType();
-    //                     $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
-
-    //                     // Clear the value in preparation for an update - or to remove it if group was deleted
-    //                     $group = $grouping->getByGuidOrGroupId($value);
-
-    //                     if ($group) {
-    //                         // If the group exists then update the name
-    //                         $entity->setValue($field->name, $value, $group->name);
-    //                     }
-    //                 }
-    //                 break;
-
-    //             case Field::TYPE_GROUPING_MULTI:
-    //                 $objType = $entity->getDefinition()->getObjType();
-    //                 $grouping = $this->groupingLoader->get("$objType/{$field->name}$userGuidPath", $user->getAccountId());
-
-    //                 if (is_array($value)) {
-    //                     foreach ($value as $id) {
-    //                         if (!$id) {
-    //                             continue;
-    //                         }
-
-    //                         // Clear the value in preparation for an update - or to remove it if group was deleted
-    //                         $entity->removeMultiValue($field->name, $id);
-    //                         $group = $grouping->getByGuidOrGroupId($id);
-    //                         if ($group) {
-    //                             $entity->addMultiValue($field->name, $group->getGroupId(), $group->name);
-    //                         }
-    //                     }
-    //                 }
-
-    //                 break;
-    //         }
-    //     }
-    // }
 
     /**
      * When saving an entity create a unqiue name if not already set
@@ -842,10 +717,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         // a uname over and over is nothing has changed since it was last saved
         if ($entity->getValue("uname") && !$entity->fieldValueChanged('uname')) {
             return false;
-        }
-
-        // Check if uname was manually entered / edited
-        if ($entity->getValue("uname") && $entity->fieldValueChanged('uname')) {
+        } elseif ($entity->getValue("uname")) {
+            // Uname has changed - either manually or automatically with settings
             if (!$this->verifyUniqueName($entity, $entity->getValue("uname"))) {
                 // Uhoh, they entered a uname that already exists
                 // prepend a unique ID
@@ -855,18 +728,18 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 $entity->setValue('uname', $uname);
                 return true;
             }
+
+            // Use the new name when saving
             return false;
         }
 
-        // If this object type does not have an auto-generate field to use,
-        // just make a new unique number to use
-        if (empty($def->unameSettings) && empty($entity->getValue("uname"))) {
-            $unameNumber = $this->generateUnameId($entity->getAccountId());
-            $entity->setValue('uname', $unameNumber);
-            return true;
-        }
+        // Eitehr the object type does not have unameSettings (using a field for the name)
+        // the entity failed to set it for some reason, just use a unique umber
+        $unameNumber = $this->generateUnameId($entity->getAccountId());
+        $entity->setValue('uname', $unameNumber);
+        return true;
 
-        return $this->setUniqueNameFromSettings($entity, $def->unameSettings);
+        // return $this->setUniqueNameFromSettings($entity, $def->unameSettings);
     }
 
     /**
@@ -884,26 +757,40 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $unameSettingsParts = explode(":", $unameSettings);
 
         // Create desired uname from the right field
-        // Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
-        $lastPart = end($unameSettingsParts);
+        // Format is: "field_name:field_name"
+        $lastFieldName = end($unameSettingsParts);
 
-        // The unique name field is the last part of unameSettingsParts
-        $uname = ($lastPart == "name") ? $entity->getName() : $entity->getValue($lastPart);
+        // Get the name of the entity
+        $uname = ($lastFieldName === "name") ? $entity->getName() : $entity->getValue($lastFieldName);
 
         // If fields that would contain data for uname are blank
-        // then just provide a unique number
+        // then just provide a unique number, this should be rare
         if (!$uname) {
             $uname = $this->generateUnameId($entity->getAccountId());
             $entity->setValue("uname", $uname);
             return true;
         }
 
+        // Prefix with the namespace if set
+        $numParts = count($unameSettingsParts);
+        if ($numParts > 1) {
+            // We start at the end and work our way backwards since
+            // we are progressively prefixing the field value
+            // and we subtract 2 from numparts because we don't want to
+            // add the uname of the current entity (already set above)
+            for ($i = $numParts - 2; $i >= 0; $i--) {
+                $fieldName = $unameSettingsParts[$i];
+                $uname = $entity->getValue($fieldName) . ':' . $uname;
+            }
+        }
+
         // Now escape the uname field to a uri friendly name
+        // since we use this for URLs in a few places
         $uname = strtolower($uname);
         $uname = str_replace(" ", "-", $uname);
         $uname = str_replace("&", "_and_", $uname);
         $uname = str_replace("@", "_at_", $uname);
-        $uname = preg_replace('/[^A-Za-z0-9._-]/', '', $uname);
+        $uname = preg_replace('/[^A-Za-z0-9:._-]/', '', $uname);
 
         // If the unique name already exists, then append with id to assure uniqueness
         if (!$this->verifyUniqueName($entity, $uname)) {

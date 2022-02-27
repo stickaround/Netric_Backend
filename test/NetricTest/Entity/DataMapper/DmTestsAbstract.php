@@ -828,17 +828,16 @@ abstract class DmTestsAbstract extends TestCase
         $dm->save($subPage, $this->user);
         $this->testEntities[] = $subPage; // for cleanup
 
-        // Try to get the file by path
-        $pathParts = [
-            $homePage->getValue('uname'),
-            $subPage->getValue('uname'),
-        ];
-        $fullPath = implode('/', $pathParts);
+        // Uname should be namespaced with site_id:parent_id:nameOfEntity
+        // since this is the settings of page: site_id:parent_id:name
+        $namespacedUname = $site->getEntityId() . ':' . $homePage->getEntityId() . ':testgetbyunamefile';
+
+        $this->assertEquals($namespacedUname, $subPage->getValue('uname'));
+
         $retrievedPage = $dm->getByUniqueName(
             ObjectTypes::PAGE,
-            $fullPath,
-            $this->account->getAccountId(),
-            ['site_id' => $site->getEntityId()]
+            $namespacedUname,
+            $this->account->getAccountId()
         );
 
         $this->assertEquals($subPage->getEntityId(), $retrievedPage->getEntityId());
