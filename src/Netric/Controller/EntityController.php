@@ -329,7 +329,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $entity = null;
 
         // If editing an existing etity, then load it, otherwise create a new entity
-        if (isset($objData['entity_id']) && $objData['revision'] > 0) {
+        if (isset($objData['entity_id']) && isset($objData['revision']) && $objData['revision'] > 0) {
             $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
         } elseif (!isset($objData['revision']) || $objData['revision'] === 0 || $objData['revision'] === null) {
             $entity = $this->entityLoader->create($objData['obj_type'], $currentAccount->getAccountId());

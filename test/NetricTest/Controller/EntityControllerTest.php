@@ -705,7 +705,8 @@ class EntityControllerTest extends TestCase
             'description' => 'Task for saving',
             'applied_name' => 'Test Task',
             'applied_icon' => '',
-            'applied_description' => ''
+            'applied_description' => '',
+            'revision' => '0'
         ]);
 
         // Mock the entity loader service which is used to create a new entity and can save it
@@ -735,7 +736,8 @@ class EntityControllerTest extends TestCase
             'applied_name' => 'Test Task',
             'applied_icon' => '',
             'applied_description' => '',
-            'currentuser_permissions' => $daclPermissions
+            'currentuser_permissions' => $daclPermissions,
+            'revision' => '0'
         ], $response->getOutputBuffer());
     }
 
@@ -783,7 +785,8 @@ class EntityControllerTest extends TestCase
             'description' => 'Task for saving',
             'applied_name' => 'Test Task',
             'applied_icon' => '',
-            'applied_description' => ''
+            'applied_description' => '',
+            'revision' => '1'
         ]);
 
         // Mock the entity loader service which is used to load the existing task by guid and can save it
@@ -801,10 +804,10 @@ class EntityControllerTest extends TestCase
 
         // Make sure postSaveAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
+        $request->setParam('buffer_output', 1);        
 
         // Specify the entity_id here so we will save the existing entity
-        $request->setBody(json_encode(['obj_type' => 'task', 'entity_id' => $existingEntityId]));
+        $request->setBody(json_encode(['obj_type' => 'task', 'entity_id' => $existingEntityId, 'revision' => '1']));
         $response = $this->entityController->postSaveAction($request);
         $this->assertEquals([
             'obj_type' => 'task',
@@ -815,7 +818,8 @@ class EntityControllerTest extends TestCase
             'applied_name' => 'Test Task',
             'applied_icon' => '',
             'applied_description' => '',
-            'currentuser_permissions' => $daclPermissions
+            'currentuser_permissions' => $daclPermissions,
+            'revision' => '1'
         ], $response->getOutputBuffer());
     }
 
