@@ -1,68 +1,82 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'user'
  */
 
 namespace data\browser_views;
 
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Where;
 
-return array(
-    'active' => array(
+return [
+    'active' => [
         'obj_type' => 'user',
         'name' => 'Active',
         'description' => 'Active Users',
         'default' => true,
-        'conditions' => array(
-            'active' => array(
+        'conditions' => [
+            'active' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'active',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => true
-            ),
-        ),
-        'order_by' => array(
-            'name' => array(
+            ],
+            'internal' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'type',
+                'operator' => Where::OPERATOR_EQUAL_TO,
+                'value' => UserEntity::TYPE_INTERNAL
+            ],
+        ],
+        'order_by' => [
+            'name' => [
                 'field_name' => 'full_name',
                 'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('full_name', 'name', 'last_login', 'team_id', 'manager_id')
-    ),
+            ],
+        ],
+        'table_columns' => ['full_name', 'name', 'last_login', 'team_id', 'manager_id']
+    ],
 
-    'inactive_users' => array(
+    'inactive_users' => [
         'obj_type' => 'user',
         'name' => 'Inactive Users',
         'description' => 'Inactive Users',
         'default' => false,
-        'conditions' => array(
-            'active' => array(
+        'conditions' => [
+            'active' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'active',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => false
-            ),
-        ),
-        'order_by' => array(
-            'name' => array(
+            ],
+            'internal' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'type',
+                'operator' => Where::OPERATOR_EQUAL_TO,
+                'value' => UserEntity::TYPE_INTERNAL
+            ],
+        ],
+        'order_by' => [
+            'name' => [
                 'field_name' => 'full_name',
                 'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('full_name', 'name', 'last_login', 'team_id', 'manager_id')
-    ),
+            ],
+        ],
+        'table_columns' => ['full_name', 'name', 'last_login', 'team_id', 'manager_id']
+    ],
 
-    'all_users' => array(
+    'all_users' => [
         'obj_type' => 'user',
         'name' => 'All Users',
         'description' => 'All Users',
         'default' => false,
-        'order_by' => array(
-            'name' => array(
+        'order_by' => [
+            'name' => [
                 'field_name' => 'full_name',
                 'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('full_name', 'name', 'last_login', 'team_id', 'manager_id')
-    ),
-);
+            ],
+        ],
+        'table_columns' => ['full_name', 'name', 'last_login', 'team_id', 'manager_id']
+    ],
+];

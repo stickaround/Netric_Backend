@@ -54,6 +54,14 @@ return [
             "icon" => "AssignmentIndIcon",
         ],
         [
+            "title" => "Unassigned Tasks",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "browser_view" => "unassigned_incomplete",
+            "route" => "unassigned",
+            "objType" => ObjectTypes::TASK,
+            "icon" => "OutlineNoAccountsIcon",
+        ],
+        [
             "title" => "All Tasks",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "browser_view" => "all_tasks",

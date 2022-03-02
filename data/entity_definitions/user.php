@@ -158,6 +158,20 @@ return [
             'readonly' => false,
             'required' => false
         ],
+        'district' => [
+            'title' => 'State/District',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '256',
+            'readonly' => false,
+            'required' => false
+        ],
+        'country' => [
+            'title' => 'Country',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '256',
+            'readonly' => false,
+            'required' => false
+        ],
         'active' => [
             'title' => 'Active',
             'type' => Field::TYPE_BOOL,
@@ -181,12 +195,18 @@ return [
         'image_id' => [
             'title' => 'Image',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'file'
+            'subtype' => ObjectTypes::FILE,
+        ],
+        // The banner or hero image is used as a full-width image for the user profile
+        'banner_image_id' => [
+            'title' => 'Banner IMage',
+            'type' => Field::TYPE_OBJECT,
+            'subtype' => ObjectTypes::FILE,
         ],
         'team_id' => [
             'title' => 'Team',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'user_team',
+            'subtype' => ObjectTypes::USER_TEAM,
         ],
         'groups' => [
             'title' => 'Groups',

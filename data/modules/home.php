@@ -3,6 +3,7 @@
 namespace modules\navigation;
 
 use Netric\Account\Module\LeftNavItemTypes;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Return navigation for entity of object type 'home'
@@ -28,8 +29,16 @@ return [
             "title" => "Notifications",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "notifications",
-            "objType" => "notification",
+            "objType" => ObjectTypes::NOTIFICATION,
             "icon" => "NotificationsIcon"
-        ]
+        ],
+        [
+            "title" => "People",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "people",
+            "objType" => ObjectTypes::USER,
+            'browserView' => 'active',
+            "icon" => "PeopleIcon"
+        ],
     ]
 ];

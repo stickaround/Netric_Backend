@@ -998,6 +998,8 @@ class Entity implements EntityInterface
             "creator_id",
             "path", // legacy
             "uname", // system, no need to give to user
+            "last_active", // This would create tons of unnecessary updates
+            "last_login", // No need to track logins
         ];
         $buf = "";
         foreach ($this->changelog as $fname => $log) {
