@@ -185,11 +185,12 @@ class AccountContainer implements AccountContainerInterface, ErrorAwareInterface
      * Create a new account and return the ID
      *
      * @param string $name A unique name for this account
+     * @param string $orgTitle The name of the organization
      * @return string Unique id of the created account, 0 on failure
      */
-    public function createAccount(string $name): string
+    public function createAccount(string $name, string $orgTitle = ""): string
     {
-        return $this->appDm->createAccount($name);
+        return $this->appDm->createAccount($name, $orgTitle);
     }
 
     /**

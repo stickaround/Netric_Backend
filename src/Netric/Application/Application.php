@@ -18,16 +18,12 @@ use Netric\Log\Log;
 use Netric\Cache\CacheInterface;
 use Netric\Account\AccountContainer;
 use Netric\Account\AccountContainerFactory;
-use Netric\Account\AccountSetupFactory;
 use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\DataMapper\EntityDataMapperInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Request\RequestFactory;
 use Netric\Cache\CacheFactory;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\Authentication\AuthenticationServiceFactory;
-use RuntimeException;
 
 /**
  * Main application instance class
@@ -250,7 +246,8 @@ class Application
 
             // Try loading the process and handler classes
             // Handler is created in Netric, the Processor is auto-generated
-            if (!class_exists($handlerClass) ||
+            if (
+                !class_exists($handlerClass) ||
                 !class_exists($processorClass)
             ) {
                 header("HTTP/1.1 404 ${handlerName} not found");
@@ -440,82 +437,6 @@ class Application
 
         // No account has been set or loaded
         return '';
-    }
-
-    /**
-     * Initialize a brand new account and create the admin user
-     *
-     * @param string $accountName A unique name for the new account
-     * @param string $adminUserName Required username for the admin/first user
-     * @param string $adminUserPassword Required password for the admin
-     * @return Account
-     */
-    public function createAccount($accountName, $adminUserName, $adminEmail, $adminPassword)
-    {
-        // Make sure the account does not already exists
-        if ($this->accountContainer->loadByName($accountName)) {
-            // throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
-        }
-
-        // TODO: Check the account name is valid
-
-        // Create new account
-        $accountId = $this->accountContainer->createAccount($accountName);
-
-        // Make sure the created account is valid
-        if (!$accountId) {
-            throw new Exception\CouldNotCreateAccountException(
-                "Failed creating account " . $this->accountContainer->getLastError()->getMessage()
-            );
-        }
-
-        // Load the newly created account
-        $account = $this->accountContainer->loadById($accountId);
-
-        // Make sure it worked
-        if ($account === null) {
-            throw new RuntimeException('Account creation failed');
-        }
-
-        // Run update scripts and data - set it to the latest version first so we don't run old scripts
-        $updater = $account->getServiceManager()->get(AccountSetupFactory::class);
-        $updater->updateDataForAccount($account);
-
-        // Create the admin user
-        $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $adminUser = $entityLoader->create(ObjectTypes::USER, $account->getAccountId());
-        $adminUser->setValue("name", $adminUserName);
-        $adminUser->setValue("email", $adminEmail);
-        $adminUser->setValue("password", $adminPassword);
-        $adminUser->setIsAdmin(true);
-        $entityLoader->save($adminUser, $account->getSystemUser());
-
-        // If the username is an email address then set the email address to be the username
-        if (strpos($adminEmail, '@') !== false) {
-            $this->setAccountUserEmail($accountId, $adminUserName, $adminEmail);
-        }
-
-        // Return the new account
-        return $account;
-    }
-
-    /**
-     * Delete an account by name
-     *
-     * @param string $accountName The unique name of the account to delete
-     * @return bool on success, false on failure
-     */
-    public function deleteAccount($accountName)
-    {
-        // Get account by name
-        $account = $this->getAccount(null, $accountName);
-
-        // Delete the account if it is valid
-        if ($account->getAccountId()) {
-            return $this->accountContainer->deleteAccount($account);
-        }
-
-        return false;
     }
 
     /**

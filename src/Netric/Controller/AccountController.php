@@ -6,7 +6,6 @@
 
 namespace Netric\Controller;
 
-use Netric\Mvc;
 use Netric\Mvc\ControllerInterface;
 use Netric\Mvc\AbstractFactoriedController;
 use Netric\Account\AccountContainerInterface;
@@ -15,10 +14,8 @@ use Netric\Request\HttpRequest;
 use Netric\Authentication\AuthenticationService;
 use Netric\Account\Module\ModuleService;
 use Netric\Account\Billing\AccountBillingService;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\EntityLoader;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
-use Aereus\Config\Config;
 use RuntimeException;
 
 class AccountController extends AbstractFactoriedController implements ControllerInterface

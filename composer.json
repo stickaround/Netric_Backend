@@ -24,7 +24,7 @@
     "lint-phpcs": "phpcs --standard=./vendor/aereus/codequality/phpcs.xml --report-checkstyle=.reports/checkstyle.xml ./src ./test",
     "lint-phpmd": "phpmd ./src xml ./vendor/aereus/codequality/phpmd.xml --reportfile .reports/pmd.xml",
     "lint-fix": "phpcbf --standard=./vendor/aereus/codequality/phpcs.xml ./src ./test",
-    "test": "APPLICATION_ENV=testing COMPOSER_PROCESS_TIMEOUT=400 vendor/bin/phpunit --no-coverage",
+    "test": "APPLICATION_ENV=testing COMPOSER_PROCESS_TIMEOUT=400 vendor/bin/phpunit --stop-on-failure",
     "test-ci": [
       "@composer lint",
       "@composer test"

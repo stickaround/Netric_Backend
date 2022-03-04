@@ -6,6 +6,7 @@ namespace NetricTest;
 include(__DIR__ . "/../vendor/autoload.php");
 
 use Aereus\Config\ConfigLoader;
+use Netric\Account\AccountSetupFactory;
 use Netric\Application\Application;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
@@ -35,8 +36,10 @@ class Bootstrap
 
         // Initialize account
         static::$account = $application->getAccount(null, 'autotest');
+
         if (!static::$account) {
-            static::$account = $application->createAccount(
+            $accountSetup = $application->getServiceManager()->get(AccountSetupFactory::class);
+            static::$account = $accountSetup->createAndInitailizeNewAccount(
                 'autotest',
                 "automated_test",
                 "automated_test@netric.com",

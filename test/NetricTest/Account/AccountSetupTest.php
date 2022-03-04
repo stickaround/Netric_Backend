@@ -4,8 +4,8 @@ namespace NetricTest\Account;
 
 use Netric\Account\AccountContainer;
 use Netric\Account\AccountSetup;
-use Netric\Application\Application;
 use Netric\Application\DataMapperInterface;
+use Netric\Entity\EntityLoader;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,9 +18,16 @@ class AccountSetupTest extends TestCase
         $dataMapper = $this->getMockBuilder(DataMapperInterface::class)->getMock();
         $dataMapper->method('getAccountByName')->willReturn(null);
         $accountContainer = $this->createMock(AccountContainer::class);
-        $accountSetup = new AccountSetup($dataMapper, $accountContainer, []);
+        $entityLoader = $this->createMock(EntityLoader::class);
+        $accountSetup = new AccountSetup(
+            $dataMapper,
+            $accountContainer,
+            [],
+            $entityLoader,
+            "TEST-MAIN-UUID"
+        );
 
-        $uniqueName = $accountSetup->getUniqueAccountName('My Company!$%#_-.');
+        $uniqueName = $accountSetup->getUniqueAccountName('My Company!$%#-.');
         $this->assertEquals('mycompany', $uniqueName);
     }
 
@@ -35,10 +42,17 @@ class AccountSetupTest extends TestCase
         $dataMapper->method('getAccounts')->willReturn([$accData1, $accData2, $accData3]);
 
         $accountContainer = $this->createMock(AccountContainer::class);
+        $entityLoader = $this->createMock(EntityLoader::class);
 
-        $accountSetup = new AccountSetup($dataMapper, $accountContainer, []);
+        $accountSetup = new AccountSetup(
+            $dataMapper,
+            $accountContainer,
+            [],
+            $entityLoader,
+            "TEST-MAIN-UUID"
+        );
 
         $uniqueName = $accountSetup->getUniqueAccountName('Test');
-        $this->assertEquals('test3', $uniqueName);
+        $this->assertNotEquals('test', $uniqueName);
     }
 }

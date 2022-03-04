@@ -12,6 +12,8 @@ use Netric\Application\Application;
 use PHPUnit\Framework\TestCase;
 use Aereus\Config\Config;
 use Netric\Account\Account;
+use Netric\Account\AccountSetup;
+use Netric\Account\AccountSetupFactory;
 
 class ApplicationTest extends TestCase
 {
@@ -21,6 +23,13 @@ class ApplicationTest extends TestCase
      * @var Application
      */
     private $application = null;
+
+    /**
+     * Account setup is used to create, setup, and delete accounts
+     *
+     * @var AccountSetup
+     */
+    private AccountSetup $accountSetup;
 
     /**
      * Name used for test accounts
@@ -35,6 +44,7 @@ class ApplicationTest extends TestCase
         $config = $configLoader->fromFolder(__DIR__ . "/../../../config", 'testing');
 
         $this->application = new Netric\Application\Application($config);
+        $this->accountSetup = $this->application->getServiceManager()->get(AccountSetupFactory::class);
     }
 
     public function testGetConfig()
@@ -58,11 +68,12 @@ class ApplicationTest extends TestCase
         // First cleanup in case we left an account around
         $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
         if ($cleanupAccount) {
-            $this->application->deleteAccount(self::TEST_ACCT_NAME);
+            $this->accountSetup->deleteAccountByName(self::TEST_ACCT_NAME);
         }
 
         // Create a new test account
-        $account = $this->application->createAccount(
+
+        $account = $this->accountSetup->createAndInitailizeNewAccount(
             self::TEST_ACCT_NAME,
             "automated_test",
             "automated_test@netric.com",
@@ -76,7 +87,7 @@ class ApplicationTest extends TestCase
         $this->assertGreaterThanOrEqual(1, count($accounts));
 
         // Cleanup
-        $this->application->deleteAccount(self::TEST_ACCT_NAME);
+        $this->accountSetup->deleteAccountByName(self::TEST_ACCT_NAME);
     }
 
     public function testCreateAccount()
@@ -84,11 +95,11 @@ class ApplicationTest extends TestCase
         // First cleanup in case we left an account around
         $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
         if ($cleanupAccount) {
-            $this->application->deleteAccount(self::TEST_ACCT_NAME);
+            $this->accountSetup->deleteAccountByName(self::TEST_ACCT_NAME);
         }
 
         // Create a new test account
-        $account = $this->application->createAccount(
+        $account = $this->accountSetup->createAndInitailizeNewAccount(
             self::TEST_ACCT_NAME,
             'test',
             "test@test.com",
@@ -97,7 +108,7 @@ class ApplicationTest extends TestCase
         $this->assertNotEmpty($account->getAccountId());
 
         // Cleanup
-        $this->application->deleteAccount(self::TEST_ACCT_NAME);
+        $this->accountSetup->deleteAccountByName(self::TEST_ACCT_NAME);
     }
 
     public function testDeleteAccount()
@@ -105,11 +116,11 @@ class ApplicationTest extends TestCase
         // First cleanup in case we left an account around
         $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
         if ($cleanupAccount) {
-            $this->application->deleteAccount(self::TEST_ACCT_NAME);
+            $this->accountSetup->deleteAccountByName(self::TEST_ACCT_NAME);
         }
 
         // Create account
-        $account = $this->application->createAccount(
+        $account = $this->accountSetup->createAndInitailizeNewAccount(
             self::TEST_ACCT_NAME,
             'test',
             "test@test.com",
@@ -117,7 +128,7 @@ class ApplicationTest extends TestCase
         );
 
         // Now delete the account
-        $this->assertTrue($this->application->deleteAccount(self::TEST_ACCT_NAME));
+        $this->assertTrue($this->accountSetup->deleteAccountByName(self::TEST_ACCT_NAME));
 
         // Make sure we cannot open the account - it should be deleted
         $this->assertNull($this->application->getAccount($account->getAccountId()));

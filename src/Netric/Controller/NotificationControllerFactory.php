@@ -6,12 +6,6 @@ use Netric\Entity\Notifier\NotifierFactory;
 use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\Account\AccountContainerFactory;
-use Netric\Authentication\AuthenticationServiceFactory;
-use Netric\Account\Module\ModuleServiceFactory;
-use Netric\Account\Billing\AccountBillingServiceFactory;
-use Netric\PaymentGateway\SystemPaymentGatewayFactory;
-use Netric\Entity\EntityLoaderFactory;
 use Netric\Log\LogFactory;
 
 /**

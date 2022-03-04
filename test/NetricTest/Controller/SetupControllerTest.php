@@ -2,13 +2,10 @@
 
 namespace NetricTest\Controller;
 
-use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
-use Netric\Request\ConsoleRequest;
 use Netric\Account\Account;
 use Netric\Account\AccountContainerInterface;
-use Netric\Application\Response\HttpResponse;
 use Netric\Application\Application;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationIdentity;
@@ -110,7 +107,7 @@ class SetupControllerTest extends TestCase
         ]));
 
         $this->accountSetup->method('getUniqueAccountName')->willReturn($tempAccountName);
-        $this->mockApplication->method('createAccount')->willReturn($this->mockAccount);
+        $this->accountSetup->method('createAndInitailizeNewAccount')->willReturn($this->mockAccount);
         $this->mockAccount->method('toArray')->willReturn($accountDetails);
 
         $request->setParam('buffer_output', 1);

@@ -253,15 +253,17 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      * Adds an account to the database
      *
      * @param string $name A unique name for this account
+     * @pasram string $orgName Optional organization name. Will use $name of not set
      * @return string Unique id of the created account, exception on failure
      */
-    public function createAccount($name)
+    public function createAccount($name, string $orgName = ""): string
     {
         $newAccountId = Uuid::uuid4()->toString();
 
         // Create account in antsystem
         $insertData = [
             "account_id" => $newAccountId,
+            "org_name" => ($orgName) ? $orgName : $name,
             "name" => $name,
         ];
 
@@ -280,7 +282,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function updateAccount($accountId, $accountData)
     {
-        return $this->database->update(self::TABLE_ACCOUNT, $accountData, ["account_id" => $accountId]);
+        return $this->database->update(
+            self::TABLE_ACCOUNT,
+            $accountData,
+            ["account_id" => $accountId]
+        );
     }
 
     /**

@@ -6,6 +6,7 @@ use Netric\Application\DataMapperInterface;
 use Netric\Application\Exception\AccountAlreadyExistsException;
 use Netric\Application\Exception\CouldNotCreateAccountException;
 use Netric\Account\Account\InitData\InitDataInterface;
+use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\ObjectTypes;
 
 /**
@@ -32,7 +33,7 @@ class AccountSetup
      *
      * @var AccountContainer
      */
-    private AccountContainer $accountContianer;
+    private AccountContainer $accountContainer;
 
     /**
      * Entityloader user to create users
@@ -42,17 +43,48 @@ class AccountSetup
     private EntityLoader $entityLoader;
 
     /**
+     * Names that cannot be used for accounts
+     */
+    private array $reservedAccountNames;
+
+    /**
+     * The ID of the main account that all billing will be under
+     *
+     * @var string
+     */
+    private string $mainAccountId;
+
+    /**
      * Constructor
      *
      * @param DataMapperInterface $appDataMapper
      * @param AccountContainer $accountContainer
      * @param InitDataInterface[] $dataImporters
      */
-    public function __construct(DataMapperInterface $appDataMapper, AccountContainer $accountContainer, array $dataImporters)
-    {
+    public function __construct(
+        DataMapperInterface $appDataMapper,
+        AccountContainer $accountContainer,
+        array $dataImporters,
+        EntityLoader $entityLoader,
+        string $mainAccountId
+    ) {
         $this->appDataMapper = $appDataMapper;
-        $this->accountContianer = $accountContainer;
+        $this->accountContainer = $accountContainer;
         $this->dataImporters = $dataImporters;
+        $this->entityLoader = $entityLoader;
+        $this->mainAccountId = $mainAccountId;
+
+        // In the future we may want to allow third level domains
+        // so we should reserve any names we use as domains now
+        $this->reservedAccountNames = [
+            "login",
+            "aereus",
+            "app",
+            "api",
+            "files",
+            "media",
+            "public",
+        ];
     }
 
     /**
@@ -70,29 +102,39 @@ class AccountSetup
         string $adminPassword
     ): Account {
         // Make sure the account does not already exists
-        if ($this->appDataMapper->getAccountByName($accountName)) {
+        if ($this->accountContainer->loadByName($accountName)) {
             throw new AccountAlreadyExistsException($accountName . " already exists");
         }
 
-        // TODO: Make sure the name is valid
-        //$cleanedAccountName = $this->getUniqueAccountName($accountName);
+        // Make sure the name is valid
+        $cleanedAccountName = $this->getUniqueAccountName($accountName);
 
-        // Add new account record
-        $accountId = $this->appDataMapper->createAccount($cleanedAccountName);
+        // Add new account record with the cleaned (url friendly) account name, and the
+        // uncleaned version for the organzization name - "mycompany" and "My Company" respectively
+        $accountId = $this->accountContainer->createAccount($cleanedAccountName, $accountName);
 
         // Make sure the created account is valid
         if (!$accountId) {
             throw new CouldNotCreateAccountException(
-                "Failed creating account " . $this->appDataMapper->getLastError()->getMessage()
+                "Failed creating account " . $this->accountContainer->getLastError()->getMessage()
             );
         }
 
         // Load the newly created account
-        $account = $this->accountContianer->loadById($accountId);
+        $account = $this->accountContainer->loadById($accountId);
 
         // Make sure it worked
         if ($account === null) {
             throw new CouldNotCreateAccountException('Account creation failed');
+        }
+
+        // Now create the netric contact that will be used for billing and support
+        $mainAccountContactId = $this->createMainAccountContact($accountName);
+        if ($mainAccountContactId) {
+            $this->accountContainer->updateAccount(
+                $account->getAccountId(),
+                ['main_account_contact_id' => $mainAccountContactId]
+            );
         }
 
         // Set data for this account
@@ -110,6 +152,28 @@ class AccountSetup
     }
 
     /**
+     * Create a new contact entity under the main account to handle billing and support
+     *
+     * We do this because we use netric to bill for netric. In production the main
+     * account is the aereus account. In test, the main account is added manually
+     * as test data.
+     *
+     * @param string $companyName
+     * @return string Entity ID of the contact created in the main billing account
+     */
+    private function createMainAccountContact(string $companyName): string
+    {
+        $newContact = $this->entityLoader->create(ObjectTypes::CONTACT, $this->mainAccountId);
+        $newContact->setValue("type_id", 2); // 2 = organization
+        $newContact->setValue("company", $companyName);
+        // TOOD: Add account info
+
+        // Save the contact to the main/billing account
+        $mainAccount = $this->accountContainer->loadById($this->mainAccountId);
+        return $this->entityLoader->save($newContact, $mainAccount->getSystemUser());
+    }
+
+    /**
      * Generate a unique account name from a full name like "My Company"
      *
      * @param string $originalName
@@ -122,30 +186,13 @@ class AccountSetup
             return uniqid('acc');
         }
 
+        // Convert to lower case and remove anythign that won't work for a third-level domain
         $cleanedName = strtolower($originalName);
-        $cleanedName = preg_replace("/[^a-z0-9]/", '', $cleanedName);
+        $cleanedName = preg_replace("/[^a-z0-9_]/", '', $cleanedName);
 
         // Check if the name is unique
-        if ($this->appDataMapper->getAccountByName($cleanedName)) {
-            // Name is already taken, append a number
-            // TODO: this is not very performant but simple
-            $accounts = $this->appDataMapper->getAccounts();
-            $numAccountsWithName = 0;
-            foreach ($accounts as $accountData) {
-                // Skip over if account name is too short
-                if (strlen($accountData['name']) < strlen($cleanedName)) {
-                    continue;
-                }
-
-                // Increment counter if the name is similar
-                $beginningOfAccName = substr($accountData['name'], 0, strlen($cleanedName));
-                if ($beginningOfAccName === $cleanedName) {
-                    $numAccountsWithName++;
-                }
-            }
-
-            // Append next number
-            $cleanedName .= ++$numAccountsWithName;
+        if ($this->appDataMapper->getAccountByName($cleanedName) || in_array($cleanedName, $this->reservedAccountNames)) {
+            $cleanedName = uniqid($cleanedName);
         }
 
         return $cleanedName;
@@ -185,5 +232,23 @@ class AccountSetup
             }
         }
         return true;
+    }
+
+    /**
+     * Delete an account by name
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function deleteAccountByName(string $name): bool
+    {
+        $account = $this->accountContainer->loadByName($name);
+
+        if ($account && $account->getAccountId()) {
+            return $this->accountContainer->deleteAccount($account);
+        }
+
+        // No account found to delete
+        return false;
     }
 }

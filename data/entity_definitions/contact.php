@@ -45,7 +45,7 @@ return [
             'readonly' => false
         ],
         'company' => [
-            'title' => 'Company Name',
+            'title' => 'Organization Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false
