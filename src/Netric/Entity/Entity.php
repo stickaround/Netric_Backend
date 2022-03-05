@@ -710,28 +710,33 @@ class Entity implements EntityInterface
         $daclLoader = $serviceLocator->get(DaclLoaderFactory::class);
         $fileSystem = $serviceLocator->get(FileSystemFactory::class);
 
-        // Process any temp files or attachments associated with this entity if it is not the root folder
-        $this->processTempFiles($fileSystem, $user);
+        // If we are working with an entity that is not a folder or file, then handle attachments
+        if (
+            $this->getDefinition()->getObjType() != ObjectTypes::FOLDER &&
+            $this->getDefinition()->getObjType() != ObjectTypes::FILE
+        ) {
+            // Process any temp files or attachments associated with this entity if it is not the root folder
+            $this->processTempFiles($fileSystem, $user);
 
-        // Set permissions for entity folder (if we have attachments)
-        $folderPath = '/System/Entity/' . $this->getEntityId();
-        $entityFolder = $fileSystem->openFolder($folderPath, $user);
-        if ($entityFolder && $entityFolder->getEntityId()) {
-            $dacl = $daclLoader->getForEntity($this, $user);
+            // Set permissions for entity folder (if we have attachments)
+            $entityFolder = $fileSystem->getOrCreateEntityFolder($this, $user);
+            if ($entityFolder) {
+                $dacl = $daclLoader->getForEntity($this, $user);
 
-            if ($dacl) {
-                // Make sure all interested users are given permission to view
-                $followers = $this->getValue('followers');
-                foreach ($followers as $followerId) {
-                    $dacl->allowUser($followerId);
+                if ($dacl && is_array($this->getValue('followers'))) {
+                    // Make sure all interested users are given permission to view
+                    $followers = $this->getValue('followers');
+                    foreach ($followers as $followerId) {
+                        $dacl->allowUser($followerId);
+                    }
+
+                    //$fileSystem->setFolderDacl($entityFolder, $dacl, $user);
                 }
 
-                $fileSystem->setFolderDacl($entityFolder, $dacl, $user);
-            }
-
-            // Copy owner
-            if ($this->getOwnerId() && $this->getOwnerId() !== $entityFolder->getOwnerId()) {
-                $fileSystem->setFolderOwner($entityFolder, $this->getOwnerId(), $user);
+                // Copy owner
+                // if ($this->getOwnerId() && $this->getOwnerId() !== $entityFolder->getOwnerId()) {
+                //     $fileSystem->setFolderOwner($entityFolder, $this->getOwnerId(), $user);
+                // }
             }
         }
 
@@ -1160,11 +1165,8 @@ class Entity implements EntityInterface
                             if ($file) {
                                 if ($fileSystem->fileIsTemp($file, $user)) {
                                     // Move file to a permanent directory
-                                    $objDir = "/System/Entity/" . $this->getValue('entity_id');
-                                    $fldr = $fileSystem->openFolder($objDir, $user, true);
-                                    if ($fldr && $fldr->getEntityId()) {
-                                        $fileSystem->moveFile($file, $fldr, $user);
-                                    }
+                                    $entityAttachmentFolder = $fileSystem->getOrCreateEntityFolder($this, $user);
+                                    $fileSystem->moveFile($file, $entityAttachmentFolder, $user);
                                 }
                             }
                         }

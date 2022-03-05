@@ -36,7 +36,8 @@ class RootFolderInitData implements InitDataInterface
      */
     public function setInitialData(Account $account): bool
     {
-        $this->fileSystem->setRootFolder($account->getSystemUser());
+        // Create special folders used for the system
+        $this->fileSystem->initializeFileSystem($account->getSystemUser());
         return true;
     }
 }

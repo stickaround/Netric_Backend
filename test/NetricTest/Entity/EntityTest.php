@@ -248,7 +248,7 @@ class EntityTest extends TestCase
         $dataMapper = $sm->get(EntityDataMapperFactory::class);
 
         // Temp file
-        $file = $fileSystem->createFile("%tmp%", "testfile.txt", $this->account->getAuthenticatedUser(), true);
+        $file = $fileSystem->createTempFile("testfile.txt", $this->account->getAuthenticatedUser(), true);
         $tempFolderId = $file->getValue("folder_id");
 
         // Create a customer

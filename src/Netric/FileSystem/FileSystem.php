@@ -4,11 +4,12 @@
  * FileSystem service
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @copyright 2022 Aereus, LLC
  */
 
 namespace Netric\FileSystem;
 
+use Netric\Entity\EntityInterface;
 use Netric\Error;
 use Netric\EntityQuery\EntityQuery;
 use Netric\Permissions\Dacl;
@@ -19,6 +20,7 @@ use Netric\Entity\EntityLoader;
 use Netric\FileSystem\FileStore\FileStoreInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityDefinition\ObjectTypes;
+use RuntimeException;
 
 /**
  * Create a file system service
@@ -56,9 +58,11 @@ class FileSystem implements Error\ErrorAwareInterface
     private $errors = [];
 
     /**
-     * Define some path constants so we are not typing them as string literals each time
+     * Unames used for special folders
      */
-    const PATH_TEMP = '/System/Temp';
+    const UNAME_ROOT = 'root';      // Account root
+    const UNAME_TEMP = 'temp';      // Where temp files get stored
+    const UNAME_ENTITY = 'entity';  // Where entity folders are placed
 
     /**
      * Class constructor
@@ -78,9 +82,37 @@ class FileSystem implements Error\ErrorAwareInterface
     }
 
     /**
+     * Import a local file into the temp folder
+     *
+     * @param UserEntity $user The user that owns the file
+     * @param string $localFilePath Path to a local file to import
+     * @param string $fileNameOverride Optional alternate name to use other than the imported file name
+     * @param array $fileEntityData Optional If we have a $fileEntityData,
+     *              then we will be updating an existing file instead of creating a new file
+     * @return FileEntity The imported file
+     * @throws \RuntimeException if it cannot open the folder path specified
+     */
+    public function importTempFile(
+        UserEntity $user,
+        string $localFilePath,
+        string $fileNameOverride = "",
+        $fileEntityData = null
+    ) {
+        // Open FileSystem folder - second param creates it if not exists
+        $parentFolder = $this->getTempFolder($user);
+        if (!$parentFolder) {
+            // Try to create the temp folder
+            throw new \RuntimeException("Could not open temp folder");
+        }
+
+        return $this->importFileToFolder($user, $parentFolder, $localFilePath, $fileNameOverride, $fileEntityData);
+    }
+
+    /**
      * Import a local file into the FileSystem
      *
      * @param UserEntity $user The user that owns the file
+     * @param FolderEntity $folder THe folder to import into
      * @param string $localFilePath Path to a local file to import
      * @param string $remoteFolderPath The folder to import the new file into
      * @param string $fileNameOverride Optional alternate name to use other than the imported file name
@@ -88,14 +120,8 @@ class FileSystem implements Error\ErrorAwareInterface
      * @return FileEntity The imported file
      * @throws \RuntimeException if it cannot open the folder path specified
      */
-    public function importFile(UserEntity $user, string $localFilePath, string $remoteFolderPath, string $fileNameOverride = "", $fileEntityData = null)
+    public function importFileToFolder(UserEntity $user, FolderEntity $parentFolder, string $localFilePath, string $fileNameOverride = "", $fileEntityData = null)
     {
-        // Open FileSystem folder - second param creates it if not exists
-        $parentFolder = $this->openFolder($remoteFolderPath, $user, true);
-        if (!$parentFolder) {
-            throw new \RuntimeException("Could not open " . $remoteFolderPath);
-        }
-
         // Check first if we have $fileId, if so then we will just load that file id
         if ($fileEntityData && isset($fileEntityData["entity_id"]) && !empty($fileEntityData["entity_id"])) {
             $file = $this->entityLoader->getEntityById($fileEntityData["entity_id"], $user->getAccountId());
@@ -127,16 +153,15 @@ class FileSystem implements Error\ErrorAwareInterface
     }
 
     /**
-     * Open a file by fileName and path
+     * Open a file by fileName
      *
-     * @param string $folderPath The full path of the folder to look in
+     * @param FolderEntity $folder The folder to look for files in
      * @param string $fileName The name of the file in the folder path
      * @param UserEntity $user The user that owns the file
      * @return FileEntity|null
      */
-    public function openFile(string $folderPath, string $fileName, UserEntity $user)
+    public function openFileByName(FolderEntity $folder, string $fileName, UserEntity $user)
     {
-        $folder = $this->openFolder($folderPath, $user);
         if ($folder) {
             return $this->getChildFileByName($fileName, $folder);
         } else {
@@ -171,7 +196,7 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Delete a folder
      *
-     * @param Folder $folder The folder to delee
+     * @param FolderEntity $folder The folder to delee
      * @param UserEntity $user The user that owns the Folder
      * @param bool|false $purge If true the permanently purge the file
      * @return bool True on success, false on failure.
@@ -215,33 +240,107 @@ class FileSystem implements Error\ErrorAwareInterface
         }
     }
 
+    // /**
+    //  * Open a folder by a path
+    //  *
+    //  * @param string $path The path to open - /my/favorite/path
+    //  * @param UserEntity $user The user that owns the folder
+    //  * @param bool|false $createIfMissing If true, create full path then return
+    //  * @return Folder|null If found (or created), then return the folder, otherwise null
+    //  */
+    // public function openFolder(string $path, UserEntity $user, bool $createIfMissing = false)
+    // {
+    //     // Create system paths no matter what
+    //     if (!$createIfMissing && ($path == "%tmp%")) {
+    //         $createIfMissing = true;
+    //     }
+
+    //     // Check if we are just trying to get root
+    //     if ($path === "/") {
+    //         return $this->getRootFolder($user);
+    //     }
+
+    //     $folders = $this->splitPathToFolderArray($path, $user, $createIfMissing);
+
+    //     if ($folders) {
+    //         return array_pop($folders);
+    //     } else {
+    //         return null;
+    //     }
+    // }
+
     /**
-     * Open a folder by a path
+     * Open (if exists) or create a folder
      *
-     * @param string $path The path to open - /my/favorite/path
-     * @param UserEntity $user The user that owns the folder
-     * @param bool|false $createIfMissing If true, create full path then return
-     * @return Folder|null If found (or created), then return the folder, otherwise null
+     * @param FolderEntity $parentFolder
+     * @param string $folderName
+     * @param UserEntity $user
+     * @return FolderEntity
      */
-    public function openFolder(string $path, UserEntity $user, bool $createIfMissing = false)
+    public function openOrCreateFolder(FolderEntity $parentFolder, string $folderName, UserEntity $user): FolderEntity
     {
-        // Create system paths no matter what
-        if (!$createIfMissing && ($path == "%tmp%")) {
-            $createIfMissing = true;
+        $folder = $this->getChildFolderByName($folderName, $parentFolder);
+        if ($folder) {
+            return $folder;
         }
 
-        // Check if we are just trying to get root
-        if ($path === "/") {
-            return $this->getRootFolder($user);
+        // Create a new folder
+        $folder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
+        $folder->setValue("parent_id", $parentFolder->getEntityId());
+        $folder->setValue("name", $folderName);
+        $this->entityLoader->save($folder, $user);
+        return $folder;
+    }
+
+    /**
+     * Get (or create if missing) the folder used to store files for an entity
+     *
+     * @param EntityInterface $entity
+     * @param UserEntity $user
+     * @return FolderEntity
+     */
+    public function getOrCreateEntityFolder(EntityInterface $entity, UserEntity $user): FolderEntity
+    {
+        if (!$entity->getEntityId()) {
+            throw new RuntimeException("getOrCreateEntityFolder can only be called on a saved entity");
         }
 
-        $folders = $this->splitPathToFolderArray($path, $user, $createIfMissing);
+        $folderWithUname = $this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            $entity->getEntityId(), // The uname of the folder will be the entity id
+            $user->getAccountId()
+        );
 
-        if ($folders) {
-            return array_pop($folders);
-        } else {
-            return null;
+        // Entity folder alraedy exists
+        if ($folderWithUname) {
+            return $folderWithUname;
         }
+
+        // Create a new folder with the file entity_id as the uname
+        $entitySystemFolder = $this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            self::UNAME_ENTITY,
+            $user->getAccountId()
+        );
+
+        // Catch scenario where the entity system folder has not been created yet
+        if (!$entitySystemFolder) {
+            throw new RuntimeException(
+                "The Entity root volume does not exist, please run setup/update to initialize"
+            );
+        }
+
+        return $entitySystemFolder;
+
+        $entityAttFolder = $this->entityLoader->create(
+            ObjectTypes::FOLDER,
+            $user->getAccountId()
+        );
+        $entityAttFolder->setValue('name', $entity->getEntityId());
+        $entityAttFolder->setValue('uname', $entity->getEntityId());
+        $entityAttFolder->setValue('parent_id', $entitySystemFolder->getEntityId());
+        $this->entityLoader->save($entityAttFolder, $user);
+        return $entityAttFolder;
     }
 
     /**
@@ -249,23 +348,25 @@ class FileSystem implements Error\ErrorAwareInterface
      *
      * @param string $folderId The id of the folder that we are going to open
      * @param UserEntity $user The user that owns the the folder
-     * @return FilderEntity
+     * @return FolderEntity|null
      */
-    public function openFolderById(string $folderId, UserEntity $user)
+    public function openFolderById(string $folderId, UserEntity $user): FolderEntity|null
     {
         return $this->entityLoader->getEntityById($folderId, $user->getAccountId());
     }
 
+
     /**
-     * Check to see if a given folder path exists
+     * Check to see if a file exists in a given path
      *
-     * @param $path The path to look for
-     * @return bool true if the folder exists, otherwise false
+     * @param string $folderPath The full path of the folder to look in
+     * @param string $fileName The name of the file in the folder path
+     * @param UserEntity $user The user that owns the the file
+     * @return bool true if exists, otherwise false
      */
-    public function folderExists(string $path, UserEntity $user)
+    public function fileExists(FolderEntity $folder, string $fileName, UserEntity $user)
     {
-        $folders = $this->splitPathToFolderArray($path, $user, false);
-        return ($folders) ? true : false;
+        return ($this->openFileByName($folder, $fileName, $user)) ? true : false;
     }
 
     /**
@@ -276,9 +377,9 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param UserEntity $user The user that owns the the file
      * @return bool true if exists, otherwise false
      */
-    public function fileExists(string $folderPath, string $fileName, UserEntity $user)
+    public function folderExists(FolderEntity $folder, string $folderName, UserEntity $user)
     {
-        return ($this->openFile($folderPath, $fileName, $user)) ? true : false;
+        return ($this->getChildFolderByName($folderName, $folder, $user)) ? true : false;
     }
 
     /**
@@ -339,7 +440,7 @@ class FileSystem implements Error\ErrorAwareInterface
             return false;
         }
 
-        $tempFolder = $this->openFolder("%tmp%", $user);
+        $tempFolder = $this->getTempFolder($user);
 
         if ($file->getValue("folder_id") == $tempFolder->getEntityId()) {
             return true;
@@ -373,7 +474,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * Easy way to create a new empty file in a directory
      *
      * Example:
-     *  $fileSystem->createFile('myfilename.txt', '/my/full/path', $user);
+     *  $fileSystem->createTempFile('myfilename.txt', $user);
      *
      * @param string $folderPath Defaults to temp directory initially if not set
      * @param string $fileName The name of the file
@@ -381,18 +482,33 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param bool $overwriteIfExists If the file already exists overwrite
      * @return FileEntity The created file or null if there was a problem -- call getLastError for details
      */
-    public function createFile(string $folderPath, string $fileName, UserEntity $user, $overwriteIfExists = false)
+    public function createTempFile(string $fileName, UserEntity $user, $overwriteIfExists = false)
     {
-        $folder = $this->openFolder($folderPath, $user);
-        $fullFolderPath = $folder->getFullPath();
+        $tempFolder = $this->getTempFolder($user);
+        return $this->createFile($tempFolder, $fileName, $user, $overwriteIfExists);
+    }
 
+    /**
+     * Easy way to create a new empty file in a directory
+     *
+     * Example:
+     *  $fileSystem->createFile($folder, 'myfilename.txt', $user);
+     *
+     * @param string $folderPath Defaults to temp directory initially if not set
+     * @param string $fileName The name of the file
+     * @param UserEntity $user The user that owns the file
+     * @param bool $overwriteIfExists If the file already exists overwrite
+     * @return FileEntity The created file or null if there was a problem -- call getLastError for details
+     */
+    public function createFile(FolderEntity $folder, string $fileName, UserEntity $user, $overwriteIfExists = false)
+    {
         // First check to see if the file already exists
-        $existingFile = $this->openFile($fullFolderPath, $fileName, $user);
+        $existingFile = $this->openFileByName($folder, $fileName, $user);
         if ($existingFile) {
             if ($overwriteIfExists) {
                 $this->deleteFile($existingFile, $user);
             } else {
-                $this->errors[] = new Error\Error("File $fileName already exists in $folderPath");
+                $this->errors[] = new Error\Error("File $fileName already exists in" . $folder->getEntityId());
                 return null;
             }
         }
@@ -449,7 +565,6 @@ class FileSystem implements Error\ErrorAwareInterface
     public function setFolderOwner(FolderEntity $folder, string $ownerId, UserEntity $user)
     {
         $folder->setValue('owner_id', $ownerId);
-        echo "SEtting the folder owner to $ownerId";
         $this->entityLoader->save($folder, $user);
     }
 
@@ -480,98 +595,98 @@ class FileSystem implements Error\ErrorAwareInterface
         return $this->fileStore->readFile($file, $numBytes, $offset);
     }
 
-    /**
-     * Split a path into an array of folders
-     *
-     * @param string $path The folder path to split into an array of folders
-     * @param UserEntity $user The user that owns the folder
-     * @param bool $createIfMissing If set to true the function will attempt to create any missing directories
-     * @return Entity[]
-     */
-    private function splitPathToFolderArray(string $path, UserEntity $user, bool $createIfMissing = false)
-    {
-        /*
-         * Translate any variables in path like %tmp% to actual path
-         */
-        $path = $this->substituteVariables($path, $user);
+    // /**
+    //  * Split a path into an array of folders
+    //  *
+    //  * @param string $path The folder path to split into an array of folders
+    //  * @param UserEntity $user The user that owns the folder
+    //  * @param bool $createIfMissing If set to true the function will attempt to create any missing directories
+    //  * @return Entity[]
+    //  */
+    // private function splitPathToFolderArray(string $path, UserEntity $user, bool $createIfMissing = false)
+    // {
+    //     /*
+    //      * Translate any variables in path like %tmp% to actual path
+    //      */
+    //     $path = $this->substituteVariables($path, $user);
 
-        /*
-         * Normalize everything relative to root so /my/path will return:
-         * my/path since root is always implied.
-         */
-        if (strlen($path) > 1 && $path[0] === '/') {
-            // Skip over first '/'
-            $path = substr($path, 1);
-        }
+    //     /*
+    //      * Normalize everything relative to root so /my/path will return:
+    //      * my/path since root is always implied.
+    //      */
+    //     if (strlen($path) > 1 && $path[0] === '/') {
+    //         // Skip over first '/'
+    //         $path = substr($path, 1);
+    //     }
 
-        // Parse folder path
-        $folderNames = explode("/", $path);
-        $folders = [$this->getRootFolder($user)];
-        $lastFolder = $this->getRootFolder($user);
-        if ($lastFolder) {
-            foreach ($folderNames as $nextFolderName) {
-                $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);
+    //     // Parse folder path
+    //     $folderNames = explode("/", $path);
+    //     $folders = [$this->getRootFolder($user)];
+    //     $lastFolder = $this->getRootFolder($user);
+    //     if ($lastFolder) {
+    //         foreach ($folderNames as $nextFolderName) {
+    //             $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);
 
-                // If the folder exists add it and continue
-                if ($nextFolder && $nextFolder->getEntityId()) {
-                    $folders[] = $nextFolder;
-                } elseif ($createIfMissing) {
-                    // TODO: Check permissions to see if we have access to create
+    //             // If the folder exists add it and continue
+    //             if ($nextFolder && $nextFolder->getEntityId()) {
+    //                 $folders[] = $nextFolder;
+    //             } elseif ($createIfMissing) {
+    //                 // TODO: Check permissions to see if we have access to create
 
-                    $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
-                    $nextFolder->setValue("name", $nextFolderName);
-                    $nextFolder->setValue("parent_id", $lastFolder->getEntityId());
-                    $nextFolder->setValue("owner_id", $user->getEntityId());
-                    $this->entityLoader->save($nextFolder, $user);
+    //                 $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
+    //                 $nextFolder->setValue("name", $nextFolderName);
+    //                 $nextFolder->setValue("parent_id", $lastFolder->getEntityId());
+    //                 $nextFolder->setValue("owner_id", $user->getEntityId());
+    //                 $this->entityLoader->save($nextFolder, $user);
 
-                    $folders[] = $nextFolder;
-                } else {
-                    // Full path does not exist
-                    return false;
-                }
+    //                 $folders[] = $nextFolder;
+    //             } else {
+    //                 // Full path does not exist
+    //                 return false;
+    //             }
 
-                // Move to the next hop
-                $lastFolder = $nextFolder;
-            }
-        }
+    //             // Move to the next hop
+    //             $lastFolder = $nextFolder;
+    //         }
+    //     }
 
-        return $folders;
-    }
+    //     return $folders;
+    // }
 
-    /**
-     * Handle variable substitution and normalize path
-     *
-     * @param string $path The path to replace variables with
-     * @param UserEntity $user The user that owns the folder
-     * @return string The path with variables substituted for real values
-     */
-    private function substituteVariables(string $path, UserEntity $user)
-    {
-        $retval = $path;
+    // /**
+    //  * Handle variable substitution and normalize path
+    //  *
+    //  * @param string $path The path to replace variables with
+    //  * @param UserEntity $user The user that owns the folder
+    //  * @return string The path with variables substituted for real values
+    //  */
+    // private function substituteVariables(string $path, UserEntity $user)
+    // {
+    //     $retval = $path;
 
-        $retval = str_replace("%tmp%", self::PATH_TEMP, $retval);
+    //     $retval = str_replace("%tmp%", "temp", $retval);
 
-        // Get email attechments directory for a user
-        $retval = str_replace(
-            "%emailattachments%",
-            "/System/Users/" . $user->getEntityId() . "/System/Email Attachments",
-            $retval
-        );
+    //     // Get email attechments directory for a user
+    //     $retval = str_replace(
+    //         "%emailattachments%",
+    //         "/System/Users/" . $user->getEntityId() . "/System/Email Attachments",
+    //         $retval
+    //     );
 
-        // Replace any empty directories
-        $retval = str_replace("//", "/", $retval);
+    //     // Replace any empty directories
+    //     $retval = str_replace("//", "/", $retval);
 
-        return $retval;
-    }
+    //     return $retval;
+    // }
 
     /**
      * Get a child folder by name
      *
      * @param string $name The name of the folder
      * @param FolderEntity $parentFolder The folder that contains a child folder named $name
-     * @return Folder|null
+     * @return FolderEntity|null
      */
-    private function getChildFolderByName(string $name, FolderEntity $parentFolder)
+    private function getChildFolderByName(string $name, FolderEntity $parentFolder): FolderEntity|null
     {
         $query = new EntityQuery(ObjectTypes::FOLDER, $parentFolder->getAccountId());
         $query->where("parent_id")->equals($parentFolder->getEntityId());
@@ -589,9 +704,9 @@ class FileSystem implements Error\ErrorAwareInterface
      *
      * @param string $fileName The name of the file to look for
      * @param FolderEntity $parentFolder The folder that contains a child folder named $name
-     * @return Folder|null
+     * @return FileEntity|null
      */
-    private function getChildFileByName($fileName, FolderEntity $parentFolder)
+    private function getChildFileByName($fileName, FolderEntity $parentFolder): FileEntity|null
     {
         $query = new EntityQuery(ObjectTypes::FILE, $parentFolder->getAccountId());
         $query->where("folder_id")->equals($parentFolder->getEntityId());
@@ -604,6 +719,137 @@ class FileSystem implements Error\ErrorAwareInterface
         return null;
     }
 
+
+    /**
+     * Setup the requred file system for an account
+     *
+     * This is expensive so it should only be run in setup/update routines
+     * on release. Not during requests.
+     *
+     * @param UserEntity $user
+     * @return void
+     */
+    public function initializeFileSystem(UserEntity $user): void
+    {
+        // Start by migrating any legacy folder structures
+        $this->migrateV2ToV3FileSystem($user);
+
+        // First make sure the root directory exists
+        $rootFolder = $this->getRootFolder($user);
+        if (!$rootFolder) {
+            $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
+            $rootFolder->setValue("name", "/");
+            $rootFolder->setValue("f_system", true);
+            $rootFolder->setValue('uname', self::UNAME_ROOT);
+            $this->entityLoader->save($rootFolder, $user);
+        }
+
+        // Make sure that temp folder is not yet created
+        $tempFolder = $this->getTempFolder($user);
+        if (!$tempFolder) {
+            // Create temp folder
+            $tempFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
+            $tempFolder->setValue("name", "Temp");
+            $tempFolder->setValue("f_system", true);
+            $tempFolder->setValue('uname', self::UNAME_TEMP);
+            $this->entityLoader->save($tempFolder, $user);
+        }
+
+        $entityFolder = $this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            self::UNAME_ENTITY,
+            $user->getAccountId()
+        );
+        if (!$entityFolder) {
+            // Create temp folder
+            $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
+            $rootFolder->setValue("name", "Entity");
+            $rootFolder->setValue("f_system", true);
+            $rootFolder->setValue('uname', self::UNAME_ENTITY);
+            $this->entityLoader->save($rootFolder, $user);
+        }
+    }
+
+    /**
+     * This is a temporary function that will be used to migrate the old folder structure to the new one
+     *
+     * @param UserEntity $user
+     * @return void
+     */
+    private function migrateV2ToV3FileSystem(UserEntity $user)
+    {
+        $rootFolder = $this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            self::UNAME_ROOT,
+            $user->getAccountId()
+        );
+        if (!$rootFolder) {
+            $query = new EntityQuery(ObjectTypes::FOLDER, $user->getAccountId());
+            $query->where("parent_id")->equals("");
+            $query->andWhere("name")->equals("/");
+            $query->andWhere("f_system")->equals(true);
+            $result = $this->entityIndex->executeQuery($query);
+            if ($result->getNum() === 0) {
+                // If there was no root at all, this is a brnd new filesystem
+                // and there is nothing to migrate.
+                return;
+            }
+
+            $rootFolder = $result->getEntity();
+            $rootFolder->setValue('uname', self::UNAME_ROOT);
+            $this->entityLoader->save($rootFolder, $user);
+        }
+
+        // Get the system folder if it exists (we used this in the legacy system)
+        $systemFolder = $this->getChildFolderByName("System", $rootFolder);
+        if (!$systemFolder) {
+            // There is nothing else to migrate since it was all stored in the system folder
+            return;
+        }
+
+        // Move the temp folder
+        if (!$this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            self::UNAME_TEMP,
+            $user->getAccountId()
+        )) {
+            $tempFolder = $this->getChildFolderByName("Temp", $systemFolder);
+            if ($tempFolder) {
+                $tempFolder->setValue("parent_id", "");
+                $tempFolder->setValue("uname", self::UNAME_TEMP);
+                $this->entityLoader->save($tempFolder, $user);
+            }
+        }
+
+        // Move the entity attachments folder
+        if (!$this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            self::UNAME_ENTITY,
+            $user->getAccountId()
+        )) {
+            $entityFolder = $this->getChildFolderByName("Entity", $systemFolder);
+            if ($entityFolder) {
+                $entityFolder->setValue("parent_id", "");
+                $entityFolder->setValue("uname", self::UNAME_ENTITY);
+                $this->entityLoader->save($entityFolder, $user);
+            }
+        }
+    }
+
+    /**
+     * Get the root folder entity for this account
+     *
+     * @param UserEntity $user The user that should own the root folder
+     */
+    public function getTempFolder(UserEntity $user)
+    {
+        return $this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            self::UNAME_TEMP,
+            $user->getAccountId()
+        );
+    }
+
     /**
      * Get the root folder entity for this account
      *
@@ -611,36 +857,11 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function getRootFolder(UserEntity $user)
     {
-        $query = new EntityQuery(ObjectTypes::FOLDER, $user->getAccountId());
-        $query->where("parent_id")->equals("");
-        $query->andWhere("name")->equals("/");
-        $query->andWhere("f_system")->equals(true);
-        $result = $this->entityIndex->executeQuery($query);
-        if ($result->getNum()) {
-            return $result->getEntity();
-        }
-
-        return null;
-    }
-
-    /**
-     * Set the root folder entity for this account
-     *
-     * @param UserEntity $user The user that should own the root folder
-     */
-    public function setRootFolder(UserEntity $user)
-    {
-        // Make sure that root folder is not yet created
-        if ($this->getRootFolder($user)) {
-            return;
-        }
-
-        // Create root folder
-        $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
-        $rootFolder->setValue("name", "/");
-        $rootFolder->setValue("owner_id", $user->getEntityId());
-        $rootFolder->setValue("f_system", true);
-        $this->entityLoader->save($rootFolder, $user);
+        return $this->entityLoader->getByUniqueName(
+            ObjectTypes::FOLDER,
+            self::UNAME_ROOT,
+            $user->getAccountId()
+        );
     }
 
     /**

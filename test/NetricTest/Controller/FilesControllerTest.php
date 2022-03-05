@@ -6,11 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Account\Account;
 use Netric\Account\AccountContainerInterface;
-use Netric\Application\Response\HttpResponse;
 use Netric\Authentication\AuthenticationService;
 use Netric\Authentication\AuthenticationIdentity;
 use Netric\Entity\EntityLoader;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityGroupings\EntityGroupings;
@@ -18,8 +16,6 @@ use Netric\EntityGroupings\Group;
 use Netric\Permissions\DaclLoader;
 use Netric\Permissions\Dacl;
 use Netric\Log\LogInterface;
-use Netric\EntityDefinition\ObjectTypes;
-use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\FolderEntity;
 use Netric\Entity\ObjType\FileEntity;
 use Netric\FileSystem\ImageResizer;
@@ -96,7 +92,6 @@ class FilesControllerTest extends TestCase
     {
         $requestData = [
             'folderid' => Uuid::uuid4()->toString(),
-            'path' => '/',
             'files' => [],
             'file_id' => Uuid::uuid4()->toString(),
             'file_name' => 'test_file.txt',
@@ -115,8 +110,7 @@ class FilesControllerTest extends TestCase
         $mockFileEntity = $this->createMock(FileEntity::class);
 
         // Mock the fileSystem service which is used to get file/folder entity
-        $this->fileSystem->method('openFolder')->willReturn($mockFolderEntity);
-        $this->fileSystem->method('importFile')->willReturn($mockFileEntity);
+        $this->fileSystem->method('importFileToFolder')->willReturn($mockFileEntity);
         $this->fileSystem->method('openFolderById')->willReturn($mockFolderEntity);
 
         // Create test dacl permission for this task
@@ -136,29 +130,6 @@ class FilesControllerTest extends TestCase
 
         // It should only return the id of the default view
         $this->assertEquals([], $response->getOutputBuffer());
-    }
-
-    /**
-     * Catch the possible errors being thrown when there is a problem in uploading a file into the FileSystem through the controller
-     */
-    public function testUploadActionCatchingErrors()
-    {
-        $requestData = [
-            'folderid' => null,
-            'path' => '/',
-            'files' => [],
-            'file_id' => null,
-            'file_name' => 'test_file.txt',
-        ];
-
-        // Make sure postAuthenticateAction is called and we get a response
-        $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode($requestData));
-        $response = $this->filesController->postUploadAction($request);
-
-        // It should only return the id of the default view
-        $this->assertEquals(["error" => "Could not open the folder specified."], $response->getOutputBuffer());
     }
 
     /**

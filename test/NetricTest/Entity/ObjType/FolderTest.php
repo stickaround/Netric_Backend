@@ -66,24 +66,4 @@ class FolderTest extends TestCase
         $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::FOLDER, $this->account->getAccountId());
         $this->assertInstanceOf(FolderEntity::class, $entity);
     }
-
-    public function testGetRootFolder()
-    {
-        $account = Bootstrap::getAccount();
-        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $entity = $loader->create(ObjectTypes::FOLDER, $this->account->getAccountId());
-        $rootFolderEntity = $entity->getRootFolder($this->account->getSystemUser());
-
-        $this->assertNotNull($rootFolderEntity);
-
-        // Make sure that there is only 1 root folder
-        $query = new EntityQuery(ObjectTypes::FOLDER, $this->account->getAccountId());
-        $query->where("parent_id")->equals("");
-        $query->andWhere("name")->equals("/");
-        $query->andWhere("f_system")->equals(true);
-
-        $entityIndex = $account->getServiceManager()->get(IndexFactory::class);
-        $result = $entityIndex->executeQuery($query);
-        $this->assertEquals($result->getNum(), 1);
-    }
 }

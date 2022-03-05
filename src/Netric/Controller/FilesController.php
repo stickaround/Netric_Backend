@@ -139,7 +139,6 @@ class FilesController extends AbstractFactoriedController implements ControllerI
         }
 
         $folderid = $request->getParam("folderid");
-        $path = $request->getParam("path");
         $files = $request->getParam('files');
         $fileId = $request->getParam('file_id');
         $fileName = $request->getParam('file_name');
@@ -151,10 +150,6 @@ class FilesController extends AbstractFactoriedController implements ControllerI
 
             if (isset($body['folderid'])) {
                 $folderid = $body['folderid'];
-            }
-
-            if (isset($body['path'])) {
-                $path = $body['path'];
             }
 
             if (isset($body['files'])) {
@@ -172,22 +167,36 @@ class FilesController extends AbstractFactoriedController implements ControllerI
 
         $currentUser = $currentAccount->getAuthenticatedUser();
 
-        // If folderid has been passed the override the text path
+        // If folderid has been passed in, then check for validity and permissions
         $folder = null;
         if ($folderid) {
             $folder = $this->fileSystem->openFolderById($folderid, $currentUser);
-        } elseif ($path) {
-            $folder = $this->fileSystem->openFolder($path, $currentUser, true);
-        }
 
-        // Could not create or get a parent folder. Return an error.
-        if (!$folder) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(['error' => "Could not open the folder specified."]);
-            return $response;
-        }
+            // Could not create or get a parent folder. Return an error.
+            if (!$folder) {
+                $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+                $response->write(['error' => "Could not open the folder specified."]);
+                return $response;
+            }
 
-        $folderPath = $folder->getFullPath();
+            // Check permissions
+            $dacl = $this->daclLoader->getForEntity($folder, $currentUser);
+
+            // Provide the $folder when checking the if the $currentUser has access to the folder.
+            if (!$dacl->isAllowed($currentUser, Dacl::PERM_FULL, $folder)) {
+                // Log a warning to flag repeat offenders
+                $this->log->warning(
+                    "User " . $currentUser->getName() . " tried to upload to $folderid but does not have access"
+                );
+
+                // Return a 403
+                $response->setReturnCode(
+                    HttpResponse::STATUS_CODE_FORBIDDEN,
+                    "Access to folder $folderid denied for user " . $currentUser->getName()
+                );
+                return $response;
+            }
+        }
 
         // List of files that just got uploaded
         $uploadedFiles = [];
@@ -243,45 +252,23 @@ class FilesController extends AbstractFactoriedController implements ControllerI
              * with $this->testMode and will be set in the unit test and never anywhere else.
              */
             if (!is_uploaded_file($uploadedFile['tmp_name']) && !$this->testMode) {
-                return $this->sendOutput(
-                    [
-                        "error" => "Security Violation: " . $uploadedFile['tmp_name'] .
-                            " was not uploaded via POST."
-                    ]
+                $response->setReturnCode(
+                    HttpResponse::STATUS_INTERNAL_SERVER_ERROR,
+                    "File cannot be imported becuase it was not uplaoded via post"
                 );
+                return $response;
             }
 
-            /*
-             * Check security here to make sure the user has access to the folderPath
-             * If the folder does not exist, then fileSystem->importFile will also verify
-             * that the user has permission to the parent folder before creating a child folder
-             */
-            $folderEntity = $this->fileSystem->openFolder($folderPath, $currentUser);
-
-            if ($folderEntity && $folderPath !== FileSystem::PATH_TEMP) {
-                $dacl = $this->daclLoader->getForEntity($folderEntity, $currentUser);
-
-                // Provide the $folderEntity when checking the if the $currentUser has access to the folder.
-                if (!$dacl->isAllowed($currentUser, Dacl::PERM_FULL, $folderEntity)) {
-                    // Log a warning to flag repeat offenders
-                    $this->log->warning(
-                        "User " . $currentUser->getName() . " tried to upload to $folderPath but does not have access"
-                    );
-
-                    // Return a 403
-                    $response->setReturnCode(
-                        HttpResponse::STATUS_CODE_FORBIDDEN,
-                        "Access to folder $folderPath denied for user " . $currentUser->getName()
-                    );
-                    return $response;
-                }
+            // Get the temp folder
+            if (!$folder) {
+                $folder = $this->fileSystem->getTempFolder($currentUser);
             }
 
             // Import into netric file system
-            $file = $this->fileSystem->importFile(
+            $file = $this->fileSystem->importFileToFolder(
                 $currentUser,
+                $folder,
                 $uploadedFile['tmp_name'],
-                $folderPath,
                 $uploadedFile["name"],
                 ["entity_id" => $fileId, "name" => $fileName]
             );

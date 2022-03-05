@@ -82,7 +82,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFile()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->account->getSystemUser(), true);
+        $file = $this->fileSystem->createTempFile("utest-image.png", $this->account->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -111,7 +111,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFileByMaxHeight()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->account->getSystemUser(), true);
+        $file = $this->fileSystem->createTempFile("utest-image.png", $this->account->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
@@ -140,7 +140,7 @@ class ImageResizerTest extends TestCase
     public function testResizeFileByMaxWidth()
     {
         // Import local image that is 256x256
-        $file = $this->fileSystem->createFile("%tmp%", "utest-image.png", $this->account->getSystemUser(), true);
+        $file = $this->fileSystem->createTempFile("utest-image.png", $this->account->getSystemUser(), true);
         $this->fileSystem->writeFile(
             $file,
             file_get_contents(__DIR__ . '/../../data/image.png'),
