@@ -734,9 +734,9 @@ class Entity implements EntityInterface
                 }
 
                 // Copy owner
-                // if ($this->getOwnerId() && $this->getOwnerId() !== $entityFolder->getOwnerId()) {
-                //     $fileSystem->setFolderOwner($entityFolder, $this->getOwnerId(), $user);
-                // }
+                if ($this->getOwnerId() && $this->getOwnerId() !== $entityFolder->getOwnerId()) {
+                    $fileSystem->setFolderOwner($entityFolder, $this->getOwnerId(), $user);
+                }
             }
         }
 
