@@ -110,7 +110,9 @@ abstract class IndexTestsAbstract extends TestCase
         $customer->setValue("last_contacted", time());
         $customer->setValue("status_id", $statusG['group_id'], $statusG['name']);
         $customer->addMultiValue("groups", $groupsG['group_id'], $groupsG['name']);
-        $loader->save($customer, $this->account->getAuthenticatedUser());
+        // The last param=true is used to tell the datamapper we need to
+        // log the activity so we can query activities.
+        $loader->save($customer, $this->account->getAuthenticatedUser(), true);
         $this->testEntities[] = $customer;
 
         return $customer;

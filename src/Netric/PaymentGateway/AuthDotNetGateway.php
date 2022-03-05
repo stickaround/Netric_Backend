@@ -538,7 +538,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $request->setEmail($customer->getValue('email'));
         $controller = new AnetController\GetCustomerProfileController($request);
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
-        echo "Reponse for " . $this->getUniqueIdFromCustomer($customer) . " : " . var_export($response, true);
+        //echo "Reponse for " . $this->getUniqueIdFromCustomer($customer) . " : " . var_export($response, true);
         if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
             //echo "GetCustomerProfile SUCCESS : " .  "\n";
             $profileSelected = $response->getProfile();

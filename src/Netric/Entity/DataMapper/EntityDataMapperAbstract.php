@@ -258,9 +258,10 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      *
      * @param EntityInterface $entity The entity to save
      * @param UserEntity $user The user that is acting on this entity
+     * @param bool $logActivity If true, we'll create an activity log for this action
      * @return string entity id on success, false on failure
      */
-    public function save(EntityInterface $entity, UserEntity $user): string
+    public function save(EntityInterface $entity, UserEntity $user, bool $logActivity = false): string
     {
         // Make sure the user is valid - must have account_id and either an entityId or be anonymous or system
         if (
@@ -388,7 +389,8 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
                 'user_id' => $user->getEntityId(),
                 'entity_id' => $ret,
                 'event_name' => $event,
-                'changed_description' => $changedDesc
+                'changed_description' => $changedDesc,
+                'log_activity' => $logActivity,
             ]);
         }
 

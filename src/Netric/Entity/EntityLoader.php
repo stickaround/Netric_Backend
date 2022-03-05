@@ -193,9 +193,9 @@ class EntityLoader
      * @param UserEntity Entity with user details
      * @return int|string|null Id of entity saved or null on failure
      */
-    public function save(EntityInterface $entity, UserEntity $user)
+    public function save(EntityInterface $entity, UserEntity $user, $logActivity = false)
     {
-        $ret = $this->dataMapper->save($entity, $user);
+        $ret = $this->dataMapper->save($entity, $user, $logActivity);
 
         // Also clear the cache for entity id
         if ($ret) {

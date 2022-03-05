@@ -878,37 +878,6 @@ abstract class DmTestsAbstract extends TestCase
     }
 
     /**
-     * Make sure that we refresh the cached names of a referenced grouping on save
-     */
-    public function testObjectGroupingRefreshOnSave()
-    {
-        $dm = $this->getDataMapper();
-
-        $this->markTestSkipped('Skipping to overcome performance issue with refreshing');
-
-        // Create a group to set for a custmer
-        $groupingsStat = $this->groupingDataMapper->getGroupingsByPath(ObjectTypes::CONTACT . "/status_id", $this->account->getAccountId());
-        $statGrp = $groupingsStat->create("test-" . rand());
-        $groupingsStat->add($statGrp);
-        $this->groupingDataMapper->saveGroupings($groupingsStat);
-
-
-        // Save a new customer and save it with the wrong label for group
-        $customer = $this->createCustomer();
-        $customer->setValue("name", 'testObjectGroupingRefreshOnSave');
-        $customer->setValue("status_id", $statGrp->getGroupId(), [$statGrp->getGroupId() => 'wrong']);
-        $cid = $dm->save($customer, $this->user);
-        $this->testEntities[] = $customer;
-
-        // Make sure that when the entity was saved it was updated with the real grouping name
-        $this->assertEquals($statGrp->name, $customer->getValueName('status_id'));
-
-        // Cleanup groupings
-        $groupingsStat->delete($statGrp->getGroupId());
-        $this->groupingDataMapper->saveGroupings($groupingsStat);
-    }
-
-    /**
      * Entities have some default fields, that have some important defaults
      *
      * @return void

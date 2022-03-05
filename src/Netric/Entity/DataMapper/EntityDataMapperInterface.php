@@ -64,9 +64,10 @@ interface EntityDataMapperInterface
      *
      * @param EntityInterface $entity The entity to save
      * @param UserEntity $user The user that is acting on this entity
+     * @param bool $logActivity If true, we'll create an activity log for this action
      * @return string entity id on success, false on failure
      */
-    public function save(EntityInterface $entity, UserEntity $user): string;
+    public function save(EntityInterface $entity, UserEntity $user, bool $logActivity = false): string;
 
     /**
      * Set this object as having been moved to another object

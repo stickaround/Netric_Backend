@@ -83,7 +83,10 @@ class EntityPostSaveWorker extends AbstractWorker
         // We exclude worker jobs because right now the scheduler creates a new entity of type worker_job
         // which would cause an infinite loop. When we switch over to a better job queue with scheduling
         // this will become cleaner - and faster too
-        if (!empty($workload['changed_description']) && $user) {
+        if (
+            !empty($workload['changed_description']) && $user &&
+            isset($workload['log_activity']) && $workload['log_activity'] === true
+        ) {
             // Send in 3 seconds to give the UI time to register if the entity is alraedy seen
             // before spamming them with notifications
             $workerService = $serviceManager->get(WorkerServiceFactory::class);
@@ -98,25 +101,10 @@ class EntityPostSaveWorker extends AbstractWorker
                 ],
                 3 // Delay for 3 seconds
             );
-            // $executeAt = new DateTime();
-            // $executeAt->add(new DateInterval('PT3S')); // +3 seconds
-            // $schedulerSerivce = $serviceManager->get(SchedulerServiceFactory::class);
-            // $schedulerSerivce->scheduleAtTime(
-            //     $user,
-            //     NotificationWorker::class,
-            //     $executeAt,
-            //     [
-            //         'account_id' => $account->getAccountId(),
-            //         'entity_id' => $entity->getEntityId(),
-            //         'user_id' => $user->getEntityid(),
-            //         'event_name' => $workload['event_name'],
-            //         'changed_description' => $workload['changed_description']
-            //     ]
-            // );
         }
 
-        // Log the activity
-        if ($user) {
+        // Log the activity if log_activity was set to true
+        if ($user && isset($workload['log_activity']) && $workload['log_activity'] === true) {
             $activityLog = $serviceManager->get(ActivityLogFactory::class);
             $activityLog->log($user, $workload['event_name'], $entity);
         }

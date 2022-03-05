@@ -362,7 +362,7 @@ class EntityController extends AbstractFactoriedController implements Controller
         $currentUser = $currentAccount->getAuthenticatedUser();
 
         try {
-            if (!$this->entityLoader->save($entity, $currentUser)) {
+            if (!$this->entityLoader->save($entity, $currentUser, true)) {
                 $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
                 $response->write(["error" => "Error saving entity."]);
                 return $response;
