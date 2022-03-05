@@ -240,35 +240,6 @@ class FileSystem implements Error\ErrorAwareInterface
         }
     }
 
-    // /**
-    //  * Open a folder by a path
-    //  *
-    //  * @param string $path The path to open - /my/favorite/path
-    //  * @param UserEntity $user The user that owns the folder
-    //  * @param bool|false $createIfMissing If true, create full path then return
-    //  * @return Folder|null If found (or created), then return the folder, otherwise null
-    //  */
-    // public function openFolder(string $path, UserEntity $user, bool $createIfMissing = false)
-    // {
-    //     // Create system paths no matter what
-    //     if (!$createIfMissing && ($path == "%tmp%")) {
-    //         $createIfMissing = true;
-    //     }
-
-    //     // Check if we are just trying to get root
-    //     if ($path === "/") {
-    //         return $this->getRootFolder($user);
-    //     }
-
-    //     $folders = $this->splitPathToFolderArray($path, $user, $createIfMissing);
-
-    //     if ($folders) {
-    //         return array_pop($folders);
-    //     } else {
-    //         return null;
-    //     }
-    // }
-
     /**
      * Open (if exists) or create a folder
      *
@@ -329,8 +300,6 @@ class FileSystem implements Error\ErrorAwareInterface
                 "The Entity root volume does not exist, please run setup/update to initialize"
             );
         }
-
-        return $entitySystemFolder;
 
         $entityAttFolder = $this->entityLoader->create(
             ObjectTypes::FOLDER,
@@ -594,90 +563,6 @@ class FileSystem implements Error\ErrorAwareInterface
     {
         return $this->fileStore->readFile($file, $numBytes, $offset);
     }
-
-    // /**
-    //  * Split a path into an array of folders
-    //  *
-    //  * @param string $path The folder path to split into an array of folders
-    //  * @param UserEntity $user The user that owns the folder
-    //  * @param bool $createIfMissing If set to true the function will attempt to create any missing directories
-    //  * @return Entity[]
-    //  */
-    // private function splitPathToFolderArray(string $path, UserEntity $user, bool $createIfMissing = false)
-    // {
-    //     /*
-    //      * Translate any variables in path like %tmp% to actual path
-    //      */
-    //     $path = $this->substituteVariables($path, $user);
-
-    //     /*
-    //      * Normalize everything relative to root so /my/path will return:
-    //      * my/path since root is always implied.
-    //      */
-    //     if (strlen($path) > 1 && $path[0] === '/') {
-    //         // Skip over first '/'
-    //         $path = substr($path, 1);
-    //     }
-
-    //     // Parse folder path
-    //     $folderNames = explode("/", $path);
-    //     $folders = [$this->getRootFolder($user)];
-    //     $lastFolder = $this->getRootFolder($user);
-    //     if ($lastFolder) {
-    //         foreach ($folderNames as $nextFolderName) {
-    //             $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);
-
-    //             // If the folder exists add it and continue
-    //             if ($nextFolder && $nextFolder->getEntityId()) {
-    //                 $folders[] = $nextFolder;
-    //             } elseif ($createIfMissing) {
-    //                 // TODO: Check permissions to see if we have access to create
-
-    //                 $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER, $user->getAccountId());
-    //                 $nextFolder->setValue("name", $nextFolderName);
-    //                 $nextFolder->setValue("parent_id", $lastFolder->getEntityId());
-    //                 $nextFolder->setValue("owner_id", $user->getEntityId());
-    //                 $this->entityLoader->save($nextFolder, $user);
-
-    //                 $folders[] = $nextFolder;
-    //             } else {
-    //                 // Full path does not exist
-    //                 return false;
-    //             }
-
-    //             // Move to the next hop
-    //             $lastFolder = $nextFolder;
-    //         }
-    //     }
-
-    //     return $folders;
-    // }
-
-    // /**
-    //  * Handle variable substitution and normalize path
-    //  *
-    //  * @param string $path The path to replace variables with
-    //  * @param UserEntity $user The user that owns the folder
-    //  * @return string The path with variables substituted for real values
-    //  */
-    // private function substituteVariables(string $path, UserEntity $user)
-    // {
-    //     $retval = $path;
-
-    //     $retval = str_replace("%tmp%", "temp", $retval);
-
-    //     // Get email attechments directory for a user
-    //     $retval = str_replace(
-    //         "%emailattachments%",
-    //         "/System/Users/" . $user->getEntityId() . "/System/Email Attachments",
-    //         $retval
-    //     );
-
-    //     // Replace any empty directories
-    //     $retval = str_replace("//", "/", $retval);
-
-    //     return $retval;
-    // }
 
     /**
      * Get a child folder by name

@@ -3,7 +3,6 @@
 namespace Netric\EntityDefinition;
 
 use Aereus\Config\Config;
-use Netric\Account\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
@@ -76,7 +75,7 @@ class EntityDefinitionLoader
         }
 
         if ($this->isLoaded($objType, $accountId)) {
-            return $this->loadedDefinitions[$objType];
+            return $this->loadedDefinitions[$this->getUniqueKeyForObjType($objType, $accountId)];
         }
 
         return $this->loadDefinition($objType, $accountId);
@@ -95,7 +94,7 @@ class EntityDefinitionLoader
         $def = $this->dataMapper->fetchById($entityDefinitionId, $accountId);
         $objType = $def->getObjType();
         if ($this->isLoaded($objType, $accountId)) {
-            return $this->loadedDefinitions[$objType];
+            return $this->loadedDefinitions[$this->getUniqueKeyForObjType($objType, $accountId)];
         }
 
         return $this->loadDefinition($objType, $accountId);
@@ -168,7 +167,7 @@ class EntityDefinitionLoader
         $this->setSysAggregates($def);
 
         // Cache the loaded definition for future requests
-        $this->loadedDefinitions[$objType] = $def;
+        $this->loadedDefinitions[$this->getUniqueKeyForObjType($objType, $accountId)] = $def;
         $this->cache->set($this->getUniqueKeyForObjType($objType, $accountId), $def->toArray());
 
         return $def;
@@ -352,7 +351,7 @@ class EntityDefinitionLoader
      */
     public function clearCache(string $objType, string $accountId)
     {
-        $this->loadedDefinitions[$objType] = null;
+        $this->loadedDefinitions[$this->getUniqueKeyForObjType($objType, $accountId)] = null;
         $this->cache->remove($this->getUniqueKeyForObjType($objType, $accountId));
 
         // Remove cached all Object Types

@@ -307,7 +307,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $this->setGlobalId($entity);
 
         // Update foreign key names
-        // This is no longer a function of the DataMapper
         $this->updateForeignKeyNames($entity, $user);
 
         /*
@@ -641,17 +640,6 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
      */
     private function updateForeignKeyNames(EntityInterface $entity, UserEntity $user)
     {
-        // Make sure that private groupings always have user_guid set
-        $userGuidPath = "";
-        if ($entity->getDefinition()->isPrivate()) {
-            // Make sure that the owner_id was set
-            if ($entity->getValue("owner_id")) {
-                $userGuidPath = "/" . $entity->getValue("owner_id");
-            } elseif ($entity->getValue("creator_id")) {
-                $userGuidPath = "/" . $entity->getValue("creator_id");
-            }
-        }
-
         $fields = $entity->getDefinition()->getFields();
         foreach ($fields as $field) {
             $value = $entity->getValue($field->name);

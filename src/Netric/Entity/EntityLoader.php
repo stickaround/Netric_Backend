@@ -27,6 +27,13 @@ class EntityLoader
     private $loadedEntities = [];
 
     /**
+     * Used to cache unames
+     *
+     * @var array
+     */
+    private array $unameToId = [];
+
+    /**
      * Datamapper for entities
      *
      * @var EntityDataMapperInterface
@@ -149,8 +156,6 @@ class EntityLoader
             return $entity;
         }
 
-        // TODO: make sure it is deleted from the index?
-
         // Could not be loaded
         return null;
     }
@@ -170,8 +175,21 @@ class EntityLoader
      */
     public function getByUniqueName(string $objType, string $uniqueNamePath, string $accountId)
     {
-        // TODO: We should definitely handle caching here since this function can be expensive
-        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $accountId);
+        $cacheKey = $objType . $accountId . $uniqueNamePath;
+        if (isset($this->unameToId[$cacheKey])) {
+            return $this->getEntityById($this->unameToId[$cacheKey], $accountId);
+        }
+
+        // Get the entity
+        $entity = $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $accountId);
+
+        // Handle caching here since this function can be expensive
+        if ($entity && count($this->unameToId) < self::MAX_LOADED) {
+            $this->unameToId[$cacheKey] = $entity->getEntityId();
+            $this->loadedEntities[$entity->getEntityId()] = $entity;
+        }
+
+        return $entity;
     }
 
     /**
