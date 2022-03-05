@@ -333,10 +333,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         foreach ($entitiesRawDataArray as $rawData) {
             $entityData = json_decode($rawData['field_data'], true);
 
-            // If field_data->>id is empty, then we need to retrieve it from the actual field id column.
-            if (empty($entityData['entity_id'])) {
-                $entityData['entity_id'] = $rawData['entity_id'];
-            }
+            // Use data from actual fields for account and entity
+            $entityData['entity_id'] = $rawData['entity_id'];
+            $entityData['uname'] = $rawData['uname'];
+            $entityData['account_id'] = $rawData['account_id'];
+            $entityData['entity_definition_id'] = $rawData['entity_definition_id'];
 
             // Decode multival fields into arrays of values
             foreach ($ofields as $fname => $fdef) {

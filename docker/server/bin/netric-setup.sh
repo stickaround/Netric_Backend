@@ -21,4 +21,5 @@ echo "All dependencies are up"
 
 # Run install in case this is our first run - it will exit gracefully if
 # netric was previously installed
+./netric setup/update
 ./netric setup/install --account=localtest --email=test@netric.com --username=test --password=password

@@ -338,14 +338,13 @@ class EntityMaintainerService extends AbstractHasErrors
      *
      * @param string $accountId
      * @param DateTime|null $cutoff
-     * @param string $tmpPath Optional override of the system temp path
      * @return array
      */
-    public function cleanTempFolder(string $accountId, DateTime $cutoff = null, $tmpPath = FileSystem::PATH_TEMP)
+    public function cleanTempFolder(string $accountId, DateTime $cutoff = null)
     {
         $deletedFiles = [];
         $account = $this->accountContainer->loadById($accountId);
-        $tmpFolder = $this->fileSystem->openFolder($tmpPath, $account->getAuthenticatedUser());
+        $tmpFolder = $this->fileSystem->getTempFolder($account->getAuthenticatedUser());
 
         if (!$tmpFolder) {
             return $deletedFiles;

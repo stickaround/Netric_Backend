@@ -44,8 +44,7 @@ abstract class AbstractMaildrop
         fseek($tmpFile, 0);
 
         // Stream the temp file into the fileSystem
-        $file = $fileSystem->createFile(
-            "%tmp%",
+        $file = $fileSystem->createTempFile(
             $parserAttach->getFilename(),
             $user,
             true

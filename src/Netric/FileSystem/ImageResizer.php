@@ -100,10 +100,9 @@ class ImageResizer implements ErrorAwareInterface
      * @param FileEntity $source The file to copy
      * @param int $maxWidth
      * @param int $maxHeight
-     * @param string $toPath Where to put the image
      * @return FileEntity
      */
-    public function resizeFile(UserEntity $user, FileEntity $source, $maxWidth = -1, $maxHeight = -1, $toPath = FileSystem::PATH_TEMP)
+    public function resizeFile(UserEntity $user, FileEntity $source, $maxWidth = -1, $maxHeight = -1)
     {
         // First make sure it is an image
         $fileType = $source->getType();
@@ -127,7 +126,11 @@ class ImageResizer implements ErrorAwareInterface
             . $source->getType();
 
         // First check to see if the file exists and return it
-        $exists = $this->fileSystem->openFile($toPath, $nameResized, $user);
+        $exists = $this->fileSystem->openFileByName(
+            $this->fileSystem->getTempFolder($user),
+            $nameResized,
+            $user
+        );
         if ($exists) {
             return $exists;
         }
@@ -147,10 +150,9 @@ class ImageResizer implements ErrorAwareInterface
         );
 
         // Upload to temp files for serving and future requests
-        $resizedFileEntity = $this->fileSystem->importFile(
+        $resizedFileEntity = $this->fileSystem->importTempFile(
             $user,
             $resizedLocalFilePath,
-            FileSystem::PATH_TEMP,
             $nameResized
         );
 

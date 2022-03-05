@@ -97,7 +97,8 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         $response = new ConsoleResponse();
 
         // First make sure they passed the username and password params to the command
-        if (!$request->getParam("account") ||
+        if (
+            !$request->getParam("account") ||
             !$request->getParam("email") ||
             !$request->getParam("username") ||
             !$request->getParam("password")
@@ -113,7 +114,7 @@ class SetupController extends AbstractFactoriedController implements ControllerI
         }
 
         // Create account
-        if (!$this->application->createAccount(
+        if (!$this->accountSetup->createAndInitailizeNewAccount(
             $request->getParam("account"),
             $request->getParam("username"),
             $request->getParam("email"),
@@ -210,13 +211,9 @@ class SetupController extends AbstractFactoriedController implements ControllerI
 
         $params = json_decode($rawBody, true);
 
-        // Make sure that the account name is unique
-        $accountName = isset($params['account_name']) ? $params['account_name'] : '';
-        $accountName = $this->accountSetup->getUniqueAccountName($accountName);
-
         // Create the account
-        $createdAccount = $this->application->createAccount(
-            $accountName,
+        $createdAccount = $this->accountSetup->createAndInitailizeNewAccount(
+            $params['account_name'],
             $params['username'],
             $params['email'],
             $params['password']

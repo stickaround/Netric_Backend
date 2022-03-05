@@ -179,7 +179,7 @@ class MaildropEmail implements MaildropInterface
         fseek($tmpFile, 0);
 
         // Stream the temp file into the fileSystem
-        $file = $this->fileSystem->createFile("%tmp%", $parserAttach->getFilename(), $user, true);
+        $file = $this->fileSystem->createTempFile($parserAttach->getFilename(), $user, true);
         $result = $this->fileSystem->writeFile($file, $tmpFile, $user);
         $email->addMultiValue("attachments", $file->getEntityId(), $file->getName());
     }

@@ -231,7 +231,8 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $processTo = 0;
         $conditions = $query->getWheres();
         foreach ($conditions as $cond) {
-            if ($cond->fieldName == $recurRules['field_date_start']
+            if (
+                $cond->fieldName == $recurRules['field_date_start']
                 || $cond->fieldName == $recurRules['field_date_end']
             ) {
                 if (is_numeric($cond->value)) {
@@ -366,6 +367,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
          */
 
         // Send new entity id back
+        $user = null;
         if ($firstEntity->getOwnerId()) {
             $user = $this->entityDataMapper->getEntityById(
                 $firstEntity->getOwnerId(),

@@ -1194,7 +1194,7 @@ class EntityProvider
             {
                 $antfs = new CAntFs($this->dbh, $this->user);
                 $fldr = $antfs->openFolder("root/Contact Files/$id", true);
-                $file = $fldr->createFile("profilepic.jpg");
+                $file = $fldr->createFile($fldr, "profilepic.jpg");
                 $size = $file->write($picbinary);
                 if ($file->getEntityId())
                 {

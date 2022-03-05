@@ -67,9 +67,10 @@ interface DataMapperInterface
      * Adds an account to the database
      *
      * @param string $name A unique name for this account
-     * @return int Unique id of the created account
+     * @pasram string $orgName Optional organization name. Will use $name of not set
+     * @return string Unique id of the created account, exception on failure
      */
-    public function createAccount($name);
+    public function createAccount($name, string $orgName = ""): string;
 
     /**
      * Delete an account by id

@@ -34,6 +34,13 @@ class Account
     private $name = "";
 
     /**
+     * Organization or company title
+     *
+     * @var string
+     */
+    private $orgName = "";
+
+    /**
      * The name of the database
      *
      * @var string
@@ -132,6 +139,7 @@ class Account
 
         $this->id = $data['account_id'];
         $this->name = $data['name'];
+        $this->orgName =  (isset($data['org_name'])) ? $data['org_name'] : $data['name'];
 
         if (isset($data['database']) && $data['database']) {
             $this->dbname = $data['database'];
@@ -166,6 +174,7 @@ class Account
         return [
             "account_id" => $this->id,
             "name" => $this->name,
+            "org_name" => $this->orgName,
             "database" => $this->dbname,
             "description" => $this->description,
             "billing_force_update" => $this->billingForceUpdate,
@@ -188,9 +197,19 @@ class Account
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Get the company/organization name
+     *
+     * @return string
+     */
+    public function getOrgName(): string
+    {
+        return $this->orgName;
     }
 
     /**
@@ -198,7 +217,7 @@ class Account
      *
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -208,7 +227,7 @@ class Account
      *
      * @return ApplicationServiceManager
      */
-    public function getServiceManager()
+    public function getServiceManager(): ApplicationServiceManager
     {
         return $this->serviceManager;
     }
@@ -218,7 +237,7 @@ class Account
      *
      * @return Application
      */
-    public function getApplication()
+    public function getApplication(): Application
     {
         return $this->application;
     }

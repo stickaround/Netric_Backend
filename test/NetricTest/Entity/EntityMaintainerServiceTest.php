@@ -278,12 +278,17 @@ class EntityMaintainerServiceTest extends TestCase
         $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
 
         // Create test folder
-        $testTempFolder = $fileSystem->openFolder("/testCleanTempFolder", $this->account->getAuthenticatedUser(), true);
+        $testTempFolder = $fileSystem->openOrCreateFolder(
+            $fileSystem->getRootFolder($this->account->getAuthenticatedUser()),
+            "testCleanTempFolder",
+            $this->account->getAuthenticatedUser(),
+            true
+        );
         $this->testEntities[] = $testTempFolder;
 
         // Import a file imto a temp folder
         $testData = "test data";
-        $file1 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile.txt", $this->account->getAuthenticatedUser(), true);
+        $file1 = $fileSystem->createTempFile("testTempFile.txt", $this->account->getAuthenticatedUser(), true);
         $fileSystem->writeFile($file1, $testData, $this->account->getSystemUser());
         $this->testEntities[] = $file1;
         $fileId1 = $file1->getEntityId();
@@ -292,7 +297,7 @@ class EntityMaintainerServiceTest extends TestCase
         $cutoff = new \DateTime();
 
         // Create a second file with a later time than cutoff so we can make sure it is not purged
-        $file2 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile2.txt", $this->account->getAuthenticatedUser(), true);
+        $file2 = $fileSystem->createTempFile("testTempFile2.txt", $this->account->getAuthenticatedUser(), true);
         $fileSystem->writeFile($file2, $testData, $this->account->getSystemUser());
         $this->testEntities[] = $file2;
         $fileId2 = $file2->getEntityId();
@@ -302,7 +307,10 @@ class EntityMaintainerServiceTest extends TestCase
         $entityLoader->save($file2, $this->account->getAuthenticatedUser());
 
         // Run cleanTempFolder
-        $deleted = $this->maintainerService->cleanTempFolder($this->account->getAccountId(), $cutoff, "/testCleanTempFolder");
+        $deleted = $this->maintainerService->cleanTempFolder(
+            $this->account->getAccountId(),
+            $cutoff
+        );
 
         // Assure that we deleted the first file
         $this->assertTrue(in_array($fileId1, $deleted));
