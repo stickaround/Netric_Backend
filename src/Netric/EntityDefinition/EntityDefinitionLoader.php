@@ -7,7 +7,6 @@ use Netric\Account\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
-use RuntimeException;
 
 /**
  * Class to handle to loading of object definitions
@@ -76,7 +75,7 @@ class EntityDefinitionLoader
             throw new \InvalidArgumentException('ObjType Paramater is required');
         }
 
-        if ($this->isLoaded($objType)) {
+        if ($this->isLoaded($objType, $accountId)) {
             return $this->loadedDefinitions[$objType];
         }
 
@@ -95,7 +94,7 @@ class EntityDefinitionLoader
     {
         $def = $this->dataMapper->fetchById($entityDefinitionId, $accountId);
         $objType = $def->getObjType();
-        if ($this->isLoaded($objType)) {
+        if ($this->isLoaded($objType, $accountId)) {
             return $this->loadedDefinitions[$objType];
         }
 
@@ -199,11 +198,9 @@ class EntityDefinitionLoader
      * @param string $key The unique key of the loaded object
      * @return boolean
      */
-    private function isLoaded(string $key)
+    private function isLoaded(string $objType, string $accountId)
     {
-        $loaded = isset($this->loadedDefinitions[$key]);
-
-        return $loaded;
+        return isset($this->loadedDefinitions[$this->getUniqueKeyForObjType($objType, $accountId)]);
     }
 
     /**
