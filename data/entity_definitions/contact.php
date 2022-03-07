@@ -289,8 +289,13 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => ObjectTypes::CONTACT,
         ],
-        'stage_id' => [
-            'title' => 'Stage',
+        // 'customer_stage_id' => [
+        //     'title' => 'Stage',
+        //     'type' => Field::TYPE_GROUPING,
+        //     'subtype' => 'object_groupings',
+        // ],
+        'source_id' => [
+            'title' => 'Source',
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
         ],

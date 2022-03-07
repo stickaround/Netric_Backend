@@ -107,22 +107,36 @@ return [
             ["name" => "Support"],
         ],
     ],
-    'lead' => [
-        'status_id' => [
-            ["name" => "New: Not Contacted"],
-            ["name" => "New: Pre Qualified"],
-            ["name" => "Working: Attempted to Contact"],
-            ["name" => "Working: Contacted"],
-            ["name" => "Working: Contact Later"],
-            ["name" => "Closed: Converted"],
-            ["name" => "Closed: Lost"],
-            ["name" => "Closed: Junk"],
-        ],
-        'rating_id' => [
-            ["name" => "Hot"],
-            ["name" => "Medium"],
-            ["name" => "Cold"],
-        ],
+    'contact' => [
+        // 'customer_stage_id' => [
+        //     ["name" => "Lead"],
+        //     ["name" => "Prospect"],
+        //     ["name" => "Customer"],
+        //     ["name" => "Inactive: Past Customer"],
+        //     ["name" => "Inactive: Never Converted"],
+        // ],
+        // 'relationship_type' => [
+        //     ["name" => "Customer"],
+        //     ["name" => "Employee"],
+        //     ["name" => "Contractor"],
+        //     ["name" => "Partner"],
+        //     ["name" => "Vendor"],
+        // ],
+        // 'status_id' => [
+        //     ["name" => "New: Not Contacted"],
+        //     ["name" => "New: Pre Qualified"],
+        //     ["name" => "Working: Attempted to Contact"],
+        //     ["name" => "Working: Contacted"],
+        //     ["name" => "Working: Contact Later"],
+        //     ["name" => "Closed: Converted"],
+        //     ["name" => "Closed: Lost"],
+        //     ["name" => "Closed: Junk"],
+        // ],
+        // 'rating_id' => [
+        //     ["name" => "Hot"],
+        //     ["name" => "Medium"],
+        //     ["name" => "Cold"],
+        // ],
         'source_id' => [
             ["name" => "Advertisement"],
             ["name" => "Cold Call"],
@@ -166,7 +180,6 @@ return [
         ],
         'selling_point_id' => [
             ["name" => "Price"],
-
             ["name" => "Features"],
             ["name" => "Good Reputation"],
             ["name" => "Support"],
