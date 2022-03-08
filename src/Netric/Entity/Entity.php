@@ -555,7 +555,7 @@ class Entity implements EntityInterface
         // generated automatically as values get set if the entity definition has
         // unameSettings so resetting here will be important.
         if (isset($data['uname'])) {
-            $this->setValue('uname', $data['unmae']);
+            $this->setValue('uname', $data['uname']);
         }
     }
 
