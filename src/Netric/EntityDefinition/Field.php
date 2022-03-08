@@ -120,6 +120,13 @@ class Field implements \ArrayAccess
     public $mustBeIndexed = false;
 
     /**
+     * Filter is used when the field is an object with a subtype and it acts as a condition in a browser view
+     *
+     * @var array(project_id => 'project_id')
+     */
+    public $filter = null;
+
+    /**
      * Field type constants
      */
     const TYPE_GROUPING = 'fkey';
@@ -198,6 +205,10 @@ class Field implements \ArrayAccess
         if (isset($data["must_be_indexed"])) {
             $this->mustBeIndexed = $data["must_be_indexed"];
         }
+
+        if (isset($data["filter"])) {
+            $this->filter = $data["filter"];
+        }
     }
 
     /**
@@ -243,7 +254,8 @@ class Field implements \ArrayAccess
             "use_when" => $this->useWhen,
             "default" => $this->default,
             "optional_values" => $this->optionalValues,
-            "must_be_indexed" => $this->mustBeIndexed
+            "must_be_indexed" => $this->mustBeIndexed,
+            "filter" => $this->filter
         ];
     }
 

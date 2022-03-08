@@ -81,7 +81,7 @@ return [
             'title' => 'Milestone',
             'type' => Field::TYPE_OBJECT,
             'subtype' => 'project_milestone',
-            "filter" => ["project" => "project_id"], // this.project = project_milestone.project_id
+            "filter" => ["project" => "project"], // this.project = project_milestone.project_id
             'fkey_table' => ["key" => "id", "title" => "name"]
         ],
         'depends_task_id' => [
@@ -89,8 +89,9 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => 'task',
             // this.project = project_milestone.project_id
-            "filter" => ["project_id" => "project_id"],
+            "filter" => ["project" => "project"],
             'fkey_table' => ["key" => "id", "title" => "name"]
+            
         ],
         'priority_id' => [
             'title' => 'Priority',

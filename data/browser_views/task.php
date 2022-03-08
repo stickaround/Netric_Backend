@@ -31,6 +31,43 @@ return [
             'name', 'project', 'status_id', 'deadline', 'owner_id'
         ]
     ],
+    'select' => [
+        'obj_type' => ObjectTypes::TASK,
+        'name' => 'Select',
+        'description' => 'Used in entity browse modal',
+        'default' => false,
+        'conditions' => [            
+            'status_id_com' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'status_id',
+                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                'value' => TaskEntity::STATUS_COMPLETED
+            ],
+            'status_id_def' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'status_id',
+                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                'value' => TaskEntity::STATUS_DEFERRED
+            ],
+        ],
+        'filter_key' => 'project',
+        'group_first_order_by' => true,
+        'order_by' => [
+            'status_id' => [
+                'field_name' => 'status_id',
+                'direction' => 'desc',
+            ],
+            'date' => [
+                'field_name' => 'ts_entered',
+                'direction' => 'desc',
+            ],
+            'deadline' => [
+                'field_name' => 'deadline',
+                'direction' => 'asc'
+            ],
+        ],
+        'table_columns' => ['name', 'project', 'status_id', 'deadline']
+    ],
     'my_tasks' => [
         'obj_type' => ObjectTypes::TASK,
         'name' => 'My Incomplete Tasks',
