@@ -550,6 +550,13 @@ class Entity implements EntityInterface
         if (isset($data['recurrence_exception'])) {
             $this->isRecurrenceException = $data['recurrence_exception'];
         }
+
+        // We set the uname here last if it is in the data because it gets
+        // generated automatically as values get set if the entity definition has
+        // unameSettings so resetting here will be important.
+        if (isset($data['uname'])) {
+            $this->setValue('uname', $data['unmae']);
+        }
     }
 
     /**
