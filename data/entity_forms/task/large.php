@@ -16,7 +16,7 @@
                         </column>
                         <column>
                             <field name='project'></field>
-                            <field name='depends_task_id' tooltip='Optional task that needs to be completed before this task can be worked on.'></field>
+                            <field name='depends_task_id' filter='project' tooltip='Optional task that needs to be completed before this task can be worked on.'></field>
                         </column>
                     </row>
                 </fieldset>
