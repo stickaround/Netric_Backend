@@ -1,54 +1,45 @@
 <?php
 
-/**
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
- */
-
 namespace Netric\Workflow\ActionExecutor;
 
 use Netric\Entity\EntityInterface;
-use Netric\Entity\EntityLoader;
-use Netric\Workflow\WorkFlowLegacyInstance;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
- * Action to create new entities from a workflow
+ * Workflow action to create a new entity
  */
-class CreateEntityActionExecutor extends AbstractActionExecutor implements ActionInterface
+class CreateEntityActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
+
     /**
-     * Execute this action
+     * Execute an action on an entity
      *
-     * @param WorkFlowLegacyInstance $workflowInstance The workflow instance we are executing in
+     * @param EntityInterface $actOnEntity The entity (any type) we are acting on
+     * @param UserEntity $user The user who is initiating the action
      * @return bool true on success, false on failure
      */
-    public function execute(WorkFlowLegacyInstance $workflowInstance)
+    public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
-        // Get the entity we are executing against
-        $entity = $workflowInstance->getEntity();
+        // This is not yet implemented, jsut fail for now
+        return false;
 
-        // Get merged params
-        $params = $this->getParams($entity);
+        // Get merged params from the workflow action
+        $createObjType = $this->getParam('obj_type', $actOnEntity);
 
-        // Make sure we have what we need
-        if (!$params['obj_type']) {
-            throw new \InvalidArgumentException("Cannot create an entity without obj_type param");
-        }
 
-        // Create new entity
-        $newEntity = $this->entityLoader->create($params['obj_type']);
-        foreach ($params as $fname => $fval) {
-            if ($newEntity->getDefinition()->getField($fname)) {
-                if (is_array($fval)) {
-                    foreach ($fval as $subval) {
-                        $newEntity->addMultiValue($fname, $subval);
-                    }
-                } else {
-                    $newEntity->setValue($fname, $fval);
-                }
+        // Create a new object of type obj_type
+        $createdEntity = $this->getEntityloader()->create($createObjType, $user->getAccountId);
+
+        // Now loop through each field in the newly created entity, and see if
+        // we can get a param from the action
+        $fields = $actOnEntity->getDefinition()->getFields();
+        foreach ($fields as $field) {
+            $fieldValueFromParam = $this->getParam($field->getName(), $actOnEntity);
+            if ($fieldValueFromParam !== null) {
+                $createdEntity->setValue($field->getName(), $fieldValueFromParam);
             }
         }
 
-        return ($this->entityLoader->save($newEntity)) ? true : false;
+        return ($this->getEntityloader()->save($createdEntity, $user)) ? true : false;
     }
 }

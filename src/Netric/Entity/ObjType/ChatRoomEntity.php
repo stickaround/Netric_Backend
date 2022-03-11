@@ -77,7 +77,7 @@ class ChatRoomEntity extends Entity implements EntityInterface
 
     /**
      * Get human readable name for chat room entity
-     * 
+     *
      * @param UserEntity $user The user that is acting on this entity
      */
     public function onGetName(UserEntity $user = null)

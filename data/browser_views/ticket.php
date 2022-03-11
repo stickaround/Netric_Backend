@@ -67,14 +67,26 @@ return [
     'unseen_tickets' => [
         'obj_type' => ObjectTypes::TICKET,
         'name' => 'New/Unseen Tickets',
-        'description' => 'Open tickets assigned to me',
+        'description' => 'Tickets that have been unseen or are unassigned',
         'default' => false,
         'conditions' => [
+            'not_closed' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'is_closed',
+                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                'value' => true
+            ],
             'f_seen' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'f_seen',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => false,
+            ],
+            'owner_id' => [
+                'blogic' => Where::COMBINED_BY_OR,
+                'field_name' => 'owner_id',
+                'operator' => Where::OPERATOR_EQUAL_TO,
+                'value' => '',
             ],
         ],
         'filter_key' => 'channel_id',
