@@ -52,24 +52,9 @@ class FirstTeamInitData implements InitDataInterface
             );
         }
 
-        // Set fields from data array and save
-        // second param will only update provided fields so we don't
-        // overwrite entity_id and such
-        // $team->setValue("type_id", 2); // 2 = organization
-        // $team->setValue("company", $account->getOrgName());
-        // $team->setValue("name", $account->getName());
-       
-        //$team->fromArray($account->toArray());
-
-        // echo 'Account Id-----';
-        // print_r($account->getSystemUser());
-        // die('First Team'); 
-        // echo 'Account Name---->';
-        // echo $account->getName();
-        $team->fromArray($account->toArray());
-        // print_r($team);
-        // die('I m account');
-        //$this->entityLoader->save($team, $account->getAccountId());
+        $userArray = $account->toArray();
+        $team->fromArray($userArray);
+        
         $this->entityLoader->save($team, $account->getSystemUser());
         return true;
     }
