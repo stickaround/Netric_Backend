@@ -16,6 +16,8 @@ use Netric\Account\InitData\Sets\RootFolderInitDataFactory;
 use Netric\Account\InitData\Sets\TicketChannelsInitDataFactory;
 use Netric\Account\InitData\Sets\WorkerJobsInitDataFactory;
 use Netric\Account\InitData\Sets\WorkflowsInitData;
+use Netric\Account\InitData\Sets\FirstTeamInitDataFactory;
+use Netric\Account\InitData\Sets\FirstTeamInitData;
 
 /**
  * Return array of data initializers to run for an account
@@ -42,6 +44,7 @@ class InitDataSetsFactory implements ApplicationServiceFactoryInterface
             $serviceLocator->get(EmailAccountsInitDataFactory::class),
             $serviceLocator->get(EmailDomainInitDataFactory::class),
             $serviceLocator->get(TicketChannelsInitDataFactory::class),
+            $serviceLocator->get(FirstTeamInitDataFactory::class)
         ];
     }
 }
