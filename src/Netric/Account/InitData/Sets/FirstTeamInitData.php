@@ -57,7 +57,8 @@ class FirstTeamInitData implements InitDataInterface
         }
 
         $team->setValue("uname", UserEntity::USER_SYSTEM);
-        $team->setValue("name", UserEntity::USER_SYSTEM);
+        //$team->setValue("name", UserEntity::USER_SYSTEM);
+        $team->setValue("name", $account->getName());
 
 
         // echo 'Name--->';
