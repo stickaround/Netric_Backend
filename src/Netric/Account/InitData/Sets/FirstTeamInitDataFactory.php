@@ -20,6 +20,7 @@ class FirstTeamInitDataFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
+        //$data = require(__DIR__ . '/../../../../../data/account/users.php');
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         return new FirstTeamInitData($entityLoader);
     }

@@ -15,6 +15,11 @@ use Netric\Entity\ObjType\UserEntity;
  */
 class FirstTeamInitData implements InitDataInterface
 {
+    /**
+     * List of users to create
+     */
+    private array $usersData = [];
+    
      /**
      * Entity loader
      */
@@ -48,12 +53,48 @@ class FirstTeamInitData implements InitDataInterface
         if (!$team) {
             $team = $this->entityLoader->create(
                 ObjectTypes::USER_TEAM,
-                $account->getAccountId()
-            );
+                $account->getAccountId());
         }
 
-        $userArray = $account->toArray();
-        $team->fromArray($userArray);
+        $team->setValue("uname", UserEntity::USER_SYSTEM);
+        $team->setValue("name", UserEntity::USER_SYSTEM);
+
+
+        // echo 'Name--->';
+        // echo $account->getName();
+        // echo '---------';
+        // $userArray = $account->getUser();
+
+        // if($userArray){
+        //     echo ' Found Username----->';
+        //     echo $userArray->getValue("name");
+        //     echo ' Full Name----->';
+        //     echo $userArray->getValue('full_name');
+        // }else{
+        //     echo ' Not Found';
+        //     $userArray = $account->getSystemUser();
+        //     echo ' Username----->';
+        //     echo $userArray->getValue("name");
+        //     echo ' Full Name----->';
+        //     echo $userArray->getValue('full_name');
+        // }
+
+        //print_r($userArray);
+        // die('I am here');
+        //
+        //$team->fromArray($userArray);
+        //$userArray = $account->toArray();
+        //$team->fromArray($userArray);
+        //die('I am account');
+        // $team->setValue("name", $account->getName());
+        // $team->setValue("id", $account->getAccountId());
+
+        // $team->setValue("uname", UserEntity::USER_SYSTEM);
+        // $team->setValue("name", UserEntity::USER_SYSTEM);
+
+        // $team->setValue("name", $account->getName());
+        // $team->setValue("id", $account->getAccountId());
+       // die('I m In');
         
         $this->entityLoader->save($team, $account->getSystemUser());
         return true;
