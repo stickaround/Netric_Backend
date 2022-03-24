@@ -661,9 +661,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             default:
                 // Make sure value is set and not null or empty
                 if (isset($value)) {
-                    $conditionString = "field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = ''";
-                } else {
                     $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = '$value'";
+                } else {
+                    $conditionString = "field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = ''";
                 }
                 break;
         }
