@@ -162,7 +162,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $whereString = $this->buildConditionStringAndSetParams($entityDefinition, $condition);
 
             // Make sure that we have built an advanced condition string
-            if (isset($whereString)) {
+            if (!empty($whereString)) {
                 // Wrap all AND queries in () to make order of operations clear when OR is encoutered
                 if ($condition->bLogic == Where::COMBINED_BY_AND) {
                     if ($conditionString) {
@@ -188,8 +188,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
          * We will make sure that we will get the non-deleted records
          */
         if (!$query->fieldIsInWheres('f_deleted')) {
-            // If $conditionString is set, then we will just append the "and" blogic
-            if (isset($conditionString)) {
+            // If $conditionString is not empty, then we will just append the "and" blogic
+            if (!empty($conditionString)) {
                 $conditionString .= " AND ";
             }
 
@@ -198,7 +198,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Add entity_definition_id constraint
-        if (isset($conditionString)) {
+        if (!empty($conditionString)) {
             $conditionString .= " AND ";
         }
 
@@ -253,7 +253,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $sql = "SELECT $select FROM $from";
 
         // Set the query condition string if it is available
-        if (isset($conditionString)) {
+        if (!empty($conditionString)) {
             $sql .= " WHERE $conditionString";
         }
 
@@ -264,7 +264,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         // Check if we need to add limit
         if (!empty($query->getLimit())) {
-            $sql .= " LIMIT {$query->getLimit()}";  
+            $sql .= " LIMIT {$query->getLimit()}";
         }
 
         // Check if we need to add offset
@@ -307,7 +307,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $sql = "SELECT count(*) as total_num FROM " . self::ENTITY_TABLE;
 
         // Set the query condition string here if it is available
-        if (isset($conditionString)) {
+        if (!empty($conditionString)) {
             $sql .= " WHERE $conditionString";
         }
 
@@ -484,7 +484,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         break;
                     case Field::TYPE_OBJECT:
                         if (
-                            isset($field->subtype)
+                            !empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
                             && is_numeric($value)
                         ) {
@@ -619,11 +619,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $conditionString = "";
         switch ($field->type) {
             case Field::TYPE_OBJECT:
-                if (isset($value)) {
+                if ($value) {
                     // New jsonb-based query condition
                     $conditionString = "field_data->>'$fieldName' = '$value'";
                 } else {
-                    // Value is null/not set or key does not exist
+                    // Value is null/empty or key does not exist
                     $conditionString = "(field_data->>'$fieldName') IS NULL OR field_data->>'$fieldName' = ''";
                 }
                 break;
@@ -632,7 +632,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case Field::TYPE_GROUPING_MULTI:
                 // Make sure that the grouping value is provided
-                if (isset($value)) {
+                if ($value) {
                     $conditionString = "field_data->'{$fieldName}' @> jsonb_build_array('$value')";
                 } else {
                     $conditionString = "(field_data->'$fieldName' = 'null'::jsonb OR field_data->'$fieldName' = '[]'::jsonb)";
@@ -642,16 +642,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $conditionString = $this->buildGroupingQueryCondition($entityDefinition, $field, $condition);
                 break;
             case Field::TYPE_TEXT:
-                // Make sure value is set and not nul or empty
-                if (isset($value)) {
-                    $conditionString = "lower(field_data->>'$fieldName') = '" . strtolower($value) . "'";
-                } else {
+                if (empty($value)) {
                     $conditionString = "(field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = '')";
+                } else {
+                    $conditionString = "lower(field_data->>'$fieldName') = '" . strtolower($value) . "'";
                 }
                 break;
             case Field::TYPE_BOOL:
                 $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = $value";
-                break;            
+                break;
             case Field::TYPE_DATE:
             case Field::TYPE_TIMESTAMP:
                 if ($field->type == Field::TYPE_TIMESTAMP) {
@@ -660,11 +659,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                 }
             default:
-                // Make sure value is set and not nul or empty
+                // Make sure value is set and not null or empty
                 if (isset($value)) {
-                    $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = '$value'";
-                } else {
                     $conditionString = "field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = ''";
+                } else {
+                    $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = '$value'";
                 }
                 break;
         }
@@ -690,8 +689,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         switch ($field->type) {
             case Field::TYPE_OBJECT:
                 if ($field->subtype) {
-                    // If value is not set or null or empty
-                    if (!isset($value)) {
+                    if (empty($value)) {
                         $conditionString = "field_data->>'$fieldName' IS NOT NULL";
                     } elseif (isset($field->subtype) && $entityDefinition->parentField == $fieldName && $value) {
                         $refDef = $this->getDefinition($field->subtype);
@@ -742,7 +740,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case Field::TYPE_GROUPING_MULTI:
                 // Make sure that the grouping value is provided
-                if (isset($value)) {
+                if ($value) {
                     $conditionString = "entity_id NOT IN (SELECT entity_id FROM $objectTable WHERE field_data->'{$fieldName}' @> jsonb_build_array('$value'))";
                 } else {
                     $conditionString = "(field_data->'$fieldName' != 'null'::jsonb OR field_data->'$fieldName' != '[]'::jsonb)";
@@ -752,11 +750,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $conditionString = $this->buildGroupingQueryCondition($entityDefinition, $field, $condition);
                 break;
             case Field::TYPE_TEXT:
-                // Make sure that value is set and not null or empty
-                if (isset($value)) {
-                    $conditionString = "lower(field_data->>'$fieldName') != '" . strtolower($value) . "'";
-                } else {
+                if (empty($value)) {
                     $conditionString = "(field_data->>'$fieldName' != '' AND field_data->>'$fieldName' IS NOT NULL)";
+                } else {
+                    $conditionString = "lower(field_data->>'$fieldName') != '" . strtolower($value) . "'";
                 }
                 break;
             case Field::TYPE_BOOL:
@@ -771,8 +768,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 // Format the string then fall through to default
             default:
-                // Make sure that value is set and not null or empty
-                if (isset($value)) {
+                if (!empty($value)) {
                     $conditionString = "((nullif(field_data->>'$fieldName', ''))$castType != '$value' OR field_data->>'$fieldName' IS NULL)";
                 } else {
                     $conditionString = "field_data->>'$fieldName' IS NOT NULL";
@@ -799,8 +795,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $operator = $condition->operator;
         $conditionString = "";
 
-        // If the value is set and not null or empty
-        if (isset($value)) {
+        if (empty($value)) {
+            if ($operator == Where::OPERATOR_EQUAL_TO) {
+                $conditionString = "field_data->>'$fieldName' IS NULL";
+            } else {
+                $conditionString = "field_data->>'$fieldName' IS NOT NULL";
+            }
+        } else {
             $operatorSign = "=";
             if ($operator == Where::OPERATOR_NOT_EQUAL_TO) {
                 $operatorSign = "!=";
@@ -812,12 +813,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             if ($operator == Where::OPERATOR_NOT_EQUAL_TO) {
                 $conditionString = "($conditionString OR field_data->>'$fieldName' IS NULL)";
             }
-        } else { // If there is no value provided, then set condition string is NULL            
-            if ($operator == Where::OPERATOR_EQUAL_TO) {
-                $conditionString = "field_data->>'$fieldName' IS NULL";
-            } else {
-                $conditionString = "field_data->>'$fieldName' IS NOT NULL";
-            }            
         }
 
         return $conditionString;
@@ -883,7 +878,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $sql = 'SELECT ' . $queryFields . ' FROM ' . self::ENTITY_TABLE;
 
-        // Add "and" operator in the $conditionQuery if it is set
+        // Add "and" operator in the $conditionQuery if it is not empty
         if ($conditionQuery) {
             $sql .= " WHERE $conditionQuery";
         }
