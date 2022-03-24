@@ -28,12 +28,14 @@
                 </row>
                 <row showif="editMode=1">
                     <column>
-                        <fieldset name='Admin'>
-                            <field name='team_id' />
-                            <field name='active' />
-                            <field name='groups' hidelabel='true' />
-                            <field name='manager_id' />
-                        </fieldset>
+                        <user_admin>
+                            <fieldset name='Admin'>
+                                <field name='team_id' />
+                                <field name='active' />
+                                <field name='groups' hidelabel='true' />
+                                <field name='manager_id' />
+                            </fieldset>
+                        </user_admin>
                     </column>
                 </row>
                 <row>
