@@ -102,9 +102,11 @@ class AccountSetup
         string $adminPassword
     ): Account {
         // Make sure the account does not already exists
-        if ($this->accountContainer->loadByName($accountName)) {
-            throw new AccountAlreadyExistsException($accountName . " already exists");
-        }
+        // TODO: I don't think we actually need this any more because
+        // the getUniqueAccountName below iwll make sure there is no collision
+        // if ($this->accountContainer->loadByName($accountName)) {
+        //     throw new AccountAlreadyExistsException($accountName . " already exists");
+        // }
 
         // Make sure the name is valid
         $cleanedAccountName = $this->getUniqueAccountName($accountName);
