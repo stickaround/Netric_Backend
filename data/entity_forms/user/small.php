@@ -23,6 +23,7 @@
                             <field name='name' validator='username' />
                             <field name='full_name' />
                             <field name='job_title' />
+                            <user_password/>
                         </fieldset>
                     </column>
                 </row>
