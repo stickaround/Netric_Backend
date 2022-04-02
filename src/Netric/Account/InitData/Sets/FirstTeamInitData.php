@@ -51,7 +51,6 @@ class FirstTeamInitData implements InitDataInterface
 
             $team->setValue("name", $account->getOrgName());
             $team->setValue("uname", $account->getOrgName());
-            $team->setValue("parent_id", 0);
             $this->entityLoader->save($team, $account->getSystemUser());
         }
         
