@@ -10,6 +10,6 @@
 </row>
 <row>
     <column>
-        <plugin name="ActionDetails" />
+        <workflow_action />
     </column>
 </row>
