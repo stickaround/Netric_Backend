@@ -119,7 +119,7 @@ class AccountController extends AbstractFactoriedController implements Controlle
         $ret = [
             "id" => $currentAccount->getAccountId(),
             "name" => $currentAccount->getName(),
-            "orgName" => "", // TODO: $this->account->get
+            "orgName" => $currentAccount->getOrgName(), // TODO: $this->account->get
             "defaultModule" => "home", // TODO: this should be home until it is configurable
             "modules" => $modules
         ];
