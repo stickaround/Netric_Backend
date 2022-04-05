@@ -40,13 +40,6 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     private MailSystem $mailSystem;
 
     /**
-     * If in test mode, we don't do file upload validation
-     *
-     * @var bool
-     */
-    public $testMode = false;
-
-    /**
      * Initialize controller and all dependencies
      *
      * @param DeliveryService $deliveryService

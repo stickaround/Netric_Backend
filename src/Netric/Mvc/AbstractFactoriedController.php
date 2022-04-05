@@ -13,6 +13,13 @@ use Netric\Entity\ObjType\UserEntity;
 abstract class AbstractFactoriedController
 {
     /**
+     * TestMode is used to suppress output in unit tests
+     *
+     * @var bool
+     */
+    public bool $testMode = false;
+
+    /**
      * Determine what users can access actions in the concrete controller
      *
      * This can easily be overridden in derived controllers to allow custom access per
