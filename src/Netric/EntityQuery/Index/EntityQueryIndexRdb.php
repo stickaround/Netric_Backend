@@ -659,7 +659,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                 }
             default:
-                if (!empty($value)) {
+                // Make sure value is set and not null or empty
+                if (isset($value)) {
                     $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = '$value'";
                 } else {
                     $conditionString = "field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = ''";
