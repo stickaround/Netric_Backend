@@ -2,6 +2,7 @@
 
 namespace Netric\Workflow\ActionExecutor;
 
+use Netric\Config\ConfigFactory;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
