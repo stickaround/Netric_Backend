@@ -1,60 +1,58 @@
 <?php
 
-/**
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
+use Error;
+use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
-use Netric\Error\Error;
-use Netric\Workflow\WorkFlowLegacyInstance;
-use Netric\Workflow\WorkFlowLegacyManager;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\WorkflowActionEntity;
+use Netric\Workflow\WorkflowService;
 
 /**
  * Action to trigger a child workflow
  */
-class StartWorkflowActionExecutor extends AbstractActionExecutor implements ActionInterface
+class StartWorkflowActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
     /**
-     * Manager for starting WorkFlowLegacys
-     *
-     * @var WorkFlowLegacyManager|null
+     * Service for starting workflwos
      */
-    private $workFlowManager = null;
+    private WorkflowService $workflowService;
 
     /**
-     * This must be called by all derived classes, or $entityLoader should be set in their constructor
+     * Constructor
      *
      * @param EntityLoader $entityLoader
-     * @param ActionExecutorFactory $actionFactory For constructing child actions
-     * @param WorkFlowLegacyManager $workFlowManager For starting a child workflow
+     * @param WorkflowActionEntity $actionEntity
+     * @param string $appliactionUrl
      */
     public function __construct(
         EntityLoader $entityLoader,
-        ActionExecutorFactory $actionFactory,
-        WorkFlowLegacyManager $workFlowManager
+        WorkflowActionEntity $actionEntity,
+        string $applicationUrl,
+        WorkflowService $workflowService
     ) {
-        $this->workFlowManager = $workFlowManager;
-        parent::__construct($entityLoader, $actionFactory);
+        $this->workflowService = $workflowService;
+
+        // Should always call the parent constructor for base dependencies
+        parent::__construct($entityLoader, $actionEntity, $applicationUrl);
     }
 
     /**
-     * Execute this action
+     * Execute an action on an entity
      *
-     * @param WorkFlowLegacyInstance $workflowInstance The workflow instance we are executing in
+     * @param EntityInterface $actOnEntity The entity (any type) we are acting on
+     * @param UserEntity $user The user who is initiating the action
      * @return bool true on success, false on failure
      */
-    public function execute(WorkFlowLegacyInstance $workflowInstance)
+    public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
-        $entity = $workflowInstance->getEntity();
+        $workflowId = $this->getParam('wfid', $actOnEntity);
 
-        // Get merged params
-        $params = $this->getParams($entity);
-
-        if (isset($params['wfid'])) {
-            $this->workFlowManager->startWorkflowById($entity, $params['wfid']);
+        if (!empty($workflowId)) {
+            // TODO: Start the workflow for the entity
             return true;
         }
 

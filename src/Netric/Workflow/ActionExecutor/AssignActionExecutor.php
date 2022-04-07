@@ -1,15 +1,14 @@
 <?php
 
-/**
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
+use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\EntityQuery\EntityQuery;
-use Netric\Workflow\WorkFlowLegacyInstance;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\EntityDefinition\ObjectTypes;
@@ -17,7 +16,7 @@ use Netric\EntityDefinition\ObjectTypes;
 /**
  * Action to assign an entity to a user
  *
- * Params in the 'data' field:
+ * Params:
  *
  *  field       string REQUIRED The name of the user field we are updating.
  *  team_id     int OPTIONAL if set, we will randomize users within this team
@@ -26,7 +25,7 @@ use Netric\EntityDefinition\ObjectTypes;
  *
  * One of the three optional params must be set to determine what users to assign
  */
-class AssignActionExecutor extends AbstractActionExecutor implements ActionInterface
+class AssignActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
     /**
      * Loader for entity groupings
@@ -43,36 +42,38 @@ class AssignActionExecutor extends AbstractActionExecutor implements ActionInter
     private $queryIndex = null;
 
     /**
-     * Set all dependencies
+     * Constructor
      *
      * @param EntityLoader $entityLoader
-     * @param ActionExecutorFactory $actionFactory
-     * @param GroupingLoader $groupingsLoader
-     * @param IndexInterface $queryIndex
+     * @param WorkflowActionEntity $actionEntity
+     * @param string $appliactionUrl
      */
     public function __construct(
         EntityLoader $entityLoader,
-        ActionExecutorFactory $actionFactory,
-        GroupingLoader $groupingsLoader,
-        IndexInterface $queryIndex
+        WorkflowActionEntity $actionEntity,
+        string $applicationUrl,
+        IndexInterface $entityIndex
     ) {
-        $this->groupingsLoader = $groupingsLoader;
-        $this->queryIndex = $queryIndex;
-        parent::__construct($entityLoader, $actionFactory);
+        $this->queryIndex = $entityIndex;
+
+        // Should always call the parent constructor for base dependencies
+        parent::__construct($entityLoader, $actionEntity, $applicationUrl);
     }
 
     /**
-     * Execute this action
+     * Execute an action on an entity
      *
-     * @param WorkFlowLegacyInstance $workflowInstance The workflow instance we are executing in
+     * @param EntityInterface $actOnEntity The entity (any type) we are acting on
+     * @param UserEntity $user The user who is initiating the action
      * @return bool true on success, false on failure
      */
-    public function execute(WorkFlowLegacyInstance $workflowInstance)
+    public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
-        $entity = $workflowInstance->getEntity();
-
-        // Get merged params
-        $params = $this->getParams($entity);
+        // Get params
+        $field = $this->getParam('field', $actOnEntity);
+        $assignToTeam = $this->getParam('team_id', $actOnEntity);
+        $assignToGroup = $this->getParam('group_id', $actOnEntity);
+        $assignUsersList = $this->getParam('users', $actOnEntity);
 
         /*
          * We used to utilize a round-robin approach to this, but now
@@ -81,19 +82,19 @@ class AssignActionExecutor extends AbstractActionExecutor implements ActionInter
          * of generic queuing system later, but for now random should
          * serve to accomplish what people are looking for.
          */
-        if ($params['field']) {
-            $userGuid = null;
-            if (isset($params['team_id'])) {
-                $userGuid = $this->getNextUserFromTeam($params['team_id']);
-            } elseif (isset($params['group_id'])) {
-                $userGuid = $this->getNextUserFromGroup($params['group_id']);
-            } elseif (isset($params['users'])) {
-                $userGuid = $this->getNextUserFromList($params['users']);
+        if ($field) {
+            $userId = null;
+            if (!empty($assignToTeam)) {
+                $userId = $this->getNextUserFromTeam($assignToTeam);
+            } elseif (!empty($assignToGroup)) {
+                $userId = $this->getNextUserFromGroup($assignToGroup);
+            } elseif (!empty($assignUsersList)) {
+                $userId = $this->getNextUserFromList($assignUsersList);
             }
 
-            if ($userGuid !== null) {
-                $entity->setValue($params['field'], $userGuid);
-                $this->entityLoader->save($entity);
+            if ($userId !== null) {
+                $actOnEntity->setValue($field, $userId);
+                $this->entityLoader->save($actOnEntity);
                 return true;
             }
         }
@@ -111,7 +112,7 @@ class AssignActionExecutor extends AbstractActionExecutor implements ActionInter
      */
     private function getNextUserFromTeam($teamId)
     {
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->getActionAccountId());
         $query->where("team_id")->equals($teamId);
         $result = $this->queryIndex->executeQuery($query);
         $num = $result->getTotalNum();
@@ -128,7 +129,7 @@ class AssignActionExecutor extends AbstractActionExecutor implements ActionInter
      */
     private function getNextUserFromGroup($groupId)
     {
-        $query = new EntityQuery(ObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER, $this->getActionAccountId());
         $query->where("groups")->equals($groupId);
         $result = $this->queryIndex->executeQuery($query);
         $num = $result->getTotalNum();

@@ -4,209 +4,209 @@ namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
 
-return array(
+return [
     'is_private' => true,
     'default_activity_level' => 1,
     'parent_field' => '',
     'store_revisions' => false,
-    'fields' => array(
-        'subject' => array(
+    'fields' => [
+        'subject' => [
             'title' => 'Subject',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'message_id' => array(
+        ],
+        'message_id' => [
             'title' => 'Message Id',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => true
-        ),
-        'send_to' => array(
+        ],
+        'to' => [
             'title' => 'To',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'sent_from' => array(
+        ],
+        'from' => [
             'title' => 'From',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'cc' => array(
+        ],
+        'cc' => [
             'title' => 'CC',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'bcc' => array(
+        ],
+        'bcc' => [
             'title' => 'BCC',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'reply_to' => array(
+        ],
+        'reply_to' => [
             'title' => 'Reply To',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => true
-        ),
-        'priority' => array(
+        ],
+        'priority' => [
             'title' => 'Priority',
             'type' => Field::TYPE_TEXT,
             'subtype' => '16',
             'readonly' => true
-        ),
-        'file_id' => array(
+        ],
+        'file_id' => [
             'title' => 'File Id',
             'type' => Field::TYPE_INTEGER,
             'subtype' => '',
             'readonly' => true
-        ),
-        'flag_seen' => array(
+        ],
+        'flag_seen' => [
             'title' => 'Seen',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
-        ),
-        'flag_draft' => array(
+        ],
+        'flag_draft' => [
             'title' => 'Draft',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => true
-        ),
-        'flag_answered' => array(
+        ],
+        'flag_answered' => [
             'title' => 'Answered',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => true
-        ),
-        'flag_flagged' => array(
+        ],
+        'flag_flagged' => [
             'title' => 'Flagged',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
-        ),
-        'flag_spam' => array(
+        ],
+        'flag_spam' => [
             'title' => 'Is Spam',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => true
-        ),
-        'spam_report' => array(
+        ],
+        'spam_report' => [
             'title' => 'Spam Report',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'content_type' => array(
+        ],
+        'content_type' => [
             'title' => 'Content Type',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => true
-        ),
-        'return_path' => array(
+        ],
+        'return_path' => [
             'title' => 'Return Path',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => true
-        ),
-        'in_reply_to' => array(
+        ],
+        'in_reply_to' => [
             'title' => 'Return Path',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => true
-        ),
-        'message_size' => array(
+        ],
+        'message_size' => [
             'title' => 'Message Size',
             'type' => Field::TYPE_INTEGER,
             'subtype' => '',
             'readonly' => true
-        ),
-        'num_attachments' => array(
+        ],
+        'num_attachments' => [
             'title' => 'Num Attachments',
             'type' => Field::TYPE_INTEGER,
             'subtype' => '',
             'readonly' => true
-        ),
-        'thread_count' => array(
+        ],
+        'thread_count' => [
             'title' => 'Thread Count',
             'type' => Field::TYPE_INTEGER,
             'subtype' => '',
             'readonly' => true
-        ),
-        'orig_header' => array(
+        ],
+        'orig_header' => [
             'title' => 'Full Header',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'keywords' => array(
+        ],
+        'keywords' => [
             'title' => 'Keywords',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'f_indexed' => array(
+        ],
+        'f_indexed' => [
             'title' => 'Indexed',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => true
-        ),
-        'body' => array(
+        ],
+        'body' => [
             'title' => 'Body',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => true
-        ),
-        'body_type' => array(
+        ],
+        'body_type' => [
             'title' => 'Body Content Type',
             'type' => Field::TYPE_TEXT,
             'subtype' => '32',
             'readonly' => true
-        ),
-        'parse_rev' => array(
+        ],
+        'parse_rev' => [
             'title' => 'Indexed',
             'type' => Field::TYPE_NUMBER,
             'subtype' => 'integer',
             'readonly' => true
-        ),
-        'message_date' => array(
+        ],
+        'message_date' => [
             'title' => 'Message Date',
             'type' => Field::TYPE_TIMESTAMP,
             'subtype' => '',
             'readonly' => true,
-            'default' => array("value" => "now", "on" => "create")
-        ),
-        'mailbox_id' => array(
+            'default' => ["value" => "now", "on" => "create"],
+        ],
+        'mailbox_id' => [
             'title' => 'Mailbox',
             'type' => Field::TYPE_GROUPING,
             // 'subtype' => 'email_mailboxes',
-            // 'fkey_table' => array(
+            // 'fkey_table' => [
             //     "key" => "id",
             //     "title" => "name"
-            // ),
+            // ],
             'readonly' => false
-        ),
-        'thread' => array(
+        ],
+        'thread' => [
             'title' => 'Thread',
             'type' => Field::TYPE_OBJECT,
             'subtype' => 'email_thread',
-            'fkey_table' => array("key" => "id", "title" => "subject"),
+            'fkey_table' => ["key" => "id", "title" => "subject"],
             'readonly' => true,
-        ),
-        'email_account' => array(
+        ],
+        'email_account' => [
             'title' => 'Email Account',
             'type' => Field::TYPE_OBJECT,
             'subtype' => 'email_account',
             'readonly' => true
-        ),
-        'message_uid' => array(
+        ],
+        'message_uid' => [
             'title' => 'Message Uid',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
             'readonly' => false
-        ),
-    ),
-);
+        ],
+    ],
+];

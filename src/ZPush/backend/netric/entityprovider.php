@@ -1091,14 +1091,14 @@ class EntityProvider
 
         $output->timezone = base64_encode($this->getSyncBlobFromTZ($tz));
         $output->datereceived = $datereceived;
-        $output->displayto = $emailEntity->getValue("send_to");
+        $output->displayto = $emailEntity->getValue("to");
         $output->importance = ($emailEntity->getValue("priority")) ? preg_replace("/\D+/", "", $emailEntity->getValue("priority")) : null;
         $output->messageclass = "IPM.Note";
         $output->subject = mb_convert_encoding($emailEntity->getValue("subject"), "UTF-8", "UTF-7");
         $output->read = ($emailEntity->getValue("flag_seen") == 't') ? 1 : 0;
-        $output->to = $emailEntity->getValue("send_to");
+        $output->to = $emailEntity->getValue("to");
         $output->cc = $emailEntity->getValue("cc");
-        $output->from = $emailEntity->getValue("sent_from");
+        $output->from = $emailEntity->getValue("from");
         $output->reply_to = $emailEntity->getValue("reply_to");
         //$output->threadtopic = ($emailEntity->getValue("thread_topic")) ? $emailEntity->getValue("thread_topic") : NULL;
 

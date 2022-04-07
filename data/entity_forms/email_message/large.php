@@ -5,7 +5,7 @@
 </row>
 <row>
     <column>
-        <field name='sent_from'></field>
+        <field name='from'></field>
     </column>
 </row>
 <row>

@@ -1,6 +1,6 @@
 <field name='email_account'></field>
-<field name='sent_from'></field>
-<field name='send_to'></field>
+<field name='from'></field>
+<field name='to'></field>
 <field name='cc'></field>
 <field name='bcc'></field>
 <field name='subject'></field>

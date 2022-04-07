@@ -1,24 +1,24 @@
 <?php
-    // ANT Includes
-    require_once('../../lib/AntConfig.php');
-    require_once('src/AntLegacy/Ant.php');
-    require_once('src/AntLegacy/AntUser.php');
-    require_once('src/AntLegacy/CAntObject.php');
-    require_once('src/AntLegacy/aereus.lib.php/CAntObjectApi.php');
+// ANT Includes
+require_once('../../lib/AntConfig.php');
+require_once('src/AntLegacy/Ant.php');
+require_once('src/AntLegacy/AntUser.php');
+require_once('src/AntLegacy/CAntObject.php');
+require_once('src/AntLegacy/aereus.lib.php/CAntObjectApi.php');
 
-    $dbh = new CDatabase();
-    $USER = new AntUser($dbh, USER_SYSTEM);
-    $mailboxid = EmailGetSpecialBoxId($dbh, $USER->id, "Inbox");
+$dbh = new CDatabase();
+$USER = new AntUser($dbh, USER_SYSTEM);
+$mailboxid = EmailGetSpecialBoxId($dbh, $USER->id, "Inbox");
 
-    $numInsert = 1000000;
-    $objectType = "email_thread";
-    $body = "";
+$numInsert = 1000000;
+$objectType = "email_thread";
+$body = "";
 for ($i = 0; $i < 300; $i++) {
     $body .= "Message body ";
 }
 
 for ($i = 0; $i < $numInsert; $i++) {
-    echo "Inserting email thread ".($i + 1)." of $numInsert\n";
+    echo "Inserting email thread " . ($i + 1) . " of $numInsert\n";
     $obj = new CAntObject($dbh, $objectType, null, $USER);
     $obj->setValue("subject", "Regression Test $i");
     $obj->setMValue("mailbox_id", $mailboxid);
@@ -33,8 +33,8 @@ for ($i = 0; $i < $numInsert; $i++) {
         $obj->setValue("subject", "Regression Test $i");
         $obj->setValue("mailbox_id", $mailboxid);
         $obj->setValue("thread", $tid);
-        $obj->setValue("send_to", "test@test.com");
-        $obj->setValue("sent_from", "test@test.com");
+        $obj->setValue("to", "test@test.com");
+        $obj->setValue("from", "test@test.com");
         $obj->setValue("owner_id", USER_SYSTEM);
         $obj->setValue("parse_rev", 1000);
         $obj->setValue("body", $body);
@@ -42,4 +42,4 @@ for ($i = 0; $i < $numInsert; $i++) {
     }
 }
 
-    echo "[done]\n";
+echo "[done]\n";

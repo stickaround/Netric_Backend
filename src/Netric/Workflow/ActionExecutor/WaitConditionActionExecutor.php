@@ -17,7 +17,7 @@ use InvalidArgumentException;
 /**
  * Action used for delaying the execution of child actions
  *
- * Params in the 'data' field:
+ * Params that are set:
  *  when_unit       int REQUIRED A time unit from WorkFlowLegacy::TIME_UNIT_*
  *  when_interval   int REQUIRED An interval to use with the unit like 1 month or 1 day
  */
@@ -31,7 +31,7 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
     private WorkerService $worker;
 
     /**
-     * This must be called by all derived classes
+     * Constructor
      *
      * @param EntityLoader $entityLoader
      * @param WorkflowActionEntity $actionEntity
@@ -63,7 +63,8 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
             return false;
         }
 
-        // Get merged params
+        // Get params - we pass $actOnEntity because a param might merge values
+        // from the entity like <%name%> or <%owner_id%>
         $whenUnit = $this->getParam('when_unit', $actOnEntity);
         $whenInterval = $this->getParam('when_interval', $actOnEntity);
 
@@ -92,26 +93,23 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
         $today = new DateTime();
         $numSecondsBetween = $executeTime->getTimestamp() - $today->getTimestamp();
 
-        // Schedule the action for later - to see how execution continues
-        // please review the WorkflowWaitActionWorker. It essentially
-        // resumes execution of the workflow through the WorkflowService
-        // beginning at this action.
-
+        /*
+         * Schedule the action for later - to see how execution continues
+         * please review the WorkflowWaitActionWorker. It essentially
+         * resumes execution of the workflow through the WorkflowService
+         * beginning at this action.
+         */
         $this->worker->doWorkDelayed(
             WorkflowWaitActionWorker::class,
             $payload,
             $numSecondsBetween
         );
-        // $this->worker->doWorkDelayed(
-        //     $user,
-        //     WorkflowWaitActionWorker::class,
-        //     $executeTime,
-        //     $payload
-        // );
 
-        // Return false to stop processing children (for now)
-        // The WorfkowWaitActionWorker will continue processing any children
-        // after the specified wait time
+        /*
+         * Return false to stop processing children (for now)
+         * The WorfkowWaitActionWorker will continue processing any children
+         * after the specified wait time
+         */
         return false;
     }
 
@@ -125,6 +123,7 @@ class WaitConditionActionExecutor extends AbstractActionExecutor implements Acti
     private function getExecuteDate($whenUnit, $whenInterval): DateTime
     {
         $intervalUnit = $this->getDateIntervalUnit($whenUnit);
+
         /*
          * The unit will return lower case 'm' for minutes, since \DateInterval
          * stupidly uses a preceding 'T' before time intervals but the same character

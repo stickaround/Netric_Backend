@@ -1,13 +1,14 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'email_message'
  */
+
 namespace data\browser_views;
 
-use Netric\EntityQuery\Where;
 
 return array(
-    'email_messages'=> array(
+    'email_messages' => array(
         'obj_type' => 'email_message',
         'name' => 'Messages',
         'description' => '',
@@ -18,6 +19,6 @@ return array(
                 'direction' => 'desc',
             ),
         ),
-        'table_columns' => array('subject', 'message_date', 'sent_from', 'send_to', 'priority')
+        'table_columns' => array('subject', 'message_date', 'from', 'to', 'priority')
     ),
 );

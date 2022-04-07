@@ -28,8 +28,8 @@ use Netric\EntityGroupings\GroupingLoader;
  * Example
  * <code>
  *  $email = $entityLoader->create("email_message", $currentUser->getAccountId());
- *  $email->setValue("sent_from", "sky.stebnicki@aereus.com");
- *  $email->setValue("send_to", "someone@somewhere.com");
+ *  $email->setValue("from", "sky.stebnicki@aereus.com");
+ *  $email->setValue("to", "someone@somewhere.com");
  *  $email->setValue("body", "Hello there");
  *  $email->setValue("body_type", EmailMessageEntity::BODY_TYPE_PLAIN);
  *  $email->addAttachment("/path/to/my/file.txt");
@@ -190,166 +190,6 @@ class EmailMessageEntity extends Entity implements EntityInterface
         }
     }
 
-    // /**
-    //  * Export the contents of this entity to a mime message for sending
-    //  *
-    //  * @return Mail\Message
-    //  */
-    // public function toMailMessage()
-    // {
-    //     $message = new Mail\Message();
-    //     $message->setEncoding('UTF-8');
-    //     $message->setSubject($this->getValue("subject"));
-
-    //     // Set from
-    //     $from = $this->getAddressListFromString($this->getValue("sent_from"));
-    //     if ($from) {
-    //         $message->addFrom($from);
-    //     }
-
-    //     // Set to
-    //     $to = $this->getAddressListFromString($this->getValue("send_to"));
-    //     if ($to) {
-    //         $message->addTo($to);
-    //     }
-
-    //     // Set cc
-    //     $cc = $this->getAddressListFromString($this->getValue("cc"));
-    //     if ($cc) {
-    //         $message->addCc($cc);
-    //     }
-
-    //     $bcc = $this->getAddressListFromString($this->getValue("bcc"));
-    //     if ($bcc) {
-    //         $message->addBcc($bcc);
-    //     }
-
-    //     if ($this->getValue("in_reply_to")) {
-    //         $message->getHeaders()->addHeaderLine("in-reply-to", $this->getValue("in_reply_to"));
-    //     }
-
-    //     /*
-    //      * Setup the body and attachments - mime message
-    //      */
-
-    //     // HTML part
-    //     $htmlPart = new Mime\Part($this->getHtmlBody());
-    //     $htmlPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
-    //     $htmlPart->setType(Mime\Mime::TYPE_HTML);
-    //     $htmlPart->setCharset("UTF-8");
-
-    //     // Plain text part
-    //     $textPart = new Mime\Part($this->getPlainBody());
-    //     $textPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
-    //     $textPart->setType(Mime\Mime::TYPE_TEXT);
-    //     $textPart->setCharset("UTF-8");
-
-    //     // Create a multipart/alternative message for the text and html parts
-    //     $bodyMessage = new Mime\Message();
-    //     $bodyMessage->addPart($textPart);
-    //     $bodyMessage->addPart($htmlPart);
-
-    //     // Create mime message to wrap both the body and any attachments
-    //     $mimeMessage = new Mime\Message();
-
-    //     // Add text & html alternatives to the mime message wrapper
-    //     $bodyPart = new Mime\Part($bodyMessage->generateMessage());
-    //     $bodyPart->setType(Mime\Mime::MULTIPART_ALTERNATIVE);
-    //     $bodyPart->setBoundary($bodyMessage->getMime()->boundary());
-    //     $mimeMessage->addPart($bodyPart);
-
-    //     // Add attachments
-    //     $this->addMimeAttachments($mimeMessage);
-
-    //     // Add the message to the mail/Message and return
-    //     $message->setBody($mimeMessage);
-
-    //     return $message;
-    // }
-
-    // /**
-    //  * Import entity from a Mail\Message
-    //  *
-    //  * This is often used for importing new messages from a backend
-    //  *
-    //  * @param Mail\Message $message
-    //  */
-    // public function fromMailMessage(Mail\Message $message)
-    // {
-    //     $this->setValue("subject", $message->getSubject());
-    //     $this->setValue("sent_from", $this->getAddressStringFromList($message->getFrom()));
-    //     $this->setValue("send_to", $this->getAddressStringFromList($message->getTo()));
-    //     $this->setValue("cc", $this->getAddressStringFromList($message->getCc()));
-    //     $this->setValue("bcc", $this->getAddressStringFromList($message->getBcc()));
-    //     $this->setValue("reply_to", $this->getAddressStringFromList($message->getReplyTo()));
-
-    //     $headers = $message->getHeaders();
-
-    //     // message_id
-    //     if ($headers->get("message-id")) {
-    //         $this->setValue("message_id", $headers->get("message-id")->getFieldValue());
-    //     }
-
-    //     // priority
-    //     if ($headers->get("priority")) {
-    //         $this->setValue("priority", $headers->get("priority")->getFieldValue());
-    //     }
-
-    //     // flag_spam
-    //     if ($headers->get("x-spam-flag")) {
-    //         if (strtolower(trim($headers->get("x-spam-flag")->getFieldValue())) == 'yes') {
-    //             $this->setValue("flag_spam", true);
-    //         }
-    //     }
-
-    //     // spam_report
-    //     if ($headers->get("x-spam-report")) {
-    //         $this->setValue("spam_report", $headers->get("x-spam-report")->getFieldValue());
-    //     }
-
-    //     // content_type
-    //     if ($headers->get("content-type")) {
-    //         $this->setValue("content_type", $headers->get("content-type")->getFieldValue());
-    //     }
-
-    //     // return_path
-    //     if ($headers->get("return-path")) {
-    //         $this->setValue("return_path", $headers->get("return-path")->getFieldValue());
-    //     }
-
-    //     // in_reply_to
-    //     if ($headers->get("in-reply-to")) {
-    //         $this->setValue("in_reply_to", $headers->get("in-reply-to")->getFieldValue());
-    //     }
-
-    //     // Date
-    //     if ($headers->get("date")) {
-    //         $this->setValue("message_date", strtotime($headers->get("date")->getFieldValue()));
-    //     }
-
-    //     // message_size
-
-    //     // orig_header
-    //     $this->setValue("orig_header", $headers->toString());
-
-    //     // Add attachments and body
-    //     $body = $message->getBody();
-    //     if (is_string($body)) {
-    //         $this->setValue("body", $body);
-    //         if ($this->getValue("content_type")) {
-    //             $ctypeParts = explode("/", $this->getValue("content_type"));
-    //             $bodyType = (isset($ctypeParts[1])) ? $ctypeParts[1] : self::BODY_TYPE_PLAIN;
-    //             $this->setValue("body_type", $bodyType);
-    //         } else {
-    //             $this->setValue("body_type", self::BODY_TYPE_PLAIN);
-    //         }
-    //     } else {
-    //         // Multi-part message
-    //         $parts = $message->getBody()->getParts();
-    //         $this->fromMailMessageMultiPart($parts);
-    //     }
-    // }
-
     /**
      * Get the HTML version of email body
      *
@@ -478,10 +318,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
         }
 
         // Add email message from to thread senders
-        $thread->addToSenders($this->getValue("sent_from"));
+        $thread->addToSenders($this->getValue("from"));
 
         // Add email message to to thread receivers
-        $thread->addToReceivers($this->getValue("send_to"));
+        $thread->addToReceivers($this->getValue("to"));
 
         // Add message body to thread body - mostly for snippets and searching
         $existingBody = $thread->getValue("body");
@@ -562,5 +402,174 @@ class EmailMessageEntity extends Entity implements EntityInterface
     private function generateMessageId()
     {
         return '<' . sha1(microtime()) . '@netric.com>';
+    }
+
+    /**
+     * Get the email portion of the from header
+     *
+     * @return string
+     */
+    public function getFromData(): array | null
+    {
+        $parts = $this->getAddressListData($this->getValue('from'));
+        if (count($parts) === 0) {
+            return null;
+        }
+
+        return $parts[0];
+    }
+
+    /**
+     * Get the display portion (if set) from the 'from' header
+     */
+    public function getReplyToData(): array | null
+    {
+        $parts = $this->getAddressListData($this->getValue('reply_to'));
+        if (count($parts) === 0) {
+            return null;
+        }
+
+        return $parts[0];
+    }
+
+    /**
+     * Get the recipients in 'to' header as an array
+     *
+     * @return array [['address'=>'email@example.com', 'display'=>'Full Name']]
+     */
+    public function getToData(): array
+    {
+        return $this->getAddressListData($this->getValue('to'));
+    }
+
+    /**
+     * Get the recipients in 'cc' header as an array
+     *
+     * @return array [['address'=>'email@example.com', 'display'=>'Full Name']]
+     */
+    public function getCcData(): array
+    {
+        return $this->getAddressListData($this->getValue('cc'));
+    }
+
+    /**
+     * Get the recipients in 'bcc' header as an array
+     *
+     * @return array [['address'=>'email@example.com', 'display'=>'Full Name']]
+     */
+    public function getBccData(): array
+    {
+        return $this->getAddressListData($this->getValue('bcc'));
+    }
+
+    /**
+     * Add an address with optional display name to the to field
+     *
+     * @param string $address
+     * @param string $display
+     * @return void
+     */
+    public function addTo(string $address, string $display = ''): void
+    {
+        $existingValue = "";
+        if ($this->getValue('to')) {
+            $existingValue = $this->getValue('to');
+        }
+
+        // Add address to the end of the string
+        $this->setValue(
+            'to',
+            $this->appendEmailAddress($existingValue, $address, $display)
+        );
+    }
+
+    /**
+     * Add an address with optional display name to the cc field
+     *
+     * @param string $address
+     * @param string $display
+     * @return void
+     */
+    public function addCc(string $address, string $display = ''): void
+    {
+        $existingValue = "";
+        if ($this->getValue('cc')) {
+            $existingValue = $this->getValue('cc');
+        }
+
+        // Add address cc the end of the string
+        $this->setValue(
+            'cc',
+            $this->appendEmailAddress($existingValue, $address, $display)
+        );
+    }
+
+    /**
+     * Add an address with optional display name to the bcc field
+     *
+     * @param string $address
+     * @param string $display
+     * @return void
+     */
+    public function addBcc(string $address, string $display = ''): void
+    {
+        $existingValue = "";
+        if ($this->getValue('bcc')) {
+            $existingValue = $this->getValue('bcc');
+        }
+
+        // Add address bcc the end of the string
+        $this->setValue(
+            'bcc',
+            $this->appendEmailAddress($existingValue, $address, $display)
+        );
+    }
+
+    /**
+     * Append an address to a comma-separated string of addresses
+     *
+     * @param [type] $currentValue
+     * @param [type] $address
+     * @param [type] $display
+     * @return string
+     */
+    private function appendEmailAddress(string $currentValue, string $address, string $display): string
+    {
+        $recipients = [];
+
+        if ($currentValue) {
+            $recipients = $this->getAddressListData($currentValue);
+        }
+
+        // Add the compiled address to the list of recipients
+        $recipients[] = [
+            'address' => $address,
+            'display' => (!empty($display)) ? $display : $address
+        ];
+
+        $composedParts = [];
+        foreach ($recipients as $parsedRecipients) {
+            // If the 'display' portion is empty or just the email address, then just add the email address
+            if (empty($parsedRecipients['display']) || $parsedRecipients['display'] == $parsedRecipients['address']) {
+                $composedParts[] = $parsedRecipients['address'];
+            } else {
+                $composedParts[] = "\"" . $parsedRecipients['display'] . "\" <" . $parsedRecipients['address'] . ">";
+            }
+        }
+
+        // Recompile the to header into a comma-separated text field
+        return implode(',', $composedParts);
+    }
+
+    /**
+     * Take a comma-separated address list string and return data array
+     *
+     * @param string $value
+     * @return array [['address'=>'email@example.com', 'display'=>"Display Name"]]
+     */
+    private function getAddressListData(string $value): array
+    {
+        $data = mailparse_rfc822_parse_addresses($value);
+        return $data;
     }
 }

@@ -5,12 +5,12 @@
 </row>
 <row>
     <column>
-        <field name='sent_from'></field>
+        <field name='from'></field>
     </column>
 </row>
 <row>
     <column>
-        <field name='send_to'></field>
+        <field name='to'></field>
     </column>
 </row>
 <row>

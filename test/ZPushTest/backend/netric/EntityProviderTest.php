@@ -13,12 +13,9 @@ use NetricTest\Bootstrap;
 use Netric\Entity\DataMapper\EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityGroupings\GroupingLoaderFactory;
-use Netric\Log\LogFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\EntityQuery;
-use Netric\Log\LogInterface;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -384,7 +381,7 @@ class EntityProviderTest extends TestCase
     {
         $email = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
         $email->setValue("subject", "A test message");
-        $email->setValue("sent_from", "sky@stebnicki.net");
+        $email->setValue("from", "sky@stebnicki.net");
         $eid = $this->entityLoader->save($email, $this->account->getAuthenticatedUser());
 
         // Queue for cleanup
@@ -397,7 +394,7 @@ class EntityProviderTest extends TestCase
         );
 
         $this->assertEquals($email->getValue("subject"), $syncMessage->subject);
-        $this->assertEquals($email->getValue('sent_from'), $syncMessage->from);
+        $this->assertEquals($email->getValue('from'), $syncMessage->from);
     }
 
     public function testSaveSyncObject_Task()

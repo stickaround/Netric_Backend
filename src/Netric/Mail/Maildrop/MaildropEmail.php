@@ -119,8 +119,8 @@ class MaildropEmail implements MaildropInterface
         $emailEntity->setValue("message_date", $messageDate);
         $emailEntity->setValue("parse_rev", self::PARSE_REV);
         $emailEntity->setValue("subject", $parser->getHeader('subject'));
-        $emailEntity->setValue("sent_from", $parser->getHeader('from'));
-        $emailEntity->setValue("send_to", $parser->getHeader('to'));
+        $emailEntity->setValue("from", $parser->getHeader('from'));
+        $emailEntity->setValue("to", $parser->getHeader('to'));
         $emailEntity->setValue("cc", $parser->getHeader('cc'));
         $emailEntity->setValue("bcc", $parser->getHeader('bcc'));
         $emailEntity->setValue("in_reply_to", $parser->getHeader('in-reply-to'));

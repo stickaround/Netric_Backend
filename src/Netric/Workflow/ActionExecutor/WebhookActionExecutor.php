@@ -1,14 +1,11 @@
 <?php
 
-/**
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
- */
+declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Netric\Error\Error;
-use Netric\Workflow\WorkFlowLegacyInstance;
+use Netric\Entity\EntityInterface;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Action to call an external page - very useful for API integration
@@ -17,84 +14,22 @@ use Netric\Workflow\WorkFlowLegacyInstance;
  *
  *  url string REQUIRED the URL to call when the action is executed
  */
-class WebhookActionExecutor extends AbstractActionExecutor implements ActionInterface
+class WebhookActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
     /**
-     * Alternate adaptor
+     * Execute action on an entity
      *
-     * @var Client\Adapter\AdapterInterface
-     */
-    private $adapeter = null;
-
-    /**
-     * Response from the server
-     *
-     * @var string
-     */
-    private $response = null;
-
-    /**
-     * Set an alternate adapter to use with the client
-     *
-     * @param Client\Adapter\AdapterInterface $adapter
-     */
-    public function setClientAdapter($adapter)
-    {
-        $this->adapeter = $adapter;
-    }
-
-    /**
-     * Get the response received from the last call
-     *
-     * @return string
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * Execute this action
-     *
-     * @param WorkFlowLegacyInstance $workflowInstance The workflow instance we are executing in
+     * @param EntityInterface $actOnEntity The entity (any type) we are acting on
+     * @param UserEntity $user The user who is initiating the action
      * @return bool true on success, false on failure
      */
-    public function execute(WorkFlowLegacyInstance $workflowInstance)
+    public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
-        // // Get the entity being acted on
-        // $entity = $workflowInstance->getEntity();
+        // Get url from the param
+        $url = $this->getParam('url', $actOnEntity);
 
-        // // Get merged params
-        // $params = $this->getParams($entity);
-
-        // $search = ["(", ")", " ", "\"", "'"];
-        // $replace = ["%28", "%29", "%20", "%22", "%27"];
-
-        // $url = str_replace($search, $replace, $params["url"]);
-
-        // /*
-        // $ch = curl_init();
-        // curl_setopt($ch, CURLOPT_URL, $url);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // $resultUrl = curl_exec($ch);
-        // $ret = (curl_errno($ch)) ? false : true;
-        // curl_close($ch);
-        // */
-
-        // $client = new Client($url, [
-        //     'maxredirects' => 10,
-        //     'timeout'      => 30,
-        // ]);
-        // if ($this->adapeter) {
-        //     $client->setAdapter($this->adapeter);
-        // }
-
-        // try {
-        //     $this->response = $client->send();
-        //     return ($client->getResponse()->getStatusCode() === 200) ? true : false;
-        // } catch (Client\Adapter\Exception\RuntimeException $e) {
-        //     $this->errors[] = new Error($e->getMessage());
-        //     return false;
-        // }
+        // TODO: call the url and return true if the status code is 200
+        // but for now, we just return false for failure to stop execution
+        return false;
     }
 }

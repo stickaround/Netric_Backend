@@ -188,4 +188,179 @@ class EmailMessageTest extends TestCase
         $expected = "my\nmessage";
         $this->assertEquals($expected, $emailMessage->getPlainBody());
     }
+
+    /**
+     * Make sure we can convert a full email addres+display into parts
+     *
+     * @return void
+     */
+    public function testGetFromData(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+        $testEmailAddress = 'test@example.com';
+
+        $emailMessage->setValue("from", $testEmailAddress);
+        $fromData = $emailMessage->getFromData();
+        $this->assertEquals($testEmailAddress, $fromData['address']);
+        $this->assertEquals($testEmailAddress, $fromData['display']);
+
+        $emailMessage->setValue("from", "Test <$testEmailAddress>");
+        $fromData = $emailMessage->getFromData();
+        $this->assertEquals($testEmailAddress, $fromData['address']);
+        $this->assertEquals("Test", $fromData['display']);
+
+        $emailMessage->setValue("from", "\"Test\" <$testEmailAddress>");
+        $fromData = $emailMessage->getFromData();
+        $this->assertEquals($testEmailAddress, $fromData['address']);
+        $this->assertEquals("Test", $fromData['display']);
+    }
+
+    /**
+     * Make sure we can convert a full email addres+display into parts
+     *
+     * @return void
+     */
+    public function testGetReplyToData(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+        $testEmailAddress = 'test@example.com';
+
+        $emailMessage->setValue("reply_to", $testEmailAddress);
+        $replyToData = $emailMessage->getReplyToData();
+        $this->assertEquals($testEmailAddress, $replyToData['address']);
+        $this->assertEquals($testEmailAddress, $replyToData['display']);
+
+        $emailMessage->setValue("reply_to", "Test <$testEmailAddress>");
+        $replyToData = $emailMessage->getReplyToData();
+        $this->assertEquals($testEmailAddress, $replyToData['address']);
+        $this->assertEquals("Test", $replyToData['display']);
+    }
+
+    /**
+     * Make sure we can split out a comma-separated TO header
+     *
+     * @return void
+     */
+    public function testGetToData(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+
+        $emailMessage->setValue("to", "\"User, Some\" <some@user.com>, Another <another@user.com>,test@example.com");
+        $parts = $emailMessage->getToData();
+        $this->assertEquals(3, count($parts));
+
+        $this->assertEquals("some@user.com", $parts[0]['address']);
+        $this->assertEquals("User, Some", $parts[0]['display']);
+
+        $this->assertEquals("another@user.com", $parts[1]['address']);
+        $this->assertEquals("Another", $parts[1]['display']);
+
+        $this->assertEquals("test@example.com", $parts[2]['address']);
+        $this->assertEquals("test@example.com", $parts[2]['display']);
+    }
+
+    /**
+     * Make sure we can parse CC header strings
+     *
+     * @return void
+     */
+    public function testGetCcData(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+
+        $emailMessage->setValue("cc", "\"User, Some\" <some@user.com>, Another <another@user.com>,test@example.com");
+        $parts = $emailMessage->getCcData();
+        $this->assertEquals(3, count($parts));
+
+        $this->assertEquals("some@user.com", $parts[0]['address']);
+        $this->assertEquals("User, Some", $parts[0]['display']);
+
+        $this->assertEquals("another@user.com", $parts[1]['address']);
+        $this->assertEquals("Another", $parts[1]['display']);
+
+        $this->assertEquals("test@example.com", $parts[2]['address']);
+        $this->assertEquals("test@example.com", $parts[2]['display']);
+    }
+
+    /**
+     * Make sure we can parse BCC header strings
+     *
+     * @return void
+     */
+    public function testGetBccData(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+
+        $emailMessage->setValue("bcc", "\"User, Some\" <some@user.com>, Another <another@user.com>,test@example.com");
+        $parts = $emailMessage->getBccData();
+        $this->assertEquals(3, count($parts));
+
+        $this->assertEquals("some@user.com", $parts[0]['address']);
+        $this->assertEquals("User, Some", $parts[0]['display']);
+
+        $this->assertEquals("another@user.com", $parts[1]['address']);
+        $this->assertEquals("Another", $parts[1]['display']);
+
+        $this->assertEquals("test@example.com", $parts[2]['address']);
+        $this->assertEquals("test@example.com", $parts[2]['display']);
+    }
+
+    /**
+     * Make sure we can parse BCC header strings
+     *
+     * @return void
+     */
+    public function testAddTo(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+
+        $emailMessage->addTo("user@example.com", "Example User");
+        $emailMessage->addTo("user2@example.com");
+        $this->assertEquals(
+            "\"Example User\" <user@example.com>,user2@example.com",
+            $emailMessage->getValue("to")
+        );
+    }
+
+    /**
+     * Make sure we can parse BCC header strings
+     *
+     * @return void
+     */
+    public function testAddCc(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+
+        $emailMessage->addCc("user@example.com", "Example User");
+        $emailMessage->addCc("user2@example.com");
+        $this->assertEquals(
+            "\"Example User\" <user@example.com>,user2@example.com",
+            $emailMessage->getValue("cc")
+        );
+    }
+
+    /**
+     * Make sure we can parse BCC header strings
+     *
+     * @return void
+     */
+    public function testAddBcc(): void
+    {
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
+
+        $emailMessage->addBcc("user@example.com", "Example User");
+        $emailMessage->addBcc("user2@example.com");
+        $this->assertEquals(
+            "\"Example User\" <user@example.com>,user2@example.com",
+            $emailMessage->getValue("bcc")
+        );
+    }
 }

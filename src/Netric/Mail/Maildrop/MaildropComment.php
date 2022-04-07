@@ -109,7 +109,7 @@ class MaildropComment extends AbstractMaildrop implements MaildropInterface
         $comment->setValue("obj_reference", $emailAccount->getValue('dropbox_obj_reference'));
         // We might use this later to detect replying to another
         //$comment->setValue("in_reply_to", $parser->getHeader('in-reply-to'));
-        // $comment->setValue("sent_from", $parser->getHeader('from'));
+        // $comment->setValue("from", $parser->getHeader('from'));
         // $comment->setValue("email_account", $emailAccount->getEntityId());
         // $comment->setValue("owner_id", $user->getEntityId());
         // $comment->setValue("mailbox_id", $mailboxId);

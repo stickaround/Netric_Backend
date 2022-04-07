@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netric\Workflow\ActionExecutor;
 
 use Netric\Entity\EntityInterface;
@@ -10,7 +12,6 @@ use Netric\Entity\ObjType\UserEntity;
  */
 class CreateEntityActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
-
     /**
      * Execute an action on an entity
      *
@@ -20,12 +21,8 @@ class CreateEntityActionExecutor extends AbstractActionExecutor implements Actio
      */
     public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
-        // This is not yet implemented, jsut fail for now
-        return false;
-
         // Get merged params from the workflow action
         $createObjType = $this->getParam('obj_type', $actOnEntity);
-
 
         // Create a new object of type obj_type
         $createdEntity = $this->getEntityloader()->create($createObjType, $user->getAccountId);
