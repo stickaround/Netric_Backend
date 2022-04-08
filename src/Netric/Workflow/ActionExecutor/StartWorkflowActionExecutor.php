@@ -52,7 +52,9 @@ class StartWorkflowActionExecutor extends AbstractActionExecutor implements Acti
         $workflowId = $this->getParam('wfid', $actOnEntity);
 
         if (!empty($workflowId)) {
-            // TODO: Start the workflow for the entity
+            // Start the workflow for the entity
+            $workflow = $this->getEntityloader()->getEntityById($workflowId, $user->getAccountId());
+            $this->workflowService->startInstanceAndRunActions($workflow, $actOnEntity, $user);
             return true;
         }
 

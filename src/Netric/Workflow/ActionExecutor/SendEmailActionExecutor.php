@@ -6,9 +6,11 @@ namespace Netric\Workflow\ActionExecutor;
 
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Mail\SenderService;
 use Netric\Entity\ObjType\WorkflowActionEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Action to send email messages
@@ -88,7 +90,28 @@ class SendEmailActionExecutor extends AbstractActionExecutor implements ActionEx
             $bodyIsHtml = true;
         }
 
-        if ($this->senderService->send($to, "", $from, "", $subject, $body)) {
+        $emailMessage = $this->getEntityloader()->create(
+            ObjectTypes::EMAIL_MESSAGE,
+            $this->getActionAccountId()
+        );
+        $emailMessage->setValue("to", $to);
+        $emailMessage->setValue("from", $from);
+        $emailMessage->setValue("body", $body);
+        $emailMessage->setValue("subject", $subject);
+
+        if ($cc) {
+            $emailMessage->setValue("cc", $cc);
+        }
+
+        if ($bcc) {
+            $emailMessage->setValue("bcc", $bcc);
+        }
+
+        if ($bodyIsHtml) {
+            $emailMessage->setValue("body_type", EmailMessageEntity::BODY_TYPE_HTML);
+        }
+
+        if ($this->senderService->sendEmailMessage($emailMessage)) {
             return true;
         }
 

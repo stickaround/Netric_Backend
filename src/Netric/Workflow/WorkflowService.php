@@ -101,7 +101,7 @@ class WorkflowService
      * @param EntityInterface $entity The entity we are running on
      * @param UserEntity $user
      */
-    private function startInstanceAndRunActions(WorkflowEntity $workflow, EntityInterface $entity, UserEntity $user)
+    public function startInstanceAndRunActions(WorkflowEntity $workflow, EntityInterface $entity, UserEntity $user)
     {
         // Create a new instance for this workflow and entity
         $this->workFlowDataMapper->createWorkflowInstance(
