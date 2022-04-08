@@ -16,7 +16,7 @@ return array(
         ),
         'parent_id' => array(
             'title'=>'Parent',
-            'type'=>Field::TYPE_INTEGER,
+            'type' => Field::TYPE_OBJECT,
             'readonly'=>false,
             'require'=>false
         ),

@@ -44,10 +44,22 @@ class UsersInitData implements InitDataInterface
      */
     public function setInitialData(Account $account): bool
     {
+        $team = $this->entityLoader->getByUniqueName(
+            ObjectTypes::USER_TEAM,
+            $account->getOrgName(),
+            $account->getAccountId()
+        );
+
         foreach ($this->usersData as $userData) {
             if (!$this->entityLoader->getByUniqueName(ObjectTypes::USER, $userData['name'], $account->getAccountId())) {
                 $user = $this->entityLoader->create(ObjectTypes::USER, $account->getAccountId());
                 $user->fromArray($userData);
+
+                // Check if default user team is available
+                if ($team) {
+                    $user->setValue("team_id", $team->getEntityId());
+                }
+
                 $this->entityLoader->save($user, $account->getSystemUser());
             }
         }
