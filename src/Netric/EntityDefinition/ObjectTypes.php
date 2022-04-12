@@ -26,7 +26,7 @@ class ObjectTypes
     const DASHBOARD = 'dashboard';
     const DASHBOARD_WIDGET = 'dashboard_widget';
     const DISCUSSION = 'discussion';
-    const DOCUMENT = 'infocenter_document';
+    const DOCUMENT = 'document';
     const EMAIL_ACCOUNT = 'email_account';
     const EMAIL_CAMPAIGN = 'email_campaign';
     const EMAIL_MESSAGE = 'email_message';

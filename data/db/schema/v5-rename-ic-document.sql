@@ -1,0 +1,1 @@
+UPDATE entity_definition SET name="document" WHERE name="infocenter_document";

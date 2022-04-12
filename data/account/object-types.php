@@ -28,7 +28,7 @@ return [
     ["obj_type" => "opportunity", "title" => "Opportunity", "revision" => "0", "system" => true],
     ["obj_type" => "product", "title" => "Product", "revision" => "0", "system" => true],
     ["obj_type" => "invoice_template", "title" => "Invoice Template", "revision" => "0", "system" => true],
-    ["obj_type" => "infocenter_document", "title" => "IC Document", "revision" => "0", "system" => true],
+    ["obj_type" => "document", "title" => "Document", "revision" => "0", "system" => true],
     ["obj_type" => "calendar_event_proposal", "title" => "Meeting Proposal", "revision" => "0", "system" => true],
     ["obj_type" => "contact", "title" => "Contact", "revision" => "0", "system" => true],
     ["obj_type" => "approval", "title" => "Approval Request", "revision" => "0", "system" => true],
