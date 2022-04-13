@@ -64,7 +64,7 @@ services:
     image: memcached
 
   redis:
-    image: redis:6
+    image: redis
     ports:
       - "6379:6379"
 
@@ -86,13 +86,15 @@ services:
 
   jobqueue_pgsql:
     image: postgres
+    platform: linux/amd64
     environment:
       POSTGRES_USER: jobqueue
       POSTGRES_PASSWORD: password
       POSTGRES_DB: jobqueue
 
   db1:
-    image: dockerhub.aereus.com/pgsql:latest
+    image: postgres
+    platform: linux/amd64
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
@@ -129,11 +131,12 @@ services:
       - RUN_SETUP_UPDATE=1
 
   smtp4dev:
-    image: rnwood/smtp4dev:v3
+    image: rnwood/smtp4dev:prerelease
     restart: always
 
   pgsql:
     image: postgres
+    platform: linux/amd64
     environment:
       POSTGRES_USER: notpush
       POSTGRES_PASSWORD: password
