@@ -114,7 +114,7 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
             $parser = null;
 
             // Re-open ticket and set it as open and unseen
-            $ticket = $this->entityLoader->getEntityById($inReplyTo, $emailAccount->getAccountId());
+            $ticket = $this->entityLoader->getEntityById($ticketId, $emailAccount->getAccountId());
             if ($ticket) {
                 $ticket->setValue("is_closed", false);
                 $ticket->setValue("f_seen", false); // Needs attention!
