@@ -113,6 +113,14 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
             // Cleanup resources
             $parser = null;
 
+            // Re-open ticket and set it as open and unseen
+            $ticket = $this->entityLoader->getEntityById($inReplyTo, $emailAccount->getAccountId());
+            if ($ticket) {
+                $ticket->setValue("is_closed", false);
+                $ticket->setValue("f_seen", false); // Needs attention!
+                $this->entityLoader->save($ticket, $user);
+            }
+
             return $this->routeMessageToCommentMaildrop(
                 $messageFilePath,
                 $emailAccount,
@@ -263,6 +271,7 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
         $commentAccount->setvalue('address', $emailAccount->getValue('address'));
         $commentAccount->setValue('dropbox_create_type', MaildropInterface::TYPE_COMMENT);
         $commentAccount->setValue('dropbox_obj_reference', $inReplyTo);
+
         return $this->maildropComment->createEntityFromMessage($messageFilePath, $commentAccount);
     }
 }
