@@ -25,7 +25,7 @@ class AccountBillingService implements AccountBillingServiceInterface
     /**
      * The flat fee we charge per user per month
      */
-    const PRICE_PER_USER = 10;
+    const PRICE_PER_USER = 20;
 
     /**
      * We want to log everything when it comes to billing
