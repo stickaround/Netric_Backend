@@ -700,8 +700,7 @@ class Entity implements EntityInterface
         // and causing the ticket to always be marked as seen.
         if (
             $user->getEntityId() == $this->getValue('owner_id') &&
-            $this->getObjType() !== ObjectTypes::NOTIFICATION &&
-            !$this->fieldValueChanged("is_seen")
+            $this->getObjType() !== ObjectTypes::NOTIFICATION
         ) {
             $this->setValue("is_seen", true);
         }
