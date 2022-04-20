@@ -58,9 +58,13 @@ class MaildropTicketTest extends TestCase
 
         // Setup entity loader
         $this->entityLoaderMock = $this->createMock(EntityLoader::class);
+        // $this->entityLoaderMock->method('getEntityById')
+        //     ->with(self::TEST_USER_ID, self::TEST_ACCOUNT_ID)
+        //     ->will($this->returnValue($this->userMock));
         $this->entityLoaderMock->method('getEntityById')
-            ->with(self::TEST_USER_ID, self::TEST_ACCOUNT_ID)
-            ->will($this->returnValue($this->userMock));
+            ->will($this->returnValueMap([
+                [self::TEST_USER_ID, self::TEST_ACCOUNT_ID, $this->userMock],
+            ]));
 
         $this->fileSystemMock = $this->createMock(FileSystem::class);
         $this->indexMock = $this->createMock(IndexInterface::class);
@@ -206,6 +210,13 @@ class MaildropTicketTest extends TestCase
         )->will(
             $this->returnValue($mockEmailAccount)
         );
+
+        // Mock getting the ticket entity
+        $this->entityLoaderMock->method('getEntityById')
+            ->will($this->returnValueMap([
+                [self::TEST_USER_ID, self::TEST_ACCOUNT_ID, $this->userMock],
+                ["UUID-TEST-TICKET", self::TEST_ACCOUNT_ID, ""]
+            ]));
 
         // Make sure email account values are correct
         $mockEmailAccount->expects($this->exactly(4))
