@@ -76,9 +76,9 @@ return [
                 'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                 'value' => true
             ],
-            'f_seen' => [
+            'is_seen' => [
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'f_seen',
+                'field_name' => 'is_seen',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => false,
             ],

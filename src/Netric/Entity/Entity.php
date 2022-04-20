@@ -687,9 +687,23 @@ class Entity implements EntityInterface
         // Update or add followers based on changes to fields
         $this->updateFollowers();
 
-        // If the owner of this entity is the current user, then set the f_seen value to true
-        if ($user->getEntityId() == $this->getOwnerId() && $this->getObjType() !== ObjectTypes::NOTIFICATION) {
-            $this->setValue("f_seen", true);
+        // If the owner of this entity is the current user,
+        // then set the is_seen value to true - they created it.
+        // NOTE: we might want to move this to front-end logic though
+        // since it could create some complications with things like
+        // email threads being updated - a tread is updated with a message and
+        // we try to mark the thread as unseen, but the owner might be the owner of
+        // the meassage - unless we always force it to be system of course. Time will tell
+        // if this design work in all scenarios. It used to be getOwnerId() but that
+        // proved to be problematic for support tickets being created since
+        // there was no owner set, but the creator was getting returned with getOwnerId()
+        // and causing the ticket to always be marked as seen.
+        if (
+            $user->getEntityId() == $this->getValue('owner_id') &&
+            $this->getObjType() !== ObjectTypes::NOTIFICATION &&
+            !$this->fieldValueChanged("is_seen")
+        ) {
+            $this->setValue("is_seen", true);
         }
 
         // Call derived extensions
@@ -997,7 +1011,7 @@ class Entity implements EntityInterface
             "ts_entered",
             "date_entered", // legacy
             "revision",
-            "f_seen",
+            "is_seen",
             "num_comments",
             "comments", // Ignore because comments make their own notice
             "activity",

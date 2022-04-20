@@ -687,6 +687,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
 
     /**
      * We have to convert our 36 character uuid into a 20 char unique id
+     * because authorize.net does not support more than 20 characters
      *
      * @param ContactEntity $customerEntity
      * @return string

@@ -35,7 +35,7 @@ return array(
         ),
 
         // Flag indicating if the notification has been seen
-        'f_seen' => array(
+        'is_seen' => array(
             'title' => 'Seen',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',

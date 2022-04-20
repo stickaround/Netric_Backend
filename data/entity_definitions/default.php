@@ -95,7 +95,7 @@ return [
     ],
 
     // Default is true on null for this so not every entity is marked as unseen (annoying]
-    'f_seen' => [
+    'is_seen' => [
         'title' => 'Seen',
         'type' => Field::TYPE_BOOL,
         'subtype' => '',

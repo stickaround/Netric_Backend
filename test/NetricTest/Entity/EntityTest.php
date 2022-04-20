@@ -602,7 +602,7 @@ class EntityTest extends TestCase
     }
 
     /**
-     * Test setting of f_seen to true if the owner of entity is the current user
+     * Test setting of is_seen to true if the owner of entity is the current user
      */
     public function testFSeenForCurrentUser()
     {
@@ -624,11 +624,11 @@ class EntityTest extends TestCase
         $this->testEntities[] = $task; // For cleanup
 
         // If seen should be true
-        $this->assertTrue($task->getValue("f_seen"));
+        $this->assertTrue($task->getValue("is_seen"));
     }
 
     /**
-     * Test setting of f_seen to true if the owner of entity is the current user
+     * Test setting of is_seen to true if the owner of entity is the current user
      */
     public function testFSeenForNonOwnerUser()
     {
@@ -648,7 +648,7 @@ class EntityTest extends TestCase
         $this->testEntities[] = $task; // For cleanup
 
         // If seen should be false
-        $this->assertFalse($task->getValue("f_seen"));
+        $this->assertFalse($task->getValue("is_seen"));
     }
 
     /**

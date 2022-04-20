@@ -108,7 +108,7 @@ class MaildropTicketTest extends TestCase
                 [$this->equalTo('description'), $this->equalTo('Again a simple message')],
                 [$this->equalTo('name'), $this->equalTo('Test Subject')],
                 [$this->equalTo('is_closed'), $this->equalTo(false)],
-                [$this->equalTo('f_seen'), $this->equalTo(false)],
+                [$this->equalTo('is_seen'), $this->equalTo(false)],
                 [$this->equalTo('source_id'), $this->equalTo(self::TEST_GROUP_SOURCE_EMAIL)],
                 // This means it queried and found a user with matching email
                 [$this->equalTo('contact_id'), $this->equalTo(self::TEST_CONTACT_ID)],

@@ -610,16 +610,16 @@
         },
         {
             "name": "php-mime-mail-parser/php-mime-mail-parser",
-            "version": "7.1.0",
+            "version": "7.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-mime-mail-parser/php-mime-mail-parser.git",
-                "reference": "cad0267d8a5e7195d344f3842b452f1fdf6a5021"
+                "reference": "81d84bbc6a73b913110e155e98059526825c7ee3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-mime-mail-parser/php-mime-mail-parser/zipball/cad0267d8a5e7195d344f3842b452f1fdf6a5021",
-                "reference": "cad0267d8a5e7195d344f3842b452f1fdf6a5021",
+                "url": "https://api.github.com/repos/php-mime-mail-parser/php-mime-mail-parser/zipball/81d84bbc6a73b913110e155e98059526825c7ee3",
+                "reference": "81d84bbc6a73b913110e155e98059526825c7ee3",
                 "shasum": ""
             },
             "require": {
@@ -689,7 +689,7 @@
             ],
             "support": {
                 "issues": "https://github.com/php-mime-mail-parser/php-mime-mail-parser/issues",
-                "source": "https://github.com/php-mime-mail-parser/php-mime-mail-parser/tree/7.1.0"
+                "source": "https://github.com/php-mime-mail-parser/php-mime-mail-parser/tree/7.1.2"
             },
             "funding": [
                 {
@@ -697,7 +697,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-23T13:16:05+00:00"
+            "time": "2022-04-16T07:56:53+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
@@ -5466,5 +5466,5 @@
         "ext-mailparse": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }

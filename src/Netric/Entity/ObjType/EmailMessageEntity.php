@@ -362,7 +362,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
          * If the seen flag of any single message is updated in the thread,
          * the thread flag should be updated as well.
          */
-        $thread->setValue("f_seen", $this->getValue("flag_seen"));
+        $thread->setValue("is_seen", $this->getValue("flag_seen"));
 
         /*
          * Add this mailbox to the thread if not already set.

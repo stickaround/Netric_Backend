@@ -217,7 +217,7 @@ class Notifier
             $notification = $this->getNotification($objReference, $followerId, $user->getAccountId());
             $notification->setValue("name", $name);
             $notification->setValue("description", $description);
-            $notification->setValue("f_seen", false);
+            $notification->setValue("is_seen", false);
             $notificationIds[] = $this->entityLoader->save($notification, $user);
 
             $this->sendNotification($notification, $user, $follower);
@@ -242,12 +242,12 @@ class Notifier
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $user->getAccountId());
         $query->where("owner_id")->equals($user->getEntityId());
         $query->andWhere("obj_reference")->equals($entity->getEntityId());
-        $query->andWhere("f_seen")->equals(false);
+        $query->andWhere("is_seen")->equals(false);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();
         for ($i = 0; $i < $num; $i++) {
             $notification = $result->getEntity($i);
-            $notification->setValue("f_seen", true);
+            $notification->setValue("is_seen", true);
             $this->entityLoader->save($notification, $user);
         }
     }
@@ -272,7 +272,7 @@ class Notifier
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $accountId);
         $query->where("owner_id")->equals($userGuid);
         $query->andWhere("obj_reference")->equals($objReference);
-        $query->andWhere("f_seen")->equals(false);
+        $query->andWhere("is_seen")->equals(false);
 
         // Make sure we get the latest notification if there are multiple
         $query->orderBy("ts_updated", OrderBy::DESCENDING);

@@ -234,7 +234,7 @@ class EntityProvider
             return [
                 "id" => $entity->getEntityId(),
                 "mod" => $entity->getValue("commit_id"),
-                "flags" => ($entity->getValue("f_seen") == 't') ? 1 : 0,
+                "flags" => ($entity->getValue("is_seen") === true) ? 1 : 0,
                 "revision" => $entity->getValue("revision")
             ];
         }
@@ -304,7 +304,7 @@ class EntityProvider
                 // Support old field that was not standard - email_message included
                 $entity->setValue("flag_seen", ($flags) ? true : false);
             } else {
-                $entity->setValue("f_seen", ($flags) ? true : false);
+                $entity->setValue("is_seen", ($flags) ? true : false);
             }
             $entityLoader->save($entity, $this->user);
         }

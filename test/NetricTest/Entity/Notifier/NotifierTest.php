@@ -292,7 +292,7 @@ class NotifierTest extends TestCase
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
         $query->where("owner_id")->equals($this->testUser->getEntityId());
         $query->andWhere("obj_reference")->equals($task->getEntityId());
-        $query->andWhere("f_seen")->equals(false);
+        $query->andWhere("is_seen")->equals(false);
         $result = $entityIndex->executeQuery($query);
         $this->assertEquals(1, $result->getNum());
 
@@ -303,7 +303,7 @@ class NotifierTest extends TestCase
         $query = new EntityQuery(ObjectTypes::NOTIFICATION, $this->account->getAccountId());
         $query->where("owner_id")->equals($this->testUser->getEntityId());
         $query->andWhere("obj_reference")->equals("task:" . $task->getEntityId());
-        $query->andWhere("f_seen")->equals(false);
+        $query->andWhere("is_seen")->equals(false);
         $result = $entityIndex->executeQuery($query);
 
         // Make sure none were found

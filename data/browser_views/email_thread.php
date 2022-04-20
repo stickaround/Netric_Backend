@@ -1,14 +1,16 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'email_thread'
  */
+
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
 use Netric\Entity\ObjType\UserEntity;
 
 return array(
-    'email_threads'=> array(
+    'email_threads' => array(
         'obj_type' => 'email_thread',
         'name' => 'Email Threads',
         'description' => '',
@@ -27,6 +29,6 @@ return array(
                 'direction' => 'desc',
             ),
         ),
-        'table_columns' => array('senders', 'subject', 'ts_delivered', 'f_seen', 'f_flagged', 'num_attachments', 'num_messages')
+        'table_columns' => array('senders', 'subject', 'ts_delivered', 'is_seen', 'f_flagged', 'num_attachments', 'num_messages')
     ),
 );

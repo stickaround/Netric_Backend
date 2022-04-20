@@ -141,7 +141,7 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
         $ticket->setValue("description", $plainbody);
         $ticket->setValue("name", $parser->getHeader('subject'));
         $ticket->setValue("is_closed", false);
-        $ticket->setValue("f_seen", false); // Needs attention!
+        $ticket->setValue("is_seen", false); // Needs attention!
 
         // If dropbox_obj_reference is set, it is the ID of a support channel
         if ($emailAccount->getValue('dropbox_obj_reference')) {

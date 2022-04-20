@@ -30,7 +30,7 @@ return [
             'readonly' => true,
             'system' => true,
         ],
-        'f_seen' => [
+        'is_seen' => [
             'title' => 'Seen',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',

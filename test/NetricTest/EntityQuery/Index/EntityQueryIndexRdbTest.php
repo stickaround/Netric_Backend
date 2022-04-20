@@ -278,11 +278,11 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
 
         // Test Not Equal
         $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId());
-        $query->where('f_seen')->doesNotEqual(true);
+        $query->where('is_seen')->doesNotEqual(true);
         $ret = $this->entityValueSanitizer->sanitizeQuery($query);
 
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $ret[0]);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', ''))::boolean != true");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'is_seen', ''))::boolean != true");
     }
 
     public function testbuildConditionStringForDate()
