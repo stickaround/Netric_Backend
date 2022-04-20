@@ -101,13 +101,6 @@ class AccountSetup
         string $adminEmail,
         string $adminPassword
     ): Account {
-        // Make sure the account does not already exists
-        // TODO: I don't think we actually need this any more because
-        // the getUniqueAccountName below iwll make sure there is no collision
-        // if ($this->accountContainer->loadByName($accountName)) {
-        //     throw new AccountAlreadyExistsException($accountName . " already exists");
-        // }
-
         // Make sure the name is valid
         $cleanedAccountName = $this->getUniqueAccountName($accountName);
 
@@ -165,10 +158,18 @@ class AccountSetup
      */
     private function createMainAccountContact(string $companyName): string
     {
-        $newContact = $this->entityLoader->create(ObjectTypes::CONTACT, $this->mainAccountId);
+        $newContact = $this->entityLoader->create(
+            ObjectTypes::CONTACT,
+            $this->mainAccountId
+        );
         $newContact->setValue("type_id", 2); // 2 = organization
         $newContact->setValue("company", $companyName);
+
         // TOOD: Add account info
+
+        // TODO: Add primary contact
+
+        // TODO: Add new opportunity
 
         // Save the contact to the main/billing account
         $mainAccount = $this->accountContainer->loadById($this->mainAccountId);

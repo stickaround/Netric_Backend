@@ -698,12 +698,12 @@ class Entity implements EntityInterface
         // proved to be problematic for support tickets being created since
         // there was no owner set, but the creator was getting returned with getOwnerId()
         // and causing the ticket to always be marked as seen.
-        if (
-            $user->getEntityId() == $this->getValue('owner_id') &&
-            $this->getObjType() !== ObjectTypes::NOTIFICATION
-        ) {
-            $this->setValue("is_seen", true);
-        }
+        // if (
+        //     $user->getEntityId() == $this->getValue('owner_id') &&
+        //     $this->getObjType() !== ObjectTypes::NOTIFICATION
+        // ) {
+        //     $this->setValue("is_seen", true);
+        // }
 
         // Call derived extensions
         $this->onBeforeSave($serviceLocator, $user);
