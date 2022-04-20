@@ -11,7 +11,7 @@ use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
-return [    
+return [
     'my_tasks' => [
         'obj_type' => ObjectTypes::TASK,
         'name' => 'My Incomplete Tasks',
@@ -169,7 +169,7 @@ return [
             'user' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'owner_id',
-                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => '',
             ],
             'is_closed' => [
@@ -240,13 +240,13 @@ return [
         ],
         'table_columns' => ['name', 'project', 'status_id', 'deadline', 'owner_id']
     ],
-    
+
     'select' => [
         'obj_type' => ObjectTypes::TASK,
         'name' => 'Select',
         'description' => 'Used in entity browse modal',
         'default' => false,
-        'conditions' => [            
+        'conditions' => [
             'status_id_com' => [
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'status_id',

@@ -62,12 +62,6 @@ return [
             'subtype' => '',
             'readonly' => false
         ],
-        'is_attention_needed' => [
-            'title' => 'Attention Needed',
-            'type' => Field::TYPE_BOOL,
-            'subtype' => '',
-            'readonly' => false
-        ],
         // Override field in default.php because don't want a default value for tickets
         // since they can be unassinged
         'owner_id' => [
