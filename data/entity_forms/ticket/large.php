@@ -16,7 +16,7 @@
                         <column>
                             <field name='source_id'></field>
                             <field name='priority_id'></field>
-
+                            <field name='f_seen'></field>
                         </column>
                     </row>
                 </fieldset>
