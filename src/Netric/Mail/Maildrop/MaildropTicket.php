@@ -117,7 +117,7 @@ class MaildropTicket extends AbstractMaildrop implements MaildropInterface
             $ticket = $this->entityLoader->getEntityById($ticketId, $emailAccount->getAccountId());
             if ($ticket) {
                 $ticket->setValue("is_closed", false);
-                $ticket->setValue("f_seen", false); // Needs attention!
+                $ticket->setValue("is_seen", false); // Needs attention!
                 $this->entityLoader->save($ticket, $user);
             }
 
