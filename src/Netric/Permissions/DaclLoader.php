@@ -8,6 +8,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoader;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Identity mapper for DACLs to make sure we are only loading each one once
@@ -94,11 +95,13 @@ class DaclLoader
         $objDef = $entity->getDefinition();
         $fieldToInheritFrom = $objDef->getFieldToInheritDaclFrom();
         if ($fieldToInheritFrom) {
-            if ($entity->getValue($fieldToInheritFrom->getName())) {
+            $fieldValue = $entity->getValue($fieldToInheritFrom->getName());
+            if (!empty($fieldValue) && Uuid::isValid($fieldValue)) {
                 // See if we can retrieve the parent entity
-                $inheritableEntity = $this->entityLoader->getEntityById($entity->getValue(
-                    $fieldToInheritFrom->getName()
-                ), $user->getAccountId());
+                $inheritableEntity = $this->entityLoader->getEntityById(
+                    $entity->getValue($fieldToInheritFrom->getName()),
+                    $user->getAccountId()
+                );
 
                 if ($inheritableEntity) {
                     $dacl = $this->getForEntity($inheritableEntity, $user);
