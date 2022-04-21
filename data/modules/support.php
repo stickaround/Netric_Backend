@@ -43,6 +43,14 @@ return [
             "icon" => "CheckIcon",
         ],
         [
+            "title" => "Unassigned Tickets",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "browser_view" => "unassigned_tickets",
+            "route" => "unassigned",
+            "objType" => ObjectTypes::TICKET,
+            "icon" => "OutlineNoAccountsIcon",
+        ],
+        [
             "title" => "All Tickets",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "browser_view" => "all_tickets",

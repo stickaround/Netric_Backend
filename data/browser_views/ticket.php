@@ -96,6 +96,34 @@ return [
                 'direction' => 'asc',
             ],
         ],
+        'table_columns' => ['name', 'channel_id', 'status_id', 'souce_id', "owner_id"]
+    ],
+    'unassigned_tickets' => [
+        'obj_type' => ObjectTypes::TICKET,
+        'name' => 'Unassigned Tickets',
+        'description' => 'Tickets that are unassigned',
+        'default' => false,
+        'conditions' => [
+            'not_closed' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'is_closed',
+                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                'value' => true
+            ],
+            'owner_id' => [
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'owner_id',
+                'operator' => Where::OPERATOR_EQUAL_TO,
+                'value' => '',
+            ],
+        ],
+        'filter_key' => 'channel_id',
+        'order_by' => [
+            'date' => [
+                'field_name' => 'ts_updated',
+                'direction' => 'asc',
+            ],
+        ],
         'table_columns' => ['name', 'channel_id', 'status_id', 'souce_id']
     ],
     'all_tickets' => [
