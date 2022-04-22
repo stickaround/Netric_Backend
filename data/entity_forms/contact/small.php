@@ -51,7 +51,7 @@
                     <field name='stage_id'></field>
                     <field name='owner_id'></field>
                     <field name='is_nocall'></field>
-                    <field name='is_noemailspam'></field>
+                    <field name='is_noemailmarketing'></field>
                     <field name='is_nocontact'></field>
                     <field name='birthday'></field>
                     <field name='birthday_spouse'></field>

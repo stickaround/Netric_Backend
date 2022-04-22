@@ -1,5 +1,6 @@
 <?php
 
+use Netric\Entity\ObjType\ContactEntity;
 use Netric\Entity\ObjType\TaskEntity;
 use Netric\Entity\ObjType\TicketEntity;
 use Netric\Entity\ObjType\UserEntity;
@@ -108,13 +109,16 @@ return [
         ],
     ],
     'contact' => [
-        // 'customer_stage_id' => [
-        //     ["name" => "Lead"],
-        //     ["name" => "Prospect"],
-        //     ["name" => "Customer"],
-        //     ["name" => "Inactive: Past Customer"],
-        //     ["name" => "Inactive: Never Converted"],
-        // ],
+        'stage_id' => [
+            // Possibility of being a prospect
+            ["name" => ContactEntity::STAGE_LEAD],
+            // Possiblity of becoming a paying customer
+            ["name" => ContactEntity::STAGE_PROSPECT],
+            // A contact this organization does business with
+            ["name" => ContactEntity::STAGE_CUSTOMER],
+            // Inactive/past customer we no longer work with
+            ["name" => ContactEntity::STAGE_INACTIVE],
+        ],
         // 'relationship_type' => [
         //     ["name" => "Customer"],
         //     ["name" => "Employee"],

@@ -63,7 +63,8 @@ return [
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "all-contacts",
             "objType" => ObjectTypes::CONTACT,
-            "icon" => "ViewListIcon"
+            "icon" => "ViewListIcon",
+            "browser_view" => "allactive",
         ],
         [
             "type" => LeftNavItemTypes::HEADER,

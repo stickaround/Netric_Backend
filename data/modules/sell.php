@@ -20,18 +20,52 @@ return [
     "f_system" => true,
     "navigation" => [
         [
-            "title" => "Contacts",
+            "title" => "All Contacts",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "contacts",
             "objType" => ObjectTypes::CONTACT,
-            "icon" => "ViewListIcon"
+            "icon" => "ViewListIcon",
+            "browser_view" => "allactive",
+        ],
+        [
+            "title" => "My Contacts",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "contacts",
+            "objType" => ObjectTypes::CONTACT,
+            "icon" => "ViewListIcon",
+            "browser_view" => "my",
         ],
         [
             "title" => "Leads",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "route" => "leads",
             "objType" => ObjectTypes::CONTACT,
-            "icon" => "ViewListIcon"
+            "icon" => "ViewListIcon",
+            "browser_view" => "leads",
+        ],
+        [
+            "title" => "Prospects",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "prospects",
+            "objType" => ObjectTypes::CONTACT,
+            "icon" => "ViewListIcon",
+            "browser_view" => "prospects",
+        ],
+        [
+            "title" => "Customers",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "customers",
+            "objType" => ObjectTypes::CONTACT,
+            "icon" => "ViewListIcon",
+            "browser_view" => "customers",
+        ],
+        [
+            "title" => "Inactive/Past Customers",
+            "type" => LeftNavItemTypes::ENTITY_BROWSE,
+            "route" => "inactive",
+            "objType" => ObjectTypes::CONTACT,
+            "icon" => "ViewListIcon",
+            "browser_view" => "inactive",
         ],
         [
             "type" => LeftNavItemTypes::HEADER,

@@ -221,8 +221,8 @@ return [
             'subtype' => '',
             'readonly' => false
         ],
-        'is_noemailspam' => [
-            'title' => 'No Bulk Email',
+        'is_noemailmarketing' => [
+            'title' => 'No Marketing Email',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => false
@@ -289,28 +289,15 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => ObjectTypes::CONTACT,
         ],
-        // 'customer_stage_id' => [
-        //     'title' => 'Stage',
-        //     'type' => Field::TYPE_GROUPING,
-        //     'subtype' => 'object_groupings',
-        // ],
+        'stage_id' => [
+            'title' => 'Stage',
+            'type' => Field::TYPE_GROUPING,
+            'subtype' => 'object_groupings',
+        ],
         'source_id' => [
             'title' => 'Source',
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
-        ],
-        'email_default' => [
-            'title' => 'Default Email',
-            'type' => Field::TYPE_ALIAS,
-            'subtype' => 'email',
-            'readonly' => false,
-            'default' => [
-                "value" => "email",
-                "on" => "null",
-                "coalesce" => [
-                    "email", "email2"
-                ]
-            ],
         ],
         'groups' => [
             'title' => 'Groups',

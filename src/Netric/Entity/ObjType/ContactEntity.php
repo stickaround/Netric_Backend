@@ -10,4 +10,8 @@ use Netric\Entity\EntityInterface;
  */
 class ContactEntity extends Entity implements EntityInterface
 {
+    const STAGE_LEAD = "Lead";
+    const STAGE_PROSPECT = "Prospect";
+    const STAGE_CUSTOMER = "Customer";
+    const STAGE_INACTIVE = "Inactive";
 }
