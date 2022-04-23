@@ -30,7 +30,7 @@ return [
         [
             "title" => "My Contacts",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
-            "route" => "contacts",
+            "route" => "my-contacts",
             "objType" => ObjectTypes::CONTACT,
             "icon" => "ViewListIcon",
             "browser_view" => "my",
