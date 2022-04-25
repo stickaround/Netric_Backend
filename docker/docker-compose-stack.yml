@@ -21,7 +21,7 @@ services:
       - entityenc
       - anet_key
     deploy:
-      replicas: 1
+      replicas: 2
       placement:
         constraints:
           - node.role!=manager
