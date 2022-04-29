@@ -109,13 +109,13 @@ class Application
             self::$log = new Log($config->log);
         }
 
-        // Watch for error notices and log them
+        // // Watch for error notices and log them
         set_error_handler([self::$log, "phpErrorHandler"]);
 
-        // Log unhandled exceptions
+        // // Log unhandled exceptions
         set_exception_handler(array(self::$log, "phpUnhandledExceptionHandler"));
 
-        // Watch for fatal errors which cause script execution to fail
+        // // Watch for fatal errors which cause script execution to fail
         register_shutdown_function(array(self::$log, "phpShutdownErrorChecker"));
 
         // Setup the application service manager

@@ -138,11 +138,9 @@ class EntityValueSanitizer
                 case Field::TYPE_GROUPING:
                 case Field::TYPE_GROUPING_MULTI:
                     // Sanitize the UserEntity::USER_CURRENT value
-                    if ($field->subtype == ObjectTypes::USER && $value == "user:" . UserEntity::USER_CURRENT) {
+                    if ($field->subtype == ObjectTypes::USER && $value == UserEntity::USER_CURRENT) {
                         // Get the current user
-                        $currentUser = $this->account->getAuthenticatedUser();
-
-                        $condition->value = $currentUser->getEntityId();
+                        $condition->value = $query->getUserId();
                     } else {
                         $this->sanitizeFieldValue($field, $value);
                         $condition->value = $value;

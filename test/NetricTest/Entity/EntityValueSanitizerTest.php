@@ -61,7 +61,11 @@ class EntityValueSanitizerTest extends TestCase
         $dateStr = strtotime("January 01, 2020");
         $currentUser = $this->account->getAuthenticatedUser();
 
-        $query = new EntityQuery(ObjectTypes::PROJECT, $this->account->getAccountId());
+        $query = new EntityQuery(
+            ObjectTypes::PROJECT,
+            $this->account->getAccountId(),
+            $currentUser->getEntityId()
+        );
         $query->where('name')->equals("Test Query");
         $query->where('date_deadline')->equals(date("Y-m-d", $dateStr));
         $query->where('members')->equals(UserEntity::USER_CURRENT);

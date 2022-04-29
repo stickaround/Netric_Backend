@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netric\Handler;
 
-use InvalidArgumentException;
 use Netric\Account\AccountContainerInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Permissions\DaclLoader;
@@ -14,7 +13,6 @@ use Netric\Stats\StatsPublisher;
 use NetricApi\EntityQueryIf;
 use NetricApi\ErrorException;
 use Netric\EntityQuery\EntityQuery;
-use phpDocumentor\Reflection\DocBlock\Tags\InvalidTag;
 
 class EntityQueryHandler implements EntityQueryIf
 {
@@ -88,8 +86,16 @@ class EntityQueryHandler implements EntityQueryIf
         $account = $this->accountContainer->loadById($accountId);
         $user = $this->entityLoader->getEntityById($userId, $accountId);
 
-        if (!$account || !$user) {
-            throw new InvalidArgument("accountId or userId are not valid");
+        if (!$account) {
+            $exception = new ErrorException();
+            $exception->message = "Failed to load account for $accountId";
+            throw $exception;
+        }
+
+        if (!$user) {
+            $exception = new ErrorException();
+            $exception->message = "Failed to load user for $userId";
+            throw $exception;
         }
 
         // Construct the query
@@ -100,11 +106,6 @@ class EntityQueryHandler implements EntityQueryIf
         try {
             $res = $this->entityIndex->executeQuery($query);
         } catch (\Exception $ex) {
-            // // Log the error so we can setup some alerts
-            // $this->getApplication()->getLog()->error(
-            //     "EntityQueryController: Failed API Query - " . $ex->getMessage()
-            // );
-
             throw new ErrorException($ex->getMessage());
         }
 

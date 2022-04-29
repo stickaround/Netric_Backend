@@ -260,97 +260,101 @@ class Log implements LogInterface
      * @param int $errline The line that triggered the error
      * @param array $errcontext Every variable that existed in the scope the error was triggered in
      */
-    public function phpErrorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+    public function phpErrorHandler($errno, $errstr, $errfile = '', $errline = '', $errcontext = '')
     {
-        // if error has been supressed with an @
-        if (error_reporting() == 0) {
-            return;
+        if (!(error_reporting() & $errno)) {
+            // This error code is not included in error_reporting, so let it fall
+            // through to the standard PHP error handler
+            return false;
         }
 
-        // check if function has been called by an exception
-        if (func_num_args() == 5) {
-            // called by trigger_error()
-            $exception = null;
-            list($errno, $errstr, $errfile, $errline) = func_get_args();
-            $backtrace = array_reverse(debug_backtrace());
-        } else {
-            // called by unhandled exception
-            $exc = func_get_arg(0);
-            $errno = $exc->getCode();
-            $errstr = $exc->getMessage();
-            $errfile = $exc->getFile();
-            $errline = $exc->getLine();
-            $backtrace = $exc->getTrace();
-        }
+        $this->error("Error ($errno) $errstr in $errfile line $errline");
 
-        $errorType = [
-            E_ERROR          => 'ERROR',
-            E_WARNING        => 'WARNING',
-            E_PARSE          => 'PARSING ERROR',
-            E_NOTICE         => 'NOTICE',
-            E_CORE_ERROR     => 'CORE ERROR',
-            E_CORE_WARNING   => 'CORE WARNING',
-            E_COMPILE_ERROR  => 'COMPILE ERROR',
-            E_COMPILE_WARNING => 'COMPILE WARNING',
-            E_USER_ERROR     => 'USER ERROR',
-            E_USER_WARNING   => 'USER WARNING',
-            E_USER_NOTICE    => 'USER NOTICE',
-            E_STRICT         => 'STRICT NOTICE',
-            E_RECOVERABLE_ERROR  => 'RECOVERABLE ERROR',
-        ];
+        // Note: the below was causing errors, we need to troubleshoot
+        // // check if function has been called by an exception
+        // if (func_num_args() == 5) {
+        //     // called by trigger_error()
+        //     $exception = null;
+        //     list($errno, $errstr, $errfile, $errline) = func_get_args();
+        //     $backtrace = array_reverse(debug_backtrace());
+        // } else {
+        //     // called by unhandled exception
+        //     $exc = func_get_arg(0);
+        //     $errno = $exc->getCode();
+        //     $errstr = $exc->getMessage();
+        //     $errfile = $exc->getFile();
+        //     $errline = $exc->getLine();
+        //     $backtrace = $exc->getTrace();
+        // }
 
-        // create error message
-        $err = 'UNHANDLED ERROR';
-        if (array_key_exists($errno, $errorType)) {
-            $err = $errorType[$errno];
-        }
+        // $errorType = [
+        //     E_ERROR          => 'ERROR',
+        //     E_WARNING        => 'WARNING',
+        //     E_PARSE          => 'PARSING ERROR',
+        //     E_NOTICE         => 'NOTICE',
+        //     E_CORE_ERROR     => 'CORE ERROR',
+        //     E_CORE_WARNING   => 'CORE WARNING',
+        //     E_COMPILE_ERROR  => 'COMPILE ERROR',
+        //     E_COMPILE_WARNING => 'COMPILE WARNING',
+        //     E_USER_ERROR     => 'USER ERROR',
+        //     E_USER_WARNING   => 'USER WARNING',
+        //     E_USER_NOTICE    => 'USER NOTICE',
+        //     E_STRICT         => 'STRICT NOTICE',
+        //     E_RECOVERABLE_ERROR  => 'RECOVERABLE ERROR',
+        // ];
 
-        $errMsg = "$err: $errstr in $errfile on line $errline";
+        // // create error message
+        // $err = 'UNHANDLED ERROR';
+        // if (array_key_exists($errno, $errorType)) {
+        //     $err = $errorType[$errno];
+        // }
 
-        // start backtrace
-        $trace = "";
-        foreach ($backtrace as $v) {
-            if (isset($v['class'])) {
-                $trace = 'in class ' . $v['class'] . '::' . $v['function'] . '(';
+        // $errMsg = "$err: $errstr in $errfile on line $errline";
 
-                if (isset($v['args'])) {
-                    $separator = '';
+        // // start backtrace
+        // $trace = "";
+        // foreach ($backtrace as $v) {
+        //     if (isset($v['class'])) {
+        //         $trace = 'in class ' . $v['class'] . '::' . $v['function'] . '(';
 
-                    foreach ($v['args'] as $arg) {
-                        $trace .= "$separator" . $this->getPhpErrorArgumentStr($arg);
-                        $separator = ', ';
-                    }
-                }
-                $trace .= ')';
-            } elseif (isset($v['function']) && empty($trace)) {
-                $trace = 'in function ' . $v['function'] . '(';
-                if (!empty($v['args'])) {
-                    $separator = '';
+        //         if (isset($v['args'])) {
+        //             $separator = '';
 
-                    foreach ($v['args'] as $arg) {
-                        $trace .= "$separator" . $this->getPhpErrorArgumentStr($arg);
-                        $separator = ', ';
-                    }
-                }
-                $trace .= ')';
-            }
-        }
+        //             foreach ($v['args'] as $arg) {
+        //                 $trace .= "$separator" . $this->getPhpErrorArgumentStr($arg);
+        //                 $separator = ', ';
+        //             }
+        //         }
+        //         $trace .= ')';
+        //     } elseif (isset($v['function']) && empty($trace)) {
+        //         $trace = 'in function ' . $v['function'] . '(';
+        //         if (!empty($v['args'])) {
+        //             $separator = '';
 
-        // what to do
-        switch ($errno) {
-            case E_NOTICE:
-            case E_USER_NOTICE:
-            case E_STRICT:
-            case E_DEPRECATED:
-                return;
-                break;
+        //             foreach ($v['args'] as $arg) {
+        //                 $trace .= "$separator" . $this->getPhpErrorArgumentStr($arg);
+        //                 $separator = ', ';
+        //             }
+        //         }
+        //         $trace .= ')';
+        //     }
+        // }
 
-            default:
-                // Log the error
-                $this->error($errMsg . "\nTrace:\n" . $trace);
+        // // what to do
+        // switch ($errno) {
+        //     case E_NOTICE:
+        //     case E_USER_NOTICE:
+        //     case E_STRICT:
+        //     case E_DEPRECATED:
+        //         return;
+        //         break;
 
-                break;
-        }
+        //     default:
+        //         // Log the error
+        //         $this->error($errMsg . "\nTrace:\n" . $trace);
+
+        //         break;
+        // }
     }
 
     /**
