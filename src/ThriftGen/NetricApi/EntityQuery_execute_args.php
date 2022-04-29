@@ -32,7 +32,7 @@ class EntityQuery_execute_args
             'type' => TType::STRING,
         ),
         3 => array(
-            'var' => 'timestamp',
+            'var' => 'jsonQuery',
             'isRequired' => false,
             'type' => TType::STRING,
         ),
@@ -49,7 +49,7 @@ class EntityQuery_execute_args
     /**
      * @var string
      */
-    public $timestamp = null;
+    public $jsonQuery = null;
 
     public function __construct($vals = null)
     {
@@ -60,8 +60,8 @@ class EntityQuery_execute_args
             if (isset($vals['accountId'])) {
                 $this->accountId = $vals['accountId'];
             }
-            if (isset($vals['timestamp'])) {
-                $this->timestamp = $vals['timestamp'];
+            if (isset($vals['jsonQuery'])) {
+                $this->jsonQuery = $vals['jsonQuery'];
             }
         }
     }
@@ -101,7 +101,7 @@ class EntityQuery_execute_args
                     break;
                 case 3:
                     if ($ftype == TType::STRING) {
-                        $xfer += $input->readString($this->timestamp);
+                        $xfer += $input->readString($this->jsonQuery);
                     } else {
                         $xfer += $input->skip($ftype);
                     }
@@ -130,9 +130,9 @@ class EntityQuery_execute_args
             $xfer += $output->writeString($this->accountId);
             $xfer += $output->writeFieldEnd();
         }
-        if ($this->timestamp !== null) {
-            $xfer += $output->writeFieldBegin('timestamp', TType::STRING, 3);
-            $xfer += $output->writeString($this->timestamp);
+        if ($this->jsonQuery !== null) {
+            $xfer += $output->writeFieldBegin('jsonQuery', TType::STRING, 3);
+            $xfer += $output->writeString($this->jsonQuery);
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();

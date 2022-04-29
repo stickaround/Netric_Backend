@@ -26,9 +26,10 @@ interface EntityQueryIf
      * 
      * @param string $userId
      * @param string $accountId
-     * @param string $timestamp
+     * @param string $jsonQuery
+     * @return string
      * @throws \NetricApi\ErrorException
      * @throws \NetricApi\InvalidArgument
      */
-    public function execute($userId, $accountId, $timestamp);
+    public function execute($userId, $accountId, $jsonQuery);
 }

@@ -104,8 +104,8 @@ service Worker
  */
 struct EntityQueryData {
     1: string obj_type;
-    2: int32 offset;
-    3: int32 limit;
+    2: i32 offset;
+    3: i32 limit;
 }
 
 /**
@@ -114,9 +114,9 @@ struct EntityQueryData {
 struct EntityQueryResultData {
     1: EntityQueryData query_ran;
     2: string account;
-    3: int32 num;
-    4: int32 total_num;
-    5: map<string,string> entities
+    3: i32 num;
+    4: i32 total_num;
+    5: list<map<string,string>> entities
 }
 
 /**

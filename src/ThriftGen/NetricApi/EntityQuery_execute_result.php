@@ -21,6 +21,11 @@ class EntityQuery_execute_result
     static public $isValidate = false;
 
     static public $_TSPEC = array(
+        0 => array(
+            'var' => 'success',
+            'isRequired' => false,
+            'type' => TType::STRING,
+        ),
         1 => array(
             'var' => 'error',
             'isRequired' => false,
@@ -36,6 +41,10 @@ class EntityQuery_execute_result
     );
 
     /**
+     * @var string
+     */
+    public $success = null;
+    /**
      * @var \NetricApi\ErrorException
      */
     public $error = null;
@@ -47,6 +56,9 @@ class EntityQuery_execute_result
     public function __construct($vals = null)
     {
         if (is_array($vals)) {
+            if (isset($vals['success'])) {
+                $this->success = $vals['success'];
+            }
             if (isset($vals['error'])) {
                 $this->error = $vals['error'];
             }
@@ -75,6 +87,13 @@ class EntityQuery_execute_result
                 break;
             }
             switch ($fid) {
+                case 0:
+                    if ($ftype == TType::STRING) {
+                        $xfer += $input->readString($this->success);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
                 case 1:
                     if ($ftype == TType::STRUCT) {
                         $this->error = new \NetricApi\ErrorException();
@@ -105,6 +124,11 @@ class EntityQuery_execute_result
     {
         $xfer = 0;
         $xfer += $output->writeStructBegin('EntityQuery_execute_result');
+        if ($this->success !== null) {
+            $xfer += $output->writeFieldBegin('success', TType::STRING, 0);
+            $xfer += $output->writeString($this->success);
+            $xfer += $output->writeFieldEnd();
+        }
         if ($this->error !== null) {
             $xfer += $output->writeFieldBegin('error', TType::STRUCT, 1);
             $xfer += $this->error->write($output);

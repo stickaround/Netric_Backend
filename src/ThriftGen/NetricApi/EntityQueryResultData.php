@@ -45,6 +45,23 @@ class EntityQueryResultData
             'isRequired' => false,
             'type' => TType::I32,
         ),
+        5 => array(
+            'var' => 'entities',
+            'isRequired' => false,
+            'type' => TType::LST,
+            'etype' => TType::MAP,
+            'elem' => array(
+                'type' => TType::MAP,
+                'ktype' => TType::STRING,
+                'vtype' => TType::STRING,
+                'key' => array(
+                    'type' => TType::STRING,
+                ),
+                'val' => array(
+                    'type' => TType::STRING,
+                    ),
+                ),
+        ),
     );
 
     /**
@@ -63,6 +80,10 @@ class EntityQueryResultData
      * @var int
      */
     public $total_num = null;
+    /**
+     * @var (array)[]
+     */
+    public $entities = null;
 
     public function __construct($vals = null)
     {
@@ -78,6 +99,9 @@ class EntityQueryResultData
             }
             if (isset($vals['total_num'])) {
                 $this->total_num = $vals['total_num'];
+            }
+            if (isset($vals['entities'])) {
+                $this->entities = $vals['entities'];
             }
         }
     }
@@ -130,6 +154,34 @@ class EntityQueryResultData
                         $xfer += $input->skip($ftype);
                     }
                     break;
+                case 5:
+                    if ($ftype == TType::LST) {
+                        $this->entities = array();
+                        $_size0 = 0;
+                        $_etype3 = 0;
+                        $xfer += $input->readListBegin($_etype3, $_size0);
+                        for ($_i4 = 0; $_i4 < $_size0; ++$_i4) {
+                            $elem5 = null;
+                            $elem5 = array();
+                            $_size6 = 0;
+                            $_ktype7 = 0;
+                            $_vtype8 = 0;
+                            $xfer += $input->readMapBegin($_ktype7, $_vtype8, $_size6);
+                            for ($_i10 = 0; $_i10 < $_size6; ++$_i10) {
+                                $key11 = '';
+                                $val12 = '';
+                                $xfer += $input->readString($key11);
+                                $xfer += $input->readString($val12);
+                                $elem5[$key11] = $val12;
+                            }
+                            $xfer += $input->readMapEnd();
+                            $this->entities []= $elem5;
+                        }
+                        $xfer += $input->readListEnd();
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
                 default:
                     $xfer += $input->skip($ftype);
                     break;
@@ -165,6 +217,23 @@ class EntityQueryResultData
         if ($this->total_num !== null) {
             $xfer += $output->writeFieldBegin('total_num', TType::I32, 4);
             $xfer += $output->writeI32($this->total_num);
+            $xfer += $output->writeFieldEnd();
+        }
+        if ($this->entities !== null) {
+            if (!is_array($this->entities)) {
+                throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+            }
+            $xfer += $output->writeFieldBegin('entities', TType::LST, 5);
+            $output->writeListBegin(TType::MAP, count($this->entities));
+            foreach ($this->entities as $iter13) {
+                $output->writeMapBegin(TType::STRING, TType::STRING, count($iter13));
+                foreach ($iter13 as $kiter14 => $viter15) {
+                    $xfer += $output->writeString($kiter14);
+                    $xfer += $output->writeString($viter15);
+                }
+                $output->writeMapEnd();
+            }
+            $output->writeListEnd();
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();

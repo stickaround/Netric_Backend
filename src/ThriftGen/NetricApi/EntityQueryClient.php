@@ -30,18 +30,18 @@ class EntityQueryClient implements \NetricApi\EntityQueryIf
     }
 
 
-    public function execute($userId, $accountId, $timestamp)
+    public function execute($userId, $accountId, $jsonQuery)
     {
-        $this->send_execute($userId, $accountId, $timestamp);
-        $this->recv_execute();
+        $this->send_execute($userId, $accountId, $jsonQuery);
+        return $this->recv_execute();
     }
 
-    public function send_execute($userId, $accountId, $timestamp)
+    public function send_execute($userId, $accountId, $jsonQuery)
     {
         $args = new \NetricApi\EntityQuery_execute_args();
         $args->userId = $userId;
         $args->accountId = $accountId;
-        $args->timestamp = $timestamp;
+        $args->jsonQuery = $jsonQuery;
         $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
         if ($bin_accel) {
             thrift_protocol_write_binary(
@@ -85,12 +85,15 @@ class EntityQueryClient implements \NetricApi\EntityQueryIf
             $result->read($this->input_);
             $this->input_->readMessageEnd();
         }
+        if ($result->success !== null) {
+            return $result->success;
+        }
         if ($result->error !== null) {
             throw $result->error;
         }
         if ($result->badRequest !== null) {
             throw $result->badRequest;
         }
-        return;
+        throw new \Exception("execute failed: unknown result");
     }
 }

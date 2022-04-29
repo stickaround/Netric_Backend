@@ -62,7 +62,7 @@ class EntityQueryProcessor
         $input->readMessageEnd();
         $result = new \NetricApi\EntityQuery_execute_result();
         try {
-            $this->handler_->execute($args->userId, $args->accountId, $args->timestamp);
+            $result->success = $this->handler_->execute($args->userId, $args->accountId, $args->jsonQuery);
         } catch (\NetricApi\ErrorException $error) {
             $result->error = $error;
                 } catch (\NetricApi\InvalidArgument $badRequest) {
