@@ -99,25 +99,25 @@ service Worker
  * ==========================================================
  */
 
-/**
- * Define query type data
- */
-struct EntityQueryData {
-    1: string obj_type;
-    2: i32 offset;
-    3: i32 limit;
-}
+// /**
+//  * Define query type data
+//  */
+// struct EntityQueryData {
+//     1: string obj_type;
+//     2: i32 offset;
+//     3: i32 limit;
+// }
 
-/**
- * Define what an entity query result will look like
- */
-struct EntityQueryResultData {
-    1: EntityQueryData query_ran;
-    2: string account;
-    3: i32 num;
-    4: i32 total_num;
-    5: list<map<string,string>> entities
-}
+// /**
+//  * Define what an entity query result will look like
+//  */
+// struct EntityQueryResultData {
+//     1: EntityQueryData query_ran;
+//     2: string account;
+//     3: i32 num;
+//     4: i32 total_num;
+//     5: list<map<string,string>> entities
+// }
 
 /**
  * Entity query service

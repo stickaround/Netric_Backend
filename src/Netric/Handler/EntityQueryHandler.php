@@ -14,6 +14,7 @@ use Netric\Stats\StatsPublisher;
 use NetricApi\EntityQueryIf;
 use NetricApi\ErrorException;
 use Netric\EntityQuery\EntityQuery;
+use phpDocumentor\Reflection\DocBlock\Tags\InvalidTag;
 
 class EntityQueryHandler implements EntityQueryIf
 {
@@ -71,6 +72,12 @@ class EntityQueryHandler implements EntityQueryIf
      */
     public function execute($userId, $accountId, $jsonQuery): string
     {
+        if (empty($jsonQuery)) {
+            throw new InvalidArgument(
+                "jsonQuery must be a string: " . var_export($jsonQuery, true)
+            );
+        }
+
         $objData = json_decode($jsonQuery, true);
 
         if (!isset($objData['obj_type'])) {
@@ -82,7 +89,7 @@ class EntityQueryHandler implements EntityQueryIf
         $user = $this->entityLoader->getEntityById($userId, $accountId);
 
         if (!$account || !$user) {
-            throw new InvalidArgumentException("accountId or userId are not valid");
+            throw new InvalidArgument("accountId or userId are not valid");
         }
 
         // Construct the query
