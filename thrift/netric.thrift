@@ -1,6 +1,8 @@
 namespace php NetricApi
 namespace js NetricApi
 
+include "entityquery.thrift"
+
 /**
  * Invalid arguments sent
  */
@@ -76,3 +78,4 @@ service Worker
     bool process(1:string workerName, 2:string jsonPayload) 
         throws (1:ErrorException error, 2:InvalidArgument badRequest) ;
 }
+

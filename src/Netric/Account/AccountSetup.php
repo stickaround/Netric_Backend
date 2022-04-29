@@ -3,7 +3,6 @@
 namespace Netric\Account;
 
 use Netric\Application\DataMapperInterface;
-use Netric\Application\Exception\AccountAlreadyExistsException;
 use Netric\Application\Exception\CouldNotCreateAccountException;
 use Netric\Account\Account\InitData\InitDataInterface;
 use Netric\Entity\EntityLoader;
@@ -124,7 +123,11 @@ class AccountSetup
         }
 
         // Now create the netric contact that will be used for billing and support
-        $mainAccountContactId = $this->createMainAccountContact($accountName);
+        $mainAccountContactId = $this->createMainAccountContact(
+            $accountName,
+            $cleanedAccountName,
+            $adminEmail
+        );
         if ($mainAccountContactId) {
             $this->accountContainer->updateAccount(
                 $account->getAccountId(),
@@ -154,22 +157,25 @@ class AccountSetup
      * as test data.
      *
      * @param string $companyName
+     * @param string $accountName
      * @return string Entity ID of the contact created in the main billing account
      */
-    private function createMainAccountContact(string $companyName): string
-    {
+    private function createMainAccountContact(
+        string $companyName,
+        string $accountName,
+        string $contactEmail
+    ): string {
         $newContact = $this->entityLoader->create(
             ObjectTypes::CONTACT,
             $this->mainAccountId
         );
         $newContact->setValue("type_id", 2); // 2 = organization
         $newContact->setValue("company", $companyName);
+        $newContact->setValue("email", $contactEmail);
+        $newContact->setValue("netric_account_name", $accountName);
 
-        // TOOD: Add account info
-
-        // TODO: Add primary contact
-
-        // TODO: Add new opportunity
+        // Note: our (aereus) account does a bunch of additional work
+        // via automated workflows once this entity is created.
 
         // Save the contact to the main/billing account
         $mainAccount = $this->accountContainer->loadById($this->mainAccountId);

@@ -24,220 +24,254 @@ return [
             'title' => 'First Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'last_name' => [
             'title' => 'Last Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'middle_name' => [
             'title' => 'Middle Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'spouse_name' => [
             'title' => 'Spouse Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'company' => [
             'title' => 'Organization Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'job_title' => [
             'title' => 'Job Title',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'salutation' => [
             'title' => 'Salutation',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'email' => [
             'title' => 'Email',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'email',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'email2' => [
             'title' => 'Email 2',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'email',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'email3' => [
             'title' => 'Email 3',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'email',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'phone_home' => [
             'title' => 'Home Phone',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'phone',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'phone_work' => [
             'title' => 'Work Phone',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'phone',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'phone_cell' => [
             'title' => 'Mobile Phone',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'phone',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'phone_ext' => [
             'title' => 'Ext.',
             'type' => Field::TYPE_TEXT,
             'subtype' => '32',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'phone_fax' => [
             'title' => 'Fax Number',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'street' => [
             'title' => 'Street',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'street2' => [
             'title' => 'Street 2',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'city' => [
             'title' => 'City',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'district' => [
             'title' => 'State',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'postal_code' => [
             'title' => 'Zip',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'zipcode',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
-        // Right now we create this default billing address so that
-        // new payment profiles have a default to work with. For simplicity,
-        // we might remove this and just edit the payment profile address directly.
+        // Billing address information is used when creating payment profiles
         'billing_street' => [
             'title' => 'Billing Street',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'billing_street2' => [
             'title' => 'Billing Street 2',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'billing_city' => [
             'title' => 'Billing City',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'billing_district' => [
             'title' => 'Billing State',
             'type' => Field::TYPE_TEXT,
             'subtype' => '64',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'billing_postal_code' => [
             'title' => 'Billing Zip',
             'type' => Field::TYPE_TEXT,
             'subtype' => 'zipcode',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'website' => [
             'title' => 'Website',
             'type' => Field::TYPE_TEXT,
             'subtype' => '128',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'birthday' => [
             'title' => 'Birthday',
             'type' => Field::TYPE_DATE,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'birthday_spouse' => [
             'title' => 'Spouse Birthday',
             'type' => Field::TYPE_DATE,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'anniversary' => [
             'title' => 'Anniversary',
             'type' => Field::TYPE_DATE,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'last_contacted' => [
             'title' => 'Last Contacted',
             'type' => Field::TYPE_TIMESTAMP,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'nick_name' => [
             'title' => 'Nick Name',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'notes' => [
             'title' => 'Notes',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'is_nocall' => [
             'title' => 'Do Not Call',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'is_noemailmarketing' => [
             'title' => 'No Marketing Email',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'is_nocontact' => [
             'title' => 'Do Not Contact',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'is_emailverified' => [
             'title' => 'Email Verified',
             'type' => Field::TYPE_BOOL,
             'subtype' => '',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'is_private' => [
             'title' => 'Personal Contact',
@@ -245,24 +279,28 @@ return [
             'subtype' => '',
             'readonly' => false,
             'default' => ["value" => "f", "on" => "null"],
+            'system' => true,
         ],
         'facebook' => [
             'title' => 'Facebook URL',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'twitter' => [
             'title' => 'Twitter User',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'linkedin' => [
             'title' => 'LinkedIn Profile',
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
-            'readonly' => false
+            'readonly' => false,
+            'system' => true,
         ],
         'type_id' => [
             'title' => 'Type',
@@ -273,41 +311,57 @@ return [
                 "value" => 1,
                 "on" => "null",
             ],
+            'system' => true,
         ],
         'status_id' => [
             'title' => 'Status',
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
+            'system' => true,
         ],
         'primary_contact' => [
             'title' => 'Primary Contact',
             'type' => Field::TYPE_OBJECT,
             'subtype' => ObjectTypes::CONTACT,
+            'system' => true,
         ],
         'primary_account' => [
             'title' => 'Organization',
             'type' => Field::TYPE_OBJECT,
             'subtype' => ObjectTypes::CONTACT,
+            'system' => true,
         ],
         'stage_id' => [
             'title' => 'Stage',
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
+            'system' => true,
         ],
         'source_id' => [
             'title' => 'Source',
             'type' => Field::TYPE_GROUPING,
             'subtype' => 'object_groupings',
+            'system' => true,
         ],
         'groups' => [
             'title' => 'Groups',
             'type' => Field::TYPE_GROUPING_MULTI,
             'subtype' => 'object_groupings',
+            'system' => true,
         ],
         'image_id' => [
             'title' => 'Image',
             'type' => Field::TYPE_OBJECT,
-            'subtype' => 'file'
+            'subtype' => 'file',
+            'system' => true,
+        ],
+        // This is being added here simply because we don't have another way to add custom fields
+        'netric_account_name' => [
+            'title' => 'Netric Account Name',
+            'type' => Field::TYPE_TEXT,
+            'subtype' => '256',
+            'readonly' => false,
+            'system' => false, // This is a custom field for aereus only
         ],
     ],
 ];
