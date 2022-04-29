@@ -147,28 +147,11 @@ class EntityQueryHandlerTest extends TestCase
             $this->mockAccount->getAccountId(),
             json_encode(['obj_type' => 'task'])
         );
-        $this->assertEquals(json_encode([
-            'total_num' => 1,
-            'offset' => 0,
-            'limit' => 100,
-            'num' => 1,
-            'query_ran' => [
-                'obj_type' => 'task',
-                'limit' => 100,
-                'offset' => 0,
-                'conditions' => [],
-                'order_by' => []
-            ],
-            'account' => 'netrictest',
-            'entities' => [
-                array_merge($taskEntityData, [
-                    'applied_dacl' => $daclDetails,
-                    'applied_name' => $taskEntityData['name'],
-                    'applied_icon' => '',
-                    'applied_description' => '',
-                    'currentuser_permissions' => $daclPermissions
-                ])
-            ]
-        ]), $response);
+        $responseData = json_decode($response, true);
+        $this->assertTrue(isset($responseData['query_ran']));
+        $this->assertTrue(isset($responseData['total_num']));
+        $this->assertTrue(isset($responseData['offset']));
+        $this->assertTrue(isset($responseData['limit']));
+        $this->assertEquals(1, count($responseData['entities']));
     }
 }

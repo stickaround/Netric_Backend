@@ -15,6 +15,7 @@ struct EntityQueryResultData {
     2: string account;
     3: int32 num;
     4: int32 total_num;
+    5: map<string,string> entities
 }
 
 /**
