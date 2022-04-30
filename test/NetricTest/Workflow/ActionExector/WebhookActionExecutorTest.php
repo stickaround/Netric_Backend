@@ -9,12 +9,10 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\WorkflowActionEntity;
-use Netric\WorkerMan\WorkerService;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
 use Netric\Workflow\ActionExecutor\WebhookActionExecutor;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\ObjectTypes;
-
 
 /**
  * Test action executor
@@ -31,7 +29,6 @@ class WebhookActionExecutorTest extends TestCase
    */
   private EntityLoader $mockEntityLoader;
   private WorkflowActionEntity $mockActionEntity;
-  protected WorkerService $workflowService;
 
   /**
    * Mock and stub out the action exector
@@ -40,12 +37,11 @@ class WebhookActionExecutorTest extends TestCase
   {
     $this->mockActionEntity = $this->createMock(WorkflowActionEntity::class);
     $this->mockEntityLoader = $this->createMock(EntityLoader::class);
-    $this->mockWorkerService = $this->createMock(WorkerService::class);
+
     $this->executor = new WebhookActionExecutor(
-        $this->mockEntityLoader,
-        $this->mockActionEntity,
-        'http://mockhost',
-        $workflowService
+      $this->mockEntityLoader,
+      $this->mockActionEntity,
+      'http://mockhost'
     );
   }
 
@@ -59,7 +55,7 @@ class WebhookActionExecutorTest extends TestCase
       'name' => 'Test',
       'f_active' => true,
       'f_on_create' => true, // Check the email field of the user entity
-      'f_on_delete' => true,
+      'f_on_delete' =>true,
       'f_on_update' => true,
       'url' => 'http://localhost:3003',
     ]);
@@ -68,19 +64,64 @@ class WebhookActionExecutorTest extends TestCase
     // This is important because the execute function will make sure the field
     // exists and get the type of data from the field definition
     $testEntity = $this->createMock(EntityInterface::class);
-    $testEntity->method('getEntityId')->willReturn('UUID-SAVED');
     $testEntity->method('getValue')->with($this->equalTo('url'))->willReturn("http://localhost:3003");
 
-    $mockEntityDefinition = $this->createStub(EntityDefinition::class);
-    $mockEntityDefinition->method('getObjType')->willReturn(ObjectTypes::USER);
-    $testEntity->method("getDefinition")->willReturn($mockEntityDefinition);
-
     // Stub the user to satisfy requirements for call to execute
-    $user = $this->createMock(UserEntity::class);
-    $user->method('getAccountId')->willReturn('UUID-ACCOUNT-ID');
+    $user = $this->createStub(UserEntity::class);
 
     // Execute
     $this->assertTrue($this->executor->execute($testEntity, $user));
+  }
+
+  /*
+  * Make sure test return error, if url is empty 
+  */
+  public function testExecuteFailOnEmptyUrl(): void
+  {
+    // Set the entity action data
+    $this->mockActionEntity->method("getData")->willReturn([
+      'name' => 'Test',
+      'f_active' => true,
+      'f_on_create' => true, // Check the email field of the user entity
+      'f_on_delete' =>true,
+      'f_on_update' => true,
+      'url' => '',
+    ]);
+
+    // Create a mock test entity
+    $testEntity = $this->createMock(EntityInterface::class);
+
+    // Stub the user to satisfy requirements for call to execute
+    $user = $this->createStub(UserEntity::class);
+
+    // Execute
+    $this->assertFalse($this->executor->execute($testEntity, $user));
+    $this->assertNotNull($this->executor->getLastError());
+  }
+
+  /*
+  * Make sure test return false, if active is false 
+  */
+  public function testExecuteFailOnActiveFalse(): void
+  {
+    // Set the entity action data
+    $this->mockActionEntity->method("getData")->willReturn([
+      'name' => 'Test',
+      'f_active' => false,
+      'f_on_create' => true, // Check the email field of the user entity
+      'f_on_delete' =>true,
+      'f_on_update' => true,
+      'url' => 'http://localhost:3003',
+    ]);
+
+    // Create a mock test entity
+    $testEntity = $this->createMock(EntityInterface::class);
+
+    // Stub the user to satisfy requirements for call to execute
+    $user = $this->createStub(UserEntity::class);
+
+    // Execute
+    $this->assertFalse($this->executor->execute($testEntity, $user));
   }
 
 }

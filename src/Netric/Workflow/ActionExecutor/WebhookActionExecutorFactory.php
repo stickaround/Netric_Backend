@@ -24,14 +24,12 @@ class WebhookActionExecutorFactory
     ): ActionExecutorInterface {
         // Setup dependencies
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
-        $workflowService = $serviceLocator->get(WorkflowServiceFactory::class);
         $config = $serviceLocator->get(ConfigFactory::class);
 
         return new WebhookActionExecutor(
             $entityLoader,
             $actionEntity,
-            $config->application_url,
-            $workflowService
+            $config->application_url
         );
     }
 }

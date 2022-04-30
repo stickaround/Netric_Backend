@@ -5,12 +5,12 @@ declare(strict_types=1);
 
 namespace Netric\Workflow\ActionExecutor;
 
-use Error;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\WorkflowService;
+use Netric\Error\Error;
 
 /**
  * Action to call an external page - very useful for API integration
@@ -21,29 +21,6 @@ use Netric\Workflow\WorkflowService;
  */
 class WebhookActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
-    /**
-     * Service for starting workflwos
-     */
-    private WorkflowService $workflowService;
-
-    /**
-     * Constructor
-     *
-     * @param EntityLoader $entityLoader
-     * @param WorkflowActionEntity $actionEntity
-     * @param string $appliactionUrl
-     */
-    public function __construct(
-        EntityLoader $entityLoader,
-        WorkflowActionEntity $actionEntity,
-        string $applicationUrl,
-        WorkflowService $workflowService
-    ) {
-        $this->workflowService = $workflowService;
-
-        // Should always call the parent constructor for base dependencies
-        parent::__construct($entityLoader, $actionEntity, $applicationUrl);
-    }
 
     /**
      * Execute action on an entity
@@ -64,7 +41,20 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
         if (!empty($url) && $entityActive) {
             // Start the workflow for the entity
             $workflow = $this->getEntityloader()->getEntityById($url, $user->getAccountId());
-            $this->workflowService->startInstanceAndRunActions($workflow, $actOnEntity, $user);
+            //$get = file_get_contents($url);
+            // create a new cURL resource
+            $ch = curl_init();
+
+            // set URL and other appropriate options
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+
+            // grab URL and pass it to the browser
+            curl_exec($ch);
+
+            // close cURL resource, and free up system resources
+            curl_close($ch);
+
             return true;
         }
 
