@@ -142,7 +142,9 @@ return array(
             'title' => 'Reference',
             'type' => Field::TYPE_OBJECT,
             'subtype' => '',
-            'readonly' => true
+            'readonly' => true,
+            'system' => true,
+            'is_indexed' => true,
         ),
     ),
     'recur_rules' => array(

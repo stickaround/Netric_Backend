@@ -15,11 +15,14 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => ObjectTypes::CHAT_ROOM,
             'readonly' => true,
+            'system' => true,
+            'is_indexed' => true,
         ],
         'body' => [
             'title' => 'Message',
             'type' => Field::TYPE_TEXT,
             'subtype' => '',
+            'system' => true,
             'readonly' => false,
         ],
         // List of users this was sent to at the time of creation -
@@ -28,11 +31,13 @@ return [
             'title' => 'To',
             'type' => Field::TYPE_OBJECT_MULTI,
             'subtype' => ObjectTypes::USER,
+            'system' => true,
             'readonly' => true
         ],
- 		'message_type' => [
+        'message_type' => [
             'title' => 'Message Type',
             'type' => Field::TYPE_TEXT,
+            'system' => true,
             'subtype' => '32',
             'optional_values' => [
                 // Message that the user sent 

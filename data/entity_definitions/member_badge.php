@@ -13,8 +13,9 @@ return [
             'title' => 'References',
             'type' => Field::TYPE_OBJECT,
             'subtype' => '',
+            'readonly' => true,
             'system' => true,
-            'readonly' => true
+            'is_indexed' => true,
         ],
         'member_id' => [
             'title' => 'User',

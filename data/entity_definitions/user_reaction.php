@@ -12,7 +12,9 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => '',
             'system' => true,
-            'readonly' => true
+            'readonly' => true,
+            'system' => true,
+            'is_indexed' => true,
         ],
         'member_id' => [
             'title' => 'User',

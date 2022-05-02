@@ -402,6 +402,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // After sanitizing the condition value, then we are now ready to build the condition string
         $value = pg_escape_string($condition->value);
 
+        // If the field is not indexed, log it so that we can optimize slow queries
+        if ($field->isIndexed != true) {
+            $this->logUnindexedQueryOnField($entityDefinition, $fieldName);
+        }
+
         $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($operator) {

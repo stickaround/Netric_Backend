@@ -88,7 +88,7 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => 'task',
             'fkey_table' => ["key" => "id", "title" => "name"]
-            
+
         ],
         'priority_id' => [
             'title' => 'Priority',
@@ -121,7 +121,9 @@ return [
             'title' => 'Reference',
             'type' => Field::TYPE_OBJECT,
             'subtype' => '',
-            'readonly' => true
+            'readonly' => true,
+            'system' => true,
+            'is_indexed' => true,
         ],
         'type_id' => [
             'title' => 'Type',

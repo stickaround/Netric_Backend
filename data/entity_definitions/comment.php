@@ -39,7 +39,9 @@ return [
             'title' => 'Reference',
             'type' => Field::TYPE_OBJECT,
             'subtype' => '',
-            'readonly' => true
+            'readonly' => true,
+            'system' => true,
+            'is_indexed' => true,
         ],
         'sent_by' => [
             'title' => 'Sent By',

@@ -359,6 +359,17 @@ abstract class IndexAbstract
     }
 
     /**
+     * Keep track of queries that were run against fields that are not indexed
+     *
+     * @return void
+     */
+    protected function logUnindexedQueryOnField(EntityDefinition $entityDefinition, string $fieldName): void
+    {
+        $objType = $entityDefinition->getObjType();
+        StatsPublisher::increment("unindexed,type=$objType,field=$fieldName");
+    }
+
+    /**
      * Function that will get a Field Definition using a field name
      *
      * @param EntityDefinition $entityDefinition Definition for the entity being queried

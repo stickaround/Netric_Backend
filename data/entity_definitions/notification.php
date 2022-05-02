@@ -32,6 +32,8 @@ return array(
             'type' => Field::TYPE_OBJECT,
             'subtype' => '',
             'readonly' => false,
+            'system' => true,
+            'is_indexed' => true,
         ),
 
         // Flag indicating if the notification has been seen

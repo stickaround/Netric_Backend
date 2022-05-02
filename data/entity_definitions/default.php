@@ -15,6 +15,7 @@ return [
         'subtype' => "",
         'readonly' => true,
         'system' => true,
+        'is_indexed' => true,
     ],
     "account_id" => [
         'title' => "Account ID",
@@ -22,6 +23,7 @@ return [
         'subtype' => "",
         'readonly' => true,
         'system' => true,
+        'is_indexed' => true,
     ],
     'associations' => [
         'title' => 'Associations',
@@ -114,7 +116,8 @@ return [
         'subtype' => ObjectTypes::USER,
         'readonly' => true,
         'system' => true,
-        'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"]
+        'is_indexed' => true,
+        'default' => ["value" => UserEntity::USER_CURRENT, "on" => "null"],
     ],
 
     'revision' => [

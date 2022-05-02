@@ -102,6 +102,8 @@ return [
             'type' => Field::TYPE_OBJECT,
             'subtype' => '',
             'readonly' => true,
+            'system' => true,
+            'is_indexed' => true,
         ],
 
         // File attachments

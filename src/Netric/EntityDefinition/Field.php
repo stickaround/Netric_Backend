@@ -3,7 +3,6 @@
 namespace Netric\EntityDefinition;
 
 use Netric\Entity\ObjType\UserEntity;
-use PetstoreIO\User;
 
 /**
  * Field definition
@@ -117,7 +116,7 @@ class Field implements \ArrayAccess
      *
      * @var boolean
      */
-    public $mustBeIndexed = false;
+    public $isIndexed = false;
 
     /**
      * Field type constants
@@ -195,8 +194,8 @@ class Field implements \ArrayAccess
             $this->optionalValues = $data["optional_values"];
         }
 
-        if (isset($data["must_be_indexed"])) {
-            $this->mustBeIndexed = $data["must_be_indexed"];
+        if (isset($data["is_indexed"])) {
+            $this->isIndexed = $data["is_indexed"];
         }
     }
 
@@ -243,7 +242,7 @@ class Field implements \ArrayAccess
             "use_when" => $this->useWhen,
             "default" => $this->default,
             "optional_values" => $this->optionalValues,
-            "must_be_indexed" => $this->mustBeIndexed
+            "is_indexed" => $this->isIndexed
         ];
     }
 
