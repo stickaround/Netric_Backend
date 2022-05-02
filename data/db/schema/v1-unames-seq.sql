@@ -17,4 +17,4 @@ UPDATE entity SET uname=nextval('entity_uname_seq')
 
 -- INDEX: entity_account_id_entity_definition_id_idx
 CREATE UNIQUE INDEX IF NOT EXISTS entity_uname_idx 
-    ON public.entity USING btree (uname, account_id, entity_definition_id, f_deleted);
+    ON public.entity USING btree (uname, account_id, entity_definition_id);

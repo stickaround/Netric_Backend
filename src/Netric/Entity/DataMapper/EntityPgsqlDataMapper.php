@@ -278,7 +278,6 @@ class EntityPgsqlDataMapper extends EntityDataMapperAbstract implements EntityDa
         $realColumns = [
             'entity_id',
             'account_id',
-            'entity_number',
             'uname',
             'ts_entered',
             'ts_updated',

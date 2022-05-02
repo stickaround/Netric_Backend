@@ -130,11 +130,9 @@ ALTER TABLE ONLY public.async_users
 --
 -- TABLE: entity
 --
-
 CREATE TABLE public.entity (
-    entity_id uuid PRIMARY KEY,
+    entity_id uuid NOT NULL,
     account_id uuid NOT NULL,
-    entity_number bigserial UNIQUE,
     uname character varying(256) NOT NULL,
     entity_definition_id uuid,
     ts_entered timestamp with time zone,
@@ -144,9 +142,12 @@ CREATE TABLE public.entity (
     field_data jsonb,
     schema_version integer,
     tsv_fulltext tsvector,
-    sort_order integer
-);
+    sort_order integer,
+    PRIMARY KEY (account_id, entity_id)
+) PARTITION BY LIST (account_id);
 
+-- TABLE: entity_part_default is where all entities go by default
+CREATE TABLE entity_part_default PARTITION OF entity DEFAULT;
 
 -- INDEX: entity_tsv_fulltext_idx
 
