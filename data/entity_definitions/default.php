@@ -146,6 +146,7 @@ return [
         'subtype' => '256',
         'readonly' => true,
         'system' => true,
+        'is_indexed' => true,
     ],
     'dacl' => [
         'title' => 'Security',
