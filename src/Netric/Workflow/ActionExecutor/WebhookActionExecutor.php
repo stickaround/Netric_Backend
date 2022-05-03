@@ -40,6 +40,9 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
             return false;
         }
 
+        //default curl error message
+        $error_msg = 'Network Error';
+
         // TODO: call the url and return true if the status code is 200
         // create a new cURL resource
         $ch = curl_init($url);
