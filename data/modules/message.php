@@ -20,6 +20,8 @@ return [
     "navigation" => [
         [
             // TODO: Change to ENTITY_MODAL
+            // Created a separate task for this. Since I also need to modify the members container and re-implement the scope data.
+            // Followup Task: https://app.netric.com/#/work/ent/7ad59d1c-037c-413b-9655-ae135403d231
             "type" => LeftNavItemTypes::ENTITY,
             "title" => "New Message",
             "route" => "newdirect",
