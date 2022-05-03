@@ -19,6 +19,7 @@ return [
     "f_system" => true,
     "navigation" => [
         [
+            // TODO: Change to ENTITY_MODAL
             "type" => LeftNavItemTypes::ENTITY,
             "title" => "New Message",
             "route" => "newdirect",
@@ -29,6 +30,7 @@ return [
             ]
         ],
         [
+            // TODO: Change to ENTITY_MODAL
             "type" => LeftNavItemTypes::ENTITY,
             "title" => "New Room",
             "route" => "newroom",
