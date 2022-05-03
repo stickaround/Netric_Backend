@@ -33,36 +33,40 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
     {
         // Get url from the param
         $url = $this->getParam('url', $actOnEntity);
-        $entityActive = $this->getParam('f_active', $actOnEntity);
 
-
-        // TODO: call the url and return true if the status code is 200
-        // but for now, we just return false for failure to stop execution
-        if (!empty($url) && $entityActive) {
-            // Start the workflow for the entity
-            $workflow = $this->getEntityloader()->getEntityById($url, $user->getAccountId());
-            //$get = file_get_contents($url);
-            // create a new cURL resource
-            $ch = curl_init();
-
-            // set URL and other appropriate options
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-
-            // grab URL and pass it to the browser
-            curl_exec($ch);
-
-            // close cURL resource, and free up system resources
-            curl_close($ch);
-
-            return true;
-        }
-
+        // if not url exist then return false
         if (!$url) {
             $this->addError(new Error("Check your url. You need to set url."));
             return false;
         }
-       
+
+        // TODO: call the url and return true if the status code is 200
+        // create a new cURL resource
+        $ch = curl_init($url);
+        // set URL and other appropriate options
+        curl_setopt($ch, CURLOPT_HEADER, true);    // we want headers
+        curl_setopt($ch, CURLOPT_NOBODY, true);    // we don't need body
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_TIMEOUT,10);
+        // grab URL and pass it to the browser
+        curl_exec($ch);
+        //Get status code
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        //Get Error message, if found
+        if (curl_errno($ch)) {
+            $error_msg = curl_error($ch);
+        }
+
+        // close cURL resource, and free up system resources
+        curl_close($ch);
+
+        //Check Status code
+        if($httpcode === 200){
+            return true;
+        }
+        // Return Error message
+        $this->addError(new Error($error_msg));
         return false;
     }
 }

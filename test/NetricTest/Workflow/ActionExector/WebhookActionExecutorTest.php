@@ -11,8 +11,6 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
 use Netric\Workflow\ActionExecutor\WebhookActionExecutor;
-use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Test action executor
@@ -46,25 +44,20 @@ class WebhookActionExecutorTest extends TestCase
   }
 
   /**
-   * Make sure we can update a basic field
+   * Make sure url exist
   */
   public function testExecute(): void
   {
     // Set the entity action data
     $this->mockActionEntity->method("getData")->willReturn([
-      'name' => 'Test',
-      'f_active' => true,
-      'f_on_create' => true, // Check the email field of the user entity
-      'f_on_delete' =>true,
-      'f_on_update' => true,
-      'url' => 'http://localhost:3003',
+      'url' => 'https://mockhost.com/',
     ]);
 
     // Create a mock test entity, with a mock definition that gets a field
     // This is important because the execute function will make sure the field
     // exists and get the type of data from the field definition
     $testEntity = $this->createMock(EntityInterface::class);
-    $testEntity->method('getValue')->with($this->equalTo('url'))->willReturn("http://localhost:3003");
+    $testEntity->method('getValue')->with($this->equalTo('url'))->willReturn("https://mockhost.com/");
 
     // Stub the user to satisfy requirements for call to execute
     $user = $this->createStub(UserEntity::class);
@@ -80,11 +73,6 @@ class WebhookActionExecutorTest extends TestCase
   {
     // Set the entity action data
     $this->mockActionEntity->method("getData")->willReturn([
-      'name' => 'Test',
-      'f_active' => true,
-      'f_on_create' => true, // Check the email field of the user entity
-      'f_on_delete' =>true,
-      'f_on_update' => true,
       'url' => '',
     ]);
 
@@ -100,18 +88,13 @@ class WebhookActionExecutorTest extends TestCase
   }
 
   /*
-  * Make sure test return false, if active is false 
+  * Make sure test return false, if Invalid URL
   */
-  public function testExecuteFailOnActiveFalse(): void
+  public function testExecuteFailOnInvalidUrl(): void
   {
     // Set the entity action data
     $this->mockActionEntity->method("getData")->willReturn([
-      'name' => 'Test',
-      'f_active' => false,
-      'f_on_create' => true, // Check the email field of the user entity
-      'f_on_delete' =>true,
-      'f_on_update' => true,
-      'url' => 'http://localhost:3003',
+      'url' => 'http://test.company.com',
     ]);
 
     // Create a mock test entity
