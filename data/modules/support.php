@@ -20,7 +20,7 @@ return [
     "f_system" => true,
     "navigation" => [
         [
-            "type" => LeftNavItemTypes::ENTITY,
+            "type" => LeftNavItemTypes::ENTITY_MODAL,
             "title" => "New Ticket",
             "route" => "newticket",
             "icon" => "AddBoxIcon",

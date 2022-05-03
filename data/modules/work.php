@@ -24,7 +24,7 @@ return [
     "navigation" => [
 
         [
-            "type" => LeftNavItemTypes::ENTITY,
+            "type" => LeftNavItemTypes::ENTITY_MODAL,
             "title" => "New Task",
             "route" => "newtask",
             "icon" => "AddBoxIcon",

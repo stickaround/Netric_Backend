@@ -25,6 +25,11 @@ interface LeftNavItemTypes
     const ENTITY = 'Entity';
 
     /**
+     * Display an entity form in a modal
+     */
+    const ENTITY_MODAL = 'EntityModal';
+
+    /**
      * Display an entity browser
      */
     const ENTITY_BROWSE = 'EntityBrowse';
