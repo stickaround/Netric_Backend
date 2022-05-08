@@ -148,6 +148,7 @@ pipeline {
         // }
 
         stage('Production') {
+            agent { node { label 'deploy' } }
             when {
                 // Do not publish
                 expression {

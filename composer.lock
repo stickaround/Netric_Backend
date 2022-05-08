@@ -12,13 +12,13 @@
             "source": {
                 "type": "git",
                 "url": "ssh://git@src.aereus.com:222/source/jobqueue-svc-api.lib.php.git",
-                "reference": "0cde48b8a93257e33e36f14fd4e6f2aa378e4901"
+                "reference": "3768d604ba7ae7a2cf174a75411a633a1a5eac46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://packagist.aereus.com/dist/aereus/jobqueue-svc-api/aereus-jobqueue-svc-api-dev-master-e0e4fc.zip",
-                "reference": "0cde48b8a93257e33e36f14fd4e6f2aa378e4901",
-                "shasum": "9470fbe3d3c7b32bfc2374ddd5f566d2b68a356f"
+                "url": "https://packagist.aereus.com/dist/aereus/jobqueue-svc-api/aereus-jobqueue-svc-api-dev-master-203f33.zip",
+                "reference": "3768d604ba7ae7a2cf174a75411a633a1a5eac46",
+                "shasum": "7d0e873d1557820effa6514fb2a1f81a910b4683"
             },
             "require": {
                 "apache/thrift": "^0.15.0",
@@ -71,7 +71,7 @@
             ],
             "description": "PHP library for interacting with thrift calls to the jobqueue service",
             "homepage": "https://src.aereus.com/source/jobque-svc-api.lib.php/",
-            "time": "2022-02-19T13:15:52+00:00"
+            "time": "2022-05-08T11:39:30+00:00"
         },
         {
             "name": "aereus/lib",

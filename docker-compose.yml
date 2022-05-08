@@ -21,23 +21,7 @@ services:
       - objectstorage
       - smtp4dev
       - jobqueue_svc
-      - gearmand
     entrypoint: 'bash -c "rm -f composer.lock && composer install && /start.sh"'
-
-  netric_daemon:
-    build:
-      context: ./
-      target: development
-      dockerfile: ./Dockerfile
-    entrypoint: /start-daemon.sh
-    volumes:
-      - ./:/var/www/html/
-    environment:
-      APPLICATION_ENV: development
-      APPLICATION_VER: daemon-dev
-    depends_on:
-      - gearmand
-      - netric_server
 
   thrift:
     image: dockerhub.aereus.com/thrift:development
@@ -68,20 +52,17 @@ services:
     ports:
       - "6379:6379"
 
-  gearmand:
-    image: kendu/gearman
-
   # Setup the jobqueue and DB
   jobqueue_svc:
     image: dockerhub.aereus.com/jobqueue_svc:latest
     environment:
-      GEARMAN_SERVER: gearmand
+      PROCESSOR_ENDPOINT: http://netric_server/api/v2/workers/process
+      CRON_DAILY: true
       DB_SERVER: jobqueue_pgsql
       DB_USER: jobqueue
       DB_PASSWORD: password
       DB_WAIT: 30
     depends_on:
-      - gearmand
       - jobqueue_pgsql
 
   jobqueue_pgsql:

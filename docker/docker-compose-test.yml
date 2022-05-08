@@ -16,7 +16,6 @@ services:
       - objectstorage
       - smtp4dev
       - jobqueue_svc
-      - gearmand
     entrypoint: 'bash -c "/netric-setup.sh && vendor/bin/phpunit --no-coverage > /dev/stdout"' 
     logging:
       driver: "json-file"
@@ -81,21 +80,19 @@ services:
   jobqueue_svc:
     image: dockerhub.aereus.com/jobqueue_svc:latest
     environment:
-      GEARMAN_SERVER: gearmand
+      PROCESSOR_ENDPOINT: http://netric_server/api/v2/workers/process
+      CRON_DAILY: true
       DB_SERVER: jobqueue_pgsql
       DB_USER: jobqueue
       DB_PASSWORD: password
       DB_WAIT: 30
     depends_on:
-      - gearmand
       - jobqueue_pgsql
 
   jobqueue_pgsql:
     image: postgres
+    platform: linux/amd64
     environment:
       POSTGRES_USER: jobqueue
       POSTGRES_PASSWORD: password
       POSTGRES_DB: jobqueue
-  
-  gearmand:
-    image: kendu/gearman

@@ -31,9 +31,10 @@ services:
         order: start-first
 
   jobqueue_svc:
-    image: dockerhub.aereus.com/jobqueue_svc:v20
+    image: dockerhub.aereus.com/jobqueue_svc:v33
     environment:
-      GEARMAN_SERVER: gearman
+      PROCESSOR_ENDPOINT: http://netricservice/api/v2/workers/process
+      CRON_DAILY: true
     networks:
       - service_netric
       - default

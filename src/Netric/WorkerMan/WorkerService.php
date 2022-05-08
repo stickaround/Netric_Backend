@@ -80,6 +80,10 @@ class WorkerService
         $this->jobQueue->doWorkBackgroundDelayed($workerName, $jobData, $delayedSeconds);
     }
 
+    public function doWorkEvery(string $workerName, array $jobData, int $intervalSeconds): void
+    {
+    }
+
     /**
      * Process the job queue or wait for new jobs
      *
