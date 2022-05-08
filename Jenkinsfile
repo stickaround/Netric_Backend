@@ -54,8 +54,8 @@ pipeline {
                 // Run unit tests
                 script {
                     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                        sh 'docker-compose -f docker/docker-compose-test.yml build'
-                        sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+                        sh 'docker compose -f docker/docker-compose-test.yml build'
+                        sh 'docker compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
                     }
 
                     // Report on junit
