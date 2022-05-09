@@ -91,7 +91,6 @@ services:
 
   jobqueue_pgsql:
     image: postgres
-    platform: linux/amd64
     environment:
       POSTGRES_USER: jobqueue
       POSTGRES_PASSWORD: password
