@@ -81,7 +81,6 @@ services:
     image: dockerhub.aereus.com/jobqueue_svc:latest
     environment:
       PROCESSOR_ENDPOINT: http://netric_server/api/v2/workers/process
-      CRON_DAILY: true
       DB_SERVER: jobqueue_pgsql
       DB_USER: jobqueue
       DB_PASSWORD: password
