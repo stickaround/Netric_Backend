@@ -235,7 +235,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Get the entity utilizing whatever params were passed in
         $entity = null;
-        $process = "Checked the entity $entityId and if its a valid uuid. Result: " + Uuid::isValid($entityId);
+        $process = "Checked the entity $entityId and if its a valid uuid. Result: " . Uuid::isValid($entityId);
         if ($entityId && Uuid::isValid($entityId)) {
             // Retrieve the entity by id
             $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
