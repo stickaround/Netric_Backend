@@ -95,6 +95,10 @@ return [
         'osAccount' => 'netric',
         'osServer' => 'objectstorage',
         'osSecret' => 'YCzL6bmR9rNt5MTWuRpQukE7BQ7b9PYm',
+        // This will be used to generate links with tokens so clients can download files.
+        // It is preferrable to have files on a different domain than the app so that
+        // we do not max out connections when there is a lot of media to load.
+        'publicServer' => 'https://api.netric.com',
         //'store' => 'mogile',
         //'server' => '10.4.26.26',
         'mogileServer' => 'mogilefs_legacy',

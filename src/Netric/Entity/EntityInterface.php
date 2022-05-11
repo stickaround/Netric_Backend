@@ -109,7 +109,7 @@ interface EntityInterface
      *
      * @return array Associative array of all fields in array(field_name=>value with applied_name=>value) format
      */
-    public function toArrayWithApplied(UserEntity $user);
+    public function toArrayWithApplied(UserEntity $user): array;
 
     /**
      * Special function used to get data visible to users who have no view permission

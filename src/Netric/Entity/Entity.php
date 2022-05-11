@@ -629,7 +629,7 @@ class Entity implements EntityInterface
      *
      * @return array Associative array of all fields in array(field_name=>value with applied_name=>value) format
      */
-    public function toArrayWithApplied(UserEntity $user)
+    public function toArrayWithApplied(UserEntity $user): array
     {
         $entityData = $this->toArray();
         $entityData['applied_name'] = $this->getName($user);

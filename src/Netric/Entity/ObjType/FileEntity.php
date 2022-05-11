@@ -13,7 +13,10 @@ use Netric\FileSystem\FileStore\FileStoreFactory;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\GroupingLoader;
 
 /**
  * Folder for entity
@@ -26,6 +29,27 @@ class FileEntity extends Entity implements EntityInterface
      * @var resource
      */
     private $fileHandle = null;
+
+    /**
+     * The URL of the public server used to generate public links
+     *
+     * @var string
+     */
+    private string $publicServer = "";
+
+    /**
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     * @param string $publicServer The URL of the public server used to generate public links
+     */
+    public function __construct(
+        EntityDefinition $def,
+        EntityLoader $entityLoader,
+        GroupingLoader $groupingLoader,
+        string $publicServer
+    ) {
+        parent::__construct($def, $entityLoader, $groupingLoader);
+    }
 
     /**
      * Clean-up file handle if not closed
@@ -70,6 +94,22 @@ class FileEntity extends Entity implements EntityInterface
     public function setFileHandle($fileHandle)
     {
         $this->fileHandle = $fileHandle;
+    }
+
+    /**
+     * Add file-specific applied values
+     */
+    public function toArrayWithApplied(UserEntity $user): array
+    {
+        // First get get the array from the base (most of the entity data)
+        $dataToExport = parent::toArrayWithApplied($user);
+
+        // Now add a URI for access
+        $dataToExport['applied_download_uri'] = $this->publicServer . '/files/' . $this->getEntityId();
+
+        // TODO: create a token that can be used here
+
+        return $dataToExport;
     }
 
     /**

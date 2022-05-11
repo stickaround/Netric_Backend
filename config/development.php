@@ -5,7 +5,7 @@ use \net\authorize\api\constants\ANetEnvironment;
 return [
     // This is the url of the netric app. This is usually used when creating
     // the link of an entity in the email notification contents.
-    'application_url' => 'http://localhost:8080',
+    'application_url' => 'http://localhost',
     // Where secret files are stored - we keep this in the source code for local development
     'vault_dir' => "/var/www/html/data/vault_secrets",
     // Log settings
@@ -42,12 +42,10 @@ return [
         'osAccount' => 'netric',
         'osServer' => 'objectstorage',
         'osSecret' => 'YCzL6bmR9rNt5MTWuRpQukE7BQ7b9PYm',
-        //'store' => 'mogile',
-        //'server' => '10.4.26.26',
+        // This will be used to generate links with tokens so clients can download
+        'publicServer' => 'http://localhost',
         'mogileServer' => 'mogilefs',
         'mogileAccount' => 'netric',
-        // 'password' => 'n/a',
-        // 'port' => 7001,
     ],
     // Cache settings
     'cache' => [
