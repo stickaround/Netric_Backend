@@ -235,9 +235,11 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Get the entity utilizing whatever params were passed in
         $entity = null;
+        $process = "Checked the entity $entityId and if its a valid uuid. Result: " . Uuid::isValid($entityId);
         if ($entityId && Uuid::isValid($entityId)) {
             // Retrieve the entity by id
             $entity = $this->entityLoader->getEntityById($entityId, $currentAccount->getAccountId());
+            $process = "Retrieved the entity $entityId using entity id";
         } elseif ($uname && $objType) {
             // Retrieve the entity by a unique name and optional condition
             $entity = $this->entityLoader->getByUniqueName(
@@ -245,6 +247,7 @@ class EntityController extends AbstractFactoriedController implements Controller
                 $uname,
                 $currentAccount->getAccountId()
             );
+            $process = "Retrieved the entity $uname $objType using uname and objType";
         } else {
             $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
             $response->write(["error" => "entity_id or uname are required params."]);
@@ -253,7 +256,8 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Entity Could not be found - we might want to change this to a 404 status code
         if (!$entity) {
-            $response->write([]);
+            $response->setReturnCode(HttpResponse::STATUS_INTERNAL_SERVER_ERROR);
+            $response->write(["error" => "Entity Could not be found.", "process" => $process]);
             return $response;
         }
 
@@ -268,7 +272,8 @@ class EntityController extends AbstractFactoriedController implements Controller
             $response->write([
                 "error" => "You do not have permission to view this.",
                 "entity_id" => $entity->getEntityId(),
-                "dacl_data" => $dacl->toArray()
+                "dacl_data" => $dacl->toArray(),
+                "revision" => $entity.getValue("revision")
             ]);
             return $response;
         }
