@@ -13,6 +13,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Handler\EntityHandler;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @group integration
@@ -88,5 +89,87 @@ class EntityHandlerTest extends TestCase
 
         // Make sure the 'seen_by' field was updated in the task entity
         $this->assertEquals([$userId], $task->getValue('seen_by'));
+    }
+
+    /**
+     * Test getting entity data and checking permissions
+     *
+     * @return void
+     */
+    public function testGetEntityDataById(): void
+    {
+        // Create some UUIDs for the test
+        $taskEntityId = Uuid::uuid4()->toString();
+        $accountId = Uuid::uuid4()->toString();
+        $userId = Uuid::uuid4()->toString();
+
+        $daclPermissions = [
+            'view' => true,
+            'edit' => true,
+            'delete' => true
+        ];
+        $daclDetails = [
+            'entries' => [],
+            'name' => 'task_dacl'
+        ];
+
+        // Create test task entity
+        $mockTaskEntity = $this->createMock(TaskEntity::class);
+        $mockTaskEntity->method('getName')->willReturn('Test Task');
+        $mockTaskEntity->method('getEntityId')->willReturn($taskEntityId);
+        $mockTaskEntity->method('toArrayWithApplied')->willReturn([
+            'obj_type' => 'task',
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing',
+            'applied_name' => 'Test Task',
+            'applied_icon' => '',
+            'applied_description' => ''
+        ]);
+
+        // Setup user
+        $userDefinition = new EntityDefinition('user', $accountId);
+        $nameField = new Field('name');
+        $nameField->type = Field::TYPE_TEXT;
+        $userDefinition->addField($nameField);
+        $user = new UserEntity(
+            $userDefinition,
+            $this->mockEntityLoader,
+            $this->createMock(GroupingLoader::class),
+            $this->createMock(AccountContainer::class)
+        );
+        $user->setValue('name', 'test-user');
+
+        // Mock getEntityById for task and user, the last param in the map is the return value
+        $this->mockEntityLoader->method('getEntityById')->will($this->returnValueMap([
+            [$taskEntityId, $accountId, $mockTaskEntity],
+            [$userId, $accountId, $user],
+        ]));
+
+        // Create test dacl permission for this task
+        $mockDacl = $this->createMock(Dacl::class);
+        $mockDacl->method('isAllowed')->willReturn(true);
+        $mockDacl->method('getUserPermissions')->willReturn($daclPermissions);
+        $mockDacl->method('toArray')->willReturn($daclDetails);
+
+        // Mock the dacl loader service which is used to load the dacl permission
+        $this->mockDaclLoader->method('getForEntity')->willReturn($mockDacl);
+
+        // Make sure getGetAction is called and we get a response
+        $response = $this->entityHandler->getEntityDataById($taskEntityId, $userId, $accountId);
+        $this->assertEquals([
+            'obj_type' => 'task',
+            'entity_id' => $taskEntityId,
+            'name' => 'Test Task',
+            'description' => 'Task for testing',
+            'applied_name' => 'Test Task',
+            'applied_icon' => '',
+            'applied_description' => '',
+            'applied_dacl' => [
+                'entries' => [],
+                'name' => 'task_dacl'
+            ],
+            'currentuser_permissions' => $daclPermissions
+        ], json_decode($response, true));
     }
 }

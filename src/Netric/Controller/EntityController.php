@@ -373,9 +373,6 @@ class EntityController extends AbstractFactoriedController implements Controller
             return $response;
         }
 
-        // Check to see if any new object_multi objects were sent awaiting save
-        //$this->savePendingObjectMultiObjects($entity, $objData);
-
         $entityData = $entity->toArray();
 
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved

@@ -118,4 +118,41 @@ class EntityProcessor
             $output->getTransport()->flush();
         }
     }
+    protected function process_getEntityDataById($seqid, $input, $output)
+    {
+        $bin_accel = ($input instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary_after_message_begin');
+        if ($bin_accel) {
+            $args = thrift_protocol_read_binary_after_message_begin(
+                $input,
+                '\NetricApi\Entity_getEntityDataById_args',
+                $input->isStrictRead()
+            );
+        } else {
+            $args = new \NetricApi\Entity_getEntityDataById_args();
+            $args->read($input);
+        }
+        $input->readMessageEnd();
+        $result = new \NetricApi\Entity_getEntityDataById_result();
+        try {
+            $result->success = $this->handler_->getEntityDataById($args->entityId, $args->userId, $args->accountId);
+        } catch (\NetricApi\ErrorException $error) {
+            $result->error = $error;
+        }
+        $bin_accel = ($output instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+        if ($bin_accel) {
+            thrift_protocol_write_binary(
+                $output,
+                'getEntityDataById',
+                TMessageType::REPLY,
+                $result,
+                $seqid,
+                $output->isStrictWrite()
+            );
+        } else {
+            $output->writeMessageBegin('getEntityDataById', TMessageType::REPLY, $seqid);
+            $result->write($output);
+            $output->writeMessageEnd();
+            $output->getTransport()->flush();
+        }
+    }
 }

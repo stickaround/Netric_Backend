@@ -58,6 +58,12 @@ service Entity
      */
     void updateUserLastActive(1:string userId, 2:string accountId, 3:string timestamp)
         throws (1:ErrorException error, 2:InvalidArgument badRequest);
+
+    /**
+     * Load entity data by unique ID and return an encoded JSON string of the values
+     */
+    string getEntityDataById(1:string entityId, 2:string userId, 3:string accountId)
+        throws (1:ErrorException error);
 }
 
 

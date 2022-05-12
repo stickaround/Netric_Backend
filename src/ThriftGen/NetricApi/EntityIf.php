@@ -39,4 +39,14 @@ interface EntityIf
      * @throws \NetricApi\InvalidArgument
      */
     public function updateUserLastActive($userId, $accountId, $timestamp);
+    /**
+     * Load entity data by unique ID and return an encoded JSON string of the values
+     * 
+     * @param string $entityId
+     * @param string $userId
+     * @param string $accountId
+     * @return string
+     * @throws \NetricApi\ErrorException
+     */
+    public function getEntityDataById($entityId, $userId, $accountId);
 }

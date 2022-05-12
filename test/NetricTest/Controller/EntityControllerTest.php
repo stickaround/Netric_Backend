@@ -804,7 +804,7 @@ class EntityControllerTest extends TestCase
 
         // Make sure postSaveAction is called and we get a response
         $request = new HttpRequest();
-        $request->setParam('buffer_output', 1);        
+        $request->setParam('buffer_output', 1);
 
         // Specify the entity_id here so we will save the existing entity
         $request->setBody(json_encode(['obj_type' => 'task', 'entity_id' => $existingEntityId, 'revision' => '1']));
