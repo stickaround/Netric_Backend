@@ -133,6 +133,9 @@ class AccountSetup
             $this->accountContainer->updateAccount($account);
         }
 
+        // Now move the bill date to a month out for the free trial
+        $account->calculateAndUpdateNextBillDate();
+
         // Set data for this account
         $this->updateDataForAccount($account);
 
