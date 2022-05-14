@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Netric\WorkerMan\Worker;
 
-use DateInterval;
-use DateTime;
 use Netric\Account\AccountContainerFactory;
 use Netric\Entity\ActivityLogFactory;
 use Netric\Entity\EntityLoaderFactory;
@@ -14,7 +12,6 @@ use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogFactory;
-use Netric\WorkerMan\SchedulerServiceFactory;
 use Netric\WorkerMan\WorkerServiceFactory;
 use Netric\Workflow\WorkflowServiceFactory;
 use RuntimeException;

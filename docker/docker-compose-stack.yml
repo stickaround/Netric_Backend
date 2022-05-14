@@ -43,33 +43,6 @@ services:
       options:
         tag: "netric_jobqueue_svc"
 
-  netric_daemon:
-    image: dockerhub.aereus.com/netric:${APPLICATION_VER}
-    entrypoint: /start-daemon.sh
-    environment:
-      APPLICATION_ENV: ${APPLICATION_ENV}
-      APPLICATION_VER: daemon-${APPLICATION_VER}
-    secrets:
-      - auth_private_key
-      - entityenc
-      - anet_key
-    networks:
-      - service_netric
-      - default
-      - service_core
-    logging:
-      options:
-        tag: "netric_daemon"
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role!=manager
-      update_config:
-        parallelism: 1
-        delay: 1s
-        order: start-first
-
 networks:
   default:
     external: false

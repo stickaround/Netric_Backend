@@ -6,6 +6,7 @@ use Netric\Application\DataMapperInterface;
 use Netric\Account\Account;
 use Netric\Application\Application;
 use Aereus\Config\ConfigLoader;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -88,6 +89,11 @@ abstract class AbstractDataMapperTests extends TestCase
      */
     abstract protected function deleteDatabase($dbName);
 
+    /**
+     * Test the creation of a new account
+     *
+     * @return void
+     */
     public function testCreateAccount()
     {
         $dataMapper = $this->getDataMapper();
@@ -103,6 +109,14 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertGreaterThan(0, $result);
     }
 
+    /**
+     * Test deleting an account (and all its data)
+     *
+     * In production this is never called (yet) because we just set the
+     * status of the account to expired and archive the data.
+     *
+     * @return void
+     */
     public function testDeleteAccount()
     {
         $dataMapper = $this->getDataMapper();
@@ -126,75 +140,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertEquals(1, sizeof($dataMapper->getErrors()));
     }
 
-    public function testAcquireLock()
-    {
-        $dataMapper = $this->getDataMapper();
-
-        // Create a unit test unique lcok name
-        $utestLockName = "utest_app_dm_lock";
-
-        // First clean up any leftover process locks
-        $dataMapper->releaseLock($utestLockName);
-
-        // Create a new lock with the default expires
-        $this->assertTrue($dataMapper->acquireLock($utestLockName));
-
-        // A second call should return false since it is locked
-        $this->assertFalse($dataMapper->acquireLock($utestLockName));
-    }
-
-    public function testAcquireLockExpired()
-    {
-        $dataMapper = $this->getDataMapper();
-
-        // Create a unit test unique lock name
-        $utestLockName = "utest_app_dm_lock_expired";
-
-        // Create a new lock with the default expires
-        $dataMapper->acquireLock($utestLockName);
-
-        // A second call should be expired and return true
-        $this->assertTrue($dataMapper->acquireLock($utestLockName, 0));
-
-        // Cleanup
-        $dataMapper->releaseLock($utestLockName);
-    }
-
-    public function testReleaseLock()
-    {
-        $dataMapper = $this->getDataMapper();
-
-        // Create a unit test unique lock name
-        $utestLockName = "utest_app_dm_lock";
-
-        // Create then release a process lock
-        $dataMapper->acquireLock($utestLockName);
-        $dataMapper->releaseLock($utestLockName);
-
-        // We should be able to lock the process again now that it was released
-        $this->assertTrue($dataMapper->acquireLock($utestLockName));
-
-        // Cleanup
-        $dataMapper->releaseLock($utestLockName);
-    }
-
-    public function testExtendLock()
-    {
-        $dataMapper = $this->getDataMapper();
-
-        // Create a unit test unique lock name
-        $utestLockName = "utest_app_dm_lock_extended";
-
-        // Create a new lock with the default expires
-        $dataMapper->acquireLock($utestLockName);
-
-        // Make sure that a call to update the executed time to now succeeds to renew the lock
-        $this->assertTrue($dataMapper->extendLock($utestLockName));
-
-        // Cleanup
-        $dataMapper->releaseLock($utestLockName);
-    }
-
+    /**
+     * Make sure we can update the user's email address when it changes
+     *
+     * @return void
+     */
     public function testSetAccountUserEmail()
     {
         $dataMapper = $this->getDataMapper();
@@ -213,5 +163,27 @@ abstract class AbstractDataMapperTests extends TestCase
         $result = $dataMapper->getAccountsByEmail('unitest@' . self::TEST_EMAIL_DOMAIN);
         $this->assertEquals($result[0]["account"], self::TEST_ACCOUNT_NAME);
         $this->assertEquals($result[0]["username"], self::TEST_ACCOUNT_NAME);
+    }
+
+    /**
+     * Make sure we can save changes to an account after creation
+     */
+    public function testUpdateAccount(): void
+    {
+        $dataMapper = $this->getDataMapper();
+        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+        $this->testAccountIds[] = $aid;
+
+        // Setup the account
+        $mockApplication = $this->createMock(Application::class);
+        $account = new Account($mockApplication);
+        $accountData = $dataMapper->getAccountById($aid, $account);
+
+        // Now test making changes and saving
+        $account->setBillingLastBilled(new DateTime()); // Now
+        $account->setBillingNextBill(new DateTime(date("Y-m-d", strtotime("+1 month"))));
+        $account->setBillingMonthInterval(3); // Let's try every 90 days
+
+        $this->assertTrue($dataMapper->updateAccount($account));
     }
 }

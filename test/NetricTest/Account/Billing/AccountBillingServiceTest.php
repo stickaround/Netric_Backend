@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace NetricTest\Account\Billing;
 
 use Netric\Account\Account;
+use Netric\Account\AccountContainerInterface;
 use Netric\Account\Billing\AccountBillingService;
 use Netric\Account\Billing\AccountBillingServiceInterface;
 use Netric\Entity\EntityInterface;
@@ -35,6 +36,7 @@ class AccountBillingServiceTest extends TestCase
     private PaymentGatewayInterface $mockPaymentGateway;
     private IndexInterface $mockEntityIndex;
     private EntityInterface $mockInvoice;
+    private AccountContainerInterface $mockAccountContainer;
 
     /**
      * Test values
@@ -61,6 +63,7 @@ class AccountBillingServiceTest extends TestCase
         $this->mockPaymentGateway = $this->createMock(PaymentGatewayInterface::class);
         $this->mockEntityIndex = $this->createMock(IndexInterface::class);
         $this->mockInvoice = $this->createMock(EntityInterface::class);
+        $this->mockAccountContainer = $this->createMock(AccountContainerInterface::class);
 
         // Construct the service with mocks so we can configure and test them later
         $this->accountBilling = new AccountBillingService(
@@ -68,7 +71,8 @@ class AccountBillingServiceTest extends TestCase
             $this->mockEntityLoader,
             self::TEST_MAIN_ACCOUNT_ID,
             $this->mockPaymentGateway,
-            $this->mockEntityIndex
+            $this->mockEntityIndex,
+            $this->mockAccountContainer
         );
 
         /**

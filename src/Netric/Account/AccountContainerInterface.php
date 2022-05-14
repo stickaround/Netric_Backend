@@ -49,11 +49,10 @@ interface AccountContainerInterface
     /**
      * Update an existing account
      *
-     * @param string $accountId Unique id of the account that we are updating
-     * @param array $accountData The data that will be used for updating an account
+     * @param Account $accountToUpdate
      * @return bool true on success, false on failure
      */
-    public function updateAccount(string $accountId, array $accountData);
+    public function updateAccount(Account $accountToUpdate);
 
     /**
      * Get array of all active account IDs
@@ -63,4 +62,11 @@ interface AccountContainerInterface
      *  @return array [['account_id'=>ID, 'name'=>NAME]]
      */
     public function getAllActiveAccounts(): array;
+
+    /**
+     * Get IDs of all accounts to be billed
+     *
+     * @return string[] The account_id(s) of all accounts due to be billed
+     */
+    public function getAccountsToBeBilled(): array;
 }

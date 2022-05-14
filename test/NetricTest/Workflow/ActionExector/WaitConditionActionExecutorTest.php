@@ -12,7 +12,6 @@ use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
 use Netric\Workflow\ActionExecutor\WaitConditionActionExecutor;
-use Netric\WorkerMan\SchedulerService;
 use Netric\WorkerMan\WorkerService;
 use Netric\Workflow\WorkflowScheudleTimes;
 
@@ -31,7 +30,6 @@ class WaitConditionActionExecutorTest extends TestCase
      */
     private EntityLoader $mockEntityLoader;
     private WorkflowActionEntity $mockActionEntity;
-    private SchedulerService $mockScheduler;
 
     /**
      * Mock and stub out the action exector

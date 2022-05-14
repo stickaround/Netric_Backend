@@ -53,7 +53,6 @@ return [
     ["obj_type" => "workflow", "title" => "Workflow", "revision" => "0", "system" => true],
     ["obj_type" => "workflow_action", "title" => "Workflow Action", "revision" => "0", "system" => true],
     ["obj_type" => "user_team", "title" => "User Team", "revision" => "0", "system" => true],
-    ["obj_type" => "worker_job", "title" => "Worker Job", "revision" => "0", "system" => true],
     ["obj_type" => "dashboard_widget", "title" => "Dashboard Widget", "revision" => "0", "system" => true],
     ["obj_type" => "payment_profile", "title" => "Payment Profile", "revision" => "0", "system" => true],
     ["obj_type" => "workflow_instance", "title" => "Workflow Instance", "revision" => "0", "system" => true],

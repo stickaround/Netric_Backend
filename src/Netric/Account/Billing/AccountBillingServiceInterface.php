@@ -14,6 +14,11 @@ use Netric\Entity\EntityInterface;
 interface AccountBillingServiceInterface
 {
     /**
+     * Loop through all active accounts and bill them if there is anything due bill them
+     */
+    public function billAllDueAccounts(): void;
+
+    /**
      * If an account is due for billing, bill them
      *
      * If there is some sort of error, like the user does not have billing info

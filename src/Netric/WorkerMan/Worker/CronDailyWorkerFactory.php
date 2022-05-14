@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\WorkerMan\Worker;
 
-use Netric\Account\AccountContainerFactory;
+use Netric\Account\Billing\AccountBillingServiceFactory;
 use Netric\Log\LogFactory;
 use Netric\ServiceManager\ServiceLocatorInterface;
 
@@ -21,9 +21,9 @@ class CronDailyWorkerFactory
      */
     public function create(ServiceLocatorInterface $serviceLocator)
     {
-        $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
+        $accountBilllingService = $serviceLocator->get(AccountBillingServiceFactory);
         $log = $serviceLocator->get(LogFactory::class);
 
-        return new CronDailyWorker($accountContainer, $log);
+        return new CronDailyWorker($accountBilllingService, $log);
     }
 }

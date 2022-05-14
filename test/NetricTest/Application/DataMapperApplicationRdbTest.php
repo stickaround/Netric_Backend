@@ -4,9 +4,7 @@ namespace NetricTest\Application;
 
 use Netric\Application\DataMapperInterface;
 use Netric\Application\ApplicationRdbDataMapper;
-use Aereus\Config\ConfigLoader;
 use Netric\Db\Relational\PgsqlDb;
-use PHPUnit\Framework\TestCase;
 
 class DataMapperApplicationRdbTest extends AbstractDataMapperTests
 {

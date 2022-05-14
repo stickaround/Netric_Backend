@@ -4,7 +4,6 @@ namespace Netric\Account;
 
 use Netric\Application\DataMapperInterface;
 use Netric\Application\Application;
-use Netric\Authentication\AuthenticationService;
 use Netric\Cache\CacheInterface;
 use Netric\Error\Error;
 use Netric\Error\ErrorAwareInterface;
@@ -196,16 +195,15 @@ class AccountContainer implements AccountContainerInterface, ErrorAwareInterface
     /**
      * Update an existing account
      *
-     * @param string $accountId Unique id of the account that we are updating
-     * @param array $accountData The data that will be used for updating an account
+     * @param Account $account The account to update
      * @return bool true on success, false on failure
      */
-    public function updateAccount(string $accountId, array $accountData)
+    public function updateAccount(Account $account)
     {
-        $result = $this->appDm->updateAccount($accountId, $accountData);
+        $result = $this->appDm->updateAccount($account);
 
         // Clear cache
-        $this->cache->delete("netric/account/" . $accountId);
+        $this->cache->delete("netric/account/" . $account->getAccountId());
 
         return $result;
     }
@@ -240,6 +238,16 @@ class AccountContainer implements AccountContainerInterface, ErrorAwareInterface
     public function getAllActiveAccounts(): array
     {
         return $this->appDm->getAccounts();
+    }
+
+    /**
+     * Get a list of account IDs that are ready to be billed
+     *
+     * @return string[] UUIDs of accounts to be billed
+     */
+    public function getAccountsToBeBilled(): array
+    {
+        return $this->appDm->getAccountsToBeBilled();
     }
 
     /**

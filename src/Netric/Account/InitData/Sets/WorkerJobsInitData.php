@@ -9,7 +9,6 @@ use Netric\Account\InitData\InitDataInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery\EntityQuery;
-use Netric\WorkerMan\SchedulerService;
 use Netric\EntityDefinition\ObjectTypes;
 
 /**
@@ -28,11 +27,6 @@ class WorkerJobsInitData implements InitDataInterface
     private IndexInterface $entityIndex;
 
     /**
-     * Scheudler used to scheudle recurring jobs
-     */
-    private SchedulerService $schedulerService;
-
-    /**
      * Entity loader
      */
     private Entityloader $entityLoader;
@@ -45,12 +39,10 @@ class WorkerJobsInitData implements InitDataInterface
     public function __construct(
         array $workerJobData,
         IndexInterface $entityIndex,
-        SchedulerService $schedulerService,
         EntityLoader $entityLoader
     ) {
         $this->workerJobData = $workerJobData;
         $this->entityIndex = $entityIndex;
-        $this->schedulerService = $schedulerService;
         $this->entityLoader = $entityLoader;
     }
 

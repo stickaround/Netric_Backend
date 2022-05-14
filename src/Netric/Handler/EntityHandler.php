@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netric\Handler;
 
 use Netric\Entity\EntityLoader;
+use Netric\Permissions\DaclLoader;
 use Netric\Stats\StatsPublisher;
 use NetricApi\EntityIf;
 use NetricApi\ErrorException;
@@ -19,13 +20,22 @@ class EntityHandler implements EntityIf
     private EntityLoader $entityLoader;
 
     /**
+     * Get DACLs to make sure entities are secured
+     *
+     * @param EntityLoader $entityLoader
+     * @param DaclLoader $daclLoader
+     */
+    private DaclLoader $daclLoader;
+
+    /**
      * Hanlder constructor
      *
      * @param EntityLoader $entityLoader
      */
-    public function __construct(EntityLoader $entityLoader)
+    public function __construct(EntityLoader $entityLoader, DaclLoader $daclLoader)
     {
         $this->entityLoader = $entityLoader;
+        $this->daclLoader = $daclLoader;
     }
 
     /**

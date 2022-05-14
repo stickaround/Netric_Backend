@@ -129,10 +129,8 @@ class AccountSetup
             $adminEmail
         );
         if ($mainAccountContactId) {
-            $this->accountContainer->updateAccount(
-                $account->getAccountId(),
-                ['main_account_contact_id' => $mainAccountContactId]
-            );
+            $account->setMainAccountContactId($mainAccountContactId);
+            $this->accountContainer->updateAccount($account);
         }
 
         // Set data for this account

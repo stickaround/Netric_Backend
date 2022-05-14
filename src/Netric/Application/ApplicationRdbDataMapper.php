@@ -2,6 +2,7 @@
 
 namespace Netric\Application;
 
+use InvalidArgumentException;
 use Netric\Account\Account;
 use Netric\Account\Module\DataMapper\ModuleRdbDataMapper;
 use Netric\Error\ErrorAwareInterface;
@@ -164,7 +165,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $ret = [];
         $sqlParams = [];
 
-        $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE active is not false';
+        $sql = 'SELECT * FROM ' . self::TABLE_ACCOUNT . ' WHERE status=1';
 
         $result = $this->database->query($sql, $sqlParams);
         foreach ($result->fetchAll() as $row) {
@@ -173,6 +174,36 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
                 "name" => $row['name'],
                 "database" => $row['database'],
             ];
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Get IDs of all accounts to be billed
+     *
+     * @return string[] The account_id(s) of all accounts due to be billed
+     */
+    public function getAccountsToBeBilled(): array
+    {
+        $ret = [];
+
+        // Check first if we have database connection before getting the account data
+        if (!$this->checkDbConnection()) {
+            return $ret;
+        }
+
+        $sqlParams = [
+            'active' => Account::STATUS_ACTIVE,
+            'pastdue' => Account::STATUS_PASTDUE
+        ];
+        $sql = 'SELECT account_id FROM ' . self::TABLE_ACCOUNT . ' WHERE ' .
+            '(status=:active OR status=:pastdue)' .
+            " AND (billing_next_bill <= now() OR billing_next_bill IS NULL)";
+
+        $result = $this->database->query($sql, $sqlParams);
+        foreach ($result->fetchAll() as $row) {
+            $ret[] = $row['account_id'];
         }
 
         return $ret;
@@ -276,16 +307,35 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
     /**
      * Update an existing account
      *
-     * @param string $accountId Unique id of the account that we are updating
-     * @param array $accountData The data that will be used for updating an account
+     * @param Account $account The account to save changes to
      * @return bool true on success, false on failure
      */
-    public function updateAccount($accountId, $accountData)
+    public function updateAccount(Account $account): bool
     {
+        if (empty($account->getAccountId())) {
+            throw new InvalidArgumentException(
+                "You tried to update a non-existing account"
+            );
+        }
+
+        // Select which fields we can update - not all fields should be updated
+        // - so we shouldn't just do a toArray/fromArray like we do with entities
+        $data = [
+            'org_name' => $account->getOrgName(),
+            'status' => $account->getStatus(),
+            'billing_next_bill' => $account->getBillingNextBill() ?
+                $account->getBillingNextBill()->format("Y-m-d") : null,
+            'billing_last_billed' =>  $account->getBillingLastBilled() ?
+                $account->getBillingLastBilled()->format("Y-m-d") : null,
+            'billing_month_interval' => $account->getBillingMonthInterval(),
+            'main_account_contact_id' => !empty($account->getMainAccountContactId()) ?
+                $account->getMainAccountContactId() : null,
+        ];
+
         return $this->database->update(
             self::TABLE_ACCOUNT,
-            $accountData,
-            ["account_id" => $accountId]
+            $data,
+            ["account_id" => $account->getAccountId()]
         );
     }
 

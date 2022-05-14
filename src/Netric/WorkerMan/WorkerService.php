@@ -3,7 +3,6 @@
 namespace Netric\WorkerMan;
 
 use InvalidArgumentException;
-use JobQueueApiFactory\JobQueueApiFactory;
 use Netric\WorkerMan\Queue\QueueInterface;
 use Netric\Application\Application;
 use RuntimeException;
@@ -74,14 +73,20 @@ class WorkerService
      */
     public function doWorkDelayed(string $workerName, array $jobData, int $delayedSeconds): void
     {
-        // $factory = new JobQueueApiFactory();
-        // $client = $factory->createJobQueueClient($this->jobQueueServer);
-        // $client->runDelayed($workerName, json_encode($jobData), $delayedSeconds);
         $this->jobQueue->doWorkBackgroundDelayed($workerName, $jobData, $delayedSeconds);
     }
 
+    /**
+     * Do work at an interval
+     *
+     * @param string $workerName
+     * @param array $jobData
+     * @param int $intervalSeconds
+     * @return void
+     */
     public function doWorkEvery(string $workerName, array $jobData, int $intervalSeconds): void
     {
+        throw new RuntimeException("Not yet implemented");
     }
 
     /**

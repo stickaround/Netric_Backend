@@ -7,7 +7,6 @@ namespace Netric\WorkerMan\Worker;
 use Netric\Account\AccountContainerFactory;
 use Netric\Log\LogFactory;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\WorkerMan\SchedulerServiceFactory;
 use Netric\WorkerMan\WorkerServiceFactory;
 
 /**
@@ -25,9 +24,8 @@ class CronMinutelyWorkerFactory
     {
         $accountContainer = $serviceLocator->get(AccountContainerFactory::class);
         $workerService = $serviceLocator->get(WorkerServiceFactory::class);
-        $schedulerService = $serviceLocator->get(SchedulerServiceFactory::class);
         $log = $serviceLocator->get(LogFactory::class);
 
-        return new CronMinutelyWorker($accountContainer, $workerService, $schedulerService, $log);
+        return new CronMinutelyWorker($accountContainer, $workerService, $log);
     }
 }

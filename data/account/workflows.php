@@ -10,7 +10,7 @@ use Netric\Workflow\WorkflowScheudleTimes;
 
 return [
     [
-        "name" => "Close Completed Task After a Day",
+        "name" => "Close Completed Tasks After 30 Minutes",
         "uname" => "task-close-on-complete",
         "notes" => "Closes a task 24 hours after the status is set to completed or deferred",
         "object_type" => ObjectTypes::TASK,
@@ -75,6 +75,47 @@ return [
                     ],
                 ],
             ],
+            [
+                "name" => "Check for Reopen Conditions",
+                "uname" => "task-reopen-on-status-change-condition",
+                "type_name" => "check_condition",
+                "f_system" => true,
+                "data" => [
+                    // Launch if status!=completed and status!=deferred
+                    'conditions' => [
+                        [
+                            'blogic' => Where::COMBINED_BY_AND,
+                            'field_name' => 'is_closed',
+                            'operator' => Where::OPERATOR_EQUAL_TO,
+                            'value' => true
+                        ],
+                        [
+                            'blogic' => Where::COMBINED_BY_AND,
+                            'field_name' => 'status_id',
+                            'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                            'value' => TicketEntity::STATUS_SOLVED,
+                        ],
+                        [
+                            'blogic' => Where::COMBINED_BY_OR,
+                            'field_name' => 'status_id',
+                            'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                            'value' => TicketEntity::STATUS_UNSOLVABLE,
+                        ]
+                    ]
+                ],
+                "child_actions" => [
+                    [
+                        "name" => "Close the Ticket",
+                        "uname" => "task-reopen-on-incomplete",
+                        "type_name" => "update_field",
+                        "f_system" => true,
+                        "data" => [
+                            'update_field' => "is_closed",
+                            'update_value' => false,
+                        ],
+                    ],
+                ],
+            ],
         ],
     ],
     [
@@ -131,6 +172,47 @@ return [
                     ],
                 ],
             ],
+            [
+                "name" => "Check for Reopen Conditions",
+                "uname" => "ticket-reopen-on-incomplete-condition",
+                "type_name" => "check_condition",
+                "f_system" => true,
+                "data" => [
+                    // Launch if status!=solved or status!=unsolvable
+                    'conditions' => [
+                        [
+                            'blogic' => Where::COMBINED_BY_AND,
+                            'field_name' => 'is_closed',
+                            'operator' => Where::OPERATOR_EQUAL_TO,
+                            'value' => true
+                        ],
+                        [
+                            'blogic' => Where::COMBINED_BY_AND,
+                            'field_name' => 'status_id',
+                            'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                            'value' => TicketEntity::STATUS_SOLVED,
+                        ],
+                        [
+                            'blogic' => Where::COMBINED_BY_OR,
+                            'field_name' => 'status_id',
+                            'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                            'value' => TicketEntity::STATUS_UNSOLVABLE,
+                        ]
+                    ]
+                ],
+                "child_actions" => [
+                    [
+                        "name" => "Oepn the Ticket",
+                        "uname" => "ticket-reoppen-on-incomplete-save",
+                        "type_name" => "update_field",
+                        "f_system" => true,
+                        "data" => [
+                            'update_field' => "is_closed",
+                            'update_value' => false
+                        ],
+                    ],
+                ],
+            ],
         ],
-    ]
+    ],
 ];

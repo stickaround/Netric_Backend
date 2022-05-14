@@ -9,7 +9,6 @@ use Netric\EntityGroupings\GroupingLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\WorkerMan\SchedulerServiceFactory;
 
 /**
  * Return data intializer
@@ -26,13 +25,11 @@ class WorkflowsInitDataFactory implements ApplicationServiceFactoryInterface
     {
         $data = require(__DIR__ . '/../../../../../data/account/workflows.php');
         $entityIndex = $serviceLocator->get(IndexFactory::class);
-        $schedulerService = $serviceLocator->get(SchedulerServiceFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $groupingLoader = $serviceLocator->get(GroupingLoaderFactory::class);
         return new WorkflowsInitData(
             $data,
             $entityIndex,
-            $schedulerService,
             $entityLoader,
             $groupingLoader
         );

@@ -5,16 +5,13 @@ namespace NetricTest\WorkerMan\Worker;
 use Netric\WorkerMan\Job;
 use PHPUnit\Framework\TestCase;
 use Netric\WorkerMan\Worker\ScheduleRunnerWorker;
-use Netric\WorkerMan\SchedulerService;
 use Netric\WorkerMan\WorkerService;
 use Netric\Account\Account;
 use NetricTest\Bootstrap;
 use Netric\Account\AccountContainerInterface;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\ObjectTypes;
+use Netric\Account\Billing\AccountBillingServiceInterface;
 use Netric\Log\LogInterface;
 use Netric\WorkerMan\Worker\CronDailyWorker;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Make sure that the scheudle runner will queue jobs
@@ -36,13 +33,6 @@ class CronDailyWorkerTest extends TestCase
      * @var ScheduleRunnerWorker
      */
     private $worker = null;
-
-    /**
-     * Mock scheudler service to interact with
-     *
-     * @var SchedulerService
-     */
-    private $schedulerService = null;
 
     /**
      * Mock worker service to interact with
@@ -77,6 +67,7 @@ class CronDailyWorkerTest extends TestCase
         // Worker to test
         $this->worker = new CronDailyWorker(
             $this->mockAccountContainer,
+            $this->createMock(AccountBillingServiceInterface::class),
             $log
         );
     }

@@ -8,11 +8,14 @@ use Netric\Account\AccountContainer;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\ObjType\TaskEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use Netric\EntityGroupings\GroupingLoader;
 use Netric\Handler\EntityHandler;
+use Netric\Permissions\Dacl;
+use Netric\Permissions\DaclLoader;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -30,14 +33,22 @@ class EntityHandlerTest extends TestCase
      */
     private EntityLoader $mockEntityLoader;
 
+    /**
+     * Fake loading DACLs
+     *
+     * @var DaclLoader
+     */
+    private DaclLoader $mockDaclLoader;
+
     protected function setUp(): void
     {
-        // Provide identity for mock auth service
         $this->mockEntityLoader = $this->createMock(EntityLoader::class);
+        $this->mockDaclLoader = $this->createMock(DaclLoader::class);
 
         // Create the handler with mocks
         $this->entityHandler = new EntityHandler(
             $this->mockEntityLoader,
+            $this->mockDaclLoader
         );
     }
 
@@ -169,7 +180,7 @@ class EntityHandlerTest extends TestCase
                 'entries' => [],
                 'name' => 'task_dacl'
             ],
-            'currentuser_permissions' => $daclPermissions
+            'applied_user_permissions' => $daclPermissions
         ], json_decode($response, true));
     }
 }

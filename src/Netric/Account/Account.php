@@ -2,6 +2,7 @@
 
 namespace Netric\Account;
 
+use DateInterval;
 use Netric\Application\Application;
 use Netric\Authentication\AuthenticationIdentity;
 use Netric\ServiceManager\ApplicationServiceManager;
@@ -41,13 +42,6 @@ class Account
     private $orgName = "";
 
     /**
-     * The name of the database
-     *
-     * @var string
-     */
-    private $dbname = "netric";
-
-    /**
      * Instance of netric application
      *
      * @var Application
@@ -60,13 +54,6 @@ class Account
      * @var ApplicationServiceManager
      */
     private $serviceManager = null;
-
-    /**
-     * Optional description
-     *
-     * @var string
-     */
-    private $description = "";
 
     /**
      * Property to set the current user rather than using the auth service
@@ -97,9 +84,16 @@ class Account
     private ?DateTime $billingLastBilled = null;
 
     /**
-     * Flag used to push the admin user to update billing profile
+     * THe next time we should try to bill this account
      */
-    private bool $billingForceUpdate = false;
+    private ?DateTime $billingNextBill = null;
+
+    /**
+     * yearly yearly (or bi-yearly) with this param.
+     *
+     * @var int
+     */
+    private int $billingMonthInterval = 1;
 
     /**
      * Main account contact id - the id of the contact/customer for billing
@@ -141,20 +135,20 @@ class Account
         $this->name = $data['name'];
         $this->orgName =  (isset($data['org_name'])) ? $data['org_name'] : $data['name'];
 
-        if (isset($data['database']) && $data['database']) {
-            $this->dbname = $data['database'];
-        }
-
-        if (isset($data['description']) && $data['description']) {
-            $this->description = $data['description'];
+        if (isset($data['status']) && $data['status']) {
+            $this->dbname = $data['status'];
         }
 
         if (isset($data['billing_last_billed'])) {
             $this->billingLastBilled = new DateTime($data['billing_last_billed']);
         }
 
-        if (isset($data['billing_force_update'])) {
-            $this->billingForceUpdate = $data['billing_force_update'];
+        if (isset($data['billing_next_bill'])) {
+            $this->billingNextBill = new DateTime($data['billing_next_bill']);
+        }
+
+        if (isset($data['billing_month_interval'])) {
+            $this->billingMonthInterval = $data['billing_month_interval'];
         }
 
         if (isset($data['main_account_contact_id'])) {
@@ -171,15 +165,91 @@ class Account
      */
     public function toArray()
     {
+        // Format DateTime objects to strings
+        $billingLastBilled =
+            $this->billingLastBilled ?
+            $this->billingLastBilled->format("Y-m-d") :
+            '';
+
+        $billingNextBill =
+            $this->billingNextBill ?
+            $this->billingNextBill->format("Y-m-d") :
+            '';
+
         return [
             "account_id" => $this->id,
             "name" => $this->name,
             "org_name" => $this->orgName,
-            "database" => $this->dbname,
-            "description" => $this->description,
-            "billing_force_update" => $this->billingForceUpdate,
-            'main_account_contact_id' => $this->mainAccountContactId
+            "status" => $this->status,
+            "status_name" => $this->getStatusName(),
+            'main_account_contact_id' => $this->mainAccountContactId,
+            'billing_last_billed' => $billingLastBilled,
+            'billing_next_bill' => $billingNextBill,
+            'billing_month_interval' => $this->billingMonthInterval,
         ];
+    }
+
+    /**
+     * If we have billed for this account, get the last billed date
+     *
+     * @return DateTime|null Null if we never billed
+     */
+    public function getBillingLastBilled(): ?DateTime
+    {
+        return $this->billingLastBilled;
+    }
+
+    /**
+     * Update when we last billed this account
+     *
+     * @param DateTime $time
+     * @return void
+     */
+    public function setBillingLastBilled(DateTime $time): void
+    {
+        $this->billingLastBilled = $time;
+    }
+
+    /**
+     * Get the next time we should be billing this account
+     *
+     * @return DateTime|null Null if we never billed
+     */
+    public function getBillingNextBill(): ?DateTime
+    {
+        return $this->billingNextBill;
+    }
+
+    /**
+     * Set when we should be billing this account next
+     *
+     * @param DateTime $nextBillDate
+     * @return void
+     */
+    public function setBillingNextBill(DateTime $nextBillDate): void
+    {
+        $this->billingNextBill = $nextBillDate;
+    }
+
+    /**
+     * Interval (in months) between billing cycles
+     *
+     * @return int
+     */
+    public function getBillingMonthInterval(): int
+    {
+        return $this->billingMonthInterval;
+    }
+
+    /**
+     * Set the interval - in months - between billing cycles
+     *
+     * @param int $interval
+     * @return void
+     */
+    public function setBillingMonthInterval(int $interval): void
+    {
+        $this->billingMonthInterval = $interval;
     }
 
     /**
@@ -210,16 +280,6 @@ class Account
     public function getOrgName(): string
     {
         return $this->orgName;
-    }
-
-    /**
-     * Get the optional description
-     *
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return $this->description;
     }
 
     /**
@@ -254,6 +314,22 @@ class Account
     public function getMainAccountContactId(): string
     {
         return $this->mainAccountContactId;
+    }
+
+    /**
+     * Set the contact ID for this account in the main account
+     *
+     * The main account is the netric account that all other accounts
+     * will be managed, supported, and billed under. This main account
+     * will also have a contact associated with each craeted account to
+     * manage support and invoicing.
+     *
+     * @param string $mainAccountContactId
+     * @return void
+     */
+    public function setMainAccountContactId(string $mainAccountContactId): void
+    {
+        $this->mainAccountContactId = $mainAccountContactId;
     }
 
     /**
@@ -419,7 +495,7 @@ class Account
      * @param bool $includeProtocol If true prepend the default protocol
      * @return string A url like https://aereus.netric.com
      */
-    public function getAccountUrl($includeProtocol = true)
+    public function getAccountUrl($includeProtocol = true): string
     {
         // Get application config
         $config = $this->getServiceManager()->get(ConfigFactory::class);
@@ -444,7 +520,7 @@ class Account
     /**
      * Get the status of this account
      */
-    public function getStatus()
+    public function getStatus(): int
     {
         return $this->status;
     }
@@ -452,7 +528,7 @@ class Account
     /**
      * Get the status name
      */
-    public function getStatusName()
+    public function getStatusName(): string
     {
         switch ($this->status) {
             case self::STATUS_ACTIVE:
@@ -467,6 +543,27 @@ class Account
             case self::STATUS_PASTDUE:
                 return "Past Due";
                 break;
+            default:
+                return "Unknown";
         }
+    }
+
+    /**
+     * Set the next bill date
+     *
+     * @return DateTime true if the date is updated, false if not updated
+     */
+    public function calculateAndUpdateNextBillDate(): DateTime
+    {
+        // Set next billing date based on last billed date (or now if not yet billed)
+        $nextBillDate = $this->billingLastBilled ?
+            clone $this->billingLastBilled : new DateTime();
+
+        // Now add <interval> months
+        $nextBillDate->add(new DateInterval('P' . $this->billingMonthInterval . 'M'));
+
+        // Update
+        $this->setBillingNextBill($nextBillDate);
+        return $nextBillDate;
     }
 }

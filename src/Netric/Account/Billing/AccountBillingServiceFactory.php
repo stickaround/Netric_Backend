@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netric\Account\Billing;
 
+use Netric\Account\AccountContainerFactory;
 use Netric\Config\ConfigFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Log\LogFactory;
@@ -28,7 +29,8 @@ class AccountBillingServiceFactory implements ApplicationServiceFactoryInterface
             $serviceLocator->get(EntityLoaderFactory::class),
             $config->main_account_id,
             $serviceLocator->get(SystemPaymentGatewayFactory::class),
-            $serviceLocator->get(IndexFactory::class)
+            $serviceLocator->get(IndexFactory::class),
+            $serviceLocator->get(AccountContainerFactory::class)
         );
     }
 }

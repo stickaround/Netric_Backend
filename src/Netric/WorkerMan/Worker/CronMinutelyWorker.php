@@ -6,10 +6,8 @@ use Netric\Account\AccountContainerInterface;
 use Netric\Log\LogInterface;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
-use Netric\WorkerMan\SchedulerService;
 use Netric\WorkerMan\WorkerService;
-use DateTime;
-use Exception;
+use Netric\WorkerMan\WorkerServiceInterface;
 
 /**
  * This worker is used to test the WorkerMan
@@ -28,14 +26,7 @@ class CronMinutelyWorker extends AbstractWorker
      *
      * @var WorkerService
      */
-    private WorkerService $workerService;
-
-    /**
-     * Service for scheduling workers
-     *
-     * @var SchedulerService
-     */
-    private SchedulerService $schedulerService;
+    private WorkerServiceInterface $workerService;
 
     /**
      * @var LogInterface
@@ -50,13 +41,11 @@ class CronMinutelyWorker extends AbstractWorker
      */
     public function __construct(
         AccountContainerInterface $accountContainer,
-        WorkerService $workerService,
-        SchedulerService $schedulerService,
+        WorkerServiceInterface $workerService,
         LogInterface $log
     ) {
         $this->accountContainer = $accountContainer;
         $this->workerService = $workerService;
-        $this->schedulerService = $schedulerService;
         $this->log = $log;
     }
 
@@ -68,60 +57,7 @@ class CronMinutelyWorker extends AbstractWorker
      */
     public function work(Job $job)
     {
-
-        $allActiveAccounts = $this->accountContainer->getAllActiveAccounts();
-        foreach ($allActiveAccounts as $accountData) {
-            $this->scheduleJobForAccount($accountData['account_id']);
-        }
-
+        // TODO: handle anything that needs to happen every minute
         return true;
-    }
-
-    /**
-     * Get scheduled jobs for this account
-     *
-     * @param string $accountId
-     * @return void
-     */
-    private function scheduleJobForAccount(string $accountId)
-    {
-        $account = $this->accountContainer->loadById($accountId);
-
-        $toDate = new DateTime();
-        $this->log->info(
-            "CronMinutelyWorker->work: getting to time " .
-                date('c', $toDate->getTimestamp()) .
-                " for " . $accountId
-        );
-
-        $scheduledJobs = [];
-        try {
-            $scheduledJobs = $this->schedulerService->getScheduledToRun($accountId);
-        } catch (Exception $ex) {
-            $this->log->error("CronMinutelyWorker: something went wrong" . $ex->getMessage());
-        }
-
-        $this->log->info(
-            "CronMinutelyWorker->work: Scheduling " . count($scheduledJobs) . " jobs to run"
-        );
-
-        foreach ($scheduledJobs as $jobEntity) {
-            $workerName = $jobEntity->getValue("worker_name");
-            $jobData = json_decode($jobEntity->getValue("job_data"), true);
-            $jobData['account_id'] = $accountId;
-
-            // Queue the work to do by the next available worker
-            $this->workerService->doWorkBackground($workerName, $jobData);
-
-            // Flag the job as executed so we do not try to run it again
-            $this->schedulerService->setJobAsExecuted(
-                $jobEntity,
-                $account->getSystemUser()
-            );
-
-            $this->log->info(
-                "CronMinutelyWorker->work: Executed $workerName for " . $jobData['account_id']
-            );
-        }
     }
 }

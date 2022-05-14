@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Netric\Account\Billing;
 
+use DateTime;
 use Netric\Account\Account;
+use Netric\Account\AccountContainer;
+use Netric\Account\AccountContainerInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
@@ -53,6 +56,13 @@ class AccountBillingService implements AccountBillingServiceInterface
     private IndexInterface $entityIndex;
 
     /**
+     * Loading accounts
+     *
+     * @var AccountContainerInterface
+     */
+    private AccountContainerInterface $accountContainer;
+
+    /**
      * Constructor for any dependencies
      *
      * @param LogInterface $log
@@ -63,13 +73,31 @@ class AccountBillingService implements AccountBillingServiceInterface
         Entityloader $entityLoader,
         string $mainAccountId,
         PaymentGatewayInterface $paymentGateway,
-        IndexInterface $entityIndex
+        IndexInterface $entityIndex,
+        AccountContainerInterface $accountContainer
     ) {
         $this->log = $log;
         $this->entityLoader = $entityLoader;
         $this->mainAccountId = $mainAccountId;
         $this->paymentGateway = $paymentGateway;
         $this->entityIndex = $entityIndex;
+        $this->accountContainer = $accountContainer;
+    }
+
+    /**
+     * Loop through all active accounts and bill them if there is anything due bill them
+     *
+     * @return void
+     */
+    public function billAllDueAccounts(): void
+    {
+        $allActiveAccounts = $this->accountContainer->getAccountsToBeBilled();
+        foreach ($allActiveAccounts as $accountId) {
+            $account = $this->accountContainer->loadById($accountId);
+
+            // This will only bill if there is an amount due
+            $this->billAmountDue($account);
+        }
     }
 
     /**
@@ -92,8 +120,6 @@ class AccountBillingService implements AccountBillingServiceInterface
             );
             return true;
         }
-
-        // TODO: check last billed as a safeguard to make sure we do not double bill people
 
         // Get the mainAccountContactId from $account
         $contactForAccount = $this->getContactForAccount($account);
@@ -140,6 +166,20 @@ class AccountBillingService implements AccountBillingServiceInterface
         );
 
         // Success! Now mark the invoice as paid
+
+        // Set last billed to now
+        $account->setBillingLastBilled(new DateTime());
+
+        // Calculate the next time this account should be billed
+        $nextBill = $account->calculateAndUpdateNextBillDate();
+        $this->log->info(
+            "AccountBillingService->billAmountDue: Set next bill date for " .
+                $account->getName() .
+                " to " . $nextBill->format("Y-m-d")
+        );
+
+        // Save changes
+        $this->accountContainer->updateAccount($account);
 
         return true;
     }

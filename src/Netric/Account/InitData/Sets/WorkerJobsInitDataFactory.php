@@ -8,7 +8,6 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\WorkerMan\SchedulerServiceFactory;
 
 /**
  * Return data intializer
@@ -25,12 +24,10 @@ class WorkerJobsInitDataFactory implements ApplicationServiceFactoryInterface
     {
         $data = require(__DIR__ . '/../../../../../data/account/worker-jobs.php');
         $entityIndex = $serviceLocator->get(IndexFactory::class);
-        $schedulerService = $serviceLocator->get(SchedulerServiceFactory::class);
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         return new WorkerJobsInitData(
             $data,
             $entityIndex,
-            $schedulerService,
             $entityLoader,
         );
     }

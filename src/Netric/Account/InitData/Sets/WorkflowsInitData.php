@@ -10,7 +10,6 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityDefinition\Field;
 use Netric\EntityQuery\Index\IndexInterface;
 use Ramsey\Uuid\Uuid;
-use Netric\WorkerMan\SchedulerService;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityGroupings\GroupingLoader;
 use RuntimeException;
@@ -29,11 +28,6 @@ class WorkflowsInitData implements InitDataInterface
      * Index used to query entities
      */
     private IndexInterface $entityIndex;
-
-    /**
-     * Scheudler used to scheudle recurring jobs
-     */
-    private SchedulerService $schedulerService;
 
     /**
      * Entity loader
@@ -55,13 +49,11 @@ class WorkflowsInitData implements InitDataInterface
     public function __construct(
         array $workflowsData,
         IndexInterface $entityIndex,
-        SchedulerService $schedulerService,
         EntityLoader $entityLoader,
         GroupingLoader $groupingLoader
     ) {
         $this->workflowsData = $workflowsData;
         $this->entityIndex = $entityIndex;
-        $this->schedulerService = $schedulerService;
         $this->entityLoader = $entityLoader;
         $this->groupingLoader = $groupingLoader;
     }

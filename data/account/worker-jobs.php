@@ -16,20 +16,20 @@ use Netric\WorkerMan\Worker\AccountBillingWorker;
  */
 
 return [
-    [
-        'worker_name' => EntityMaintainerWorker::class,
-        'job_data' => [],
-        'recurrence' => [
-            'type' => RecurrencePattern::RECUR_DAILY,
-            'interval' => 1
-        ]
-    ],
-    [
-        'worker_name' => AccountBillingWorker::class,
-        'job_data' => [],
-        'recurrence' => [
-            'type' => RecurrencePattern::RECUR_MONTHLY,
-            'interval' => 1
-        ],
-    ],
+    // [
+    //     'worker_name' => EntityMaintainerWorker::class,
+    //     'job_data' => [],
+    //     'recurrence' => [
+    //         'type' => RecurrencePattern::RECUR_DAILY,
+    //         'interval' => 1
+    //     ]
+    // ],
+    // [
+    //     'worker_name' => AccountBillingWorker::class,
+    //     'job_data' => [],
+    //     'recurrence' => [
+    //         'type' => RecurrencePattern::RECUR_MONTHLY,
+    //         'interval' => 1
+    //     ],
+    // ],
 ];

@@ -5,17 +5,13 @@ namespace NetricTest\WorkerMan\Worker;
 use Netric\WorkerMan\Job;
 use PHPUnit\Framework\TestCase;
 use Netric\WorkerMan\Worker\ScheduleRunnerWorker;
-use Netric\WorkerMan\SchedulerService;
 use Netric\WorkerMan\WorkerService;
 use Netric\Account\Account;
 use NetricTest\Bootstrap;
-use InvalidArgumentException;
 use Netric\Account\AccountContainerInterface;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\ObjectTypes;
 use Netric\Log\LogInterface;
 use Netric\WorkerMan\Worker\CronMinutelyWorker;
-use Ramsey\Uuid\Uuid;
+use Netric\WorkerMan\WorkerServiceInterface;
 
 /**
  * Make sure that the scheudle runner will queue jobs
@@ -39,13 +35,6 @@ class CronMinutelyWorkerTest extends TestCase
     private $worker = null;
 
     /**
-     * Mock scheudler service to interact with
-     *
-     * @var SchedulerService
-     */
-    private $schedulerService = null;
-
-    /**
      * Mock worker service to interact with
      *
      * @var WorkerService
@@ -65,14 +54,8 @@ class CronMinutelyWorkerTest extends TestCase
     protected function setUp(): void
     {
         $this->account = Bootstrap::getAccount();
-
-        // Mock the scheduler service
-        $this->schedulerService = $this->getMockBuilder(SchedulerService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         // Create a mock worker service
-        $this->workerService = $this->getMockBuilder(WorkerService::class)
+        $this->workerService = $this->getMockBuilder(WorkerServiceInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -89,7 +72,6 @@ class CronMinutelyWorkerTest extends TestCase
         $this->worker = new CronMinutelyWorker(
             $this->mockAccountContainer,
             $this->workerService,
-            $this->schedulerService,
             $log
         );
     }
@@ -101,30 +83,6 @@ class CronMinutelyWorkerTest extends TestCase
      */
     public function testWork()
     {
-        // Create a temporary worker job to run
-        $sl = $this->account->getServiceManager();
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $workerJob = $entityLoader->create(ObjectTypes::WORKER_JOB, $this->account->getAccountId());
-        $workerJob->setValue('entity_id', Uuid::uuid4()->toString());
-        $workerJob->setValue("worker_name", "Test");
-        $workerJob->setValue("job_data", json_encode(['myvar' => 'myval']));
-
-        /*
-         * Mock out service calls to simulate real-world interactions
-         * with the test scheduled work
-         */
-        $this->schedulerService->method('getScheduledToRun')->willReturn([$workerJob]);
-        $jobPayload = json_decode($workerJob->getValue('job_data'), true);
-        $jobPayload['account_id'] = $this->account->getAccountId();
-        $this->workerService
-            ->expects($this->once())
-            ->method('doWorkBackground')
-            ->with(
-                $this->equalTo('Test'),
-                $this->equalTo($jobPayload)
-            )
-            ->willReturn($workerJob->getEntityid());
-
         $job = new Job();
 
         // Make sure it is a success

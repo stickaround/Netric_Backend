@@ -209,7 +209,8 @@ class AccountController extends AbstractFactoriedController implements Controlle
 
         try {
             $accountData = ["main_account_contact_id" => $objData['contact_id']];
-            $result = $this->accountContainer->updateAccount($currentAccount->getAccountId(), $accountData);
+            $currentAccount->setMainAccountContactId($objData['contact_id']);
+            $result = $this->accountContainer->updateAccount($currentAccount);
             $response->write($result);
             return $response;
         } catch (Exception $ex) {
