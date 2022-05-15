@@ -41,17 +41,14 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
         }
 
         //default curl error message
-        $error_msg = 'Network Error';
+        $error_msg = 'CURLE_COULDNT_RESOLVE_HOST';
 
         // TODO: call the url and return true if the status code is 200
         // create a new cURL resource
         $ch = curl_init($url);
-        // set URL and other appropriate options
-        curl_setopt($ch, CURLOPT_HEADER, true);    // we want headers
-        curl_setopt($ch, CURLOPT_NOBODY, true);    // we don't need body
         curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
         curl_setopt($ch, CURLOPT_TIMEOUT,10);
-        // grab URL and pass it to the browser
+        // Execution
         curl_exec($ch);
         //Get status code
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
