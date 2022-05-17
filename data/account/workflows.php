@@ -93,13 +93,13 @@ return [
                             'blogic' => Where::COMBINED_BY_AND,
                             'field_name' => 'status_id',
                             'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                            'value' => TicketEntity::STATUS_SOLVED,
+                            'value' => TaskEntity::STATUS_COMPLETED,
                         ],
                         [
                             'blogic' => Where::COMBINED_BY_OR,
                             'field_name' => 'status_id',
                             'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                            'value' => TicketEntity::STATUS_UNSOLVABLE,
+                            'value' => TaskEntity::STATUS_DEFERRED,
                         ]
                     ]
                 ],
