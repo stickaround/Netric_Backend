@@ -63,23 +63,23 @@ class EntityHandler implements EntityIf
      *
      * @param string $userId The id of the user we are working with
      * @param string $accountId The account id of the user
-     * @param int $timestamp The last activity of the user
+     * @param string $lastActiveDate The last activity of the user
      * @return void
      */
-    public function updateUserLastActive($userId, $accountId, $timestamp): void
+    public function updateUserLastActive($userId, $accountId, $lastActiveDate): void
     {
         // Handle empty params
-        if (empty($userId) || empty($accountId) || empty($timestamp)) {
-            throw new InvalidArgument("Cannot be null: ($userId, $accountId, $timestamp)");
+        if (empty($userId) || empty($accountId) || empty($lastActiveDate)) {
+            throw new InvalidArgument("Cannot be null: ($userId, $accountId, $lastActiveDate)");
         }
 
         // Get user entity and update the last activity
         $user = $this->entityLoader->getEntityById($userId, $accountId);
-        $user->setValue("last_active", $timestamp);
+        $user->setValue("last_active", $lastActiveDate);
         $this->entityLoader->save($user, $user);
 
         // Log stats so we can track how many times this is called
-        StatsPublisher::increment("thrift,handler=entity,function=setEntitySeenBy");
+        StatsPublisher::increment("thrift,handler=entity,function=updateUserLastActive");
     }
 
     /**
