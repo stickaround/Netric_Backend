@@ -1,23 +1,23 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'user_team'
  */
+
 namespace data\browser_views;
 
-use Netric\EntityQuery\Where;
-
-return array(
-    'parent_teams'=> array(
+return [
+    'all-teams' => [
         'obj_type' => 'user_team',
         'name' => 'All Teams',
         'description' => 'All Teams',
         'default' => true,
-        'order_by' => array(
-            'name' => array(
+        'order_by' => [
+            'name' => [
                 'field_name' => 'name',
                 'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('name')
-    )
-);
+            ],
+        ],
+        'table_columns' => ['name']
+    ]
+];
