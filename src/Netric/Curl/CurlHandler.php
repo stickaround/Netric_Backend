@@ -2,7 +2,7 @@
 namespace Netric\Curl;
 
 /**
- * Struct-like class that represents all data associated with one curl handle
+ * Struct-like class that represents all data associated with curl handle
  **/
 class CurlHandler
 {

@@ -390,17 +390,6 @@ class Curlwrapper implements CurlWrapperInterface
         CURLINFO_CONTENT_LENGTH_UPLOAD => 'upload_content_length',
         CURLINFO_CONTENT_TYPE => 'content_type'
     );
-
-
-
-
-
-
-
-
-
-
-  
 }
 
 ?>
