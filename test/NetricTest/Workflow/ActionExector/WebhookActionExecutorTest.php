@@ -11,7 +11,8 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
 use Netric\Workflow\ActionExecutor\WebhookActionExecutor;
-use Netric\CurlSAI\SAICurlStub;
+use Netric\Curl\Curlwrapper;
+
 
 /**
  * Test action executor
@@ -41,16 +42,15 @@ class WebhookActionExecutorTest extends TestCase
   const RETURN_RESPONSE = 1;
   const RETURN_ERRORCODE = 2;
   const RETURN_ERRORMESSAGE = 3;
-  const RETURN_INFO = 4;
 
   /**
    * Mock and stub out the action exector
    */
   protected function setUp(): void
   {
-    $this->_curlStub = new SAICurlStub();
-    $this->_curlStub->setResponse(self::DEFAULT_RESPONSE);
-    $this->_curlStub->setErrorCode(self::DEFAULT_ERRORCODE);
+    $this->curlWrapper = new CurlWrapper();
+    $this->curlWrapper->setResponse(self::DEFAULT_RESPONSE);
+    $this->curlWrapper->setErrorCode(self::DEFAULT_ERRORCODE);
 
     $this->mockActionEntity = $this->createMock(WorkflowActionEntity::class);
     $this->mockEntityLoader = $this->createMock(EntityLoader::class);
@@ -67,19 +67,15 @@ class WebhookActionExecutorTest extends TestCase
   */
   public function testExecute(): void
   {
-    $curl = $this->_curlStub;
+    //$curl = $this->_curlStub;
 
     //Correct Url
-    $url = 'http://example.com/';
+    $url = 'https://www.netric.com';
 
     // Set the entity action data
     $this->mockActionEntity->method("getData")->willReturn([
       'url' => $url,
     ]);
-    
-    $requiredOptions = array(
-        CURLOPT_URL => $url
-    );
     
     // correct URL should give response
     $expectedResponse = $this->_getResponseFromCurl($url);
@@ -99,9 +95,9 @@ class WebhookActionExecutorTest extends TestCase
   /*
   * Make sure test return error, if url is empty 
   */
-  public function testExecuteFailOnEmptyUrl(): void
+ public function testExecuteFailOnEmptyUrl(): void
   {
-    $curl = $this->_curlStub;
+    //$curl = $this->_curlStub;
     // Set the entity action data
     $this->mockActionEntity->method("getData")->willReturn([
       'url' => '',
@@ -121,7 +117,7 @@ class WebhookActionExecutorTest extends TestCase
   /*
   * Make sure test return false, if Invalid URL
   */
-  public function testExecuteFailOnInvalidUrl(): void
+ public function testExecuteFailOnInvalidUrl(): void
   {
     $url = 'http://test.company.com';
     // Set the entity action data
@@ -172,38 +168,35 @@ class WebhookActionExecutorTest extends TestCase
   */
   private function _getResultFromCurl($url, $options, $returnFlag, $opt = 0)
   {
-      $curl = $this->_curlStub;
-      $ch = $curl->curl_init($url);
+    $curl = $this->curlWrapper;
+    $ch = $curl->curl_init($url);
 
-      if ($options != null) {
-          $curl->curl_setopt_array($ch, $options);
-      }
+    if ($options != null) {
+        $curl->curl_setopt_array($ch, $options);
+    }
 
-      ob_start();
-      $curl->curl_exec($ch);
-      $actualResponse = ob_get_clean();
+    ob_start();
+    $curl->curl_exec($ch);
+    $actualResponse = ob_get_clean();
 
-      $result = null;
+    $result = null;
 
-      switch($returnFlag)
-      {
-      case self::RETURN_RESPONSE:
-          $result = $actualResponse;
-          break;
-      case self::RETURN_ERRORCODE:
-          $result = $curl->curl_errno($ch);
-          break;
-      case self::RETURN_ERRORMESSAGE:
-          $result = $curl->curl_error($ch);
-          break;
-      case self::RETURN_INFO:
-          $result = $curl->curl_getinfo($ch, $opt);
-          break;
-      }
+    switch($returnFlag)
+    {
+    case self::RETURN_RESPONSE:
+        $result = $actualResponse;
+        break;
+    case self::RETURN_ERRORCODE:
+        $result = $curl->curl_errno($ch);
+        break;
+    case self::RETURN_ERRORMESSAGE:
+        $result = $curl->curl_error($ch);
+        break;
+    }
 
-      $curl->curl_close($ch);
+    $curl->curl_close($ch);
 
-      return $result;
+    return $result;
   }
 
 }
