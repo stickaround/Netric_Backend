@@ -21,14 +21,13 @@ use Netric\Error\Error;
  */
 class WebhookActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
-
     /**
      * Execute action on an entity
      *
      * @param EntityInterface $actOnEntity The entity (any type) we are acting on
      * @param UserEntity $user The user who is initiating the action
      * @return bool true on success, false on failure
-     */
+    */
     public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
         // Get url from the param
@@ -41,10 +40,9 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
         }
 
         //default curl error message
-        $error_msg = 'CURLE_COULDNT_RESOLVE_HOST';
+        $error_msg = 'Network Error';
 
-        // TODO: call the url and return true if the status code is 200
-        // create a new cURL resource
+        // return true if the status code is 200
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
         curl_setopt($ch, CURLOPT_TIMEOUT,10);
@@ -53,7 +51,7 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
         //Get status code
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        //Get Error message, if found
+        // Get Error message, if found
         if (curl_errno($ch)) {
             $error_msg = curl_error($ch);
         }
@@ -61,7 +59,7 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
         // close cURL resource, and free up system resources
         curl_close($ch);
 
-        //Check Status code
+        // Check Status code
         if($httpcode === 200){
             return true;
         }

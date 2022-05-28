@@ -11,46 +11,31 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\ActionExecutor\ActionExecutorInterface;
 use Netric\Workflow\ActionExecutor\WebhookActionExecutor;
-use Netric\Curl\Curlwrapper;
-
+use Netric\Curl\HttpCaller;
+use Netric\Error\Error;
 
 /**
- * Test action executor
- */
+* Test action executor
+*/
 class WebhookActionExecutorTest extends TestCase
 {
   /**
-   * Executor to test (not a mock of course)
-   */
+  * Executor to test (not a mock of course)
+  */
   private ActionExecutorInterface $executor;
 
   /**
-   * mock dependencies
-   */
+  * mock dependencies
+  */
   private EntityLoader $mockEntityLoader;
   private WorkflowActionEntity $mockActionEntity;
 
   /**
-  * @var SAI_CurlStub
-  */
-  protected $_curlStub;
-
-  const DEFAULT_RESPONSE = true;
-  const DEFAULT_ERRORCODE = 'CURLE_COULDNT_RESOLVE_HOST';
-  const DEFAULT_ERRORMESSAGE = 'CURLE_COULDNT_RESOLVE_HOST';
-
-  const RETURN_RESPONSE = 1;
-  const RETURN_ERRORCODE = 2;
-  const RETURN_ERRORMESSAGE = 3;
-
-  /**
    * Mock and stub out the action exector
-   */
+  */
   protected function setUp(): void
   {
-    $this->curlWrapper = new CurlWrapper();
-    $this->curlWrapper->setResponse(self::DEFAULT_RESPONSE);
-    $this->curlWrapper->setErrorCode(self::DEFAULT_ERRORCODE);
+    $this->curl = new HttpCaller();
 
     $this->mockActionEntity = $this->createMock(WorkflowActionEntity::class);
     $this->mockEntityLoader = $this->createMock(EntityLoader::class);
@@ -67,9 +52,7 @@ class WebhookActionExecutorTest extends TestCase
   */
   public function testExecute(): void
   {
-    //$curl = $this->_curlStub;
-
-    //Correct Url
+    // Correct Url
     $url = 'https://www.netric.com';
 
     // Set the entity action data
@@ -78,7 +61,7 @@ class WebhookActionExecutorTest extends TestCase
     ]);
     
     // correct URL should give response
-    $expectedResponse = $this->_getResponseFromCurl($url);
+    $expectedResponse = $this->getResultFromCurl($url);
 
     // Create a mock test entity
     $testEntity = $this->createMock(EntityInterface::class);
@@ -86,7 +69,7 @@ class WebhookActionExecutorTest extends TestCase
     // Stub the user to satisfy requirements for call to execute
     $user = $this->createStub(UserEntity::class);
 
-    //Actual responses
+    // Actual responses
     $actualResponse = $this->executor->execute($testEntity, $user);
 
     $this->assertEquals($expectedResponse, $actualResponse);
@@ -95,9 +78,8 @@ class WebhookActionExecutorTest extends TestCase
   /*
   * Make sure test return error, if url is empty 
   */
- public function testExecuteFailOnEmptyUrl(): void
+  public function testExecuteFailOnEmptyUrl(): void
   {
-    //$curl = $this->_curlStub;
     // Set the entity action data
     $this->mockActionEntity->method("getData")->willReturn([
       'url' => '',
@@ -117,7 +99,7 @@ class WebhookActionExecutorTest extends TestCase
   /*
   * Make sure test return false, if Invalid URL
   */
- public function testExecuteFailOnInvalidUrl(): void
+  public function testExecuteFailOnInvalidUrl(): void
   {
     $url = 'http://test.company.com';
     // Set the entity action data
@@ -125,10 +107,8 @@ class WebhookActionExecutorTest extends TestCase
       'url' => $url,
     ]);
 
-    $curlErrorResponse = 1;
-
     // correct URL should give response
-    $expectedResponse = $this->_getResponseFromCurl($url);
+    $expectedResponse = $this->getResultFromCurl($url);
 
     // Create a mock test entity
     $testEntity = $this->createMock(EntityInterface::class);
@@ -136,66 +116,34 @@ class WebhookActionExecutorTest extends TestCase
     // Stub the user to satisfy requirements for call to execute
     $user = $this->createStub(UserEntity::class);
 
-    //Actual responses
+    // Actual responses
     $actualResponse = $this->executor->execute($testEntity, $user);
 
-    // Execute Curl Response
-    $this->assertEquals($expectedResponse, $curlErrorResponse);
-
-    if($expectedResponse >=  1) $expectedResponse = false;
-    //Execute curl rersponse
+    // Execute curl rersponse
     $this->assertEquals($expectedResponse, $actualResponse);
-  }
-
-  /*
-  * Get Curl Response from Curl
-  */
-  private function _getResponseFromCurl($url = null, $options = null)
-  {
-      return $this->_getResultFromCurl($url, $options, self::RETURN_RESPONSE);
-  }
-
-  /*
-  * Get error Response from Curl
-  */
-  private function _getErrorCodeFromCurl($url = null, $options = null)
-  {
-      return $this->_getResultFromCurl($url, $options, self::RETURN_ERRORMESSAGE);
   }
 
   /*
   * Get Result from Curl 
   */
-  private function _getResultFromCurl($url, $options, $returnFlag, $opt = 0)
+  private function getResultFromCurl($url)
   {
-    $curl = $this->curlWrapper;
-    $ch = $curl->curl_init($url);
-
-    if ($options != null) {
-        $curl->curl_setopt_array($ch, $options);
+    $curl = $this->curl;
+    $curl->get($url);
+    $httpStatusCode = $curl->getInfo(CURLINFO_HTTP_CODE);
+   
+    // Result will set false if error return and set true if  success
+    $result = false;
+    // curl error
+    if ($curl->error) {
+      new Error($curl->errorMessage);
+      $result = false;
+    } else if($httpStatusCode == 200){
+      // success Response
+      $result = true;
     }
-
-    ob_start();
-    $curl->curl_exec($ch);
-    $actualResponse = ob_get_clean();
-
-    $result = null;
-
-    switch($returnFlag)
-    {
-    case self::RETURN_RESPONSE:
-        $result = $actualResponse;
-        break;
-    case self::RETURN_ERRORCODE:
-        $result = $curl->curl_errno($ch);
-        break;
-    case self::RETURN_ERRORMESSAGE:
-        $result = $curl->curl_error($ch);
-        break;
-    }
-
-    $curl->curl_close($ch);
-
+    $curl->close();
+    
     return $result;
   }
 
