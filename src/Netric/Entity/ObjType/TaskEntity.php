@@ -47,8 +47,12 @@ class TaskEntity extends Entity implements EntityInterface
      */
     public function onBeforeSave(ServiceLocatorInterface $serviceLocator, UserEntity $user)
     {
-        // If the password was updated for this user then encrypt it
-        if ($this->fieldValueChanged("is_closed") && $this->getValue("is_closed") && $this->getValue("status_id") === '') {
+        // If the task was closed, change the status to reflect the change
+        if (
+            $this->fieldValueChanged("is_closed") &&
+            $this->getValue("is_closed") &&
+            $this->getValue("status_id") === ''
+        ) {
             $statusGroups = $this->getGroupingLoader()->get(ObjectTypes::TASK . '/status_id', $this->getAccountId());
             // Check for status completed groud id if empty
             if ($statusGroups->getByName(self::STATUS_COMPLETED)->groupId) {
