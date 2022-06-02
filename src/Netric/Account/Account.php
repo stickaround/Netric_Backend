@@ -518,6 +518,17 @@ class Account
     }
 
     /**
+     * Update the account status
+     *
+     * @param int $status One of SELF::STATUS_*
+     * @return void
+     */
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
      * Get the status of this account
      */
     public function getStatus(): int

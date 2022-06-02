@@ -6,7 +6,6 @@
 
 namespace NetricTest\Controller;
 
-use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Account\Account;

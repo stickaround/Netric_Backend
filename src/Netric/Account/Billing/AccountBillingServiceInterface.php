@@ -62,9 +62,9 @@ interface AccountBillingServiceInterface
      * gets created for the account along with the payment profile.
      *
      * @param Account $account
-     * @return EntityInterface
+     * @return EntityInterface|NULL if not found
      */
-    public function getContactForAccount(Account $account): EntityInterface;
+    public function getContactForAccount(Account $account): ?EntityInterface;
 
     /**
      * Determine how many active users we have with a simple query

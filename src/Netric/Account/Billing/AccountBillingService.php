@@ -6,7 +6,6 @@ namespace Netric\Account\Billing;
 
 use DateTime;
 use Netric\Account\Account;
-use Netric\Account\AccountContainer;
 use Netric\Account\AccountContainerInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
@@ -28,7 +27,7 @@ class AccountBillingService implements AccountBillingServiceInterface
     /**
      * The flat fee we charge per user per month
      */
-    const PRICE_PER_USER = 20;
+    const PRICE_PER_USER = 19;
 
     /**
      * We want to log everything when it comes to billing
@@ -123,9 +122,39 @@ class AccountBillingService implements AccountBillingServiceInterface
 
         // Get the mainAccountContactId from $account
         $contactForAccount = $this->getContactForAccount($account);
+        if (!$contactForAccount) {
+            $this->log->warning(
+                "AccountBillingService::billAmountDue skipping for " .
+                    $account->getName() .
+                    ":" .
+                    $account->getAccountId() .
+                    " - because the contact has not been set"
+            );
+
+            // Update account to past due so that on next login the user
+            // is required to update the billing information.
+            $account->setStatus(Account::STATUS_PASTDUE);
+            $this->accountContainer->updateAccount($account);
+            return false;
+        }
 
         // Get the payment method for the contact
         $paymentProfile = $this->getDefaultPaymentProfile($contactForAccount->getEntityId());
+        if (!$paymentProfile) {
+            $this->log->warning(
+                "AccountBillingService::billAmountDue skipping for " .
+                    $account->getName() .
+                    ":" .
+                    $account->getAccountId() .
+                    " - because there is no paymnet profile set"
+            );
+
+            // Update account to past due so that on next login the user
+            // is required to update their payment details
+            $account->setStatus(Account::STATUS_PASTDUE);
+            $this->accountContainer->updateAccount($account);
+            return false;
+        }
 
         // Get the number of users for the account
         $numUsers = $this->getNumActiveUsers($account->getAccountId());
@@ -152,6 +181,8 @@ class AccountBillingService implements AccountBillingServiceInterface
              * 2. Update the account to force them to update billing
              * 3. Try again in 24 hours, for 3 days
              */
+            $account->setStatus(Account::STATUS_PASTDUE);
+            $this->accountContainer->updateAccount($account);
 
             return false;
         }
@@ -178,6 +209,9 @@ class AccountBillingService implements AccountBillingServiceInterface
                 " to " . $nextBill->format("Y-m-d")
         );
 
+        // Put the account in good standing
+        $account->setStatus(Account::STATUS_ACTIVE);
+
         // Save changes
         $this->accountContainer->updateAccount($account);
 
@@ -196,18 +230,17 @@ class AccountBillingService implements AccountBillingServiceInterface
      * gets created for the account along with the payment profile.
      *
      * @param Account $account
-     * @return EntityInterface
+     * @return EntityInterface|NULL if not found
      */
-    public function getContactForAccount(Account $account): EntityInterface
+    public function getContactForAccount(Account $account): ?EntityInterface
     {
         $contactId = $account->getMainAccountContactId();
         if (!$contactId) {
-            throw new RuntimeException(
-                'No contact was set for this account: ' .
-                    $account->getAccountId()
-            );
+            return null;
         }
 
+        // Load the contact entity in the main account
+        // This should never fail, but just in case throw an exception
         $contact = $this->entityLoader->getEntityById($contactId, $this->mainAccountId);
         if (!$contact) {
             throw new RuntimeException(
@@ -289,7 +322,11 @@ class AccountBillingService implements AccountBillingServiceInterface
         $invoice->setValue('name', 'Netric Account Usage');
         $invoice->setValue('amount', $numUsers * self::PRICE_PER_USER);
         $invoice->setValue('date_due', date('m/d/Y'));
-        // TODO: Add sales and VAT tax (yikes)
+
+        // TAXES:
+        // Since this is a digital service, we do not need to charge a
+        // sales tax. However, once we start working in Europe we'll want to
+        // add a VAT tax based on the location.
         $this->entityLoader->save($invoice, $mainAccSystemUser);
 
         return $invoice;
@@ -310,7 +347,7 @@ class AccountBillingService implements AccountBillingServiceInterface
         $result = $this->entityIndex->executeQuery($query);
 
         if ($result->getTotalNum() < 1) {
-            return "No payment profile set for this account: " . $account->getName();
+            return "No payment profile set for this account";
         }
 
         return $result->getEntity(0)->getName();
@@ -377,7 +414,7 @@ class AccountBillingService implements AccountBillingServiceInterface
         $paymentProfile->setvalue('customer', $contactId);
 
         /*
-         * Save the profile. This will throw an exception if it fails, but that should
+         * Save the profile. This will throw an exception if it fails - that should
          * not happen but if it does we'll log it and then pass along the exception
          */
         try {

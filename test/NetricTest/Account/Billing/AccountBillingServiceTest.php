@@ -153,11 +153,11 @@ class AccountBillingServiceTest extends TestCase
     }
 
     /**
-     * Make sure that an exception is thrown if we cannot get a contact/customer ID for the account
+     * Make sure account billing returns false if there is no contact for the account
      *
      * @return void
      */
-    public function testBillAmountDueMissingContactException(): void
+    public function testBillAmountDueMissingContactReturnsFalse(): void
     {
         /*
          * Create a mock account that returns the test id but the contact is not set so
@@ -166,8 +166,8 @@ class AccountBillingServiceTest extends TestCase
         $mockAccount = $this->createMock(Account::class);
         $mockAccount->method('getAccountId')->willReturn(self::TEST_TENNANT_ACCOUNT_ID);
 
-        $this->expectException(RuntimeException::class);
-        $this->accountBilling->billAmountDue($mockAccount);
+        // This should fail because we did not mock getContactForAccount()
+        $this->assertFalse($this->accountBilling->billAmountDue($mockAccount));
     }
 
     /**

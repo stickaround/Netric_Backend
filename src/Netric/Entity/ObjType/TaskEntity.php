@@ -6,8 +6,6 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\EntityGroupings\GroupingLoader;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
