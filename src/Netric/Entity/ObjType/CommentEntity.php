@@ -47,7 +47,7 @@ class CommentEntity extends Entity implements EntityInterface
              * since status updates are really just like comments themselves.
              * Only do this if it's a new comment - only needed once
              */
-            if ($entityCommentedOn->getObjType() != ObjectTypes::STATUS_UPDATE && !$this->getEntityId()) {
+            if ($entityCommentedOn->getObjType() != ObjectTypes::WALL_POST && !$this->getEntityId()) {
                 $fields = $entityCommentedOn->getDefinition()->getFields();
                 foreach ($fields as $field) {
                     if ($field->type == Field::TYPE_OBJECT && ($field->subtype || $field->name === "obj_reference")) {

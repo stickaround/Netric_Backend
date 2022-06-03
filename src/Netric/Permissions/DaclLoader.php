@@ -153,7 +153,7 @@ class DaclLoader
         // access to view the entity in question
         if (
             $entityDefinition->getObjType() === ObjectTypes::USER ||
-            $entityDefinition->getObjType() === ObjectTypes::STATUS_UPDATE
+            $entityDefinition->getObjType() === ObjectTypes::WALL_POST
         ) {
             $groupUsers = $userGroups->getByName(UserEntity::GROUP_USERS);
             $default->allowGroup($groupUsers->getGroupId(), Dacl::PERM_VIEW);

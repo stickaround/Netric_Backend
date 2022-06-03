@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Return browser views for entity of object type 'status_update'
+ * Return browser views for entity of object type 'wall_post'
  */
 
 namespace data\browser_views;
@@ -10,7 +11,7 @@ use Netric\EntityQuery\Where;
 
 return array(
     'news_feed' => array(
-        'obj_type' => 'status_update',
+        'obj_type' => 'wall_post',
         'name' => 'News Feed',
         'description' => '',
         'default' => true,
@@ -23,8 +24,8 @@ return array(
         'table_columns' => array('owner_id', 'ts_entered', 'obj_reference', 'comment', 'notified', 'sent_by')
     ),
 
-    'my_status_updates' => array(
-        'obj_type' => 'status_update',
+    'my_wall_posts' => array(
+        'obj_type' => 'wall_post',
         'name' => 'My Status Updates',
         'description' => '',
         'default' => false,

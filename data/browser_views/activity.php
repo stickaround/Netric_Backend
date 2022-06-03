@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'activity'
  */
@@ -125,9 +126,9 @@ return array(
         'table_columns' => array("name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference")
     ),
 
-    'status_updates' => array(
+    'wall_posts' => array(
         'obj_type' => 'activity',
-        'name' => 'Status Updates',
+        'name' => 'Wall Posts',
         'description' => '',
         'default' => false,
         'conditions' => array(
@@ -135,7 +136,7 @@ return array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'type_id',
                 'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => "Status Update"
+                'value' => "Wall Post"
             ),
         ),
         'order_by' => array(

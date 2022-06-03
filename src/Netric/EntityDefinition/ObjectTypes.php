@@ -58,7 +58,6 @@ class ObjectTypes
     const SALES_ORDER = 'sales_order';
     const SALES_PAYMENT = 'sales_payment';
     const SALES_PAYMENT_PROFILE = 'payment_profile';
-    const STATUS_UPDATE = 'status_update';
     const SITE = 'cms_site';
     const TASK = 'task';
     const TICKET = 'ticket';
@@ -67,6 +66,7 @@ class ObjectTypes
     const USER = 'user';
     const USER_TEAM = 'user_team';
     const USER_REACTION = 'user_reaction';
+    const WALL_POST = 'wall_post';
     const WORKFLOW = 'workflow';
     const WORKFLOW_ACTION = 'workflow_action';
     const WORKFLOW_ACTION_SCHEDULED = 'workflow_action_scheduled';

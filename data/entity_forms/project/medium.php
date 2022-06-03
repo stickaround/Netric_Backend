@@ -41,7 +41,7 @@
     <tab name='Status Update'>
         <row>
             <column>
-                <status_update />
+                <wall />
             </column>
         </row>
         <row>

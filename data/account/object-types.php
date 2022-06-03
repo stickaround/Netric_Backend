@@ -47,7 +47,7 @@ return [
     ["obj_type" => "cms_page_template", "title" => "Page Template", "revision" => "0", "system" => true],
     ["obj_type" => "cms_snippet", "title" => "Snippet", "revision" => "0", "system" => true],
     ["obj_type" => "phone_call", "title" => "Phone Call", "revision" => "0", "system" => true],
-    ["obj_type" => "status_update", "title" => "Status Update", "revision" => "0", "system" => true],
+    ["obj_type" => "wall_post", "title" => "Post", "revision" => "0", "system" => true],
     ["obj_type" => "reminder", "title" => "Reminder", "revision" => "0", "system" => true],
     ["obj_type" => "notification", "title" => "Notification", "revision" => "0", "system" => true, "capped" => "200000"],
     ["obj_type" => "workflow", "title" => "Workflow", "revision" => "0", "system" => true],
