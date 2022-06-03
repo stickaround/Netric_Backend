@@ -12,6 +12,7 @@ return [
             'type' => Field::TYPE_TEXT,
             'subtype' => '256',
             'readonly' => false,
+            'required' => true,
         ],
 
         // The type of actions we can execute
@@ -20,6 +21,7 @@ return [
             'type' => Field::TYPE_TEXT,
             'subtype' => '32',
             'readonly' => false,
+            'required' => true,
             'optional_values' => [
                 "approval" => "Request Approval",
                 "assign" => "Assign to",
