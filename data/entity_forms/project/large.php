@@ -19,7 +19,7 @@
             </row>
             <row>
                 <tabs>
-                    <tab name='Task'>
+                    <tab name='Tasks'>
                         <objectsref obj_type='task' ref_field='project' view_id='all_incomplete_tasks'></objectsref>
                     </tab>
 
