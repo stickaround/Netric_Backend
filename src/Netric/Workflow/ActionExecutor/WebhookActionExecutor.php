@@ -11,6 +11,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\WorkflowActionEntity;
 use Netric\Workflow\WorkflowService;
 use Netric\Error\Error;
+use Netric\Curl\HttpCaller;
 
 /**
  * Action to call an external page - very useful for API integration
@@ -21,6 +22,35 @@ use Netric\Error\Error;
  */
 class WebhookActionExecutor extends AbstractActionExecutor implements ActionExecutorInterface
 {
+    /*
+     * HttpCaller services to get cUrl transfer responses
+    */
+    private HttpCaller $httpCaller;
+
+    /*
+    *  Store error message
+    *  Initize with default value
+    */
+    private $errorMessage = 'Network Error';
+
+    /**
+     * Constructor
+     *
+     * @param EntityLoader $entityLoader
+     * @param WorkflowActionEntity $actionEntity
+     * @param string $appliactionUrl
+     * @param HttpCaller $httpCaller;
+     */
+    public function __construct(EntityLoader $entityLoader,
+        WorkflowActionEntity $actionEntity,
+        string $applicationUrl,
+        HttpCaller $httpCaller) {
+        $this->httpCaller = $httpCaller;
+
+        // Should always call the parent constructor for base dependencies
+        parent::__construct($entityLoader, $actionEntity, $applicationUrl);
+    }
+
     /**
      * Execute action on an entity
      *
@@ -38,33 +68,28 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
             $this->addError(new Error("Check your url. You need to set url."));
             return false;
         }
+       
+        // Call httpcaller GET method
+        $this->httpCaller->get($url);
+        
+        // Get status code for Get method
+        $httpcode = $this->httpCaller->getInfo(CURLINFO_HTTP_CODE);
 
-        //default curl error message
-        $error_msg = 'Network Error';
-
-        // return true if the status code is 200
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-        curl_setopt($ch, CURLOPT_TIMEOUT,10);
-        // Execution
-        curl_exec($ch);
-        //Get status code
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        // Get Error message, if found
-        if (curl_errno($ch)) {
-            $error_msg = curl_error($ch);
+        // Check Error message, if found
+        if ($this->httpCaller->getError()) {
+            $this->errorMessage = $this->httpCaller->getErrorMessage();
         }
 
         // close cURL resource, and free up system resources
-        curl_close($ch);
+        $this->httpCaller->close();
 
-        // Check Status code
+        // return true if the status code is 200
         if($httpcode === 200){
             return true;
         }
-        // Return Error message
-        $this->addError(new Error($error_msg));
+        // Return false and add Error
+        $this->addError(new Error($this->errorMessage));
         return false;
     }
+
 }

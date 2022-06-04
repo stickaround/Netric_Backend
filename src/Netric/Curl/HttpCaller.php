@@ -1,39 +1,54 @@
-<?php declare(strict_types=1);
+<?php 
+
+declare(strict_types=1);
 
 namespace Netric\Curl;
 
 class HttpCaller
 {
-    public $curl = null;
     /*
-    * Error variable
+    * Store cURL handle for current session
     */
-    public $error = false;
-    public $errorCode = 0;
-    public $errorMessage = null;
+    private $curl = null;
 
-    public $url = null;
+   /*
+   * Store current session error flag
+   */
+    private $error = false;
+
+    /*
+    * Store currect session last error number
+    */
+    private $errorCode = 0;
+   
+    /*
+    * Store error for the current session.
+    */
+    private $errorMessage = null;
+    
+    /*
+    * Store website address for session
+    */
+    private $url = null;
     // Curl Response Variable
-    public $response = null;
+    private $response = null;
 
     /**
-     * Construct
+     * Initialize the cUrl session
      *
-     * @access public
-     * @param  $base_url
      * @throws \ErrorException
      */
-    public function __construct($base_url = null)
+    public function __construct()
     {
         if (!extension_loaded('curl')) {
             throw new \ErrorException('cURL library is not loaded');
         }
         $this->curl = curl_init();
-        $this->initialize($base_url);
+        $this->initialize();
     }
 
     /**
-     * Close
+     * close the current session of cURL
      *
      * @access public
     */
@@ -46,20 +61,17 @@ class HttpCaller
     }
 
     /**
-     * Exec
+     * After a cURL session has been created and all of the session's options have been set, the function should be call. 
      *
-     * @access public
-     * @param  $ch
+     * @access private
      *
      * @return mixed Returns the value provided by parseResponse.
     */
-    public function exec($ch = null)
+    private function exec()
     {
-        if ($ch === null) {
-            $rawResponse = curl_exec($this->curl);
-            $curlErrorCode = curl_errno($this->curl);
-            $curlErrorMessage = curl_error($this->curl);
-        } 
+        $rawResponse = curl_exec($this->curl);
+        $curlErrorCode = curl_errno($this->curl);
+        $curlErrorMessage = curl_error($this->curl);
         
         $curlError = $curlErrorCode !== 0;
 
@@ -77,11 +89,18 @@ class HttpCaller
                 );
         }
 
+        // Get http status code from current session
         $httpStatusCode = $this->getInfo(CURLINFO_HTTP_CODE);
+
+        // If http status code return 4xx (Client Error Codes) or 5xx (Server Error Codes) its means error else if return 2xx (Successful Codes) then success
         $httpError = in_array((int) floor($httpStatusCode / 100), [4, 5], true);
+
+        // Error Flag set true if either current session last error return or http status code return 4xx or 5xx
         $this->error = $curlError || $httpError;
+
         $this->errorCode = $this->error ? ($curlError ? $curlErrorCode : $httpStatusCode) : 0;
 
+        // set responses
         $this->response = $rawResponse;
 
         $httpErrorMessage = '';
@@ -92,10 +111,6 @@ class HttpCaller
         }
         $this->errorMessage = $curlError ? $curlErrorMessage : $httpErrorMessage;
 
-        // Reset select deferred properties so that they may be recalculated.
-        unset($this->effectiveUrl);
-        unset($this->totalTime);
-
         // Reset nobody setting possibly set from a HEAD request.
         $this->setOpt(CURLOPT_NOBODY, false);
 
@@ -103,28 +118,27 @@ class HttpCaller
     }
 
     /**
-     * Get
+     * GET request for current session.
+     * Set the url to current session and execute cUrl transfer
      *
      * @access public
      * @param  $url
-     * @param  $data
      *
      * @return mixed Returns the value provided by exec.
      */
     public function get($url)
     {
-        if (is_array($url)) {
-            $data = $url;
-            $url = (string)$this->url;
-        }
+        // set url
         $this->setUrl($url);
+
+        // Set cUrl options
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'GET');
         $this->setOpt(CURLOPT_HTTPGET, true);
         return $this->exec();
     }
 
     /**
-     * Get Info
+     * Get information regarding a specific transfer
      *
      * @access public
      * @param  $opt
@@ -144,7 +158,7 @@ class HttpCaller
     }
 
     /**
-     * Post
+     * Post request for current curl transfer 
      *
      * @access public
      * @param  $url
@@ -154,11 +168,6 @@ class HttpCaller
     */
     public function post($url, $data = '')
     {
-        if (is_array($url)) {
-            $data = $url;
-            $url = (string)$this->url;
-        }
-
         $this->setUrl($url);
         $this->setOpt(CURLOPT_POST, true);
         $this->setOpt(CURLOPT_POSTFIELDS, $data);
@@ -166,15 +175,15 @@ class HttpCaller
     }
 
     /**
-     * Set Opt
+     * Set an option for a cURL current session
      *
-     * @access public
+     * @access private
      * @param  $option
      * @param  $value
      *
      * @return boolean
     */
-    public function setOpt($option, $value)
+    private function setOpt($option, $value)
     {
         $required_options = [
             CURLOPT_RETURNTRANSFER => 'CURLOPT_RETURNTRANSFER',
@@ -192,24 +201,24 @@ class HttpCaller
     }
 
     /**
-     * Set Url
+     * Set Url for current session
      *
-     * @access public
+     * @access private
      * @param  $url
      * @param  $mixed_data
     */
-    public function setUrl($url, $mixed_data = '')
+    private function setUrl($url, $mixed_data = '')
     {
         $this->url = $url;
         $this->setOpt(CURLOPT_URL, $this->url);
     }
 
     /**
-     * Reset
+     * Reset all options of a curl session handle
      *
-     * @access public
+     * @access private
     */
-    public function reset()
+    private function reset()
     {
         if (is_resource($this->curl) || $this->curl instanceof \CurlHandle) {
             curl_reset($this->curl);
@@ -218,6 +227,27 @@ class HttpCaller
         }
 
         $this->initialize();
+    }
+
+    /*
+    * Get Error of current session
+    */
+    public function getError(){
+        return $this->error;
+    }
+
+    /*
+    * Get Last Error number of current session
+    */
+    public function getErrorCode(){
+        return $this->errorCode;
+    }
+
+    /*
+    * Get Error message of current session
+    */
+    public function getErrorMessage(){
+        return $this->errorMessage;
     }
 
     /**

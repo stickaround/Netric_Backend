@@ -35,15 +35,17 @@ class WebhookActionExecutorTest extends TestCase
   */
   protected function setUp(): void
   {
-    $this->curl = new HttpCaller();
+    $this->httpCaller = new HttpCaller();
 
     $this->mockActionEntity = $this->createMock(WorkflowActionEntity::class);
     $this->mockEntityLoader = $this->createMock(EntityLoader::class);
+    //$this->mockHttpCaller = $this->createMock(HttpCaller::class);
 
     $this->executor = new WebhookActionExecutor(
       $this->mockEntityLoader,
       $this->mockActionEntity,
-      'http://mockhost'
+      'http://mockhost',
+      $this->httpCaller,
     );
   }
 
@@ -60,8 +62,8 @@ class WebhookActionExecutorTest extends TestCase
       'url' => $url,
     ]);
     
-    // correct URL should give response
-    $expectedResponse = $this->getResultFromCurl($url);
+    // correct URL should give true response
+    $expectedResponse = true;
 
     // Create a mock test entity
     $testEntity = $this->createMock(EntityInterface::class);
@@ -71,7 +73,6 @@ class WebhookActionExecutorTest extends TestCase
 
     // Actual responses
     $actualResponse = $this->executor->execute($testEntity, $user);
-
     $this->assertEquals($expectedResponse, $actualResponse);
   }
 
@@ -108,7 +109,7 @@ class WebhookActionExecutorTest extends TestCase
     ]);
 
     // correct URL should give response
-    $expectedResponse = $this->getResultFromCurl($url);
+    $expectedResponse = false;
 
     // Create a mock test entity
     $testEntity = $this->createMock(EntityInterface::class);
@@ -122,31 +123,6 @@ class WebhookActionExecutorTest extends TestCase
     // Execute curl rersponse
     $this->assertEquals($expectedResponse, $actualResponse);
   }
-
-  /*
-  * Get Result from Curl 
-  */
-  private function getResultFromCurl($url)
-  {
-    $curl = $this->curl;
-    $curl->get($url);
-    $httpStatusCode = $curl->getInfo(CURLINFO_HTTP_CODE);
-   
-    // Result will set false if error return and set true if  success
-    $result = false;
-    // curl error
-    if ($curl->error) {
-      new Error($curl->errorMessage);
-      $result = false;
-    } else if($httpStatusCode == 200){
-      // success Response
-      $result = true;
-    }
-    $curl->close();
-    
-    return $result;
-  }
-
 }
 
 ?>
