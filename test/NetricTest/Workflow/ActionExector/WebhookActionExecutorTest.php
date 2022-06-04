@@ -32,7 +32,7 @@ class WebhookActionExecutorTest extends TestCase
 
   /**
    * Mock and stub out the action exector
-  */
+   */
   protected function setUp(): void
   {
     $this->httpCaller = new HttpCaller();
@@ -51,7 +51,7 @@ class WebhookActionExecutorTest extends TestCase
 
   /**
    * Make sure url exist
-  */
+   */
   public function testExecute(): void
   {
     // Correct Url
@@ -76,9 +76,9 @@ class WebhookActionExecutorTest extends TestCase
     $this->assertEquals($expectedResponse, $actualResponse);
   }
 
-  /*
-  * Make sure test return error, if url is empty 
-  */
+  /**
+   * Make sure test return error, if url is empty 
+   */
   public function testExecuteFailOnEmptyUrl(): void
   {
     // Set the entity action data
@@ -97,9 +97,9 @@ class WebhookActionExecutorTest extends TestCase
     $this->assertNotNull($this->executor->getLastError());
   }
 
-  /*
-  * Make sure test return false, if Invalid URL
-  */
+  /**
+   * Make sure test return false, if Invalid URL
+   */
   public function testExecuteFailOnInvalidUrl(): void
   {
     $url = 'http://test.company.com';

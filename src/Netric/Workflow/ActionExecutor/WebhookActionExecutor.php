@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Netric\Workflow\ActionExecutor;
 
 use Netric\Entity\EntityInterface;
@@ -57,7 +56,7 @@ class WebhookActionExecutor extends AbstractActionExecutor implements ActionExec
      * @param EntityInterface $actOnEntity The entity (any type) we are acting on
      * @param UserEntity $user The user who is initiating the action
      * @return bool true on success, false on failure
-    */
+     */
     public function execute(EntityInterface $actOnEntity, UserEntity $user): bool
     {
         // Get url from the param

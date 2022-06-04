@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 
 class HttpCallerTest extends TestCase
 {
-  /*
-  * Check valid Url return 200 status code 
-  * And Invalid Url return 0 status code
-  */
+  /**
+   * Check valid Url return 200 status code 
+   * And Invalid Url return 0 status code
+   */
   public function testGet(){
     $httpCaller = new HttpCaller();
     
