@@ -136,7 +136,13 @@ class EntityHandler implements EntityIf
         $entityData["applied_dacl"] = $dacl->toArray();
 
         // Add the current user's permissions when checked against the DACL
+        // Note: we are moving to applied_user_permissions because we prefix
+        // all other generated fields with applied, so it makes sense to
+        // stay consistent. But for backwards compatibility, we're also setting
+        // the old currentuser_permissions
         $entityData['applied_user_permissions'] = $currentUserPermissions;
+        $entityData['currentuser_permissions'] = $currentUserPermissions;
+
 
         return json_encode($entityData);
     }
