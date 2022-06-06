@@ -180,6 +180,7 @@ class EntityHandlerTest extends TestCase
                 'entries' => [],
                 'name' => 'task_dacl'
             ],
+            'currentuser_permissions' => $daclPermissions, // Backwards compatibility
             'applied_user_permissions' => $daclPermissions
         ], json_decode($response, true));
     }
