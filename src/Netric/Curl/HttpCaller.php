@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Netric\Curl;
 
 /*
-* Tool that use to transfer data to and from a server.
-* By specifying the location (in the form of a URL) and the data you want to send.
+* Tool that use to transfer data to and from a server, by specifying the location (in the form of a URL)
 */
 class HttpCaller
 {

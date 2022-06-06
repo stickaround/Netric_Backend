@@ -25,7 +25,7 @@ class HttpCallerTest extends TestCase
   }
 
   /**
-   * Curl handler Exec
+   * Post Method, check valid Url return 200 status code and Invalid Url return 0
    */
   public function testPost(){
     $httpCaller = new HttpCaller();
