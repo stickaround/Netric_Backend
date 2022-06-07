@@ -22,12 +22,14 @@ return [
             "route" => "profile",
             "icon" => "AccountBoxIcon",
         ],
-        [
-            "title" => "Account & Billing",
-            "type" => LeftNavItemTypes::SETTINGS_ACCOUNT_BILLING,
-            "route" => "account_billing",
-            "icon" => "CreditCardIcon",
-        ],
+        // Removing until we can limit it from showing up in mobile applications
+        // since the apple app store does not like that
+        // [
+        //     "title" => "Account & Billing",
+        //     "type" => LeftNavItemTypes::SETTINGS_ACCOUNT_BILLING,
+        //     "route" => "account_billing",
+        //     "icon" => "CreditCardIcon",
+        // ],
         // [
         //     "title" => "Modules",
         //     "type" => LeftNavItemTypes::SETTIGS_MODULES,
