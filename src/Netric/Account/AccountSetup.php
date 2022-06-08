@@ -83,6 +83,8 @@ class AccountSetup
             "files",
             "media",
             "public",
+            "download",
+            "videochat"
         ];
     }
 
