@@ -27,7 +27,8 @@ return [
             "type" => LeftNavItemTypes::SETTINGS_ACCOUNT_BILLING,
             "route" => "account_billing",
             "icon" => "CreditCardIcon",
-        ],
+            "require_admin" => true,
+         ],
         // [
         //     "title" => "Modules",
         //     "type" => LeftNavItemTypes::SETTIGS_MODULES,
@@ -46,20 +47,23 @@ return [
             "objType" => "workflow",
             "route" => "workflows",
             "icon" => "SettingsApplicationsIcon",
+            "require_admin" => true,
         ],
         [
             "title" => "Users",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "objType" => "user",
             "route" => "users",
-            "icon" => "PersonIcon"
+            "icon" => "PersonIcon",
+            "require_admin" => true,
         ],
         [
             "title" => "User Teams",
             "type" => LeftNavItemTypes::ENTITY_BROWSE,
             "objType" => "user_team",
             "route" => "user-teams",
-            "icon" => "GroupIcon"
+            "icon" => "GroupIcon",
+            "require_admin" => true,
         ]
     ]
 ];
