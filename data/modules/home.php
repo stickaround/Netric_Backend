@@ -40,5 +40,14 @@ return [
             'browserView' => 'active',
             "icon" => "PeopleIcon"
         ],
+        [
+            "type" => LeftNavItemTypes::HEADER,
+            "title" => "Recently Viewed",
+            "route" => "recent",
+        ],
+        [
+            "type" => LeftNavItemTypes::RECENT_ENTITIES,
+            "route" => "recent",
+        ],
     ]
 ];
