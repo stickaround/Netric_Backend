@@ -44,6 +44,16 @@ services:
       APPLICATION_ENV: devdependency
     restart: always
 
+  # Run the livecall service for video/chat calls
+  livecall:
+    image: dockerhub.aereus.com/livecall_netric_com
+    ports:
+      - "8082:3002"
+    environment:
+      NODE_ENV: development
+      APPLICATION_ENV: development
+    restart: always
+  
   memcached:
     image: memcached
 
