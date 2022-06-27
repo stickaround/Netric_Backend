@@ -83,4 +83,9 @@ interface LeftNavItemTypes
      * Home for work task page feed - similar to social media home pages - but for work tasks
      */
     const WORK_HOME = 'WorkHome';
+
+    /**
+     * Recently Viewed Entities for Home Page
+     */
+    const RECENT_ENTITIES = 'RecentEntities';
 }
