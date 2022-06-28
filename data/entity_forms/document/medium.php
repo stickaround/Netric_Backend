@@ -3,7 +3,7 @@
         <field name='title' hidelabel="true" class='headline'></field>
     </column>
 </row>
-<row showif="editMode=1">
+<row showif="editMode=true">
     <column>
         <field name='is_rootspace'></field>
         <helptour id="help.entity.form.document.is_rootspace" type="inline">

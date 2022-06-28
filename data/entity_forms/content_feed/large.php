@@ -12,7 +12,7 @@
                         <field name='owner_id'></field>
                         <field name='site_id'></field>
                     </column>
-                    <column showif='all_day=f'>
+                    <column showif='all_day=false'>
                         <field name='groups'></field>
                         <field name='ts_created'></field>
                         <field name='ts_updated'></field>

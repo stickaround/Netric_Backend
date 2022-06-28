@@ -14,7 +14,7 @@
             <wall />
         </column>
         <column type="sidebar">
-            <row showif="editMode=1">
+            <row showif="editMode=true">
                 <column>
                     <fieldset name='Details'>
                         <field name='name' validator='username' />
@@ -24,7 +24,7 @@
                     </fieldset>
                 </column>
             </row>
-            <row showif="editMode=1">
+            <row showif="editMode=true">
                 <column>
                     <user_admin>
                         <fieldset name='Admin'>
@@ -46,7 +46,7 @@
                     </fieldset>
                 </column>
             </row>
-            <row showif="editMode=1">
+            <row showif="editMode=true">
                 <column>
                     <fieldset name='Location'>
                         <field name='city' />

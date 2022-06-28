@@ -11,7 +11,7 @@
                     <column>
                         <field name='ts_start' part='date' label='When'></field>
                     </column>
-                    <column showif='all_day=f'>
+                    <column showif='all_day=false'>
                         <field name='ts_start' part='time' hidelabel='true'></field>
                     </column>
                     <column>
