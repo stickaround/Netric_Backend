@@ -135,7 +135,6 @@ pipeline {
                             environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
                             stackName: PROJECT_NAME,
                             imageTag: APPLICATION_VERSION,
-                            serviceDomain: '*.netric.com'
                         )
                     }
                 }
