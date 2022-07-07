@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_members'=> array(
-		'obj_type' => 'member',
-		'name' => 'All Members',
-		'description' => '',
-		'default' => true,
-		'order_by' => array(
-			'sort_order' => array(
-    			'field_name' => 'sort_order',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'role', 'f_accepted', 'ts_entered', 'obj_reference')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::MEMBER,
+    "filters" => [],
+    "views" => [
+			'all_members'=> [
+				'name' => 'All Members',
+				'description' => '',
+				'default' => true,
+				'order_by' => [
+					'sort_order' => [
+							'field_name' => 'sort_order',
+							'direction' => 'desc',
+						],
+				],
+				'table_columns' => ['name', 'role', 'f_accepted', 'ts_entered', 'obj_reference']
+    ],
+		]
+];

@@ -11,51 +11,52 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
 return [
-    'default' => [
-        'obj_type' => ObjectTypes::TICKET_CHANNEL,
-        'name' => 'All Channels',
-        'description' => 'Browse all support channels',
-        'default' => true,
-        'order_by' => [
-            'updated' => [
-                'field_name' => 'ts_updated',
-                'direction' => 'desc',
+    "obj_type" => ObjectTypes::TICKET_CHANNEL,
+    "filters" => [],
+    "views" => [
+        'default' => [            
+            'name' => 'All Channels',
+            'description' => 'Browse all support channels',
+            'default' => true,
+            'order_by' => [
+                'updated' => [
+                    'field_name' => 'ts_updated',
+                    'direction' => 'desc',
+                ],
             ],
+            'table_columns' => ['name']
         ],
-        'table_columns' => ['name']
-    ],
-    'my_channels' => [
-        'obj_type' => ObjectTypes::TICKET_CHANNEL,
-        'name' => 'My Channels',
-        'description' => 'Channels where I am a member',
-        'default' => false,
-        'conditions' => [
-            'members' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'members',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => UserEntity::USER_CURRENT,
+        'my_channels' => [
+            'name' => 'My Channels',
+            'description' => 'Channels where I am a member',
+            'default' => false,
+            'conditions' => [
+                'members' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'members',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => UserEntity::USER_CURRENT,
+                ],
             ],
-        ],
-        'order_by' => [
-            'updated' => [
-                'field_name' => 'ts_updated',
-                'direction' => 'desc',
+            'order_by' => [
+                'updated' => [
+                    'field_name' => 'ts_updated',
+                    'direction' => 'desc',
+                ],
             ],
+            'table_columns' => ['name']
         ],
-        'table_columns' => ['name']
-    ],
-    'all_channels' => [
-        'obj_type' => ObjectTypes::TICKET_CHANNEL,
-        'name' => 'All Channels',
-        'description' => 'Browse all support channels',
-        'default' => false,
-        'order_by' => [
-            'updated' => [
-                'field_name' => 'ts_updated',
-                'direction' => 'desc',
+        'all_channels' => [
+            'name' => 'All Channels',
+            'description' => 'Browse all support channels',
+            'default' => false,
+            'order_by' => [
+                'updated' => [
+                    'field_name' => 'ts_updated',
+                    'direction' => 'desc',
+                ],
             ],
+            'table_columns' => ['name']
         ],
-        'table_columns' => ['name']
-    ],
+    ]
 ];

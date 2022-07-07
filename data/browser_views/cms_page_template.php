@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_templates'=> array(
-		'obj_type' => 'cms_page_template',
-		'name' => 'All Templates',
-		'description' => 'Display all templates',
-		'default' => true,        
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'type')
-    ),
-);
+return [
+		"obj_type" => ObjectTypes::PAGE_TEMPLATE,
+    "filters" => [],
+    "views" => [
+			'all_templates'=> [		
+				'name' => 'All Templates',
+				'description' => 'Display all templates',
+				'default' => true,        
+				'order_by' => [
+					'name' => [
+							'field_name' => 'name',
+							'direction' => 'desc',
+						],
+				],
+				'table_columns' => ['name', 'type']
+				],
+		]
+];

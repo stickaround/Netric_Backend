@@ -5,19 +5,24 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'default'=> array(
-		'obj_type' => 'folder',
-		'name' => 'Default View',
-		'description' => '',
-		'default' => true,
-		'order_by' => array(
-			'sort_order' => array(
-    			'field_name' => 'sort_order',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name')
-    ),
-);
+return [
+		"obj_type" => ObjectTypes::FOLDER,
+    "filters" => [],
+    "views" => [
+			'default'=> [
+				'name' => 'Default View',
+				'description' => '',
+				'default' => true,
+				'order_by' => [
+					'sort_order' => [
+							'field_name' => 'sort_order',
+							'direction' => 'desc',
+						],
+				],
+				'table_columns' => ['name']
+    ],
+		]
+];

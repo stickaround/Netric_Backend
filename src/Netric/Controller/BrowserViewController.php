@@ -98,6 +98,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
         }
 
         $view = new BrowserView();
+        $view->setObjType($objData['obj_type']);
         $view->fromArray($objData);
 
         try {
@@ -147,6 +148,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
         }
 
         $view = new BrowserView();
+        $view->setObjType($objData['obj_type']);
         $view->fromArray($objData);
 
         if (!$view->getId()) {
@@ -191,6 +193,7 @@ class BrowserViewController extends AbstractFactoriedController implements Contr
         }
 
         $view = new BrowserView();
+        $view->setObjType($objData['obj_type']);
         $view->fromArray($objData);
 
         if ($this->browserViewService->deleteView($view)) {

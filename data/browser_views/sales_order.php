@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_orders'=> array(
-		'obj_type' => 'sales_order',
-		'name' => 'All Orders',
-		'description' => 'All Orders',
-		'default' => true,
-		'order_by' => array(
-			'sort_order' => array(
-    			'field_name' => 'sort_order',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'status_id', 'created_by', 'ts_entered', 'amount', 'customer_id')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::SALES_ORDER,
+		"filters" => [],
+    "views" => [
+				'all_orders'=> [
+					'name' => 'All Orders',
+					'description' => 'All Orders',
+					'default' => true,
+					'order_by' => [
+						'sort_order' => [
+								'field_name' => 'sort_order',
+								'direction' => 'desc',
+							],
+					],
+					'table_columns' => ['name', 'status_id', 'created_by', 'ts_entered', 'amount', 'customer_id']
+				],
+		]
+];

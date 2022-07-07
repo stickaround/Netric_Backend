@@ -294,15 +294,16 @@ class BrowserViewService
             return false;
         }
 
-        $views = [];
+        $systemViews = [];
 
         // Check for system object
         $basePath = $this->config->get("application_path") . "/data";
         if (file_exists($basePath . "/browser_views/$objType.php")) {
-            $viewsData = include($basePath . "/browser_views/$objType.php");
+            $viewsData = include($basePath . "/browser_views/$objType.php");            
+            $views = $viewsData["views"];
 
             // Initialize all the views from the returned array
-            foreach ($viewsData as $key => $systemViewData) {
+            foreach ($views as $key => $systemViewData) {
                 // System level views must only have a name for the key because it is used for the id
                 if (is_numeric($key)) {
                     throw new \RuntimeException(
@@ -312,17 +313,45 @@ class BrowserViewService
                 }
 
                 $view = new BrowserView();
+                $view->setObjType($objType);                
                 $view->fromArray($systemViewData);
                 $view->setId($key); // For saving the default in user settings
                 $view->setSystem(true);
 
                 // Traverse through the view's conditions and convert the grouping name to id
                 $this->convertGroupingNameToID($view, $accountId);
-                $views[] = $view;
+                $systemViews[] = $view;
             }
         }
 
-        return $views;
+        return $systemViews;
+    }
+
+    /**
+     * Get the filter from the system view based on the object type provided
+     * 
+     * @param string $objType The object type we are currently working with
+     * 
+     * @return string[]
+     */
+    public function getSystemViewFilters(string $objType)
+    {
+        if (!$objType) {
+            return [];
+        }
+
+        // Check for system view if the file exists
+        $basePath = $this->config->get("application_path") . "/data";
+        if (file_exists($basePath . "/browser_views/$objType.php")) {
+            $viewsData = include($basePath . "/browser_views/$objType.php");
+            
+            if (isset($viewsData["filters"])) {
+                return $viewsData["filters"];
+            }
+        }
+
+        // If no filters were found in the browser view file, then just return an empty array
+        return [];
     }
 
     /**
@@ -516,6 +545,7 @@ class BrowserViewService
             ];
 
             $view = new BrowserView();
+            $view->setObjType($objType);
             $view->fromArray($viewData);
             $this->views[$objType][] = $view;
         }

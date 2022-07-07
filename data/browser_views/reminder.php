@@ -7,41 +7,44 @@ namespace data\browser_views;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'my_reminders' => array(
-        'obj_type' => 'reminder',
-        'name' => 'My Reminders',
-        'description' => 'Display all my reminders',
-        'default' => true,
-        'conditions' => array(
-            'owner' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'owner_id',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => UserEntity::USER_CURRENT,
-            ),
-        ),
-        'order_by' => array(
-            'sort_order' => array(
-                'field_name' => 'sort_order',
-                'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('name', 'ts_execute')
-    ),
-
-    'all_reminders' => array(
-        'obj_type' => 'reminder',
-        'name' => 'All Reminders',
-        'description' => 'Display all reminders',
-        'default' => false,
-        'order_by' => array(
-            'sort_order' => array(
-                'field_name' => 'sort_order',
-                'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('name', 'ts_execute')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::REMINDER,
+    "filters" => [],
+    "views" => [
+        'my_reminders' => [
+            'name' => 'My Reminders',
+            'description' => 'Display all my reminders',
+            'default' => true,
+            'conditions' => [
+                'owner' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'owner_id',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => UserEntity::USER_CURRENT,
+                ],
+            ],
+            'order_by' => [
+                'sort_order' => [
+                    'field_name' => 'sort_order',
+                    'direction' => 'asc',
+                ],
+            ],
+            'table_columns' => ['name', 'ts_execute']
+        ],
+    
+        'all_reminders' => [
+            'name' => 'All Reminders',
+            'description' => 'Display all reminders',
+            'default' => false,
+            'order_by' => [
+                'sort_order' => [
+                    'field_name' => 'sort_order',
+                    'direction' => 'asc',
+                ],
+            ],
+            'table_columns' => ['name', 'ts_execute']
+        ],
+    ]
+];

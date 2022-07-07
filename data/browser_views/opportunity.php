@@ -7,91 +7,92 @@ namespace data\browser_views;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'my_open_opportunities' => array(
-        'obj_type' => 'opportunity',
-        'name' => 'My Open Opportunities',
-        'description' => 'Opportunities assigned to me that are not closed',
-        'default' => true,
-        'conditions' => array(
-            'owner' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'owner_id',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => UserEntity::USER_CURRENT,
-            ),
-            'closed' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'f_closed',
-                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => 't'
-            ),
-        ),
-        'order_by' => array(
-            'sort_order' => array(
-                'field_name' => 'sort_order',
-                'direction' => 'desc',
-            ),
-        ),
-        'table_columns' => array('name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'type_id')
-    ),
-
-    'all_my_opportunities' => array(
-        'obj_type' => 'opportunity',
-        'name' => 'All My Opportunities',
-        'description' => 'Opportunities Assigned To Me',
-        'default' => false,
-        'conditions' => array(
-            'owner' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'owner_id',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => UserEntity::USER_CURRENT,
-            ),
-        ),
-        'order_by' => array(
-            'sort_order' => array(
-                'field_name' => 'sort_order',
-                'direction' => 'desc',
-            ),
-        ),
-        'table_columns' => array('name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'owner_id')
-    ),
-
-    'all_open_opportunities' => array(
-        'obj_type' => 'opportunity',
-        'name' => 'All Open Opportunities',
-        'description' => 'Opportunities Assigned To Me',
-        'default' => false,
-        'conditions' => array(
-            'closed' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'f_closed',
-                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => 't'
-            ),
-        ),
-        'order_by' => array(
-            'sort_order' => array(
-                'field_name' => 'sort_order',
-                'direction' => 'desc',
-            ),
-        ),
-        'table_columns' => array('name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'owner_id')
-    ),
-
-    'all_opportunities' => array(
-        'obj_type' => 'opportunity',
-        'name' => 'All Opportunities',
-        'description' => 'All Opportunities',
-        'default' => false,
-        'order_by' => array(
-            'sort_order' => array(
-                'field_name' => 'sort_order',
-                'direction' => 'desc',
-            ),
-        ),
-        'table_columns' => array('name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'owner_id')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::OPPORTUNITY,
+    "filters" => [],
+    "views" => [
+        'my_open_opportunities' => [        
+            'name' => 'My Open Opportunities',
+            'description' => 'Opportunities assigned to me that are not closed',
+            'default' => true,
+            'conditions' => [
+                'owner' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'owner_id',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => UserEntity::USER_CURRENT,
+                ],
+                'closed' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'f_closed',
+                    'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                    'value' => 't'
+                ],
+            ],
+            'order_by' => [
+                'sort_order' => [
+                    'field_name' => 'sort_order',
+                    'direction' => 'desc',
+                ],
+            ],
+            'table_columns' => ['name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'type_id']
+        ],
+    
+        'all_my_opportunities' => [        
+            'name' => 'All My Opportunities',
+            'description' => 'Opportunities Assigned To Me',
+            'default' => false,
+            'conditions' => [
+                'owner' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'owner_id',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => UserEntity::USER_CURRENT,
+                ],
+            ],
+            'order_by' => [
+                'sort_order' => [
+                    'field_name' => 'sort_order',
+                    'direction' => 'desc',
+                ],
+            ],
+            'table_columns' => ['name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'owner_id']
+        ],
+    
+        'all_open_opportunities' => [        
+            'name' => 'All Open Opportunities',
+            'description' => 'Opportunities Assigned To Me',
+            'default' => false,
+            'conditions' => [
+                'closed' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'f_closed',
+                    'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                    'value' => 't'
+                ],
+            ],
+            'order_by' => [
+                'sort_order' => [
+                    'field_name' => 'sort_order',
+                    'direction' => 'desc',
+                ],
+            ],
+            'table_columns' => ['name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'owner_id']
+        ],
+    
+        'all_opportunities' => [        
+            'name' => 'All Opportunities',
+            'description' => 'All Opportunities',
+            'default' => false,
+            'order_by' => [
+                'sort_order' => [
+                    'field_name' => 'sort_order',
+                    'direction' => 'desc',
+                ],
+            ],
+            'table_columns' => ['name', 'customer_id', 'stage_id', 'amount', 'expected_close_date', 'probability_per', 'owner_id']
+        ],
+    ]
+];

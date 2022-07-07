@@ -55,8 +55,6 @@ class BrowserViewTest extends TestCase
      */
     public function testToAndFromArray()
     {
-        // Load the new view
-        $view = new BrowserView();
         $viewData = [
             'obj_type' => ObjectTypes::NOTE,
             'conditions' => [
@@ -68,6 +66,10 @@ class BrowserViewTest extends TestCase
                 ],
             ],
         ];
+        
+        // Load the new view
+        $view = new BrowserView();
+        $view->setObjType(ObjectTypes::NOTE);        
         $view->fromArray($viewData);
 
         // Make sure toArray returns the same thing (remove null and empty first)

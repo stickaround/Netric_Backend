@@ -299,6 +299,7 @@ class EntityControllerTest extends TestCase
         // Mock the browser view service which is used to get the browser views for the user
         $this->mockBrowserViewService->method('getViewsForUser')->willReturn([]);
         $this->mockBrowserViewService->method('getDefaultViewForUser')->willReturn($browserViewDetails);
+        $this->mockBrowserViewService->method('getSystemViewFilters')->willReturn(["owner_id", "name"]);
 
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
@@ -323,6 +324,7 @@ class EntityControllerTest extends TestCase
             'applied_name' => null,
             'applied_icon' => '',
             'applied_description' => '',
+            'view_filters' => ["owner_id", "name"]
         ], $response->getOutputBuffer());
     }
 
@@ -424,6 +426,7 @@ class EntityControllerTest extends TestCase
         // Mock the browser view service which is used to get the browser views for the user
         $this->mockBrowserViewService->method('getViewsForUser')->willReturn([]);
         $this->mockBrowserViewService->method('getDefaultViewForUser')->willReturn($browserViewDetails);
+        $this->mockBrowserViewService->method('getSystemViewFilters')->willReturn(["owner_id", "name"]);
 
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
@@ -443,6 +446,7 @@ class EntityControllerTest extends TestCase
             'applied_name' => null,
             'applied_icon' => '',
             'applied_description' => '',
+            'view_filters' => ["owner_id", "name"]
         ];
         $this->assertEquals([
             array_merge($taskDefDetails, $definitionDetails),
@@ -525,6 +529,7 @@ class EntityControllerTest extends TestCase
         // Mock the browser view service which is used to get the browser views for the user
         $this->mockBrowserViewService->method('getViewsForUser')->willReturn([]);
         $this->mockBrowserViewService->method('getDefaultViewForUser')->willReturn($browserViewDetails);
+        $this->mockBrowserViewService->method('getSystemViewFilters')->willReturn(["owner_id", "name"]);
 
         // Mock the dacl loader service which is used to load the dacl permission
         $this->mockDaclLoader->method('getForEntityDefinition')->willReturn($mockDacl);
@@ -549,6 +554,7 @@ class EntityControllerTest extends TestCase
             'applied_name' => null,
             'applied_icon' => '',
             'applied_description' => '',
+            'view_filters' => ["owner_id", "name"]
         ], $response->getOutputBuffer());
     }
 

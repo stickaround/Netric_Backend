@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_email_campaigns'=> array(
-		'obj_type' => 'email_campaign',
-		'name' => 'All Email Campaigns',
-		'description' => 'Display all available HTML templates for all object types',
-		'default' => true,
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'description')
-    ),
-);
+return [
+		"obj_type" => ObjectTypes::EMAIL_CAMPAIGN,
+		"filters" => [],
+    "views" => [
+			'all_email_campaigns'=> [		
+				'name' => 'All Email Campaigns',
+				'description' => 'Display all available HTML templates for all object types',
+				'default' => true,
+				'order_by' => [
+					'name' => [
+							'field_name' => 'name',
+							'direction' => 'desc',
+						],
+				],
+				'table_columns' => ['name', 'description']
+    ],
+		]
+];

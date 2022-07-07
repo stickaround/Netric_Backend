@@ -5,23 +5,27 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_payment_profiles'=> array(
-        'obj_type' => 'payment_profile',
-        'name' => 'All Payment Profiles',
-        'description' => 'All Payment Profiles',
-        'default' => true,
-        'order_by' => array(
-            'f_default' => array(
-                'field_name' => 'f_default',
-                'direction' => 'desc',
-            ),
-            'name' => array(
-                'field_name' => 'name',
-                'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('name', 'f_default', 'payment_gateway')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::SALES_PAYMENT_PROFILE,
+    "filters" => [],
+    "views" => [
+        'all_payment_profiles'=> [        
+            'name' => 'All Payment Profiles',
+            'description' => 'All Payment Profiles',
+            'default' => true,
+            'order_by' => [
+                'f_default' => [
+                    'field_name' => 'f_default',
+                    'direction' => 'desc',
+                ],
+                'name' => [
+                    'field_name' => 'name',
+                    'direction' => 'asc',
+                ],
+            ],
+            'table_columns' => ['name', 'f_default', 'payment_gateway']
+        ],
+    ]
+];
