@@ -12,11 +12,10 @@ return [
     "obj_type" => ObjectTypes::TASK,
     "filters" => [
         "owner_id",
-        "status_id",
-        "name",
-        "is_closed",
         "project",
+        "status_id",
         "priority_id",
+        "is_closed",
     ],
     "views" => [
         'my_tasks' => [
