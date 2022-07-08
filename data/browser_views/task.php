@@ -1,7 +1,10 @@
- <?php
+<?php
+
 /**
  * Return browser views for entity of object type 'task'
  */
+
+namespace data\browser_views;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\TaskEntity;
@@ -123,7 +126,7 @@ return [
             'table_columns' => ['name', 'project', 'status_id', 'deadline']
         ],
     
-        'tasks_i_have_assigned' => [
+        'tasks_i_have_assigned' => [            
             'name' => 'Tasks I Have Assigned',
             'description' => 'Tasks that were created by me but assigned to someone else',
             'default' => false,
@@ -193,7 +196,7 @@ return [
             'table_columns' => ['name', 'project', 'status_id', 'deadline', 'owner_id']
         ],
     
-        'all_incomplete_tasks' => [
+        'all_incomplete_tasks' => [            
             'name' => 'All Incomplete Tasks',
             'description' => 'All Tasks that have not yet been completed',
             'default' => false,
@@ -276,5 +279,5 @@ return [
             ],
             'table_columns' => ['name', 'project', 'status_id', 'deadline']
         ],
-    ]
+    ]    
 ];
