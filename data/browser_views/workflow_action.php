@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_workflow_actions'=> array(
-        'obj_type' => 'workflow_action',
-        'name' => 'All Actions',
-        'description' => 'Display all actions',
-        'default' => true,
-        'order_by' => array(
-            'order' => array(
-                'field_name' => 'entity_id',
-                'direction' => 'asc',
-            ),
-        ),
-        'table_columns' => array('name', 'type_name')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::WORKFLOW_ACTION,
+    "filters" => [],
+    "views" => [
+        'all_workflow_actions'=> [
+            'name' => 'All Actions',
+            'description' => 'Display all actions',
+            'default' => true,
+            'order_by' => [
+                'order' => [
+                    'field_name' => 'entity_id',
+                    'direction' => 'asc',
+                ],
+            ],
+            'table_columns' => ['name', 'type_name']
+        ],
+    ]
+];

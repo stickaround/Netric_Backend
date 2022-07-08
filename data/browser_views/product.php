@@ -5,19 +5,22 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'default'=> array(
-		'obj_type' => 'product',
-		'name' => 'Default View',
-		'description' => 'All Products',
-		'default' => true,
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'price', 'notes', 'ts_updated', 'ts_entered')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::PRODUCT,
+    "views" => [
+				'default'=> [
+					'name' => 'Default View',
+					'description' => 'All Products',
+					'default' => true,
+					'order_by' => [
+						'name' => [
+								'field_name' => 'name',
+								'direction' => 'desc',
+							],
+					],
+					'table_columns' => ['name', 'price', 'notes', 'ts_updated', 'ts_entered']
+				],
+		]
+];

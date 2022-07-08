@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_sites'=> array(
-		'obj_type' => 'cms_site',
-		'name' => 'All Sites',
-		'description' => 'Display all available sites',
-		'default' => true,
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'asc',
-    		),
-		),
-		'table_columns' => array('name', 'url')
-    ),
-);
+return [
+		"obj_type" => ObjectTypes::SITE,
+		"filters" => [],
+    "views" => [
+			'all_sites'=> [		
+				'name' => 'All Sites',
+				'description' => 'Display all available sites',
+				'default' => true,
+				'order_by' => [
+					'name' => [
+							'field_name' => 'name',
+							'direction' => 'asc',
+						],
+				],
+				'table_columns' => ['name', 'url']
+			],
+		]
+];

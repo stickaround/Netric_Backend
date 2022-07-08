@@ -8,150 +8,150 @@ namespace data\browser_views;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    'my_open_projects' => [
-        'obj_type' => 'project',
-        'name' => 'My Open Projects',
-        'description' => '',
-        'default' => true,
-        'conditions' => [
-            'members' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'members',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => UserEntity::USER_CURRENT,
+    "obj_type" => ObjectTypes::PROJECT,
+    "filters" => [],
+    "views" => [
+        'my_open_projects' => [        
+            'name' => 'My Open Projects',
+            'description' => '',
+            'default' => true,
+            'conditions' => [
+                'members' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'members',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => UserEntity::USER_CURRENT,
+                ],
+                'completed' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'date_completed',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => ''
+                ],
             ],
-            'completed' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'date_completed',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => ''
+            'order_by' => [
+                'name' => [
+                    'field_name' => 'name',
+                    'direction' => 'asc',
+                ],
+            ],
+            'table_columns' => [
+                'name', 'priority', 'date_started', 'date_deadline', 'date_completed'
             ],
         ],
-        'order_by' => [
-            'name' => [
-                'field_name' => 'name',
-                'direction' => 'asc',
+    
+        'all_projects' => [        
+            'name' => 'All Projects',
+            'description' => '',
+            'default' => false,
+            'order_by' => [
+                'name' => [
+                    'field_name' => 'name',
+                    'direction' => 'asc',
+                ]
             ],
-        ],
-        'table_columns' => [
-            'name', 'priority', 'date_started', 'date_deadline', 'date_completed'
-        ],
-    ],
-
-    'all_projects' => [
-        'obj_type' => 'project',
-        'name' => 'All Projects',
-        'description' => '',
-        'default' => false,
-        'order_by' => [
-            'name' => [
-                'field_name' => 'name',
-                'direction' => 'asc',
+            'table_columns' => [
+                'name', 'priority', 'date_started', 'date_deadline', 'date_completed'
             ]
         ],
-        'table_columns' => [
-            'name', 'priority', 'date_started', 'date_deadline', 'date_completed'
-        ]
-    ],
-
-    'my_closed_projects' => [
-        'obj_type' => 'project',
-        'name' => 'My Closed Projects',
-        'description' => '',
-        'default' => false,
-        'conditions' => [
-            'members' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'members',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => UserEntity::USER_CURRENT,
+    
+        'my_closed_projects' => [
+            
+            'name' => 'My Closed Projects',
+            'description' => '',
+            'default' => false,
+            'conditions' => [
+                'members' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'members',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => UserEntity::USER_CURRENT,
+                ],
+                'completed' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'date_completed',
+                    'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+                    'value' => ''
+                ],
             ],
-            'completed' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'date_completed',
-                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => ''
+            'order_by' => [
+                'name' => [
+                    'field_name' => 'name',
+                    'direction' => 'asc',
+                ],
             ],
+            'table_columns' => [
+                'name', 'priority', 'date_started', 'date_deadline',
+                'date_completed'
+            ]
         ],
-        'order_by' => [
-            'name' => [
-                'field_name' => 'name',
-                'direction' => 'asc',
+    
+        'all_open_projects' => [        
+            'name' => 'All Open Projects',
+            'description' => '',
+            'default' => false,
+            'conditions' => [
+                'completed' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'date_completed',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => ''
+                ],
             ],
-        ],
-        'table_columns' => [
-            'name', 'priority', 'date_started', 'date_deadline',
-            'date_completed'
-        ]
-    ],
-
-    'all_open_projects' => [
-        'obj_type' => 'project',
-        'name' => 'All Open Projects',
-        'description' => '',
-        'default' => false,
-        'conditions' => [
-            'completed' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'date_completed',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => ''
+            'order_by' => [
+                'name' => [
+                    'field_name' => 'name',
+                    'direction' => 'asc',
+                ],
             ],
+            'table_columns' => [
+                'name', 'priority', 'date_started', 'date_deadline', 'date_completed'
+            ]
         ],
-        'order_by' => [
-            'name' => [
-                'field_name' => 'name',
-                'direction' => 'asc',
+    
+        'ongoing_projects' => [        
+            'name' => 'Ongoing Projects (no deadline)',
+            'description' => '',
+            'default' => false,
+            'conditions' => [
+                'deadline' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'date_deadline',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => ''
+                ],
             ],
-        ],
-        'table_columns' => [
-            'name', 'priority', 'date_started', 'date_deadline', 'date_completed'
-        ]
-    ],
-
-    'ongoing_projects' => [
-        'obj_type' => 'project',
-        'name' => 'Ongoing Projects (no deadline)',
-        'description' => '',
-        'default' => false,
-        'conditions' => [
-            'deadline' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'date_deadline',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => ''
+            'order_by' => [
+                'name' => [
+                    'field_name' => 'name',
+                    'direction' => 'asc',
+                ],
             ],
+            'table_columns' => ['name', 'priority', 'date_started', 'date_deadline', 'date_completed']
         ],
-        'order_by' => [
-            'name' => [
-                'field_name' => 'name',
-                'direction' => 'asc',
+    
+        'late_projects' => [        
+            'name' => 'Late Projects',
+            'description' => '',
+            'default' => false,
+            'conditions' => [
+                'deadline' => [
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'date_deadline',
+                    'operator' => Where::OPERATOR_LESS_THAN,
+                    'value' => 'now'
+                ],
             ],
-        ],
-        'table_columns' => ['name', 'priority', 'date_started', 'date_deadline', 'date_completed']
-    ],
-
-    'late_projects' => [
-        'obj_type' => 'project',
-        'name' => 'Late Projects',
-        'description' => '',
-        'default' => false,
-        'conditions' => [
-            'deadline' => [
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'date_deadline',
-                'operator' => Where::OPERATOR_LESS_THAN,
-                'value' => 'now'
+            'order_by' => [
+                'name' => [
+                    'field_name' => 'name',
+                    'direction' => 'asc',
+                ],
             ],
+            'table_columns' => ['name', 'priority', 'date_started', 'date_deadline', 'date_completed']
         ],
-        'order_by' => [
-            'name' => [
-                'field_name' => 'name',
-                'direction' => 'asc',
-            ],
-        ],
-        'table_columns' => ['name', 'priority', 'date_started', 'date_deadline', 'date_completed']
-    ],
+    ]
 ];

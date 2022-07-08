@@ -5,19 +5,24 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'files_and_documents'=> array(
-		'obj_type' => 'file',
-		'name' => 'Files & Documents',
-		'description' => 'View all files and directories',
-		'default' => true,
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'ts_updated', 'owner_id', 'file_size')
-    ),
-);
+return [
+		"obj_type" => ObjectTypes::FILE,
+    "filters" => [],
+    "views" => [
+				'files_and_documents'=> [
+					'name' => 'Files & Documents',
+					'description' => 'View all files and directories',
+					'default' => true,
+					'order_by' => [
+						'name' => [
+								'field_name' => 'name',
+								'direction' => 'desc',
+							],
+					],
+					'table_columns' => ['name', 'ts_updated', 'owner_id', 'file_size']
+				],
+		]
+];

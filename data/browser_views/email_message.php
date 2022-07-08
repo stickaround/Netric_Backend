@@ -5,20 +5,23 @@
  */
 
 namespace data\browser_views;
+use Netric\EntityDefinition\ObjectTypes;
 
-
-return array(
-    'email_messages' => array(
-        'obj_type' => 'email_message',
-        'name' => 'Messages',
-        'description' => '',
-        'default' => true,
-        'order_by' => array(
-            'date' => array(
-                'field_name' => 'message_date',
-                'direction' => 'desc',
-            ),
-        ),
-        'table_columns' => array('subject', 'message_date', 'from', 'to', 'priority')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::EMAIL_MESSAGE,
+    "filters" => [],
+    "views" => [
+        'email_messages' => [
+            'name' => 'Messages',
+            'description' => '',
+            'default' => true,
+            'order_by' => [
+                'date' => [
+                    'field_name' => 'message_date',
+                    'direction' => 'desc',
+                ],
+            ],
+            'table_columns' => ['subject', 'message_date', 'from', 'to', 'priority']
+        ],
+    ]
+];

@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_dashboards'=> array(
-		'obj_type' => 'dashboard',
-		'name' => 'All Dashboards',
-		'description' => 'Viewing All Dashboards',
-		'default' => true,
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'description')
-    ),
-);
+return [
+		"obj_type" => ObjectTypes::DASHBOARD,
+		"filters" => [],
+    "views" => [
+				'all_dashboards'=> [
+					'name' => 'All Dashboards',
+					'description' => 'Viewing All Dashboards',
+					'default' => true,
+					'order_by' => [
+						'name' => [
+								'field_name' => 'name',
+								'direction' => 'desc',
+							],
+					],
+					'table_columns' => ['name', 'description']
+    ],
+		]
+];

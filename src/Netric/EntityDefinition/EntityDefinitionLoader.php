@@ -293,10 +293,13 @@ class EntityDefinitionLoader
         // Check for system object
         $basePath = $this->config->application_path . "/data/browser_views";
         if (file_exists($basePath . "/" . $objType . ".php")) {
-            $viewsData = include($basePath . "/" . $objType . ".php");
+            $viewsData = include($basePath . "/" . $objType . ".php");            
+            $views = $viewsData["views"];
+            $filters = $viewsData["filters"];
 
-            foreach ($viewsData as $viewData) {
+            foreach ($views as $viewData) {
                 $view = new BrowserView();
+                $view->setObjType($objType);
                 $view->fromArray($viewData);
                 $def->addView($view);
                 $numViews++;

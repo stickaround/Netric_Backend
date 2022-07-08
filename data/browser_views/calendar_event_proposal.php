@@ -5,63 +5,65 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'meeting_proposals'=> array(
-		'obj_type' => 'calendar_event_proposal',
-		'name' => 'Meeting Proposals',
-		'description' => 'Meeting proposals that are still in process',
-		'default' => true,
-		'conditions' => array(
-            'closed' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'f_closed',
-                'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-                'value' => 't'
-            ),
-        ),
-		'order_by' => array(
-			'sort_order' => array(
-    			'field_name' => 'sort_order',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'location', 'status_id', 'ts_updated')
-    ),
-		
-	'closed_proposals'=> array(
-		'obj_type' => 'calendar_event_proposal',
-		'name' => 'Closed Proposals',
-		'description' => 'Meeting proposals that have been closed and/or converted to events.',
-		'default' => false,
-		'conditions' => array(
-			'closed' => array(
-					'blogic' => Where::COMBINED_BY_AND,
-					'field_name' => 'f_closed',
-					'operator' => Where::OPERATOR_EQUAL_TO,
-					'value' => 't'
-			),
-		),
-		'order_by' => array(
-			'sort_order' => array(
-					'field_name' => 'sort_order',
-					'direction' => 'desc',
-			),
-		),
-		'table_columns' => array('name', 'location', 'status_id', 'ts_updated')
-	),
-		
-	'all_meeting_proposals'=> array(
-		'obj_type' => 'calendar_event_proposal',
-		'name' => 'All Meeting Proposals',
-		'description' => 'All Meeting Proposals',
-		'default' => false,		
-		'order_by' => array(
-			'sort_order' => array(
-					'field_name' => 'sort_order',
-					'direction' => 'desc',
-			),
-		),
-		'table_columns' => array('name', 'location', 'status_id', 'ts_updated')
-	),
-);
+return [
+		"obj_type" => ObjectTypes::CALENDAR_EVENT_PROPOSAL,
+    "filters" => [],
+    "views" => [
+			'meeting_proposals'=> [		
+				'name' => 'Meeting Proposals',
+				'description' => 'Meeting proposals that are still in process',
+				'default' => true,
+				'conditions' => [
+								'closed' => [
+										'blogic' => Where::COMBINED_BY_AND,
+										'field_name' => 'f_closed',
+										'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+										'value' => 't'
+								],
+						],
+				'order_by' => [
+					'sort_order' => [
+							'field_name' => 'sort_order',
+							'direction' => 'desc',
+						],
+				],
+				'table_columns' => ['name', 'location', 'status_id', 'ts_updated']
+				],
+				
+			'closed_proposals'=> [		
+				'name' => 'Closed Proposals',
+				'description' => 'Meeting proposals that have been closed and/or converted to events.',
+				'default' => false,
+				'conditions' => [
+					'closed' => [
+							'blogic' => Where::COMBINED_BY_AND,
+							'field_name' => 'f_closed',
+							'operator' => Where::OPERATOR_EQUAL_TO,
+							'value' => 't'
+					],
+				],
+				'order_by' => [
+					'sort_order' => [
+							'field_name' => 'sort_order',
+							'direction' => 'desc',
+					],
+				],
+				'table_columns' => ['name', 'location', 'status_id', 'ts_updated']
+			],
+				
+			'all_meeting_proposals'=> [		
+				'name' => 'All Meeting Proposals',
+				'description' => 'All Meeting Proposals',
+				'default' => false,		
+				'order_by' => [
+					'sort_order' => [
+							'field_name' => 'sort_order',
+							'direction' => 'desc',
+					],
+				],
+				'table_columns' => ['name', 'location', 'status_id', 'ts_updated']
+			],
+		]
+];

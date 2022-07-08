@@ -435,4 +435,83 @@ class BrowserViewServiceTest extends TestCase
 
         $this->assertTrue($foundStatusField);
     }
+    
+    /**
+     * Make sure we can get the filter from system browser view
+     */
+    public function testGetSystemViewFilter()
+    {
+        // Check the task filters
+        $taskViewFilter = $this->browserViewService->getSystemViewFilters(ObjectTypes::TASK, $this->user);
+        $this->assertTrue(is_array($taskViewFilter));
+        $this->assertTrue(array_count_values($taskViewFilter) > 0);
+        $this->assertNotNull($taskViewFilter[0]);
+
+        // Check other filters and make sure default filter is being set (empty array())
+        $objTypes = [
+            ObjectTypes::ACTIVITY,
+            ObjectTypes::APPROVAL,
+            ObjectTypes::CALENDAR,
+            ObjectTypes::CALENDAR_EVENT,
+            ObjectTypes::CALENDAR_EVENT_PROPOSAL,
+            ObjectTypes::CHAT_ROOM,
+            ObjectTypes::CHAT_MESSAGE,
+            ObjectTypes::COMMENT,
+            ObjectTypes::CONTACT,
+            ObjectTypes::CONTACT_PERSONAL,
+            ObjectTypes::CONTENT_FEED,
+            ObjectTypes::CONTENT_FEED_POST,
+            ObjectTypes::DASHBOARD,
+            ObjectTypes::DISCUSSION,
+            ObjectTypes::DOCUMENT,
+            ObjectTypes::EMAIL_ACCOUNT,
+            ObjectTypes::EMAIL_CAMPAIGN,
+            ObjectTypes::EMAIL_MESSAGE,
+            ObjectTypes::EMAIL_MESSAGE_ATTACHMENT,
+            ObjectTypes::EMAIL_THREAD,
+            ObjectTypes::FILE,
+            ObjectTypes::FOLDER,
+            ObjectTypes::HTML_TEMPLATE,
+            ObjectTypes::HTML_SNIPPET,
+            ObjectTypes::INVOICE,
+            ObjectTypes::INVOICE_TEMPLATE,
+            ObjectTypes::LEAD,
+            ObjectTypes::MARKETING_CAMPAIGN,
+            ObjectTypes::MEMBER,
+            ObjectTypes::NOTE,
+            ObjectTypes::NOTIFICATION,
+            ObjectTypes::OPPORTUNITY,
+            ObjectTypes::PAGE,
+            ObjectTypes::PAGE_TEMPLATE,
+            ObjectTypes::PHONE_CALL,
+            ObjectTypes::PRODUCT,
+            ObjectTypes::PRODUCT_FAMILY,
+            ObjectTypes::PRODUCT_REVIEW,
+            ObjectTypes::PROJECT,
+            ObjectTypes::PROJECT_MILESTONE,
+            ObjectTypes::REMINDER,
+            ObjectTypes::REPORT,
+            ObjectTypes::SALES_ORDER,
+            ObjectTypes::SALES_PAYMENT,
+            ObjectTypes::SALES_PAYMENT_PROFILE,
+            ObjectTypes::SITE,
+            ObjectTypes::TASK,
+            ObjectTypes::TICKET,
+            ObjectTypes::TICKET_CHANNEL,
+            ObjectTypes::TIME,
+            ObjectTypes::USER,
+            ObjectTypes::USER_TEAM,
+            ObjectTypes::WALL_POST,
+            ObjectTypes::WORKFLOW,
+            ObjectTypes::WORKFLOW_ACTION,
+        ];
+
+        foreach($objTypes as $objType) {
+            $viewFilter = $this->browserViewService->getSystemViewFilters($objType, $this->user);
+
+            // Check that browser view has filter set
+            $this->assertTrue(is_array($viewFilter));
+        }
+        
+    }
 }

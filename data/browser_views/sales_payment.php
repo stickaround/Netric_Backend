@@ -1,23 +1,27 @@
 <?php
 /**
- * Return browser views for entity of object type 'note'
+ * Return browser views for entity of object type 'sales payment'
  */
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'all_payments'=> array(
-        'obj_type' => 'sales_payment',
-        'name' => 'All Payments',
-        'description' => 'All Payments',
-        'default' => true,
-        'order_by' => array(
-            'date' => array(
-                'field_name' => 'date_paid',
-                'direction' => 'desc',
-            ),
-        ),
-        'table_columns' => array('date_paid', 'amount', 'owner_id')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::SALES_PAYMENT,
+    "filters" => [],
+    "views" => [
+        'all_payments'=> [
+            'name' => 'All Payments',
+            'description' => 'All Payments',
+            'default' => true,
+            'order_by' => [
+                'date' => [
+                    'field_name' => 'date_paid',
+                    'direction' => 'desc',
+                ],
+            ],
+            'table_columns' => ['date_paid', 'amount', 'owner_id']
+        ],
+    ]
+];

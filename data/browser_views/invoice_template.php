@@ -5,19 +5,23 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\EntityDefinition\ObjectTypes;
 
-return array(
-    'templates'=> array(
-		'obj_type' => 'invoice_template',
-		'name' => 'Templates',
-		'description' => 'View All Invoice Templates',
-		'default' => true,
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('name', 'company_name')
-    ),
-);
+return [
+    "obj_type" => ObjectTypes::INVOICE_TEMPLATE,
+    "filters" => [],
+    "views" => [
+			'templates'=> [
+				'name' => 'Templates',
+				'description' => 'View All Invoice Templates',
+				'default' => true,
+				'order_by' => [
+					'name' => [
+							'field_name' => 'name',
+							'direction' => 'desc',
+						],
+				],
+				'table_columns' => ['name', 'company_name']
+    ],
+		]
+];
