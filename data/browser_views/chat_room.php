@@ -11,13 +11,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::CHAT_ROOM,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::CHAT_ROOM,
+    'views' => [
         'my_rooms' => [        
             'name' => 'My Rooms',
             'description' => 'Rooms where I am a member',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'members' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -45,6 +45,7 @@ return [
             'name' => 'Direct Messages',
             'description' => 'Direct conversations not hosted in a room',
             'default' => true,
+            'filter_fields' => [],
             'conditions' => [
                 'members' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -72,6 +73,7 @@ return [
             'name' => 'All Rooms',
             'description' => 'Browse all chat rooms',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'scope' => [
                     'blogic' => Where::COMBINED_BY_AND,

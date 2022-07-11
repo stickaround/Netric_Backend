@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::SALES_PAYMENT,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::SALES_PAYMENT,
+    'views' => [
         'all_payments'=> [
             'name' => 'All Payments',
             'description' => 'All Payments',
             'default' => true,
+            'filter_fields' => ['owner_id'],
             'order_by' => [
                 'date' => [
                     'field_name' => 'date_paid',

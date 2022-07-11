@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::EMAIL_CAMPAIGN,
-		"filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::EMAIL_CAMPAIGN,
+    'views' => [
 			'all_email_campaigns'=> [		
 				'name' => 'All Email Campaigns',
 				'description' => 'Display all available HTML templates for all object types',
 				'default' => true,
+				'filter_fields' => [],
 				'order_by' => [
 					'name' => [
 							'field_name' => 'name',

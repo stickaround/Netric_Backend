@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::CONTENT_FEED,
-		"filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::CONTENT_FEED,
+    'views' => [
 				'all_feeds'=> [
 					'name' => 'All Content Feeds',
 					'description' => 'All Content Feeds',
 					'default' => true,
+					'filter_fields' => [],
 					'order_by' => [
 						'date' => [
 								'field_name' => 'ts_updated',

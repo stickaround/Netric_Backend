@@ -10,13 +10,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::REMINDER,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::REMINDER,
+    'views' => [
         'my_reminders' => [
             'name' => 'My Reminders',
             'description' => 'Display all my reminders',
             'default' => true,
+            'filter_fields' => [],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -37,6 +37,7 @@ return [
         'all_reminders' => [
             'name' => 'All Reminders',
             'description' => 'Display all reminders',
+            'filter_fields' => ['owner_id'],
             'default' => false,
             'order_by' => [
                 'sort_order' => [

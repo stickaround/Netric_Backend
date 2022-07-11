@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::CALENDAR,
-    "filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::CALENDAR,    
+    'views' => [
 			'all_calendars'=> [		
 				'name' => 'All Calendars',
 				'description' => 'Viewing All Calendars',
 				'default' => true,
+				'filter_fields' => [],
 				'public' => [
 								'user' => [
 										'blogic' => Where::COMBINED_BY_AND,

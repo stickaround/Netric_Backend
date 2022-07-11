@@ -10,13 +10,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::APPROVAL,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::APPROVAL,
+    'views' => [
         'awaiting_my_approval' => [        
             'name' => 'Awaiting My Approval',
             'description' => '',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -44,6 +44,7 @@ return [
             'name' => 'All Approval Requests',
             'description' => '',
             'default' => false,
+            'filter_fields' => [],
             'order_by' => [
                 'sort_order' => [
                     'field_name' => 'sort_order',
@@ -57,6 +58,7 @@ return [
             'name' => 'My Approved',
             'description' => '',
             'default' => true,
+            'filter_fields' => [],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,

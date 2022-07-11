@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::WORKFLOW_ACTION,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::WORKFLOW_ACTION,
+    'views' => [
         'all_workflow_actions'=> [
             'name' => 'All Actions',
             'description' => 'Display all actions',
             'default' => true,
+            'filter_fields' => ['type_name'],
             'order_by' => [
                 'order' => [
                     'field_name' => 'entity_id',

@@ -11,13 +11,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::PROJECT,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::PROJECT,
+    'views' => [
         'my_open_projects' => [        
             'name' => 'My Open Projects',
             'description' => '',
             'default' => true,
+            'filter_fields' => ['priority'],
             'conditions' => [
                 'members' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -47,6 +47,7 @@ return [
             'name' => 'All Projects',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['priority', 'completed'],
             'order_by' => [
                 'name' => [
                     'field_name' => 'name',
@@ -58,11 +59,11 @@ return [
             ]
         ],
     
-        'my_closed_projects' => [
-            
+        'my_closed_projects' => [            
             'name' => 'My Closed Projects',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['priority'],
             'conditions' => [
                 'members' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -116,6 +117,7 @@ return [
             'name' => 'Ongoing Projects (no deadline)',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['priority'],
             'conditions' => [
                 'deadline' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -137,6 +139,7 @@ return [
             'name' => 'Late Projects',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['priority', 'completed'],
             'conditions' => [
                 'deadline' => [
                     'blogic' => Where::COMBINED_BY_AND,

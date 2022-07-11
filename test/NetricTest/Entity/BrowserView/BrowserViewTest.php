@@ -57,6 +57,7 @@ class BrowserViewTest extends TestCase
     {
         $viewData = [
             'obj_type' => ObjectTypes::NOTE,
+            'filter_fields' => ["owner_id", "is_closed"],
             'conditions' => [
                 [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -77,6 +78,10 @@ class BrowserViewTest extends TestCase
         $viewArray = array_filter($viewArray, function ($val) {
             return !empty($val);
         });
+
+        // Test that filter fields are being retrieved in toArray()
+        $this->assertEquals($viewArray["filter_fields"], ["owner_id", "is_closed"]);
+
         $this->assertEquals($viewData, $viewArray);
     }
 }

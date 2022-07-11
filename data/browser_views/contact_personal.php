@@ -11,13 +11,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::CONTACT_PERSONAL,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::CONTACT_PERSONAL,
+    'views' => [
         'my_contacts' => [
             'name' => 'My Contacts',
             'description' => 'User Contacts',
             'default' => true,
+            'filter_fields' => [],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,

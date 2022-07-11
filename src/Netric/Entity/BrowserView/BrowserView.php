@@ -63,11 +63,11 @@ class BrowserView
     private $tableColumns = [];
 
     /**
-     * TODO: document or remove if we no longer need it
+     * The view fields that will be used a quick filters
      *
-     * @var string
+     * @var string[]
      */
-    private $filterKey = '';
+    private $filterFields = [];
 
     /**
      * True if this is the default view for the given user
@@ -130,7 +130,8 @@ class BrowserView
             "table_columns" => [],
             "conditions" => [],
             "order_by" => [],
-            "group_first_order_by" => $this->groupFirstOrderBy
+            "group_first_order_by" => $this->groupFirstOrderBy,
+            "filter_fields" => $this->filterFields
         ];
 
         // Add view fields
@@ -192,6 +193,10 @@ class BrowserView
 
         if (isset($data['group_first_order_by'])) {
             $this->groupFirstOrderBy = $data['group_first_order_by'];
+        }
+
+        if (isset($data['filter_fields'])) {
+            $this->filterFields = $data['filter_fields'];
         }
 
         // We put this last in case they set both team and user then user will override team

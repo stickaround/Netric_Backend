@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::COMMENT,
-    "filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::COMMENT,
+    'views' => [
 			'default'=> [
 				'name' => 'Comments',
 				'description' => '',
 				'default' => true,
+				'filter_fields' => [],
 				'order_by' => [
 					'sort_order' => [
 							'field_name' => 'sort_order',

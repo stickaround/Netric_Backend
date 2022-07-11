@@ -10,13 +10,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::NOTE,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::NOTE,
+    'views' => [
         'default' => [        
             'name' => 'My Notes',
             'description' => 'My Notes',
             'default' => true,
+            'filter_fields' => ['groups'],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,

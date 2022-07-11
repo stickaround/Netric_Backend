@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-	"obj_type" => ObjectTypes::CALENDAR_EVENT,
-    "filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::CALENDAR_EVENT,    
+    'views' => [
 			'upcoming_events'=> [		
 				'name' => 'Upcoming Events',
 				'description' => 'Events occurring in the future',
 				'default' => true,
+				'filter_fields' => [],
 				'conditions' => [
 								'start' => [
 										'blogic' => Where::COMBINED_BY_AND,
@@ -36,6 +36,7 @@ return [
 				'name' => 'My Past Events',
 				'description' => 'Events that occurred in the past',
 				'default' => false,
+				'filter_fields' => [],
 				'conditions' => [
 					'start' => [
 						'blogic' => Where::COMBINED_BY_AND,
@@ -57,6 +58,7 @@ return [
 				'name' => 'All Events',
 				'description' => 'All Events',
 				'default' => false,
+				'filter_fields' => [],
 				'order_by' => [
 					'date' => [
 						'field_name' => 'ts_start',
