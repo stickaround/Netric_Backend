@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::PAGE_TEMPLATE,
-    "filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::PAGE_TEMPLATE,    
+    'views' => [
 			'all_templates'=> [		
 				'name' => 'All Templates',
 				'description' => 'Display all templates',
 				'default' => true,        
+				'filter_fields' => [],
 				'order_by' => [
 					'name' => [
 							'field_name' => 'name',

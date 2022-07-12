@@ -11,16 +11,15 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
 return [
-    "obj_type" => ObjectTypes::TICKET,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::TICKET,
+    'views' => [
         'default' => [        
             'name' => 'All Tickets',
             'description' => 'All tickets',
             'default' => true,
             'conditions' => [],
-            'filter_key' => 'channel_id',
             'group_first_order_by' => true,
+            'filter_fields' => ['channel_id', 'status_id', 'souce_id', 'owner_id', 'is_closed', 'is_seen'],
             'order_by' => [
                 'status_id' => [
                     'field_name' => 'status_id',
@@ -37,6 +36,7 @@ return [
             'name' => 'My Tickets',
             'description' => 'Open tickets assigned to me',
             'default' => false,
+            'filter_fields' => ['channel_id', 'status_id', 'souce_id', 'is_seen'],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -51,7 +51,6 @@ return [
                     'value' => true
                 ]
             ],
-            'filter_key' => 'channel_id',
             'group_first_order_by' => true,
             'order_by' => [
                 'status_id' => [
@@ -69,6 +68,7 @@ return [
             'name' => 'New/Unseen Tickets',
             'description' => 'Tickets that have been unseen or are unassigned',
             'default' => false,
+            'filter_fields' => ['channel_id', 'status_id', 'souce_id'],
             'conditions' => [
                 'not_closed' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -89,19 +89,19 @@ return [
                     'value' => '',
                 ],
             ],
-            'filter_key' => 'channel_id',
             'order_by' => [
                 'date' => [
                     'field_name' => 'ts_updated',
                     'direction' => 'asc',
                 ],
             ],
-            'table_columns' => ['name', 'channel_id', 'status_id', 'souce_id', "owner_id"]
+            'table_columns' => ['name', 'channel_id', 'status_id', 'souce_id', 'owner_id']
         ],
         'unassigned_tickets' => [        
             'name' => 'Unassigned Tickets',
             'description' => 'Tickets that are unassigned',
             'default' => false,
+            'filter_fields' => ['channel_id', 'status_id', 'souce_id', 'is_seen'],
             'conditions' => [
                 'not_closed' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -116,7 +116,6 @@ return [
                     'value' => '',
                 ],
             ],
-            'filter_key' => 'channel_id',
             'order_by' => [
                 'date' => [
                     'field_name' => 'ts_updated',
@@ -130,8 +129,8 @@ return [
             'description' => 'All tickets',
             'default' => false,
             'conditions' => [],
-            'filter_key' => 'channel_id',
             'group_first_order_by' => true,
+            'filter_fields' => ['channel_id', 'status_id', 'souce_id', 'owner_id', 'is_closed', 'is_seen'],
             'order_by' => [
                 'status_id' => [
                     'field_name' => 'status_id',

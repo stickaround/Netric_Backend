@@ -11,14 +11,14 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::WALL_POST,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::WALL_POST,
+    'views' => [
         'news_feed' => [
             'obj_type' => 'wall_post',
             'name' => 'News Feed',
             'description' => '',
             'default' => true,
+            'filter_fields' => ['owner_id', 'sent_by'],
             'order_by' => [
                 'sort_order' => [
                     'field_name' => 'ts_entered',
@@ -33,6 +33,7 @@ return [
             'name' => 'My Status Updates',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['sent_by'],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,

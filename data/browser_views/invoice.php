@@ -8,13 +8,14 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::INVOICE,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::INVOICE,
+    'filter_fields' => [],
+    'views' => [
 			'invoices'=> [		
 				'name' => 'Invoices',
 				'description' => 'Events occurring in the future',
 				'default' => true,
+				'filter_fields' => ['status_id', 'created_by'],
 				'order_by' => [
 					'date' => [
 							'field_name' => 'date_due',

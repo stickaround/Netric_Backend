@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::PHONE_CALL,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::PHONE_CALL,
+    'views' => [
 				'all_pages'=> [		
 					'name' => 'All Pages',
 					'description' => 'Display all pages',
 					'default' => true,
+					'filter_fields' => ['title', 'parent_id'],
 					'order_by' => [
 						'date' => [
 								'field_name' => 'name',

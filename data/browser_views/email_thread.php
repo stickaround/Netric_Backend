@@ -11,13 +11,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::EMAIL_THREAD,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::EMAIL_THREAD,
+    'views' => [
         'email_threads' => [
             'name' => 'Email Threads',
             'description' => '',
             'default' => true,
+            'filter_fields' => ['is_seen', 'is_flagged'],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,

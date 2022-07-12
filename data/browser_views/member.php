@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::MEMBER,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::MEMBER,
+    'views' => [
 			'all_members'=> [
 				'name' => 'All Members',
 				'description' => '',
 				'default' => true,
+				'filter_fields' => ['role', 'f_accepted'],
 				'order_by' => [
 					'sort_order' => [
 							'field_name' => 'sort_order',

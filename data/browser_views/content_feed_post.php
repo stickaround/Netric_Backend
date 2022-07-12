@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::CONTENT_FEED_POST,
-		"filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::CONTENT_FEED_POST,
+    'views' => [
 			'all_posts'=> [		
 				'name' => 'All Posts',
 				'description' => 'All Content Feed Posts',
 				'default' => true,
+				'filter_fields' => [],
 				'order_by' => [
 					'date' => [
 							'field_name' => 'time_entered',
@@ -28,6 +28,7 @@ return [
 				'name' => 'Drafts',
 				'description' => 'Drafts',
 				'default' => false,
+				'filter_fields' => [],
 				'conditions' => [
 					'not_publish' => [
 						'blogic' => Where::COMBINED_BY_AND,
@@ -49,6 +50,7 @@ return [
 				'name' => 'Published',
 				'description' => 'All published posts',
 				'default' => false,
+				'filter_fields' => [],
 				'conditions' => [
 					'not_publish' => [
 						'blogic' => Where::COMBINED_BY_AND,

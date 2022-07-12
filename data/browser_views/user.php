@@ -11,13 +11,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::USER,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::USER,
+    'views' => [
         'active' => [        
             'name' => 'Active',
             'description' => 'Active Users',
             'default' => true,
+            'filter_fields' => ['team_id', 'manager_id'],
             'conditions' => [
                 'active' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -44,6 +44,7 @@ return [
         'inactive_users' => [        
             'name' => 'Inactive Users',
             'description' => 'Inactive Users',
+            'filter_fields' => ['team_id', 'manager_id'],
             'default' => false,
             'conditions' => [
                 'active' => [
@@ -71,6 +72,7 @@ return [
         'all_users' => [        
             'name' => 'All Users',
             'description' => 'All Users',
+            'filter_fields' => ['team_id', 'manager_id', 'active'],
             'default' => false,
             'order_by' => [
                 'name' => [
