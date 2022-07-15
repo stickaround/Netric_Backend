@@ -12,6 +12,8 @@
 
 namespace Netric\Permissions\Dacl;
 
+use Ramsey\Uuid\Uuid;
+
 /**
  * ACL entry
  */
@@ -103,11 +105,25 @@ class Entry
         }
 
         if (isset($data['users']) && is_array($data['users'])) {
-            $this->users = $data['users'];
+            $this->users = [];
+            // Make sure the data we are importing is a valid uuid since older DACLs
+            // used numbers and that can cause major problems with failing permissions
+            foreach ($data['users'] as $uid) {
+                if (Uuid::isValid($uid)) {
+                    $this->users[] = $uid;
+                }
+            }
         }
 
         if (isset($data['groups']) && is_array($data['groups'])) {
-            $this->groups = $data['groups'];
+            $this->groups = [];
+            // Make sure the data we are importing is a valid uuid since older DACLs
+            // used numbers and that can cause major problems with failing permissions
+            foreach ($data['groups'] as $gid) {
+                if (Uuid::isValid($gid)) {
+                    $this->groups[] = $gid;
+                }
+            }
         }
     }
 

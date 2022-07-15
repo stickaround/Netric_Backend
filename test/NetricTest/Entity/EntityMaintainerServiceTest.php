@@ -243,7 +243,7 @@ class EntityMaintainerServiceTest extends TestCase
 
         // Create a spam message to delete that is made a little earlier than $timeEnteredAndCutoff
         $entity1 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $entity1->setValue("owner_id", $this->account->getAuthenticatedUser()->getEntityId());        
+        $entity1->setValue("owner_id", $this->account->getAuthenticatedUser()->getEntityId());
         $entity1->setValue("flag_spam", true);
         $entityLoader->save($entity1, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity1;
@@ -253,7 +253,7 @@ class EntityMaintainerServiceTest extends TestCase
 
         // Create a second message that is not yet old enough to delete
         $entity2 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE, $this->account->getAccountId());
-        $entity2->setValue("owner_id", $this->account->getAuthenticatedUser()->getEntityId());        
+        $entity2->setValue("owner_id", $this->account->getAuthenticatedUser()->getEntityId());
         $entity2->setValue("flag_spam", true);
         $entityLoader->save($entity2, $this->account->getAuthenticatedUser());
         $this->testEntities[] = $entity2;

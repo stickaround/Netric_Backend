@@ -343,9 +343,7 @@ class FilesController extends AbstractFactoriedController implements ControllerI
             $this->log->warning(
                 "FilesController->getDownloadAction: User " . $currentUser->getName() .
                     " does not have permissions to " .
-                    $fileEntity->getEntityId() . ":" . $fileEntity->getName() .
-                    " dacl:" . var_export($dacl->toArray(), true) .
-                    " user:" . var_export($currentUser->getValue('groups'), true)
+                    $fileEntity->getEntityId() . ":" . $fileEntity->getName()
             );
 
             // Return a 403
