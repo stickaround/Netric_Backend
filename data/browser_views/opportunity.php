@@ -10,13 +10,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::OPPORTUNITY,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::OPPORTUNITY,
+    'views' => [
         'my_open_opportunities' => [        
             'name' => 'My Open Opportunities',
             'description' => 'Opportunities assigned to me that are not closed',
             'default' => true,
+            'filter_fields' => ['customer_id', 'stage_id', 'type_id'],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -44,6 +44,7 @@ return [
             'name' => 'All My Opportunities',
             'description' => 'Opportunities Assigned To Me',
             'default' => false,
+            'filter_fields' => ['customer_id', 'stage_id', 'type_id'],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -65,6 +66,7 @@ return [
             'name' => 'All Open Opportunities',
             'description' => 'Opportunities Assigned To Me',
             'default' => false,
+            'filter_fields' => ['customer_id', 'stage_id', 'type_id', 'owner_id'],
             'conditions' => [
                 'closed' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -85,6 +87,7 @@ return [
         'all_opportunities' => [        
             'name' => 'All Opportunities',
             'description' => 'All Opportunities',
+            'filter_fields' => ['customer_id', 'stage_id', 'type_id', 'owner_id', 'closed'],
             'default' => false,
             'order_by' => [
                 'sort_order' => [

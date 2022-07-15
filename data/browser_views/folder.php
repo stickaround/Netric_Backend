@@ -9,13 +9,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::FOLDER,
-    "filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::FOLDER,
+    'views' => [
 			'default'=> [
 				'name' => 'Default View',
 				'description' => '',
 				'default' => true,
+				'filter_fields' => ['owner_id'],
 				'order_by' => [
 					'sort_order' => [
 							'field_name' => 'sort_order',

@@ -10,12 +10,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::HTML_TEMPLATE,
-    "views" => [
+    'obj_type' => ObjectTypes::HTML_TEMPLATE,
+    'views' => [
         'all_html_templates' => [
             'name' => 'All HTML Templates',
             'description' => 'Display all available HTML templates for all object types',
             'default' => true,
+            'filter_fields' => ['obj_type'],
             'order_by' => [
                 'obj_type' => [
                     'field_name' => 'obj_type',
@@ -33,6 +34,7 @@ return [
             'name' => 'Email Templates',
             'description' => 'HTML templates designed specifically for email messages',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'obj_type' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -54,6 +56,7 @@ return [
             'name' => 'My Templates',
             'description' => 'HTML templates designed by me',
             'default' => false,
+            'filter_fields' => ['obj_type'],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,

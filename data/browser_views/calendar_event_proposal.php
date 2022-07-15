@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::CALENDAR_EVENT_PROPOSAL,
-    "filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::CALENDAR_EVENT_PROPOSAL,
+    'views' => [
 			'meeting_proposals'=> [		
 				'name' => 'Meeting Proposals',
 				'description' => 'Meeting proposals that are still in process',
 				'default' => true,
+				'filter_fields' => [],
 				'conditions' => [
 								'closed' => [
 										'blogic' => Where::COMBINED_BY_AND,
@@ -36,6 +36,7 @@ return [
 				'name' => 'Closed Proposals',
 				'description' => 'Meeting proposals that have been closed and/or converted to events.',
 				'default' => false,
+				'filter_fields' => [],
 				'conditions' => [
 					'closed' => [
 							'blogic' => Where::COMBINED_BY_AND,
@@ -57,6 +58,7 @@ return [
 				'name' => 'All Meeting Proposals',
 				'description' => 'All Meeting Proposals',
 				'default' => false,		
+				'filter_fields' => [],
 				'order_by' => [
 					'sort_order' => [
 							'field_name' => 'sort_order',

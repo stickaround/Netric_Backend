@@ -328,33 +328,6 @@ class BrowserViewService
     }
 
     /**
-     * Get the filter from the system view based on the object type provided
-     * 
-     * @param string $objType The object type we are currently working with
-     * 
-     * @return string[]
-     */
-    public function getSystemViewFilters(string $objType)
-    {
-        if (!$objType) {
-            return [];
-        }
-
-        // Check for system view if the file exists
-        $basePath = $this->config->get("application_path") . "/data";
-        if (file_exists($basePath . "/browser_views/$objType.php")) {
-            $viewsData = include($basePath . "/browser_views/$objType.php");
-            
-            if (isset($viewsData["filters"])) {
-                return $viewsData["filters"];
-            }
-        }
-
-        // If no filters were found in the browser view file, then just return an empty array
-        return [];
-    }
-
-    /**
      * Save this view to the database
      *
      * @param BrowserView $view The view to save
@@ -521,7 +494,7 @@ class BrowserViewService
         }
 
         // Now get all views from the DB
-        $sql = "SELECT entity_view_id, name, scope, description, filter_key,
+        $sql = "SELECT entity_view_id, name, scope, description,
                     entity_definition_id, f_default, team_id,
                     owner_id, conditions_data, order_by_data, table_columns_data,
                     group_first_order_by

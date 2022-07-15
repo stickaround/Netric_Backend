@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::EMAIL_MESSAGE_ATTACHMENT,
-		"filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::EMAIL_MESSAGE_ATTACHMENT,
+    'views' => [
 			'all_email_attachments'=> [		
 				'name' => 'All Attachments',
 				'description' => 'Message Attachments',
 				'default' => true,
+				'filter_fields' => [],
 				'order_by' => [
 					'sort_order' => [
 							'field_name' => 'sort_order',

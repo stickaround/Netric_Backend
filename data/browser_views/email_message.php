@@ -8,13 +8,13 @@ namespace data\browser_views;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::EMAIL_MESSAGE,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::EMAIL_MESSAGE,
+    'views' => [
         'email_messages' => [
             'name' => 'Messages',
             'description' => '',
             'default' => true,
+            'filter_fields' => [],
             'order_by' => [
                 'date' => [
                     'field_name' => 'message_date',

@@ -1,7 +1,10 @@
- <?php
+<?php
+
 /**
  * Return browser views for entity of object type 'task'
  */
+
+namespace data\browser_views;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\TaskEntity;
@@ -9,19 +12,19 @@ use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityQuery\Where;
 
 return [
-    "obj_type" => ObjectTypes::TASK,
-    "filters" => [
-        "owner_id",
-        "project",
-        "status_id",
-        "priority_id",
-        "is_closed",
-    ],
-    "views" => [
+    'obj_type' => ObjectTypes::TASK,    
+    'views' => [
         'my_tasks' => [
             'name' => 'My Incomplete Tasks',
             'description' => 'Incomplete tasks assigned to me',
             'default' => true,
+            'filter_fields' => [
+                'project',
+                'status_id',
+                'priority_id',
+                'type_id',
+                'is_closed',
+            ],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -42,7 +45,6 @@ return [
                     'value' => TaskEntity::STATUS_DEFERRED
                 ],
             ],
-            'filter_key' => 'project',
             'group_first_order_by' => true,
             'order_by' => [
                 'status_id' => [
@@ -65,6 +67,13 @@ return [
             'name' => 'My Incomplete Tasks (due today)',
             'description' => 'Incomplete tasks assigned to me that are due today',
             'default' => false,
+            'filter_fields' => [
+                'project',
+                'status_id',
+                'priority_id',
+                'type_id',
+                'is_closed',
+            ],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -99,6 +108,13 @@ return [
         ],
     
         'all_my_tasks' => [
+            'filter_fields' => [
+                'project',
+                'status_id',
+                'priority_id',
+                'type_id',
+                'is_closed',
+            ],
             'name' => 'All My Tasks',
             'description' => 'All tasks assigned to me',
             'default' => false,
@@ -123,11 +139,19 @@ return [
             'table_columns' => ['name', 'project', 'status_id', 'deadline']
         ],
     
-        'tasks_i_have_assigned' => [
+        'tasks_i_have_assigned' => [            
             'name' => 'Tasks I Have Assigned',
             'description' => 'Tasks that were created by me but assigned to someone else',
             'default' => false,
             'group_first_order_by' => true,
+            'filter_fields' => [
+                'project',
+                'owner_id',
+                'status_id',
+                'priority_id',
+                'type_id',
+                'is_closed',
+            ],
             'conditions' => [
                 'creator' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -166,6 +190,14 @@ return [
             'description' => 'Tasks that have not been completed yet and do not have an owner',
             'default' => false,
             'group_first_order_by' => true,
+            'filter_fields' => [
+                'project',
+                'owner_id',
+                'status_id',
+                'priority_id',
+                'type_id',
+                'is_closed',
+            ],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -193,10 +225,18 @@ return [
             'table_columns' => ['name', 'project', 'status_id', 'deadline', 'owner_id']
         ],
     
-        'all_incomplete_tasks' => [
+        'all_incomplete_tasks' => [            
             'name' => 'All Incomplete Tasks',
             'description' => 'All Tasks that have not yet been completed',
             'default' => false,
+            'filter_fields' => [
+                'project',
+                'owner_id',
+                'status_id',
+                'priority_id',
+                'type_id',
+                'is_closed',
+            ],
             'conditions' => [
                 'is_closed' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -227,6 +267,14 @@ return [
             'name' => 'All Tasks',
             'description' => 'All Tasks',
             'default' => false,
+            'filter_fields' => [
+                'project',
+                'owner_id',
+                'status_id',
+                'priority_id',
+                'type_id',
+                'is_closed',
+            ],
             'order_by' => [
                 'date' => [
                     'field_name' => 'ts_entered',
@@ -244,6 +292,7 @@ return [
             'name' => 'Select',
             'description' => 'Used in entity browse modal',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'status_id_com' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -257,8 +306,7 @@ return [
                     'operator' => Where::OPERATOR_NOT_EQUAL_TO,
                     'value' => TaskEntity::STATUS_DEFERRED
                 ],
-            ],
-            'filter_key' => 'project',
+            ],            
             'group_first_order_by' => true,
             'order_by' => [
                 'status_id' => [
@@ -276,5 +324,5 @@ return [
             ],
             'table_columns' => ['name', 'project', 'status_id', 'deadline']
         ],
-    ]
+    ]    
 ];

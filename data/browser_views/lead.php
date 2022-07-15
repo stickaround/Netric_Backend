@@ -11,14 +11,14 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::LEAD,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::LEAD,
+    'views' => [
         'my_leads' => [
             'obj_type' => 'lead',
             'name' => 'My Leads',
             'description' => 'Leads Assigned To Me',
             'default' => true,
+            'filter_fields' => [],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -41,6 +41,7 @@ return [
             'name' => 'All Leads',
             'description' => 'All Leads',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,

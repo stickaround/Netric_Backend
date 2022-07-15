@@ -333,7 +333,7 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         $entity = null;
 
-        // If editing an existing etity, then load it, otherwise create a new entity
+        // If editing an existing entity, then load it, otherwise create a new entity
         if (isset($objData['entity_id']) && isset($objData['revision']) && $objData['revision'] > 0) {
             $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
         } elseif (!isset($objData['revision']) || $objData['revision'] === 0 || $objData['revision'] === null) {
@@ -599,9 +599,6 @@ class EntityController extends AbstractFactoriedController implements Controller
 
         // Return the default view
         $ret['default_view'] = $this->browserViewService->getDefaultViewForUser($def->getObjType(), $user);
-
-        // Get the system view filter
-        $ret['view_filters'] = $this->browserViewService->getSystemViewFilters($def->getObjType());
 
         // Add the currently applied DACL for this entity definition
         $defDacl = $this->daclLoader->getForEntityDefinition($def);

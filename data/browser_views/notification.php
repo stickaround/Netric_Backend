@@ -10,13 +10,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::NOTIFICATION,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::NOTIFICATION,
+    'views' => [
         'my_notifications' => [
             'name' => 'My Notifications',
             'description' => 'Display all my reminders',
             'default' => true,
+            'filter_fields' => [],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,

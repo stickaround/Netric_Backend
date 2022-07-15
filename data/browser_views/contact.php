@@ -12,13 +12,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::CONTACT,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::CONTACT,
+    'views' => [
         'allactive' => [        
             'name' => 'All Contacts',
             'description' => 'Default System View',
             'default' => true,
+            'filter_fields' => [],
             'order_by' => [
                 'name' => [
                     'field_name' => 'name',
@@ -42,6 +42,7 @@ return [
             'name' => 'Assigned to me',
             'description' => 'Default System View',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'owner' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -65,6 +66,7 @@ return [
             'name' => 'Leads',
             'description' => 'Leads are contacts that are being vetted for the possibility of becoming a prospect or customer.',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'stage_id' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -88,6 +90,7 @@ return [
             'name' => 'Prospects',
             'description' => 'Prospects are qualified leads that have a good chance of coverting to a paying customer.',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'stage_id' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -111,6 +114,7 @@ return [
             'name' => 'Customers',
             'description' => 'Customers are people who you do business with - often involving a financial transaction',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'stage_id' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -134,6 +138,7 @@ return [
             'name' => 'Inactive Contacts',
             'description' => 'Contacts that have been archived due to inactivity - no longer a lead, customer, or prospect',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'stage_id' => [
                     'blogic' => Where::COMBINED_BY_AND,

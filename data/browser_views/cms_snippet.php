@@ -6,24 +6,23 @@
 
 namespace data\browser_views;
 
-use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-	"obj_type" => ObjectTypes::HTML_SNIPPET,
-	"filters" => [],
-	"views" => [
+	'obj_type' => ObjectTypes::HTML_SNIPPET,
+	'views' => [
 		'all_snippets' => [
 			'name' => 'All Snippets',
 			'description' => 'All Snippets',
 			'default' => true,
+			'filter_fields' => [],
 			'order_by' => [
 				'name' => [
 					'field_name' => 'name',
 					'direction' => 'desc',
 				],
 			],
-			'table_columns' => ['name']
 		],
-	]
+		'table_columns' => ['name']
+	],
 ];

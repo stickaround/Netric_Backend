@@ -11,13 +11,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::ACTIVITY,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::ACTIVITY,    
+    'views' => [
         'all_activity' => [        
             'name' => 'All Activity',
             'description' => '',
             'default' => true,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'level' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -32,13 +32,14 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
 
         'my_team_activity' => [        
             'name' => 'My Team Activity',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'level' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -59,13 +60,14 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
 
         'my_activity' => [        
             'name' => 'My Activity',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'user' => [
                     'blogic' => Where::COMBINED_BY_AND,
@@ -80,19 +82,20 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
 
         'tasks' => [        
             'name' => 'Tasks',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'type' => [
                     'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'type_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
-                    'value' => "Task"
+                    'value' => 'Task'
                 ],
             ],
             'order_by' => [
@@ -101,19 +104,20 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
 
         'comments' => [        
             'name' => 'Commments',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'type' => [
                     'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'type_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
-                    'value' => "Comment"
+                    'value' => 'Comment'
                 ],
             ],
             'order_by' => [
@@ -122,7 +126,7 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
     
         'wall_posts' => [
@@ -130,12 +134,13 @@ return [
             'name' => 'Wall Posts',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'type' => [
                     'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'type_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
-                    'value' => "Wall Post"
+                    'value' => 'Wall Post'
                 ],
             ],
             'order_by' => [
@@ -144,7 +149,7 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
     
         'phone_calls' => [
@@ -152,12 +157,13 @@ return [
             'name' => 'Phone Calls',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'type' => [
                     'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'type_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
-                    'value' => "Phone Call"
+                    'value' => 'Phone Call'
                 ],
             ],
             'order_by' => [
@@ -166,19 +172,20 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
 
         'calendar_events' => [        
             'name' => 'Calendar Events',
             'description' => '',
             'default' => false,
+            'filter_fields' => [],
             'conditions' => [
                 'type' => [
                     'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'type_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
-                    'value' => "Event"
+                    'value' => 'Event'
                 ],
             ],
             'order_by' => [
@@ -187,19 +194,20 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
         
         'email' => [        
             'name' => 'Email',
             'description' => '',
             'default' => false,
+            'filter_fields' => ['type_id'],
             'conditions' => [
                 'type' => [
                     'blogic' => Where::COMBINED_BY_AND,
                     'field_name' => 'type_id',
                     'operator' => Where::OPERATOR_EQUAL_TO,
-                    'value' => "Email"
+                    'value' => 'Email'
                 ],
             ],
             'order_by' => [
@@ -208,7 +216,7 @@ return [
                     'direction' => 'desc',
                 ],
             ],
-            'table_columns' => ["name", "type_id", "direction", "ts_entered", "user_id", "notes", "obj_reference"]
+            'table_columns' => ['name', 'type_id', 'direction', 'ts_entered', 'user_id', 'notes', 'obj_reference']
         ],
     ]
 ];

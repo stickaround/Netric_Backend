@@ -9,13 +9,13 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-		"obj_type" => ObjectTypes::FILE,
-    "filters" => [],
-    "views" => [
+		'obj_type' => ObjectTypes::FILE,
+    'views' => [
 				'files_and_documents'=> [
 					'name' => 'Files & Documents',
 					'description' => 'View all files and directories',
 					'default' => true,
+					'filter_fields' => ['owner_id'],
 					'order_by' => [
 						'name' => [
 								'field_name' => 'name',

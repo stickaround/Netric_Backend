@@ -8,13 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::MARKETING_CAMPAIGN,
-    "filters" => [],
-    "views" => [
+    'obj_type' => ObjectTypes::MARKETING_CAMPAIGN,    
+    'views' => [
 			'all_campaigns'=> [
 				'name' => 'All Campaigns',
 				'description' => 'View all campaigns both active and inactive',
 				'default' => true,
+				'filter_fields' => ['status_id', 'type_id'],
 				'order_by' => [
 					'date' => [
 							'field_name' => 'date_start',

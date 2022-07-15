@@ -8,12 +8,13 @@ use Netric\EntityQuery\Where;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "obj_type" => ObjectTypes::PRODUCT,
-    "views" => [
+    'obj_type' => ObjectTypes::PRODUCT,
+    'views' => [
 				'default'=> [
 					'name' => 'Default View',
 					'description' => 'All Products',
 					'default' => true,
+					'filter_fields' => [],
 					'order_by' => [
 						'name' => [
 								'field_name' => 'name',
