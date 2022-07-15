@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\Permissions\Dacl;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 class EntityDefinitionTest extends TestCase
 {
@@ -62,8 +63,9 @@ class EntityDefinitionTest extends TestCase
         $entDef = new EntityDefinition(ObjectTypes::CONTACT, $this->account->getAccountId());
 
         // Dacl
+        $testGroupId = Uuid::uuid4();
         $dacl = new Dacl();
-        $dacl->allowGroup(UserEntity::GROUP_USERS);
+        $dacl->allowGroup($testGroupId);
 
         $data = [
             "revision" => 10,
@@ -117,7 +119,7 @@ class EntityDefinitionTest extends TestCase
 
         // Make sure the dacl was instantiated from the data
         $this->assertTrue(
-            $entDef->getDacl()->groupIsAllowed(UserEntity::GROUP_USERS, Dacl::PERM_VIEW)
+            $entDef->getDacl()->groupIsAllowed($testGroupId, Dacl::PERM_VIEW)
         );
     }
 

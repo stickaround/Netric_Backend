@@ -19,6 +19,7 @@ use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntityDefinition\ObjectTypes;
+use Ramsey\Uuid\Uuid;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -209,16 +210,18 @@ abstract class DmTestsAbstract extends TestCase
         $reloadedDef = $dataMapper->fetchByName("utest_save_dacl", $this->account->getAccountId());
         $this->assertNotNull($reloadedDef->getDacl());
 
+        $testGroupUuid = Uuid::uuid4();
+
         // Now test updating the dacl
         $daclEdit = $def->getDacl();
-        $daclEdit->allowGroup(UserEntity::GROUP_USERS, Dacl::PERM_FULL);
+        $daclEdit->allowGroup($testGroupUuid, Dacl::PERM_FULL);
         $id = $dataMapper->saveDef($def);
 
         // Reload and check DACL
         $reloadedDef = $dataMapper->fetchByName("utest_save_dacl", $this->account->getAccountId());
         $this->assertNotNull($reloadedDef->getDacl());
         $daclData = $reloadedDef->getDacl()->toArray();
-        $this->assertEquals([UserEntity::GROUP_USERS], $daclData['entries']['View']['groups']);
+        $this->assertEquals([$testGroupUuid], $daclData['entries']['View']['groups']);
     }
 
     /**
