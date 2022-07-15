@@ -296,8 +296,25 @@ abstract class EntityDataMapperAbstract extends DataMapperAbstract
         $commitId = $this->commitManager->createCommit("entities/" . $def->getObjType());
         $entity->setValue('commit_id', $commitId);
 
-        // Set defaults including ts_updated
-        $event = ($revision > 1) ? EntityEvents::EVENT_UPDATE : EntityEvents::EVENT_CREATE;
+        /*
+         * If the revision value is greater than 1, then set the $event to EVENT_UPDATE otherwise EVENT_CREATE
+         * 
+         * Make sure we set the ts_updated or ts_created to null to make sure that 
+         * server's current time will be set when calling the ::setFieldsDefault()
+         * 
+         * This will make sure that all entities being saved will have the same timezone, and we will not have
+         * any issues sorting them by date
+         */
+        if ($revision > 1) {
+            $event = EntityEvents::EVENT_UPDATE;
+            $entity->setValue("ts_updated", null);
+        } else {
+            $event = EntityEvents::EVENT_CREATE;
+            $entity->setValue("ts_entered", null);
+            $entity->setValue("ts_updated", null);
+        }
+
+        // Set defaults including ts_updated and ts_entered
         $entity->setFieldsDefault($event, $user);
 
         // Create a unique name or human-readable number - UUIDs are hard to remember

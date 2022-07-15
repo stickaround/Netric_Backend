@@ -23,6 +23,7 @@ use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\Recurrence\RecurrenceDataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
+use DateTime;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -215,6 +216,10 @@ abstract class DmTestsAbstract extends TestCase
         $customer->addMultiValue("groups", $groupsGrp->getGroupId(), $groupsGrp->getName());
         // Cache returned time
         $contactedTime = $customer->getValue("last_contacted");
+
+        // Try to set ts_entered, it should not use the pre-set value, instead it will use the server time.
+        $customer->setValue("ts_entered", "January 01, 2000");
+
         $cid = $dm->save($customer, $this->user);
         $this->assertNotEquals(false, $cid);
 
@@ -234,6 +239,9 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($ent->getValueName("groups"), $groupsGrp->getName());
         $this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
+        // ts_entered should not be equal to january 01, 2000
+        $this->assertNotEquals(date("m-d-Y", $ent->getValue("ts_entered")), "01-01-2000");
+        
         // Cleanup groupings
         $groupingsStat->delete($statGrp->getGroupId());
         $this->groupingDataMapper->saveGroupings($groupingsStat);
@@ -260,9 +268,16 @@ abstract class DmTestsAbstract extends TestCase
 
         // Save the entity again and make sure the IDs are the same
         $cmsSite->setValue("name", 'utest-edited');
+
+        // Also update try to update ts_updated with an old date
+        $cmsSite->setValue("ts_updated", "January 01, 2000");
+
         $savedAgainCid = $dm->save($cmsSite, $this->user);
         $this->assertEquals($cid, $savedAgainCid);
         $this->assertEquals($cid, $cmsSite->getEntityId());
+
+        // ts_updated should use the server time when updating an entity and not the pre-set value january 01, 2000
+        $this->assertNotEquals(date("m-d-Y", $cmsSite->getValue("ts_updated")), "01-01-2000");
 
         // And finally soft-delete and once again assure the IDs are unchanged
         $dm->delete($cmsSite, $this->account->getAuthenticatedUser());

@@ -337,17 +337,6 @@ class EntityController extends AbstractFactoriedController implements Controller
         if (isset($objData['entity_id']) && isset($objData['revision']) && $objData['revision'] > 0) {
             $entity = $this->entityLoader->getEntityById($objData['entity_id'], $currentAccount->getAccountId());
         } elseif (!isset($objData['revision']) || $objData['revision'] === 0 || $objData['revision'] === null) {
-
-            /*
-             * If we are creating a new entity, make sure that the ts_entered has no value,
-             * so that the database will create its default value which is the current timestamp of the db.
-             * 
-             * Check data/entity_definition/default.php - ts_entered
-             * You will see that the default value ('now') will be set on create.
-             * 
-             * This will make sure that all entities being saved will have a the same timezone
-             */
-            $objData['ts_entered'] = null;
             $entity = $this->entityLoader->create($objData['obj_type'], $currentAccount->getAccountId());
         }
 
