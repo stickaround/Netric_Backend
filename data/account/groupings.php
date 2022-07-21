@@ -26,7 +26,7 @@ return [
             ["name" => TaskEntity::STATUS_TODO, "sort_oder" => 1],
             ["name" => TaskEntity::STATUS_IN_PROGRESS, "sort_oder" => 2],
             // ["name" => TaskEntity::STATUS_IN_TEST, "sort_oder" => 3],
-            // ["name" => TaskEntity::STATUS_IN_REVIEW, "sort_oder" => 4],
+            ["name" => TaskEntity::STATUS_IN_REVIEW, "sort_oder" => 4],
             ["name" => TaskEntity::STATUS_DEFERRED, "sort_oder" => 5],
             ["name" => TaskEntity::STATUS_COMPLETED, "sort_oder" => 6],
         ],
