@@ -223,7 +223,7 @@ class Notifier
                 $description = $entity->getValueName("obj_reference", $objReference);
                 $name = "$ownerName reacted with " . $entity->getValue("reaction");
                 // Replace icon names with unicode characters for notifications
-                $name = str_replace("ThumbsUpIcon", "\u{1F44D}", $name);
+                $name = str_replace("ThumbUpIcon", "\u{1F44D}", $name);
             }
 
             // Create new notification, or update an existing unseen one
