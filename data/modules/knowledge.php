@@ -12,11 +12,11 @@ use Netric\Account\Module\LeftNavItemTypes;
 use Netric\EntityDefinition\ObjectTypes;
 
 return [
-    "title" => "Document",
+    "title" => "Note",
     "icon" => "AssignmentIcon",
     "default_route" => "my-notes",
     "name" => "knowledge",
-    "short_title" => 'Document',
+    "short_title" => 'Note',
     "scope" => 'system',
     "sort_order" => 3,
     "f_system" => true,

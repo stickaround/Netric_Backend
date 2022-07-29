@@ -213,6 +213,19 @@ class Notifier
                 }
             }
 
+            /*
+             * If this is a reaction, point the object reference
+             * to the entity reacted to.
+             */
+            if ($objType == ObjectTypes::USER_REACTION) {
+                $objReference = $entity->getValue("obj_reference");
+                $ownerName = $entity->getValueName("owner_id");
+                $description = $entity->getValueName("obj_reference", $objReference);
+                $name = "$ownerName reacted with " . $entity->getValue("reaction");
+                // Replace icon names with unicode characters for notifications
+                $name = str_replace("ThumbUpIcon", "\u{1F44D}", $name);
+            }
+
             // Create new notification, or update an existing unseen one
             $notification = $this->getNotification($objReference, $followerId, $user->getAccountId());
             $notification->setValue("name", $name);
@@ -378,90 +391,6 @@ class Notifier
 
         $this->sendNotificationPush($notification, $user);
     }
-
-    // /**
-    //  * Email a notification to a public user
-    //  *
-    //  * @param NotificationEntity $notification Notification to send
-    //  * @param UserEntity $user The user who performed the action causing the notification
-    //  */
-    // private function sendPublicNotificationEmail(NotificationEntity $notification, UserEntity $user): void
-    // {
-    //     // Make sure the notification has an owner or a creator
-    //     if (
-    //         empty($notification->getValue("owner_id")) ||
-    //         empty($notification->getValue("creator_id"))
-    //     ) {
-    //         return;
-    //     }
-
-    //     // Get the user that owns this notice
-    //     $user = $this->entityLoader->getEntityById(
-    //         $notification->getValue("owner_id"),
-    //         $user->getAccountId()
-    //     );
-
-    //     // Get the user that triggered this notice
-    //     $creator = $this->entityLoader->getEntityById(
-    //         $notification->getValue("creator_id"),
-    //         $user->getAccountId()
-    //     );
-
-    //     // Make sure the user has an email
-    //     if (!$user || !$user->getValue("email")) {
-    //         return;
-    //     }
-
-    //     // Get the referenced entity
-    //     $objReference = $notification->getValue("obj_reference");
-    //     $referencedEntity = $this->entityLoader->getEntityById(
-    //         $objReference,
-    //         $user->getAccountId()
-    //     );
-    //     $def = $referencedEntity->getDefinition();
-
-    //     // Set the body
-    //     $body = $creator->getName() . " - " . $notification->getName('name') . " on ";
-    //     $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
-    //     $body .= "---------------------------------------\r\n\r\n";
-    //     $body .= $def->getTitle() . ": " . $referencedEntity->getName();
-
-    //     // If there is a notification description, then include it in the body
-    //     $description = $notification->getValue("description");
-    //     if ($description) {
-    //         $body .= "\r\n\r\n";
-
-    //         // If the description is already directed to a user, there is no need to add the Details text
-    //         if (!preg_match('/(directed a comment at you:)/', $description)) {
-    //             $body .= "Details: ";
-    //         }
-
-    //         $body .= "\r$description";
-    //     }
-
-    //     // TODO: Add link to body
-    //     // $body .= "\r\n\r\nLink: \r";
-    //     // $body .= $config->application_url . "/browse/" . $referencedEntity->getEntityId();
-    //     // $body .= "\r\n\r\n---------------------------------------\r\n\r\n";
-    //     // $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
-
-    //     // // Set from
-    //     // $fromEmail = $config->email['noreply'];
-    //     $fromEmail = 'comment.' . $referencedEntity->getEntityId() . '@aereus.netric.com';
-
-    //     // TODO: Handle from
-    //     // If this is a support, then we should reply from the email address,
-    //     // otherwise we can use the comment dropbox
-
-    //     $this->mailSenderService->send(
-    //         $user->getValue("email"),
-    //         $user->getValue("full_name"),
-    //         $fromEmail,
-    //         "Support",
-    //         $notification->getName('name'),
-    //         $body
-    //     );
-    // }
 
     /**
      * Push a notification to a push channel like chrome html push or apple push notificaiton service
